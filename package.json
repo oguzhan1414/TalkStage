@@ -1,0 +1,13 @@
+{
+  "name": "talkstage",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "mobile",
+    "landing"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=mobile",
+    "landing": "npm run dev --workspace=landing"
+  }
+}
