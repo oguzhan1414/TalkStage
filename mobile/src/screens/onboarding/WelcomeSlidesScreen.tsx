@@ -1,23 +1,21 @@
 import { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../../components/Button';
+import { onboardingHero } from '../../assets/images';
 import { colors, spacing, typography } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 
 const SLIDES = [
   {
-    emoji: '🎭',
     title: 'Konuşamadığın İngilizce geride kaldı.',
     subtitle: 'Sahneye çık.',
   },
   {
-    emoji: '🗣️',
     title: 'Gramer ezberlemeyi bırak.',
     subtitle: 'Gerçek sahnede, gerçek karşılıklarla konuş.',
   },
   {
-    emoji: '⚡',
     title: 'Hatanı anında gör.',
     subtitle: 'Türkçe anlık geri bildirimle özgüven kazan.',
   },
@@ -43,7 +41,7 @@ export function WelcomeSlidesScreen({ navigation }: OnboardingStackScreenProps<'
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.emoji}>{slide.emoji}</Text>
+        <Image source={onboardingHero} style={styles.hero} resizeMode="contain" />
         <Text style={styles.title}>{slide.title}</Text>
         <Text style={styles.subtitle}>{slide.subtitle}</Text>
       </View>
@@ -75,8 +73,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.md,
   },
-  emoji: {
-    fontSize: 64,
+  hero: {
+    width: '80%',
+    height: 280,
     marginBottom: spacing.md,
   },
   title: {

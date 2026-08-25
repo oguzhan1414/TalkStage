@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
+import { calibrationImages, cefrLevelImages } from '../../assets/images';
 import { Button } from '../../components/Button';
+import { MicPermissionPrompt } from '../../components/MicPermissionPrompt';
+import { Waveform } from '../../components/Waveform';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { useMicRecorder } from '../../hooks/useMicRecorder';
+import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { api, ApiError } from '../../lib/api';
 import { colors, radii, shadow, spacing, typography } from '../../theme/tokens';
 import type { CalibrationResult } from '../../types/api';
@@ -19,7 +22,7 @@ const QUESTIONS = [
 export function CalibrationScreen({ route }: OnboardingStackScreenProps<'Calibration'>) {
   const { interests } = route.params;
   const { completeOnboarding } = useOnboarding();
-  const { isRecording, permissionDenied, start, stop } = useMicRecorder();
+  const { isRecording, meteringDb, permissionDenied, start, stop } = useVoiceRecorder();
 
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answerUris, setAnswerUris] = useState<string[]>([]);
@@ -70,9 +73,13 @@ export function CalibrationScreen({ route }: OnboardingStackScreenProps<'Calibra
   const finish = () => completeOnboarding(interests);
 
   if (result) {
+    const levelImage = cefrLevelImages[result.cefr_level];
     return (
       <SafeAreaView style={styles.container}>
         <View style={[styles.resultCard, shadow.card]}>
+          {levelImage ? (
+            <Image source={levelImage} style={styles.resultLevelImage} resizeMode="contain" />
+          ) : null}
           <Text style={styles.resultLevel}>{result.cefr_level}</Text>
           <Text style={styles.resultSummary}>{result.summary_tr}</Text>
         </View>
@@ -90,15 +97,19 @@ export function CalibrationScreen({ route }: OnboardingStackScreenProps<'Calibra
         </Text>
       </View>
 
+      {permissionDenied ? (
+        <MicPermissionPrompt onRequestPermission={start} />
+      ) : isRecording ? (
+        <Waveform meteringDb={meteringDb} active={isRecording} />
+      ) : (
+        <Image source={calibrationImages.micOrb} style={styles.micImage} resizeMode="contain" />
+      )}
+
       <View style={[styles.questionCard, shadow.card]}>
         <Text style={styles.questionText}>{QUESTIONS[questionIndex]}</Text>
       </View>
 
-      {permissionDenied ? (
-        <Text style={styles.error}>Mikrofon izni verilmedi. Ayarlardan izin vermen gerekiyor.</Text>
-      ) : error ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Button
         label={submitting ? 'Değerlendiriliyor…' : isRecording ? 'Kaydı Bitir' : 'Kayda Başla'}
@@ -126,6 +137,11 @@ const styles = StyleSheet.create({
   },
   title: { ...typography.h1 },
   subtitle: { ...typography.body },
+  micImage: {
+    width: 140,
+    height: 140,
+    alignSelf: 'center',
+  },
   questionCard: {
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
@@ -144,6 +160,10 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  resultLevelImage: {
+    width: 120,
+    height: 120,
   },
   resultLevel: {
     ...typography.h1,
