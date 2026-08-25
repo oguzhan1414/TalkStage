@@ -1,0 +1,2882 @@
+{
+  "podcast_a1_ep01_the_morning_": {
+    "total_sec": 83.7,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.34
+      },
+      {
+        "index": 2,
+        "startSec": 10.3,
+        "duration": 6.58
+      },
+      {
+        "index": 3,
+        "startSec": 16.9,
+        "duration": 4.9
+      },
+      {
+        "index": 4,
+        "startSec": 21.8,
+        "duration": 3.5
+      },
+      {
+        "index": 5,
+        "startSec": 25.3,
+        "duration": 5.57
+      },
+      {
+        "index": 6,
+        "startSec": 30.9,
+        "duration": 4.32
+      },
+      {
+        "index": 7,
+        "startSec": 35.2,
+        "duration": 4.42
+      },
+      {
+        "index": 8,
+        "startSec": 39.6,
+        "duration": 5.4
+      },
+      {
+        "index": 9,
+        "startSec": 45.0,
+        "duration": 4.87
+      },
+      {
+        "index": 10,
+        "startSec": 49.9,
+        "duration": 8.35
+      },
+      {
+        "index": 11,
+        "startSec": 58.2,
+        "duration": 5.35
+      },
+      {
+        "index": 12,
+        "startSec": 63.6,
+        "duration": 4.1
+      },
+      {
+        "index": 13,
+        "startSec": 67.7,
+        "duration": 3.6
+      },
+      {
+        "index": 14,
+        "startSec": 71.3,
+        "duration": 3.72
+      },
+      {
+        "index": 15,
+        "startSec": 75.0,
+        "duration": 8.69
+      }
+    ]
+  },
+  "podcast_a1_ep02_morning_alar": {
+    "total_sec": 79.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.47
+      },
+      {
+        "index": 2,
+        "startSec": 8.5,
+        "duration": 6.98
+      },
+      {
+        "index": 3,
+        "startSec": 15.5,
+        "duration": 9.0
+      },
+      {
+        "index": 4,
+        "startSec": 24.5,
+        "duration": 8.02
+      },
+      {
+        "index": 5,
+        "startSec": 32.5,
+        "duration": 5.04
+      },
+      {
+        "index": 6,
+        "startSec": 37.5,
+        "duration": 5.64
+      },
+      {
+        "index": 7,
+        "startSec": 43.2,
+        "duration": 6.94
+      },
+      {
+        "index": 8,
+        "startSec": 50.1,
+        "duration": 2.62
+      },
+      {
+        "index": 9,
+        "startSec": 52.7,
+        "duration": 6.41
+      },
+      {
+        "index": 10,
+        "startSec": 59.1,
+        "duration": 7.06
+      },
+      {
+        "index": 11,
+        "startSec": 66.2,
+        "duration": 4.68
+      },
+      {
+        "index": 12,
+        "startSec": 70.8,
+        "duration": 8.23
+      }
+    ]
+  },
+  "podcast_a1_ep03_lost_in_the_": {
+    "total_sec": 78.4,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.31
+      },
+      {
+        "index": 2,
+        "startSec": 9.3,
+        "duration": 6.07
+      },
+      {
+        "index": 3,
+        "startSec": 15.4,
+        "duration": 3.6
+      },
+      {
+        "index": 4,
+        "startSec": 19.0,
+        "duration": 4.9
+      },
+      {
+        "index": 5,
+        "startSec": 23.9,
+        "duration": 5.21
+      },
+      {
+        "index": 6,
+        "startSec": 29.1,
+        "duration": 3.36
+      },
+      {
+        "index": 7,
+        "startSec": 32.4,
+        "duration": 6.34
+      },
+      {
+        "index": 8,
+        "startSec": 38.8,
+        "duration": 4.63
+      },
+      {
+        "index": 9,
+        "startSec": 43.4,
+        "duration": 9.55
+      },
+      {
+        "index": 10,
+        "startSec": 53.0,
+        "duration": 6.05
+      },
+      {
+        "index": 11,
+        "startSec": 59.0,
+        "duration": 4.15
+      },
+      {
+        "index": 12,
+        "startSec": 63.2,
+        "duration": 2.59
+      },
+      {
+        "index": 13,
+        "startSec": 65.8,
+        "duration": 4.08
+      },
+      {
+        "index": 14,
+        "startSec": 69.8,
+        "duration": 8.54
+      }
+    ]
+  },
+  "podcast_a1_ep04_dinner_at_th": {
+    "total_sec": 77.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.74
+      },
+      {
+        "index": 2,
+        "startSec": 8.7,
+        "duration": 6.6
+      },
+      {
+        "index": 3,
+        "startSec": 15.3,
+        "duration": 5.98
+      },
+      {
+        "index": 4,
+        "startSec": 21.3,
+        "duration": 7.44
+      },
+      {
+        "index": 5,
+        "startSec": 28.8,
+        "duration": 4.03
+      },
+      {
+        "index": 6,
+        "startSec": 32.8,
+        "duration": 4.27
+      },
+      {
+        "index": 7,
+        "startSec": 37.1,
+        "duration": 5.21
+      },
+      {
+        "index": 8,
+        "startSec": 42.3,
+        "duration": 4.37
+      },
+      {
+        "index": 9,
+        "startSec": 46.6,
+        "duration": 5.5
+      },
+      {
+        "index": 10,
+        "startSec": 52.1,
+        "duration": 4.63
+      },
+      {
+        "index": 11,
+        "startSec": 56.8,
+        "duration": 6.74
+      },
+      {
+        "index": 12,
+        "startSec": 63.5,
+        "duration": 6.14
+      },
+      {
+        "index": 13,
+        "startSec": 69.6,
+        "duration": 7.54
+      }
+    ]
+  },
+  "podcast_a1_ep05_weekend_memo": {
+    "total_sec": 72.8,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.67
+      },
+      {
+        "index": 2,
+        "startSec": 9.7,
+        "duration": 4.2
+      },
+      {
+        "index": 3,
+        "startSec": 13.9,
+        "duration": 7.27
+      },
+      {
+        "index": 4,
+        "startSec": 21.1,
+        "duration": 5.09
+      },
+      {
+        "index": 5,
+        "startSec": 26.2,
+        "duration": 5.93
+      },
+      {
+        "index": 6,
+        "startSec": 32.2,
+        "duration": 5.66
+      },
+      {
+        "index": 7,
+        "startSec": 37.8,
+        "duration": 5.3
+      },
+      {
+        "index": 8,
+        "startSec": 43.1,
+        "duration": 7.18
+      },
+      {
+        "index": 9,
+        "startSec": 50.3,
+        "duration": 5.26
+      },
+      {
+        "index": 10,
+        "startSec": 55.6,
+        "duration": 2.21
+      },
+      {
+        "index": 11,
+        "startSec": 57.8,
+        "duration": 3.6
+      },
+      {
+        "index": 12,
+        "startSec": 61.4,
+        "duration": 4.58
+      },
+      {
+        "index": 13,
+        "startSec": 66.0,
+        "duration": 6.89
+      }
+    ]
+  },
+  "podcast_a1_ep06_meeting_a_ne": {
+    "total_sec": 74.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.4
+      },
+      {
+        "index": 2,
+        "startSec": 8.4,
+        "duration": 5.76
+      },
+      {
+        "index": 3,
+        "startSec": 14.2,
+        "duration": 5.54
+      },
+      {
+        "index": 4,
+        "startSec": 19.7,
+        "duration": 5.64
+      },
+      {
+        "index": 5,
+        "startSec": 25.3,
+        "duration": 4.73
+      },
+      {
+        "index": 6,
+        "startSec": 30.1,
+        "duration": 7.27
+      },
+      {
+        "index": 7,
+        "startSec": 37.3,
+        "duration": 5.04
+      },
+      {
+        "index": 8,
+        "startSec": 42.4,
+        "duration": 9.1
+      },
+      {
+        "index": 9,
+        "startSec": 51.5,
+        "duration": 4.08
+      },
+      {
+        "index": 10,
+        "startSec": 55.6,
+        "duration": 6.41
+      },
+      {
+        "index": 11,
+        "startSec": 62.0,
+        "duration": 4.92
+      },
+      {
+        "index": 12,
+        "startSec": 66.9,
+        "duration": 7.2
+      }
+    ]
+  },
+  "podcast_a1_ep07_grocery_shop": {
+    "total_sec": 73.5,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.42
+      },
+      {
+        "index": 2,
+        "startSec": 8.4,
+        "duration": 3.98
+      },
+      {
+        "index": 3,
+        "startSec": 12.4,
+        "duration": 5.47
+      },
+      {
+        "index": 4,
+        "startSec": 17.9,
+        "duration": 4.66
+      },
+      {
+        "index": 5,
+        "startSec": 22.5,
+        "duration": 4.63
+      },
+      {
+        "index": 6,
+        "startSec": 27.2,
+        "duration": 4.34
+      },
+      {
+        "index": 7,
+        "startSec": 31.5,
+        "duration": 2.64
+      },
+      {
+        "index": 8,
+        "startSec": 34.2,
+        "duration": 5.78
+      },
+      {
+        "index": 9,
+        "startSec": 39.9,
+        "duration": 4.15
+      },
+      {
+        "index": 10,
+        "startSec": 44.1,
+        "duration": 4.34
+      },
+      {
+        "index": 11,
+        "startSec": 48.4,
+        "duration": 5.47
+      },
+      {
+        "index": 12,
+        "startSec": 53.9,
+        "duration": 4.63
+      },
+      {
+        "index": 13,
+        "startSec": 58.5,
+        "duration": 5.09
+      },
+      {
+        "index": 14,
+        "startSec": 63.6,
+        "duration": 2.28
+      },
+      {
+        "index": 15,
+        "startSec": 65.9,
+        "duration": 7.58
+      }
+    ]
+  },
+  "podcast_a1_ep08_my_family_ho": {
+    "total_sec": 66.7,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 6.79
+      },
+      {
+        "index": 2,
+        "startSec": 6.8,
+        "duration": 2.86
+      },
+      {
+        "index": 3,
+        "startSec": 9.6,
+        "duration": 5.38
+      },
+      {
+        "index": 4,
+        "startSec": 15.0,
+        "duration": 2.21
+      },
+      {
+        "index": 5,
+        "startSec": 17.2,
+        "duration": 4.68
+      },
+      {
+        "index": 6,
+        "startSec": 21.9,
+        "duration": 4.85
+      },
+      {
+        "index": 7,
+        "startSec": 26.8,
+        "duration": 8.54
+      },
+      {
+        "index": 8,
+        "startSec": 35.3,
+        "duration": 3.17
+      },
+      {
+        "index": 9,
+        "startSec": 38.5,
+        "duration": 7.32
+      },
+      {
+        "index": 10,
+        "startSec": 45.8,
+        "duration": 7.15
+      },
+      {
+        "index": 11,
+        "startSec": 52.9,
+        "duration": 4.9
+      },
+      {
+        "index": 12,
+        "startSec": 57.8,
+        "duration": 1.8
+      },
+      {
+        "index": 13,
+        "startSec": 59.6,
+        "duration": 7.03
+      }
+    ]
+  },
+  "podcast_a1_ep09_at_the_pharm": {
+    "total_sec": 73.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.74
+      },
+      {
+        "index": 2,
+        "startSec": 8.7,
+        "duration": 3.65
+      },
+      {
+        "index": 3,
+        "startSec": 12.4,
+        "duration": 7.13
+      },
+      {
+        "index": 4,
+        "startSec": 19.5,
+        "duration": 4.42
+      },
+      {
+        "index": 5,
+        "startSec": 23.9,
+        "duration": 5.06
+      },
+      {
+        "index": 6,
+        "startSec": 29.0,
+        "duration": 5.69
+      },
+      {
+        "index": 7,
+        "startSec": 34.7,
+        "duration": 2.62
+      },
+      {
+        "index": 8,
+        "startSec": 37.3,
+        "duration": 4.63
+      },
+      {
+        "index": 9,
+        "startSec": 41.9,
+        "duration": 7.56
+      },
+      {
+        "index": 10,
+        "startSec": 49.5,
+        "duration": 5.69
+      },
+      {
+        "index": 11,
+        "startSec": 55.2,
+        "duration": 1.8
+      },
+      {
+        "index": 12,
+        "startSec": 57.0,
+        "duration": 6.0
+      },
+      {
+        "index": 13,
+        "startSec": 63.0,
+        "duration": 2.9
+      },
+      {
+        "index": 14,
+        "startSec": 65.9,
+        "duration": 7.27
+      }
+    ]
+  },
+  "podcast_a1_ep10_a_simple_pho": {
+    "total_sec": 76.9,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.18
+      },
+      {
+        "index": 2,
+        "startSec": 8.2,
+        "duration": 5.81
+      },
+      {
+        "index": 3,
+        "startSec": 14.0,
+        "duration": 8.04
+      },
+      {
+        "index": 4,
+        "startSec": 22.0,
+        "duration": 4.63
+      },
+      {
+        "index": 5,
+        "startSec": 26.7,
+        "duration": 3.0
+      },
+      {
+        "index": 6,
+        "startSec": 29.7,
+        "duration": 7.51
+      },
+      {
+        "index": 7,
+        "startSec": 37.2,
+        "duration": 3.1
+      },
+      {
+        "index": 8,
+        "startSec": 40.3,
+        "duration": 2.88
+      },
+      {
+        "index": 9,
+        "startSec": 43.2,
+        "duration": 3.12
+      },
+      {
+        "index": 10,
+        "startSec": 46.3,
+        "duration": 3.86
+      },
+      {
+        "index": 11,
+        "startSec": 50.1,
+        "duration": 4.03
+      },
+      {
+        "index": 12,
+        "startSec": 54.2,
+        "duration": 7.94
+      },
+      {
+        "index": 13,
+        "startSec": 62.1,
+        "duration": 4.2
+      },
+      {
+        "index": 14,
+        "startSec": 66.3,
+        "duration": 3.19
+      },
+      {
+        "index": 15,
+        "startSec": 69.5,
+        "duration": 7.37
+      }
+    ]
+  },
+  "podcast_a2_ep01_boarding_pas": {
+    "total_sec": 92.3,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.67
+      },
+      {
+        "index": 2,
+        "startSec": 9.7,
+        "duration": 7.49
+      },
+      {
+        "index": 3,
+        "startSec": 17.2,
+        "duration": 5.16
+      },
+      {
+        "index": 4,
+        "startSec": 22.3,
+        "duration": 5.09
+      },
+      {
+        "index": 5,
+        "startSec": 27.4,
+        "duration": 3.12
+      },
+      {
+        "index": 6,
+        "startSec": 30.5,
+        "duration": 8.71
+      },
+      {
+        "index": 7,
+        "startSec": 39.2,
+        "duration": 5.45
+      },
+      {
+        "index": 8,
+        "startSec": 44.7,
+        "duration": 6.14
+      },
+      {
+        "index": 9,
+        "startSec": 50.8,
+        "duration": 4.37
+      },
+      {
+        "index": 10,
+        "startSec": 55.2,
+        "duration": 9.02
+      },
+      {
+        "index": 11,
+        "startSec": 64.2,
+        "duration": 4.32
+      },
+      {
+        "index": 12,
+        "startSec": 68.5,
+        "duration": 10.03
+      },
+      {
+        "index": 13,
+        "startSec": 78.6,
+        "duration": 4.1
+      },
+      {
+        "index": 14,
+        "startSec": 82.7,
+        "duration": 2.21
+      },
+      {
+        "index": 15,
+        "startSec": 84.9,
+        "duration": 7.39
+      }
+    ]
+  },
+  "podcast_a2_ep02_hotel_check_": {
+    "total_sec": 81.6,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 7.94
+      },
+      {
+        "index": 2,
+        "startSec": 7.9,
+        "duration": 6.48
+      },
+      {
+        "index": 3,
+        "startSec": 14.4,
+        "duration": 6.14
+      },
+      {
+        "index": 4,
+        "startSec": 20.6,
+        "duration": 11.04
+      },
+      {
+        "index": 5,
+        "startSec": 31.6,
+        "duration": 3.02
+      },
+      {
+        "index": 6,
+        "startSec": 34.6,
+        "duration": 8.4
+      },
+      {
+        "index": 7,
+        "startSec": 43.0,
+        "duration": 4.06
+      },
+      {
+        "index": 8,
+        "startSec": 47.1,
+        "duration": 7.32
+      },
+      {
+        "index": 9,
+        "startSec": 54.4,
+        "duration": 6.7
+      },
+      {
+        "index": 10,
+        "startSec": 61.1,
+        "duration": 7.18
+      },
+      {
+        "index": 11,
+        "startSec": 68.3,
+        "duration": 3.43
+      },
+      {
+        "index": 12,
+        "startSec": 71.7,
+        "duration": 4.51
+      },
+      {
+        "index": 13,
+        "startSec": 76.2,
+        "duration": 5.42
+      }
+    ]
+  },
+  "podcast_a2_ep03_shopping_spr": {
+    "total_sec": 81.6,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.48
+      },
+      {
+        "index": 2,
+        "startSec": 9.5,
+        "duration": 4.66
+      },
+      {
+        "index": 3,
+        "startSec": 14.1,
+        "duration": 10.18
+      },
+      {
+        "index": 4,
+        "startSec": 24.3,
+        "duration": 10.01
+      },
+      {
+        "index": 5,
+        "startSec": 34.3,
+        "duration": 4.63
+      },
+      {
+        "index": 6,
+        "startSec": 39.0,
+        "duration": 4.27
+      },
+      {
+        "index": 7,
+        "startSec": 43.2,
+        "duration": 2.14
+      },
+      {
+        "index": 8,
+        "startSec": 45.4,
+        "duration": 4.34
+      },
+      {
+        "index": 9,
+        "startSec": 49.7,
+        "duration": 9.86
+      },
+      {
+        "index": 10,
+        "startSec": 59.6,
+        "duration": 4.85
+      },
+      {
+        "index": 11,
+        "startSec": 64.4,
+        "duration": 6.12
+      },
+      {
+        "index": 12,
+        "startSec": 70.5,
+        "duration": 3.43
+      },
+      {
+        "index": 13,
+        "startSec": 74.0,
+        "duration": 7.68
+      }
+    ]
+  },
+  "podcast_a2_ep04_a_doctor_s_v": {
+    "total_sec": 86.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.86
+      },
+      {
+        "index": 2,
+        "startSec": 9.9,
+        "duration": 4.9
+      },
+      {
+        "index": 3,
+        "startSec": 14.8,
+        "duration": 7.08
+      },
+      {
+        "index": 4,
+        "startSec": 21.8,
+        "duration": 4.25
+      },
+      {
+        "index": 5,
+        "startSec": 26.1,
+        "duration": 6.36
+      },
+      {
+        "index": 6,
+        "startSec": 32.4,
+        "duration": 14.59
+      },
+      {
+        "index": 7,
+        "startSec": 47.0,
+        "duration": 2.78
+      },
+      {
+        "index": 8,
+        "startSec": 49.8,
+        "duration": 11.52
+      },
+      {
+        "index": 9,
+        "startSec": 61.3,
+        "duration": 2.88
+      },
+      {
+        "index": 10,
+        "startSec": 64.2,
+        "duration": 11.98
+      },
+      {
+        "index": 11,
+        "startSec": 76.2,
+        "duration": 3.26
+      },
+      {
+        "index": 12,
+        "startSec": 79.5,
+        "duration": 6.55
+      }
+    ]
+  },
+  "podcast_a2_ep05_cinema_night": {
+    "total_sec": 81.6,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.64
+      },
+      {
+        "index": 2,
+        "startSec": 8.6,
+        "duration": 7.08
+      },
+      {
+        "index": 3,
+        "startSec": 15.7,
+        "duration": 7.37
+      },
+      {
+        "index": 4,
+        "startSec": 23.1,
+        "duration": 8.57
+      },
+      {
+        "index": 5,
+        "startSec": 31.7,
+        "duration": 4.32
+      },
+      {
+        "index": 6,
+        "startSec": 36.0,
+        "duration": 5.88
+      },
+      {
+        "index": 7,
+        "startSec": 41.9,
+        "duration": 9.74
+      },
+      {
+        "index": 8,
+        "startSec": 51.6,
+        "duration": 5.11
+      },
+      {
+        "index": 9,
+        "startSec": 56.7,
+        "duration": 6.55
+      },
+      {
+        "index": 10,
+        "startSec": 63.3,
+        "duration": 6.67
+      },
+      {
+        "index": 11,
+        "startSec": 69.9,
+        "duration": 4.42
+      },
+      {
+        "index": 12,
+        "startSec": 74.4,
+        "duration": 7.2
+      }
+    ]
+  },
+  "podcast_a2_ep06_renting_a_ca": {
+    "total_sec": 97.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.95
+      },
+      {
+        "index": 2,
+        "startSec": 9.0,
+        "duration": 6.7
+      },
+      {
+        "index": 3,
+        "startSec": 15.6,
+        "duration": 5.78
+      },
+      {
+        "index": 4,
+        "startSec": 21.4,
+        "duration": 8.64
+      },
+      {
+        "index": 5,
+        "startSec": 30.1,
+        "duration": 3.17
+      },
+      {
+        "index": 6,
+        "startSec": 33.2,
+        "duration": 10.49
+      },
+      {
+        "index": 7,
+        "startSec": 43.7,
+        "duration": 2.81
+      },
+      {
+        "index": 8,
+        "startSec": 46.5,
+        "duration": 11.4
+      },
+      {
+        "index": 9,
+        "startSec": 57.9,
+        "duration": 7.39
+      },
+      {
+        "index": 10,
+        "startSec": 65.3,
+        "duration": 6.43
+      },
+      {
+        "index": 11,
+        "startSec": 71.8,
+        "duration": 3.58
+      },
+      {
+        "index": 12,
+        "startSec": 75.3,
+        "duration": 9.74
+      },
+      {
+        "index": 13,
+        "startSec": 85.1,
+        "duration": 3.5
+      },
+      {
+        "index": 14,
+        "startSec": 88.6,
+        "duration": 8.42
+      }
+    ]
+  },
+  "podcast_a2_ep07_tech_support": {
+    "total_sec": 89.3,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.41
+      },
+      {
+        "index": 2,
+        "startSec": 9.4,
+        "duration": 7.34
+      },
+      {
+        "index": 3,
+        "startSec": 16.8,
+        "duration": 7.27
+      },
+      {
+        "index": 4,
+        "startSec": 24.0,
+        "duration": 5.21
+      },
+      {
+        "index": 5,
+        "startSec": 29.2,
+        "duration": 4.68
+      },
+      {
+        "index": 6,
+        "startSec": 33.9,
+        "duration": 9.38
+      },
+      {
+        "index": 7,
+        "startSec": 43.3,
+        "duration": 7.44
+      },
+      {
+        "index": 8,
+        "startSec": 50.7,
+        "duration": 7.97
+      },
+      {
+        "index": 9,
+        "startSec": 58.7,
+        "duration": 4.13
+      },
+      {
+        "index": 10,
+        "startSec": 62.8,
+        "duration": 9.05
+      },
+      {
+        "index": 11,
+        "startSec": 71.9,
+        "duration": 5.59
+      },
+      {
+        "index": 12,
+        "startSec": 77.5,
+        "duration": 4.42
+      },
+      {
+        "index": 13,
+        "startSec": 81.9,
+        "duration": 7.44
+      }
+    ]
+  },
+  "podcast_a2_ep08_inviting_a_f": {
+    "total_sec": 81.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.93
+      },
+      {
+        "index": 2,
+        "startSec": 8.9,
+        "duration": 4.73
+      },
+      {
+        "index": 3,
+        "startSec": 13.7,
+        "duration": 6.6
+      },
+      {
+        "index": 4,
+        "startSec": 20.3,
+        "duration": 7.61
+      },
+      {
+        "index": 5,
+        "startSec": 27.9,
+        "duration": 7.39
+      },
+      {
+        "index": 6,
+        "startSec": 35.3,
+        "duration": 8.42
+      },
+      {
+        "index": 7,
+        "startSec": 43.7,
+        "duration": 8.69
+      },
+      {
+        "index": 8,
+        "startSec": 52.4,
+        "duration": 2.47
+      },
+      {
+        "index": 9,
+        "startSec": 54.8,
+        "duration": 4.9
+      },
+      {
+        "index": 10,
+        "startSec": 59.7,
+        "duration": 4.61
+      },
+      {
+        "index": 11,
+        "startSec": 64.3,
+        "duration": 3.48
+      },
+      {
+        "index": 12,
+        "startSec": 67.8,
+        "duration": 4.08
+      },
+      {
+        "index": 13,
+        "startSec": 71.9,
+        "duration": 9.29
+      }
+    ]
+  },
+  "podcast_a2_ep09_planning_a_s": {
+    "total_sec": 79.6,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.79
+      },
+      {
+        "index": 2,
+        "startSec": 9.8,
+        "duration": 5.76
+      },
+      {
+        "index": 3,
+        "startSec": 15.6,
+        "duration": 6.58
+      },
+      {
+        "index": 4,
+        "startSec": 22.1,
+        "duration": 8.62
+      },
+      {
+        "index": 5,
+        "startSec": 30.7,
+        "duration": 5.23
+      },
+      {
+        "index": 6,
+        "startSec": 36.0,
+        "duration": 5.95
+      },
+      {
+        "index": 7,
+        "startSec": 41.9,
+        "duration": 6.29
+      },
+      {
+        "index": 8,
+        "startSec": 48.2,
+        "duration": 7.32
+      },
+      {
+        "index": 9,
+        "startSec": 55.5,
+        "duration": 7.39
+      },
+      {
+        "index": 10,
+        "startSec": 62.9,
+        "duration": 5.59
+      },
+      {
+        "index": 11,
+        "startSec": 68.5,
+        "duration": 3.74
+      },
+      {
+        "index": 12,
+        "startSec": 72.3,
+        "duration": 7.37
+      }
+    ]
+  },
+  "podcast_a2_ep10_a_job_fair_b": {
+    "total_sec": 92.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.48
+      },
+      {
+        "index": 2,
+        "startSec": 9.5,
+        "duration": 8.59
+      },
+      {
+        "index": 3,
+        "startSec": 18.1,
+        "duration": 10.03
+      },
+      {
+        "index": 4,
+        "startSec": 28.1,
+        "duration": 5.71
+      },
+      {
+        "index": 5,
+        "startSec": 33.8,
+        "duration": 11.14
+      },
+      {
+        "index": 6,
+        "startSec": 45.0,
+        "duration": 6.7
+      },
+      {
+        "index": 7,
+        "startSec": 51.6,
+        "duration": 7.92
+      },
+      {
+        "index": 8,
+        "startSec": 59.6,
+        "duration": 8.76
+      },
+      {
+        "index": 9,
+        "startSec": 68.3,
+        "duration": 5.57
+      },
+      {
+        "index": 10,
+        "startSec": 73.9,
+        "duration": 6.91
+      },
+      {
+        "index": 11,
+        "startSec": 80.8,
+        "duration": 3.58
+      },
+      {
+        "index": 12,
+        "startSec": 84.4,
+        "duration": 7.7
+      }
+    ]
+  },
+  "podcast_b1_ep01_the_job_inte": {
+    "total_sec": 105.4,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 11.33
+      },
+      {
+        "index": 2,
+        "startSec": 11.3,
+        "duration": 8.4
+      },
+      {
+        "index": 3,
+        "startSec": 19.7,
+        "duration": 5.26
+      },
+      {
+        "index": 4,
+        "startSec": 25.0,
+        "duration": 10.51
+      },
+      {
+        "index": 5,
+        "startSec": 35.5,
+        "duration": 7.08
+      },
+      {
+        "index": 6,
+        "startSec": 42.6,
+        "duration": 23.21
+      },
+      {
+        "index": 7,
+        "startSec": 65.8,
+        "duration": 7.37
+      },
+      {
+        "index": 8,
+        "startSec": 73.2,
+        "duration": 4.37
+      },
+      {
+        "index": 9,
+        "startSec": 77.5,
+        "duration": 5.69
+      },
+      {
+        "index": 10,
+        "startSec": 83.2,
+        "duration": 7.42
+      },
+      {
+        "index": 11,
+        "startSec": 90.6,
+        "duration": 1.54
+      },
+      {
+        "index": 12,
+        "startSec": 92.2,
+        "duration": 4.51
+      },
+      {
+        "index": 13,
+        "startSec": 96.7,
+        "duration": 8.69
+      }
+    ]
+  },
+  "podcast_b1_ep02_apartment_hu": {
+    "total_sec": 100.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.22
+      },
+      {
+        "index": 2,
+        "startSec": 10.2,
+        "duration": 7.92
+      },
+      {
+        "index": 3,
+        "startSec": 18.1,
+        "duration": 5.9
+      },
+      {
+        "index": 4,
+        "startSec": 24.0,
+        "duration": 7.32
+      },
+      {
+        "index": 5,
+        "startSec": 31.4,
+        "duration": 6.82
+      },
+      {
+        "index": 6,
+        "startSec": 38.2,
+        "duration": 11.28
+      },
+      {
+        "index": 7,
+        "startSec": 49.5,
+        "duration": 6.55
+      },
+      {
+        "index": 8,
+        "startSec": 56.0,
+        "duration": 10.18
+      },
+      {
+        "index": 9,
+        "startSec": 66.2,
+        "duration": 4.9
+      },
+      {
+        "index": 10,
+        "startSec": 71.1,
+        "duration": 7.78
+      },
+      {
+        "index": 11,
+        "startSec": 78.9,
+        "duration": 8.18
+      },
+      {
+        "index": 12,
+        "startSec": 87.0,
+        "duration": 3.94
+      },
+      {
+        "index": 13,
+        "startSec": 91.0,
+        "duration": 9.02
+      }
+    ]
+  },
+  "podcast_b1_ep03_delayed_flig": {
+    "total_sec": 105.8,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.86
+      },
+      {
+        "index": 2,
+        "startSec": 9.9,
+        "duration": 5.52
+      },
+      {
+        "index": 3,
+        "startSec": 15.4,
+        "duration": 11.5
+      },
+      {
+        "index": 4,
+        "startSec": 26.9,
+        "duration": 6.94
+      },
+      {
+        "index": 5,
+        "startSec": 33.8,
+        "duration": 5.66
+      },
+      {
+        "index": 6,
+        "startSec": 39.5,
+        "duration": 13.18
+      },
+      {
+        "index": 7,
+        "startSec": 52.7,
+        "duration": 9.05
+      },
+      {
+        "index": 8,
+        "startSec": 61.7,
+        "duration": 19.54
+      },
+      {
+        "index": 9,
+        "startSec": 81.2,
+        "duration": 3.05
+      },
+      {
+        "index": 10,
+        "startSec": 84.3,
+        "duration": 9.94
+      },
+      {
+        "index": 11,
+        "startSec": 94.2,
+        "duration": 3.65
+      },
+      {
+        "index": 12,
+        "startSec": 97.9,
+        "duration": 7.9
+      }
+    ]
+  },
+  "podcast_b1_ep04_smart_techno": {
+    "total_sec": 89.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.78
+      },
+      {
+        "index": 2,
+        "startSec": 8.8,
+        "duration": 8.59
+      },
+      {
+        "index": 3,
+        "startSec": 17.4,
+        "duration": 2.23
+      },
+      {
+        "index": 4,
+        "startSec": 19.6,
+        "duration": 4.78
+      },
+      {
+        "index": 5,
+        "startSec": 24.4,
+        "duration": 2.93
+      },
+      {
+        "index": 6,
+        "startSec": 27.3,
+        "duration": 3.43
+      },
+      {
+        "index": 7,
+        "startSec": 30.7,
+        "duration": 7.44
+      },
+      {
+        "index": 8,
+        "startSec": 38.2,
+        "duration": 6.14
+      },
+      {
+        "index": 9,
+        "startSec": 44.3,
+        "duration": 4.63
+      },
+      {
+        "index": 10,
+        "startSec": 49.0,
+        "duration": 7.61
+      },
+      {
+        "index": 11,
+        "startSec": 56.6,
+        "duration": 1.78
+      },
+      {
+        "index": 12,
+        "startSec": 58.3,
+        "duration": 3.98
+      },
+      {
+        "index": 13,
+        "startSec": 62.3,
+        "duration": 3.38
+      },
+      {
+        "index": 14,
+        "startSec": 65.7,
+        "duration": 5.3
+      },
+      {
+        "index": 15,
+        "startSec": 71.0,
+        "duration": 2.04
+      },
+      {
+        "index": 16,
+        "startSec": 73.1,
+        "duration": 7.22
+      },
+      {
+        "index": 17,
+        "startSec": 80.3,
+        "duration": 8.86
+      }
+    ]
+  },
+  "podcast_b1_ep05_eco_friendly": {
+    "total_sec": 90.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.74
+      },
+      {
+        "index": 2,
+        "startSec": 8.7,
+        "duration": 7.15
+      },
+      {
+        "index": 3,
+        "startSec": 15.9,
+        "duration": 11.74
+      },
+      {
+        "index": 4,
+        "startSec": 27.6,
+        "duration": 3.43
+      },
+      {
+        "index": 5,
+        "startSec": 31.1,
+        "duration": 5.57
+      },
+      {
+        "index": 6,
+        "startSec": 36.6,
+        "duration": 5.57
+      },
+      {
+        "index": 7,
+        "startSec": 42.2,
+        "duration": 5.54
+      },
+      {
+        "index": 8,
+        "startSec": 47.7,
+        "duration": 3.82
+      },
+      {
+        "index": 9,
+        "startSec": 51.6,
+        "duration": 3.94
+      },
+      {
+        "index": 10,
+        "startSec": 55.5,
+        "duration": 11.26
+      },
+      {
+        "index": 11,
+        "startSec": 66.7,
+        "duration": 6.02
+      },
+      {
+        "index": 12,
+        "startSec": 72.8,
+        "duration": 2.71
+      },
+      {
+        "index": 13,
+        "startSec": 75.5,
+        "duration": 3.74
+      },
+      {
+        "index": 14,
+        "startSec": 79.2,
+        "duration": 2.42
+      },
+      {
+        "index": 15,
+        "startSec": 81.6,
+        "duration": 8.38
+      }
+    ]
+  },
+  "podcast_b1_ep06_opening_a_ba": {
+    "total_sec": 99.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.03
+      },
+      {
+        "index": 2,
+        "startSec": 10.0,
+        "duration": 7.03
+      },
+      {
+        "index": 3,
+        "startSec": 17.1,
+        "duration": 8.66
+      },
+      {
+        "index": 4,
+        "startSec": 25.7,
+        "duration": 6.17
+      },
+      {
+        "index": 5,
+        "startSec": 31.9,
+        "duration": 9.7
+      },
+      {
+        "index": 6,
+        "startSec": 41.6,
+        "duration": 3.58
+      },
+      {
+        "index": 7,
+        "startSec": 45.2,
+        "duration": 6.53
+      },
+      {
+        "index": 8,
+        "startSec": 51.7,
+        "duration": 1.99
+      },
+      {
+        "index": 9,
+        "startSec": 53.7,
+        "duration": 3.53
+      },
+      {
+        "index": 10,
+        "startSec": 57.2,
+        "duration": 7.06
+      },
+      {
+        "index": 11,
+        "startSec": 64.3,
+        "duration": 10.06
+      },
+      {
+        "index": 12,
+        "startSec": 74.3,
+        "duration": 4.97
+      },
+      {
+        "index": 13,
+        "startSec": 79.3,
+        "duration": 7.51
+      },
+      {
+        "index": 14,
+        "startSec": 86.8,
+        "duration": 4.51
+      },
+      {
+        "index": 15,
+        "startSec": 91.3,
+        "duration": 7.8
+      }
+    ]
+  },
+  "podcast_b1_ep07_freelancing_": {
+    "total_sec": 91.8,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 8.33
+      },
+      {
+        "index": 2,
+        "startSec": 8.3,
+        "duration": 2.28
+      },
+      {
+        "index": 3,
+        "startSec": 10.6,
+        "duration": 7.7
+      },
+      {
+        "index": 4,
+        "startSec": 18.3,
+        "duration": 3.65
+      },
+      {
+        "index": 5,
+        "startSec": 22.0,
+        "duration": 13.9
+      },
+      {
+        "index": 6,
+        "startSec": 35.9,
+        "duration": 6.91
+      },
+      {
+        "index": 7,
+        "startSec": 42.8,
+        "duration": 5.3
+      },
+      {
+        "index": 8,
+        "startSec": 48.1,
+        "duration": 0.77
+      },
+      {
+        "index": 9,
+        "startSec": 48.8,
+        "duration": 6.0
+      },
+      {
+        "index": 10,
+        "startSec": 54.8,
+        "duration": 9.5
+      },
+      {
+        "index": 11,
+        "startSec": 64.3,
+        "duration": 4.15
+      },
+      {
+        "index": 12,
+        "startSec": 68.5,
+        "duration": 6.74
+      },
+      {
+        "index": 13,
+        "startSec": 75.2,
+        "duration": 2.9
+      },
+      {
+        "index": 14,
+        "startSec": 78.1,
+        "duration": 5.78
+      },
+      {
+        "index": 15,
+        "startSec": 83.9,
+        "duration": 7.87
+      }
+    ]
+  },
+  "podcast_b1_ep08_organizing_a": {
+    "total_sec": 88.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.46
+      },
+      {
+        "index": 2,
+        "startSec": 10.5,
+        "duration": 6.07
+      },
+      {
+        "index": 3,
+        "startSec": 16.5,
+        "duration": 4.06
+      },
+      {
+        "index": 4,
+        "startSec": 20.6,
+        "duration": 5.35
+      },
+      {
+        "index": 5,
+        "startSec": 25.9,
+        "duration": 3.1
+      },
+      {
+        "index": 6,
+        "startSec": 29.0,
+        "duration": 4.42
+      },
+      {
+        "index": 7,
+        "startSec": 33.5,
+        "duration": 4.3
+      },
+      {
+        "index": 8,
+        "startSec": 37.8,
+        "duration": 4.56
+      },
+      {
+        "index": 9,
+        "startSec": 42.3,
+        "duration": 1.85
+      },
+      {
+        "index": 10,
+        "startSec": 44.2,
+        "duration": 5.18
+      },
+      {
+        "index": 11,
+        "startSec": 49.3,
+        "duration": 1.78
+      },
+      {
+        "index": 12,
+        "startSec": 51.1,
+        "duration": 7.66
+      },
+      {
+        "index": 13,
+        "startSec": 58.8,
+        "duration": 5.42
+      },
+      {
+        "index": 14,
+        "startSec": 64.2,
+        "duration": 7.18
+      },
+      {
+        "index": 15,
+        "startSec": 71.4,
+        "duration": 2.23
+      },
+      {
+        "index": 16,
+        "startSec": 73.6,
+        "duration": 6.65
+      },
+      {
+        "index": 17,
+        "startSec": 80.3,
+        "duration": 7.97
+      }
+    ]
+  },
+  "podcast_b1_ep09_handling_a_c": {
+    "total_sec": 100.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.37
+      },
+      {
+        "index": 2,
+        "startSec": 10.4,
+        "duration": 9.58
+      },
+      {
+        "index": 3,
+        "startSec": 19.9,
+        "duration": 17.21
+      },
+      {
+        "index": 4,
+        "startSec": 37.2,
+        "duration": 10.18
+      },
+      {
+        "index": 5,
+        "startSec": 47.3,
+        "duration": 2.95
+      },
+      {
+        "index": 6,
+        "startSec": 50.3,
+        "duration": 2.83
+      },
+      {
+        "index": 7,
+        "startSec": 53.1,
+        "duration": 11.88
+      },
+      {
+        "index": 8,
+        "startSec": 65.0,
+        "duration": 4.13
+      },
+      {
+        "index": 9,
+        "startSec": 69.1,
+        "duration": 15.17
+      },
+      {
+        "index": 10,
+        "startSec": 84.3,
+        "duration": 7.22
+      },
+      {
+        "index": 11,
+        "startSec": 91.5,
+        "duration": 8.5
+      }
+    ]
+  },
+  "podcast_b1_ep10_a_university": {
+    "total_sec": 100.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.39
+      },
+      {
+        "index": 2,
+        "startSec": 10.4,
+        "duration": 10.78
+      },
+      {
+        "index": 3,
+        "startSec": 21.2,
+        "duration": 4.63
+      },
+      {
+        "index": 4,
+        "startSec": 25.8,
+        "duration": 4.97
+      },
+      {
+        "index": 5,
+        "startSec": 30.8,
+        "duration": 4.56
+      },
+      {
+        "index": 6,
+        "startSec": 35.3,
+        "duration": 1.78
+      },
+      {
+        "index": 7,
+        "startSec": 37.1,
+        "duration": 10.37
+      },
+      {
+        "index": 8,
+        "startSec": 47.5,
+        "duration": 2.66
+      },
+      {
+        "index": 9,
+        "startSec": 50.1,
+        "duration": 7.18
+      },
+      {
+        "index": 10,
+        "startSec": 57.3,
+        "duration": 3.6
+      },
+      {
+        "index": 11,
+        "startSec": 60.9,
+        "duration": 3.77
+      },
+      {
+        "index": 12,
+        "startSec": 64.7,
+        "duration": 5.66
+      },
+      {
+        "index": 13,
+        "startSec": 70.3,
+        "duration": 5.09
+      },
+      {
+        "index": 14,
+        "startSec": 75.4,
+        "duration": 3.0
+      },
+      {
+        "index": 15,
+        "startSec": 78.4,
+        "duration": 5.95
+      },
+      {
+        "index": 16,
+        "startSec": 84.4,
+        "duration": 6.53
+      },
+      {
+        "index": 17,
+        "startSec": 90.9,
+        "duration": 9.24
+      }
+    ]
+  },
+  "podcast_b2_ep01_ai_ethics_co": {
+    "total_sec": 92.2,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 12.19
+      },
+      {
+        "index": 2,
+        "startSec": 12.2,
+        "duration": 9.12
+      },
+      {
+        "index": 3,
+        "startSec": 21.3,
+        "duration": 4.44
+      },
+      {
+        "index": 4,
+        "startSec": 25.8,
+        "duration": 2.69
+      },
+      {
+        "index": 5,
+        "startSec": 28.4,
+        "duration": 10.82
+      },
+      {
+        "index": 6,
+        "startSec": 39.3,
+        "duration": 1.8
+      },
+      {
+        "index": 7,
+        "startSec": 41.1,
+        "duration": 3.29
+      },
+      {
+        "index": 8,
+        "startSec": 44.4,
+        "duration": 3.53
+      },
+      {
+        "index": 9,
+        "startSec": 47.9,
+        "duration": 9.5
+      },
+      {
+        "index": 10,
+        "startSec": 57.4,
+        "duration": 4.73
+      },
+      {
+        "index": 11,
+        "startSec": 62.1,
+        "duration": 3.58
+      },
+      {
+        "index": 12,
+        "startSec": 65.7,
+        "duration": 1.78
+      },
+      {
+        "index": 13,
+        "startSec": 67.5,
+        "duration": 2.88
+      },
+      {
+        "index": 14,
+        "startSec": 70.3,
+        "duration": 5.66
+      },
+      {
+        "index": 15,
+        "startSec": 76.0,
+        "duration": 6.24
+      },
+      {
+        "index": 16,
+        "startSec": 82.2,
+        "duration": 9.96
+      }
+    ]
+  },
+  "podcast_b2_ep02_green_infras": {
+    "total_sec": 94.6,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.7
+      },
+      {
+        "index": 2,
+        "startSec": 10.7,
+        "duration": 11.52
+      },
+      {
+        "index": 3,
+        "startSec": 22.2,
+        "duration": 11.5
+      },
+      {
+        "index": 4,
+        "startSec": 33.7,
+        "duration": 3.84
+      },
+      {
+        "index": 5,
+        "startSec": 37.6,
+        "duration": 6.48
+      },
+      {
+        "index": 6,
+        "startSec": 44.0,
+        "duration": 8.93
+      },
+      {
+        "index": 7,
+        "startSec": 53.0,
+        "duration": 4.51
+      },
+      {
+        "index": 8,
+        "startSec": 57.5,
+        "duration": 5.45
+      },
+      {
+        "index": 9,
+        "startSec": 62.9,
+        "duration": 2.83
+      },
+      {
+        "index": 10,
+        "startSec": 65.8,
+        "duration": 3.98
+      },
+      {
+        "index": 11,
+        "startSec": 69.7,
+        "duration": 6.91
+      },
+      {
+        "index": 12,
+        "startSec": 76.7,
+        "duration": 8.3
+      },
+      {
+        "index": 13,
+        "startSec": 85.0,
+        "duration": 9.62
+      }
+    ]
+  },
+  "podcast_b2_ep03_startup_vent": {
+    "total_sec": 109.8,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 9.22
+      },
+      {
+        "index": 2,
+        "startSec": 9.2,
+        "duration": 11.45
+      },
+      {
+        "index": 3,
+        "startSec": 20.7,
+        "duration": 8.16
+      },
+      {
+        "index": 4,
+        "startSec": 28.8,
+        "duration": 8.26
+      },
+      {
+        "index": 5,
+        "startSec": 37.1,
+        "duration": 3.86
+      },
+      {
+        "index": 6,
+        "startSec": 40.9,
+        "duration": 4.73
+      },
+      {
+        "index": 7,
+        "startSec": 45.7,
+        "duration": 3.12
+      },
+      {
+        "index": 8,
+        "startSec": 48.8,
+        "duration": 6.86
+      },
+      {
+        "index": 9,
+        "startSec": 55.7,
+        "duration": 6.1
+      },
+      {
+        "index": 10,
+        "startSec": 61.8,
+        "duration": 8.86
+      },
+      {
+        "index": 11,
+        "startSec": 70.6,
+        "duration": 3.46
+      },
+      {
+        "index": 12,
+        "startSec": 74.1,
+        "duration": 3.0
+      },
+      {
+        "index": 13,
+        "startSec": 77.1,
+        "duration": 6.41
+      },
+      {
+        "index": 14,
+        "startSec": 83.5,
+        "duration": 9.65
+      },
+      {
+        "index": 15,
+        "startSec": 93.1,
+        "duration": 7.13
+      },
+      {
+        "index": 16,
+        "startSec": 100.2,
+        "duration": 9.6
+      }
+    ]
+  },
+  "podcast_b2_ep04_crisis_manag": {
+    "total_sec": 100.8,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.7
+      },
+      {
+        "index": 2,
+        "startSec": 10.7,
+        "duration": 7.99
+      },
+      {
+        "index": 3,
+        "startSec": 18.7,
+        "duration": 3.46
+      },
+      {
+        "index": 4,
+        "startSec": 22.2,
+        "duration": 4.75
+      },
+      {
+        "index": 5,
+        "startSec": 26.9,
+        "duration": 5.45
+      },
+      {
+        "index": 6,
+        "startSec": 32.4,
+        "duration": 4.37
+      },
+      {
+        "index": 7,
+        "startSec": 36.7,
+        "duration": 5.81
+      },
+      {
+        "index": 8,
+        "startSec": 42.5,
+        "duration": 6.89
+      },
+      {
+        "index": 9,
+        "startSec": 49.4,
+        "duration": 1.37
+      },
+      {
+        "index": 10,
+        "startSec": 50.8,
+        "duration": 5.4
+      },
+      {
+        "index": 11,
+        "startSec": 56.2,
+        "duration": 1.9
+      },
+      {
+        "index": 12,
+        "startSec": 58.1,
+        "duration": 5.93
+      },
+      {
+        "index": 13,
+        "startSec": 64.0,
+        "duration": 7.54
+      },
+      {
+        "index": 14,
+        "startSec": 71.5,
+        "duration": 3.46
+      },
+      {
+        "index": 15,
+        "startSec": 75.0,
+        "duration": 7.01
+      },
+      {
+        "index": 16,
+        "startSec": 82.0,
+        "duration": 9.41
+      },
+      {
+        "index": 17,
+        "startSec": 91.4,
+        "duration": 9.34
+      }
+    ]
+  },
+  "podcast_b2_ep05_autonomous_v": {
+    "total_sec": 91.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 11.14
+      },
+      {
+        "index": 2,
+        "startSec": 11.1,
+        "duration": 3.46
+      },
+      {
+        "index": 3,
+        "startSec": 14.6,
+        "duration": 9.36
+      },
+      {
+        "index": 4,
+        "startSec": 24.0,
+        "duration": 5.38
+      },
+      {
+        "index": 5,
+        "startSec": 29.3,
+        "duration": 6.91
+      },
+      {
+        "index": 6,
+        "startSec": 36.2,
+        "duration": 11.06
+      },
+      {
+        "index": 7,
+        "startSec": 47.3,
+        "duration": 4.06
+      },
+      {
+        "index": 8,
+        "startSec": 51.4,
+        "duration": 10.75
+      },
+      {
+        "index": 9,
+        "startSec": 62.1,
+        "duration": 1.78
+      },
+      {
+        "index": 10,
+        "startSec": 63.9,
+        "duration": 5.88
+      },
+      {
+        "index": 11,
+        "startSec": 69.8,
+        "duration": 1.58
+      },
+      {
+        "index": 12,
+        "startSec": 71.4,
+        "duration": 8.28
+      },
+      {
+        "index": 13,
+        "startSec": 79.6,
+        "duration": 11.5
+      }
+    ]
+  },
+  "podcast_b2_ep06_negotiating_": {
+    "total_sec": 95.9,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.61
+      },
+      {
+        "index": 2,
+        "startSec": 10.6,
+        "duration": 12.55
+      },
+      {
+        "index": 3,
+        "startSec": 23.2,
+        "duration": 7.97
+      },
+      {
+        "index": 4,
+        "startSec": 31.1,
+        "duration": 3.67
+      },
+      {
+        "index": 5,
+        "startSec": 34.8,
+        "duration": 7.66
+      },
+      {
+        "index": 6,
+        "startSec": 42.5,
+        "duration": 7.15
+      },
+      {
+        "index": 7,
+        "startSec": 49.6,
+        "duration": 4.85
+      },
+      {
+        "index": 8,
+        "startSec": 54.5,
+        "duration": 2.3
+      },
+      {
+        "index": 9,
+        "startSec": 56.8,
+        "duration": 5.33
+      },
+      {
+        "index": 10,
+        "startSec": 62.1,
+        "duration": 4.54
+      },
+      {
+        "index": 11,
+        "startSec": 66.6,
+        "duration": 6.43
+      },
+      {
+        "index": 12,
+        "startSec": 73.1,
+        "duration": 3.36
+      },
+      {
+        "index": 13,
+        "startSec": 76.4,
+        "duration": 9.79
+      },
+      {
+        "index": 14,
+        "startSec": 86.2,
+        "duration": 9.7
+      }
+    ]
+  },
+  "podcast_b2_ep07_workplace_bu": {
+    "total_sec": 100.9,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 12.05
+      },
+      {
+        "index": 2,
+        "startSec": 12.0,
+        "duration": 11.4
+      },
+      {
+        "index": 3,
+        "startSec": 23.4,
+        "duration": 14.09
+      },
+      {
+        "index": 4,
+        "startSec": 37.5,
+        "duration": 7.18
+      },
+      {
+        "index": 5,
+        "startSec": 44.7,
+        "duration": 17.83
+      },
+      {
+        "index": 6,
+        "startSec": 62.5,
+        "duration": 8.52
+      },
+      {
+        "index": 7,
+        "startSec": 71.1,
+        "duration": 13.66
+      },
+      {
+        "index": 8,
+        "startSec": 84.7,
+        "duration": 6.19
+      },
+      {
+        "index": 9,
+        "startSec": 90.9,
+        "duration": 9.96
+      }
+    ]
+  },
+  "podcast_b2_ep08_medical_biot": {
+    "total_sec": 102.5,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.66
+      },
+      {
+        "index": 2,
+        "startSec": 10.7,
+        "duration": 12.1
+      },
+      {
+        "index": 3,
+        "startSec": 22.8,
+        "duration": 16.82
+      },
+      {
+        "index": 4,
+        "startSec": 39.6,
+        "duration": 7.63
+      },
+      {
+        "index": 5,
+        "startSec": 47.2,
+        "duration": 10.8
+      },
+      {
+        "index": 6,
+        "startSec": 58.0,
+        "duration": 6.38
+      },
+      {
+        "index": 7,
+        "startSec": 64.4,
+        "duration": 11.9
+      },
+      {
+        "index": 8,
+        "startSec": 76.3,
+        "duration": 10.06
+      },
+      {
+        "index": 9,
+        "startSec": 86.4,
+        "duration": 6.65
+      },
+      {
+        "index": 10,
+        "startSec": 93.0,
+        "duration": 9.5
+      }
+    ]
+  },
+  "podcast_b2_ep09_the_philosop": {
+    "total_sec": 99.1,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 10.9
+      },
+      {
+        "index": 2,
+        "startSec": 10.9,
+        "duration": 12.7
+      },
+      {
+        "index": 3,
+        "startSec": 23.6,
+        "duration": 15.48
+      },
+      {
+        "index": 4,
+        "startSec": 39.1,
+        "duration": 6.17
+      },
+      {
+        "index": 5,
+        "startSec": 45.2,
+        "duration": 14.14
+      },
+      {
+        "index": 6,
+        "startSec": 59.4,
+        "duration": 8.76
+      },
+      {
+        "index": 7,
+        "startSec": 68.1,
+        "duration": 16.82
+      },
+      {
+        "index": 8,
+        "startSec": 85.0,
+        "duration": 5.14
+      },
+      {
+        "index": 9,
+        "startSec": 90.1,
+        "duration": 8.98
+      }
+    ]
+  },
+  "podcast_b2_ep10_cybersecurit": {
+    "total_sec": 93.0,
+    "turns": [
+      {
+        "index": 1,
+        "startSec": 0.0,
+        "duration": 12.07
+      },
+      {
+        "index": 2,
+        "startSec": 12.1,
+        "duration": 9.86
+      },
+      {
+        "index": 3,
+        "startSec": 21.9,
+        "duration": 16.01
+      },
+      {
+        "index": 4,
+        "startSec": 37.9,
+        "duration": 7.13
+      },
+      {
+        "index": 5,
+        "startSec": 45.1,
+        "duration": 12.19
+      },
+      {
+        "index": 6,
+        "startSec": 57.3,
+        "duration": 9.79
+      },
+      {
+        "index": 7,
+        "startSec": 67.1,
+        "duration": 7.08
+      },
+      {
+        "index": 8,
+        "startSec": 74.1,
+        "duration": 8.69
+      },
+      {
+        "index": 9,
+        "startSec": 82.8,
+        "duration": 10.2
+      }
+    ]
+  }
+}

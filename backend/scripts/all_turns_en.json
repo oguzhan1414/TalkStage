@@ -1,0 +1,2257 @@
+[
+  {
+    "code": "A1_POD01",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to English Bites A1! Today, Emma is ordering breakfast at the Green Bean Cafe. Listen to how she orders politely and pays for her food."
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam (Barista)",
+    "textEn": "Good morning! Welcome to Green Bean Cafe. What can I get for you today?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "Good morning! Could I please have a large latte with oat milk?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "Sure! Hot or iced?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "Hot, please. And could you warm up one of those chocolate croissants?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "Absolutely. Anything else for you today?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "No, that is all. How much is the total?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "That is six dollars and fifty cents. How would you like to pay?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "By card, please. Here is my contactless card."
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "Perfect, it went through! Here is your receipt. Your drink will be ready at the counter in two minutes."
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "Thank you so much! By the way, what is the Wi-Fi password?"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "It is 'greenbean2026', all lowercase."
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Emma",
+    "textEn": "Wonderful! Have a great day!"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "Liam",
+    "textEn": "You too! Enjoy your coffee!"
+  },
+  {
+    "code": "A1_POD01",
+    "speaker": "[Host Outro]",
+    "textEn": "Great job! Notice how Emma used Could I please have... to order politely. Now practice saying: Could I have a coffee, please?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome back! In this episode, Sarah and David discuss their morning routines. Listen for daily action verbs and times!"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "Sarah",
+    "textEn": "Good morning, David! You look fresh today. What time do you usually wake up?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "David",
+    "textEn": "Good morning, Sarah! I always wake up at six thirty, but I get out of bed at seven o'clock. What about you?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "Sarah",
+    "textEn": "I am a morning person! My alarm rings at six o'clock sharp. I always do ten minutes of yoga."
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "David",
+    "textEn": "Wow, that is impressive! Do you eat breakfast at home?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "Sarah",
+    "textEn": "Yes, I usually have an omelet and orange juice. What do you eat?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "David",
+    "textEn": "I only have black coffee and two slices of toast. I never have a heavy breakfast."
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "Sarah",
+    "textEn": "How do you commute to the office?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "David",
+    "textEn": "I take the subway. It takes twenty minutes. Do you ride your bike?"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "Sarah",
+    "textEn": "Yes, I ride my bike every day when the weather is nice. My workday starts at nine o'clock."
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "David",
+    "textEn": "Mine starts at nine too. Let's start working!"
+  },
+  {
+    "code": "A1_POD02",
+    "speaker": "[Host Outro]",
+    "textEn": "Excellent! Remember: With 'he' and 'she', we say He wakes up and She rides her bike. What is your morning routine?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "[Host Intro]",
+    "textEn": "Hello learners! In this episode, Alex is lost in the city center. Listen to how Mia gives clear directions to the metro station."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Excuse me! Could you help me, please? I am lost."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "Sure! Where do you want to go?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Where is the Central Metro Station? Is it far from here?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "No, it is very close. It is about a five-minute walk."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Great! How do I get there?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "Walk straight down this street for two blocks. Then, turn left at the big bank."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Turn left at the bank, okay. And after that?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "Walk straight ahead. You will see a large city park on your right. The metro station is opposite the park, next to the library."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Opposite the park, next to the library. Is there a ticket machine inside?"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "Yes, there are three ticket machines right at the entrance."
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Alex",
+    "textEn": "Thank you very much for your help!"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "Mia",
+    "textEn": "You are very welcome! Have a nice trip!"
+  },
+  {
+    "code": "A1_POD03",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the useful phrases: Walk straight down, Turn left, and Opposite the park. Try asking for directions today!"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 4! Chloe is dining at Bella Vista Bistro. Listen to how she orders food and asks for the bill politely."
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Marco (Waiter)",
+    "textEn": "Good evening! Welcome to Bella Vista Bistro. Do you have a reservation?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Chloe",
+    "textEn": "Good evening! No, we don't. Do you have a table for two?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Marco",
+    "textEn": "Yes, right this way. Here are your menus. Can I bring you something to drink first?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Chloe",
+    "textEn": "Could we have a bottle of sparkling water with lemon, please?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Marco",
+    "textEn": "Of course. Are you ready to order food?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Chloe",
+    "textEn": "Yes! For our starter, we would like the tomato bruschetta."
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Marco",
+    "textEn": "Delicious choice. And for your main course?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Chloe",
+    "textEn": "I would like the grilled chicken with pasta, and my friend would like the vegetarian pizza."
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Marco",
+    "textEn": "Excellent. I will place your order right away."
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Chloe",
+    "textEn": "Excuse me, sir! Everything was delicious. Could we please have the bill?"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "Liam/Marco",
+    "textEn": "Certainly! Here is your bill. Thank you for dining with us!"
+  },
+  {
+    "code": "A1_POD04",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the classic phrase: I would like the grilled chicken, please. Use I would like... whenever you order food!"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "[Host Intro]",
+    "textEn": "Hi everyone! In this episode, Leo and Sophie talk about what they did yesterday and plan a weekend picnic. Listen for past tense verbs!"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "Hi Sophie! How was your day yesterday?"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Sophie",
+    "textEn": "It was great, Leo! The weather was sunny, so I walked in the city park and took many photos."
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "That sounds relaxing! Did you cook dinner at home last night?"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Sophie",
+    "textEn": "Yes, I cooked vegetable soup and watched a nice movie. What did you do?"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "I stayed at home and read a book about nature. Are you free this Saturday?"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Sophie",
+    "textEn": "Yes, I am! The weather forecast says it will be warm."
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "Wonderful! Let's have a picnic in the park. I can bring sandwiches and apples."
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Sophie",
+    "textEn": "Great idea! I can bring orange juice and a picnic blanket."
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "What time shall we meet?"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Sophie",
+    "textEn": "Let's meet at twelve o'clock near the park entrance."
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "Leo",
+    "textEn": "Perfect! See you on Saturday, Sophie!"
+  },
+  {
+    "code": "A1_POD05",
+    "speaker": "[Host Outro]",
+    "textEn": "Did you catch the past regular verbs? Walked, cooked, and watched. Practice talking about your yesterday!"
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 6! Oğuzhan is meeting Emily, a new UI designer on the team. Listen to simple introductions!  Oğuzhan: Hello! Welcome to the team! My name is Oğuzhan."
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "Emily",
+    "textEn": "Hi Oğuzhan! Nice to meet you. I am Emily. Oğuzhan: Nice to meet you too, Emily! Is this your first day at the company?"
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "Emily",
+    "textEn": "Yes, it is! I am the new mobile app designer. Oğuzhan: That is great! I am a full-stack developer on the same project. Where are you from?"
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "Emily",
+    "textEn": "I am from Canada, but I live here now. Are you from Turkey? Oğuzhan: Yes, I am from Turkey. Let me show you around. This is our main work room, and that is the coffee kitchen."
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "Emily",
+    "textEn": "Thank you so much! I love coffee. Oğuzhan: You can sit at this desk next to the window. If you need any help, just ask me!"
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "Emily",
+    "textEn": "That is very kind of you. Let's make a great app together!"
+  },
+  {
+    "code": "A1_POD06",
+    "speaker": "[Host Outro]",
+    "textEn": "Short and friendly! Nice to meet you is the best way to greet someone new. Practice introducing yourself today!"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 7, Ben is shopping for groceries at the local supermarket. Listen to how he asks for locations and prices."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Excuse me, where can I find fresh eggs and milk?"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Clerk",
+    "textEn": "Hello! They are in aisle 3, right next to the cheese section."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Thank you. Are there any organic red apples today?"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Clerk",
+    "textEn": "Yes, there are some organic apples in the fruit section at the front."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Great! How much are the apples per kilogram?"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Clerk",
+    "textEn": "They are three dollars a kilo."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Perfect, I will take one kilo of apples, a carton of milk, and some eggs."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Cashier",
+    "textEn": "Hello! Do you need a shopping bag today?"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Yes, please. One paper bag."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Cashier",
+    "textEn": "Your total is nine dollars and twenty cents. Cash or card?"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Cash, please. Here is a ten-dollar bill."
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Cashier",
+    "textEn": "And here is your change, eighty cents. Have a nice evening!"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "Ben",
+    "textEn": "Thank you, goodbye!"
+  },
+  {
+    "code": "A1_POD07",
+    "speaker": "[Host Outro]",
+    "textEn": "Key questions to remember: Where can I find...? and How much are the apples? Very useful for everyday shopping!"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 8! Tom and Anna are looking at photos and talking about their families and hobbies."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "Is this photo your family, Tom?"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Tom",
+    "textEn": "Yes, it is! This is my father and this is my mother."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "What do your parents do?"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Tom",
+    "textEn": "My father is an engineer, and my mother is a high school teacher."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "That is wonderful! Do you have any brothers or sisters?"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Tom",
+    "textEn": "Yes, I have an older brother. His name is Sam. He works with 3D printers and computers."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "What do you like to do in your free time together?"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Tom",
+    "textEn": "Sam likes playing football on weekends, but I prefer music. I play the acoustic guitar."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "Really? I love music too! I play the piano and I like drawing digital art."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Tom",
+    "textEn": "That is cool! We should play music together sometime."
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "Anna",
+    "textEn": "Definitely!"
+  },
+  {
+    "code": "A1_POD08",
+    "speaker": "[Host Outro]",
+    "textEn": "Remember: We say He works, She likes, and His name is. How would you describe your family in English?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 9, James is not feeling well and visits a pharmacy. Listen to simple health phrases and medicine instructions."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "Pharmacist",
+    "textEn": "Hello! How can I help you today?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "Hello. I am not feeling very well. I have a bad headache and a sore throat."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "Pharmacist",
+    "textEn": "I see. Do you have a fever or a cough?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "No, no fever. Just a headache and a mild cold."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "Pharmacist",
+    "textEn": "Okay. I can give you these painkiller tablets and some vitamin C."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "How should I take this medicine?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "Take one tablet with water two times a day, always after meals."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "Two times a day, after meals. Got it. Do I need a doctor's prescription for this?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "Pharmacist",
+    "textEn": "No, this is an over-the-counter medicine. You don't need a prescription."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "How much is it?"
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "Pharmacist",
+    "textEn": "It is eight dollars in total. Drink plenty of warm water and rest well."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "James",
+    "textEn": "Thank you so much for your advice."
+  },
+  {
+    "code": "A1_POD09",
+    "speaker": "[Host Outro]",
+    "textEn": "Useful phrases when you are sick: I have a headache, I have a cold, and Take after meals. Stay healthy!"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 10! Lisa is calling a dental clinic to book a routine check-up. Listen to telephone English basics."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Good morning! Smile Dental Clinic. How may I help you?"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "Hello! This is Lisa Miller calling. I would like to make an appointment for a routine dental check-up."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Certainly, Ms. Miller. Are you a new patient?"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "Yes, this is my first time."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Welcome! Is Thursday afternoon good for you? Dr. Smith is available at three o'clock."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "Thursday at three o'clock is perfect."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Could you please spell your last name for me?"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "Yes, it is M-I-L-L-E-R."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Thank you. And what is your phone number?"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "It is 555-0192."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "Great. We have booked your appointment for Thursday at 3 PM. Please arrive ten minutes early."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Lisa",
+    "textEn": "Thank you very much. Have a nice day!"
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "Clerk",
+    "textEn": "You too! Goodbye."
+  },
+  {
+    "code": "A1_POD10",
+    "speaker": "[Host Outro]",
+    "textEn": "Congratulations on completing the A1 series! Practice spelling your name and saying your phone number in English!"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to A2 Episode 1! Rachel is checking in for her international flight to London. Listen to airport vocabulary and polite requests."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel (Agent)",
+    "textEn": "Good afternoon! Welcome to SkyWay Airlines. May I see your passport, please?"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Good afternoon! Here is my passport and booking confirmation."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "Thank you, Ms. Green. Are you checking any luggage today?"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Yes, just this one suitcase."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "Please place it on the scale. ... Perfect, it is 21 kilograms, which is within your 23-kilogram baggage allowance."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Excellent. I also have this small backpack as my carry-on bag."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "That is totally fine. Would you prefer a window seat or an aisle seat today?"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Would it be possible to get a window seat near the front of the aircraft?"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "Let me check... Yes! I have seat 14A available for you. Here is your boarding pass."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Thank you! What gate is the flight departing from?"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "Your flight will depart from Gate 24. Boarding starts at 3:30 PM. Proceed through security checkpoint B on your right."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Rachel",
+    "textEn": "Wonderful! Thank you for your assistance."
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "Daniel",
+    "textEn": "Have a pleasant flight!"
+  },
+  {
+    "code": "A2_POD01",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice how Rachel asked: Would it be possible to get a window seat? A great polite structure for A2 learners!"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 2, Clara arrives at the Grand Harbor Hotel. Listen to how she checks in and asks about amenities."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James (Receptionist)",
+    "textEn": "Good evening! Welcome to the Grand Harbor Hotel. How may I assist you?"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "Clara",
+    "textEn": "Good evening! I have a reservation under the name Clara Bennett for three nights."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James",
+    "textEn": "Welcome, Ms. Bennett. Yes, I see your booking for a Deluxe King room with a harbor view. May I have your ID and a credit card for the room deposit?"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "Clara",
+    "textEn": "Here is my passport and my card."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James",
+    "textEn": "Thank you. You are on the 7th floor in room 712. Here are your two electronic key cards."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "Clara",
+    "textEn": "Could you please tell me what time breakfast is served in the morning?"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James",
+    "textEn": "Our complimentary buffet breakfast is served on the second floor from 7:00 AM to 10:30 AM every morning."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "Clara",
+    "textEn": "That is great. Also, could housekeeping bring two extra pillows to my room tonight?"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James",
+    "textEn": "Certainly, I will inform housekeeping immediately. The elevators are right behind you on the left."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "Clara",
+    "textEn": "Thank you very much for your help, James."
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "James",
+    "textEn": "It is my pleasure. Enjoy your stay with us!"
+  },
+  {
+    "code": "A2_POD02",
+    "speaker": "[Host Outro]",
+    "textEn": "Great listening! Practice asking: Could you please tell me what time breakfast is served?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 3! Nora is shopping for a winter sweater. Listen to shopping vocabulary, sizes, and discount expressions!"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "Hi there! Are you looking for anything specific today?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Nora",
+    "textEn": "Hello! Yes, I really like this navy blue wool sweater on display, but I can only find it in size small. Do you have it in a medium?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "Let me check our stock database... Yes, we have two medium sweaters left in our back storage. I will bring one for you right now."
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Nora",
+    "textEn": "Thank you so much! Where are the fitting rooms located?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "The fitting rooms are straight ahead, right next to the mirrors."
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "How did the sweater fit?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Nora",
+    "textEn": "It fits perfectly! Is this item on sale?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "Yes, all knitwear is twenty percent off this weekend. The original price is sixty dollars, so the discounted total is forty-eight dollars."
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Nora",
+    "textEn": "Wonderful! What is your return policy just in case?"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Lucas",
+    "textEn": "You can return or exchange any unworn item within thirty days with your original store receipt."
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "Nora",
+    "textEn": "Perfect. I will take it!"
+  },
+  {
+    "code": "A2_POD03",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice: Do you have this in a medium? and What is your return policy? Excellent phrases for your next shopping trip!"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 4, Lily visits Dr. Harrison because she feels sick. Listen to how she describes her symptoms and how the doctor gives medical advice."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Dr. Harrison",
+    "textEn": "Good morning, Lily. What seems to be the problem today?"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Lily",
+    "textEn": "Good morning, doctor. I have had a severe sore throat and a dry cough for the past three days."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Dr. Harrison",
+    "textEn": "I see. Have you measured your body temperature?"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Lily",
+    "textEn": "Yes, I had a mild fever of 38 degrees yesterday evening, and I feel very exhausted."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Dr. Harrison",
+    "textEn": "Let me examine your throat and listen to your breathing. Open wide and say 'Ah'. ... Your throat is inflamed, but your lungs sound clear. It appears to be a common viral upper respiratory infection."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Lily",
+    "textEn": "Do I need to take antibiotics?"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Dr. Harrison",
+    "textEn": "No, antibiotics are not effective against viruses. You should drink plenty of warm herbal tea, get at least eight hours of sleep, and avoid cold beverages."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Lily",
+    "textEn": "Should I take any medicine for the pain?"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Dr. Harrison",
+    "textEn": "I will write you a prescription for a soothing throat spray and a mild painkiller. Take the painkiller twice a day after meals. You should recover fully within five days."
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "Lily",
+    "textEn": "Thank you very much, Dr. Harrison!"
+  },
+  {
+    "code": "A2_POD04",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the modal verb 'should' for advice: You should drink warm tea and You shouldn't drink cold beverages."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 5! Mark and Zoe are planning a weekend movie night. Listen to how they compare films and choose screening times."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Mark",
+    "textEn": "Hey Zoe! Have you seen the trailer for the new sci-fi adventure movie, 'Galaxy Wanderers'?"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Zoe",
+    "textEn": "Yes, I watched it yesterday! The visual effects look like the most breathtaking in cinema history."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Mark",
+    "textEn": "Absolutely! Critics say it is the best sci-fi film of the year. Shall we go see it this Saturday evening?"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Zoe",
+    "textEn": "I would love to! Which cinema should we choose?"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Zoe",
+    "textEn": "The downtown IMAX theater has the largest screen and the most comfortable VIP seats."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Mark",
+    "textEn": "Great choice. There is a screening at 7:15 PM and another one at 9:45 PM. Which one do you prefer?"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Zoe",
+    "textEn": "The 7:15 PM session is better because we can have dinner afterwards."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Mark",
+    "textEn": "Perfect. I will book two tickets online right now so we get the best seats in the middle."
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Zoe",
+    "textEn": "Awesome! Why don't we meet at 6:45 PM at the popcorn stand near the entrance?"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "Mark",
+    "textEn": "Sounds like a plan. See you on Saturday!"
+  },
+  {
+    "code": "A2_POD05",
+    "speaker": "[Host Outro]",
+    "textEn": "Look at the superlative structures: the most breathtaking and the largest screen. Practice comparing things you like!"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 6, Liam is renting a car for a weekend mountain trip. Listen to car rental vocabulary and comparison structures!"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "Good morning! Welcome to Express Car Rentals. How can I help you today?"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "Hello! I would like to rent a car for a three-day weekend trip to the mountains."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "Great! We have compact economy cars and mid-size SUVs available. How many people are traveling?"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "Four adults with large luggage bags."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "In that case, the SUV is much more spacious and comfortable than the compact car. It also has all-wheel drive, which is safer for mountain roads."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "How much is the SUV per day?"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "It is fifty-five dollars per day, including unlimited mileage. The compact car is cheaper at thirty-five dollars, but it is too small for four suitcases."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "I agree. Let's go with the SUV. Does it include full insurance coverage?"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "Basic insurance is included, but you can add comprehensive insurance for ten dollars extra per day."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "I will take the full insurance for peace of mind."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Agent",
+    "textEn": "Excellent. Please show me your driver's license and credit card. Remember, you have to return the vehicle with a full tank of fuel."
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "Liam",
+    "textEn": "Understood. Thank you!"
+  },
+  {
+    "code": "A2_POD06",
+    "speaker": "[Host Outro]",
+    "textEn": "Key comparative phrase: The SUV is more spacious than the compact car. Practice renting a vehicle in English!"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 7! David is calling technical customer support because his smartphone stopped working. Listen to tech troubleshooting phrases!"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "Thank you for calling TechCare Support. My name is Alex. How can I assist you today?"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "David",
+    "textEn": "Hi Alex. My smartphone froze while I was installing the latest operating system update this morning."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "I am sorry to hear that. What is currently showing on your screen?"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "David",
+    "textEn": "The screen is completely black, and the power button is not responding."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "Let's try a hard restart together. Please press and hold both the power button and the volume down button simultaneously for ten seconds."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "David",
+    "textEn": "Okay, I am holding them now... Ah! The company logo just appeared on the screen!"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "Excellent, the device is rebooting into recovery mode. Did you back up your photos and files before updating?"
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "David",
+    "textEn": "Yes, I backed up everything to my cloud account yesterday."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "Perfect! Now select 'continue normal boot' on the menu. The update will complete safely in three minutes."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "David",
+    "textEn": "It is working now! Thank you so much for your quick help, Alex."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "Agent",
+    "textEn": "You are very welcome! Have a wonderful day."
+  },
+  {
+    "code": "A2_POD07",
+    "speaker": "[Host Outro]",
+    "textEn": "Did you hear the past continuous: My phone froze while I was installing the update? Very natural for tech support calls!"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 8, Maya calls Ethan to invite him to a homemade dinner. Listen to conversational invitations and food quantifiers!"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "Hey Ethan! Do you have any plans for this Friday evening?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Ethan",
+    "textEn": "Hi Maya! No, I am completely free. Why do you ask?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "Would you like to come over to my place for dinner? I am cooking homemade pasta with fresh basil and tomato sauce."
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Ethan",
+    "textEn": "That sounds amazing! I would love to come. Do you need me to bring any ingredients?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "I already have a few fresh tomatoes and olive oil, but we only have a little parmesan cheese left. Could you bring some cheese?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Ethan",
+    "textEn": "Sure thing! I can pick up some authentic parmesan on my way from work. By the way, are you making dessert?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "I haven't planned dessert yet."
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Ethan",
+    "textEn": "Let me bring a box of fresh chocolate pastries from the local bakery then!"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "That would be fantastic! What time will you arrive?"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Ethan",
+    "textEn": "I can be at your apartment around seven o'clock."
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "Maya",
+    "textEn": "Perfect! See you on Friday at seven!"
+  },
+  {
+    "code": "A2_POD08",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the quantifier usage: a few fresh tomatoes (countable) and a little parmesan cheese (uncountable). Great job!"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 9! Chloe and Sam are comparing vacation destinations for the summer. Listen for travel vocabulary and comparative adjectives!"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Chloe",
+    "textEn": "Sam, we really need to book our summer vacation this week before flight prices go up!"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Sam",
+    "textEn": "You are right. Are we going to visit the Mediterranean coast in Greece or travel to Norway?"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Chloe",
+    "textEn": "Greece is much warmer and cheaper than Norway. A seaside beach vacation is also more relaxing for me after a busy work year."
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Sam",
+    "textEn": "That's true, but Norway has the most breathtaking mountain fjords in Europe."
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Chloe",
+    "textEn": "If we choose Greece, our total accommodation and flight budget will be forty percent lower."
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Sam",
+    "textEn": "That is a significant financial difference. Which Greek island is the most affordable?"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Chloe",
+    "textEn": "Crete is larger and less expensive than Santorini. We can rent a lovely seaside apartment near the beach."
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Sam",
+    "textEn": "That sounds perfect. If we book the flight tickets today, we will get a special early-bird discount."
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Chloe",
+    "textEn": "Let's open the booking website right now and confirm the dates for the second week of July!"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "Sam",
+    "textEn": "Excellent, I am really looking forward to this trip!"
+  },
+  {
+    "code": "A2_POD09",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the First Conditional: If we book today, we will get a discount. Great grammar integration for A2!"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "[Host Intro]",
+    "textEn": "In our final A2 episode, Kevin visits a tech company booth at a university career fair. Listen to professional introductory conversations!"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Recruiter",
+    "textEn": "Hello! Welcome to the NovaTech booth. Are you interested in our software engineering summer internship program?"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Kevin",
+    "textEn": "Hello! Yes, very much. I am a junior computer engineering student, and I am looking for a full-stack developer internship."
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Recruiter",
+    "textEn": "Wonderful! Have you worked on any mobile or web projects so far?"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Kevin",
+    "textEn": "Yes, I have! I have built two Android applications using Kotlin and Jetpack Compose, and I have also developed a full-stack web project using React and Node.js."
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Recruiter",
+    "textEn": "That is an impressive portfolio for a student. Can you work comfortably in a team environment?"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Kevin",
+    "textEn": "Yes, I can collaborate well with designers and other developers. I use Git for version control every day."
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Recruiter",
+    "textEn": "Excellent. Our internship starts in June and lasts for ten weeks. Do you have a copy of your resume with you?"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Kevin",
+    "textEn": "Yes, here is my printed CV and the QR code link to my GitHub repositories."
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Recruiter",
+    "textEn": "Perfect, Kevin. We will review your application and send you an email by next Friday."
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "Kevin",
+    "textEn": "Thank you so much for your time and consideration!"
+  },
+  {
+    "code": "A2_POD10",
+    "speaker": "[Host Outro]",
+    "textEn": "Congratulations on completing the A2 series! Practice summarizing your skills using I have built... and I can code in...!"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to B1 Intermediate Episode 1! Alex is interviewing for a senior marketing role at TechCorp with Victoria. Listen for professional business idioms and complex tenses."
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Victoria (HR Director)",
+    "textEn": "Welcome, Alex. Thank you for coming in today. To start off, could you walk me through your professional background?"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Alex",
+    "textEn": "Thank you, Victoria. For the past four years, I have been working as a digital growth specialist at a fast-paced fintech startup. During this time, I have been managing cross-functional teams and optimizing our user acquisition funnels."
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Victoria",
+    "textEn": "That sounds comprehensive. How do you handle high-pressure situations when facing tight deadlines?"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Alex",
+    "textEn": "When unexpected roadblocks occur, I always rely on a data-driven prioritization framework. For instance, last quarter our primary customer onboarding funnel broke right before a major campaign. I organized an emergency standup, identified the root cause with our engineers, and we resolved the issue within four hours, which prevented significant customer churn."
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Victoria",
+    "textEn": "Excellent example of adaptability. Where do you see yourself professionally in the next three to five years?"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Alex",
+    "textEn": "I aim to transition into a strategic product leadership role where I can guide multidisciplinary teams and scale enterprise platforms internationally."
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Victoria",
+    "textEn": "That aligns perfectly with our company trajectory. Do you have any questions for us regarding team culture?"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "Alex",
+    "textEn": "Yes, could you tell me how your product and engineering departments collaborate during sprint planning?"
+  },
+  {
+    "code": "B1_POD01",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice Alex's use of the Present Perfect Continuous: I have been working as a growth specialist. A powerful structure for job interviews!"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 2, Laura is inspecting a modern apartment in the city center with real estate agent Ryan. Listen to property terms and negotiation questions!"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "Welcome to the Riverside Residences, Laura. This is the two-bedroom corner unit that you inquired about online."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Laura",
+    "textEn": "Wow, it is remarkably bright! Has the apartment been refurbished recently?"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "Yes, the landlord had the entire kitchen renovated and installed double-glazed energy-efficient windows last month."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Laura",
+    "textEn": "The open-concept kitchen looks fantastic. What is the monthly rent, and what does it include?"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "The rent is $1,800 per month. Water and central heating are included in the price, whereas electricity and high-speed fiber internet are billed separately."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Laura",
+    "textEn": "That is quite reasonable. What are the terms regarding the lease agreement and the security deposit?"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "The landlord requires a standard twelve-month lease and a one-month security deposit upfront, which will be fully refunded when you move out, provided there is no property damage."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Laura",
+    "textEn": "Are pets allowed in the building? I have a small domestic cat."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "Yes, the building has a pet-friendly policy, but there is a small one-time pet sanitation fee of $100."
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Laura",
+    "textEn": "That sounds fair. If I submit my application and employment verification today, how soon can I sign the contract?"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "Ryan",
+    "textEn": "We can prepare the lease agreement by Thursday afternoon!"
+  },
+  {
+    "code": "B1_POD02",
+    "speaker": "[Host Outro]",
+    "textEn": "Important vocabulary to remember: security deposit, lease agreement, and utilities included. Very practical for living abroad!"
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 3! Natalie's luggage did not arrive after a flight delay in Frankfurt. Listen to how she professionally files a lost baggage claim."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Kevin (Airline Agent)",
+    "textEn": "Good evening, ma'am. How can I assist you at the baggage service counter?"
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Natalie",
+    "textEn": "Good evening. My flight from Frankfurt was delayed by two hours, and I have been waiting at baggage carousel 4 for over forty minutes. My suitcase never appeared."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Kevin",
+    "textEn": "I apologize for the inconvenience. May I see your baggage claim receipt and your boarding pass?"
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Natalie",
+    "textEn": "Here they are. It is a large hard-shell navy blue Samsonite suitcase."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Kevin",
+    "textEn": "Let me check our global tracking system... Yes, I see what happened. Due to the tight connection in Frankfurt, your bag was loaded onto the subsequent flight, which lands here tomorrow morning at 8 AM."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Natalie",
+    "textEn": "Tomorrow morning? But all my business attire and personal toiletries are in that bag, and I have an executive conference tomorrow at noon!"
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Kevin",
+    "textEn": "We completely understand your frustration. We will issue an official Property Irregularity Report (PIR). Under our airline policy, you are entitled to an emergency allowance of up to $150 to purchase essential clothing and toiletries. Keep all your receipts so we can reimburse you."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Natalie",
+    "textEn": "How will my bag reach me once it lands?"
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Kevin",
+    "textEn": "As soon as the flight arrives, your luggage will be dispatched directly to your hotel via express courier free of charge. Here is your tracking reference number."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "Natalie",
+    "textEn": "Thank you for resolving this so efficiently, Kevin."
+  },
+  {
+    "code": "B1_POD03",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the passive voice: Your bag was loaded onto the subsequent flight. Practice reporting customer service issues in English!"
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 4, Liam and Chloe discuss how smart productivity apps and AI tools have transformed their daily working routines."
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Chloe",
+    "textEn": "Liam, I have noticed that you finish your daily coding and documentation tasks much faster recently. What is your secret?"
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Liam",
+    "textEn": "Honestly, I have been using AI coding assistants and automation scripts for repetitive tasks. If I didn't automate my test generation, I would spend hours writing boilerplate code every single day."
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Chloe",
+    "textEn": "That makes sense. But don't you worry about data privacy when feeding company code into cloud AI services?"
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Liam",
+    "textEn": "That is a very valid concern. We configured enterprise privacy settings which ensure that none of our proprietary code is stored or used for model training."
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Chloe",
+    "textEn": "What about all the smartphone notifications? I feel like I am constantly distracted by Slack and email alerts."
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Liam",
+    "textEn": "I used to feel the same way. Last month, I set up strict focus modes on my phone and turned off all non-essential notifications during deep work hours. It really helped me cut down on screen fatigue."
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "Chloe",
+    "textEn": "I should definitely try that. A productive workflow requires both smart tools and digital discipline!"
+  },
+  {
+    "code": "B1_POD04",
+    "speaker": "[Host Outro]",
+    "textEn": "Did you notice the second conditional: If I didn't automate my tests, I would spend hours? Great structure for discussing hypothetical situations!"
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 5! Ethan and Maya talk about simple, practical lifestyle changes to protect the environment in modern cities."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Maya",
+    "textEn": "Ethan, I noticed solar panels on your apartment rooftop yesterday. Did your building install them recently?"
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Ethan",
+    "textEn": "Yes, we had them installed last spring. They generate almost 60% of our building's electricity, which significantly reduces our carbon footprint and electricity bills."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Maya",
+    "textEn": "That is wonderful! I have been trying to adopt a more sustainable lifestyle myself, but it can be challenging in a big city."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Ethan",
+    "textEn": "Small everyday habits make a tremendous difference. For example, we should stop buying single-use plastic water bottles and carry reusable metal flasks instead."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Maya",
+    "textEn": "I already did that! I also started commuting to work by electric bicycle instead of driving my car."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Ethan",
+    "textEn": "That is fantastic! Cycling not only reduces urban air pollution, but it is also much healthier. Have you ever tried composting kitchen food scraps?"
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Maya",
+    "textEn": "Not yet, but our municipality just placed organic waste collection bins in our neighborhood."
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "Ethan",
+    "textEn": "That makes it so much easier. If everyone adopted just two eco-friendly habits, our cities would be much cleaner and greener!"
+  },
+  {
+    "code": "B1_POD05",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the practical verbs: stop buying single-use plastic and started commuting by bicycle. What green habits do you practice?"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 6, Daniel visits an international bank branch in Germany to open a local checking account. Listen to financial and banking terminology!"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Representative",
+    "textEn": "Good morning! Welcome to Horizon Bank. How can I assist you today, sir?"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "Good morning! I recently moved to Frankfurt for work, and I would like to open a local checking account for my salary and daily expenses."
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Representative",
+    "textEn": "Excellent. Are you employed locally, or are you a full-time university student?"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "I am a software engineer working on an international technology visa. Here is my employment contract, passport, and official proof of address."
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Representative",
+    "textEn": "Perfect. All documents are verified through our digital identity compliance system. We offer our Standard Digital Account, which has no monthly maintenance fee provided that you receive a regular direct deposit salary."
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "That sounds ideal. Does the account come with a contactless debit card and mobile banking access?"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "Yes, your digital debit card will be activated on your smartphone immediately, and your physical card will be delivered to your registered residential address within five business days."
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "Could you please clarify if there are any fees for international wire transfers?"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Representative",
+    "textEn": "Inbound transfers are completely free, while outbound international transfers carry a fixed fee of five euros."
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "Daniel",
+    "textEn": "Wonderful. Let's proceed with the application!"
+  },
+  {
+    "code": "B1_POD06",
+    "speaker": "[Host Outro]",
+    "textEn": "Key banking phrases: checking account, proof of address, and monthly maintenance fee. Essential for working abroad!"
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 7! Sophie and Mark debate the pros and cons of freelance flexibility versus corporate office stability."
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Mark",
+    "textEn": "Sophie, you have been working as a freelance software developer for over two years now. Do you ever miss working in a traditional corporate office?"
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Sophie",
+    "textEn": "Sometimes, Mark. I used to enjoy the daily social interactions with colleagues at the coffee machine. However, the schedule flexibility of freelancing is unmatched. I can work from anywhere and choose the projects that genuinely inspire me."
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Mark",
+    "textEn": "That freedom sounds amazing. But isn't it stressful when you don't have a guaranteed monthly salary?"
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Sophie",
+    "textEn": "Absolutely. Irregular cash flow is the biggest drawback. If I had a steady corporate salary, I would worry much less about dry client seasons. How do you feel about your office job?"
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Mark",
+    "textEn": "I value stability and clear career progression. My company provides health insurance, paid annual leave, and dedicated hardware. On the other hand, commuting during rush hour traffic every morning is exhausting."
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Sophie",
+    "textEn": "It really comes down to personal priorities. Some developers thrive on freelance independence, whereas others prefer corporate security."
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "Mark",
+    "textEn": "Exactly. Finding the right work-life balance is what truly matters!"
+  },
+  {
+    "code": "B1_POD07",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice how they contrasted ideas using used to enjoy, whereas, and on the other hand. Which lifestyle do you prefer?"
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 8, Oğuzhan and Sarah are organizing a student technology community meetup at the university. Listen for phrasal verbs and event planning terms!"
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "Sarah",
+    "textEn": "Oğuzhan, how are the preparations coming along for our upcoming Android and AI developer meetup? Oğuzhan: We are making great progress! We have already booked the university conference hall, which can accommodate up to one hundred attendees."
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "Sarah",
+    "textEn": "Excellent! Did you reach out to the keynote speaker regarding the DeepFake detection presentation? Oğuzhan: Yes, I spoke with him yesterday. He said that he had finalized his presentation slides and that he would arrive thirty minutes early to set up his equipment."
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "Sarah",
+    "textEn": "That is a relief! What about the catering and attendee badges? Oğuzhan: We need to figure out how many vegetarian snacks we should order. Over eighty developers have registered on our website so far."
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "Sarah",
+    "textEn": "We should send a confirmation email tonight so we can finalize the exact head count. Oğuzhan: Great idea. A local software company agreed to sponsor the coffee and refreshments, so we don't have to worry about the budget."
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "Sarah",
+    "textEn": "Fantastic teamwork! This is going to be our most impactful community event of the semester."
+  },
+  {
+    "code": "B1_POD08",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the phrasal verbs: reach out to, set up, and figure out. Essential for modern tech and event management!"
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 9! Emily is handling an urgent phone call from an upset corporate client, Mr. Davis. Listen to diplomatic problem-solving phrases."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Emily",
+    "textEn": "Good afternoon, Mr. Davis. Thank you for taking my call. I understand our checkout service experienced downtime earlier today."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Mr. Davis",
+    "textEn": "Good afternoon, Emily. Yes, our online store was completely unable to process credit card payments for over two hours during our lunch flash sale! We lost dozens of customer orders. This is unacceptable for an enterprise service provider."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Emily",
+    "textEn": "I completely understand your frustration, Mr. Davis, and I sincerely apologize for the disruption to your business operations. Our engineering team has been investigating the incident since the alert triggered."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Mr. Davis",
+    "textEn": "What was the root cause of this failure?"
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Emily",
+    "textEn": "An unexpected memory deadlock occurred in our third-party banking integration pipeline. Our engineers have resolved the issue and deployed an automated failover safeguard to prevent this from recurring."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Mr. Davis",
+    "textEn": "How do you plan to ensure our system stability moving forward?"
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Emily",
+    "textEn": "We are conducting continuous stress testing tonight, and we will credit your account with a 20% discount on this month's hosting invoice to compensate for the inconvenience. Furthermore, I will personally monitor your checkout traffic throughout tomorrow's sale."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "Mr. Davis",
+    "textEn": "Thank you for taking ownership of the situation, Emily. I appreciate your transparent communication."
+  },
+  {
+    "code": "B1_POD09",
+    "speaker": "[Host Outro]",
+    "textEn": "Professional phrases for conflict resolution: I completely understand your frustration and I sincerely apologize for the disruption."
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "[Host Intro]",
+    "textEn": "In our final B1 episode, Oğuzhan presents his senior engineering graduation project to Professor Miller. Listen to academic engineering discussions!"
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "Professor Miller",
+    "textEn": "Good morning, Oğuzhan. I reviewed the draft of your thesis on intelligent traffic management systems. Your architectural design is very impressive. Oğuzhan: Thank you very much, Professor Miller. We have been testing our vehicle detection pipeline on real-time highway camera feeds."
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "Professor Miller",
+    "textEn": "What were your latest accuracy benchmarks using YOLOv8? Oğuzhan: The model was trained on over twenty thousand annotated images, achieving a 94.8% mean average precision. Emergency vehicles like ambulances and police cars are detected in under forty milliseconds."
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "Professor Miller",
+    "textEn": "That is remarkably fast. How is the telemetry transmitted to the traffic light microcontrollers? Oğuzhan: We implemented a lightweight MQTT broker which dispatches priority override signals to the intersection nodes."
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "Professor Miller",
+    "textEn": "Excellent choice for low-bandwidth environments. In your final report, remember to include a detailed comparison table against legacy camera systems, and avoid using subjective claims without benchmark data. Oğuzhan: I will add comprehensive latency graphs and empirical error matrices before the final defense."
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "Professor Miller",
+    "textEn": "Outstanding work. You are ready for your senior graduation presentation next month!"
+  },
+  {
+    "code": "B1_POD10",
+    "speaker": "[Host Outro]",
+    "textEn": "Congratulations on completing the B1 intermediate series! You have learned professional workplace, academic, and everyday conversational English!"
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to the B2 Upper-Intermediate Series! Dr. Vance and Elena engage in an intellectual debate on generative AI ethics, intellectual property, and software craftsmanship."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Dr. Vance",
+    "textEn": "Elena, as a principal software architect, how do you perceive the rapid proliferation of generative AI tools across enterprise codebases?"
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Elena",
+    "textEn": "It represents an undeniable paradigm shift, Dr. Vance. Not only does generative AI accelerate routine boilerplate authoring, but it also empowers engineers to prototype complex distributed architectures rapidly. However, the ethical implications regarding proprietary intellectual property are profound."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Dr. Vance",
+    "textEn": "Precisely. Had tech companies strictly audited their web-crawled training datasets years ago, we would not be facing unprecedented copyright litigation today."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Elena",
+    "textEn": "I completely agree. Furthermore, relying excessively on automated code generation threatens the core craftsmanship of software engineering. If junior developers do not cultivate deep algorithmic debugging intuition early in their careers, they will struggle when architecting novel distributed systems."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Dr. Vance",
+    "textEn": "It is vital that engineering organizations establish transparent AI governance frameworks."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "Elena",
+    "textEn": "Suffice it to say, AI should function as an intellectual copilot rather than an autonomous decision-maker. Rarely has the technology industry witnessed a development that demands such meticulous balance between innovation and ethical responsibility."
+  },
+  {
+    "code": "B2_POD01",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the advanced inversion: Not only does AI accelerate boilerplate, but it also empowers engineers. Master level B2 syntax!"
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 2, urban planner Maya and environmental consultant Marcus explore the engineering and architectural challenges of designing net-zero smart cities."
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Marcus",
+    "textEn": "Maya, modern metropolitan areas account for over seventy percent of global carbon emissions. What are the primary structural bottlenecks in transitioning cities to net-zero status?"
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Maya",
+    "textEn": "Notwithstanding the widespread adoption of electric private transport, our fundamental challenge lies in outdated grid infrastructure. Traditional centralized power stations waste substantial energy during transmission, whereas decentralized renewable microgrids generate and distribute clean solar power locally."
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Marcus",
+    "textEn": "Having retrofitted several commercial districts with smart grid sensors, did your department observe noticeable efficiency gains?"
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Maya",
+    "textEn": "Substantial gains, indeed. Furthermore, by greening urban rooftops and creating dedicated pedestrian corridors, we had our engineers mitigate the severe urban heat island effect across downtown sectors."
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Marcus",
+    "textEn": "Is municipal public transport keeping pace with these architectural transformations?"
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Maya",
+    "textEn": "All upcoming transit projects are mandated to be fully electric and powered by municipal wind farms. Simple though it may sound on paper, coordinating multi-billion-dollar infrastructure overhauls requires relentless inter-agency collaboration."
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "Marcus",
+    "textEn": "In the final analysis, sustainable urban design is no longer an environmental luxury; it is an existential urban imperative."
+  },
+  {
+    "code": "B2_POD02",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the sophisticated discourse markers: Notwithstanding the adoption... and whereas decentralized microgrids.... High-level B2 prose!"
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 3! Julian pitches his enterprise AI logistics platform to venture capitalist Katherine for a Series A funding round."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Katherine",
+    "textEn": "Julian, your pitch deck is compelling, but let's scrutinize your core unit economics. What does your current customer acquisition cost look like relative to customer lifetime value?"
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Julian",
+    "textEn": "Our LTV-to-CAC ratio currently stands at four-to-one, Katherine. Over the past twelve months, we have scaled our annual recurring revenue from $500,000 to over $2.4 million while maintaining a net revenue retention rate of 125%."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Katherine",
+    "textEn": "Those are impressive metrics. You must have secured substantial enterprise client contracts to achieve that velocity."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Julian",
+    "textEn": "Exactly. We got several Fortune 500 logistics providers to adopt our automated route optimization algorithms, which reduced their fleet fuel expenditures by eighteen percent."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Katherine",
+    "textEn": "What is your primary capital allocation strategy if we lead this five-million-dollar Series A round?"
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Julian",
+    "textEn": "We plan to expand our core machine learning engineering team and establish direct sales channels in North America. This funding will extend our operational runway to thirty months, by which time our company will have reached full operating profitability."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Katherine",
+    "textEn": "Were you to face aggressive pricing pressure from legacy incumbent competitors, how would you defend your market positioning?"
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Julian",
+    "textEn": "Our proprietary edge-computed neural models offer sub-second latency that legacy cloud architectures cannot replicate without exorbitant infrastructure costs."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "Katherine",
+    "textEn": "Excellent answer. Let's schedule a formal technical due diligence meeting with my partners next week."
+  },
+  {
+    "code": "B2_POD03",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the professional financial metrics: LTV-to-CAC ratio, annual recurring revenue, and the inversion Were you to face aggressive pricing...!"
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 4, Chief Information Security Officer David and Crisis Communications Director Sarah coordinate an emergency response to a sophisticated cyberattack."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "Sarah",
+    "textEn": "David, the executive board is demanding an immediate briefing. Has the scope of the cybersecurity incident been contained?"
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "David",
+    "textEn": "Yes, our security operations team has quarantined all affected database segments. The adversary must have gained initial access through a compromised employee credential before attempting lateral privilege escalation."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "Sarah",
+    "textEn": "Were any unencrypted customer credit card details exfiltrated?"
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "David",
+    "textEn": "No. Under our zero-trust architecture, all payment information is tokenized and encrypted with hardware-backed keys. However, customer contact records and hashed passwords were compromised."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "Sarah",
+    "textEn": "We should have enforced hardware-based security keys across all departments last quarter; this breach could have been prevented entirely."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "David",
+    "textEn": "Be that as it may, our priority right now is remediation and transparency. It is vital that we notify regulatory authorities within the mandatory 72-hour window and mandate an immediate password reset for all active accounts."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "Sarah",
+    "textEn": "I am drafting the public disclosure statement now. Under no circumstances will we attempt to downplay the severity of the incident. Honesty is paramount for preserving customer trust."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "David",
+    "textEn": "Absolutely. Once the containment is verified, we will publish a comprehensive post-mortem detailing our upgraded defensive architecture."
+  },
+  {
+    "code": "B2_POD04",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the past regret: We should have enforced security keys; this breach could have been prevented. High-stakes B2 corporate communication!"
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 5! Professor Alan and automotive software engineer Rachel analyze the technical triumphs and ethical dilemmas of Level 4 self-driving vehicles."
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Professor Alan",
+    "textEn": "Rachel, autonomous driving technology is reported to have achieved superhuman reaction speeds in highway environments. However, how does your perception stack navigate unpredictable urban edge cases?"
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Rachel",
+    "textEn": "In dense urban traffic, our architecture relies on multi-modal sensor fusion. Combining LiDAR point clouds, radar telemetry, and high-resolution camera feeds, the onboard inference engine constructs an omnidirectional 3D occupancy grid fifty times per second."
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Professor Alan",
+    "textEn": "But what occurs when an unavoidable collision scenario manifests? How does the vehicle's decision-making algorithm prioritize passenger safety versus pedestrian protection?"
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Rachel",
+    "textEn": "That is the quintessential philosophical dilemma in our field. Were a vehicle to encounter an unavoidable collision, its deterministic trajectory planner is programmed to minimize kinetic energy dissipation rather than making qualitative ethical judgments regarding human lives."
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Professor Alan",
+    "textEn": "It is widely acknowledged that autonomous driving will eliminate ninety percent of human error-induced traffic fatalities."
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "Rachel",
+    "textEn": "Indeed. Notwithstanding the sensationalized media scrutiny surrounding isolated edge-case failures, empirical safety statistics unequivocally favor autonomous transport over human drivers."
+  },
+  {
+    "code": "B2_POD05",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the participle clause: Combining LiDAR point clouds, radar telemetry, and camera feeds, the engine constructs a 3D grid. Pure technical English!"
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 6, corporate counsel Jonathan negotiates terms with enterprise SaaS sales director Karen for a multi-million-dollar software licensing agreement."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Jonathan",
+    "textEn": "Karen, we have reviewed your Master Services Agreement draft. While we appreciate the custom pricing tier, several contractual clauses require amendment before our board will execute the contract."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Karen",
+    "textEn": "We are completely open to negotiation, Jonathan. Which specific provisions are causing concern for your legal team?"
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Jonathan",
+    "textEn": "First and foremost, our corporate governance mandates that your uptime SLA be guaranteed at 99.99%, rather than the proposed 99.9%. Furthermore, should your service experience downtime exceeding thirty minutes in any calendar month, our contract must provide financial service credits."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Karen",
+    "textEn": "We can accommodate a 99.99% uptime commitment, provided that scheduled maintenance windows are excluded from the downtime calculation."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Jonathan",
+    "textEn": "That is acceptable. Secondly, regarding data ownership: it is imperative that all customer telemetry remain our exclusive intellectual property upon contract termination."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Karen",
+    "textEn": "Absolutely. Our security architecture ensures that upon termination, your data will be exported in an encrypted format and permanently expunged from our servers."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "Jonathan",
+    "textEn": "Excellent. If you incorporate these amended indemnity and liability clauses into the revised draft, we will sign the three-year agreement by Friday."
+  },
+  {
+    "code": "B2_POD06",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the formal Subjunctive: It is imperative that all customer telemetry remain our property. Essential for legal and corporate negotiations!"
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 7! Industrial psychologist Dr. Miller and HR executive Daniel discuss mitigating workplace burnout and cultivating healthy asynchronous engineering cultures."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Daniel",
+    "textEn": "Dr. Miller, over the past eighteen months, our quarterly employee surveys have indicated a concerning rise in cognitive fatigue and burnout, particularly among our senior engineering staff."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Dr. Miller",
+    "textEn": "That is a prevalent industry-wide phenomenon, Daniel. Operating in a perpetual state of hyper-connectivity, knowledge workers rarely have the opportunity to disconnect cognitively from urgent Slack notifications and sprint pressures."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Daniel",
+    "textEn": "We used to believe that offering catered lunches and ergonomic office desks was sufficient to preserve employee well-being."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Dr. Miller",
+    "textEn": "Those perks are superficial. True structural mental wellness requires having managers respect strict after-hours communication boundaries. Seldom do employees burn out from challenging technical problems; rather, they burn out from chronic contextual switching and unpredictable deadlines."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Daniel",
+    "textEn": "We recently introduced a company-wide policy of 'No-Meeting Wednesdays' and encouraged asynchronous documentation over reactive messaging."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Dr. Miller",
+    "textEn": "That is an exceptional structural intervention. By fostering an asynchronous environment, you empower your engineers to enter uninterrupted deep work states, thereby enhancing both output quality and psychological well-being."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "Daniel",
+    "textEn": "In the final analysis, employee retention and sustainable productivity are inseparable."
+  },
+  {
+    "code": "B2_POD07",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the participle phrase: Operating in a perpetual state of hyper-connectivity... and the inversion Seldom do employees burn out from technical problems."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "[Host Intro]",
+    "textEn": "In Episode 8, science journalist Claire interviews biotechnology researcher Dr. Aris about the revolutionary therapeutic potential of CRISPR gene editing."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Claire",
+    "textEn": "Dr. Aris, genetic therapies are considered to be on the verge of eradicating previously incurable hereditary blood disorders. What was the critical breakthrough that enabled this clinical transition?"
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Dr. Aris",
+    "textEn": "The decisive breakthrough was the refinement of molecular precision. Targeting defective genetic sequences with sub-nanometer accuracy, our CRISPR-Cas9 enzyme acts as molecular scissors through which pathogenic mutations are excised and replaced with healthy genomic code."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Claire",
+    "textEn": "In recent clinical trials, this protocol is reported to have cured patients suffering from sickle cell anemia permanently."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Dr. Aris",
+    "textEn": "Indeed. Had we not mapped the complete human genome two decades ago, such precision genetic engineering would remain science fiction today (Mixed Conditional)."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Claire",
+    "textEn": "What are the remaining regulatory and bioethical hurdles before these treatments become globally accessible?"
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Dr. Aris",
+    "textEn": "The primary challenge is scalable manufacturing. Synthesized in specialized sterile facilities, custom cellular therapies currently cost hundreds of thousands of dollars per patient."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Claire",
+    "textEn": "It is essential that scientific institutions ensure equitable access to these lifesaving therapies rather than letting them become exclusive privileges for wealthy nations."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "Dr. Aris",
+    "textEn": "Absolutely. Science achieves its highest purpose only when it elevates all humanity."
+  },
+  {
+    "code": "B2_POD08",
+    "speaker": "[Host Outro]",
+    "textEn": "Notice the relative clause with preposition: molecular scissors through which pathogenic mutations are excised. Masterful scientific English!"
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "[Host Intro]",
+    "textEn": "Welcome to Episode 9! CEO Julian and organizational consultant Maya examine the cultural and philosophical shifts driving the global remote work revolution."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Maya",
+    "textEn": "Julian, your enterprise software company operates with two hundred engineers across thirty different countries with zero physical corporate offices. What philosophical principle underpins this distributed model?"
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Julian",
+    "textEn": "We believe that exceptional talent is distributed globally, whereas historical employment opportunities were concentrated in a handful of expensive metropolitan hubs. In 2020, we knew that remote work would prevail over rigid physical colocation."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Maya",
+    "textEn": "But how do you cultivate cohesive corporate culture when team members are separated by twelve time zones?"
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Julian",
+    "textEn": "By replacing micromanagement with radical autonomy and asynchronous transparency. Under no circumstances do we measure working hours or keystrokes; we measure objective pull request impact and customer satisfaction."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Maya",
+    "textEn": "Despite the undeniable operational freedom, some leaders fear that spontaneous innovation diminishes without physical watercooler conversations."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Julian",
+    "textEn": "On the contrary, our best architectural breakthroughs emerged from structured, thoughtful written proposals rather than chaotic brainstorming sessions. Had we constrained our hiring to a single city, we would never have assembled such an extraordinarily diverse and brilliant engineering team."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "Maya",
+    "textEn": "In essence, geography is no longer destiny in the modern knowledge economy."
+  },
+  {
+    "code": "B2_POD09",
+    "speaker": "[Host Outro]",
+    "textEn": "Look at the future in the past: We knew that remote work would prevail. Notice how Julian structures persuasive, executive-level arguments!"
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "[Host Intro]",
+    "textEn": "In our final B2 episode, cyber law attorney Marcus and Data Protection Officer Helena debate regulatory enforcement, digital sovereignty, and the future of consumer privacy."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Helena",
+    "textEn": "Marcus, as machine learning models ingest colossal volumes of personal user data, how are international privacy frameworks adapting to prevent mass surveillance?"
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Marcus",
+    "textEn": "The regulatory landscape is undergoing aggressive transformation, Helena. The stringent enforcement of data sovereignty frameworks such as GDPR and CCPA mandates that personal telemetry be anonymized and processed strictly under explicit consent."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Helena",
+    "textEn": "It was the unregulated monetization of personal behavioral data that gave rise to modern surveillance capitalism."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Marcus",
+    "textEn": "Exactly. Not only do current regulations impose multi-million-dollar fines on non-compliant corporations, but they also empower individuals with the absolute 'right to be forgotten'."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Helena",
+    "textEn": "In our engineering department, privacy is no longer an afterthought; it is integrated directly into our architectural blueprints via privacy-by-design principles."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Marcus",
+    "textEn": "Should corporations fail to uphold these fundamental digital rights, consumer trust will evaporate irreversibly."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "Helena",
+    "textEn": "Suffice it to say, strong cryptographic encryption and transparent data governance are completely non-negotiable in the twenty-first century."
+  },
+  {
+    "code": "B2_POD10",
+    "speaker": "[Host Outro]",
+    "textEn": "Congratulations on completing the entire B2 Upper-Intermediate series! You now have a complete, professional, and intellectually rich English listening foundation!"
+  }
+]
