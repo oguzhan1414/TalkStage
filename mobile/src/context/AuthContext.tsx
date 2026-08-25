@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { configureRevenueCat } from '../lib/revenuecat';
 import { supabase } from '../lib/supabase';
 
 type AuthContextValue = {
@@ -28,6 +29,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (session?.user.id) {
+      configureRevenueCat(session.user.id);
+    }
+  }, [session?.user.id]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

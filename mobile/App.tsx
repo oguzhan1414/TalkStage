@@ -18,6 +18,7 @@ import { OnboardingProvider } from './src/context/OnboardingContext';
 import { ConfigMissingScreen } from './src/screens/ConfigMissingScreen';
 import { ApiError } from './src/lib/api';
 import { isSupabaseConfigured } from './src/lib/supabase';
+import { navigationRef } from './src/navigation/navigationRef';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore — already hidden (e.g. fast refresh) or unsupported on this platform.
@@ -62,7 +63,7 @@ export default function App() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <OnboardingProvider>
-                <NavigationContainer theme={talkStageNavigationTheme}>
+                <NavigationContainer ref={navigationRef} theme={talkStageNavigationTheme}>
                   <RootNavigator />
                 </NavigationContainer>
               </OnboardingProvider>

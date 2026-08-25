@@ -14,6 +14,8 @@ export type ProfileOut = {
   streak_count: number;
   longest_streak: number;
   last_practice_date: string | null;
+  xp: number;
+  avatar_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -22,6 +24,7 @@ export type ProfileUpdate = Partial<{
   display_name: string;
   cefr_level: string;
   interests: string[];
+  avatar_id: string;
 }>;
 
 export type ScenarioOut = {
@@ -53,7 +56,10 @@ export type VocabCardOut = {
   term: string;
   translation: string | null;
   example_sentence: string | null;
+  part_of_speech?: string | null;
+  cefr_level?: string | null;
   source_scenario_id: string | null;
+  source_label: string | null;
   sm2_repetitions: number;
   sm2_ease_factor: number;
   sm2_interval_days: number;
@@ -65,7 +71,18 @@ export type VocabCardCreate = {
   term: string;
   translation?: string;
   example_sentence?: string;
+  part_of_speech?: string;
+  cefr_level?: string;
   source_scenario_id?: string;
+  source_label?: string;
+};
+
+export type VocabCardUpdate = {
+  term?: string;
+  translation?: string;
+  example_sentence?: string;
+  part_of_speech?: string;
+  cefr_level?: string;
 };
 
 export type VocabGrade = 'again' | 'good' | 'easy';
@@ -94,4 +111,69 @@ export type SessionOut = {
   unique_words_count: number;
   corrections_count: number;
   created_at: string;
+};
+
+export type ReadingScene = {
+  title: string;
+  image_key: string;
+  sentence_en: string;
+  sentence_tr: string;
+};
+
+export type ReadingQuizQuestion = {
+  question: string;
+  options: string[];
+  correct_index: number;
+};
+
+export type ReadingSpeakingPrompt = {
+  yanki_ask: string;
+  expected_answer: string;
+};
+
+export type ReadingPassageOut = {
+  id: string;
+  scenario_id: string | null;
+  slug: string;
+  title: string;
+  body_text: string;
+  cefr_level: string | null;
+  estimated_minutes: number;
+  sort_order: number;
+  scenes: ReadingScene[];
+  quiz: ReadingQuizQuestion[];
+  speaking_prompt: ReadingSpeakingPrompt | null;
+};
+
+export type ChatTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+export type ChatMessageRequest = {
+  history: ChatTurn[];
+  message: string;
+  role_context?: string;
+};
+
+export type ChatCorrection = {
+  has_error: boolean;
+  corrected: string | null;
+  explanation_tr: string | null;
+};
+
+export type ChatMessageResponse = {
+  reply_en: string;
+  reply_tr_hint: string;
+  correction: ChatCorrection;
+  is_completed?: boolean;
+  completion_summary_tr?: string | null;
+};
+
+/** `GET /progress` — added alongside mobile Görev 15, the `progress` table existed but was never exposed for reading. */
+export type ProgressOut = {
+  id: string;
+  practice_date: string;
+  minutes_practiced: number;
+  scenarios_completed: number;
 };
