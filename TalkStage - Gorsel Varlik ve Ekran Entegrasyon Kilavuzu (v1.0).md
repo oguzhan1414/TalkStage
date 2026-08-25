@@ -49,6 +49,29 @@
 | **39** | `39_contact_support_lounge.png` | PNG | 16:9 (Yatay) | Web İletişim (/iletisim) 3D Karşılama Kartı | Destek Odası / Canlı Chat Tepe Kartı |
 | **40** | `40_hero_dynamic_trio_stage.png`| PNG | 16:9 (Yatay) | Web Landing Ana Hero 3D Karakterler Vitrini| Mobil Karşılama & Onboarding Tepe Görseli|
 | **41** | `41_bg_side_framed_glass_stream.png`| PNG | 16:9 (Yatay)| Web Global Sağ & Sol Kenar 3D Cam & Ses Çerçevesi| Mobil Yan Menü & Splash Kenar Çerçevesi |
+| **42** | `42_nav_icon_stages_home.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Mobil Alt Menü 1. Sekme (Sahne / Home) İkonu |
+| **43** | `43_nav_icon_practice_decks.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Mobil Alt Menü 2. Sekme (Alıştırma & Decks) İkonu|
+| **44** | `44_nav_icon_quick_voice_orb.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık | Mobil Alt Menü Orta Merkez (Hızlı Konuş AI) Butonu|
+| **45** | `45_nav_icon_league_trophy.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Mobil Alt Menü 4. Sekme (Lig & Başarımlar) İkonu |
+| **46** | `46_nav_icon_profile_shield.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Mobil Alt Menü 5. Sekme (Profil & İstatistik) İkonu|
+| **47** | `47_level_a1_sprout_starter.png`| PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil A1 Seviye Kalkan Rozeti (Zümrüt Yeşili) |
+| **48** | `48_level_a2_cyan_shield.png` | PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil A2 Seviye Kalkan Rozeti (Okyanus Turkuazı) |
+| **49** | `49_level_b1_indigo_shield.png`| PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil B1 Seviye Kalkan Rozeti (Asil İndigo) |
+| **50** | `50_level_b2_violet_shield.png`| PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil B2 Seviye Kalkan Rozeti (Canlı Mor/Lila) |
+| **51** | `51_level_c1_gold_shield.png` | PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil C1 Seviye Kalkan Rozeti (24K Parlak Altın) |
+| **52** | `52_level_c2_diamond_crown.png`| PNG | 1:1 (Kare) | Seviye Rehberi & Blog | Mobil C2 Seviye Kalkan Rozeti (Elmas Kristal & Taç)|
+| **53** | `53_state_mic_permission.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Mikrofon İzni İsteme Modalı 3D Karakteri |
+| **54** | `54_state_daily_goal_celebration.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık| Günlük 5 Dk Hedef Tamamlandı & Alev Kupası |
+| **55** | `55_state_empty_vocab_chest.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | Boş Kelime Defteri (Empty State) Sandığı |
+| **56** | `56_state_connection_reconnecting.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık| Bağlantı Koptu / Sinyal Arama Ekranı |
+| **57** | `57_paywall_vip_backstage_pass.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık| Stage Pass VIP All-Access 3D Boyun Kartı |
+| **58** | `58_avatar_male_developer.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Genç Yazılımcı (Hoodie) |
+| **59** | `59_avatar_female_tech_lead.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Kadın Tech Lead (Blazer) |
+| **60** | `60_avatar_male_traveler.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Gezgin & Öğrenci |
+| **61** | `61_avatar_female_designer.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Yaratıcı UI/UX Tasarımcı |
+| **62** | `62_avatar_male_engineer.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Sistem & AI Mühendisi |
+| **63** | `63_avatar_female_entrepreneur.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık| 3D Kullanıcı Avatarı: Girişimci & Konuşmacı |
+| **64** | `64_companion_yanki_coffee_cup.png`| PNG | 1:1 (Kare)| Web Hero & Mobil Karşılama | TalkStage Canlı Maskotu: Kahve Kupası Yankı ☕ |
 
 ---
 

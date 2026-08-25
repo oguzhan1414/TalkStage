@@ -75,7 +75,7 @@ Kaynak dokümanlar (repo kökünde):
 
 ## Ekipler Arası Bağımlılıklar — Beklemem Gereken Yerler
 
-- **Görev 10 (Smart Deep-Link Router) mobil'e bağımlı, bilinçli olarak yapılmadı:** `app://scenario/:id` şeması mobil'de henüz tanımlanmadı (mobil Görev 18) ve gerçek App Store/Play Store URL'leri yok (mağaza başvurusu Faz 7 / Gün 44). `src/lib/links.ts` placeholder env okuyor; mobil scheme'i sabitleyip gerçek store linkleri gelince App Links/Universal Links + custom-scheme deneme mantığını burada kuracağım.
+- **Görev 10 tamam (2026-08-22, tek ajan modeline geçtikten sonra):** Mobil taraf scheme'i `talkstage://` (`scenario/:slug`, `reading/:slug` path'leriyle) olarak sabitledi (`mobile/app.json`'daki `expo.scheme`, bkz. `../mobile/CLAUDE.md` Görev 18) — `src/lib/links.ts`'in zaten placeholder fallback'ı olarak kullandığı `talkstage://` ile birebir örtüştü, uyumsuzluk çıkmadı. `src/app/go/scenario/[slug]/page.tsx` eklendi: `talkstage://scenario/:slug`'ı açmayı dener, sekme görünür kalırsa (~1.5sn, `visibilitychange` ile iptal edilebiliyor) cihaza göre App Store/Play Store'a yönlendirir. `npm run build` temiz (`/go/scenario/[slug]` dinamik route olarak listeleniyor). **Bilinçli olarak yapılmayan:** Bento Grid kartları gerçek sahne slug'larına bağlanmadı — backend'in `scenarios` tablosu hâlâ boş (Studio içeriği girilmedi), var olmayan slug'lara link vermenin anlamı yok; içerik girilince buraya dönülüp gerçek kartlar linklenebilir. Universal Links/App Links (gerçek domain + Apple Team ID doğrulaması) hâlâ yapılmadı, sadece custom-scheme + store fallback var — o, gerçek domain/store başvurusu netleşince (Faz 7) tamamlanacak.
 - **Görev 11 (SEO/ASO & Performans) kısmen yapıldı:** `layout.tsx`'te temel `metadata`/OpenGraph var; Lighthouse performans geçişi ve tam ASO metin taraması yapılmadı.
 - Tasarım dokümanındaki renk/asset tutarsızlığı (önceki not) `../mobile/CLAUDE.md`'de de düzeltildi; tasarım dokümanı tekrar değişirse **her iki CLAUDE.md'nin senkron kalması** ortak sorumluluk.
 
@@ -101,7 +101,7 @@ Kaynak dokümanlar (repo kökünde):
 
 **Görev 9 — Final CTA & Footer** ✅ `FinalCta.tsx`, `Footer.tsx`
 
-**Görev 10 — Smart Deep-Link Router** ⏳ Mobil scheme + gerçek store URL'leri gelince yapılacak, bkz. bağımlılık notu. `src/lib/links.ts` placeholder hazır.
+**Görev 10 — Smart Deep-Link Router** ✅ `src/app/go/scenario/[slug]/page.tsx` — custom-scheme dene + store fallback. Gerçek store URL'leri (Faz 7) ve Universal/App Links hâlâ eksik, bkz. Mevcut Durum notu.
 
 **Görev 11 — SEO / ASO & Performans** ⏳ Temel metadata/OG yapıldı; Lighthouse geçişi bekliyor.
 
