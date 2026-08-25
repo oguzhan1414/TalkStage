@@ -1,0 +1,675 @@
+{
+  "podcast_a1_ep1_cafe": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to TalkStage English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food.",
+      "startSec": 0.0,
+      "duration": 10.27
+    },
+    {
+      "index": 2,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Good morning! Welcome to Green Bean Cafe. How are you doing today?",
+      "startSec": 10.3,
+      "duration": 6.53
+    },
+    {
+      "index": 3,
+      "voice": "en-US-JennyNeural",
+      "text": "Good morning! I am doing well, thank you. It is a lovely sunny day.",
+      "startSec": 16.8,
+      "duration": 6.82
+    },
+    {
+      "index": 4,
+      "voice": "en-US-ChristopherNeural",
+      "text": "It really is! What can I get started for you this morning?",
+      "startSec": 23.6,
+      "duration": 5.04
+    },
+    {
+      "index": 5,
+      "voice": "en-US-JennyNeural",
+      "text": "Hmm, let me see. Could I please have a large latte with oat milk?",
+      "startSec": 28.7,
+      "duration": 5.57
+    },
+    {
+      "index": 6,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Of course! A large oat milk latte. Would you like that hot or iced?",
+      "startSec": 34.2,
+      "duration": 6.96
+    },
+    {
+      "index": 7,
+      "voice": "en-US-JennyNeural",
+      "text": "Hot, please. And do you have any fresh bakery items today?",
+      "startSec": 41.2,
+      "duration": 5.28
+    },
+    {
+      "index": 8,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, we just baked butter croissants, chocolate muffins, and blueberry scones about ten minutes ago.",
+      "startSec": 46.5,
+      "duration": 7.42
+    },
+    {
+      "index": 9,
+      "voice": "en-US-JennyNeural",
+      "text": "Oh, the butter croissant smells wonderful! I will take one croissant, please.",
+      "startSec": 53.9,
+      "duration": 6.53
+    },
+    {
+      "index": 10,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Excellent choice. Would you like me to warm it up for you?",
+      "startSec": 60.4,
+      "duration": 4.8
+    },
+    {
+      "index": 11,
+      "voice": "en-US-JennyNeural",
+      "text": "Yes, please. That would be lovely. How much is the total?",
+      "startSec": 65.2,
+      "duration": 6.43
+    },
+    {
+      "index": 12,
+      "voice": "en-US-ChristopherNeural",
+      "text": "That comes to seven dollars and fifty cents. Are you paying with cash or card?",
+      "startSec": 71.6,
+      "duration": 6.19
+    },
+    {
+      "index": 13,
+      "voice": "en-US-JennyNeural",
+      "text": "I will pay with credit card, please. Here is my card.",
+      "startSec": 77.8,
+      "duration": 5.16
+    },
+    {
+      "index": 14,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Thank you. You can just tap it right on the screen... Perfect, it went through!",
+      "startSec": 83.0,
+      "duration": 7.1
+    },
+    {
+      "index": 15,
+      "voice": "en-US-JennyNeural",
+      "text": "Great! Do you have free Wi-Fi here? I need to do a little bit of study on my laptop.",
+      "startSec": 90.1,
+      "duration": 7.3
+    },
+    {
+      "index": 16,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, we do! The network name is Green Bean Guest, and the password is printed at the bottom of your receipt.",
+      "startSec": 97.4,
+      "duration": 8.21
+    },
+    {
+      "index": 17,
+      "voice": "en-US-JennyNeural",
+      "text": "That is very helpful. Is there a table near a power outlet?",
+      "startSec": 105.6,
+      "duration": 5.21
+    },
+    {
+      "index": 18,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, the corner table by the window has two power sockets. It is very quiet and comfortable over there.",
+      "startSec": 110.8,
+      "duration": 8.11
+    },
+    {
+      "index": 19,
+      "voice": "en-US-JennyNeural",
+      "text": "Thank you so much! You are very kind.",
+      "startSec": 118.9,
+      "duration": 4.37
+    },
+    {
+      "index": 20,
+      "voice": "en-US-ChristopherNeural",
+      "text": "You are very welcome! Here is your hot oat latte and your warm croissant. Enjoy your breakfast and have a productive study session!",
+      "startSec": 123.3,
+      "duration": 9.89
+    },
+    {
+      "index": 21,
+      "voice": "en-US-JennyNeural",
+      "text": "Thank you Liam! Have a fantastic day, see you next time!",
+      "startSec": 133.2,
+      "duration": 5.35
+    },
+    {
+      "index": 22,
+      "voice": "en-US-ChristopherNeural",
+      "text": "See you tomorrow, Emma! Take care!",
+      "startSec": 138.5,
+      "duration": 4.37
+    },
+    {
+      "index": 23,
+      "voice": "en-US-AvaNeural",
+      "text": "You have finished Episode 1. Great job on practicing cafe English!",
+      "startSec": 142.9,
+      "duration": 4.9
+    }
+  ],
+  "podcast_a1_ep1_cafe_total": 147.8,
+  "podcast_a1_ep2_routines": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 2: Morning Alarm and Daily Routines. Learn how to describe your everyday schedule, tell the time, and discuss morning habits.",
+      "startSec": 0.0,
+      "duration": 10.56
+    },
+    {
+      "index": 2,
+      "voice": "en-US-AriaNeural",
+      "text": "Good morning, David! You look very energetic today. What time do you usually wake up?",
+      "startSec": 10.6,
+      "duration": 7.99
+    },
+    {
+      "index": 3,
+      "voice": "en-US-GuyNeural",
+      "text": "Good morning, Sarah! I always wake up at six thirty in the morning. My alarm rings, and I get out of bed immediately.",
+      "startSec": 18.6,
+      "duration": 9.72
+    },
+    {
+      "index": 4,
+      "voice": "en-US-AriaNeural",
+      "text": "Six thirty? That is quite early! What is the first thing you do after waking up?",
+      "startSec": 28.3,
+      "duration": 7.44
+    },
+    {
+      "index": 5,
+      "voice": "en-US-GuyNeural",
+      "text": "First, I drink a large glass of warm water. Then, I brush my teeth, take a quick shower, and put on my clothes.",
+      "startSec": 35.7,
+      "duration": 8.38
+    },
+    {
+      "index": 6,
+      "voice": "en-US-AriaNeural",
+      "text": "Do you usually eat breakfast at home or on the way to work?",
+      "startSec": 44.1,
+      "duration": 4.1
+    },
+    {
+      "index": 7,
+      "voice": "en-US-GuyNeural",
+      "text": "I always eat breakfast at home. I make scrambled eggs, whole wheat toast, and a cup of black coffee. What about you, Sarah? What is your morning routine?",
+      "startSec": 48.2,
+      "duration": 12.29
+    },
+    {
+      "index": 8,
+      "voice": "en-US-AriaNeural",
+      "text": "My routine is a little different. I wake up at seven fifteen. I do ten minutes of morning yoga and meditation. After that, I eat a bowl of oatmeal with fresh strawberries and honey.",
+      "startSec": 60.5,
+      "duration": 14.02
+    },
+    {
+      "index": 9,
+      "voice": "en-US-GuyNeural",
+      "text": "Yoga in the morning sounds very peaceful! How do you travel to your office?",
+      "startSec": 74.5,
+      "duration": 6.07
+    },
+    {
+      "index": 10,
+      "voice": "en-US-AriaNeural",
+      "text": "I usually take the subway. The station is only five minutes from my apartment, and the train ride takes about twenty minutes. How do you commute?",
+      "startSec": 80.6,
+      "duration": 11.11
+    },
+    {
+      "index": 11,
+      "voice": "en-US-GuyNeural",
+      "text": "When the weather is sunny, I ride my bicycle. When it rains, I take the bus. Cycling gives me fresh air and good exercise before work.",
+      "startSec": 91.7,
+      "duration": 10.51
+    },
+    {
+      "index": 12,
+      "voice": "en-US-AriaNeural",
+      "text": "Riding a bicycle to work is fantastic. What time does your workday start?",
+      "startSec": 102.2,
+      "duration": 6.29
+    },
+    {
+      "index": 13,
+      "voice": "en-US-GuyNeural",
+      "text": "My work starts at nine o'clock sharp and finishes at five thirty in the evening. In the evening, I cook dinner and read a book.",
+      "startSec": 108.5,
+      "duration": 8.4
+    },
+    {
+      "index": 14,
+      "voice": "en-US-AriaNeural",
+      "text": "That sounds like a very healthy and balanced daily routine, David!",
+      "startSec": 116.9,
+      "duration": 4.94
+    },
+    {
+      "index": 15,
+      "voice": "en-US-GuyNeural",
+      "text": "Thank you, Sarah! Consistency is key to a happy day.",
+      "startSec": 121.8,
+      "duration": 5.38
+    },
+    {
+      "index": 16,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 2 is complete. Notice the adverbs of frequency: always, usually, and sometimes.",
+      "startSec": 127.2,
+      "duration": 7.25
+    }
+  ],
+  "podcast_a1_ep2_routines_total": 134.4,
+  "podcast_a1_ep3_city": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 3: Lost in the City. Learn how to politely stop someone on the street, ask for directions, and find landmarks.",
+      "startSec": 0.0,
+      "duration": 9.19
+    },
+    {
+      "index": 2,
+      "voice": "en-US-EricNeural",
+      "text": "Excuse me, hello! I am sorry to bother you, but I am a little lost. Could you help me, please?",
+      "startSec": 9.2,
+      "duration": 8.98
+    },
+    {
+      "index": 3,
+      "voice": "en-US-JennyNeural",
+      "text": "Hello! Sure, no problem at all. Where are you trying to go?",
+      "startSec": 18.2,
+      "duration": 6.58
+    },
+    {
+      "index": 4,
+      "voice": "en-US-EricNeural",
+      "text": "I am looking for the Central Metro Station. Is it far from here?",
+      "startSec": 24.7,
+      "duration": 5.47
+    },
+    {
+      "index": 5,
+      "voice": "en-US-JennyNeural",
+      "text": "No, it is not far at all. It is only about a seven-minute walk from here.",
+      "startSec": 30.2,
+      "duration": 6.12
+    },
+    {
+      "index": 6,
+      "voice": "en-US-EricNeural",
+      "text": "That is great news! How do I get there from this corner?",
+      "startSec": 36.3,
+      "duration": 4.99
+    },
+    {
+      "index": 7,
+      "voice": "en-US-JennyNeural",
+      "text": "Walk straight down this main street for two blocks. When you see a big blue pharmacy on your right, turn left onto Grand Avenue.",
+      "startSec": 41.3,
+      "duration": 8.81
+    },
+    {
+      "index": 8,
+      "voice": "en-US-EricNeural",
+      "text": "Okay, walk straight for two blocks, then turn left at the blue pharmacy. Got it!",
+      "startSec": 50.1,
+      "duration": 7.01
+    },
+    {
+      "index": 9,
+      "voice": "en-US-JennyNeural",
+      "text": "Exactly. After you turn left, walk past the city park. The metro station entrance is right opposite the public library. You will see a large yellow M sign.",
+      "startSec": 57.1,
+      "duration": 12.84
+    },
+    {
+      "index": 10,
+      "voice": "en-US-EricNeural",
+      "text": "Is the library next to the park?",
+      "startSec": 70.0,
+      "duration": 2.9
+    },
+    {
+      "index": 11,
+      "voice": "en-US-JennyNeural",
+      "text": "Yes, the library is right across the street from the park fountain. You cannot miss it.",
+      "startSec": 72.9,
+      "duration": 6.67
+    },
+    {
+      "index": 12,
+      "voice": "en-US-EricNeural",
+      "text": "Also, is there a ticket machine inside the station, or do I need to buy a card beforehand?",
+      "startSec": 79.6,
+      "duration": 6.43
+    },
+    {
+      "index": 13,
+      "voice": "en-US-JennyNeural",
+      "text": "There are automatic ticket machines right at the entrance. They accept both credit cards and cash, and there is an English language option on the screen.",
+      "startSec": 86.0,
+      "duration": 9.82
+    },
+    {
+      "index": 14,
+      "voice": "en-US-EricNeural",
+      "text": "Thank you so much! You saved my day.",
+      "startSec": 95.8,
+      "duration": 4.51
+    },
+    {
+      "index": 15,
+      "voice": "en-US-JennyNeural",
+      "text": "You are very welcome! Have a wonderful time exploring our city!",
+      "startSec": 100.3,
+      "duration": 5.42
+    },
+    {
+      "index": 16,
+      "voice": "en-US-EricNeural",
+      "text": "Thank you! Have a great afternoon!",
+      "startSec": 105.7,
+      "duration": 4.03
+    },
+    {
+      "index": 17,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 3 is complete. Remember these key direction phrases: walk straight, turn left, and across the street.",
+      "startSec": 109.8,
+      "duration": 8.4
+    }
+  ],
+  "podcast_a1_ep3_city_total": 118.2,
+  "podcast_a1_ep4_restaurant": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 4: Dinner at the Bistro. Practice ordering meals, asking about ingredients, and requesting the bill in English.",
+      "startSec": 0.0,
+      "duration": 9.22
+    },
+    {
+      "index": 2,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Good evening! Welcome to Bella Vista Bistro. Do you have a reservation tonight?",
+      "startSec": 9.2,
+      "duration": 7.13
+    },
+    {
+      "index": 3,
+      "voice": "en-US-MichelleNeural",
+      "text": "Good evening! Yes, I have a reservation under the name Chloe for two people at seven thirty.",
+      "startSec": 16.3,
+      "duration": 6.96
+    },
+    {
+      "index": 4,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Ah yes, right this way Chloe. I have a lovely quiet table for you next to the garden terrace.",
+      "startSec": 23.3,
+      "duration": 7.58
+    },
+    {
+      "index": 5,
+      "voice": "en-US-MichelleNeural",
+      "text": "This table is wonderful, thank you so much.",
+      "startSec": 30.9,
+      "duration": 3.74
+    },
+    {
+      "index": 6,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Here are your menus. Can I start you off with something to drink while you look over the food?",
+      "startSec": 34.6,
+      "duration": 6.24
+    },
+    {
+      "index": 7,
+      "voice": "en-US-MichelleNeural",
+      "text": "Yes, please. Could we have a bottle of sparkling mineral water with lemon slices?",
+      "startSec": 40.9,
+      "duration": 6.55
+    },
+    {
+      "index": 8,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Certainly, sparkling water with lemon. I will be right back with your drinks.",
+      "startSec": 47.4,
+      "duration": 6.31
+    },
+    {
+      "index": 9,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Here is your chilled water. Are you ready to order your main courses, or do you need a few more minutes?",
+      "startSec": 53.7,
+      "duration": 7.08
+    },
+    {
+      "index": 10,
+      "voice": "en-US-MichelleNeural",
+      "text": "We are ready to order! For the starter, we would like the tomato bruschetta with olive oil.",
+      "startSec": 60.8,
+      "duration": 6.67
+    },
+    {
+      "index": 11,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Excellent. And for your main courses?",
+      "startSec": 67.5,
+      "duration": 4.1
+    },
+    {
+      "index": 12,
+      "voice": "en-US-MichelleNeural",
+      "text": "I would like the grilled salmon with roasted potatoes and steamed asparagus. Does the salmon come with garlic sauce?",
+      "startSec": 71.6,
+      "duration": 7.85
+    },
+    {
+      "index": 13,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, it comes with a light lemon garlic sauce on the side.",
+      "startSec": 79.4,
+      "duration": 4.61
+    },
+    {
+      "index": 14,
+      "voice": "en-US-MichelleNeural",
+      "text": "That sounds delicious! And my friend would like the vegetarian mushroom risotto.",
+      "startSec": 84.0,
+      "duration": 6.24
+    },
+    {
+      "index": 15,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Perfect! One grilled salmon and one mushroom risotto. I will place your order with the chef right away.",
+      "startSec": 90.3,
+      "duration": 8.59
+    },
+    {
+      "index": 16,
+      "voice": "en-US-MichelleNeural",
+      "text": "Thank you very much!",
+      "startSec": 98.9,
+      "duration": 2.23
+    },
+    {
+      "index": 17,
+      "voice": "en-US-ChristopherNeural",
+      "text": "How was everything tonight? Did you enjoy your dinner?",
+      "startSec": 101.1,
+      "duration": 4.51
+    },
+    {
+      "index": 18,
+      "voice": "en-US-MichelleNeural",
+      "text": "The food was absolutely delicious! Could we please have the bill?",
+      "startSec": 105.6,
+      "duration": 5.42
+    },
+    {
+      "index": 19,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Of course, here is the bill whenever you are ready. Thank you for dining with us tonight!",
+      "startSec": 111.0,
+      "duration": 6.46
+    },
+    {
+      "index": 20,
+      "voice": "en-US-MichelleNeural",
+      "text": "Thank you Marco! Have a wonderful evening!",
+      "startSec": 117.5,
+      "duration": 4.22
+    },
+    {
+      "index": 21,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 4 is complete. You now know how to order food with confidence!",
+      "startSec": 121.7,
+      "duration": 4.82
+    }
+  ],
+  "podcast_a1_ep4_restaurant_total": 126.6,
+  "podcast_a1_ep5_weekend": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 5: Weekend Escapes and Past Memories. Practice talking about what you did yesterday using past tense was, were, and simple past verbs.",
+      "startSec": 0.0,
+      "duration": 11.45
+    },
+    {
+      "index": 2,
+      "voice": "en-US-BrianNeural",
+      "text": "Hey Sophie! Happy Friday! How was your week?",
+      "startSec": 11.4,
+      "duration": 3.89
+    },
+    {
+      "index": 3,
+      "voice": "en-US-EmmaNeural",
+      "text": "Hey Leo! My week was quite busy, but yesterday was very relaxing. Where were you yesterday afternoon?",
+      "startSec": 15.3,
+      "duration": 7.01
+    },
+    {
+      "index": 4,
+      "voice": "en-US-BrianNeural",
+      "text": "Yesterday afternoon, I was at the botanical garden. The weather was warm and sunny, so I walked around the rose garden for two hours.",
+      "startSec": 22.3,
+      "duration": 9.24
+    },
+    {
+      "index": 5,
+      "voice": "en-US-EmmaNeural",
+      "text": "That sounds so peaceful! Did you take any photos?",
+      "startSec": 31.6,
+      "duration": 3.74
+    },
+    {
+      "index": 6,
+      "voice": "en-US-BrianNeural",
+      "text": "Yes, I took many photos of the flowers and the lake. What did you do yesterday evening?",
+      "startSec": 35.3,
+      "duration": 5.81
+    },
+    {
+      "index": 7,
+      "voice": "en-US-EmmaNeural",
+      "text": "Yesterday evening, I stayed home. I cooked vegetable soup, watched a comedy movie on TV, and listened to relaxing music.",
+      "startSec": 41.1,
+      "duration": 8.42
+    },
+    {
+      "index": 8,
+      "voice": "en-US-BrianNeural",
+      "text": "That sounds cozy! Do you have any plans for this coming weekend?",
+      "startSec": 49.6,
+      "duration": 4.49
+    },
+    {
+      "index": 9,
+      "voice": "en-US-EmmaNeural",
+      "text": "Tomorrow, on Saturday, I want to go for a picnic in the Central Park. The weather forecast says it will be twenty-five degrees with no rain.",
+      "startSec": 54.0,
+      "duration": 8.38
+    },
+    {
+      "index": 10,
+      "voice": "en-US-BrianNeural",
+      "text": "A picnic in the park is a great idea! Would you like some company? I can bring fresh fruit, cheese, and lemonade.",
+      "startSec": 62.4,
+      "duration": 8.04
+    },
+    {
+      "index": 11,
+      "voice": "en-US-EmmaNeural",
+      "text": "I would love that! I will prepare homemade turkey sandwiches and bake some chocolate chip cookies tonight.",
+      "startSec": 70.5,
+      "duration": 6.19
+    },
+    {
+      "index": 12,
+      "voice": "en-US-BrianNeural",
+      "text": "Yum! Homemade cookies! What time should we meet at the park entrance?",
+      "startSec": 76.7,
+      "duration": 5.3
+    },
+    {
+      "index": 13,
+      "voice": "en-US-EmmaNeural",
+      "text": "Let's meet at eleven o'clock near the big oak tree by the pond.",
+      "startSec": 82.0,
+      "duration": 3.96
+    },
+    {
+      "index": 14,
+      "voice": "en-US-BrianNeural",
+      "text": "Eleven o'clock sounds perfect. I will bring a big picnic blanket and a Frisbee to play after lunch.",
+      "startSec": 85.9,
+      "duration": 6.79
+    },
+    {
+      "index": 15,
+      "voice": "en-US-EmmaNeural",
+      "text": "Awesome! I am really looking forward to tomorrow, Leo. See you at eleven!",
+      "startSec": 92.7,
+      "duration": 5.18
+    },
+    {
+      "index": 16,
+      "voice": "en-US-BrianNeural",
+      "text": "See you tomorrow morning Sophie! Have a great Friday evening!",
+      "startSec": 97.9,
+      "duration": 4.18
+    },
+    {
+      "index": 17,
+      "voice": "en-US-AvaNeural",
+      "text": "Congratulations! You have completed all 5 A1 Beginner Masterclass episodes. Keep listening and repeating to master conversational English!",
+      "startSec": 102.1,
+      "duration": 9.98
+    }
+  ],
+  "podcast_a1_ep5_weekend_total": 112.1
+}

@@ -1,0 +1,563 @@
+{
+  "podcast_a2_ep1_airport": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to TalkStage English Podcasts for A2 Elementary. Episode 1: Boarding Pass and Departure Gate. Practice airport check-in, luggage allowance, and boarding procedures.",
+      "startSec": 0.0,
+      "duration": 13.01
+    },
+    {
+      "index": 2,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Good morning! Welcome to SkyWay Airlines. May I please see your passport and flight booking confirmation?",
+      "startSec": 13.0,
+      "duration": 8.59
+    },
+    {
+      "index": 3,
+      "voice": "en-US-AriaNeural",
+      "text": "Good morning! Here is my passport and my mobile e-ticket confirmation code.",
+      "startSec": 21.6,
+      "duration": 6.1
+    },
+    {
+      "index": 4,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Thank you, Rachel. I see you are flying to London Heathrow today on flight SK 402. Are you checking in any baggage this morning?",
+      "startSec": 27.7,
+      "duration": 10.7
+    },
+    {
+      "index": 5,
+      "voice": "en-US-AriaNeural",
+      "text": "Yes, I have one large suitcase to check in, and I will take this small backpack as my carry-on bag.",
+      "startSec": 38.4,
+      "duration": 7.03
+    },
+    {
+      "index": 6,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Please place your suitcase onto the luggage scale... Perfect, twenty-one kilograms. That is well within your baggage allowance.",
+      "startSec": 45.4,
+      "duration": 9.94
+    },
+    {
+      "index": 7,
+      "voice": "en-US-AriaNeural",
+      "text": "That is a relief! Would it be possible to get a window seat, please?",
+      "startSec": 55.4,
+      "duration": 5.81
+    },
+    {
+      "index": 8,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Let me check the seating map... Yes, seat 14A near the front of the cabin is available. It has a great window view.",
+      "startSec": 61.2,
+      "duration": 9.62
+    },
+    {
+      "index": 9,
+      "voice": "en-US-AriaNeural",
+      "text": "Wonderful, thank you! What time does boarding begin, and which gate should I go to?",
+      "startSec": 70.8,
+      "duration": 6.6
+    },
+    {
+      "index": 10,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Boarding starts at ten fifteen at Gate 24. Security screening can take fifteen to twenty minutes, so please head through to the departure lounge shortly.",
+      "startSec": 77.4,
+      "duration": 10.75
+    },
+    {
+      "index": 11,
+      "voice": "en-US-AriaNeural",
+      "text": "Understood. Is the departure gate on the second floor?",
+      "startSec": 88.2,
+      "duration": 4.85
+    },
+    {
+      "index": 12,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, right after duty-free shops, take the escalator up to the second floor and follow the signs for Gate 24.",
+      "startSec": 93.0,
+      "duration": 7.92
+    },
+    {
+      "index": 13,
+      "voice": "en-US-AriaNeural",
+      "text": "Thank you so much for your help! Have a great day!",
+      "startSec": 100.9,
+      "duration": 4.73
+    },
+    {
+      "index": 14,
+      "voice": "en-US-ChristopherNeural",
+      "text": "You are very welcome, Rachel! Here is your passport and boarding pass. Have a safe and pleasant flight!",
+      "startSec": 105.6,
+      "duration": 8.74
+    },
+    {
+      "index": 15,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 1 complete! You now know the key vocabulary for traveling through airports with confidence.",
+      "startSec": 114.4,
+      "duration": 6.31
+    }
+  ],
+  "podcast_a2_ep1_airport_total": 120.7,
+  "podcast_a2_ep2_hotel": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 2: Hotel Check-in and Special Requests. Learn how to check in smoothly, ask about hotel amenities, and request extra services.",
+      "startSec": 0.0,
+      "duration": 10.44
+    },
+    {
+      "index": 2,
+      "voice": "en-US-GuyNeural",
+      "text": "Good afternoon! Welcome to The Grand Harbor Hotel. How can I assist you today?",
+      "startSec": 10.4,
+      "duration": 7.37
+    },
+    {
+      "index": 3,
+      "voice": "en-US-JennyNeural",
+      "text": "Good afternoon! I have a reservation for three nights under the name Clara Evans.",
+      "startSec": 17.8,
+      "duration": 6.24
+    },
+    {
+      "index": 4,
+      "voice": "en-US-GuyNeural",
+      "text": "Welcome Clara! Let me pull up your booking... Yes, a Deluxe King Room with a city view for three nights. May I have an ID and a credit card for the room deposit?",
+      "startSec": 24.0,
+      "duration": 12.58
+    },
+    {
+      "index": 5,
+      "voice": "en-US-JennyNeural",
+      "text": "Certainly, here is my driver's license and credit card.",
+      "startSec": 36.6,
+      "duration": 4.18
+    },
+    {
+      "index": 6,
+      "voice": "en-US-GuyNeural",
+      "text": "Thank you. Everything is set. You are in room 512 on the fifth floor. Here are your electronic key cards.",
+      "startSec": 40.8,
+      "duration": 10.06
+    },
+    {
+      "index": 7,
+      "voice": "en-US-JennyNeural",
+      "text": "Thank you. Could you please tell me what time breakfast is served in the morning?",
+      "startSec": 50.9,
+      "duration": 5.5
+    },
+    {
+      "index": 8,
+      "voice": "en-US-GuyNeural",
+      "text": "Our complimentary buffet breakfast is served on the ground floor terrace from seven to ten thirty in the morning.",
+      "startSec": 56.4,
+      "duration": 6.53
+    },
+    {
+      "index": 9,
+      "voice": "en-US-JennyNeural",
+      "text": "That is great. Also, does the room have high-speed Wi-Fi and an iron for clothing?",
+      "startSec": 62.9,
+      "duration": 6.58
+    },
+    {
+      "index": 10,
+      "voice": "en-US-GuyNeural",
+      "text": "Yes, Wi-Fi is complimentary throughout the hotel with no password required. There is an iron and ironing board inside the wardrobe.",
+      "startSec": 69.5,
+      "duration": 8.98
+    },
+    {
+      "index": 11,
+      "voice": "en-US-JennyNeural",
+      "text": "Could we also get two extra feather pillows and a bottle of mineral water sent up to the room?",
+      "startSec": 78.4,
+      "duration": 5.62
+    },
+    {
+      "index": 12,
+      "voice": "en-US-GuyNeural",
+      "text": "Of course, I will notify housekeeping right away, and they will bring them up within ten minutes.",
+      "startSec": 84.0,
+      "duration": 5.9
+    },
+    {
+      "index": 13,
+      "voice": "en-US-JennyNeural",
+      "text": "You have been so helpful, James. Thank you very much!",
+      "startSec": 90.0,
+      "duration": 5.16
+    },
+    {
+      "index": 14,
+      "voice": "en-US-GuyNeural",
+      "text": "It is our absolute pleasure, Clara. Enjoy your stay in the city!",
+      "startSec": 95.1,
+      "duration": 5.69
+    },
+    {
+      "index": 15,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 2 complete! Remember to use polite modals like 'could you please' when making requests at hotels.",
+      "startSec": 100.8,
+      "duration": 7.06
+    }
+  ],
+  "podcast_a2_ep2_hotel_total": 107.9,
+  "podcast_a2_ep3_shopping": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 3: Shopping Spree and Fitting Rooms. Practice asking for sizes, trying on clothes, asking about discounts, and return policies.",
+      "startSec": 0.0,
+      "duration": 10.92
+    },
+    {
+      "index": 2,
+      "voice": "en-US-EricNeural",
+      "text": "Hello! Welcome to Urban Style. Are you looking for anything in particular today?",
+      "startSec": 10.9,
+      "duration": 7.27
+    },
+    {
+      "index": 3,
+      "voice": "en-US-MichelleNeural",
+      "text": "Hi! Yes, I really like this navy blue wool sweater on display, but I cannot find my size on the rack.",
+      "startSec": 18.2,
+      "duration": 8.09
+    },
+    {
+      "index": 4,
+      "voice": "en-US-EricNeural",
+      "text": "What size are you looking for?",
+      "startSec": 26.3,
+      "duration": 2.59
+    },
+    {
+      "index": 5,
+      "voice": "en-US-MichelleNeural",
+      "text": "I am looking for a medium. Do you have any in stock in the back room?",
+      "startSec": 28.9,
+      "duration": 5.16
+    },
+    {
+      "index": 6,
+      "voice": "en-US-EricNeural",
+      "text": "Let me check on our stock system... Yes, we have two medium sweaters in the stockroom. I will grab one for you right now.",
+      "startSec": 34.0,
+      "duration": 9.67
+    },
+    {
+      "index": 7,
+      "voice": "en-US-EricNeural",
+      "text": "Here you go! We also have it in charcoal gray and olive green if you would like to compare colors.",
+      "startSec": 43.7,
+      "duration": 7.06
+    },
+    {
+      "index": 8,
+      "voice": "en-US-MichelleNeural",
+      "text": "The navy blue looks fantastic! Where are the fitting rooms so I can try it on?",
+      "startSec": 50.8,
+      "duration": 6.05
+    },
+    {
+      "index": 9,
+      "voice": "en-US-EricNeural",
+      "text": "The fitting rooms are located right at the back of the store, next to the shoe section.",
+      "startSec": 56.8,
+      "duration": 5.52
+    },
+    {
+      "index": 10,
+      "voice": "en-US-MichelleNeural",
+      "text": "It fits perfectly! It is very comfortable and soft. Is this item currently on sale?",
+      "startSec": 62.3,
+      "duration": 7.56
+    },
+    {
+      "index": 11,
+      "voice": "en-US-EricNeural",
+      "text": "Yes, all knitwear is twenty percent off this weekend. So it comes down from sixty dollars to forty-eight dollars.",
+      "startSec": 69.9,
+      "duration": 8.54
+    },
+    {
+      "index": 12,
+      "voice": "en-US-MichelleNeural",
+      "text": "That is a great bargain! What is your return policy just in case?",
+      "startSec": 78.4,
+      "duration": 5.5
+    },
+    {
+      "index": 13,
+      "voice": "en-US-EricNeural",
+      "text": "You can exchange or return any unworn item with the original tags and receipt within thirty days for a full refund.",
+      "startSec": 83.9,
+      "duration": 7.56
+    },
+    {
+      "index": 14,
+      "voice": "en-US-MichelleNeural",
+      "text": "Wonderful! I will take the navy sweater, please. I will pay by card.",
+      "startSec": 91.5,
+      "duration": 6.94
+    },
+    {
+      "index": 15,
+      "voice": "en-US-EricNeural",
+      "text": "Excellent choice! Let's head over to the cash register.",
+      "startSec": 98.4,
+      "duration": 5.11
+    },
+    {
+      "index": 16,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 3 complete! Notice how comparatives and polite shopping phrases make everyday purchases easier.",
+      "startSec": 103.5,
+      "duration": 7.94
+    }
+  ],
+  "podcast_a2_ep3_shopping_total": 111.5,
+  "podcast_a2_ep4_doctor": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 4: A Doctor's Visit and Symptoms. Learn how to describe health symptoms, understand medical advice, and get prescriptions.",
+      "startSec": 0.0,
+      "duration": 9.89
+    },
+    {
+      "index": 2,
+      "voice": "en-US-BrianNeural",
+      "text": "Good afternoon, Lily. Come on in and have a seat. What seems to be the problem today?",
+      "startSec": 9.9,
+      "duration": 6.41
+    },
+    {
+      "index": 3,
+      "voice": "en-US-EmmaNeural",
+      "text": "Good afternoon, Dr. Harrison. I haven't been feeling well for the past three days. I have a sore throat, a persistent dry cough, and a mild headache.",
+      "startSec": 16.3,
+      "duration": 9.91
+    },
+    {
+      "index": 4,
+      "voice": "en-US-BrianNeural",
+      "text": "I see. Have you had a fever or chills?",
+      "startSec": 26.2,
+      "duration": 3.05
+    },
+    {
+      "index": 5,
+      "voice": "en-US-EmmaNeural",
+      "text": "Yes, yesterday evening my temperature was thirty-eight degrees, and I felt very exhausted.",
+      "startSec": 29.3,
+      "duration": 5.76
+    },
+    {
+      "index": 6,
+      "voice": "en-US-BrianNeural",
+      "text": "Let me examine your throat and listen to your breathing... Open wide and say ah...",
+      "startSec": 35.0,
+      "duration": 5.18
+    },
+    {
+      "index": 7,
+      "voice": "en-US-EmmaNeural",
+      "text": "Ahhh...",
+      "startSec": 40.2,
+      "duration": 0.55
+    },
+    {
+      "index": 8,
+      "voice": "en-US-BrianNeural",
+      "text": "Your throat is inflamed and red, but your lungs sound clear. It looks like a viral upper respiratory infection.",
+      "startSec": 40.8,
+      "duration": 7.85
+    },
+    {
+      "index": 9,
+      "voice": "en-US-EmmaNeural",
+      "text": "Do I need to take antibiotics?",
+      "startSec": 48.6,
+      "duration": 2.38
+    },
+    {
+      "index": 10,
+      "voice": "en-US-BrianNeural",
+      "text": "No, antibiotics do not work against viral infections. I will write you a prescription for a soothing throat spray and an anti-inflammatory painkiller.",
+      "startSec": 51.0,
+      "duration": 9.65
+    },
+    {
+      "index": 11,
+      "voice": "en-US-EmmaNeural",
+      "text": "How often should I take the medication?",
+      "startSec": 60.6,
+      "duration": 2.57
+    },
+    {
+      "index": 12,
+      "voice": "en-US-BrianNeural",
+      "text": "Take one painkiller tablet every eight hours after meals with a glass of water, and use the throat spray three times a day.",
+      "startSec": 63.2,
+      "duration": 7.66
+    },
+    {
+      "index": 13,
+      "voice": "en-US-EmmaNeural",
+      "text": "Is there anything else I should do to recover faster?",
+      "startSec": 70.8,
+      "duration": 3.26
+    },
+    {
+      "index": 14,
+      "voice": "en-US-BrianNeural",
+      "text": "You should get plenty of rest, drink warm herbal tea with honey, and stay hydrated. You should avoid cold drinks for a few days.",
+      "startSec": 74.1,
+      "duration": 8.54
+    },
+    {
+      "index": 15,
+      "voice": "en-US-EmmaNeural",
+      "text": "Thank you very much, Dr. Harrison. I will follow your advice!",
+      "startSec": 82.7,
+      "duration": 4.51
+    },
+    {
+      "index": 16,
+      "voice": "en-US-BrianNeural",
+      "text": "You are welcome, Lily. If the fever doesn't go down in forty-eight hours, please come back. Get well soon!",
+      "startSec": 87.2,
+      "duration": 7.46
+    },
+    {
+      "index": 17,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 4 complete! You now know how to explain symptoms and understand medical recommendations.",
+      "startSec": 94.6,
+      "duration": 6.77
+    }
+  ],
+  "podcast_a2_ep4_doctor_total": 101.4,
+  "podcast_a2_ep5_cinema": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 5: Cinema Night and Weekend Plans. Practice talking about films, giving opinions using superlatives, and buying movie tickets.",
+      "startSec": 0.0,
+      "duration": 10.7
+    },
+    {
+      "index": 2,
+      "voice": "en-US-GuyNeural",
+      "text": "Hey Zoe! Are you free this evening? There is a brand new sci-fi adventure movie showing at the downtown cinema.",
+      "startSec": 10.7,
+      "duration": 8.78
+    },
+    {
+      "index": 3,
+      "voice": "en-US-AriaNeural",
+      "text": "Hey Mark! That sounds exciting! What movie is it?",
+      "startSec": 19.5,
+      "duration": 5.9
+    },
+    {
+      "index": 4,
+      "voice": "en-US-GuyNeural",
+      "text": "It is called Galaxy Wanderers. People say it has the most breathtaking visual effects and a thrilling soundtrack.",
+      "startSec": 25.4,
+      "duration": 8.02
+    },
+    {
+      "index": 5,
+      "voice": "en-US-AriaNeural",
+      "text": "Oh, I watched the trailer yesterday! The lead actor gave an incredible performance. What time does the screening start?",
+      "startSec": 33.4,
+      "duration": 9.6
+    },
+    {
+      "index": 6,
+      "voice": "en-US-GuyNeural",
+      "text": "There is a screening at seven fifteen and another one at nine thirty. Which time do you prefer?",
+      "startSec": 43.0,
+      "duration": 7.03
+    },
+    {
+      "index": 7,
+      "voice": "en-US-AriaNeural",
+      "text": "Seven fifteen is much better. That way, we can grab dinner at the Mexican restaurant across the street afterwards.",
+      "startSec": 50.0,
+      "duration": 8.33
+    },
+    {
+      "index": 8,
+      "voice": "en-US-GuyNeural",
+      "text": "Great idea! I can book our tickets online right now on my phone. Should we get standard seats or VIP recliner seats?",
+      "startSec": 58.4,
+      "duration": 9.55
+    },
+    {
+      "index": 9,
+      "voice": "en-US-AriaNeural",
+      "text": "VIP recliners in the middle row would be awesome! They are much more comfortable than standard seats.",
+      "startSec": 67.9,
+      "duration": 7.42
+    },
+    {
+      "index": 10,
+      "voice": "en-US-GuyNeural",
+      "text": "Done! Two VIP tickets for row F, seats 10 and 11. The confirmation code is sent to my email.",
+      "startSec": 75.3,
+      "duration": 8.98
+    },
+    {
+      "index": 11,
+      "voice": "en-US-AriaNeural",
+      "text": "You are the best, Mark! Shall we meet in front of the popcorn stand at seven o'clock?",
+      "startSec": 84.3,
+      "duration": 6.7
+    },
+    {
+      "index": 12,
+      "voice": "en-US-GuyNeural",
+      "text": "Seven o'clock sharp. I will buy a large butter popcorn and two sodas for us.",
+      "startSec": 91.0,
+      "duration": 6.36
+    },
+    {
+      "index": 13,
+      "voice": "en-US-AriaNeural",
+      "text": "Sounds like a perfect Friday evening! See you at seven, Mark!",
+      "startSec": 97.4,
+      "duration": 5.66
+    },
+    {
+      "index": 14,
+      "voice": "en-US-GuyNeural",
+      "text": "See you soon Zoe! Can't wait for the movie!",
+      "startSec": 103.0,
+      "duration": 4.44
+    },
+    {
+      "index": 15,
+      "voice": "en-US-AvaNeural",
+      "text": "Congratulations! You have completed all 5 A2 Elementary Masterclass podcast episodes. Continue your journey to speak English naturally!",
+      "startSec": 107.5,
+      "duration": 10.01
+    }
+  ],
+  "podcast_a2_ep5_cinema_total": 117.5
+}

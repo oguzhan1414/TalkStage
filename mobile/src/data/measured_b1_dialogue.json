@@ -1,0 +1,486 @@
+{
+  "podcast_b1_ep1_interview": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to TalkStage English Podcasts for B1 Intermediate learners. Episode 1: The Job Interview and Career Growth. Learn how to highlight your strengths, discuss past projects, and answer behavioral interview questions with confidence.",
+      "startSec": 0.0,
+      "duration": 15.41
+    },
+    {
+      "index": 2,
+      "voice": "en-US-JennyNeural",
+      "text": "Good morning, Alex. Thank you for taking the time to speak with us today. To start off, could you tell me a little bit about your professional background?",
+      "startSec": 15.4,
+      "duration": 10.39
+    },
+    {
+      "index": 3,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Good morning, Victoria. It is a pleasure to be here. Over the past four years, I have been working as a digital marketing specialist, where I managed cross-functional campaigns and analyzed user growth metrics.",
+      "startSec": 25.8,
+      "duration": 14.45
+    },
+    {
+      "index": 4,
+      "voice": "en-US-JennyNeural",
+      "text": "That sounds impressive. In our team, projects move very fast. How do you usually handle tight deadlines and unexpected roadblocks?",
+      "startSec": 40.2,
+      "duration": 10.3
+    },
+    {
+      "index": 5,
+      "voice": "en-US-ChristopherNeural",
+      "text": "When facing tight deadlines, I prioritize tasks using an impact-effort matrix. For example, during a major product relaunch last year, our lead designer fell ill. I quickly reorganized our sprint backlog and delegated critical assets so we delivered on schedule.",
+      "startSec": 50.5,
+      "duration": 18.41
+    },
+    {
+      "index": 6,
+      "voice": "en-US-JennyNeural",
+      "text": "That shows great adaptability and leadership. What would you consider your greatest professional strength?",
+      "startSec": 69.0,
+      "duration": 7.03
+    },
+    {
+      "index": 7,
+      "voice": "en-US-ChristopherNeural",
+      "text": "I would say my strongest asset is data-driven problem solving. I enjoy finding patterns in data and turning insights into actionable strategies that improve customer retention.",
+      "startSec": 76.0,
+      "duration": 11.4
+    },
+    {
+      "index": 8,
+      "voice": "en-US-JennyNeural",
+      "text": "Excellent. And where do you see yourself developing over the next three to five years?",
+      "startSec": 87.4,
+      "duration": 6.07
+    },
+    {
+      "index": 9,
+      "voice": "en-US-ChristopherNeural",
+      "text": "I aim to step into a team leadership role where I can mentor junior marketers and contribute to international expansion initiatives.",
+      "startSec": 93.5,
+      "duration": 7.78
+    },
+    {
+      "index": 10,
+      "voice": "en-US-JennyNeural",
+      "text": "That aligns very well with the growth opportunities in our department. Do you have any questions for me regarding the position?",
+      "startSec": 101.2,
+      "duration": 7.8
+    },
+    {
+      "index": 11,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Yes, could you tell me more about how collaboration between the product and marketing teams is structured on a day-to-day basis?",
+      "startSec": 109.0,
+      "duration": 7.63
+    },
+    {
+      "index": 12,
+      "voice": "en-US-JennyNeural",
+      "text": "We run weekly sync meetings and collaborative design sprints, so communication is continuous. We will be in touch with the next steps by the end of this week, Alex.",
+      "startSec": 116.7,
+      "duration": 11.21
+    },
+    {
+      "index": 13,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Thank you very much for your time, Victoria. I look forward to hearing from you!",
+      "startSec": 127.9,
+      "duration": 6.24
+    },
+    {
+      "index": 14,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 1 complete! Notice the use of Present Perfect Continuous and professional vocabulary when discussing career experience.",
+      "startSec": 134.1,
+      "duration": 8.86
+    }
+  ],
+  "podcast_b1_ep1_interview_total": 143.0,
+  "podcast_b1_ep2_apartment": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 2: Apartment Hunting and Leases. Learn how to negotiate rental agreements, discuss utility costs, and evaluate neighborhood conveniences.",
+      "startSec": 0.0,
+      "duration": 11.33
+    },
+    {
+      "index": 2,
+      "voice": "en-US-EricNeural",
+      "text": "Hello Laura! Welcome to Riverside Apartments. This is the two-bedroom corner unit we discussed on the phone yesterday.",
+      "startSec": 11.3,
+      "duration": 9.46
+    },
+    {
+      "index": 3,
+      "voice": "en-US-AriaNeural",
+      "text": "Hello Ryan! The natural lighting here is fantastic! The open-plan kitchen and the wooden flooring look newly renovated.",
+      "startSec": 20.8,
+      "duration": 9.46
+    },
+    {
+      "index": 4,
+      "voice": "en-US-EricNeural",
+      "text": "Yes, the previous owners refurbished the entire kitchen last month, including stainless steel appliances and double-glazed windows.",
+      "startSec": 30.2,
+      "duration": 9.02
+    },
+    {
+      "index": 5,
+      "voice": "en-US-AriaNeural",
+      "text": "That is great for energy efficiency. What is the monthly rent, and what is included in the lease?",
+      "startSec": 39.3,
+      "duration": 7.1
+    },
+    {
+      "index": 6,
+      "voice": "en-US-EricNeural",
+      "text": "The rent is eighteen hundred dollars per month. Heating, water, and building maintenance are included, while electricity and internet are billed separately.",
+      "startSec": 46.4,
+      "duration": 10.32
+    },
+    {
+      "index": 7,
+      "voice": "en-US-AriaNeural",
+      "text": "I see. And what are the terms regarding the security deposit and the duration of the contract?",
+      "startSec": 56.7,
+      "duration": 6.98
+    },
+    {
+      "index": 8,
+      "voice": "en-US-EricNeural",
+      "text": "The standard lease is twelve months. We require one month's rent as a refundable security deposit upon signing the agreement.",
+      "startSec": 63.7,
+      "duration": 8.9
+    },
+    {
+      "index": 9,
+      "voice": "en-US-AriaNeural",
+      "text": "Is there an assigned parking spot in the underground garage, and are pets permitted in the building?",
+      "startSec": 72.6,
+      "duration": 6.05
+    },
+    {
+      "index": 10,
+      "voice": "en-US-EricNeural",
+      "text": "Yes, each apartment comes with one designated parking space. Small pets such as cats and small dogs are welcome with a minor pet deposit.",
+      "startSec": 78.6,
+      "duration": 10.2
+    },
+    {
+      "index": 11,
+      "voice": "en-US-AriaNeural",
+      "text": "That is wonderful news because I have a very calm cat. How is public transit access around here?",
+      "startSec": 88.8,
+      "duration": 7.25
+    },
+    {
+      "index": 12,
+      "voice": "en-US-EricNeural",
+      "text": "The express bus station is just a three-minute walk down the road, taking you straight to the city center in under twenty minutes.",
+      "startSec": 96.1,
+      "duration": 7.75
+    },
+    {
+      "index": 13,
+      "voice": "en-US-AriaNeural",
+      "text": "This fits all my criteria perfectly. Could you please send me the lease application form by email?",
+      "startSec": 103.8,
+      "duration": 7.46
+    },
+    {
+      "index": 14,
+      "voice": "en-US-EricNeural",
+      "text": "I will send it over within an hour. Once you fill it out and provide references, we can finalize the contract!",
+      "startSec": 111.3,
+      "duration": 7.97
+    },
+    {
+      "index": 15,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 2 complete! You now possess the essential terms to negotiate property rentals and lease agreements smoothly.",
+      "startSec": 119.3,
+      "duration": 7.56
+    }
+  ],
+  "podcast_b1_ep2_apartment_total": 126.8,
+  "podcast_b1_ep3_luggage": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 3: Delayed Flights and Lost Luggage. Practice reporting travel disruptions, filing compensation claims, and communicating with customer support.",
+      "startSec": 0.0,
+      "duration": 11.74
+    },
+    {
+      "index": 2,
+      "voice": "en-US-GuyNeural",
+      "text": "Good evening, customer service desk. How can I assist you with your journey today?",
+      "startSec": 11.7,
+      "duration": 6.29
+    },
+    {
+      "index": 3,
+      "voice": "en-US-MichelleNeural",
+      "text": "Good evening. I just arrived on flight PA 884 from Frankfurt, but my checked suitcase did not appear on baggage carousel number three.",
+      "startSec": 18.0,
+      "duration": 9.6
+    },
+    {
+      "index": 4,
+      "voice": "en-US-GuyNeural",
+      "text": "I am very sorry to hear that. Let me look up your baggage tag number in the tracking system... May I have your claim stub and passport?",
+      "startSec": 27.6,
+      "duration": 9.67
+    },
+    {
+      "index": 5,
+      "voice": "en-US-MichelleNeural",
+      "text": "Here is the luggage receipt that was attached to my boarding pass in Frankfurt.",
+      "startSec": 37.3,
+      "duration": 4.44
+    },
+    {
+      "index": 6,
+      "voice": "en-US-GuyNeural",
+      "text": "Thank you. According to the system, due to the tight connection during your layover, your bag missed the transfer flight. However, it has been loaded onto the next flight and will arrive here tomorrow morning at eight AM.",
+      "startSec": 41.7,
+      "duration": 13.58
+    },
+    {
+      "index": 7,
+      "voice": "en-US-MichelleNeural",
+      "text": "I have an important business meeting tomorrow afternoon, so I need essential clothing and toiletries immediately. What is your policy regarding emergency expenses?",
+      "startSec": 55.3,
+      "duration": 10.3
+    },
+    {
+      "index": 8,
+      "voice": "en-US-GuyNeural",
+      "text": "We provide an emergency allowance of up to one hundred and fifty dollars for necessary purchases. Please keep all original itemized receipts so we can reimburse you.",
+      "startSec": 65.6,
+      "duration": 10.66
+    },
+    {
+      "index": 9,
+      "voice": "en-US-MichelleNeural",
+      "text": "Understood. Will the airline deliver the suitcase directly to my hotel once it arrives?",
+      "startSec": 76.3,
+      "duration": 6.48
+    },
+    {
+      "index": 10,
+      "voice": "en-US-GuyNeural",
+      "text": "Yes, absolutely. A courier will deliver it directly to your hotel reception free of charge. Let me fill out this Property Irregularity Report with your hotel address.",
+      "startSec": 82.8,
+      "duration": 12.43
+    },
+    {
+      "index": 11,
+      "voice": "en-US-MichelleNeural",
+      "text": "I am staying at The Grand Harbor Hotel on 4th Avenue, Room 512.",
+      "startSec": 95.2,
+      "duration": 5.35
+    },
+    {
+      "index": 12,
+      "voice": "en-US-GuyNeural",
+      "text": "Here is your reference tracking number: BAG-9842. You can track the courier delivery live on our mobile app.",
+      "startSec": 100.5,
+      "duration": 8.45
+    },
+    {
+      "index": 13,
+      "voice": "en-US-MichelleNeural",
+      "text": "Thank you for handling this so professionally, Kevin. I appreciate your prompt assistance.",
+      "startSec": 109.0,
+      "duration": 6.55
+    },
+    {
+      "index": 14,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 3 complete! Remember to stay calm and clearly outline your rights when facing flight delays or baggage issues.",
+      "startSec": 115.5,
+      "duration": 8.57
+    }
+  ],
+  "podcast_b1_ep3_luggage_total": 124.1,
+  "podcast_b1_ep4_ai": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 4: AI at Work: Ethics and Future. Learn how to express nuanced opinions, debate technological trends, and discuss the impact of automation.",
+      "startSec": 0.0,
+      "duration": 11.98
+    },
+    {
+      "index": 2,
+      "voice": "en-US-BrianNeural",
+      "text": "Hey Chloe, did you see our company's new policy on integrating generative AI tools into our daily software development workflow?",
+      "startSec": 12.0,
+      "duration": 8.09
+    },
+    {
+      "index": 3,
+      "voice": "en-US-EmmaNeural",
+      "text": "Yes Liam, I read through the guidelines this morning. From my perspective, automating repetitive coding tasks and documentation will boost our team's productivity significantly.",
+      "startSec": 20.1,
+      "duration": 11.26
+    },
+    {
+      "index": 4,
+      "voice": "en-US-BrianNeural",
+      "text": "I agree that it saves time on boilerplate code, but don't you think there are serious concerns regarding code security and data privacy?",
+      "startSec": 31.3,
+      "duration": 7.99
+    },
+    {
+      "index": 5,
+      "voice": "en-US-EmmaNeural",
+      "text": "That is a valid concern. However, if engineers follow strict data anonymization protocols and never upload proprietary company source code to public models, the risk can be mitigated.",
+      "startSec": 39.3,
+      "duration": 12.07
+    },
+    {
+      "index": 6,
+      "voice": "en-US-BrianNeural",
+      "text": "What about the impact on junior developers? If AI writes beginner-level code, how will young engineers develop fundamental debugging intuition?",
+      "startSec": 51.4,
+      "duration": 9.84
+    },
+    {
+      "index": 7,
+      "voice": "en-US-EmmaNeural",
+      "text": "That is why mentoring becomes even more crucial. Instead of memorizing syntax, junior developers will learn to review, validate, and architect scalable systems at a higher conceptual level.",
+      "startSec": 61.2,
+      "duration": 12.14
+    },
+    {
+      "index": 8,
+      "voice": "en-US-BrianNeural",
+      "text": "In other words, AI is transforming us into code editors and curators rather than just manual writers.",
+      "startSec": 73.4,
+      "duration": 6.84
+    },
+    {
+      "index": 9,
+      "voice": "en-US-EmmaNeural",
+      "text": "Exactly! Human creativity, critical thinking, and ethical judgment are qualities that no algorithm can truly replicate.",
+      "startSec": 80.2,
+      "duration": 8.11
+    },
+    {
+      "index": 10,
+      "voice": "en-US-BrianNeural",
+      "text": "That is a well-balanced viewpoint. Adapting to new tools while maintaining high craftsmanship seems to be the key to staying relevant in the modern tech landscape.",
+      "startSec": 88.3,
+      "duration": 9.5
+    },
+    {
+      "index": 11,
+      "voice": "en-US-EmmaNeural",
+      "text": "Without a doubt, Liam. The future belongs to those who collaborate effectively with intelligent systems.",
+      "startSec": 97.8,
+      "duration": 6.31
+    },
+    {
+      "index": 12,
+      "voice": "en-US-AvaNeural",
+      "text": "Episode 4 complete! Practice using opinion markers such as 'from my perspective', 'however', and 'without a doubt' in intellectual discussions.",
+      "startSec": 104.1,
+      "duration": 9.41
+    }
+  ],
+  "podcast_b1_ep4_ai_total": 113.5,
+  "podcast_b1_ep5_sustainability": [
+    {
+      "index": 1,
+      "voice": "en-US-AvaNeural",
+      "text": "Welcome to Episode 5: Green Cities and Sustainable Living. Practice discussing environmental initiatives, renewable energy, and future urban planning.",
+      "startSec": 0.0,
+      "duration": 11.02
+    },
+    {
+      "index": 2,
+      "voice": "en-US-ChristopherNeural",
+      "text": "Maya, as an urban planner, what do you think is the biggest challenge cities face when transitioning to net-zero carbon emissions?",
+      "startSec": 11.0,
+      "duration": 7.97
+    },
+    {
+      "index": 3,
+      "voice": "en-US-JennyNeural",
+      "text": "In my opinion Ethan, the biggest hurdle is modernizing legacy infrastructure. Replacing fossil fuel heating systems and expanding electric public transit require substantial capital investment.",
+      "startSec": 19.0,
+      "duration": 13.25
+    },
+    {
+      "index": 4,
+      "voice": "en-US-ChristopherNeural",
+      "text": "That is true, but what about decentralized solutions? For instance, rooftop solar panels and localized microgrids seem to be gaining massive momentum.",
+      "startSec": 32.2,
+      "duration": 10.75
+    },
+    {
+      "index": 5,
+      "voice": "en-US-JennyNeural",
+      "text": "Rooftop solar is fantastic because it empowers households to generate their own clean energy, while reducing stress on the main municipal power grid.",
+      "startSec": 43.0,
+      "duration": 9.48
+    },
+    {
+      "index": 6,
+      "voice": "en-US-ChristopherNeural",
+      "text": "I also noticed that our municipality has been adding protected bike lanes across the city center. Have you observed a shift in commuting habits?",
+      "startSec": 52.5,
+      "duration": 9.31
+    },
+    {
+      "index": 7,
+      "voice": "en-US-JennyNeural",
+      "text": "Definitely. When safe infrastructure is provided, residents are much more willing to leave their cars at home and commute by bicycle or electric scooters.",
+      "startSec": 61.8,
+      "duration": 10.27
+    },
+    {
+      "index": 8,
+      "voice": "en-US-ChristopherNeural",
+      "text": "What simple lifestyle changes can individuals make on a daily basis to reduce their personal environmental footprint?",
+      "startSec": 72.0,
+      "duration": 7.37
+    },
+    {
+      "index": 9,
+      "voice": "en-US-JennyNeural",
+      "text": "Simple habits like minimizing single-use plastics, composting organic kitchen waste, and choosing local seasonal produce make a measurable collective difference over time.",
+      "startSec": 79.4,
+      "duration": 10.56
+    },
+    {
+      "index": 10,
+      "voice": "en-US-ChristopherNeural",
+      "text": "It is inspiring to see how individual actions and smart urban policies can work together to create greener and more livable communities.",
+      "startSec": 90.0,
+      "duration": 8.35
+    },
+    {
+      "index": 11,
+      "voice": "en-US-JennyNeural",
+      "text": "Absolutely, Ethan. Sustainability is not just an obligation; it is an investment in our collective well-being.",
+      "startSec": 98.3,
+      "duration": 8.38
+    },
+    {
+      "index": 12,
+      "voice": "en-US-AvaNeural",
+      "text": "Congratulations! You have completed all 5 B1 Intermediate Masterclass podcast episodes. You are now equipped to engage in rich, thoughtful English conversations!",
+      "startSec": 106.7,
+      "duration": 11.52
+    }
+  ],
+  "podcast_b1_ep5_sustainability_total": 118.2
+}
