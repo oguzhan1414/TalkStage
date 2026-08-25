@@ -46,6 +46,7 @@ def decode_supabase_jwt(token: str) -> dict:
                 signing_key.key,
                 algorithms=["ES256", "RS256"],
                 audience="authenticated",
+                leeway=10,
             )
         except (PyJWKClientError, jwt.PyJWTError):
             pass  # no matching/valid JWKS key — fall through to the legacy secret
@@ -57,6 +58,7 @@ def decode_supabase_jwt(token: str) -> dict:
                 settings.supabase_jwt_secret,
                 algorithms=["HS256"],
                 audience="authenticated",
+                leeway=10,
             )
         except jwt.PyJWTError:
             pass

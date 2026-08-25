@@ -23,6 +23,21 @@ def average_fluency_score(scores: list[int]) -> int | None:
     return round(sum(scores) / len(scores))
 
 
+#: Flat XP for reviewing a vocab card (any grade) — rewards daily engagement
+#: with the SM-2 queue independently of session-based XP.
+VOCAB_REVIEW_XP = 2
+
+#: Flat XP for finishing a reading passage's scenes + speaking step, awarded
+#: once (the mobile completion celebration displays this same number, so it
+#: must actually be granted rather than just shown).
+READING_COMPLETION_XP = 15
+
+
+def calculate_session_xp(fluency_score: int | None) -> int:
+    """10 XP for finishing a scenario, plus up to 10 more scaled by fluency."""
+    return 10 + round((fluency_score or 0) / 10)
+
+
 @dataclass
 class StreakUpdate:
     streak_count: int

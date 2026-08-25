@@ -1,10 +1,13 @@
-from datetime import date
-
 from fastapi import APIRouter, Depends
 
 from app.api.deps import AuthContext, get_auth_context
 from app.schemas.session import SessionEndRequest, SessionOut
-from app.services.scorecard import average_fluency_score, count_unique_words, next_streak_state
+from app.services.progress import record_progress, update_streak_and_xp
+from app.services.scorecard import (
+    average_fluency_score,
+    calculate_session_xp,
+    count_unique_words,
+)
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -47,55 +50,7 @@ def end_session(payload: SessionEndRequest, ctx: AuthContext = Depends(get_auth_
         .data[0]
     )
 
-    _record_progress(ctx, duration_seconds)
-    _update_streak(ctx)
+    record_progress(ctx, duration_seconds // 60)
+    update_streak_and_xp(ctx, calculate_session_xp(fluency_score))
 
     return SessionOut(**session_row)
-
-
-def _record_progress(ctx: AuthContext, duration_seconds: int) -> None:
-    today = date.today().isoformat()
-    existing = (
-        ctx.db.table("progress")
-        .select("*")
-        .eq("user_id", ctx.user.id)
-        .eq("practice_date", today)
-        .execute()
-        .data
-    )
-    if existing:
-        row = existing[0]
-        ctx.db.table("progress").update(
-            {
-                "minutes_practiced": row["minutes_practiced"] + duration_seconds // 60,
-                "scenarios_completed": row["scenarios_completed"] + 1,
-            }
-        ).eq("id", row["id"]).execute()
-    else:
-        ctx.db.table("progress").insert(
-            {
-                "user_id": ctx.user.id,
-                "practice_date": today,
-                "minutes_practiced": duration_seconds // 60,
-                "scenarios_completed": 1,
-            }
-        ).execute()
-
-
-def _update_streak(ctx: AuthContext) -> None:
-    profile = ctx.db.table("profiles").select("*").eq("id", ctx.user.id).single().execute().data
-    last_practice_date = (
-        date.fromisoformat(profile["last_practice_date"]) if profile["last_practice_date"] else None
-    )
-    new_state = next_streak_state(
-        current_streak=profile["streak_count"],
-        longest_streak=profile["longest_streak"],
-        last_practice_date=last_practice_date,
-    )
-    ctx.db.table("profiles").update(
-        {
-            "streak_count": new_state.streak_count,
-            "longest_streak": new_state.longest_streak,
-            "last_practice_date": new_state.last_practice_date.isoformat(),
-        }
-    ).eq("id", ctx.user.id).execute()

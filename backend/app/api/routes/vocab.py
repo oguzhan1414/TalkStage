@@ -1,33 +1,98 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from postgrest.exceptions import APIError
 
 from app.api.deps import AuthContext, get_auth_context
-from app.schemas.vocab import VocabCardCreate, VocabCardOut, VocabReviewRequest
+from app.schemas.vocab import (
+    VocabCardCreate,
+    VocabCardOut,
+    VocabCardUpdate,
+    VocabReviewRequest,
+)
+from app.services.scorecard import VOCAB_REVIEW_XP
 from app.services.sm2 import review_card
 
 router = APIRouter(prefix="/vocab-cards", tags=["vocab"])
 
 
 @router.get("", response_model=list[VocabCardOut])
-def list_due_cards(ctx: AuthContext = Depends(get_auth_context)) -> list[VocabCardOut]:
-    result = (
-        ctx.db.table("vocab_cards")
-        .select("*")
-        .eq("user_id", ctx.user.id)
-        .lte("next_review_date", date.today().isoformat())
-        .order("next_review_date")
-        .execute()
-    )
+def list_due_cards(all: bool = False, ctx: AuthContext = Depends(get_auth_context)) -> list[VocabCardOut]:
+    """`all=true` returns every card the user has ever saved (used by the mobile
+    dictionary & lifetime count), default returns only cards due for SM-2 review today."""
+    query = ctx.db.table("vocab_cards").select("*").eq("user_id", ctx.user.id)
+    if not all:
+        query = query.lte("next_review_date", date.today().isoformat())
+    result = query.order("created_at", desc=True).execute()
     return [VocabCardOut(**row) for row in result.data]
 
 
-@router.post("", response_model=VocabCardOut, status_code=status.HTTP_201_CREATED)
-def create_card(payload: VocabCardCreate, ctx: AuthContext = Depends(get_auth_context)) -> VocabCardOut:
-    row = {**payload.model_dump(), "user_id": ctx.user.id}
-    result = ctx.db.table("vocab_cards").insert(row).execute()
+def _find_existing_card(ctx: AuthContext, term: str) -> dict | None:
+    """Case-insensitive lookup so the same word can't be saved twice for one user."""
+    rows = ctx.db.table("vocab_cards").select("id, term").eq("user_id", ctx.user.id).execute().data
+    match = next((r for r in rows if r["term"].strip().lower() == term.lower()), None)
+    if not match:
+        return None
+    return ctx.db.table("vocab_cards").select("*").eq("id", match["id"]).single().execute().data
+
+
+@router.post("", response_model=VocabCardOut)
+def create_card(
+    payload: VocabCardCreate, response: Response, ctx: AuthContext = Depends(get_auth_context)
+) -> VocabCardOut:
+    """Saving a word that's already in the user's deck returns the existing
+    card (200) instead of creating a duplicate (201) — the same word getting
+    tapped again in a later scenario/reading passage shouldn't fragment its
+    SM-2 review history across multiple rows."""
+    term_clean = payload.term.strip()
+    existing = _find_existing_card(ctx, term_clean)
+    if existing:
+        response.status_code = status.HTTP_200_OK
+        return VocabCardOut(**existing)
+
+    row = {**payload.model_dump(), "user_id": ctx.user.id, "term": term_clean}
+    try:
+        result = ctx.db.table("vocab_cards").insert(row).execute()
+    except APIError:
+        # Lost a race with a concurrent identical insert (unique index) — that
+        # request's row is now canonical, return it instead of erroring.
+        existing = _find_existing_card(ctx, term_clean)
+        if existing:
+            response.status_code = status.HTTP_200_OK
+            return VocabCardOut(**existing)
+        raise
+    response.status_code = status.HTTP_201_CREATED
     return VocabCardOut(**result.data[0])
+
+
+@router.patch("/{card_id}", response_model=VocabCardOut)
+def update_card(
+    card_id: str,
+    payload: VocabCardUpdate,
+    ctx: AuthContext = Depends(get_auth_context),
+) -> VocabCardOut:
+    update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
+
+    result = (
+        ctx.db.table("vocab_cards")
+        .update(update_data)
+        .eq("id", card_id)
+        .eq("user_id", ctx.user.id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vocab card not found")
+    return VocabCardOut(**result.data[0])
+
+
+@router.delete("/{card_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_card(
+    card_id: str,
+    ctx: AuthContext = Depends(get_auth_context),
+) -> None:
+    ctx.db.table("vocab_cards").delete().eq("id", card_id).eq("user_id", ctx.user.id).execute()
 
 
 @router.post("/{card_id}/review", response_model=VocabCardOut)
@@ -68,4 +133,10 @@ def review_vocab_card(
         .eq("id", card_id)
         .execute()
     )
+    _award_xp(ctx, VOCAB_REVIEW_XP)
     return VocabCardOut(**result.data[0])
+
+
+def _award_xp(ctx: AuthContext, amount: int) -> None:
+    profile = ctx.db.table("profiles").select("xp").eq("id", ctx.user.id).single().execute().data
+    ctx.db.table("profiles").update({"xp": profile["xp"] + amount}).eq("id", ctx.user.id).execute()

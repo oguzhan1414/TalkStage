@@ -112,24 +112,35 @@ async def _run_turn(
 
 @router.websocket("/ws/session/{session_id}")
 async def voice_session(websocket: WebSocket, session_id: str) -> None:
+    # A close code/reason sent before `.accept()` is a rejected opening
+    # handshake, not a WS close frame — per RFC 6455 there's no established
+    # connection yet to carry it, so clients (browsers in particular) only
+    # ever observe a generic HTTP 403 / close code 1006 with an empty reason.
+    # Every rejection path below must accept first so its real reason (most
+    # importantly "quota_exceeded", which the Paywall upsell button keys off)
+    # actually reaches the client.
     token = websocket.query_params.get("token")
     if not token:
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Missing token")
         return
     try:
         user = await asyncio.to_thread(user_from_token, token)
     except Exception:
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
         return
 
     try:
         scenario = await asyncio.to_thread(_load_scenario, session_id)
     except ValueError:
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Unknown scenario")
         return
 
     service_db = get_service_client()
     if not await asyncio.to_thread(can_start_session, service_db, user.id):
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="quota_exceeded")
         return
     user_is_pro = await asyncio.to_thread(is_pro, service_db, user.id)
