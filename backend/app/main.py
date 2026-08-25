@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
+    chat,
     onboarding,
     profiles,
+    progress,
     reading,
     scenarios,
     sessions,
@@ -31,10 +33,12 @@ app.include_router(profiles.router)
 app.include_router(scenarios.router)
 app.include_router(vocab.router)
 app.include_router(reading.router)
+app.include_router(progress.router)
 app.include_router(tts.router)
 app.include_router(sessions.router)
 app.include_router(webhooks.router)
 app.include_router(ws_session.router)
+app.include_router(chat.router)
 
 
 @app.get("/health")
