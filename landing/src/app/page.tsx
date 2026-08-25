@@ -4,8 +4,10 @@ import SimulatorShowcase from "@/components/SimulatorShowcase";
 import LiveCorrectionTicker from "@/components/LiveCorrectionTicker";
 import ProblemContrast from "@/components/ProblemContrast";
 import BentoStages from "@/components/BentoStages";
+import CefrLevelJourney from "@/components/CefrLevelJourney";
 import CoreFeatures from "@/components/CoreFeatures";
 import HowItWorks from "@/components/HowItWorks";
+import MobileAppShowcase from "@/components/MobileAppShowcase";
 import FeedbackShowcase from "@/components/FeedbackShowcase";
 import GamificationShowcase from "@/components/GamificationShowcase";
 import Testimonials from "@/components/Testimonials";
@@ -24,8 +26,10 @@ export default function Home() {
         <LiveCorrectionTicker />
         <ProblemContrast />
         <BentoStages />
+        <CefrLevelJourney />
         <CoreFeatures />
         <HowItWorks />
+        <MobileAppShowcase />
         <FeedbackShowcase />
         <GamificationShowcase />
         <Testimonials />

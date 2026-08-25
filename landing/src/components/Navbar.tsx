@@ -3,6 +3,7 @@ import Logo from "./Logo";
 
 const navLinks = [
   { href: "/#sahneler", label: "Sahneler" },
+  { href: "/#seviyeler", label: "Seviyeler (CEFR)" },
   { href: "/#metodoloji", label: "Metodoloji" },
   { href: "/#nasil-calisir", label: "Nasıl Çalışır?" },
   { href: "/#fiyatlandirma", label: "Fiyatlandırma" },
