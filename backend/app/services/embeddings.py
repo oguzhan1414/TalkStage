@@ -10,7 +10,11 @@ EMBEDDING_DIMENSIONS = 1536  # must match scenario_knowledge.embedding vector(15
 
 @lru_cache
 def get_openai_client() -> OpenAI:
-    return OpenAI(api_key=settings.openai_api_key)
+    # Same reasoning as llm_orchestrator.py's voice-turn client: no timeout
+    # meant the SDK's 600s default could turn a single slow embedding call
+    # into the dominant source of "Düşünüyor…" latency in the voice pipeline
+    # (this client backs RAG retrieval, which runs before the main LLM call).
+    return OpenAI(api_key=settings.openai_api_key, timeout=8.0, max_retries=1)
 
 
 def chunk_text(text: str, max_chars: int = 800) -> list[str]:

@@ -1,19 +1,10 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   cefrLevelImages,
@@ -21,11 +12,13 @@ import {
   learningPathLandscape,
   stateImages,
 } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { CEFR_CURRICULUM } from '../data/curriculumData';
 import { buildMissionsForLevel, type WritingMission } from '../data/writingCurriculum';
 import { api } from '../lib/api';
+import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import type { StudyPathScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut } from '../types/api';
@@ -77,9 +70,14 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
     useCallback(() => {
       let cancelled = false;
       const keys = missions.map((m) => missionCompletedKey(m.id));
-      AsyncStorage.multiGet(keys).then((pairs) => {
+      // Recover server-backed flags first (survives reinstalls/second devices),
+      // then read the merged AsyncStorage state — see lib/learningFlags.ts.
+      pullLearningFlags().then(() => {
         if (cancelled) return;
-        setCompletedMissionIds(new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k)));
+        AsyncStorage.multiGet(keys).then((pairs) => {
+          if (cancelled) return;
+          setCompletedMissionIds(new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k)));
+        });
       });
       return () => {
         cancelled = true;
@@ -126,7 +124,7 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
       // won't have granted XP/streak this time (matches log-practice's own
       // "best-effort, non-blocking" framing used elsewhere in this app).
     }
-    await AsyncStorage.setItem(missionCompletedKey(mission.id), '1');
+    await setLearningFlag(missionCompletedKey(mission.id));
     setCompletedMissionIds((prev) => new Set(prev).add(missionCompletedKey(mission.id)));
     queryClient.invalidateQueries({ queryKey: ['me'] });
     queryClient.invalidateQueries({ queryKey: ['progress'] });
@@ -145,15 +143,17 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
         <SafeAreaView style={styles.safeArea}>
           {/* 2. Top Header Navigation (Back, Centered Title, Diamond Capsule) */}
           <View style={styles.topHeader}>
-            <Pressable
+            <BouncyPressable
               onPress={() => navigation.goBack()}
               hitSlop={12}
               style={[styles.circularBackBtn, shadow.card]}
+              hapticType="light"
+              scaleTo={0.92}
             >
               <Ionicons name="chevron-back" size={20} color="#1E293B" />
-            </Pressable>
+            </BouncyPressable>
 
-            <Text style={styles.headerTitle}>Writing & Chat Path</Text>
+            <Text style={styles.headerTitle}>✍️ AI Yazma &amp; Senaryo Yolu</Text>
 
             <View style={[styles.diamondBadgeCapsule, shadow.card]}>
               <Text style={styles.diamondEmoji}>💎</Text>
@@ -165,9 +165,11 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
           <View style={styles.ticketWrapper}>
             <View style={[styles.ticketContainer, shadow.card]}>
               {/* Left Ticket Part: Level Dropdown + Unit Title */}
-              <Pressable
+              <BouncyPressable
                 onPress={() => setLevelPickerVisible(true)}
                 style={styles.ticketLeftContent}
+                hapticType="light"
+                scaleTo={0.97}
               >
                 <View style={styles.levelDropdownRow}>
                   <Text style={styles.ticketLevelTitle}>
@@ -180,19 +182,21 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
                     ? '🎉 Seviye tamamlandı!'
                     : `Unit ${currentMission?.unitNumber ?? 1} . ${currentMission?.unitTitle ?? ''}`}
                 </Text>
-              </Pressable>
+              </BouncyPressable>
 
               {/* Dashed Vertical Divider */}
               <View style={styles.dashedDivider} />
 
               {/* Right Ticket Part: Notes / Clipboard Button */}
-              <Pressable
+              <BouncyPressable
                 onPress={() => setCheatSheetVisible(true)}
                 style={styles.ticketRightBtn}
                 hitSlop={8}
+                hapticType="medium"
+                scaleTo={0.92}
               >
                 <Ionicons name="clipboard-outline" size={24} color="#FFFFFF" />
-              </Pressable>
+              </BouncyPressable>
             </View>
           </View>
 
@@ -233,16 +237,22 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
                     )}
 
                     {/* 3D Tactile Node Button with Bevel Rim */}
-                    <Pressable
-                      onPress={() => handleNodePress(mission)}
-                      disabled={isLocked}
-                      style={({ pressed }) => [
+                    <BouncyPressable
+                      onPress={() => {
+                        if (isLocked) {
+                          showToast('🔒 Önceki görevi tamamlayınca açılır');
+                          return;
+                        }
+                        handleNodePress(mission);
+                      }}
+                      hapticType={isLocked ? 'warning' : mission.kind === 'chest' ? 'success' : 'medium'}
+                      scaleTo={0.90}
+                      style={[
                         styles.tactileNodeBase,
                         isCompleted && styles.nodeCompletedBase,
                         isCurrent && styles.nodeCurrentBase,
                         isLocked && styles.nodeLockedBase,
                         mission.kind === 'chest' && styles.nodeChestBase,
-                        pressed && { transform: [{ translateY: 3 }] },
                       ]}
                     >
                       {/* Inner Raised 3D Surface */}
@@ -269,7 +279,7 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
                           <Ionicons name="chatbubbles" size={24} color="#FFFFFF" />
                         )}
                       </View>
-                    </Pressable>
+                    </BouncyPressable>
                   </View>
                 </View>
               );
@@ -343,13 +353,15 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
               </View>
 
               {/* Launch Button */}
-              <Pressable
+              <BouncyPressable
                 onPress={() => handleLaunchMission(activeMissionModal)}
                 style={styles.launchActionButton}
+                hapticType="medium"
+                scaleTo={0.96}
               >
                 <Ionicons name="play" size={18} color="#FFFFFF" />
                 <Text style={styles.launchActionText}>Yazma Görevine Başla ➔</Text>
-              </Pressable>
+              </BouncyPressable>
             </Pressable>
           )}
         </Pressable>
@@ -384,12 +396,14 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
                 </View>
               </View>
 
-              <Pressable
+              <BouncyPressable
                 onPress={() => handleClaimChest(chestCelebrationModal)}
                 style={styles.chestClaimButton}
+                hapticType="success"
+                scaleTo={0.94}
               >
-                <Text style={styles.chestClaimButtonText}>Ödülü Al & Devam Et ➔</Text>
-              </Pressable>
+                <Text style={styles.chestClaimButtonText}>Ödülü Al &amp; Devam Et ➔</Text>
+              </BouncyPressable>
             </Pressable>
           )}
         </Pressable>
@@ -445,12 +459,14 @@ export function StudyPathScreen({ navigation }: StudyPathScreenProps) {
                 ))}
             </ScrollView>
 
-            <Pressable
+            <BouncyPressable
               onPress={() => setCheatSheetVisible(false)}
               style={styles.cheatSheetCloseBtn}
+              hapticType="light"
+              scaleTo={0.96}
             >
               <Text style={styles.cheatSheetCloseBtnText}>Anladım, Haritaya Dön ➔</Text>
-            </Pressable>
+            </BouncyPressable>
           </View>
         </View>
       </Modal>

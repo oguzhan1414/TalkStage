@@ -1,19 +1,11 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { cefrLevelImages, companionImage, readingSceneImages } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { api } from '../lib/api';
@@ -164,13 +156,15 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
             const storyImg = readingSceneImages[item.scenes[0]?.image_key] ?? companionImage;
 
             return (
-              <Pressable
+              <BouncyPressable
                 style={[
                   styles.card,
                   shadow.card,
                   status === 'current' && styles.cardCurrent,
                   isLocked && styles.cardLocked,
                 ]}
+                hapticType={isLocked ? 'warning' : 'medium'}
+                scaleTo={0.97}
                 onPress={() => {
                   if (isLocked) {
                     showToast('Önce bir önceki hikayeyi tamamla 🔒');
@@ -234,7 +228,7 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
                     )}
                   </View>
                 </View>
-              </Pressable>
+              </BouncyPressable>
             );
           }}
           ListEmptyComponent={

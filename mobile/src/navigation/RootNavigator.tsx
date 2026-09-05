@@ -8,6 +8,7 @@ import { CalendarScreen } from '../screens/CalendarScreen';
 import { DailyTaskDetailScreen } from '../screens/DailyTaskDetailScreen';
 import { GrammarLessonScreen } from '../screens/GrammarLessonScreen';
 import { LiveConversationRoomScreen } from '../screens/LiveConversationRoomScreen';
+import { MistakesNotebookScreen } from '../screens/MistakesNotebookScreen';
 import { PaywallScreen } from '../screens/PaywallScreen';
 import { PodcastListScreen } from '../screens/PodcastListScreen';
 import { PodcastPlayerScreen } from '../screens/PodcastPlayerScreen';
@@ -16,6 +17,7 @@ import { ReadingPassageScreen } from '../screens/ReadingPassageScreen';
 import { ScorecardScreen } from '../screens/ScorecardScreen';
 import { StudyPathScreen } from '../screens/StudyPathScreen';
 import { TextChatScreen } from '../screens/TextChatScreen';
+import { VocabLibraryScreen } from '../screens/VocabLibraryScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
@@ -57,6 +59,8 @@ export function RootNavigator() {
           <Stack.Screen name="Badges" component={BadgesScreen} />
           <Stack.Screen name="StudyPath" component={StudyPathScreen} />
           <Stack.Screen name="GrammarLesson" component={GrammarLessonScreen} />
+          <Stack.Screen name="MistakesNotebook" component={MistakesNotebookScreen} />
+          <Stack.Screen name="VocabLibrary" component={VocabLibraryScreen} />
           <Stack.Screen name="DailyTaskDetail" component={DailyTaskDetailScreen} />
           <Stack.Screen
             name="TextChat"

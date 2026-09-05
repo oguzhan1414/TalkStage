@@ -1,17 +1,10 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import {
-  Image,
-  ImageBackground,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { companionImage, podcastStudioWallpaper } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { PODCAST_EPISODES, type PodcastEpisode } from '../data/podcastData';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -23,11 +16,31 @@ const LEVEL_FILTERS: Array<'ALL' | 'A1' | 'A2' | 'B1' | 'B2'> = ['ALL', 'A1', 'A
 
 export function PodcastListScreen({ navigation }: Props) {
   const [selectedLevel, setSelectedLevel] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredEpisodes = useMemo(() => {
-    if (selectedLevel === 'ALL') return PODCAST_EPISODES;
-    return PODCAST_EPISODES.filter((ep) => ep.level === selectedLevel);
-  }, [selectedLevel]);
+    let list = PODCAST_EPISODES;
+    if (selectedLevel !== 'ALL') {
+      list = list.filter((ep) => ep.level === selectedLevel);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(
+        (ep) =>
+          ep.title.toLowerCase().includes(q) ||
+          ep.description.toLowerCase().includes(q) ||
+          ep.subtitle.toLowerCase().includes(q) ||
+          ep.topicsCovered.some((t) => t.toLowerCase().includes(q)) ||
+          ep.keyVocab.some(
+            (v) =>
+              v.term.toLowerCase().includes(q) ||
+              v.meaningTr.toLowerCase().includes(q)
+          ) ||
+          ep.level.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [selectedLevel, searchQuery]);
 
   const featuredEpisode = PODCAST_EPISODES[0]; // A1 Cafe episode
 
@@ -49,7 +62,7 @@ export function PodcastListScreen({ navigation }: Props) {
 
             <View style={styles.headerTitleCol}>
               <Text style={styles.headerTitle}>TalkStage Podcasts</Text>
-              <Text style={styles.headerSub}>Doğal Hızda Dinle • A1 Masterclass</Text>
+              <Text style={styles.headerSub}>Doğal Hızda Dinle • A1-B2 Masterclass</Text>
             </View>
 
             <View style={styles.headerRightBadge}>
@@ -59,54 +72,75 @@ export function PodcastListScreen({ navigation }: Props) {
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            {/* 1. Hero Featured Podcast Banner */}
-            <Pressable
-              onPress={() => navigation.navigate('PodcastPlayer', { episodeId: featuredEpisode.id })}
-              style={[styles.featuredCard, shadow.card]}
-            >
-              <Image source={featuredEpisode.coverImage} style={styles.featuredCover} resizeMode="cover" />
-              <View style={styles.featuredOverlay}>
-                <View style={styles.featuredTopRow}>
-                  <View style={styles.featuredTag}>
-                    <Text style={styles.featuredTagText}>⭐ ÖNE ÇIKAN DERS</Text>
-                  </View>
-                  <View style={styles.levelBadgeMini}>
-                    <Text style={styles.levelBadgeMiniText}>{featuredEpisode.levelLabel}</Text>
-                  </View>
-                </View>
+            {/* 1. Search Bar */}
+            <View style={[styles.searchBarWrapper, shadow.card]}>
+              <Ionicons name="search" size={18} color="#94A3B8" style={{ marginRight: 8 }} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Bölüm veya konu ara (örn: cafe, hotel, interview)..."
+                placeholderTextColor="#94A3B8"
+                style={styles.searchInput}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+              />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+                  <Ionicons name="close-circle" size={18} color="#94A3B8" />
+                </Pressable>
+              )}
+            </View>
 
-                <View style={styles.featuredBodyCol}>
-                  <Text style={styles.featuredTitle} numberOfLines={1}>
-                    {featuredEpisode.title}
-                  </Text>
-                  <Text style={styles.featuredSub} numberOfLines={2}>
-                    {featuredEpisode.description}
-                  </Text>
-                </View>
+            {/* 2. Hero Featured Podcast Banner (Only when not actively searching) */}
+            {!searchQuery ? (
+              <Pressable
+                onPress={() => navigation.navigate('PodcastPlayer', { episodeId: featuredEpisode.id })}
+                style={[styles.featuredCard, shadow.card]}
+              >
+                <Image source={featuredEpisode.coverImage} style={styles.featuredCover} resizeMode="cover" />
+                <View style={styles.featuredOverlay}>
+                  <View style={styles.featuredTopRow}>
+                    <View style={styles.featuredTag}>
+                      <Text style={styles.featuredTagText}>⭐ ÖNE ÇIKAN DERS</Text>
+                    </View>
+                    <View style={styles.levelBadgeMini}>
+                      <Text style={styles.levelBadgeMiniText}>{featuredEpisode.levelLabel}</Text>
+                    </View>
+                  </View>
 
-                <View style={styles.featuredFooterRow}>
-                  <View style={styles.speakerRowMini}>
-                    {featuredEpisode.speakers.map((s, idx) => (
-                      <Image
-                        key={idx}
-                        source={s.avatar}
-                        style={[styles.speakerAvatarMini, idx > 0 && { marginLeft: -6 }]}
-                      />
-                    ))}
-                    <Text style={styles.speakerNamesText} numberOfLines={1}>
-                      {featuredEpisode.speakers.filter(s => !s.name.includes('Sunucu')).map((s) => s.name).join(' & ')}
+                  <View style={styles.featuredBodyCol}>
+                    <Text style={styles.featuredTitle} numberOfLines={1}>
+                      {featuredEpisode.title}
+                    </Text>
+                    <Text style={styles.featuredSub} numberOfLines={2}>
+                      {featuredEpisode.description}
                     </Text>
                   </View>
 
-                  <View style={styles.playBtnMini}>
-                    <Ionicons name="play" size={13} color="#FFFFFF" />
-                    <Text style={styles.playBtnMiniText}>Dinle ({featuredEpisode.durationLabel})</Text>
+                  <View style={styles.featuredFooterRow}>
+                    <View style={styles.speakerRowMini}>
+                      {featuredEpisode.speakers.map((s, idx) => (
+                        <Image
+                          key={idx}
+                          source={s.avatar}
+                          style={[styles.speakerAvatarMini, idx > 0 && { marginLeft: -6 }]}
+                        />
+                      ))}
+                      <Text style={styles.speakerNamesText} numberOfLines={1}>
+                        {featuredEpisode.speakers.filter(s => !s.name.includes('Sunucu')).map((s) => s.name).join(' & ')}
+                      </Text>
+                    </View>
+
+                    <View style={styles.playBtnMini}>
+                      <Ionicons name="play" size={13} color="#FFFFFF" />
+                      <Text style={styles.playBtnMiniText}>Dinle ({featuredEpisode.durationLabel})</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
+            ) : null}
 
-            {/* 2. CEFR Level Filter Pills */}
+            {/* 3. CEFR Level Filter Pills */}
             <View style={styles.filterSection}>
               <Text style={styles.sectionHeading}>Seviyeye Göre Filtrele:</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterPillsRow}>
@@ -125,15 +159,17 @@ export function PodcastListScreen({ navigation }: Props) {
                       : `🚀 B2 İleri (${count})`;
 
                   return (
-                    <Pressable
+                    <BouncyPressable
                       key={lvl}
                       onPress={() => setSelectedLevel(lvl)}
                       style={[styles.filterPill, isActive && styles.filterPillActive]}
+                      hapticType="light"
+                      scaleTo={0.95}
                     >
                       <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
                         {label}
                       </Text>
-                    </Pressable>
+                    </BouncyPressable>
                   );
                 })}
               </ScrollView>
@@ -145,10 +181,12 @@ export function PodcastListScreen({ navigation }: Props) {
                 const dialogueSpeakers = ep.speakers.filter(s => !s.name.includes('Sunucu'));
 
                 return (
-                  <Pressable
+                  <BouncyPressable
                     key={ep.id}
                     onPress={() => navigation.navigate('PodcastPlayer', { episodeId: ep.id })}
                     style={[styles.episodeCard, shadow.card]}
+                    hapticType="medium"
+                    scaleTo={0.97}
                   >
                     <View style={styles.episodeTopRow}>
                       <Image source={ep.coverImage} style={styles.episodeThumb} resizeMode="cover" />
@@ -192,7 +230,7 @@ export function PodcastListScreen({ navigation }: Props) {
                         <Text style={styles.listenBtnText}>Ders ➔</Text>
                       </View>
                     </View>
-                  </Pressable>
+                  </BouncyPressable>
                 );
               })}
             </View>
@@ -275,6 +313,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xs,
     paddingBottom: 80,
+  },
+
+  /* Search Bar */
+  searchBarWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    borderRadius: radii.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 13,
+    color: '#FFFFFF',
+    padding: 0,
   },
 
   /* Featured Hero Card */

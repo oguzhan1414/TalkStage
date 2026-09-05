@@ -11,8 +11,10 @@ const RECORDING_OPTIONS = { ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled:
 
 /**
  * File-based mic recording with live level metering (for waveform UI).
- * Used by `CalibrationScreen` (Görev 4) and available to any future
- * record-then-upload flow. For real-time PCM streaming to the backend's
+ * Used by `ReadingPassageScreen`'s shadowing step and available to any future
+ * record-then-upload flow (the old onboarding voice calibration screen that
+ * originally used this was retired when onboarding moved to a self-report
+ * level picker — see `mobile/CLAUDE.md`). For real-time PCM streaming to the backend's
  * WebSocket (Görev 8's live conversation room), use `useVoiceStream` instead
  * — that's a different capture mode (chunked raw PCM vs. a finished file).
  */

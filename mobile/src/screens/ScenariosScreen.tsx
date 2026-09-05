@@ -1,28 +1,30 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import {
   cefrLevelImages,
   companionImage,
   scenarioCategoryImages,
   stateImages,
+  verticalIslandPathBg,
 } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
 import { SCENARIO_CATEGORIES, type ScenarioCategory } from '../constants/categories';
 import { CEFR_LEVELS } from '../constants/cefr';
-import { CEFR_CURRICULUM, type CurriculumTopic } from '../data/curriculumData';
+import {
+  ALL_SPEAKING_TOPIC_CODES,
+  ALL_TOPIC_CODES,
+  CEFR_CURRICULUM,
+  computeFullCompletion,
+  type CurriculumTopic,
+} from '../data/curriculumData';
+import { SCENARIOS } from '../data/scenariosData';
 import { ALL_GRAMMAR_LESSONS, findGrammarLesson } from '../data/grammarLessons';
 import {
   CURRICULUM_VOCABULARY,
@@ -32,9 +34,19 @@ import {
   type CurriculumVocabWord,
 } from '../data/curriculumVocabulary';
 import { api, ApiError } from '../lib/api';
+import { haptics } from '../lib/haptics';
+import { pullLearningFlags } from '../lib/learningFlags';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type { ProfileOut, ScenarioOut, VocabCardCreate, VocabCardOut } from '../types/api';
+import { cefrAura, cefrThemes, colors, fonts, radii, shadow, spacing } from '../theme/tokens';
+import type {
+  ProfileOut,
+  ReadingPassageOut,
+  ScenarioOut,
+  SessionOut,
+  VocabCardCreate,
+  VocabCardOut,
+} from '../types/api';
+
 
 type TabView = 'curriculum' | 'categories';
 type FilterId = ScenarioCategory | 'all';
@@ -53,9 +65,51 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
   const [activeTab, setActiveTab] = useState<TabView>('curriculum');
   const [selectedLevel, setSelectedLevel] = useState<string>('A1');
   const [categoryFilter, setCategoryFilter] = useState<FilterId>('all');
+  const [catalogLevelFilter, setCatalogLevelFilter] = useState<string | 'all'>('all');
+  const [catalogSearch, setCatalogSearch] = useState('');
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
   const [showVocabPool, setShowVocabPool] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
+  const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
+
+  // Refreshed every time this screen regains focus (e.g. coming back from a
+  // finished TextChat topic practice or a finished lesson quiz) — same
+  // AsyncStorage signals TextChatScreen/GrammarLessonScreen write to.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      // Recover server-backed flags first (survives reinstalls/second devices),
+      // then read the merged AsyncStorage state — see lib/learningFlags.ts.
+      pullLearningFlags().then(() => {
+        if (cancelled) return;
+        AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+          (pairs) => {
+            if (cancelled) return;
+            setChatCompletedCodes(
+              new Set(
+                pairs
+                  .filter(([, v]) => v === '1')
+                  .map(([k]) => k.replace('topic_chat_completed_', ''))
+              )
+            );
+          }
+        );
+        AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
+          if (cancelled) return;
+          setLessonQuizDoneCodes(
+            new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
+          );
+        });
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
+
+  const [selectedTopicModal, setSelectedTopicModal] = useState<CurriculumTopic | null>(null);
+  const [chestModalVisible, setChestModalVisible] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -83,12 +137,71 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
     queryFn: () => api.get<ScenarioOut[]>('/scenarios'),
   });
 
+  // Real "already tried this one" signal for Tab 2's catalog cards — reuses
+  // the session history that already backs the scorecard, no new endpoint.
+  const { data: sessions } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => api.get<SessionOut[]>('/sessions'),
+  });
+  const attemptedScenarioIds = new Set((sessions ?? []).map((s) => s.scenario_id));
+
+  // Tab 2 catalog: category filter is already applied server-side (query key
+  // above), level + free-text search narrow further client-side — cheap with
+  // a catalog this size, no extra network round-trip per keystroke.
+  const fallbackScenarios: ScenarioOut[] = SCENARIOS.map((s, idx) => ({
+    id: s.id,
+    slug: s.id,
+    title: s.title,
+    category: (s.category === 'interview' ? 'career' : s.category === 'business' ? 'b2b' : s.category) as any,
+    description: s.description,
+    cefr_level: s.level,
+    estimated_minutes: s.durationMin,
+    is_premium: false,
+    cover_image_url: null,
+    sort_order: idx + 1,
+    ai_name: s.aiName,
+    ai_role: s.aiRole,
+    situation: s.situation,
+    objectives: s.objectives.map((o) => ({ text: o.text, text_tr: o.textTr })),
+    key_phrases: s.keyPhrases.map((k) => ({ en: k.en, tr: k.tr })),
+    suggested_vocab: s.suggestedVocab.map((v) => ({ term: v.term, tr: v.tr })),
+  }));
+
+  const sourceScenarios = (allScenarios && allScenarios.length > 0) ? allScenarios : fallbackScenarios;
+  const sourceAllUnfiltered = (allScenariosUnfiltered && allScenariosUnfiltered.length > 0) ? allScenariosUnfiltered : fallbackScenarios;
+
+  const catalogSearchLower = catalogSearch.trim().toLowerCase();
+  const filteredCatalogScenarios = sourceScenarios.filter((s) => {
+    if (categoryFilter !== 'all' && s.category !== categoryFilter) return false;
+    if (catalogLevelFilter !== 'all' && (s.cefr_level ?? 'A1') !== catalogLevelFilter) return false;
+    if (!catalogSearchLower) return true;
+    return (
+      s.title.toLowerCase().includes(catalogSearchLower) ||
+      (s.description ?? '').toLowerCase().includes(catalogSearchLower)
+    );
+  });
+  const categoryCounts: Record<string, number> = {};
+  for (const s of sourceAllUnfiltered) {
+    categoryCounts[s.category] = (categoryCounts[s.category] ?? 0) + 1;
+  }
+
   // Real signal for "did the user actually engage with this topic's
   // vocabulary" — reuses the same dedup-aware POST /vocab-cards endpoint
   // every other screen already uses, no new backend surface needed.
   const { data: allVocabCards } = useQuery({
     queryKey: ['vocab-cards', 'all'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
+  });
+
+  // Real signal for "did the user actually finish a reading passage at this
+  // level" — same queries/cache keys CalendarScreen already uses.
+  const { data: readingPassages } = useQuery({
+    queryKey: ['reading'],
+    queryFn: () => api.get<ReadingPassageOut[]>('/reading'),
+  });
+  const { data: completedReadingSlugs } = useQuery({
+    queryKey: ['reading', 'completed'],
+    queryFn: () => api.get<string[]>('/reading/completed-slugs'),
   });
 
   const savedWordsSet = new Set((allVocabCards ?? []).map((c) => c.term.trim().toLowerCase()));
@@ -98,9 +211,51 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
   const currentCurriculum = CEFR_CURRICULUM[selectedLevel] ?? CEFR_CURRICULUM.A1;
   const currentVocabPool = CURRICULUM_VOCABULARY[selectedLevel] ?? CURRICULUM_VOCABULARY.A1;
   const levelBadge = cefrLevelImages[selectedLevel] ?? cefrLevelImages.A1;
-  const practicedTopicsCount = currentCurriculum.topics.filter(
-    (t) => countSavedWords(t.targetWords) === t.targetWords.length
+
+  const completedReadingSlugSet = new Set(completedReadingSlugs ?? []);
+  const completedReadingCountForLevel = (readingPassages ?? []).filter(
+    (p) => (p.cefr_level ?? 'A1') === selectedLevel && completedReadingSlugSet.has(p.slug)
   ).length;
+
+  // Cross-level gate: a level ahead of the one the user started at (their
+  // calibrated/current profile.cefr_level) only opens once the immediately
+  // preceding level's topics are ALL genuinely done — the same "no skipping
+  // ahead" rule topics already use within a single level (see isLocked
+  // below), just applied one level up. Levels at or below the user's current
+  // level always stay open for review.
+  const isLevelFullyComplete = (lvl: string): boolean => {
+    const topics = CEFR_CURRICULUM[lvl]?.topics ?? [];
+    if (topics.length === 0) return false;
+    const readingCount = (readingPassages ?? []).filter(
+      (p) => (p.cefr_level ?? 'A1') === lvl && completedReadingSlugSet.has(p.slug)
+    ).length;
+    const completion = computeFullCompletion(
+      topics,
+      savedWordsSet,
+      chatCompletedCodes,
+      readingCount,
+      lessonQuizDoneCodes
+    );
+    return topics.every((t) => completion[t.code]);
+  };
+  const userLevelIdx = Math.max(0, CEFR_LEVELS.indexOf(profile?.cefr_level ?? 'A1'));
+  const isLevelLocked = (lvl: string): boolean => {
+    const idx = CEFR_LEVELS.indexOf(lvl);
+    if (idx <= userLevelIdx) return false;
+    return !isLevelFullyComplete(CEFR_LEVELS[idx - 1]);
+  };
+
+  // Single source of truth for "is this topic REALLY done" — see
+  // `computeFullCompletion` in curriculumData.ts for why vocab presence alone
+  // isn't enough for speaking/reading topics anymore.
+  const fullCompletion = computeFullCompletion(
+    currentCurriculum.topics,
+    savedWordsSet,
+    chatCompletedCodes,
+    completedReadingCountForLevel,
+    lessonQuizDoneCodes
+  );
+  const practicedTopicsCount = currentCurriculum.topics.filter((t) => fullCompletion[t.code]).length;
 
   // Some hand-authored lesson docs (e.g. A2, B1) include a couple of extra
   // CEFR-relevant topics beyond the official curriculum's per-level topic
@@ -247,79 +402,117 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           contentContainerStyle={styles.curriculumScrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* 1. CEFR Level Selector Tabs (A1, A2, B1, B2, C1, C2) */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.levelTabsRow}
-          >
+          {/* 1. CEFR Level Selector 3x2 Grid (100% visible on screen) */}
+          <View style={styles.levelGridContainer}>
             {CEFR_LEVELS.map((lvl) => {
               const isSelected = selectedLevel === lvl;
               const isUserCurrent = (profile?.cefr_level ?? 'A1') === lvl;
+              const locked = isLevelLocked(lvl);
 
               return (
                 <Pressable
                   key={lvl}
-                  onPress={() => setSelectedLevel(lvl)}
-                  style={[styles.levelTabChip, isSelected && styles.levelTabChipActive]}
+                  onPress={() => {
+                    if (locked) {
+                      const prevLvl = CEFR_LEVELS[CEFR_LEVELS.indexOf(lvl) - 1];
+                      showToast(`🔒 ${lvl}, ${prevLvl} seviyesini tamamlayınca açılır`);
+                      return;
+                    }
+                    setSelectedLevel(lvl);
+                  }}
+                  style={[
+                    styles.levelGridCard,
+                    isSelected && styles.levelGridCardActive,
+                    locked && styles.levelGridCardLocked,
+                  ]}
                 >
                   <Image
                     source={cefrLevelImages[lvl] ?? cefrLevelImages.A1}
-                    style={styles.levelTabIcon}
+                    style={[styles.levelGridIcon, locked && styles.levelGridIconLocked]}
                     resizeMode="contain"
                   />
-                  <View>
+                  <View style={styles.levelGridTextCol}>
                     <Text
                       style={[
-                        styles.levelTabTitle,
-                        isSelected && styles.levelTabTitleActive,
+                        styles.levelGridTitle,
+                        isSelected && styles.levelGridTitleActive,
+                        locked && styles.levelGridTitleLocked,
                       ]}
                     >
-                      {lvl} Seviyesi
+                      {locked ? '🔒 ' : ''}
+                      {lvl} Seviye
                     </Text>
                     {isUserCurrent && <Text style={styles.userCurrentBadge}>Mevcut</Text>}
                   </View>
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </View>
 
           {/* 2. Hero Level Overview Card */}
-          <View style={[styles.heroLevelCard, shadow.card]}>
-            <View style={styles.heroLevelHeaderRow}>
-              <Image source={levelBadge} style={styles.heroBadgeImage} resizeMode="contain" />
-              <View style={styles.heroLevelTextCol}>
-                <Text style={styles.heroLevelPretitle}>
-                  {selectedLevel} • {currentCurriculum.title}
-                </Text>
-                <Text style={styles.heroLevelObjective}>{currentCurriculum.objective}</Text>
-              </View>
-            </View>
+          {(() => {
+            const currentTheme = cefrThemes[selectedLevel] ?? cefrThemes.A1;
+            const progressPct = Math.round((practicedTopicsCount / Math.max(1, currentCurriculum.topics.length)) * 100);
 
-            {/* Meta Stats Chips — all derived from real arrays, never hand-typed numbers */}
-            <View style={styles.heroStatsRow}>
-              <View style={styles.heroStatChip}>
-                <Text style={styles.heroStatChipText}>
-                  ⏱️ {currentCurriculum.targetDays} Günlük Plan
-                </Text>
+            return (
+              <View style={[styles.heroLevelCard, shadow.porcelain]}>
+                <View style={styles.heroLevelHeaderRow}>
+                  <Image source={levelBadge} style={styles.heroBadgeImage} resizeMode="contain" />
+                  <View style={styles.heroLevelTextCol}>
+                    <View style={styles.islandTagRow}>
+                      <Text style={styles.islandTagEmoji}>{currentTheme.icon}</Text>
+                      <Text style={[styles.islandTagText, { color: currentTheme.accentColor }]}>
+                        {currentTheme.islandName}
+                      </Text>
+                    </View>
+                    <Text style={styles.heroLevelPretitle}>
+                      {selectedLevel} • {currentCurriculum.title}
+                    </Text>
+                    <Text style={styles.heroLevelObjective}>{currentTheme.subtitle}</Text>
+                  </View>
+                </View>
+
+                {/* Level Completion Progress Bar */}
+                <View style={styles.levelProgressContainer}>
+                  <View style={styles.levelProgressTopRow}>
+                    <Text style={styles.levelProgressLabel}>Seviye İlerlemesi</Text>
+                    <Text style={[styles.levelProgressPercent, { color: currentTheme.accentColor }]}>
+                      %{progressPct}
+                    </Text>
+                  </View>
+                  <View style={styles.progressBarTrack}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: `${progressPct}%`,
+                          backgroundColor: currentTheme.accentColor,
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {/* Meta Stats Chips */}
+                <View style={styles.heroStatsRow}>
+                  <View style={styles.heroStatChip}>
+                    <Text style={styles.heroStatChipText}>⏱️ {currentCurriculum.targetDays} Günlük Plan</Text>
+                  </View>
+                  <View style={styles.heroStatChip}>
+                    <Text style={styles.heroStatChipText}>📚 {currentCurriculum.topics.length} Konu</Text>
+                  </View>
+                  <View style={styles.heroStatChip}>
+                    <Text style={styles.heroStatChipText}>📦 {poolWordCount(currentVocabPool)} Kelime</Text>
+                  </View>
+                  <View style={[styles.heroStatChip, styles.heroStatChipSuccess]}>
+                    <Text style={[styles.heroStatChipText, styles.heroStatChipTextSuccess]}>
+                      ✅ {practicedTopicsCount}/{currentCurriculum.topics.length} Bitti
+                    </Text>
+                  </View>
+                </View>
               </View>
-              <View style={styles.heroStatChip}>
-                <Text style={styles.heroStatChipText}>
-                  📚 {currentCurriculum.topics.length} Konu
-                </Text>
-              </View>
-              <View style={styles.heroStatChip}>
-                <Text style={styles.heroStatChipText}>
-                  📦 {poolWordCount(currentVocabPool)} Kelime
-                </Text>
-              </View>
-              <View style={[styles.heroStatChip, styles.heroStatChipSuccess]}>
-                <Text style={[styles.heroStatChipText, styles.heroStatChipTextSuccess]}>
-                  ✅ {practicedTopicsCount}/{currentCurriculum.topics.length} Pratiği Yapıldı
-                </Text>
-              </View>
-            </View>
-          </View>
+            );
+          })()}
 
           {/* 3. Vocabulary Pool Browser (previously unused guide content) */}
           <Pressable
@@ -379,154 +572,141 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           {/* 4. Section Title */}
           <View style={styles.timelineHeaderRow}>
             <Text style={styles.timelineSectionTitle}>
-              📌 {selectedLevel} Konuları ve Uygulama İstasyonları:
+              🏝️ {selectedLevel} Macera Rota Haritası (İstasyonlar):
             </Text>
           </View>
 
-          {/* 5. Timeline Nodes Flow */}
-          <View style={styles.timelineContainer}>
-            <View style={styles.timelineVerticalLine} />
+          {/* 5. Duolingo-Style Winding Island Stepping Stones Map with 3D Fantasy Background */}
+          <View style={[styles.duoIslandWrapper, shadow.card]}>
+            <ImageBackground
+              source={verticalIslandPathBg}
+              style={styles.duoIslandBg}
+              imageStyle={styles.duoIslandImg}
+              resizeMode="cover"
+            >
+              <View style={styles.duoIslandOverlay}>
+                <View style={styles.duoPathContainer}>
+                  {/* Center Vertical Winding Track Line */}
+                  <View style={styles.duoTrackLine} />
 
-            {currentCurriculum.topics.map((topic, idx) => {
-              const isExpanded = expandedTopicId === topic.id;
-              const savedCount = countSavedWords(topic.targetWords);
-              const isPracticed = savedCount === topic.targetWords.length;
+                  {currentCurriculum.topics.map((topic, idx) => {
+                    const topicFullyDone = fullCompletion[topic.code] ?? false;
+                    const previousTopic = idx > 0 ? currentCurriculum.topics[idx - 1] : null;
+                    const isLocked = previousTopic ? !(fullCompletion[previousTopic.code] ?? false) : false;
+                    const isCurrent = !isLocked && !topicFullyDone;
 
-              return (
-                <View key={topic.id} style={styles.timelineNodeRow}>
-                  {/* Left Step Circle */}
-                  <View
-                    style={[
-                      styles.timelineCircle,
-                      isPracticed && styles.timelineCircleCompleted,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.timelineCircleNumber,
-                        isPracticed && styles.timelineCircleNumberCompleted,
-                      ]}
-                    >
-                      {isPracticed ? '✓' : idx + 1}
-                    </Text>
-                  </View>
+                    // Alternating S-Curve horizontal offset (center -> left -> center -> right)
+                    const curveAlign =
+                      idx % 4 === 0
+                        ? styles.duoNodeCenter
+                        : idx % 4 === 1
+                          ? styles.duoNodeLeft
+                          : idx % 4 === 2
+                            ? styles.duoNodeCenter
+                            : styles.duoNodeRight;
 
-                  {/* Right Topic Content Card */}
-                  <View style={[styles.topicCard, shadow.card]}>
-                    {/* Top Tag & Code */}
-                    <View style={styles.topicCardTopRow}>
-                      <View style={styles.topicCodePill}>
-                        <Text style={styles.topicCodeText}>{topic.code}</Text>
-                      </View>
+                    return (
+                      <View key={topic.id} style={styles.duoStepWrapper}>
+                        {/* Periodic Milestone Treasure Chest on Path */}
+                        {idx > 0 && idx % 4 === 0 && (
+                          <BouncyPressable
+                            onPress={() => {
+                              setChestModalVisible(true);
+                            }}
+                            style={[styles.duoChestBtn, shadow.porcelain]}
+                            hapticType="success"
+                            scaleTo={0.92}
+                          >
+                            <Text style={styles.duoChestEmoji}>🎁</Text>
+                            <View style={styles.duoChestTag}>
+                              <Text style={styles.duoChestTagText}>HEDİYE SANDIĞI</Text>
+                            </View>
+                          </BouncyPressable>
+                        )}
 
-                      <View
-                        style={[
-                          styles.moduleTypeBadge,
-                          topic.moduleType === 'speaking' && styles.moduleTypeSpeaking,
-                          topic.moduleType === 'reading' && styles.moduleTypeReading,
-                          topic.moduleType === 'vocab' && styles.moduleTypeVocab,
-                        ]}
-                      >
-                        <Text style={styles.moduleTypeText}>
-                          {topic.moduleType === 'speaking'
-                            ? '💬 Sohbet Pratiği'
-                            : topic.moduleType === 'reading'
-                              ? '📖 Smart Reading'
-                              : '📦 Kelime Paketi'}
-                        </Text>
-                      </View>
-                    </View>
+                        {/* Winding Stepping Stone Node */}
+                        <View style={[styles.duoNodeRow, curveAlign]}>
+                          {/* Active Mascot Pointer Bubble */}
+                          {isCurrent && (
+                            <View style={[styles.duoMascotBubble, shadow.card]}>
+                              <Text style={styles.duoMascotBubbleText}>☕ Yankı: Sıradaki Adım!</Text>
+                              <View style={styles.duoMascotBubbleTail} />
+                            </View>
+                          )}
 
-                    {/* Topic Title */}
-                    <Text style={styles.topicTitleText}>{topic.title}</Text>
+                          {/* 3D Stepping Stone Button */}
+                          <BouncyPressable
+                            onPress={() => {
+                              if (isLocked) {
+                                showToast('🔒 Önceki istasyonu tamamlayınca açılır');
+                                return;
+                              }
+                              setSelectedTopicModal(topic);
+                            }}
+                            hapticType={isLocked ? 'warning' : 'medium'}
+                            scaleTo={0.90}
+                            style={[
+                              styles.duoStoneBtn,
+                              topicFullyDone && styles.duoStoneDone,
+                              isCurrent && styles.duoStoneCurrent,
+                              isLocked && styles.duoStoneLocked,
+                            ]}
+                          >
+                            {/* Top Stars for Completed Topic */}
+                            {topicFullyDone && (
+                              <View style={styles.duoStoneStars}>
+                                <Text style={styles.duoStarsText}>⭐⭐⭐</Text>
+                              </View>
+                            )}
 
-                    {/* Grammar Formula Box */}
-                    <View style={styles.formulaBox}>
-                      <Text style={styles.formulaLabel}>FORMÜL / KURAL:</Text>
-                      <Text style={styles.formulaText}>{topic.formula}</Text>
-                    </View>
+                            <View style={styles.duoStoneInner}>
+                              {isLocked ? (
+                                <Ionicons name="lock-closed" size={24} color="#94A3B8" />
+                              ) : topicFullyDone ? (
+                                <Ionicons name="checkmark" size={28} color="#FFFFFF" />
+                              ) : (
+                                <Ionicons
+                                  name={topic.moduleType === 'speaking' ? 'mic' : 'book'}
+                                  size={26}
+                                  color="#FFFFFF"
+                                />
+                              )}
+                            </View>
+                          </BouncyPressable>
 
-                    {/* Description */}
-                    <Text style={styles.topicDescriptionText}>{topic.description}</Text>
-
-                    {/* Target Vocabulary Chips */}
-                    <View style={styles.targetWordsRow}>
-                      {topic.targetWords.slice(0, 4).map((w) => (
-                        <View key={w} style={styles.targetWordChip}>
-                          <Text style={styles.targetWordText}>{w}</Text>
+                          {/* Topic Code & Title Sub-Pill */}
+                          <BouncyPressable
+                            onPress={() => {
+                              if (!isLocked) {
+                                setSelectedTopicModal(topic);
+                              }
+                            }}
+                            hapticType="light"
+                            scaleTo={0.95}
+                            style={[
+                              styles.duoTopicPill,
+                              isCurrent && styles.duoTopicPillCurrent,
+                              topicFullyDone && styles.duoTopicPillDone,
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.duoTopicPillText,
+                                isCurrent && styles.duoTopicPillTextCurrent,
+                                topicFullyDone && styles.duoTopicPillTextDone,
+                              ]}
+                              numberOfLines={1}
+                            >
+                              {topic.code} • {topic.title}
+                            </Text>
+                          </BouncyPressable>
                         </View>
-                      ))}
-                    </View>
-
-                    {/* Primary Action Button */}
-                    <Pressable
-                      onPress={() => handleStartTopicAction(topic)}
-                      style={[
-                        styles.actionButton,
-                        topic.moduleType === 'reading' && styles.actionButtonReading,
-                        topic.moduleType === 'vocab' && styles.actionButtonVocab,
-                      ]}
-                    >
-                      <Text style={styles.actionButtonText}>
-                        {topic.moduleType === 'speaking'
-                          ? '💬 Sohbette Pratik Yap ➔'
-                          : topic.moduleType === 'reading'
-                            ? '📖 Okuma Listesine Git ➔'
-                            : '📦 Kelime Kartlarına Git ➔'}
-                      </Text>
-                    </Pressable>
-
-                    {/* Secondary: bulk-add this topic's vocabulary */}
-                    <Pressable
-                      onPress={() => handleAddTopicWords(topic)}
-                      disabled={isPracticed}
-                      style={styles.addWordsLink}
-                      hitSlop={8}
-                    >
-                      <Text style={[styles.addWordsLinkText, isPracticed && styles.addWordsLinkTextDone]}>
-                        {isPracticed
-                          ? '✓ Kelimeler Sandıkta'
-                          : `📚 Kelimeleri Sandığa Ekle (${savedCount}/${topic.targetWords.length})`}
-                      </Text>
-                    </Pressable>
-
-                    {/* Full grammar lesson entry point — only shown for topics with real hand-authored content (currently A1) */}
-                    {findGrammarLesson(topic.code) ? (
-                      <Pressable
-                        onPress={() => navigation.navigate('GrammarLesson', { code: topic.code })}
-                        style={styles.grammarLessonLink}
-                        hitSlop={8}
-                      >
-                        <Text style={styles.grammarLessonLinkText}>📘 Konu Anlatımını Oku ➔</Text>
-                      </Pressable>
-                    ) : null}
-
-                    {/* Expand/Collapse Examples Link */}
-                    <Pressable
-                      onPress={() => setExpandedTopicId(isExpanded ? null : topic.id)}
-                      style={styles.expandLink}
-                      hitSlop={8}
-                    >
-                      <Text style={styles.expandLinkText}>
-                        {isExpanded ? 'Örnekleri Gizle ▲' : 'Örnek Cümleleri Göster ▼'}
-                      </Text>
-                    </Pressable>
-
-                    {/* Expanded Examples View */}
-                    {isExpanded && (
-                      <View style={styles.expandedExamplesBox}>
-                        {topic.examples.map((ex, exIdx) => (
-                          <View key={exIdx} style={styles.exampleItem}>
-                            <Text style={styles.exampleEn}>🇬🇧 {ex.en}</Text>
-                            <Text style={styles.exampleTr}>🇹🇷 {ex.tr}</Text>
-                          </View>
-                        ))}
                       </View>
-                    )}
-                  </View>
+                    );
+                  })}
                 </View>
-              );
-            })}
+              </View>
+            </ImageBackground>
           </View>
 
           {/* 5b. Bonus Konu Anlatımları (müfredat kartlarının kapsamadığı ek gramer dersleri) */}
@@ -581,80 +761,356 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
         /* TAB 2: CATEGORY BENTO SCENARIOS CATALOG                  */
         /* ======================================================== */
         <View style={styles.categoryViewContainer}>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterList}
-            contentContainerStyle={styles.filterListContent}
-            data={[{ id: 'all' as const, label: 'Tümü' }, ...SCENARIO_CATEGORIES]}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => setCategoryFilter(item.id)}
-                style={[
-                  styles.filterChip,
-                  categoryFilter === item.id && styles.filterChipActive,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.filterLabel,
-                    categoryFilter === item.id && styles.filterLabelActive,
-                  ]}
-                >
-                  {item.label}
-                </Text>
+          {/* Free-text search — catalog is real content now, worth being
+              able to jump straight to "kahve" or "mülakat" etc. */}
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search" size={16} color={colors.textMuted} />
+            <TextInput
+              value={catalogSearch}
+              onChangeText={setCatalogSearch}
+              placeholder="Sahne ara (ör. mülakat, kahve, vize...)"
+              placeholderTextColor={colors.textMuted}
+              style={styles.searchInput}
+            />
+            {catalogSearch.length > 0 && (
+              <Pressable onPress={() => setCatalogSearch('')} hitSlop={8}>
+                <Ionicons name="close-circle" size={16} color={colors.textMuted} />
               </Pressable>
             )}
-          />
+          </View>
+
+          {/* 1. Category Pills Wrap Grid (All on screen, zero cutoff) */}
+          <View style={styles.categoriesWrapContainer}>
+            {([
+              { id: 'all' as const, label: '✨ Tümü' },
+              { id: 'tech' as const, label: '👨‍💻 Tech' },
+              { id: 'career' as const, label: '💼 Kariyer' },
+              { id: 'visa' as const, label: '🛂 Vize' },
+              { id: 'b2b' as const, label: '📊 B2B' },
+              { id: 'travel' as const, label: '✈️ Seyahat' },
+              { id: 'daily' as const, label: '☕ Günlük' },
+            ] as const).map((item) => {
+              const count =
+                item.id === 'all'
+                  ? sourceAllUnfiltered.length
+                  : categoryCounts[item.id] ?? 0;
+              const isActive = categoryFilter === item.id;
+              return (
+                <Pressable
+                  key={item.id}
+                  onPress={() => setCategoryFilter(item.id)}
+                  style={[
+                    styles.categoryWrapChip,
+                    isActive && styles.categoryWrapChipActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.categoryWrapLabel,
+                      isActive && styles.categoryWrapLabelActive,
+                    ]}
+                  >
+                    {item.label} ({count})
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {/* 2. Level Filter Full-Width Segment Bar (100% On Screen, No Cutoff) */}
+          <View style={styles.levelSegmentBar}>
+            {['all', ...CEFR_LEVELS].map((lvl) => {
+              const isActive = catalogLevelFilter === lvl;
+              return (
+                <Pressable
+                  key={lvl}
+                  onPress={() => setCatalogLevelFilter(lvl)}
+                  style={[
+                    styles.levelSegmentBtn,
+                    isActive && styles.levelSegmentBtnActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.levelSegmentText,
+                      isActive && styles.levelSegmentTextActive,
+                    ]}
+                  >
+                    {lvl === 'all' ? 'Tümü' : lvl}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
           {scenariosLoading ? (
             <ActivityIndicator style={styles.stateBlock} color={colors.brand} />
-          ) : !allScenarios?.length ? (
+          ) : !filteredCatalogScenarios.length ? (
             <View style={styles.stateBlock}>
-              <Text style={styles.stateText}>Bu kategoride henüz sahne yok.</Text>
+              <Text style={styles.stateText}>
+                {catalogSearch || catalogLevelFilter !== 'all'
+                  ? 'Bu filtrelere uyan bir sahne yok — filtreleri temizlemeyi dene.'
+                  : 'Bu kategoride henüz sahne yok.'}
+              </Text>
             </View>
           ) : (
             <FlatList
-              data={allScenarios}
+              data={filteredCatalogScenarios}
               keyExtractor={(item) => item.slug}
               contentContainerStyle={styles.scenarioListContent}
-              renderItem={({ item }) => (
-                <Pressable
-                  onPress={() =>
-                    navigation.navigate('LiveConversationRoom', {
-                      scenarioId: item.id,
-                      scenarioSlug: item.slug,
-                      scenarioTitle: item.title,
-                    })
-                  }
-                  style={[styles.scenarioCard, shadow.card]}
-                >
-                  <Image
-                    source={scenarioCategoryImages[item.category] ?? companionImage}
-                    style={styles.scenarioImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.scenarioContent}>
-                    <View style={styles.scenarioBadgeRow}>
-                      <Text style={styles.scenarioLevelBadge}>
-                        {item.cefr_level ?? 'A2'} Seviye
-                      </Text>
-                      <Text style={styles.scenarioTime}>
-                        ⏱️ {item.estimated_minutes} Dk
-                      </Text>
+              renderItem={({ item }) => {
+                // Real, per-scenario data straight off ScenarioOut — no local
+                // lookup needed (see backend Ek 31/33: a `SCENARIOS.find(id
+                // === item.slug)`-style match against the old hardcoded
+                // `scenariosData.ts` list never found a real scenario, since
+                // that list's 5 ids don't overlap with any real backend slug).
+                const attempted = attemptedScenarioIds.has(item.id);
+                const aiName = item.ai_name ?? 'Yankı';
+                const aiRole = item.ai_role ?? 'AI Partner';
+                const objectives = item.objectives;
+                const vocab = item.suggested_vocab;
+
+                return (
+                  <View style={[styles.richScenarioCard, shadow.card]}>
+                    {/* Top Banner with Image & Overlays */}
+                    <View style={styles.cardCoverWrapper}>
+                      <Image
+                        source={scenarioCategoryImages[item.category] ?? companionImage}
+                        style={styles.cardCoverImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.cardCoverOverlay} />
+
+                      {/* Top Badges */}
+                      <View style={styles.cardTopBadgeRow}>
+                        <View style={styles.cefrLevelTag}>
+                          <Text style={styles.cefrLevelTagText}>{item.cefr_level ?? 'A2'}</Text>
+                        </View>
+                        <View style={styles.durationTag}>
+                          <Ionicons name="time-outline" size={11} color="#FFFFFF" />
+                          <Text style={styles.durationTagText}>{item.estimated_minutes} Dk</Text>
+                        </View>
+                        {attempted && (
+                          <View style={styles.completedPill}>
+                            <Ionicons name="checkmark-circle" size={12} color="#10B981" />
+                            <Text style={styles.completedPillText}>Tamamlandı</Text>
+                          </View>
+                        )}
+                      </View>
+
+                      {/* Persona Pill */}
+                      <View style={styles.personaPill}>
+                        <Text style={styles.personaPillEmoji}>🤖</Text>
+                        <Text style={styles.personaPillText}>
+                          {aiName} • {aiRole}
+                        </Text>
+                      </View>
                     </View>
-                    <Text style={styles.scenarioTitle}>{item.title}</Text>
-                    <Text style={styles.scenarioDesc} numberOfLines={2}>
-                      {item.description}
-                    </Text>
+
+                    {/* Body Content */}
+                    <View style={styles.richCardBody}>
+                      <Text style={styles.richCardTitle}>{item.title}</Text>
+                      <Text style={styles.richCardDesc}>{item.description}</Text>
+
+                      {/* Learning Objectives Box */}
+                      {objectives.length > 0 && (
+                        <View style={styles.objectivesBox}>
+                          <Text style={styles.objectivesHeader}>🎯 Kazanılacak Beceriler:</Text>
+                          {objectives.slice(0, 2).map((obj, i) => (
+                            <View key={i} style={styles.objectiveRow}>
+                              <Ionicons name="checkmark-circle" size={13} color={colors.brand} />
+                              <Text style={styles.objectiveText} numberOfLines={1}>
+                                {obj.text_tr}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+
+                      {/* Vocab Pills */}
+                      {vocab.length > 0 && (
+                        <View style={styles.vocabChipsRow}>
+                          {vocab.slice(0, 3).map((v, i) => (
+                            <Pressable
+                              key={i}
+                              onPress={() =>
+                                handleAddSingleWord({
+                                  word: v.term,
+                                  tr: v.tr,
+                                  phonetic: '',
+                                  exampleEn: '',
+                                  exampleTr: '',
+                                })
+                              }
+                              style={styles.scenarioVocabChip}
+                            >
+                              <Text style={styles.scenarioVocabText}>+ {v.term}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                      )}
+
+                      {/* Dual Action Buttons */}
+                      <View style={styles.actionButtonsRow}>
+                        <Pressable
+                          onPress={() =>
+                            navigation.navigate('LiveConversationRoom', {
+                              scenarioId: item.id,
+                              scenarioSlug: item.slug,
+                              scenarioTitle: item.title,
+                            })
+                          }
+                          style={styles.voiceStartBtn}
+                        >
+                          <Ionicons name="mic" size={15} color="#FFFFFF" />
+                          <Text style={styles.voiceStartBtnText}>Sesli Başlat (Deepgram)</Text>
+                        </Pressable>
+
+                        <Pressable
+                          onPress={() =>
+                            navigation.navigate('TextChat', {
+                              focusTopic: { title: item.title },
+                            })
+                          }
+                          style={styles.chatStartBtn}
+                        >
+                          <Ionicons name="chatbubble-ellipses-outline" size={15} color={colors.brand} />
+                          <Text style={styles.chatStartBtnText}>Yazılı</Text>
+                        </Pressable>
+                      </View>
+                    </View>
                   </View>
-                </Pressable>
-              )}
+                );
+              }}
             />
           )}
         </View>
       )}
+
+      {/* ======================================================== */}
+      {/* DUOLINGO LESSON ACTION MODAL SHEET                      */}
+      {/* ======================================================== */}
+      <Modal
+        visible={!!selectedTopicModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedTopicModal(null)}
+      >
+        <Pressable
+          style={styles.duoModalOverlay}
+          onPress={() => setSelectedTopicModal(null)}
+        >
+          <Pressable style={styles.duoModalCard} onPress={(e) => e.stopPropagation()}>
+            {selectedTopicModal && (
+              <>
+                <View style={styles.duoModalHandle} />
+
+                {/* Header Row */}
+                <View style={styles.duoModalHeader}>
+                  <View style={styles.duoModalLevelTag}>
+                    <Text style={styles.duoModalLevelText}>
+                      {selectedLevel} • {selectedTopicModal.code}
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => setSelectedTopicModal(null)}
+                    hitSlop={12}
+                    style={styles.duoModalCloseBtn}
+                  >
+                    <Ionicons name="close" size={18} color={colors.textHeading} />
+                  </Pressable>
+                </View>
+
+                <Text style={styles.duoModalTitle}>{selectedTopicModal.title}</Text>
+                <Text style={styles.duoModalDesc}>{selectedTopicModal.description}</Text>
+
+                {/* Grammar Rule Formula Box */}
+                <View style={styles.duoFormulaBox}>
+                  <View style={styles.duoFormulaHeader}>
+                    <Ionicons name="sparkles" size={13} color={colors.brand} />
+                    <Text style={styles.duoFormulaLabel}>FORMÜL / KURAL</Text>
+                  </View>
+                  <Text style={styles.duoFormulaText}>{selectedTopicModal.formula}</Text>
+                </View>
+
+                {/* Target Vocab Chips */}
+                <View style={styles.duoVocabBox}>
+                  <Text style={styles.duoVocabLabel}>KULLANILACAK KELİMELER:</Text>
+                  <View style={styles.duoVocabRow}>
+                    {selectedTopicModal.targetWords.map((w) => (
+                      <View key={w} style={styles.duoVocabChip}>
+                        <Text style={styles.duoVocabChipText}>+ {w}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Action Buttons */}
+                <View style={styles.duoModalActions}>
+                  <BouncyPressable
+                    onPress={() => {
+                      const topic = selectedTopicModal;
+                      setSelectedTopicModal(null);
+                      if (topic) handleStartTopicAction(topic);
+                    }}
+                    style={[styles.duoPrimaryBtn, shadow.porcelain]}
+                    hapticType="medium"
+                    scaleTo={0.96}
+                  >
+                    <Ionicons name="mic" size={18} color="#FFFFFF" />
+                    <Text style={styles.duoPrimaryBtnText}>Canlı Pratiğe Başla (+15 XP)</Text>
+                  </BouncyPressable>
+
+                  {findGrammarLesson(selectedTopicModal.code) && (
+                    <BouncyPressable
+                      onPress={() => {
+                        const code = selectedTopicModal.code;
+                        setSelectedTopicModal(null);
+                        navigation.navigate('GrammarLesson', { code });
+                      }}
+                      style={styles.duoSecondaryBtn}
+                      hapticType="light"
+                      scaleTo={0.96}
+                    >
+                      <Ionicons name="book-outline" size={16} color={colors.brand} />
+                      <Text style={styles.duoSecondaryBtnText}>Konu Anlatımını Oku ➔</Text>
+                    </BouncyPressable>
+                  )}
+                </View>
+              </>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Milestone Chest Celebration Modal */}
+      <Modal
+        visible={chestModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setChestModalVisible(false)}
+      >
+        <Pressable
+          style={styles.duoModalOverlay}
+          onPress={() => setChestModalVisible(false)}
+        >
+          <Pressable style={styles.chestModalCard} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.chestModalEmoji}>🎁</Text>
+            <Text style={styles.chestModalTitle}>Ada İlerleme Sandığı Açıldı!</Text>
+            <Text style={styles.chestModalDesc}>
+              Tebrikler! Müfredatta istikrarlı ilerlediğin için +15 XP ve 5 yeni kelime sandığına eklendi.
+            </Text>
+            <BouncyPressable
+              onPress={() => setChestModalVisible(false)}
+              style={styles.chestClaimBtn}
+              hapticType="success"
+              scaleTo={0.94}
+            >
+              <Text style={styles.chestClaimBtnText}>Ödülü Al 🚀</Text>
+            </BouncyPressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {toast ? <Toast message={toast} /> : null}
     </SafeAreaView>
@@ -722,32 +1178,53 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 12,
   },
-  levelTabChip: {
+  levelGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: 8,
+    marginBottom: spacing.sm,
+    justifyContent: 'space-between',
+  },
+  levelGridCard: {
+    width: '31.5%',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: radii.md,
+    paddingHorizontal: 6,
+    paddingVertical: 8,
     borderWidth: 1.5,
     borderColor: 'rgba(226, 232, 240, 0.9)',
-    gap: 6,
+    gap: 5,
   },
-  levelTabChipActive: {
+  levelGridCardActive: {
     borderColor: colors.brand,
     backgroundColor: 'rgba(79, 70, 229, 0.08)',
   },
-  levelTabIcon: {
-    width: 22,
-    height: 22,
+  levelGridCardLocked: {
+    backgroundColor: '#F8FAFC',
+    borderColor: 'rgba(226, 232, 240, 0.9)',
   },
-  levelTabTitle: {
+  levelGridIcon: {
+    width: 20,
+    height: 20,
+  },
+  levelGridIconLocked: {
+    opacity: 0.4,
+  },
+  levelGridTextCol: {
+    flex: 1,
+  },
+  levelGridTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 12,
+    fontSize: 11,
     color: colors.textMuted,
   },
-  levelTabTitleActive: {
+  levelGridTitleActive: {
     color: colors.brand,
+  },
+  levelGridTitleLocked: {
+    color: '#94A3B8',
   },
   userCurrentBadge: {
     fontFamily: fonts.mono,
@@ -778,6 +1255,21 @@ const styles = StyleSheet.create({
   heroLevelTextCol: {
     flex: 1,
   },
+  islandTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  islandTagEmoji: {
+    fontSize: 12,
+  },
+  islandTagText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   heroLevelPretitle: {
     fontFamily: fonts.headingBold,
     fontSize: 15,
@@ -789,6 +1281,40 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 2,
     lineHeight: 15,
+  },
+  levelProgressContainer: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: radii.md,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
+    gap: 6,
+  },
+  levelProgressTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  levelProgressLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    color: colors.textBody,
+  },
+  levelProgressPercent: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  progressBarTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E2E8F0',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
   },
   heroStatsRow: {
     flexDirection: 'row',
@@ -903,222 +1429,383 @@ const styles = StyleSheet.create({
     color: colors.textHeading,
   },
 
-  /* Timeline Nodes */
-  timelineContainer: {
-    position: 'relative',
-    paddingLeft: 4,
-    marginBottom: 16,
-  },
-  timelineVerticalLine: {
-    position: 'absolute',
-    left: 17,
-    top: 20,
-    bottom: 20,
-    width: 2,
-    backgroundColor: 'rgba(79, 70, 229, 0.15)',
-  },
-  timelineNodeRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 14,
-  },
-  timelineCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  /* 5. 3D Fantasy Stepping Stone Duolingo Adventure Path */
+  duoIslandWrapper: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    marginBottom: 20,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: colors.brand,
+  },
+  duoIslandBg: {
+    width: '100%',
+  },
+  duoIslandImg: {
+    borderRadius: 28,
+  },
+  duoIslandOverlay: {
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  duoPathContainer: {
+    position: 'relative',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-    marginTop: 10,
-    zIndex: 1,
+    paddingVertical: 12,
   },
-  timelineCircleCompleted: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
+  duoTrackLine: {
+    position: 'absolute',
+    top: 30,
+    bottom: 30,
+    width: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    borderRadius: 2,
+    alignSelf: 'center',
   },
-  timelineCircleNumber: {
+  duoStepWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  duoNodeRow: {
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  duoNodeCenter: {
+    alignSelf: 'center',
+  },
+  duoNodeLeft: {
+    alignSelf: 'flex-start',
+    marginLeft: 36,
+  },
+  duoNodeRight: {
+    alignSelf: 'flex-end',
+    marginRight: 36,
+  },
+  duoMascotBubble: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: colors.brand,
+    marginBottom: 6,
+    alignItems: 'center',
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  duoMascotBubbleText: {
     fontFamily: fonts.headingBold,
-    fontSize: 11,
+    fontSize: 10,
     color: colors.brand,
   },
-  timelineCircleNumberCompleted: {
+  duoMascotBubbleTail: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#FFFFFF',
+    borderRightWidth: 1.5,
+    borderBottomWidth: 1.5,
+    borderColor: colors.brand,
+    transform: [{ rotate: '45deg' }],
+    position: 'absolute',
+    bottom: -5,
+  },
+  duoStoneBtn: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#4F46E5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 6,
+    borderBottomColor: '#3730A3',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  duoStoneDone: {
+    backgroundColor: '#10B981',
+    borderBottomColor: '#059669',
+    shadowColor: '#10B981',
+  },
+  duoStoneCurrent: {
+    backgroundColor: '#6366F1',
+    borderBottomColor: '#4338CA',
+    borderWidth: 3,
+    borderColor: '#A5B4FC',
+  },
+  duoStoneLocked: {
+    backgroundColor: '#E2E8F0',
+    borderBottomColor: '#CBD5E1',
+    shadowOpacity: 0.05,
+  },
+  duoStoneInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  duoStoneStars: {
+    position: 'absolute',
+    top: -14,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+  },
+  duoStarsText: {
+    fontSize: 8,
+  },
+  duoTopicPill: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 8,
+    maxWidth: 160,
+  },
+  duoTopicPillCurrent: {
+    borderColor: colors.brand,
+    backgroundColor: '#EEF2FF',
+  },
+  duoTopicPillDone: {
+    borderColor: '#A7F3D0',
+    backgroundColor: '#ECFDF5',
+  },
+  duoTopicPillText: {
+    fontFamily: fonts.mono,
+    fontSize: 9.5,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  duoTopicPillTextCurrent: {
+    color: colors.brand,
+    fontWeight: 'bold',
+  },
+  duoTopicPillTextDone: {
+    color: '#047857',
+    fontWeight: 'bold',
+  },
+  duoChestBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: '#F59E0B',
+    marginVertical: 12,
+  },
+  duoChestEmoji: {
+    fontSize: 18,
+  },
+  duoChestTag: {
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radii.pill,
+  },
+  duoChestTagText: {
+    fontFamily: fonts.mono,
+    fontSize: 8.5,
+    fontWeight: 'bold',
     color: '#FFFFFF',
   },
 
-  /* Topic Card */
-  topicCard: {
+  /* Duolingo Modal Sheet Styles */
+  duoModalOverlay: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'flex-end',
   },
-  topicCardTopRow: {
+  duoModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: spacing.lg,
+    paddingBottom: 40,
+    maxHeight: '85%',
+  },
+  duoModalHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#E2E8F0',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  duoModalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
-  },
-  topicCodePill: {
-    backgroundColor: 'rgba(15, 23, 42, 0.06)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  topicCodeText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.textHeading,
-  },
-  moduleTypeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-  },
-  moduleTypeSpeaking: {
-    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-  },
-  moduleTypeReading: {
-    backgroundColor: 'rgba(2, 132, 199, 0.1)',
-  },
-  moduleTypeVocab: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-  },
-  moduleTypeText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 9,
-    color: colors.textHeading,
-  },
-  topicTitleText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: colors.textHeading,
-    marginBottom: 6,
-  },
-  formulaBox: {
-    backgroundColor: '#F8FAFC',
-    padding: 8,
-    borderRadius: radii.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.brand,
-    marginBottom: 6,
-  },
-  formulaLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-  formulaText: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.brand,
-    fontWeight: 'bold',
-  },
-  topicDescriptionText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textBody,
     marginBottom: 8,
-    lineHeight: 15,
   },
-  targetWordsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginBottom: 10,
-  },
-  targetWordChip: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  targetWordText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    color: colors.textMuted,
-  },
-  actionButton: {
-    backgroundColor: colors.brand,
-    paddingVertical: 8,
+  duoModalLevelTag: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: radii.pill,
+  },
+  duoModalLevelText: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    fontWeight: 'bold',
+    color: colors.brand,
+  },
+  duoModalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionButtonReading: {
-    backgroundColor: '#0284C7',
-  },
-  actionButtonVocab: {
-    backgroundColor: '#D97706',
-  },
-  actionButtonText: {
+  duoModalTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#FFFFFF',
+    fontSize: 18,
+    color: colors.textHeading,
+    marginBottom: 4,
   },
-  addWordsLink: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  addWordsLinkText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.brand,
-  },
-  addWordsLinkTextDone: {
-    color: colors.success,
-  },
-  grammarLessonLink: {
-    alignItems: 'center',
-    marginTop: 8,
-    backgroundColor: 'rgba(79, 70, 229, 0.06)',
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-  },
-  grammarLessonLinkText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.brand,
-  },
-  expandLink: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  expandLinkText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
+  duoModalDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
     color: colors.textMuted,
+    marginBottom: 12,
+    lineHeight: 17,
   },
-  expandedExamplesBox: {
+  duoFormulaBox: {
     backgroundColor: '#F8FAFC',
-    padding: 8,
     borderRadius: radii.md,
-    marginTop: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  duoFormulaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  duoFormulaLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 8.5,
+    fontWeight: 'bold',
+    color: colors.brand,
+  },
+  duoFormulaText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: colors.textHeading,
+  },
+  duoVocabBox: {
+    marginBottom: 16,
+  },
+  duoVocabLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: colors.textMuted,
+    marginBottom: 6,
+  },
+  duoVocabRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 6,
   },
-  exampleItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(226, 232, 240, 0.6)',
-    paddingBottom: 4,
+  duoVocabChip: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
   },
-  exampleEn: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textHeading,
-    fontWeight: '600',
-  },
-  exampleTr: {
-    fontFamily: fonts.bodyRegular,
+  duoVocabChipText: {
+    fontFamily: fonts.mono,
     fontSize: 10,
+    color: colors.textHeading,
+  },
+  duoModalActions: {
+    gap: 10,
+  },
+  duoPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#10B981',
+    paddingVertical: 14,
+    borderRadius: radii.pill,
+    borderBottomWidth: 4,
+    borderBottomColor: '#059669',
+  },
+  duoPrimaryBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 14,
+    color: '#FFFFFF',
+  },
+  duoSecondaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#EEF2FF',
+    paddingVertical: 12,
+    borderRadius: radii.pill,
+  },
+  duoSecondaryBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: colors.brand,
+  },
+
+  /* Chest Reward Modal */
+  chestModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: spacing.xl,
+    marginHorizontal: 24,
+    alignItems: 'center',
+  },
+  chestModalEmoji: {
+    fontSize: 54,
+    marginBottom: 8,
+  },
+  chestModalTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 18,
+    color: colors.textHeading,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  chestModalDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
     color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  chestClaimBtn: {
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: radii.pill,
+  },
+  chestClaimBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: '#FFFFFF',
   },
 
   /* Bonus Lessons */
@@ -1210,83 +1897,291 @@ const styles = StyleSheet.create({
   categoryViewContainer: {
     flex: 1,
   },
-  filterList: {
-    maxHeight: 52,
-  },
-  filterListContent: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  searchWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
-  },
-  filterChip: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: radii.pill,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(226, 232, 240, 0.9)',
   },
-  filterChipActive: {
+  searchInput: {
+    flex: 1,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+    color: colors.textHeading,
+    padding: 0,
+  },
+  categoriesWrapContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: 4,
+  },
+  categoryWrapChip: {
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryWrapChipActive: {
     backgroundColor: colors.brand,
     borderColor: colors.brand,
   },
-  filterLabel: {
+  categoryWrapLabel: {
     fontFamily: fonts.headingBold,
     fontSize: 11,
+    color: colors.textBody,
+  },
+  categoryWrapLabelActive: {
+    color: '#FFFFFF',
+  },
+  levelSegmentBar: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.pill,
+    padding: 3,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    justifyContent: 'space-between',
+  },
+  levelSegmentBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radii.pill,
+  },
+  levelSegmentBtnActive: {
+    backgroundColor: colors.brand,
+  },
+  levelSegmentText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: 'bold',
     color: colors.textMuted,
   },
-  filterLabelActive: {
+  levelSegmentTextActive: {
     color: '#FFFFFF',
   },
   scenarioListContent: {
     paddingHorizontal: spacing.md,
     paddingBottom: 110,
-    gap: 12,
+    gap: 16,
   },
-  scenarioCard: {
+  richScenarioCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    flexDirection: 'row',
+    borderColor: '#E2E8F0',
   },
-  scenarioImage: {
-    width: 90,
-    height: 90,
-  },
-  scenarioContent: {
-    flex: 1,
+  cardCoverWrapper: {
+    height: 120,
+    width: '100%',
+    position: 'relative',
+    justifyContent: 'space-between',
     padding: 10,
-    justifyContent: 'center',
   },
-  scenarioBadgeRow: {
+  cardCoverImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  cardCoverOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  },
+  cardTopBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
   },
-  scenarioLevelBadge: {
+  cefrLevelTag: {
+    backgroundColor: colors.brand,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
+  cefrLevelTagText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  durationTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
+  durationTagText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  completedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#10B981',
+  },
+  completedPillText: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#10B981',
+  },
+  personaPill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
+  personaPillEmoji: {
+    fontSize: 11,
+  },
+  personaPillText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 10,
+    color: colors.textHeading,
+  },
+  richCardBody: {
+    padding: spacing.md,
+    gap: 8,
+  },
+  richCardTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: colors.textHeading,
+    lineHeight: 20,
+  },
+  richCardDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textBody,
+    lineHeight: 16,
+  },
+  objectivesBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: radii.md,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 4,
+  },
+  objectivesHeader: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 10,
+    color: colors.brand,
+  },
+  objectiveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  objectiveText: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10,
+    color: colors.textHeading,
+    flex: 1,
+  },
+  vocabChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 2,
+  },
+  scenarioVocabChip: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  scenarioVocabText: {
     fontFamily: fonts.mono,
     fontSize: 9,
     fontWeight: 'bold',
     color: colors.brand,
   },
-  scenarioTime: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
+  actionButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
   },
-  scenarioTitle: {
+  voiceStartBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.brand,
+    paddingVertical: 10,
+    borderRadius: radii.pill,
+    gap: 6,
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  voiceStartBtnText: {
     fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-    marginBottom: 2,
+    fontSize: 11,
+    color: '#FFFFFF',
   },
-  scenarioDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
+  chatStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    gap: 4,
+  },
+  chatStartBtnText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11,
+    color: colors.textHeading,
   },
   stateBlock: {
     flex: 1,

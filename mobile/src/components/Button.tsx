@@ -1,5 +1,6 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
+import { BouncyPressable } from './BouncyPressable';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
@@ -17,14 +18,15 @@ type Props = {
 export function Button({ label, onPress, variant = 'primary', loading, disabled, icon, style }: Props) {
   const isDisabled = disabled || loading;
   return (
-    <Pressable
+    <BouncyPressable
       onPress={onPress}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      hapticType={variant === 'primary' ? 'medium' : 'light'}
+      scaleTo={0.97}
+      style={[
         styles.base,
         variantStyles[variant],
         isDisabled && styles.disabled,
-        pressed && !isDisabled && styles.pressed,
         style,
       ]}
     >
@@ -34,7 +36,7 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
       ) : (
         <Text style={[styles.label, variant !== 'primary' && styles.labelDark]}>{label}</Text>
       )}
-    </Pressable>
+    </BouncyPressable>
   );
 }
 

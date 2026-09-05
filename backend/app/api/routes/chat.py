@@ -20,13 +20,25 @@ def send_message(
     turn (see `ChatMessageRequest.history`) — there's no server-side chat table
     for this lightweight daily-practice mode, unlike the full voice `sessions`."""
     try:
-        profile = ctx.db.table("profiles").select("cefr_level").eq("id", ctx.user.id).single().execute().data
+        profile = (
+            ctx.db.table("profiles")
+            .select("cefr_level, display_name")
+            .eq("id", ctx.user.id)
+            .single()
+            .execute()
+            .data
+        )
     except APIError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found") from exc
 
     try:
         response = generate_chat_reply(
-            payload.history, payload.message, profile.get("cefr_level"), payload.role_context
+            payload.history,
+            payload.message,
+            profile.get("cefr_level"),
+            payload.role_context,
+            profile.get("display_name"),
+            payload.topic_context,
         )
     except RuntimeError as exc:
         # GROQ_API_KEY not configured — same "not set up yet" shape as the other AI keys.

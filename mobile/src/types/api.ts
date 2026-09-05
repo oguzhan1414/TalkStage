@@ -16,6 +16,12 @@ export type ProfileOut = {
   last_practice_date: string | null;
   xp: number;
   avatar_id: string | null;
+  persona_id: string | null;
+  learning_goal: string | null;
+  daily_target_minutes: number;
+  /** Haftanın planlanan çalışma günleri (0=Pazartesi..6=Pazar) — null/boş, plan seçilmedi demektir. */
+  study_days: number[] | null;
+  onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -25,7 +31,35 @@ export type ProfileUpdate = Partial<{
   cefr_level: string;
   interests: string[];
   avatar_id: string;
+  persona_id: string;
+  learning_goal: string;
+  daily_target_minutes: number;
+  study_days: number[];
 }>;
+
+/** Body for `POST /onboarding/complete` — see backend `schemas/onboarding.py`. */
+export type OnboardingCompleteRequest = {
+  display_name: string;
+  persona_id: string;
+  learning_goal: string;
+  cefr_level: string;
+  daily_target_minutes: number;
+};
+
+export type ScenarioObjective = {
+  text: string;
+  text_tr: string;
+};
+
+export type ScenarioKeyPhrase = {
+  en: string;
+  tr: string;
+};
+
+export type ScenarioVocabItem = {
+  term: string;
+  tr: string;
+};
 
 export type ScenarioOut = {
   id: string;
@@ -38,6 +72,13 @@ export type ScenarioOut = {
   is_premium: boolean;
   cover_image_url: string | null;
   sort_order: number;
+  /** Live Conversation Room's mission card + guide content — see backend Ek 31/33. */
+  ai_name: string | null;
+  ai_role: string | null;
+  situation: string | null;
+  objectives: ScenarioObjective[];
+  key_phrases: ScenarioKeyPhrase[];
+  suggested_vocab: ScenarioVocabItem[];
 };
 
 export type CalibrationAnswerResult = {
@@ -86,6 +127,10 @@ export type VocabCardUpdate = {
 };
 
 export type VocabGrade = 'again' | 'good' | 'easy';
+
+export type VocabLibraryProgressCreate = {
+  word_id: string;
+};
 
 export type TranscriptTurn = {
   role: 'user' | 'assistant';
@@ -154,6 +199,8 @@ export type ChatMessageRequest = {
   history: ChatTurn[];
   message: string;
   role_context?: string;
+  topic_code?: string;
+  topic_context?: string;
 };
 
 export type ChatCorrection = {
@@ -168,6 +215,7 @@ export type ChatMessageResponse = {
   correction: ChatCorrection;
   is_completed?: boolean;
   completion_summary_tr?: string | null;
+  suggested_replies?: string[];
 };
 
 /** `GET /progress` — added alongside mobile Görev 15, the `progress` table existed but was never exposed for reading. */
@@ -177,3 +225,32 @@ export type ProgressOut = {
   minutes_practiced: number;
   scenarios_completed: number;
 };
+
+export type GrammarMistakeCreate = {
+  topic_code?: string | null;
+  wrong_text: string;
+  corrected_text: string;
+  explanation_tr?: string | null;
+  source?: string | null;
+};
+
+export type GrammarMistakeOut = {
+  id: string;
+  user_id: string;
+  topic_code?: string | null;
+  wrong_text: string;
+  corrected_text: string;
+  explanation_tr?: string | null;
+  source?: string | null;
+  created_at?: string | null;
+};
+
+export type VocabLookupOut = {
+  term: string;
+  translation: string;
+  phonetic?: string | null;
+  part_of_speech?: string | null;
+  example_en?: string | null;
+  example_tr?: string | null;
+};
+

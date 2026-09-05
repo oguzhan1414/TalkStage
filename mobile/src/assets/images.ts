@@ -6,8 +6,12 @@ import type { ScenarioCategory } from '../constants/categories';
 
 export const companionImage = require('../../assets/images/companion/yanki.png');
 export const onboardingHero = require('../../assets/images/companion/yanki.png');
+/** Yankı with a wand + sparkles — used by the onboarding "AI Plan Hazırlığı" (Magic Moment) screen. */
+export const yankiMagicImage = require('../../assets/images/companion/yanki_magic.png');
 export const aiOrb = require('../../assets/images/ai-orb.jpg');
 export const learningPathLandscape = require('../../assets/images/learning_path_landscape.jpg');
+export const levelsRoadmapIslandBg = require('../../assets/images/levels_roadmap_island_bg.jpg');
+export const verticalIslandPathBg = require('../../assets/images/vertical_island_path_bg.jpg');
 export const studyStudioLounge = require('../../assets/images/study_studio_lounge.jpg');
 export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.jpg');
 export const podcastHubIcon = require('../../assets/images/podcast_hub_3d_icon.jpg');
@@ -71,6 +75,13 @@ export const avatarImages = {
   femaleDesigner: require('../../assets/images/avatars/female_designer.png'),
   maleEngineer: require('../../assets/images/avatars/male_engineer.png'),
   femaleEntrepreneur: require('../../assets/images/avatars/female_entrepreneur.png'),
+  // Dedicated onboarding persona portraits (2026-08-26) — replace the emoji-badge
+  // fallback the onboarding Persona screen used for personas that had no genuinely
+  // matching photo among the 6 career avatars above.
+  studentYouth: require('../../assets/images/avatars/student_youth.jpg'),
+  travelerExplorer: require('../../assets/images/avatars/traveler_explorer.jpg'),
+  matureSenior: require('../../assets/images/avatars/mature_senior.jpg'),
+  proDeveloper: require('../../assets/images/avatars/pro_developer.jpg'),
 };
 
 /** 3D App States & Micro-Delights (53 - 57) */
@@ -84,6 +95,7 @@ export const stateImages = {
   editPencil: require('../../assets/images/states/edit_pencil.png'),
   gemDiamond: require('../../assets/images/states/gem_diamond.png'),
   xpBolt: require('../../assets/images/states/xp_bolt.png'),
+  mistakesNotebook: require('../../assets/images/states/mistakes_notebook.jpg'),
 };
 
 /** 3D Module Feature Cards (24 - 27) */
@@ -139,3 +151,8 @@ export const badgeImages = {
   pronunciationProdigy: require('../../assets/images/badges/pronunciation-prodigy.png'),
   earlyBird: require('../../assets/images/badges/early-bird.png'),
 };
+
+/** Auth & Welcome 3D Hero Artwork */
+export const authWelcomeHeroBg = require('../../assets/images/auth_welcome_hero_bg.jpg');
+export const yankiAuthWelcomeHero = require('../../assets/images/yanki_auth_welcome_hero.jpg');
+export const appLogoIcon = require('../../assets/icon.png');

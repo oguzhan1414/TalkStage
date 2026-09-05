@@ -1,26 +1,26 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { stateImages } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
+import { CreateDeckModal } from '../components/CreateDeckModal';
+import { DeckStudyModal } from '../components/DeckStudyModal';
 import { SwipeableVocabCard } from '../components/SwipeableVocabCard';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
+import {
+  DEFAULT_VOCAB_DECKS,
+  addWordToAnyDeck,
+  deleteCustomDeck,
+  getDeckMasteredWordIds,
+  loadAllDecks,
+  type VocabDeck,
+  type VocabDeckWord,
+} from '../data/vocabDecks';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
 import type { MainTabScreenProps } from '../navigation/types';
@@ -36,29 +36,37 @@ const GRADE_BUTTONS: {
   grade: VocabGrade;
   label: string;
   sub: string;
+  iconName: 'refresh-outline' | 'thumbs-up-outline' | 'flash-outline';
   color: string;
   bgColor: string;
+  borderColor: string;
 }[] = [
   {
     grade: 'again',
     label: 'Tekrar',
     sub: '1 gün sonra',
-    color: '#EF4444',
-    bgColor: 'rgba(239, 68, 68, 0.08)',
+    iconName: 'refresh-outline',
+    color: '#DC2626',
+    bgColor: '#FEF2F2',
+    borderColor: '#FECACA',
   },
   {
     grade: 'good',
     label: 'İyi',
     sub: '3 gün sonra',
+    iconName: 'thumbs-up-outline',
     color: '#4F46E5',
-    bgColor: 'rgba(79, 70, 229, 0.08)',
+    bgColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
   },
   {
     grade: 'easy',
     label: 'Kolay',
     sub: '7+ gün sonra',
-    color: '#10B981',
-    bgColor: 'rgba(16, 185, 129, 0.08)',
+    iconName: 'flash-outline',
+    color: '#059669',
+    bgColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
   },
 ];
 
@@ -83,7 +91,7 @@ function getChestProgress(total: number) {
   return { nextMilestone, progressInTier: Math.min(1, Math.max(0, progressInTier)) };
 }
 
-type TabViewMode = 'flashcards' | 'dictionary';
+type TabViewMode = 'decks' | 'flashcards' | 'dictionary';
 
 export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const queryClient = useQueryClient();
@@ -100,11 +108,67 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
   });
 
-  const [activeTab, setActiveTab] = useState<TabViewMode>('flashcards');
+  const [activeTab, setActiveTab] = useState<TabViewMode>('decks');
   const [queue, setQueue] = useState<VocabCardOut[]>([]);
   const [reviewedCount, setReviewedCount] = useState(0);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const { pronounce, toggle, isPlaying } = usePronunciation();
+
+  // Decks & Folders State
+  const [customDecks, setCustomDecks] = useState<VocabDeck[]>([]);
+  const [deckFilter, setDeckFilter] = useState<string>('all');
+  const [selectedStudyDeck, setSelectedStudyDeck] = useState<VocabDeck | null>(null);
+  const [createDeckVisible, setCreateDeckVisible] = useState(false);
+  const [deckMasteryMap, setDeckMasteryMap] = useState<Record<string, number>>({});
+  const [formSelectedDeckId, setFormSelectedDeckId] = useState<string | null>(null);
+  const [assignDeckModalVisible, setAssignDeckModalVisible] = useState(false);
+
+  const loadDecksAndMastery = async () => {
+    const allDecks = await loadAllDecks();
+    const customOnly = allDecks.filter((d) => d.isCustom);
+    setCustomDecks(customOnly);
+
+    const map: Record<string, number> = {};
+    for (const d of allDecks) {
+      const masteredIds = await getDeckMasteredWordIds(d.id);
+      map[d.id] = masteredIds.length;
+    }
+    setDeckMasteryMap(map);
+  };
+
+  useEffect(() => {
+    loadDecksAndMastery();
+  }, []);
+
+  const allCombinedDecks = useMemo(() => {
+    return [...DEFAULT_VOCAB_DECKS, ...customDecks];
+  }, [customDecks]);
+
+  const filteredDecks = useMemo(() => {
+    if (deckFilter === 'all') return allCombinedDecks;
+    if (deckFilter === 'custom') return allCombinedDecks.filter((d) => d.isCustom);
+    if (deckFilter === 'thematic') {
+      return allCombinedDecks.filter((d) =>
+        ['deck_colors_shapes', 'deck_numbers_time', 'deck_food_dining', 'deck_travel_airport', 'deck_business_tech'].includes(d.id)
+      );
+    }
+    return allCombinedDecks.filter((d) => d.level === deckFilter);
+  }, [allCombinedDecks, deckFilter]);
+
+  const handleDeleteCustomDeck = (deckId: string) => {
+    Alert.alert('Klasörü Sil', 'Bu özel klasörü silmek istediğine emin misin?', [
+      { text: 'İptal', style: 'cancel' },
+      {
+        text: 'Sil',
+        style: 'destructive',
+        onPress: async () => {
+          const updated = await deleteCustomDeck(deckId);
+          setCustomDecks(updated);
+          showToast('Klasör silindi 🗑️');
+        },
+      },
+    ]);
+  };
 
   // Search & Filters in Dictionary
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,12 +196,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     setTimeout(() => setToast(null), 2200);
   };
 
-  // Sync today's actually-due SM-2 cards into the review queue. Deliberately
-  // does NOT fall back to "all cards" when nothing is due — that would make
-  // the "Akıllı Pratik" (SM-2) tab silently review words that aren't
-  // scheduled yet, contradicting its own "reminds you right before you'd
-  // forget" explainer. Reviewing everything on demand is the explicit
-  // "🔄 Tüm Kelimelerle Serbest Pratik Yap" button's job (see empty state below).
+  // Sync today's actually-due SM-2 cards into the review queue
   useEffect(() => {
     if (dueCards) {
       setQueue(dueCards);
@@ -187,6 +246,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     setFormExample('');
     setFormPos('noun');
     setFormLevel('A2');
+    setFormSelectedDeckId(null);
     setModalVisible(true);
   };
 
@@ -199,10 +259,11 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     setFormExample(card.example_sentence || '');
     setFormPos(card.part_of_speech ? card.part_of_speech.toLowerCase() : 'noun');
     setFormLevel(card.cefr_level ? card.cefr_level.toUpperCase() : 'A2');
+    setFormSelectedDeckId(null);
     setModalVisible(true);
   };
 
-  // Save (Create or Update) Word in Supabase
+  // Save (Create or Update) Word in Supabase & Selected Deck
   const handleSaveWord = async () => {
     if (!formTerm.trim()) {
       showToast('Lütfen bir İngilizce kelime girin!');
@@ -239,6 +300,23 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         };
         const created = await api.post<VocabCardOut>('/vocab-cards', createPayload);
         setQueue((prev) => [created, ...prev]);
+
+        // If a specific folder/deck was chosen, save it to the deck as well
+        if (formSelectedDeckId) {
+          const deckWordObj: VocabDeckWord = {
+            id: created.id || `w_${Date.now()}`,
+            term: termClean,
+            phonetic: '',
+            translation: transClean,
+            pos: formPos as any,
+            exampleEn: exampleClean,
+            exampleTr: '',
+            level: formLevel as any,
+          };
+          await addWordToAnyDeck(formSelectedDeckId, deckWordObj);
+          await loadDecksAndMastery();
+        }
+
         showToast(`“${termClean}” (${formLevel} • ${formPos}) kaydedildi! 📦✨`);
       }
 
@@ -251,6 +329,27 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
       setModalVisible(false);
       setEditingCardId(null);
     }
+  };
+
+  // Assign an existing dictionary word to a deck
+  const handleAssignCardToDeck = async (deck: VocabDeck) => {
+    if (!actionCard) return;
+    const deckWordObj: VocabDeckWord = {
+      id: actionCard.id,
+      term: actionCard.term,
+      phonetic: '',
+      translation: actionCard.translation || 'Özel kelime',
+      pos: (actionCard.part_of_speech || 'noun').toLowerCase() as any,
+      exampleEn: actionCard.example_sentence || '',
+      exampleTr: '',
+      level: (actionCard.cefr_level || 'A2').toUpperCase() as any,
+    };
+    await addWordToAnyDeck(deck.id, deckWordObj);
+    await loadDecksAndMastery();
+    setAssignDeckModalVisible(false);
+    const wordName = actionCard.term;
+    setActionCard(null);
+    showToast(`"${wordName}" kelimesi "${deck.title}" klasörüne eklendi! 📁✨`);
   };
 
   // Delete Word from Supabase
@@ -309,8 +408,30 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           </Pressable>
         </View>
 
-        {/* Segmented Switcher: Akıllı Kartlar vs. Tüm Kelimelerim Sözlüğü */}
+        {/* Segmented Switcher: 3 Tabs (Klasörler / Akıllı Pratik / Tüm Sözlüğüm) */}
         <View style={styles.segmentedContainer}>
+          <Pressable
+            onPress={() => setActiveTab('decks')}
+            style={[
+              styles.segmentedTab,
+              activeTab === 'decks' && styles.segmentedTabActive,
+            ]}
+          >
+            <Ionicons
+              name="folder-open-outline"
+              size={15}
+              color={activeTab === 'decks' ? colors.brand : colors.textMuted}
+            />
+            <Text
+              style={[
+                styles.segmentedTabText,
+                activeTab === 'decks' && styles.segmentedTabTextActive,
+              ]}
+            >
+              Klasörler ({allCombinedDecks.length})
+            </Text>
+          </Pressable>
+
           <Pressable
             onPress={() => setActiveTab('flashcards')}
             style={[
@@ -351,7 +472,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 activeTab === 'dictionary' && styles.segmentedTabTextActive,
               ]}
             >
-              Tüm Kelimelerim ({totalCardsInChest})
+              Sözlüğüm ({totalCardsInChest})
             </Text>
           </Pressable>
         </View>
@@ -380,6 +501,128 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             </View>
           </View>
         </View>
+
+        {/* ======================================================== */}
+        {/* SEKMELER: 0. KLASÖRLER & DESTELER (SMART DECKS HUB)     */}
+        {/* ======================================================== */}
+        {activeTab === 'decks' && (
+          <ScrollView contentContainerStyle={styles.decksContainer} showsVerticalScrollIndicator={false}>
+            {/* Top Action & Subtitle */}
+            <View style={styles.decksHeaderRow}>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={styles.decksSectionTitle}>🎴 Kelime Klasörlerim & Temalar</Text>
+                <Text style={styles.decksSectionSub}>
+                  İstediğin desteyi seç, sağa sola kaydırarak eğlenerek öğren.
+                </Text>
+              </View>
+              <BouncyPressable
+                onPress={() => setCreateDeckVisible(true)}
+                style={[styles.createDeckHeaderBtn, shadow.card]}
+                hapticType="medium"
+                scaleTo={0.94}
+              >
+                <Ionicons name="add" size={15} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.createDeckHeaderBtnText}>Yeni Klasör</Text>
+              </BouncyPressable>
+            </View>
+
+            {/* Filter Pills */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deckFiltersScroll}>
+              {[
+                { id: 'all', label: '🌟 Tümü' },
+                { id: 'A1', label: '🟢 A1 Seviye' },
+                { id: 'A2', label: '🔵 A2 Seviye' },
+                { id: 'B1', label: '🟣 B1 Seviye' },
+                { id: 'thematic', label: '🎨 Tematik' },
+                { id: 'custom', label: '⭐ Özel Klasörlerim' },
+              ].map((f) => (
+                <BouncyPressable
+                  key={f.id}
+                  onPress={() => setDeckFilter(f.id)}
+                  style={[
+                    styles.deckFilterChip,
+                    deckFilter === f.id && styles.deckFilterChipActive,
+                  ]}
+                  hapticType="light"
+                  scaleTo={0.92}
+                >
+                  <Text
+                    style={[
+                      styles.deckFilterChipText,
+                      deckFilter === f.id && styles.deckFilterChipTextActive,
+                    ]}
+                  >
+                    {f.label}
+                  </Text>
+                </BouncyPressable>
+              ))}
+            </ScrollView>
+
+            {/* Decks Grid */}
+            <View style={styles.decksGrid}>
+              {filteredDecks.map((deck) => {
+                const total = deck.words.length;
+                const mastered = deckMasteryMap[deck.id] || 0;
+                const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
+
+                return (
+                  <View key={deck.id} style={[styles.deckBentoCard, shadow.card, { borderColor: deck.color }]}>
+                    <View style={styles.deckCardTop}>
+                      <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
+                        <Text style={styles.deckEmojiBig}>{deck.emoji}</Text>
+                      </View>
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text style={styles.deckCardTitle} numberOfLines={1}>{deck.title}</Text>
+                        <Text style={styles.deckCardSub} numberOfLines={1}>{deck.subtitle}</Text>
+                      </View>
+                      <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
+                        <Text style={styles.deckPillLevelText}>{deck.level}</Text>
+                      </View>
+                      {deck.isCustom && (
+                        <BouncyPressable
+                          onPress={() => handleDeleteCustomDeck(deck.id)}
+                          style={styles.deckDeleteBtn}
+                          hapticType="warning"
+                          scaleTo={0.88}
+                        >
+                          <Ionicons name="trash-outline" size={15} color="#EF4444" />
+                        </BouncyPressable>
+                      )}
+                    </View>
+
+                    {/* Progress Bar & Word Count */}
+                    <View style={styles.deckCardProgressArea}>
+                      <View style={styles.deckProgressLabelRow}>
+                        <Text style={styles.deckWordCountText}>{total} Kelime</Text>
+                        <Text style={styles.deckPercentText}>
+                          {mastered}/{total} Öğrenildi • %{percent}
+                        </Text>
+                      </View>
+                      <View style={styles.deckBarTrack}>
+                        <View
+                          style={[
+                            styles.deckBarFill,
+                            { width: `${Math.max(6, percent)}%`, backgroundColor: deck.color },
+                          ]}
+                        />
+                      </View>
+                    </View>
+
+                    {/* Action CTA */}
+                    <BouncyPressable
+                      onPress={() => setSelectedStudyDeck(deck)}
+                      style={[styles.deckStartBtn, { backgroundColor: deck.color }, shadow.card]}
+                      hapticType="medium"
+                      scaleTo={0.96}
+                    >
+                      <Text style={styles.deckStartBtnText}>Pratiğe Başla ➔</Text>
+                    </BouncyPressable>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        )}
 
         {/* ======================================================== */}
         {/* SEKMELER: 1. AKILLI FLASHCARD PRATİĞİ                   */}
@@ -426,16 +669,19 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 {/* Bottom 3 Grade Action Buttons */}
                 <View style={styles.gradeContainer}>
                   <View style={styles.gradeRow}>
-                    {GRADE_BUTTONS.map(({ grade, label, sub, color, bgColor }) => (
+                    {GRADE_BUTTONS.map(({ grade, label, sub, iconName, color, bgColor, borderColor }) => (
                       <Pressable
                         key={grade}
                         style={[
                           styles.gradeButton,
-                          { borderColor: color, backgroundColor: bgColor },
+                          { borderColor, backgroundColor: bgColor },
                         ]}
                         onPress={() => handleGrade(grade)}
                       >
-                        <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
+                        <View style={styles.gradeButtonHeaderRow}>
+                          <Ionicons name={iconName} size={15} color={color} />
+                          <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
+                        </View>
                         <Text style={[styles.gradeButtonSub, { color }]}>{sub}</Text>
                       </Pressable>
                     ))}
@@ -454,26 +700,36 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                   resizeMode="contain"
                 />
                 <Text style={styles.emptyTitle}>
-                  {reviewedCount > 0
-                    ? 'Tebrikler! Günlük Tekrar Bitti 🎉'
-                    : totalCardsInChest > 0
-                      ? 'Bugün İçin Planlı Kelime Yok ✅'
-                      : 'Kelime Sandığın Henüz Boş 📦'}
+                  {reviewedCount === 1
+                    ? '1 Kelime Gözden Geçirildi ✨'
+                    : reviewedCount > 1
+                      ? 'Günlük Tekrar Tamamlandı 🎉'
+                      : totalCardsInChest > 0
+                        ? 'Bugün İçin Planlı Kelime Yok ✅'
+                        : 'Kelime Sandığın Henüz Boş 📦'}
                 </Text>
                 <Text style={styles.emptySub}>
-                  {reviewedCount > 0
-                    ? `${reviewedCount} kelimeyi başarıyla hafızana aldın. İstediğin an tüm kelimelerle serbest tekrar yapabilirsin!`
-                    : totalCardsInChest > 0
-                      ? 'SM-2 algoritmasına göre hiçbir kelimenin tekrar zamanı gelmedi — iyi gidiyorsun! İstersen yine de tüm kelimelerle serbest pratik yapabilirsin.'
-                      : 'Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.'}
+                  {reviewedCount === 1
+                    ? '1 kelimeyi başarıyla hafızana aldın. Dilersen tematik klasörlerden veya tüm kelimelerle pratiğe devam edebilirsin.'
+                    : reviewedCount > 1
+                      ? `${reviewedCount} kelimeyi başarıyla hafızana aldın. İstediğin an tüm kelimelerle serbest tekrar yapabilirsin!`
+                      : totalCardsInChest > 0
+                        ? 'SM-2 algoritmasına göre hiçbir kelimenin tekrar zamanı gelmedi — iyi gidiyorsun! İstersen yine de tüm kelimelerle serbest pratik yapabilirsin.'
+                        : 'Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.'}
                 </Text>
 
                 <View style={styles.emptyActionRow}>
+                  <Button
+                    label="🎴 Kelime Klasörlerinden Pratik Yap"
+                    onPress={() => setActiveTab('decks')}
+                    style={styles.emptyButton}
+                  />
                   {totalCardsInChest > 0 ? (
                     <Button
                       label="🔄 Tüm Kelimelerle Serbest Pratik Yap"
+                      variant="secondary"
                       onPress={handleRestartPractice}
-                      style={styles.emptyButton}
+                      style={{ marginTop: 8 }}
                     />
                   ) : (
                     <Button
@@ -489,6 +745,25 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                     style={styles.emptyButtonGhost}
                   />
                 </View>
+
+                {/* 900 Words Library Discovery Banner */}
+                <Pressable
+                  onPress={() => navigation.navigate('VocabLibrary')}
+                  style={[styles.libraryQuickLinkBanner, shadow.card, { marginTop: 14, width: '100%' }]}
+                >
+                  <View style={styles.libraryQuickLinkLeft}>
+                    <View style={styles.libraryQuickLinkIconBox}>
+                      <Ionicons name="sparkles" size={14} color={colors.brand} />
+                    </View>
+                    <View style={styles.libraryQuickLinkTextCol}>
+                      <Text style={styles.libraryQuickLinkTitle}>900 Çekirdek Kelime Kütüphanesi 📚</Text>
+                      <Text style={styles.libraryQuickLinkSub}>
+                        İsim, Fiil ve Sıfat paketlerini incele &amp; sandığına ekle
+                      </Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color={colors.brand} />
+                </Pressable>
               </View>
             )}
           </>
@@ -499,6 +774,25 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         {/* ======================================================== */}
         {activeTab === 'dictionary' && (
           <View style={styles.dictionaryContainer}>
+            {/* 900 Words Library Discovery Banner */}
+            <Pressable
+              onPress={() => navigation.navigate('VocabLibrary')}
+              style={[styles.libraryQuickLinkBanner, shadow.card]}
+            >
+              <View style={styles.libraryQuickLinkLeft}>
+                <View style={styles.libraryQuickLinkIconBox}>
+                  <Ionicons name="sparkles" size={14} color={colors.brand} />
+                </View>
+                <View style={styles.libraryQuickLinkTextCol}>
+                  <Text style={styles.libraryQuickLinkTitle}>900 Çekirdek Kelime Kütüphanesi 📚</Text>
+                  <Text style={styles.libraryQuickLinkSub}>
+                    İsim, Fiil ve Sıfat paketlerini incele &amp; sandığına ekle
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.brand} />
+            </Pressable>
+
             {/* Search Input */}
             <View style={styles.searchBarBox}>
               <Ionicons name="search" size={18} color={colors.textMuted} />
@@ -903,6 +1197,46 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 />
               </View>
 
+              {/* 6. Target Folder / Deck Selection (Optional) */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>📁 EKLENECEK KLASÖR / DESTE (İSTEĞE BAĞLI)</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deckSelectScroll}>
+                  <Pressable
+                    onPress={() => setFormSelectedDeckId(null)}
+                    style={[
+                      styles.deckSelectChip,
+                      formSelectedDeckId === null && styles.deckSelectChipActive,
+                    ]}
+                  >
+                    <Text style={[styles.deckSelectChipText, formSelectedDeckId === null && styles.deckSelectChipTextActive]}>
+                      🌟 Genel Sandık
+                    </Text>
+                  </Pressable>
+                  {allCombinedDecks.map((deck) => (
+                    <Pressable
+                      key={deck.id}
+                      onPress={() => setFormSelectedDeckId(deck.id)}
+                      style={[
+                        styles.deckSelectChip,
+                        formSelectedDeckId === deck.id && {
+                          backgroundColor: `${deck.color}20`,
+                          borderColor: deck.color,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.deckSelectChipText,
+                          formSelectedDeckId === deck.id && { color: deck.color, fontWeight: 'bold' },
+                        ]}
+                      >
+                        {deck.emoji} {deck.title}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+
               {/* Action Buttons */}
               <View style={styles.modalActionsRow}>
                 <Button
@@ -927,7 +1261,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
       {/* 📌 ACTION SHEET MODAL: UZUN BASINCA AÇILAN MENÜ         */}
       {/* ======================================================== */}
       <Modal
-        visible={Boolean(actionCard && !deleteConfirmVisible)}
+        visible={Boolean(actionCard && !deleteConfirmVisible && !assignDeckModalVisible)}
         animationType="fade"
         transparent={true}
         onRequestClose={() => setActionCard(null)}
@@ -968,6 +1302,23 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
             <View style={styles.actionDivider} />
 
+            {/* Assign to Deck Option */}
+            <Pressable
+              style={styles.actionSheetRow}
+              onPress={() => setAssignDeckModalVisible(true)}
+            >
+              <View style={[styles.actionIconBox3D, { backgroundColor: '#EEF2FF' }]}>
+                <Ionicons name="folder-open" size={22} color="#4F46E5" />
+              </View>
+              <View style={styles.actionTextCol}>
+                <Text style={styles.actionRowTitle}>Bir Klasöre / Desteye Ekle</Text>
+                <Text style={styles.actionRowSub}>Renkler, Sayılar veya özel destelerine dahil et</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            </Pressable>
+
+            <View style={styles.actionDivider} />
+
             {/* Delete Option */}
             <Pressable
               style={styles.actionSheetRow}
@@ -998,6 +1349,58 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             </Pressable>
           </View>
         </Pressable>
+      </Modal>
+
+      {/* ======================================================== */}
+      {/* 📁 ASSIGN WORD TO DECK MODAL                             */}
+      {/* ======================================================== */}
+      <Modal
+        visible={assignDeckModalVisible}
+        animationType="slide"
+        presentationStyle="formSheet"
+        onRequestClose={() => setAssignDeckModalVisible(false)}
+      >
+        <SafeAreaView style={styles.assignModalContainer}>
+          <View style={styles.assignModalHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.assignModalTitle}>📁 Klasöre / Desteye Ekle</Text>
+              <Text style={styles.assignModalSub}>
+                "{actionCard?.term}" kelimesini eklemek istediğin klasörü seç:
+              </Text>
+            </View>
+            <BouncyPressable
+              onPress={() => setAssignDeckModalVisible(false)}
+              style={styles.closeModalButton}
+              hapticType="light"
+              scaleTo={0.9}
+            >
+              <Ionicons name="close" size={22} color={colors.textMuted} />
+            </BouncyPressable>
+          </View>
+
+          <ScrollView contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
+            {allCombinedDecks.map((deck) => (
+              <BouncyPressable
+                key={deck.id}
+                onPress={() => handleAssignCardToDeck(deck)}
+                style={[styles.assignDeckItem, { borderColor: `${deck.color}50` }]}
+                hapticType="medium"
+                scaleTo={0.97}
+              >
+                <View style={[styles.assignDeckEmojiBox, { backgroundColor: `${deck.color}18` }]}>
+                  <Text style={styles.assignDeckEmoji}>{deck.emoji}</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.assignDeckTitle}>{deck.title}</Text>
+                  <Text style={styles.assignDeckSub}>{deck.subtitle}</Text>
+                </View>
+                <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
+                  <Text style={styles.deckPillLevelText}>{deck.words.length} Kelime</Text>
+                </View>
+              </BouncyPressable>
+            ))}
+          </ScrollView>
+        </SafeAreaView>
       </Modal>
 
       {/* ======================================================== */}
@@ -1045,6 +1448,30 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         </View>
       </Modal>
 
+      {/* 🎴 DECK STUDY MODAL */}
+      <DeckStudyModal
+        visible={!!selectedStudyDeck}
+        deck={selectedStudyDeck}
+        onClose={() => {
+          setSelectedStudyDeck(null);
+          loadDecksAndMastery();
+        }}
+        onDeckCompleted={() => {
+          loadDecksAndMastery();
+          showToast('🎉 Deste tamamlandı! +25 XP');
+        }}
+      />
+
+      {/* ➕ CREATE DECK MODAL */}
+      <CreateDeckModal
+        visible={createDeckVisible}
+        onClose={() => setCreateDeckVisible(false)}
+        onDeckCreated={(d) => {
+          loadDecksAndMastery();
+          showToast(`"${d.title}" klasörü oluşturuldu! 📁`);
+        }}
+      />
+
       {toast && <Toast message={toast} />}
     </SafeAreaView>
   );
@@ -1080,6 +1507,159 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: radii.pill,
     gap: 4,
+  },
+
+  /* 🎴 Decks Hub Styles */
+  decksContainer: {
+    paddingBottom: 40,
+  },
+  decksHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 10,
+  },
+  decksSectionTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: '#0F172A',
+  },
+  decksSectionSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  createDeckHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.brand,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+  },
+  createDeckHeaderBtnText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11,
+    color: '#FFFFFF',
+  },
+  deckFiltersScroll: {
+    paddingVertical: 4,
+    gap: 6,
+    marginBottom: 12,
+  },
+  deckFilterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  deckFilterChipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: colors.brand,
+  },
+  deckFilterChipText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11.5,
+    color: '#64748B',
+  },
+  deckFilterChipTextActive: {
+    color: colors.brand,
+    fontWeight: 'bold',
+  },
+  decksGrid: {
+    gap: 12,
+  },
+  deckBentoCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+  },
+  deckCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  deckEmojiBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deckEmojiBig: {
+    fontSize: 24,
+  },
+  deckCardTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: '#0F172A',
+  },
+  deckCardSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  deckPillLevel: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  deckPillLevelText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  deckDeleteBtn: {
+    padding: 6,
+    marginLeft: 6,
+  },
+  deckCardProgressArea: {
+    marginVertical: 12,
+  },
+  deckProgressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  deckWordCountText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11,
+    color: '#475569',
+  },
+  deckPercentText: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    color: '#64748B',
+  },
+  deckBarTrack: {
+    height: 6,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  deckBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  deckStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  deckStartBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: '#FFFFFF',
   },
   addWordHeaderButtonText: {
     fontFamily: fonts.headingBold,
@@ -1121,15 +1701,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     padding: spacing.md,
     marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
+    borderWidth: 1.5,
+    borderColor: '#E0E7FF',
   },
   chestIcon: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     marginRight: 12,
   },
   chestTextCol: {
@@ -1184,10 +1764,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 2,
+    minHeight: 280,
   },
   gradeContainer: {
-    marginTop: spacing.xs,
+    marginTop: 6,
+    paddingTop: 2,
   },
   gradeRow: {
     flexDirection: 'row',
@@ -1195,10 +1777,18 @@ const styles = StyleSheet.create({
   },
   gradeButton: {
     flex: 1,
-    borderRadius: radii.md,
-    paddingVertical: 8,
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1.5,
+    minHeight: 54,
+  },
+  gradeButtonHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   gradeButtonLabel: {
     fontFamily: fonts.headingBold,
@@ -1206,9 +1796,9 @@ const styles = StyleSheet.create({
   },
   gradeButtonSub: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 9,
-    marginTop: 1,
-    opacity: 0.85,
+    fontSize: 9.5,
+    marginTop: 2,
+    opacity: 0.9,
   },
   sm2ExplainerText: {
     fontFamily: fonts.bodyRegular,
@@ -1464,6 +2054,47 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+
+  /* Library Quick Link Banner */
+  libraryQuickLinkBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    padding: 12,
+    marginBottom: spacing.sm,
+    borderWidth: 1.5,
+    borderColor: '#E0E7FF',
+  },
+  libraryQuickLinkLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  libraryQuickLinkIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.pill,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  libraryQuickLinkTextCol: {
+    flex: 1,
+  },
+  libraryQuickLinkTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: colors.textHeading,
+  },
+  libraryQuickLinkSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10.5,
+    color: colors.textMuted,
+    marginTop: 1,
   },
 
   /* Modal */
@@ -1751,5 +2382,88 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingBold,
     fontSize: 13,
     color: '#FFFFFF',
+  },
+
+  /* 📁 Target Deck Picker Chips (In Create Modal) */
+  deckSelectScroll: {
+    paddingVertical: 4,
+    gap: 8,
+  },
+  deckSelectChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: radii.pill,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.2,
+    borderColor: '#CBD5E1',
+  },
+  deckSelectChipActive: {
+    backgroundColor: '#EEF2FF',
+    borderColor: colors.brand,
+  },
+  deckSelectChipText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11.5,
+    color: '#475569',
+  },
+  deckSelectChipTextActive: {
+    color: colors.brand,
+    fontWeight: 'bold',
+  },
+
+  /* 📁 Assign Deck Modal Styles */
+  assignModalContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  assignModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  assignModalTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 16,
+    color: '#0F172A',
+  },
+  assignModalSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  assignDeckItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1.2,
+  },
+  assignDeckEmojiBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  assignDeckEmoji: {
+    fontSize: 22,
+  },
+  assignDeckTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  assignDeckSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 2,
   },
 });

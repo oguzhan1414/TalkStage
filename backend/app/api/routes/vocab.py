@@ -8,12 +8,21 @@ from app.schemas.vocab import (
     VocabCardCreate,
     VocabCardOut,
     VocabCardUpdate,
+    VocabLookupOut,
     VocabReviewRequest,
 )
+from app.services.dictionary import lookup_word
 from app.services.scorecard import VOCAB_REVIEW_XP
 from app.services.sm2 import review_card
 
 router = APIRouter(prefix="/vocab-cards", tags=["vocab"])
+
+
+@router.get("/lookup", response_model=VocabLookupOut)
+def lookup_term(term: str, ctx: AuthContext = Depends(get_auth_context)) -> VocabLookupOut:
+    """Translates and enriches any English word or phrase in reading passages."""
+    data = lookup_word(term)
+    return VocabLookupOut(**data)
 
 
 @router.get("", response_model=list[VocabCardOut])

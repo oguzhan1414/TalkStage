@@ -1,19 +1,8 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Animated,
-  Image,
-  Modal,
-  PanResponder,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Animated, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { companionImage, readingSceneImages, stateImages } from '../assets/images';
 import { Button } from '../components/Button';
@@ -25,7 +14,13 @@ import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { api, ApiError } from '../lib/api';
 import type { ReadingPassageScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type { ReadingPassageOut, VocabCardCreate } from '../types/api';
+import type {
+  GrammarMistakeCreate,
+  GrammarMistakeOut,
+  ReadingPassageOut,
+  VocabCardCreate,
+  VocabLookupOut,
+} from '../types/api';
 
 type StepMode = 'scene' | 'speaking';
 type OrderStatus = 'pending' | 'correct' | 'wrong';
@@ -283,24 +278,35 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
 
   // Precise Screen Coordinates & Measurements for Drag & Drop
   const arenaRef = useRef<View>(null);
-  const arenaLayoutRef = useRef<{ pageX: number; pageY: number; width: number; height: number }>({
+  const arenaLayoutRef = useRef<{
+    pageX: number;
+    pageY: number;
+    width: number;
+    height: number;
+  }>({
     pageX: 20,
     pageY: 280,
     width: 340,
     height: 80,
   });
   const [dragHoverIndex, setDragHoverIndex] = useState<number | null>(null);
-  const tilePositionsRef = useRef<Record<number, { x: number; width: number; centerX: number }>>({});
+  const tilePositionsRef = useRef<
+    Record<number, { x: number; width: number; centerX: number }>
+  >({});
 
-  // Tooltip Popover for Tapped Words
+  // Tooltip Popover for Tapped Words (Dynamic Word Lookup)
   const [tooltipWord, setTooltipWord] = useState<{
     raw: string;
     clean: string;
     meaning: string;
+    phonetic?: string;
+    pos?: string;
+    loading?: boolean;
   } | null>(null);
 
   // Celebration Modal on Finish
   const [celebrationVisible, setCelebrationVisible] = useState(false);
+  const recordedMistakeScenesRef = useRef<Set<number>>(new Set());
 
   const { data: passage, isLoading, isError, refetch } = useQuery({
     queryKey: ['reading', slug],
@@ -353,6 +359,27 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
         setShowHint(true);
       } else {
         setOrderStatus('wrong');
+        // Record sentence ordering mistake into Hata Defterim (deduped per scene)
+        if (!recordedMistakeScenesRef.current.has(sceneIdx)) {
+          recordedMistakeScenesRef.current.add(sceneIdx);
+          const wrongSentence = newPlaced.map((t) => t.word).join(' ');
+          api
+            .post<GrammarMistakeOut>('/progress/mistakes', {
+              topic_code: passage?.cefr_level ? `${passage.cefr_level}_Reading` : 'Reading',
+              wrong_text: `${wrongSentence} (Yanlış Cümle Sıralaması)`,
+              corrected_text: activeScene.sentence_en,
+              explanation_tr: `"${activeScene.sentence_tr}" — Doğru kelime dizilimi: "${activeScene.sentence_en}"`,
+              source: 'sentence_order',
+            } satisfies GrammarMistakeCreate)
+            .then(() => {
+              queryClient.invalidateQueries({ queryKey: ['grammar-mistakes'] });
+            })
+            .catch(() => {
+              // Request failed (network/server) — un-mark this scene so the
+              // next wrong attempt can retry instead of being silently lost forever.
+              recordedMistakeScenesRef.current.delete(sceneIdx);
+            });
+        }
       }
     } else {
       setOrderStatus('pending');
@@ -515,21 +542,47 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     }
   };
 
-  // Word Click in Solved Sentence: Opens Instant Tooltip Popover!
-  const handleWordTap = (rawWord: string) => {
+  // Word Click in Solved Sentence: Opens Instant Dynamic Tooltip Popover!
+  const handleWordTap = async (rawWord: string) => {
     const clean = cleanWord(rawWord).toLowerCase();
     if (!clean) return;
     pronounce(clean, { rate: audioSpeed === 0.75 ? 0.68 : 0.95 }).catch(() => {});
 
-    const guessedMeaning =
-      QUICK_GLOSSARY[clean] ||
-      (clean.endsWith('ing') ? 'eylem / yapma hali' : 'kelime karşılığı');
+    const localMeaning = QUICK_GLOSSARY[clean];
 
     setTooltipWord({
       raw: rawWord,
       clean,
-      meaning: guessedMeaning,
+      meaning: localMeaning || 'Çeviri getiriliyor…',
+      loading: !localMeaning,
     });
+
+    try {
+      const res = await api.get<VocabLookupOut>(
+        `/vocab-cards/lookup?term=${encodeURIComponent(clean)}`
+      );
+      setTooltipWord((prev) =>
+        prev && prev.clean === clean
+          ? {
+              ...prev,
+              meaning: res.translation || localMeaning || clean,
+              phonetic: res.phonetic || undefined,
+              pos: res.part_of_speech || undefined,
+              loading: false,
+            }
+          : prev
+      );
+    } catch {
+      setTooltipWord((prev) =>
+        prev && prev.clean === clean
+          ? {
+              ...prev,
+              meaning: localMeaning || (clean.endsWith('ing') ? 'eylem / yapma hali' : clean),
+              loading: false,
+            }
+          : prev
+      );
+    }
   };
 
   // Add Word from Tooltip directly into Kelime Sandığı
@@ -811,13 +864,25 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 </View>
               )}
 
-              {/* Instant Dictionary Tooltip Popover (Inside the same card!) */}
+              {/* Instant Dynamic Dictionary Tooltip Popover */}
               {tooltipWord && (
                 <View style={[styles.wordTooltipBox, shadow.card]}>
                   <View style={styles.tooltipHeaderRow}>
-                    <View>
-                      <Text style={styles.tooltipWordTitle}>“{tooltipWord.clean}”</Text>
-                      <Text style={styles.tooltipMeaningText}>🇹🇷 {tooltipWord.meaning}</Text>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Text style={styles.tooltipWordTitle}>“{tooltipWord.clean}”</Text>
+                        {tooltipWord.phonetic ? (
+                          <Text style={styles.tooltipPhoneticText}>{tooltipWord.phonetic}</Text>
+                        ) : null}
+                        {tooltipWord.pos ? (
+                          <View style={styles.tooltipPosBadge}>
+                            <Text style={styles.tooltipPosText}>{tooltipWord.pos}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      <Text style={styles.tooltipMeaningText}>
+                        {tooltipWord.loading ? '⏳ Sözlükten sorgulanıyor…' : `🇹🇷 ${tooltipWord.meaning}`}
+                      </Text>
                     </View>
                     <Pressable
                       onPress={() =>
@@ -1427,11 +1492,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
   },
+  tooltipPhoneticText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    color: '#38BDF8',
+  },
+  tooltipPosBadge: {
+    backgroundColor: 'rgba(99, 102, 241, 0.25)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.4)',
+  },
+  tooltipPosText: {
+    fontFamily: fonts.mono,
+    fontSize: 9.5,
+    fontWeight: 'bold',
+    color: '#A5B4FC',
+  },
   tooltipMeaningText: {
     fontFamily: fonts.bodyRegular,
     fontSize: 12,
-    color: '#94A3B8',
-    marginTop: 1,
+    color: '#CBD5E1',
+    marginTop: 2,
   },
   tooltipSoundBtn: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',

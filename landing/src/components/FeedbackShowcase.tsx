@@ -37,30 +37,33 @@ export default function FeedbackShowcase() {
   };
 
   return (
-    <section id="geri-bildirim" className="scroll-mt-24 overflow-hidden px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
+    <section id="geri-bildirim" className="grain-overlay relative scroll-mt-24 overflow-hidden bg-ink px-6 py-24 sm:py-32">
+      {/* Backstage spotlight ambience */}
+      <div aria-hidden className="spotlight-glow pointer-events-none absolute left-1/2 top-0 -z-0 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/3 blur-[40px]" />
+
+      <div className="relative mx-auto max-w-6xl">
         <div className="grid items-center gap-14 lg:grid-cols-2">
           {/* Left: Text & Key Advantages */}
           <Reveal>
-            <span className="font-mono text-[0.78rem] font-medium uppercase tracking-[0.14em] text-indigo">
+            <span className="font-mono text-[0.78rem] font-medium uppercase tracking-[0.14em] text-gold-light">
               Canlı Geri Bildirim & AI Motoru
             </span>
-            <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
+            <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               Konuşman bittiğinde ne kadar iyi olduğunu tahmin etmezsin
             </h2>
-            <p className="mt-4 max-w-md leading-relaxed text-body">
+            <p className="mt-4 max-w-md leading-relaxed text-white/65">
               TalkStage, her cümleni anlık olarak fonetik ve gramer filtresinden geçirir, konuşurken seni durdurmadan doğru kalıbı öğretir.
             </p>
 
             <ul className="mt-8 space-y-6">
               {features.map((f) => (
                 <li key={f.title} className="flex gap-4">
-                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo to-cyan text-xs font-bold text-white shadow-xs">
+                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo to-gold text-xs font-bold text-white shadow-xs">
                     ✓
                   </span>
                   <div>
-                    <h3 className="font-display text-base font-bold text-heading">{f.title}</h3>
-                    <p className="mt-1 text-[0.925rem] leading-relaxed text-body">{f.body}</p>
+                    <h3 className="font-display text-base font-bold text-white">{f.title}</h3>
+                    <p className="mt-1 text-[0.925rem] leading-relaxed text-white/60">{f.body}</p>
                   </div>
                 </li>
               ))}
@@ -73,10 +76,10 @@ export default function FeedbackShowcase() {
               {/* Background Glow */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute -right-8 -top-8 h-72 w-72 rounded-full bg-linear-to-br from-indigo/20 via-cyan/15 to-transparent blur-[70px]"
+                className="pointer-events-none absolute -right-8 -top-8 h-72 w-72 rounded-full bg-linear-to-br from-gold/25 via-indigo/20 to-transparent blur-[70px]"
               />
 
-              <div className="glass-card relative rounded-[28px] border border-line bg-white/95 p-6 shadow-[var(--shadow-lifted)] sm:p-8">
+              <div className="glass-card relative rounded-[28px] border border-white/10 bg-white/95 p-6 shadow-[var(--shadow-lifted),0_0_100px_-25px_rgba(227,167,63,0.4)] sm:p-8">
                 {/* 3D Live Speech Video / Scorecard Banner */}
                 <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-line/60 bg-slate-950">
                   {isPlayingVideo ? (

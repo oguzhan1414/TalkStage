@@ -1,17 +1,9 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Image,
-  ImageBackground,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { companionImage, podcastStudioWallpaper } from '../assets/images';
 import { Toast } from '../components/Toast';

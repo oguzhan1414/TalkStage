@@ -14,10 +14,21 @@ export type AuthStackScreenProps<T extends keyof AuthStackParamList> = NativeSta
   T
 >;
 
+/**
+ * New 8-step onboarding flow (V2.0, ported from the design spec at
+ * `landing/src/app/onboarding/page.tsx`). No route params — every screen
+ * reads/writes the in-progress answers via `useOnboarding()`'s `draft`
+ * instead of threading ever-growing params through 8 screens.
+ */
 export type OnboardingStackParamList = {
   Welcome: undefined;
-  Interests: undefined;
-  Calibration: { interests: string[] };
+  Name: undefined;
+  Persona: undefined;
+  Goal: undefined;
+  Level: undefined;
+  DailyTime: undefined;
+  Preparing: undefined;
+  Ready: undefined;
 };
 
 export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList> = NativeStackScreenProps<
@@ -57,6 +68,8 @@ export type RootStackParamList = {
   // `isFree` lesson, Pro-gated for the rest (screen checks `isProUser()`
   // itself, no need to pass a flag here).
   GrammarLesson: { code: string };
+  MistakesNotebook: undefined;
+  VocabLibrary: undefined;
   PodcastList: undefined;
   PodcastPlayer: { episodeId: string };
   // Always resolves today's deterministically-picked task by id (see
@@ -114,6 +127,10 @@ export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Pay
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
 
+export type MistakesNotebookScreenProps = NativeStackScreenProps<RootStackParamList, 'MistakesNotebook'>;
+
+export type VocabLibraryScreenProps = NativeStackScreenProps<RootStackParamList, 'VocabLibrary'>;
+
 export type TextChatScreenProps = NativeStackScreenProps<RootStackParamList, 'TextChat'>;
 
 export type StudyPathScreenProps = NativeStackScreenProps<RootStackParamList, 'StudyPath'>;
@@ -128,3 +145,4 @@ declare global {
     interface RootParamList extends RootStackParamList {}
   }
 }
+

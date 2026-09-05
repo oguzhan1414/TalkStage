@@ -33,7 +33,7 @@ const plans = [
       "Kişiselleştirilmiş SM-2 kelime tekrar motoru",
     ],
     cta: "Pro'ya Geç",
-    ctaStyle: "bg-linear-to-br from-indigo via-indigo to-cyan text-white shadow-[0_10px_25px_-5px_rgba(79,70,229,0.5)] hover:shadow-[0_15px_30px_-5px_rgba(79,70,229,0.6)]",
+    ctaStyle: "bg-linear-to-br from-indigo to-indigo-dark text-white shadow-[0_10px_25px_-5px_rgba(227,167,63,0.45)] hover:shadow-[0_15px_35px_-5px_rgba(227,167,63,0.6)]",
   },
   {
     name: "Stage Pass Yıllık",
@@ -89,9 +89,9 @@ export default function Pricing() {
           {plans.map((plan, i) => (
             <Reveal key={plan.name + plan.period} delay={i * 100}>
               <div
-                className={`relative flex h-full flex-col rounded-[28px] p-8 transition-all duration-300 hover:-translate-y-1.5 ${
+                className={`relative flex h-full flex-col overflow-hidden rounded-[28px] p-8 transition-all duration-300 hover:-translate-y-1.5 ${
                   plan.highlight
-                    ? "border-2 border-indigo/40 bg-heading text-white shadow-[var(--shadow-lifted)]"
+                    ? "grain-overlay border-2 border-gold/30 bg-ink text-white shadow-[var(--shadow-lifted),0_0_80px_-30px_rgba(227,167,63,0.5)]"
                     : "border border-line bg-white/90 shadow-[var(--shadow-layered)] backdrop-blur-xs"
                 }`}
               >
@@ -100,7 +100,7 @@ export default function Pricing() {
                   <span
                     className={`inline-flex items-center rounded-full px-3 py-1 font-mono text-[0.7rem] font-semibold uppercase tracking-wider ${
                       plan.highlight
-                        ? "bg-linear-to-r from-indigo to-cyan text-white shadow-xs"
+                        ? "bg-linear-to-r from-gold to-gold-light text-[#402c05] shadow-xs"
                         : "bg-porcelain text-indigo border border-line"
                     }`}
                   >
@@ -115,9 +115,9 @@ export default function Pricing() {
                 </h3>
 
                 <p className="mt-4 flex items-baseline gap-1.5">
-                  <span className="font-display text-4xl font-extrabold sm:text-5xl">
+                  <span className="font-serif text-4xl font-medium sm:text-5xl">
                     {plan.price}
-                    <span className="text-2xl font-bold">{plan.unit}</span>
+                    <span className="text-2xl">{plan.unit}</span>
                   </span>
                   <span className={`text-sm font-medium ${plan.highlight ? "text-white/60" : "text-muted"}`}>
                     {plan.period}

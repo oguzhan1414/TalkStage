@@ -1,0 +1,614 @@
+export type VocabDeckWord = {
+  id: string;
+  term: string;
+  phonetic: string;
+  translation: string;
+  pos: 'noun' | 'verb' | 'adjective' | 'adverb' | 'phrase';
+  exampleEn: string;
+  exampleTr: string;
+  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+};
+
+export type VocabDeck = {
+  id: string;
+  title: string;
+  subtitle: string;
+  emoji: string;
+  color: string;
+  bgGradient?: [string, string];
+  level: string;
+  isCustom?: boolean;
+  words: VocabDeckWord[];
+  createdAt?: string;
+};
+
+export const DEFAULT_VOCAB_DECKS: VocabDeck[] = [
+  {
+    id: 'deck_a1_core',
+    title: 'A1 Temel Kelimeler',
+    subtitle: 'İlk gün temelleri ve hayati fiiller',
+    emoji: '🟢',
+    color: '#10B981',
+    level: 'A1',
+    words: [
+      {
+        id: 'a1_01',
+        term: 'Welcome',
+        phonetic: '/ˈwel.kəm/',
+        translation: 'Hoş geldiniz / Karşılamak',
+        pos: 'verb',
+        exampleEn: 'Welcome to our TalkStage English community!',
+        exampleTr: 'TalkStage İngilizce topluluğumuza hoş geldiniz!',
+        level: 'A1',
+      },
+      {
+        id: 'a1_02',
+        term: 'Introduce',
+        phonetic: '/ˌɪn.trəˈdʒuːs/',
+        translation: 'Tanıtmak / Tanıştırmak',
+        pos: 'verb',
+        exampleEn: 'Let me introduce myself, my name is Alex.',
+        exampleTr: 'Kendimi tanıtmama izin verin, adım Alex.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_03',
+        term: 'Understand',
+        phonetic: '/ˌʌn.dəˈstænd/',
+        translation: 'Anlamak / Kavramak',
+        pos: 'verb',
+        exampleEn: 'I understand what you mean.',
+        exampleTr: 'Ne demek istediğini anlıyorum.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_04',
+        term: 'Important',
+        phonetic: '/ɪmˈpɔː.tənt/',
+        translation: 'Önemli',
+        pos: 'adjective',
+        exampleEn: 'Daily speaking practice is very important.',
+        exampleTr: 'Günlük konuşma pratiği çok önemlidir.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_05',
+        term: 'Question',
+        phonetic: '/ˈkwes.tʃən/',
+        translation: 'Soru / Soru sormak',
+        pos: 'noun',
+        exampleEn: 'Do you have any questions for me?',
+        exampleTr: 'Bana sormak istediğin bir soru var mı?',
+        level: 'A1',
+      },
+      {
+        id: 'a1_06',
+        term: 'Help',
+        phonetic: '/help/',
+        translation: 'Yardım etmek / Yardım',
+        pos: 'verb',
+        exampleEn: 'Can you help me with this sentence?',
+        exampleTr: 'Bu cümlede bana yardım edebilir misin?',
+        level: 'A1',
+      },
+      {
+        id: 'a1_07',
+        term: 'Family',
+        phonetic: '/ˈfæm.əl.i/',
+        translation: 'Aile',
+        pos: 'noun',
+        exampleEn: 'I live with my family in London.',
+        exampleTr: 'Ailemle birlikte Londra\'da yaşıyorum.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_08',
+        term: 'Language',
+        phonetic: '/ˈlæŋ.ɡwɪdʒ/',
+        translation: 'Dil / Lisan',
+        pos: 'noun',
+        exampleEn: 'English is a global language.',
+        exampleTr: 'İngilizce küresel bir dildir.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_09',
+        term: 'Learn',
+        phonetic: '/lɜːn/',
+        translation: 'Öğrenmek',
+        pos: 'verb',
+        exampleEn: 'I want to learn English fluently.',
+        exampleTr: 'İngilizceyi akıcı bir şekilde öğrenmek istiyorum.',
+        level: 'A1',
+      },
+      {
+        id: 'a1_10',
+        term: 'Together',
+        phonetic: '/təˈɡeð.ər/',
+        translation: 'Birlikte / Beraber',
+        pos: 'adverb',
+        exampleEn: 'Let\'s practice English together with Yankı.',
+        exampleTr: 'Yankı ile birlikte İngilizce pratik yapalım.',
+        level: 'A1',
+      },
+    ],
+  },
+  {
+    id: 'deck_colors_shapes',
+    title: 'Renkler & Şekiller',
+    subtitle: 'Görsel dünya ve tasarım sıfatları',
+    emoji: '🎨',
+    color: '#EC4899',
+    level: 'A1',
+    words: [
+      {
+        id: 'col_01',
+        term: 'Emerald Green',
+        phonetic: '/ˈem.rəld griːn/',
+        translation: 'Zümrüt Yeşili',
+        pos: 'adjective',
+        exampleEn: 'The islands on the map are emerald green.',
+        exampleTr: 'Haritadaki adalar zümrüt yeşili renginde.',
+        level: 'A1',
+      },
+      {
+        id: 'col_02',
+        term: 'Golden Yellow',
+        phonetic: '/ˈɡəʊl.dən ˈjel.əʊ/',
+        translation: 'Altın Sarısı',
+        pos: 'adjective',
+        exampleEn: 'The treasure chest is shining with golden yellow light.',
+        exampleTr: 'Hazine sandığı altın sarısı ışıkla parıldıyor.',
+        level: 'A1',
+      },
+      {
+        id: 'col_03',
+        term: 'Crimson Red',
+        phonetic: '/ˈkrɪm.zən red/',
+        translation: 'Koyu Kırmızı / Yakut Kırmızısı',
+        pos: 'adjective',
+        exampleEn: 'He highlighted the mistake in crimson red.',
+        exampleTr: 'Hatayı koyu kırmızı renkle vurguladı.',
+        level: 'A1',
+      },
+      {
+        id: 'col_04',
+        term: 'Azure Blue',
+        phonetic: '/ˈæʒ.ər bluː/',
+        translation: 'Gök Mavisi / Turkuaz',
+        pos: 'adjective',
+        exampleEn: 'The sky was azure blue without any clouds.',
+        exampleTr: 'Gökyüzü hiç bulutsuz, masmavi gök mavisiydi.',
+        level: 'A1',
+      },
+      {
+        id: 'col_05',
+        term: 'Circular',
+        phonetic: '/ˈsɜː.kjə.lər/',
+        translation: 'Dairesel / Yuvarlak',
+        pos: 'adjective',
+        exampleEn: 'The stage podium has a circular design.',
+        exampleTr: 'Sahne podyumu dairesel bir tasarıma sahip.',
+        level: 'A1',
+      },
+      {
+        id: 'col_06',
+        term: 'Triangular',
+        phonetic: '/traɪˈæŋ.ɡjə.lər/',
+        translation: 'Üçgen şeklinde',
+        pos: 'adjective',
+        exampleEn: 'The roof of the house is triangular.',
+        exampleTr: 'Evin çatısı üçgen şeklindedir.',
+        level: 'A1',
+      },
+      {
+        id: 'col_07',
+        term: 'Transparent',
+        phonetic: '/trænˈspær.ənt/',
+        translation: 'Şeffaf / Saydam',
+        pos: 'adjective',
+        exampleEn: 'The floating speech bubbles are transparent.',
+        exampleTr: 'Süzülen konuşma balonları şeffaftır.',
+        level: 'A2',
+      },
+      {
+        id: 'col_08',
+        term: 'Luminous',
+        phonetic: '/ˈluː.mɪ.nəs/',
+        translation: 'Parlak / Işık saçan',
+        pos: 'adjective',
+        exampleEn: 'Yankı holds a luminous crystal microphone.',
+        exampleTr: 'Yankı ışık saçan kristal bir mikrofon tutuyor.',
+        level: 'B1',
+      },
+    ],
+  },
+  {
+    id: 'deck_numbers_time',
+    title: 'Sayılar, Saatler & Zaman',
+    subtitle: 'Planlama, tarihler ve sıklık zarfları',
+    emoji: '🔢',
+    color: '#3B82F6',
+    level: 'A1',
+    words: [
+      {
+        id: 'num_01',
+        term: 'Quarter past',
+        phonetic: '/ˈkwɔː.tər pɑːst/',
+        translation: 'Çeyrek geçe (Saat)',
+        pos: 'phrase',
+        exampleEn: 'The meeting starts at quarter past nine (09:15).',
+        exampleTr: 'Toplantı dokuzu çeyrek geçe (09:15) başlıyor.',
+        level: 'A1',
+      },
+      {
+        id: 'num_02',
+        term: 'Quarter to',
+        phonetic: '/ˈkwɔː.tər tuː/',
+        translation: 'Çeyrek kala (Saat)',
+        pos: 'phrase',
+        exampleEn: 'The train arrives at quarter to six (05:45).',
+        exampleTr: 'Tren altıya çeyrek kala (05:45) varıyor.',
+        level: 'A1',
+      },
+      {
+        id: 'num_03',
+        term: 'Midnight',
+        phonetic: '/ˈmɪd.naɪt/',
+        translation: 'Gece yarısı (24:00)',
+        pos: 'noun',
+        exampleEn: 'The system resets streak points at midnight.',
+        exampleTr: 'Sistem streak puanlarını gece yarısı sıfırlar.',
+        level: 'A1',
+      },
+      {
+        id: 'num_04',
+        term: 'Schedule',
+        phonetic: '/ˈʃedʒ.uːl/',
+        translation: 'Program / Çalışma takvimi',
+        pos: 'noun',
+        exampleEn: 'I have a very busy study schedule this week.',
+        exampleTr: 'Bu hafta çok yoğun bir çalışma programım var.',
+        level: 'A2',
+      },
+      {
+        id: 'num_05',
+        term: 'Frequently',
+        phonetic: '/ˈfriː.kwənt.li/',
+        translation: 'Sık sık / Çoğunlukla',
+        pos: 'adverb',
+        exampleEn: 'I frequently listen to TalkStage podcasts.',
+        exampleTr: 'Sık sık TalkStage podcast\'lerini dinlerim.',
+        level: 'A2',
+      },
+      {
+        id: 'num_06',
+        term: 'Deadline',
+        phonetic: '/ˈded.laɪn/',
+        translation: 'Son teslim tarihi',
+        pos: 'noun',
+        exampleEn: 'The project deadline is next Friday.',
+        exampleTr: 'Projenin son teslim tarihi önümüzdeki Cuma.',
+        level: 'B1',
+      },
+      {
+        id: 'num_07',
+        term: 'Postpone',
+        phonetic: '/pəʊstˈpəʊn/',
+        translation: 'Ertelemek',
+        pos: 'verb',
+        exampleEn: 'We had to postpone the meeting until tomorrow.',
+        exampleTr: 'Toplantıyı yarına kadar ertelemek zorunda kaldık.',
+        level: 'B1',
+      },
+      {
+        id: 'num_08',
+        term: 'Immediately',
+        phonetic: '/ɪˈmiː.di.ət.li/',
+        translation: 'Hemen / Derhal',
+        pos: 'adverb',
+        exampleEn: 'Please reply to the customer email immediately.',
+        exampleTr: 'Lütfen müşteri e-postasına derhal yanıt verin.',
+        level: 'A2',
+      },
+    ],
+  },
+  {
+    id: 'deck_food_dining',
+    title: 'Yemek & Restoran',
+    subtitle: 'Sipariş verme, lezzetler ve hesap isteme',
+    emoji: '🍔',
+    color: '#F59E0B',
+    level: 'A2',
+    words: [
+      {
+        id: 'food_01',
+        term: 'Delicious',
+        phonetic: '/dɪˈlɪʃ.əs/',
+        translation: 'Çok lezzetli / Nefis',
+        pos: 'adjective',
+        exampleEn: 'This homemade pasta is absolutely delicious.',
+        exampleTr: 'Bu ev yapımı makarna kesinlikle nefis.',
+        level: 'A1',
+      },
+      {
+        id: 'food_02',
+        term: 'Order',
+        phonetic: '/ˈɔː.dər/',
+        translation: 'Sipariş vermek / Sipariş',
+        pos: 'verb',
+        exampleEn: 'Are you ready to order your main course?',
+        exampleTr: 'Ana yemeğinizi sipariş vermeye hazır mısınız?',
+        level: 'A1',
+      },
+      {
+        id: 'food_03',
+        term: 'Bill / Check',
+        phonetic: '/bɪl/',
+        translation: 'Hesap (Restoran)',
+        pos: 'noun',
+        exampleEn: 'Could we have the bill, please?',
+        exampleTr: 'Hesabı alabilir miyiz, lütfen?',
+        level: 'A1',
+      },
+      {
+        id: 'food_04',
+        term: 'Reservation',
+        phonetic: '/ˌrez.əˈveɪ.ʃən/',
+        translation: 'Rezervasyon',
+        pos: 'noun',
+        exampleEn: 'I have a table reservation under the name John.',
+        exampleTr: 'John ismi altında masa rezervasyonum var.',
+        level: 'A2',
+      },
+      {
+        id: 'food_05',
+        term: 'Appetizer',
+        phonetic: '/ˈæp.ə.taɪ.zər/',
+        translation: 'Başlangıç / Meze',
+        pos: 'noun',
+        exampleEn: 'Would you like some soup as an appetizer?',
+        exampleTr: 'Başlangıç olarak biraz çorba ister misiniz?',
+        level: 'A2',
+      },
+      {
+        id: 'food_06',
+        term: 'Vegetarian',
+        phonetic: '/ˌvedʒ.ɪˈteə.ri.ən/',
+        translation: 'Vejetaryen',
+        pos: 'adjective',
+        exampleEn: 'Do you have any vegetarian options on the menu?',
+        exampleTr: 'Menüde vejetaryen seçenekleriniz var mı?',
+        level: 'A2',
+      },
+      {
+        id: 'food_07',
+        term: 'Beverage',
+        phonetic: '/ˈbev.ər.ɪdʒ/',
+        translation: 'İçecek / Meşrubat',
+        pos: 'noun',
+        exampleEn: 'What hot beverages do you serve?',
+        exampleTr: 'Hangi sıcak içecekleri servis ediyorsunuz?',
+        level: 'B1',
+      },
+    ],
+  },
+  {
+    id: 'deck_travel_airport',
+    title: 'Seyahat & Havalimanı',
+    subtitle: 'Pasaport kontrolü, otel ve biniş kartı',
+    emoji: '✈️',
+    color: '#06B6D4',
+    level: 'A2',
+    words: [
+      {
+        id: 'trv_01',
+        term: 'Boarding pass',
+        phonetic: '/ˈbɔː.dɪŋ ˌpɑːs/',
+        translation: 'Uçuş kartı / Biniş kartı',
+        pos: 'noun',
+        exampleEn: 'Please show your passport and boarding pass at Gate 4.',
+        exampleTr: 'Lütfen 4 numaralı kapıda pasaport ve biniş kartınızı gösterin.',
+        level: 'A2',
+      },
+      {
+        id: 'trv_02',
+        term: 'Luggage / Baggage',
+        phonetic: '/ˈlʌɡ.ɪdʒ/',
+        translation: 'Bagaj / Valiz',
+        pos: 'noun',
+        exampleEn: 'My luggage weighs exactly twenty kilograms.',
+        exampleTr: 'Bagajım tam yirmi kilogram geliyor.',
+        level: 'A2',
+      },
+      {
+        id: 'trv_03',
+        term: 'Departure',
+        phonetic: '/dɪˈpɑː.tʃər/',
+        translation: 'Kalkış / Ayrılış',
+        pos: 'noun',
+        exampleEn: 'Check the flight departure board for updates.',
+        exampleTr: 'Güncellemeler için uçuş kalkış panosunu kontrol edin.',
+        level: 'A2',
+      },
+      {
+        id: 'trv_04',
+        term: 'Customs',
+        phonetic: '/ˈkʌs.təmz/',
+        translation: 'Gümrük',
+        pos: 'noun',
+        exampleEn: 'We passed through airport customs without any issue.',
+        exampleTr: 'Havalimanı gümrüğünden hiçbir sorun yaşamadan geçtik.',
+        level: 'B1',
+      },
+      {
+        id: 'trv_05',
+        term: 'Accommodation',
+        phonetic: '/əˌkɒm.əˈdeɪ.ʃən/',
+        translation: 'Konaklama / Kalacak yer',
+        pos: 'noun',
+        exampleEn: 'Our hotel accommodation includes free breakfast.',
+        exampleTr: 'Otel konaklamamıza ücretsiz kahvaltı dahildir.',
+        level: 'B1',
+      },
+    ],
+  },
+  {
+    id: 'deck_business_tech',
+    title: 'İş & Teknoloji',
+    subtitle: 'Toplantılar, yazılım ve mülakat terimleri',
+    emoji: '💻',
+    color: '#8B5CF6',
+    level: 'B1',
+    words: [
+      {
+        id: 'biz_01',
+        term: 'Negotiate',
+        phonetic: '/nəˈɡəʊ.ʃi.eɪt/',
+        translation: 'Pazarlık etmek / Müzakere yapmak',
+        pos: 'verb',
+        exampleEn: 'We successfully negotiated a new contract with the client.',
+        exampleTr: 'Müşteriyle başarılı bir şekilde yeni bir sözleşme müzakere ettik.',
+        level: 'B1',
+      },
+      {
+        id: 'biz_02',
+        term: 'Collaborate',
+        phonetic: '/kəˈlæb.ə.reɪt/',
+        translation: 'İş birliği yapmak / Birlikte çalışmak',
+        pos: 'verb',
+        exampleEn: 'Our engineering teams collaborate across multiple time zones.',
+        exampleTr: 'Mühendislik ekiplerimiz birden fazla saat diliminde iş birliği yapıyor.',
+        level: 'B2',
+      },
+      {
+        id: 'biz_03',
+        term: 'Implement',
+        phonetic: '/ˈɪm.plɪ.ment/',
+        translation: 'Uygulamak / Hayata geçirmek',
+        pos: 'verb',
+        exampleEn: 'We will implement the new AI algorithm next sprint.',
+        exampleTr: 'Yeni yapay zeka algoritmasını gelecek sprintte hayata geçireceğiz.',
+        level: 'B2',
+      },
+      {
+        id: 'biz_04',
+        term: 'Feedback',
+        phonetic: '/ˈfiːd.bæk/',
+        translation: 'Geri bildirim',
+        pos: 'noun',
+        exampleEn: 'Thank you for your constructive feedback on the design.',
+        exampleTr: 'Tasarım hakkındaki yapıcı geri bildiriminiz için teşekkür ederiz.',
+        level: 'B1',
+      },
+      {
+        id: 'biz_05',
+        term: 'Achieve',
+        phonetic: '/əˈtʃiːv/',
+        translation: 'Başarmak / Elde etmek',
+        pos: 'verb',
+        exampleEn: 'With consistent practice, you will achieve fluency.',
+        exampleTr: 'Düzenli pratikle akıcılığa ulaşacaksınız.',
+        level: 'B1',
+      },
+    ],
+  },
+];
+
+const CUSTOM_DECKS_KEY = 'talkstage_web_custom_vocab_decks';
+const CARD_DECK_MAP_KEY = 'talkstage_web_card_deck_map';
+const DECK_MASTERY_KEY = 'talkstage_web_deck_mastery_map';
+
+export function getStoredCustomDecks(): VocabDeck[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(CUSTOM_DECKS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomDeck(newDeck: VocabDeck): VocabDeck[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const existing = getStoredCustomDecks();
+    const updated = [newDeck, ...existing.filter((d) => d.id !== newDeck.id)];
+    localStorage.setItem(CUSTOM_DECKS_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event('talkstage_decks_updated'));
+    return updated;
+  } catch {
+    return [];
+  }
+}
+
+export function deleteCustomDeck(deckId: string): VocabDeck[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const existing = getStoredCustomDecks();
+    const updated = existing.filter((d) => d.id !== deckId);
+    localStorage.setItem(CUSTOM_DECKS_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event('talkstage_decks_updated'));
+    return updated;
+  } catch {
+    return [];
+  }
+}
+
+export function loadAllDecks(): VocabDeck[] {
+  const custom = getStoredCustomDecks();
+  return [...DEFAULT_VOCAB_DECKS, ...custom];
+}
+
+export function getCardDeckMap(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(CARD_DECK_MAP_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+export function setCardDeck(cardId: string, deckId: string | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const map = getCardDeckMap();
+    if (deckId) {
+      map[cardId] = deckId;
+    } else {
+      delete map[cardId];
+    }
+    localStorage.setItem(CARD_DECK_MAP_KEY, JSON.stringify(map));
+    window.dispatchEvent(new Event('talkstage_decks_updated'));
+  } catch (err) {
+    console.warn('Failed to set card deck:', err);
+  }
+}
+
+export function getDeckMasteredWordIds(deckId: string): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(`${DECK_MASTERY_KEY}_${deckId}`);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+export function markWordAsMasteredInDeck(deckId: string, wordId: string): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const current = getDeckMasteredWordIds(deckId);
+    if (current.includes(wordId)) return current;
+    const updated = [...current, wordId];
+    localStorage.setItem(`${DECK_MASTERY_KEY}_${deckId}`, JSON.stringify(updated));
+    window.dispatchEvent(new Event('talkstage_decks_updated'));
+    return updated;
+  } catch {
+    return [];
+  }
+}

@@ -78,23 +78,26 @@ export default function Testimonials() {
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t, i) => (
             <Reveal key={t.name} delay={i * 80}>
-              <figure className="flex h-full flex-col justify-between rounded-[24px] border border-line bg-white p-7 shadow-[var(--shadow-layered)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(79,70,229,0.12)] hover:border-indigo/30">
+              <figure className="flex h-full flex-col justify-between rounded-[24px] border border-line bg-white p-7 shadow-[var(--shadow-layered)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(67,56,202,0.12)] hover:border-gold/40">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="rounded-full bg-porcelain px-3 py-1 font-mono text-[0.7rem] font-semibold text-indigo">
                       {t.badge}
                     </span>
-                    <span className="text-amber-500 text-xs">★★★★★</span>
+                    <span className="text-gold text-xs">★★★★★</span>
                   </div>
 
-                  <blockquote className="mt-4 text-[0.925rem] leading-relaxed text-heading font-medium">
-                    &ldquo;{t.quote}&rdquo;
+                  <span aria-hidden className="mt-3 block font-serif text-4xl italic leading-none text-gold/40">
+                    &ldquo;
+                  </span>
+                  <blockquote className="-mt-3 text-[0.925rem] leading-relaxed text-heading font-medium">
+                    {t.quote}
                   </blockquote>
                 </div>
 
                 <figcaption className="mt-6 pt-4 border-t border-line/60">
                   <div className="flex items-center gap-3.5">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-indigo/15">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-gold/25">
                       <Image
                         src={t.avatar}
                         alt={t.name}

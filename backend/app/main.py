@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
     chat,
+    learning_flags,
     onboarding,
     profiles,
     progress,
@@ -11,6 +12,7 @@ from app.api.routes import (
     sessions,
     tts,
     vocab,
+    vocab_library,
     webhooks,
     ws_session,
 )
@@ -32,6 +34,7 @@ app.include_router(onboarding.router)
 app.include_router(profiles.router)
 app.include_router(scenarios.router)
 app.include_router(vocab.router)
+app.include_router(vocab_library.router)
 app.include_router(reading.router)
 app.include_router(progress.router)
 app.include_router(tts.router)
@@ -39,6 +42,7 @@ app.include_router(sessions.router)
 app.include_router(webhooks.router)
 app.include_router(ws_session.router)
 app.include_router(chat.router)
+app.include_router(learning_flags.router)
 
 
 @app.get("/health")

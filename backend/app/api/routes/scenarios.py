@@ -11,7 +11,8 @@ router = APIRouter(prefix="/scenarios", tags=["scenarios"])
 
 _LIST_COLUMNS = (
     "id, slug, title, category, description, cefr_level, "
-    "estimated_minutes, is_premium, cover_image_url, sort_order"
+    "estimated_minutes, is_premium, cover_image_url, sort_order, "
+    "ai_name, ai_role, situation, objectives, key_phrases, suggested_vocab"
 )
 
 

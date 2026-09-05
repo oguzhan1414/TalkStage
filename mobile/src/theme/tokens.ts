@@ -9,19 +9,81 @@ export const colors = {
   background: '#FFFFFF', // Pure White
   backgroundSecondary: '#F8FAFC', // Porcelain Base
   surface: '#FFFFFF', // Surface Card
+  surfacePorcelain: '#FAFBFD',
   brand: '#4F46E5', // Royal Indigo
   accent: '#0EA5E9', // Electric Cyan
   success: '#10B981', // Fresh Emerald
+  warning: '#F59E0B', // Amber
   error: '#F43F5E', // Coral Sunset
   textHeading: '#0F172A',
   textBody: '#475569',
   textMuted: '#94A3B8',
   border: 'rgba(226, 232, 240, 0.8)',
+  borderLight: '#F1F5F9',
 } as const;
+
+export const cefrAura: Record<string, string> = {
+  A1: '#10B981', // Fresh Emerald
+  A2: '#0EA5E9', // Electric Sky
+  B1: '#6366F1', // Royal Indigo
+  B2: '#8B5CF6', // Vivid Purple
+  C1: '#F59E0B', // Sunset Amber
+  C2: '#EC4899', // Diamond Rose
+};
+
+export const cefrThemes: Record<
+  string,
+  { title: string; subtitle: string; icon: string; islandName: string; accentColor: string }
+> = {
+  A1: {
+    title: 'Kahve Limanı',
+    subtitle: 'Temel Günlük Diyaloglar & Tanışma',
+    icon: '☕',
+    islandName: 'Başlangıç Takımadası',
+    accentColor: '#10B981',
+  },
+  A2: {
+    title: 'Seyahat Koyu',
+    subtitle: 'Havalimanı, Otel & Şehir İçi Ulaşım',
+    icon: '✈️',
+    islandName: 'Keşif Körfezi',
+    accentColor: '#0EA5E9',
+  },
+  B1: {
+    title: 'Kariyer Platosu',
+    subtitle: 'İş Mülakatları, Vize & Profesyonel Sohbet',
+    icon: '💼',
+    islandName: 'İş Dünyası Vadisi',
+    accentColor: '#6366F1',
+  },
+  B2: {
+    title: 'Liderlik Zirvesi',
+    subtitle: 'Mimari Kararlar, B2B Sunum & Spontane Tartışma',
+    icon: '🚀',
+    islandName: 'Global Zirve',
+    accentColor: '#8B5CF6',
+  },
+  C1: {
+    title: 'Ustalık Kalesi',
+    subtitle: 'Soyut Fikirler, Hızlı Müzakere & Kriz Yönetimi',
+    icon: '🏛️',
+    islandName: 'Akıcı Diplomasi Arenası',
+    accentColor: '#F59E0B',
+  },
+  C2: {
+    title: 'Elmas Taç',
+    subtitle: 'Ana Dil Yetkinliğinde Edebi & Teknik İfade',
+    icon: '👑',
+    islandName: 'Kusursuz Dil Sarayı',
+    accentColor: '#EC4899',
+  },
+};
 
 export const gradients = {
   airyIndigo: ['#4F46E5', '#0EA5E9'] as const,
   successMint: ['#10B981', '#34D399'] as const,
+  warmAmber: ['#F59E0B', '#F97316'] as const,
+  royalViolet: ['#8B5CF6', '#6366F1'] as const,
 };
 
 export const glass = {
@@ -33,8 +95,15 @@ export const glass = {
 export const shadow = {
   card: {
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    elevation: 3,
+  },
+  porcelain: {
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
     shadowRadius: 20,
     elevation: 4,
   },

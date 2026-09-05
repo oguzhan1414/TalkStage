@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { arrayBufferToBase64 } from '../lib/base64';
 import { useVoiceStream } from './useVoiceStream';
 import type { TranscriptTurn } from '../types/api';
-import type { WsCorrectionData, WsServerMessage } from '../types/ws';
+import type { WsCorrectionData, WsServerMessage, WsWordMetric, WsTurnMetrics } from '../types/ws';
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
 
@@ -49,6 +49,8 @@ export function useConversationSocket(scenarioSlug: string) {
   const [closeInfo, setCloseInfo] = useState<CloseInfo | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [interimText, setInterimText] = useState('');
+  const [interimWords, setInterimWords] = useState<WsWordMetric[]>([]);
+  const [latestMetrics, setLatestMetrics] = useState<WsTurnMetrics | null>(null);
   const [aiReplyText, setAiReplyText] = useState('');
   const [correction, setCorrection] = useState<WsCorrectionData | null>(null);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
@@ -58,6 +60,9 @@ export function useConversationSocket(scenarioSlug: string) {
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [correctionsCount, setCorrectionsCount] = useState(0);
   const [fluencyScores, setFluencyScores] = useState<number[]>([]);
+  const [totalFillersCount, setTotalFillersCount] = useState(0);
+  const [wpmHistory, setWpmHistory] = useState<number[]>([]);
+  const [sceneCompleteSummary, setSceneCompleteSummary] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioQueueRef = useRef<string[]>([]);
@@ -149,9 +154,20 @@ export function useConversationSocket(scenarioSlug: string) {
         switch (message.type) {
           case 'transcript.interim':
             setInterimText(message.text);
+            if (message.words) setInterimWords(message.words);
             break;
           case 'transcript.final':
             setInterimText(message.text);
+            if (message.words) setInterimWords(message.words);
+            if (message.metrics) {
+              setLatestMetrics(message.metrics);
+              if (message.metrics.filler_count > 0) {
+                setTotalFillersCount((c) => c + message.metrics!.filler_count);
+              }
+              if (message.metrics.wpm > 0) {
+                setWpmHistory((h) => [...h, message.metrics!.wpm]);
+              }
+            }
             setWaitingForReply(true);
             break;
           case 'correction':
@@ -169,9 +185,18 @@ export function useConversationSocket(scenarioSlug: string) {
               { role: 'assistant', text: message.assistant_text },
             ]);
             setInterimText('');
+            setInterimWords([]);
             setAiReplyText('');
             setCorrection(null);
             setWaitingForReply(false);
+            break;
+          case 'scene.complete':
+            // Soft nudge, not a forced end — the model judged the scenario's
+            // objectives meaningfully covered (see backend Ek 32). The user
+            // can keep talking; this just makes "you can wrap up now" visible.
+            setSceneCompleteSummary(
+              message.summary_tr ?? 'Sahnenin hedeflerini tamamladın gibi görünüyor!'
+            );
             break;
           case 'session.time_limit_reached':
             setCloseInfo({ code: 0, reason: 'time_limit_reached' });
@@ -205,7 +230,13 @@ export function useConversationSocket(scenarioSlug: string) {
     return () => {
       cancelled = true;
       socket?.close();
-      stream?.stop();
+      // Deliberately NOT calling stream?.stop() here: `useVoiceStream`
+      // (expo-audio's useAudioStream) already auto-releases the native
+      // AudioStream shared object on unmount via useReleasingSharedObject.
+      // Calling .stop() here too raced against that automatic release and
+      // crashed on Android ("shared object was already released"). The
+      // still-mounted "connection dropped" case is covered by onclose's
+      // stopStream() call above.
       currentPlayerRef.current?.remove();
       currentPlayerRef.current = null;
       audioQueueRef.current = [];
@@ -229,6 +260,11 @@ export function useConversationSocket(scenarioSlug: string) {
     closeInfo,
     permissionDenied,
     interimText,
+    interimWords,
+    latestMetrics,
+    totalFillersCount,
+    wpmHistory,
+    sceneCompleteSummary,
     aiReplyText,
     correction,
     turns,

@@ -39,3 +39,12 @@ class VocabCardUpdate(BaseModel):
 
 class VocabReviewRequest(BaseModel):
     grade: Grade
+
+
+class VocabLookupOut(BaseModel):
+    term: str
+    translation: str
+    phonetic: str | None = None
+    part_of_speech: str | None = None
+    example_en: str | None = None
+    example_tr: str | None = None

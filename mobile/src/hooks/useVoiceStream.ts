@@ -1,4 +1,5 @@
 import { useAudioStream, type AudioStreamBuffer } from 'expo-audio';
+import { useMemo } from 'react';
 
 /**
  * Real-time PCM microphone capture, pre-configured to match backend's
@@ -13,10 +14,21 @@ import { useAudioStream, type AudioStreamBuffer } from 'expo-audio';
  * can't be exercised in the web preview used for local testing.
  */
 export function useVoiceStream(onBuffer: (buffer: AudioStreamBuffer) => void) {
-  return useAudioStream({
-    sampleRate: 16000,
-    channels: 1,
-    encoding: 'int16',
-    onBuffer,
-  });
+  // Memoized so `useAudioStream` gets a referentially stable config object —
+  // an inline object literal here is a brand new reference every render of
+  // the caller (which itself re-renders often, e.g. on every mic level
+  // update), and if expo-audio keys any internal effect off this whole
+  // options object rather than its individual fields, a fresh reference each
+  // render can retrigger that effect every render, which is exactly the
+  // shape of bug that produces "Maximum update depth exceeded".
+  const options = useMemo(
+    () => ({
+      sampleRate: 16000 as const,
+      channels: 1 as const,
+      encoding: 'int16' as const,
+      onBuffer,
+    }),
+    [onBuffer]
+  );
+  return useAudioStream(options);
 }

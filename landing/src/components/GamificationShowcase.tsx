@@ -1,4 +1,5 @@
 import Image from "next/image";
+import PhoneFrame from "./PhoneFrame";
 import Reveal from "./Reveal";
 
 const badges = [
@@ -79,6 +80,19 @@ export default function GamificationShowcase() {
             </Reveal>
           ))}
         </div>
+
+        {/* Real screenshot: the actual mobile Rozetlerim achievement wall */}
+        <Reveal delay={200} className="mt-14 flex flex-col items-center justify-center gap-6 sm:flex-row">
+          <PhoneFrame
+            src="/images/app-screens/badges.png"
+            alt="TalkStage mobil uygulama Rozetlerim başarı duvarı ekranı"
+            width={170}
+            rotate="-rotate-2"
+          />
+          <p className="max-w-xs text-center text-sm leading-relaxed text-body sm:text-left">
+            Cebindeki rozet duvarın tam olarak bu — her biri kilitli başlar, gerçek bir pratikle açılır.
+          </p>
+        </Reveal>
       </div>
     </section>
   );

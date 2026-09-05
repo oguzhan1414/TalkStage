@@ -1,25 +1,23 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Image,
-  ImageBackground,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { avatarImages, studyStudioLounge } from '../assets/images';
 import { Toast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
-import { CEFR_CURRICULUM, isTopicCompleted } from '../data/curriculumData';
+import {
+  ALL_SPEAKING_TOPIC_CODES,
+  ALL_TOPIC_CODES,
+  CEFR_CURRICULUM,
+  computeFullCompletion,
+} from '../data/curriculumData';
 import { buildMissionsForLevel } from '../data/writingCurriculum';
 import { api } from '../lib/api';
+import { pullLearningFlags } from '../lib/learningFlags';
 import type { CalendarScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut, ProgressOut, ReadingPassageOut, VocabCardOut } from '../types/api';
@@ -79,11 +77,14 @@ type DaySchedule = {
 
 export function CalendarScreen({ navigation }: CalendarScreenProps) {
   const { session } = useAuth();
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<CalendarViewMode>('daily');
   const [selectedDayOffset, setSelectedDayOffset] = useState<number>(0); // 0 = Today, 1 = Tomorrow
   const [cursor, setCursor] = useState(() => new Date());
   const [savedMoods, setSavedMoods] = useState<Record<string, DailyMood>>({});
   const [missionCompletedIds, setMissionCompletedIds] = useState<Set<string>>(new Set());
+  const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
+  const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
 
   const todayIso = toIsoDate(new Date());
@@ -120,6 +121,25 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
     await AsyncStorage.setItem(MOODS_STORAGE_KEY, JSON.stringify(updated));
   };
 
+  // Editable weekly study plan (0=Pt..6=Pz, matches WEEKDAY_LABELS order) —
+  // purely an intention the user sets, never a stored practice record, so it
+  // can never render a future day as "completed" that hasn't happened yet.
+  const toggleStudyDay = async (dayIdx: number) => {
+    const current = new Set(profile?.study_days ?? []);
+    if (current.has(dayIdx)) {
+      current.delete(dayIdx);
+    } else {
+      current.add(dayIdx);
+    }
+    const updated = Array.from(current).sort((a, b) => a - b);
+    try {
+      await api.patch('/me', { study_days: updated });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    } catch {
+      showToast('Plan güncellenemedi, tekrar dene');
+    }
+  };
+
   const { data: profile } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
@@ -149,19 +169,10 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
   const curriculum = CEFR_CURRICULUM[level] ?? CEFR_CURRICULUM.A1;
   const missions = useMemo(() => buildMissionsForLevel(level), [level]);
 
-  // Same real completion rule as the Sahneler roadmap and Study Path (see
-  // `isTopicCompleted` in curriculumData.ts) — a topic is "done" once all of
-  // its target words are genuinely saved to the vocab chest.
   const savedWordsLower = useMemo(
     () => new Set((vocabCards ?? []).map((c) => c.term.trim().toLowerCase())),
     [vocabCards]
   );
-  const firstIncompleteTopicIdx = curriculum.topics.findIndex(
-    (t) => !isTopicCompleted(t, savedWordsLower)
-  );
-  const todayTopicIdx = firstIncompleteTopicIdx === -1 ? curriculum.topics.length - 1 : firstIncompleteTopicIdx;
-  const todayTopic = curriculum.topics[todayTopicIdx];
-  const tomorrowTopic = curriculum.topics[todayTopicIdx + 1] ?? todayTopic;
 
   // Same real lock sequence as ReadingListScreen (`GET /reading` +
   // `GET /reading/completed-slugs`, first not-completed = current).
@@ -170,23 +181,70 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
     () => new Set(completedReadingSlugs ?? []),
     [completedReadingSlugs]
   );
+  const completedReadingCountForLevel = passages.filter(
+    (p) => (p.cefr_level ?? 'A1') === level && completedSlugSet.has(p.slug)
+  ).length;
+
+  // Single source of truth for "is this topic REALLY done" — same rule the
+  // Sahneler roadmap and Profile's level report use (see `computeFullCompletion`
+  // in curriculumData.ts): vocab presence alone isn't enough for
+  // speaking/reading topics anymore, they also need a real finished chat or
+  // reading passage.
+  const fullCompletion = useMemo(
+    () =>
+      computeFullCompletion(
+        curriculum.topics,
+        savedWordsLower,
+        chatCompletedCodes,
+        completedReadingCountForLevel,
+        lessonQuizDoneCodes
+      ),
+    [curriculum.topics, savedWordsLower, chatCompletedCodes, completedReadingCountForLevel, lessonQuizDoneCodes]
+  );
+  const firstIncompleteTopicIdx = curriculum.topics.findIndex((t) => !fullCompletion[t.code]);
+  const todayTopicIdx = firstIncompleteTopicIdx === -1 ? curriculum.topics.length - 1 : firstIncompleteTopicIdx;
+  const todayTopic = curriculum.topics[todayTopicIdx];
+  const tomorrowTopic = curriculum.topics[todayTopicIdx + 1] ?? todayTopic;
+
   const firstIncompleteReadingIdx = passages.findIndex((p) => !completedSlugSet.has(p.slug));
   const todayReadingIdx =
     firstIncompleteReadingIdx === -1 ? Math.max(0, passages.length - 1) : firstIncompleteReadingIdx;
   const todayReading = passages[todayReadingIdx];
   const tomorrowReading = passages[todayReadingIdx + 1] ?? todayReading;
 
-  // Reload which missions are already completed every time this screen
-  // regains focus (e.g. returning from a finished TextChat mission) — same
-  // AsyncStorage signal the Study Path uses, kept in sync by construction
-  // since both read `mission_completed_<id>`.
+  // Reload which missions/topic-chats are already completed every time this
+  // screen regains focus (e.g. returning from a finished TextChat session) —
+  // same AsyncStorage signals TextChatScreen writes to.
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       const ids = [...new Set(missions.map((m) => m.id))];
-      AsyncStorage.multiGet(ids.map(missionCompletedKey)).then((pairs) => {
+      // Recover server-backed flags first (survives reinstalls/second devices),
+      // then read the merged AsyncStorage state — see lib/learningFlags.ts.
+      pullLearningFlags().then(() => {
         if (cancelled) return;
-        setMissionCompletedIds(new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k)));
+        AsyncStorage.multiGet(ids.map(missionCompletedKey)).then((pairs) => {
+          if (cancelled) return;
+          setMissionCompletedIds(new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k)));
+        });
+        AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+          (pairs) => {
+            if (cancelled) return;
+            setChatCompletedCodes(
+              new Set(
+                pairs
+                  .filter(([, v]) => v === '1')
+                  .map(([k]) => k.replace('topic_chat_completed_', ''))
+              )
+            );
+          }
+        );
+        AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
+          if (cancelled) return;
+          setLessonQuizDoneCodes(
+            new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
+          );
+        });
       });
       return () => {
         cancelled = true;
@@ -213,12 +271,12 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
       vocabTitle: topic ? `${topic.targetWords.length} Hedef Kelime` : '',
       vocabDesc: vocabPreview,
       vocabMinutes: 3,
-      vocabDone: topic ? isTopicCompleted(topic, savedWordsLower) : false,
+      vocabDone: topic ? (fullCompletion[topic.code] ?? false) : false,
       grammarCode: topic?.code ?? '',
       grammarTitle: topic?.title ?? '',
       grammarFormula: topic?.formula ?? '',
       grammarMinutes: 5,
-      grammarDone: topic ? isTopicCompleted(topic, savedWordsLower) : false,
+      grammarDone: topic ? (fullCompletion[topic.code] ?? false) : false,
     };
   };
 
@@ -232,6 +290,12 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
     'Öğrenci';
 
   const practicedDates = new Set((progress ?? []).map((p) => p.practice_date));
+  // Success criterion for a calendar day: hitting the user's own daily
+  // target (already collected at onboarding, previously unused by the
+  // calendar) rather than just "some activity happened" — see
+  // handleDayPress/grid rendering below for the goalMet/partial split.
+  const goalMinutes = profile?.daily_target_minutes ?? 15;
+  const studyDays = profile?.study_days ?? null;
   const totalDays = daysInMonth(year, month);
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
   const cells: (number | null)[] = [
@@ -291,12 +355,26 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
     // Past/future days don't have a per-day breakdown (the daily plan only
     // ever covers today/tomorrow) — show what's actually known about that
     // day instead of silently jumping to today's unrelated plan.
+    const dayProgress = (progress ?? []).find((p) => p.practice_date === isoKey);
+    const minutesThatDay = dayProgress?.minutes_practiced ?? 0;
     const practiced = practicedDates.has(isoKey);
+    const goalMet = practiced && minutesThatDay >= goalMinutes;
     const mood = savedMoods[isoKey];
+    const isFuture = isoKey > todayIso;
     if (mood) {
       showToast(`${day} ${monthLabel}: ${MOOD_CONFIG[mood].emoji} ${MOOD_CONFIG[mood].label}`);
+    } else if (isFuture) {
+      const weekdayIdx = (new Date(year, month, day).getDay() + 6) % 7;
+      const planned = studyDays?.includes(weekdayIdx) ?? false;
+      showToast(
+        planned
+          ? `${day} ${monthLabel}: planladığın bir çalışma günü 📅`
+          : `${day} ${monthLabel}: henüz gelmedi`
+      );
+    } else if (goalMet) {
+      showToast(`${day} ${monthLabel}: hedefine ulaştın ✓ (${minutesThatDay} dk)`);
     } else if (practiced) {
-      showToast(`${day} ${monthLabel}: pratik yapıldı ✓`);
+      showToast(`${day} ${monthLabel}: biraz pratik yaptın (${minutesThatDay}/${goalMinutes} dk)`);
     } else {
       showToast(`${day} ${monthLabel}: pratik yapılmadı`);
     }
@@ -660,6 +738,38 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
                   )}
                 </View>
 
+                {/* Editable Weekly Study Plan — an intention the user sets,
+                    never a stored practice record (see toggleStudyDay above) */}
+                <View style={[styles.planCard, shadow.card]}>
+                  <Text style={styles.planTitle}>📅 Haftalık Çalışma Planın</Text>
+                  <Text style={styles.planSub}>
+                    Hangi günler çalışmayı planlıyorsun? Takvimde o günler işaretlenir — dokunarak değiştir.
+                  </Text>
+                  <View style={styles.planDaysRow}>
+                    {WEEKDAY_LABELS.map((label, idx) => {
+                      const isPlanned = studyDays?.includes(idx) ?? false;
+                      return (
+                        <Pressable
+                          key={idx}
+                          onPress={() => toggleStudyDay(idx)}
+                          style={[styles.planDayChip, isPlanned && styles.planDayChipActive]}
+                        >
+                          <Text
+                            style={[styles.planDayChipText, isPlanned && styles.planDayChipTextActive]}
+                          >
+                            {label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {!studyDays || studyDays.length === 0 ? (
+                    <Text style={styles.planHint}>
+                      Henüz bir plan seçmedin — gelecek günler için hiçbir şey varsayılmaz.
+                    </Text>
+                  ) : null}
+                </View>
+
                 {/* Month Navigator Header */}
                 <View style={styles.monthNavRow}>
                   <Pressable onPress={() => setCursor(new Date(year, month - 1, 1))} hitSlop={8}>
@@ -685,12 +795,23 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
                   {cells.map((day, i) => {
                     if (day === null) return <View key={`empty-${i}`} style={styles.gridCell} />;
                     const isoKey = toDateKey(year, month, day);
+                    const dayProgress = (progress ?? []).find((p) => p.practice_date === isoKey);
+                    const minutesThatDay = dayProgress?.minutes_practiced ?? 0;
                     const practiced = practicedDates.has(isoKey);
+                    const goalMet = practiced && minutesThatDay >= goalMinutes;
+                    const partialPractice = practiced && !goalMet;
                     const dayMood = savedMoods[isoKey];
                     const isToday =
                       new Date().getDate() === day &&
                       new Date().getMonth() === month &&
                       new Date().getFullYear() === year;
+                    const isFuture = isoKey > todayIso;
+                    const weekdayIdx = (new Date(year, month, day).getDay() + 6) % 7;
+                    // Purely a visual echo of the user's own plan — never
+                    // backed by a progress row, so it can't misrepresent a
+                    // future day as something that already happened.
+                    const isPlannedDay =
+                      isFuture && !dayMood && !practiced && (studyDays?.includes(weekdayIdx) ?? false);
 
                     return (
                       <View key={day} style={styles.gridCell}>
@@ -698,9 +819,12 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
                           onPress={() => handleDayPress(day)}
                           style={[
                             styles.dayGlassCircle,
-                            dayMood && { backgroundColor: MOOD_CONFIG[dayMood].bg, borderColor: '#F59E0B' },
-                            practiced && !dayMood && styles.dayGlassPracticed,
+                            isFuture && !isToday && styles.dayGlassFuture,
+                            isPlannedDay && !isToday && styles.dayGlassPlanned,
+                            partialPractice && !dayMood && styles.dayGlassPartial,
+                            goalMet && !dayMood && styles.dayGlassPracticed,
                             isToday && !practiced && !dayMood && styles.dayGlassToday,
+                            dayMood && { backgroundColor: MOOD_CONFIG[dayMood].bg, borderColor: '#F59E0B' },
                           ]}
                         >
                           {dayMood ? (
@@ -709,7 +833,9 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
                             <Text
                               style={[
                                 styles.dayGlassText,
-                                practiced && styles.dayGlassTextPracticed,
+                                isFuture && !isToday && styles.dayGlassTextFuture,
+                                partialPractice && styles.dayGlassTextPartial,
+                                goalMet && styles.dayGlassTextPracticed,
                                 isToday && !practiced && styles.dayGlassTextToday,
                               ]}
                             >
@@ -723,7 +849,8 @@ export function CalendarScreen({ navigation }: CalendarScreenProps) {
                 </View>
 
                 <Text style={styles.calendarFooterNote}>
-                  💡 Gün sonunda emojini seçtiğinde takviminde anında belirir. Boş günler pratik yapılmayan günleri gösterir.
+                  💡 Dolu yeşil: günlük hedefine ulaştın. Kenarlıklı yeşil: biraz pratik yaptın ama hedefin altında.
+                  Kesikli çerçeve: planladığın ama henüz gelmemiş gün. Boş günler pratik yapılmayan günleri gösterir.
                 </Text>
               </View>
             )}
@@ -1166,6 +1293,60 @@ const styles = StyleSheet.create({
     color: '#E2E8F0',
   },
 
+  /* Editable Weekly Study Plan */
+  planCard: {
+    backgroundColor: 'rgba(30, 41, 59, 0.85)',
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    marginBottom: 14,
+  },
+  planTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  planSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10,
+    color: '#94A3B8',
+    marginBottom: 10,
+    lineHeight: 14,
+  },
+  planDaysRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  planDayChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: radii.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  planDayChipActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderColor: '#10B981',
+  },
+  planDayChipText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    color: '#94A3B8',
+  },
+  planDayChipTextActive: {
+    color: '#10B981',
+  },
+  planHint: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10,
+    color: '#64748B',
+    marginTop: 8,
+  },
+
   monthNavRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1220,6 +1401,20 @@ const styles = StyleSheet.create({
   dayGlassPracticed: {
     backgroundColor: '#10B981',
   },
+  dayGlassPartial: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    borderWidth: 1.5,
+    borderColor: '#10B981',
+  },
+  dayGlassFuture: {
+    opacity: 0.45,
+  },
+  dayGlassPlanned: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(148, 163, 184, 0.6)',
+    borderStyle: 'dashed',
+    opacity: 1,
+  },
   dayGlassToday: {
     borderWidth: 2,
     borderColor: '#38BDF8',
@@ -1233,6 +1428,13 @@ const styles = StyleSheet.create({
   dayGlassTextPracticed: {
     color: '#FFFFFF',
     fontFamily: fonts.headingBold,
+  },
+  dayGlassTextPartial: {
+    color: '#10B981',
+    fontFamily: fonts.headingBold,
+  },
+  dayGlassTextFuture: {
+    color: '#64748B',
   },
   dayGlassTextToday: {
     color: '#38BDF8',

@@ -1,26 +1,24 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { companionImage } from '../assets/images';
+import { yankiMagicImage } from '../assets/images';
 import { TappableWords } from '../components/TappableWords';
 import { Toast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
+import { pickDailyTopic } from '../data/conversationTopics';
 import { api, ApiError } from '../lib/api';
+import { setLearningFlag } from '../lib/learningFlags';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
-import type { ChatCorrection, ChatMessageResponse, ChatTurn, VocabCardCreate } from '../types/api';
+import type {
+  ChatCorrection,
+  ChatMessageResponse,
+  ChatTurn,
+  ProfileOut,
+  VocabCardCreate,
+} from '../types/api';
 import type { TextChatScreenProps } from '../navigation/types';
 
 type ChatMessage = {
@@ -59,6 +57,18 @@ function buildRoleContext(dailyTask: {
   goals: string[];
 }): string {
   return `You are playing "${dailyTask.roleName}" — ${dailyTask.roleBio} Scenario: ${dailyTask.scenario} Naturally guide the user toward these goals during the chat: ${dailyTask.goals.join('; ')}.`;
+}
+
+/** Sent as `role_context` for a real grammar-topic practice chat (Seviye Yol
+ * Haritası → "💬 Sohbette Pratik Yap"), reusing the exact same backend
+ * mechanism as Study Path missions (see `text_chat.py`'s turn-cap logic) —
+ * this is what makes `is_completed` a real, deterministic signal instead of
+ * never firing. Deliberately `undefined` when there's no `formula` (the
+ * level's free-form boss challenge), which stays an untracked, unlimited
+ * evaluation chat rather than a topic to "complete". */
+function buildFocusRoleContext(focusTopic: { title: string; formula?: string }): string | undefined {
+  if (!focusTopic.formula) return undefined;
+  return `Help the user practice the grammar structure "${focusTopic.title}" (formula: ${focusTopic.formula}). Guide them to build 2-3 correct example sentences using this structure over the course of the chat, gently correcting mistakes. Keep it encouraging and conversational, not a rigid quiz.`;
 }
 
 /** Builds a topic-specific opening line so the conversation naturally steers
@@ -101,8 +111,30 @@ function buildFocusOpeningMessage(focusTopic: {
  */
 export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const focusTopic = route.params?.focusTopic;
   const dailyTask = route.params?.dailyTask;
+  const isFreeChat = !dailyTask && !focusTopic;
+
+  // Free chat used to always open with one fixed generic greeting and never
+  // suggest what to talk about — a real "blank page" problem. A deterministic
+  // per-user-per-day topic (same pattern GET /scenarios/recommended already
+  // uses) gives the user something concrete to respond to instead.
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => api.get<ProfileOut>('/me'),
+    enabled: isFreeChat,
+  });
+  const [rerollSeed, setRerollSeed] = useState(0);
+  const todaysTopic = useMemo(() => {
+    // Wait for the real level/persona before picking — otherwise this would
+    // briefly pick a "beginner, no persona" topic and then swap to a
+    // different one the moment the profile loads, flashing the opening
+    // question right after the user opens the screen.
+    if (!isFreeChat || !session?.user?.id || profileLoading) return null;
+    return pickDailyTopic(session.user.id, profile?.cefr_level, profile?.persona_id, rerollSeed);
+  }, [isFreeChat, session?.user?.id, profileLoading, profile?.cefr_level, profile?.persona_id, rerollSeed]);
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     dailyTask
       ? buildDailyTaskOpeningMessage(dailyTask)
@@ -115,8 +147,17 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   const [toast, setToast] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionSummary, setCompletionSummary] = useState<string | null>(null);
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const practiceLoggedRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
+
+  // Swaps the generic opener for the real topic's question once it's known
+  // (profile query resolves), and again whenever "Başka Konu" rerolls it.
+  useEffect(() => {
+    if (todaysTopic) {
+      setMessages([{ id: 'opening', role: 'assistant', text: todaysTopic.openingEn, trHint: todaysTopic.openingTr }]);
+    }
+  }, [todaysTopic]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -132,22 +173,26 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
     if (!text || sending || isCompleted) return;
 
     // The generic default opener is just a canned greeting Groq never
-    // generated, so it's excluded from context. The focus-topic/daily-task
-    // openers are different — they're the only place the grammar target or
-    // opening line is stated, so they must stay in history.
+    // generated, so it's excluded from context. The focus-topic/daily-task/
+    // daily-topic openers are different — they're the only place the grammar
+    // target or opening question is stated, so they must stay in history.
     const history: ChatTurn[] = messages
-      .filter((m) => m.id !== 'opening' || Boolean(focusTopic) || Boolean(dailyTask))
+      .filter((m) => m.id !== 'opening' || Boolean(focusTopic) || Boolean(dailyTask) || Boolean(todaysTopic))
       .map((m) => ({ role: m.role, content: m.text }));
 
     const userMsg: ChatMessage = { id: nextId(), role: 'user', text };
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
     setSending(true);
+    setSuggestedReplies([]);
     scrollToEnd();
 
-    // Only a Study Path daily task counts as "real practice today" — the
-    // free Günlük Sohbet entry and grammar-topic practice stay low-stakes.
-    if (dailyTask && !practiceLoggedRef.current) {
+    const focusRoleContext = focusTopic ? buildFocusRoleContext(focusTopic) : undefined;
+    // A Study Path daily task or a real grammar-topic practice chat (one with
+    // a formula, i.e. not the free-form boss challenge) counts as "real
+    // practice today" — the free Günlük Sohbet entry and the boss challenge
+    // evaluation chat stay low-stakes/untracked.
+    if ((dailyTask || focusRoleContext) && !practiceLoggedRef.current) {
       practiceLoggedRef.current = true;
       api
         .post('/progress/log-practice')
@@ -162,13 +207,15 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
       const response = await api.post<ChatMessageResponse>('/chat/message', {
         history,
         message: text,
-        role_context: dailyTask ? buildRoleContext(dailyTask) : undefined,
+        role_context: dailyTask ? buildRoleContext(dailyTask) : focusRoleContext,
         topic_code: dailyTask?.topicCode ?? focusTopic?.topicCode,
+        topic_context: todaysTopic?.topicContext,
       } satisfies {
         history: ChatTurn[];
         message: string;
         role_context?: string;
         topic_code?: string;
+        topic_context?: string;
       });
 
       setMessages((prev) => [
@@ -180,17 +227,24 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
           trHint: response.reply_tr_hint,
         },
       ]);
+      setSuggestedReplies(response.suggested_replies ?? []);
 
       if (response.is_completed) {
         setIsCompleted(true);
         setCompletionSummary(response.completion_summary_tr ?? 'Tebrikler! Bu sohbet görevini başarıyla tamamladın.');
-        // Durable "this mission is done" record for the Study Path to read
-        // back (local-only, like onboarding's completion flag elsewhere in
-        // this app — the real XP/streak reward already happened via
-        // log-practice above, this is just UI bookkeeping for which nodes
-        // show as unlocked/checked next time the map is opened).
+        // Durable "this is done" records for other screens to read back
+        // (local-only, like onboarding's completion flag elsewhere in this
+        // app — the real XP/streak reward already happened via log-practice
+        // above, this is just UI bookkeeping for which nodes show as
+        // unlocked/checked next time the relevant map is opened).
         if (dailyTask) {
-          AsyncStorage.setItem(`mission_completed_${dailyTask.id}`, '1').catch(() => {});
+          setLearningFlag(`mission_completed_${dailyTask.id}`);
+          if (dailyTask.topicCode) {
+            setLearningFlag(`topic_chat_completed_${dailyTask.topicCode}`);
+          }
+        }
+        if (focusRoleContext && focusTopic?.topicCode) {
+          setLearningFlag(`topic_chat_completed_${focusTopic.topicCode}`);
         }
       }
     } catch (err) {
@@ -222,18 +276,9 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
 
   const userTurnsCount = messages.filter((m) => m.role === 'user').length;
   const currentStep = Math.min(3, userTurnsCount + 1);
-
-  // Dynamic A1 suggestion chips based on the step
-  const getSuggestions = () => {
-    if (isCompleted) return [];
-    if (currentStep === 1) {
-      return ['Hello! My name is...', 'Hi! Nice to meet you.', 'I am from Turkey.'];
-    }
-    if (currentStep === 2) {
-      return ['I am an engineer.', 'I usually wake up at 7 AM.', 'Can I have a coffee, please?'];
-    }
-    return ['Thank you so much! See you!', 'Have a great day!', 'Nice talking to you!'];
-  };
+  // "Başka Konu" only makes sense before the user has actually replied —
+  // rerolling mid-conversation would erase a real exchange.
+  const canRerollTopic = isFreeChat && userTurnsCount === 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -243,17 +288,27 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
           <Ionicons name="chevron-back" size={24} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Image source={companionImage} style={styles.headerAvatar} resizeMode="contain" />
+          <Image source={yankiMagicImage} style={styles.headerAvatar} resizeMode="contain" />
           <View style={styles.headerTextCol}>
             <Text style={styles.headerTitle} numberOfLines={1}>
               {dailyTask ? dailyTask.roleName : focusTopic ? focusTopic.title : 'Yankı ile Günlük Sohbet'}
             </Text>
             <Text style={styles.headerSub} numberOfLines={1}>
-              {dailyTask ? dailyTask.title : 'A1 İnteraktif Yazma Görevi ✍️'}
+              {dailyTask
+                ? dailyTask.title
+                : focusTopic
+                  ? 'A1 İnteraktif Yazma Görevi ✍️'
+                  : (todaysTopic?.titleTr ?? 'Serbest Sohbet')}
             </Text>
           </View>
         </View>
-        <View style={styles.headerSpacer} />
+        {canRerollTopic ? (
+          <Pressable onPress={() => setRerollSeed((s) => s + 1)} hitSlop={12}>
+            <Ionicons name="refresh" size={20} color={colors.textMuted} />
+          </Pressable>
+        ) : (
+          <View style={styles.headerSpacer} />
+        )}
       </View>
 
       {/* 3-Step Micro Mission Progress Tracker */}
@@ -296,7 +351,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
               style={[styles.messageRow, msg.role === 'user' && styles.messageRowUser]}
             >
               {msg.role === 'assistant' ? (
-                <Image source={companionImage} style={styles.bubbleAvatar} resizeMode="contain" />
+                <Image source={yankiMagicImage} style={styles.bubbleAvatar} resizeMode="contain" />
               ) : null}
 
               <View style={styles.bubbleCol}>
@@ -336,7 +391,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
 
           {sending ? (
             <View style={styles.messageRow}>
-              <Image source={companionImage} style={styles.bubbleAvatar} resizeMode="contain" />
+              <Image source={yankiMagicImage} style={styles.bubbleAvatar} resizeMode="contain" />
               <View style={[styles.bubble, styles.bubbleAssistant, styles.typingBubble]}>
                 <Text style={styles.typingText}>Yankı yazıyor…</Text>
               </View>
@@ -357,22 +412,26 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
           </View>
         ) : (
           <View style={styles.inputContainer}>
-            {/* Quick Suggestion Chips for A1 Beginners */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.suggestionsRow}
-            >
-              {getSuggestions().map((chip, idx) => (
-                <Pressable
-                  key={idx}
-                  onPress={() => setInputText(chip)}
-                  style={styles.suggestionChip}
-                >
-                  <Text style={styles.suggestionChipText}>💡 {chip}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
+            {/* Suggested replies — fresh every turn from the AI's own last
+                question (see backend's `suggested_replies`), not a fixed
+                generic list, so there's always a concrete answer to tap. */}
+            {suggestedReplies.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.suggestionsRow}
+              >
+                {suggestedReplies.map((chip, idx) => (
+                  <Pressable
+                    key={idx}
+                    onPress={() => setInputText(chip)}
+                    style={styles.suggestionChip}
+                  >
+                    <Text style={styles.suggestionChipText}>💡 {chip}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            ) : null}
 
             <View style={styles.inputRow}>
               <TextInput

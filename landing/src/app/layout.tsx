@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono, Fraunces } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import "./globals.css";
 
@@ -7,6 +8,14 @@ const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
 const inter = Inter({
@@ -48,12 +57,14 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
-      className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable} h-full overflow-x-hidden antialiased`}
+      className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable} ${fraunces.variable} h-full overflow-x-hidden antialiased`}
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-body selection:bg-indigo selection:text-white">
-        <ScrollToTop />
-        {children}
+        <AuthProvider>
+          <ScrollToTop />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, View } from 'react-native';
 
-import { companionImage } from '../assets/images';
-import { colors } from '../theme/tokens';
+import { yankiMagicImage } from '../assets/images';
 import type { OrbState } from '../hooks/useConversationSocket';
 
 const PULSE_BY_STATE: Record<OrbState, { duration: number; maxScale: number }> = {
@@ -13,10 +12,17 @@ const PULSE_BY_STATE: Record<OrbState, { duration: number; maxScale: number }> =
 };
 
 const RING_COLOR_BY_STATE: Record<OrbState, string> = {
-  idle: 'rgba(79, 70, 229, 0.2)',
+  idle: 'rgba(79, 70, 229, 0.25)',
   listening: '#0EA5E9',
   thinking: '#4F46E5',
   speaking: '#0EA5E9',
+};
+
+const GLOW_BG_BY_STATE: Record<OrbState, string> = {
+  idle: 'rgba(79, 70, 229, 0.06)',
+  listening: 'rgba(14, 165, 233, 0.12)',
+  thinking: 'rgba(79, 70, 229, 0.15)',
+  speaking: 'rgba(14, 165, 233, 0.18)',
 };
 
 type Props = {
@@ -24,7 +30,7 @@ type Props = {
 };
 
 /**
- * Living 3D Yankı Character Visualizer in Live Conversation Room.
+ * Living 3D Yankı Magic Companion Visualizer in Live Conversation Room.
  * Breathing levitation, soundwave aura and reactive state rings.
  */
 export function AiOrb({ state }: Props) {
@@ -38,8 +44,8 @@ export function AiOrb({ state }: Props) {
       Animated.sequence([
         Animated.parallel([
           Animated.timing(scale, { toValue: maxScale, duration, useNativeDriver: true }),
-          Animated.timing(auraScale, { toValue: maxScale * 1.12, duration, useNativeDriver: true }),
-          Animated.timing(ringOpacity, { toValue: 0.7, duration, useNativeDriver: true }),
+          Animated.timing(auraScale, { toValue: maxScale * 1.14, duration, useNativeDriver: true }),
+          Animated.timing(ringOpacity, { toValue: 0.75, duration, useNativeDriver: true }),
         ]),
         Animated.parallel([
           Animated.timing(scale, { toValue: 1, duration, useNativeDriver: true }),
@@ -54,6 +60,9 @@ export function AiOrb({ state }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* Dynamic Ambient Background Glow */}
+      <View style={[styles.ambientGlow, { backgroundColor: GLOW_BG_BY_STATE[state] }]} />
+
       {/* Outer Glowing Audio Orbit Ring */}
       <Animated.View
         style={[
@@ -66,7 +75,7 @@ export function AiOrb({ state }: Props) {
         ]}
       />
 
-      {/* Centerpiece 3D Yankı Character */}
+      {/* Centerpiece 3D Yankı Magic Companion */}
       <Animated.View
         style={[
           styles.characterContainer,
@@ -74,7 +83,7 @@ export function AiOrb({ state }: Props) {
         ]}
       >
         <Image
-          source={companionImage}
+          source={yankiMagicImage}
           style={styles.image}
           resizeMode="contain"
         />
@@ -87,25 +96,32 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 200,
-    height: 200,
+    width: 96,
+    height: 96,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    width: 86,
+    height: 86,
+    borderRadius: 43,
   },
   outerRing: {
     position: 'absolute',
-    width: 190,
-    height: 190,
-    borderRadius: 95,
+    width: 94,
+    height: 94,
+    borderRadius: 47,
     borderWidth: 2,
     borderStyle: 'dashed',
   },
   characterContainer: {
-    width: 155,
-    height: 155,
+    width: 78,
+    height: 78,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 74,
+    height: 74,
   },
 });
