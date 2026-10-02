@@ -84,7 +84,7 @@ export default function Testimonials() {
                     <span className="rounded-full bg-porcelain px-3 py-1 font-mono text-[0.7rem] font-semibold text-indigo">
                       {t.badge}
                     </span>
-                    <span className="text-gold text-xs">★★★★★</span>
+                    <span className="text-[#8a611c] text-xs" aria-label="5 üzerinden 5 yıldız">★★★★★</span>
                   </div>
 
                   <span aria-hidden className="mt-3 block font-serif text-4xl italic leading-none text-gold/40">

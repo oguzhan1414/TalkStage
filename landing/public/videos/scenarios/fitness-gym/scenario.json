@@ -1,0 +1,72 @@
+{
+  "id": "fitness-gym",
+  "title": "Gym Workout & Personal Training",
+  "titleTr": "Spor Salonunda Antrenman & Fitness Koçu",
+  "level": "A2",
+  "category": "daily",
+  "coverImage": "scenarios/fitness-gym/gym.jpeg",
+  "description": "Modern spor salonunda motive edici antrenör Coach Leo ile buluş, fitness hedeflerini belirle, ısınma ve ağırlık hareketlerini doğru formla uygula, enerjik bir antrenman yap.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Karşılama & Fitness Hedefleri",
+      "aiSpeech": "Hey there! Welcome to the gym! What are your fitness goals for today?",
+      "aiSpeechTr": "Hey merhaba! Salona hoş geldin! Bugünkü fitness hedeflerin neler?",
+      "expectedUserResponse": "Hello Coach Leo! I want to build strength and improve my stamina.",
+      "userHint": "Hello Coach Leo! I want to build strength (Güç kazanmak istiyorum) diyerek başla.",
+      "keywords": ["hello", "coach", "leo", "strength", "stamina", "fitness", "goals", "build"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Isınma & Koşu Bandı",
+      "aiSpeech": "Awesome! Let us start with a light warm-up on the treadmill.",
+      "aiSpeechTr": "Harika! Koşu bandında hafif bir ısınmayla başlayalım.",
+      "expectedUserResponse": "Sounds good! How many minutes should I warm up for?",
+      "userHint": "Sounds good! How many minutes? (Kulağa iyi geliyor, kaç dakika?) diye sor.",
+      "keywords": ["sounds", "good", "how", "many", "minutes", "warm", "up", "treadmill"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Ağırlık Seçimi & Dambıllar",
+      "aiSpeech": "Just five minutes! Then we will grab some light dumbbells for shoulders.",
+      "aiSpeechTr": "Sadece beş dakika! Sonra omuzlar için hafif dambıllar alacağız.",
+      "expectedUserResponse": "Got it! Should I start with three or five kilograms?",
+      "userHint": "Should I start with three kilograms? (Üç kilo ile mi başlayayım?) diye sor.",
+      "keywords": ["got", "start", "three", "five", "kilograms", "dumbbells", "shoulders", "weight"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Doğru Form & Nefes Kontrolü",
+      "aiSpeech": "Start with three! Keep your back straight and breathe out as you lift.",
+      "aiSpeechTr": "Üç ile başla! Sırtını dik tut ve ağırlığı kaldırırken nefes ver.",
+      "expectedUserResponse": "Like this? I can feel the burn in my shoulders already!",
+      "userHint": "Like this? I can feel the burn! (Böyle mi? Şimdiden hissediyorum!) de.",
+      "keywords": ["like", "this", "feel", "burn", "shoulders", "already", "form", "straight"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Su Molası & Dinlenme",
+      "aiSpeech": "Perfect form! Take a quick water break before our final set.",
+      "aiSpeechTr": "Mükemmel form! Son setimizden önce hızlı bir su molası ver.",
+      "expectedUserResponse": "Thanks coach! Staying hydrated really makes a huge difference.",
+      "userHint": "Thanks coach! Staying hydrated helps (Teşekkürler koç, su içmek iyi geldi) de.",
+      "keywords": ["thanks", "coach", "water", "hydrated", "difference", "break", "drink"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Soğuma & Çak Bir Beşlik",
+      "aiSpeech": "Great job today! Let us do some quick stretches and high five!",
+      "aiSpeechTr": "Bugün harika bir iş çıkardın! Biraz esneyelim ve çak bir beşlik!",
+      "expectedUserResponse": "Thank you so much, Coach Leo! See you at the next workout!",
+      "userHint": "Thank you Coach Leo! See you next workout (Teşekkürler, bir sonraki idmanda görüşürüz) de.",
+      "keywords": ["thank", "you", "coach", "leo", "workout", "stretches", "five", "bye"]
+    }
+  ]
+}

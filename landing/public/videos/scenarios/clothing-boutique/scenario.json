@@ -1,0 +1,72 @@
+{
+  "id": "clothing-boutique",
+  "title": "Shopping at a London Fashion Boutique",
+  "titleTr": "Londra Butiğinde Kıyafet Alışverişi",
+  "level": "A2",
+  "category": "daily",
+  "coverImage": "scenarios/clothing-boutique/boutique.jpeg",
+  "description": "Londra Soho'da şık bir butikte moda danışmanı Mia ile tanış, ceket ve kazak modellerini incele, beden ve renk tercihi yap, deneme kabininde dene ve alışverişini tamamla.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Karşılama & Ne Aradığını Sorma",
+      "aiSpeech": "Hello! Welcome to our boutique! Are you looking for anything special today?",
+      "aiSpeechTr": "Merhaba! Butiğimize hoş geldiniz! Bugün özel bir şey mi bakıyorsunuz?",
+      "expectedUserResponse": "Hello! I am looking for a warm jacket or stylish sweater.",
+      "userHint": "Hello! I am looking for a jacket (Bir ceket arıyorum) diyerek başla.",
+      "keywords": ["hello", "looking", "jacket", "sweater", "warm", "stylish", "clothes"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Beden & Renk Tercihi",
+      "aiSpeech": "We have lovely new arrivals! What size and color do you prefer?",
+      "aiSpeechTr": "Harika yeni gelenlerimiz var! Hangi beden ve rengi tercih edersiniz?",
+      "expectedUserResponse": "I usually wear medium, and I really like navy blue or olive green.",
+      "userHint": "I wear medium, and I like navy blue (Medium giyerim, lacivert severim) de.",
+      "keywords": ["medium", "size", "navy", "blue", "green", "wear", "color", "prefer"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Deneme Kabini",
+      "aiSpeech": "This navy jacket would look stunning on you! The fitting rooms are right there.",
+      "aiSpeechTr": "Bu lacivert ceket üzerinizde harika durur! Deneme kabinleri hemen şurada.",
+      "expectedUserResponse": "Thank you! I will go try it on right now.",
+      "userHint": "Thank you! I will try it on (Teşekkürler, hemen deneyeceğim) de.",
+      "keywords": ["thank", "you", "try", "fitting", "room", "jacket", "now"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Ayna Karşısında Fikir Alma",
+      "aiSpeech": "That jacket looks amazing! It is one of our best designs.",
+      "aiSpeechTr": "O ceket harika görünüyor! En iyi tasarımlarımızdan biridir.",
+      "expectedUserResponse": "It feels very comfortable! How much is this jacket?",
+      "userHint": "It feels comfortable! How much is it? (Çok rahat, fiyatı ne kadar?) diye sor.",
+      "keywords": ["feels", "comfortable", "how", "much", "jacket", "price", "amazing", "looks"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Fiyat & İndirim",
+      "aiSpeech": "The total price is fifty pounds with our special discount today!",
+      "aiSpeechTr": "Bugünkü özel indirimimizle birlikte toplam fiyat 50 pound!",
+      "expectedUserResponse": "That is a great deal! I will definitely take it, thank you.",
+      "userHint": "That is a great deal! I will take it (Harika fırsat, kesinlikle alıyorum) de.",
+      "keywords": ["great", "deal", "take", "it", "definitely", "thank", "discount", "price"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Ödeme & Fatura Teslimi",
+      "aiSpeech": "Here is your bag and receipt! Enjoy wearing your new jacket, goodbye!",
+      "aiSpeechTr": "İşte çantanız ve fişiniz! Yeni ceketinizi güzel günlerde giyin, hoşça kalın!",
+      "expectedUserResponse": "Thank you so much for your help, Mia! Have a wonderful day!",
+      "userHint": "Thank you for your help, Mia! (Yardımın için teşekkürler Mia!) diyerek vedalaş.",
+      "keywords": ["thank", "you", "help", "mia", "wonderful", "day", "goodbye", "receipt"]
+    }
+  ]
+}

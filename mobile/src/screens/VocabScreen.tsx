@@ -1,7 +1,8 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { stateImages } from '../assets/images';
@@ -23,6 +24,8 @@ import {
 } from '../data/vocabDecks';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
+import { useAnalytics } from '../lib/analytics';
+import { formatIntervalLabel, predictNextIntervalDays } from '../lib/sm2Preview';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type {
@@ -35,7 +38,6 @@ import type {
 const GRADE_BUTTONS: {
   grade: VocabGrade;
   label: string;
-  sub: string;
   iconName: 'refresh-outline' | 'thumbs-up-outline' | 'flash-outline';
   color: string;
   bgColor: string;
@@ -44,7 +46,6 @@ const GRADE_BUTTONS: {
   {
     grade: 'again',
     label: 'Tekrar',
-    sub: '1 gün sonra',
     iconName: 'refresh-outline',
     color: '#DC2626',
     bgColor: '#FEF2F2',
@@ -53,7 +54,6 @@ const GRADE_BUTTONS: {
   {
     grade: 'good',
     label: 'İyi',
-    sub: '3 gün sonra',
     iconName: 'thumbs-up-outline',
     color: '#4F46E5',
     bgColor: '#EEF2FF',
@@ -62,7 +62,6 @@ const GRADE_BUTTONS: {
   {
     grade: 'easy',
     label: 'Kolay',
-    sub: '7+ gün sonra',
     iconName: 'flash-outline',
     color: '#059669',
     bgColor: '#ECFDF5',
@@ -71,6 +70,11 @@ const GRADE_BUTTONS: {
 ];
 
 const CHEST_MILESTONES = [10, 25, 50, 100, 200, 500];
+
+// Custom klasör sayısına makul bir tavan — sınırsız klasör açılabilmesi
+// "Klasörler" ızgarasını hızla anlamsız bir yığına çeviriyordu (bkz. mobile
+// CLAUDE.md). 6 hazır tema + 12 özel klasör hâlâ tek ekranda taranabilir.
+const MAX_CUSTOM_DECKS = 12;
 
 const POS_OPTIONS = [
   { id: 'noun', label: 'İsim', color: '#2563EB' },
@@ -95,9 +99,14 @@ type TabViewMode = 'decks' | 'flashcards' | 'dictionary';
 
 export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const queryClient = useQueryClient();
+  const { track } = useAnalytics();
 
   // 1. Due Cards from Supabase (for SM-2 Review)
-  const { data: dueCards, isLoading: dueLoading } = useQuery({
+  const {
+    data: dueCards,
+    isLoading: dueLoading,
+    refetch: refetchDueCards,
+  } = useQuery({
     queryKey: ['vocab-cards'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards'),
   });
@@ -144,16 +153,28 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     return [...DEFAULT_VOCAB_DECKS, ...customDecks];
   }, [customDecks]);
 
-  const filteredDecks = useMemo(() => {
-    if (deckFilter === 'all') return allCombinedDecks;
-    if (deckFilter === 'custom') return allCombinedDecks.filter((d) => d.isCustom);
+  // Custom decks now always render in their own "Kendi Klasörlerim" section
+  // (see decks-tab JSX below), so this filter only ever narrows the fixed
+  // "Hazır Temalar" set — it can't grow, so it stays a simple flat list.
+  const filteredDefaultDecks = useMemo(() => {
+    if (deckFilter === 'all') return DEFAULT_VOCAB_DECKS;
     if (deckFilter === 'thematic') {
-      return allCombinedDecks.filter((d) =>
+      return DEFAULT_VOCAB_DECKS.filter((d) =>
         ['deck_colors_shapes', 'deck_numbers_time', 'deck_food_dining', 'deck_travel_airport', 'deck_business_tech'].includes(d.id)
       );
     }
-    return allCombinedDecks.filter((d) => d.level === deckFilter);
-  }, [allCombinedDecks, deckFilter]);
+    return DEFAULT_VOCAB_DECKS.filter((d) => d.level === deckFilter);
+  }, [deckFilter]);
+
+  const isCustomDeckCapReached = customDecks.length >= MAX_CUSTOM_DECKS;
+
+  const handleOpenCreateDeck = () => {
+    if (isCustomDeckCapReached) {
+      showToast(`En fazla ${MAX_CUSTOM_DECKS} özel klasör oluşturabilirsin — önce birini silip yer aç 📁`);
+      return;
+    }
+    setCreateDeckVisible(true);
+  };
 
   const handleDeleteCustomDeck = (deckId: string) => {
     Alert.alert('Klasörü Sil', 'Bu özel klasörü silmek istediğine emin misin?', [
@@ -168,6 +189,67 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         },
       },
     ]);
+  };
+
+  const renderDeckCard = (deck: VocabDeck) => {
+    const total = deck.words.length;
+    const mastered = deckMasteryMap[deck.id] || 0;
+    const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
+
+    return (
+      <View key={deck.id} style={[styles.deckBentoCard, shadow.card, { borderColor: deck.color }]}>
+        <View style={styles.deckCardTop}>
+          <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
+            <Text style={styles.deckEmojiBig}>{deck.emoji}</Text>
+          </View>
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.deckCardTitle} numberOfLines={1}>{deck.title}</Text>
+            <Text style={styles.deckCardSub} numberOfLines={1}>{deck.subtitle}</Text>
+          </View>
+          <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
+            <Text style={styles.deckPillLevelText}>{deck.level}</Text>
+          </View>
+          {deck.isCustom && (
+            <BouncyPressable
+              onPress={() => handleDeleteCustomDeck(deck.id)}
+              style={styles.deckDeleteBtn}
+              hapticType="warning"
+              scaleTo={0.88}
+            >
+              <Ionicons name="trash-outline" size={15} color="#EF4444" />
+            </BouncyPressable>
+          )}
+        </View>
+
+        {/* Progress Bar & Word Count */}
+        <View style={styles.deckCardProgressArea}>
+          <View style={styles.deckProgressLabelRow}>
+            <Text style={styles.deckWordCountText}>{total} Kelime</Text>
+            <Text style={styles.deckPercentText}>
+              {mastered}/{total} Öğrenildi • %{percent}
+            </Text>
+          </View>
+          <View style={styles.deckBarTrack}>
+            <View
+              style={[
+                styles.deckBarFill,
+                { width: `${Math.max(6, percent)}%`, backgroundColor: deck.color },
+              ]}
+            />
+          </View>
+        </View>
+
+        {/* Action CTA */}
+        <BouncyPressable
+          onPress={() => setSelectedStudyDeck(deck)}
+          style={[styles.deckStartBtn, { backgroundColor: deck.color }, shadow.card]}
+          hapticType="medium"
+          scaleTo={0.96}
+        >
+          <Text style={styles.deckStartBtnText}>Pratiğe Başla ➔</Text>
+        </BouncyPressable>
+      </View>
+    );
   };
 
   // Search & Filters in Dictionary
@@ -196,18 +278,48 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     setTimeout(() => setToast(null), 2200);
   };
 
-  // Sync today's actually-due SM-2 cards into the review queue
-  useEffect(() => {
-    if (dueCards) {
-      setQueue(dueCards);
-    }
-  }, [dueCards]);
+  // Sync today's actually-due SM-2 cards into the review queue — only at a
+  // safe boundary (screen focus), never on every background refetch. Grading
+  // a card fires `invalidateQueries(['vocab-cards'])`, which used to re-run a
+  // `useEffect` keyed on `dueCards` and blindly overwrite the local queue —
+  // if that background refetch resolved late (e.g. two cards graded in quick
+  // succession, responses arriving out of order), it could reintroduce a
+  // card the user had just graded. Local removal (see handleGrade) is now
+  // the sole source of truth mid-session; this only re-syncs when the tab
+  // (re)gains focus, when no grading is in flight.
+  useFocusEffect(
+    useCallback(() => {
+      refetchDueCards().then((result) => {
+        if (result.data) setQueue(result.data);
+      });
+    }, [refetchDueCards])
+  );
 
   const cardsList = allCards ?? [];
   const totalCardsInChest = cardsList.length;
   const chestProgress = getChestProgress(totalCardsInChest);
 
+  const savedTermsLower = useMemo(
+    () => new Set(cardsList.map((c) => c.term.trim().toLowerCase())),
+    [cardsList]
+  );
+
   const currentCard = queue[0];
+
+  // Real forecast per grade for the card on top of the queue — classic SM-2
+  // only tells "good" and "easy" apart from the 3rd successful review
+  // onward, so a fixed "7+ gün sonra" label under "Kolay" was flat-out wrong
+  // for a card's 1st or 2nd review (both land on the same interval as
+  // "İyi" in that case). Mirrors backend/app/services/sm2.py exactly.
+  const gradeForecastDays = useMemo(() => {
+    if (!currentCard) return null;
+    const { sm2_repetitions, sm2_ease_factor, sm2_interval_days } = currentCard;
+    return {
+      again: predictNextIntervalDays('again', sm2_repetitions, sm2_ease_factor, sm2_interval_days),
+      good: predictNextIntervalDays('good', sm2_repetitions, sm2_ease_factor, sm2_interval_days),
+      easy: predictNextIntervalDays('easy', sm2_repetitions, sm2_ease_factor, sm2_interval_days),
+    };
+  }, [currentCard]);
 
   const handleGrade = async (grade: VocabGrade) => {
     if (!currentCard) return;
@@ -217,6 +329,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
     try {
       await api.post(`/vocab-cards/${currentCard.id}/review`, { grade });
+      track('vocab_card_reviewed', { grade });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
     } catch (err) {
@@ -229,7 +342,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     toggle(currentCard.term);
   };
 
-  // Restart / Continuous Practice
+  // Restart / Continuous Practice (SM-2 Free Practice)
   const handleRestartPractice = () => {
     if (cardsList.length > 0) {
       setQueue(cardsList);
@@ -350,6 +463,31 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     const wordName = actionCard.term;
     setActionCard(null);
     showToast(`"${wordName}" kelimesi "${deck.title}" klasörüne eklendi! 📁✨`);
+  };
+
+  // The reverse bridge: Klasörler'deki bir kelimeyi gerçek SM-2 kuyruğuna
+  // (Sandık) taşır. Klasör pratiği ile Akıllı Pratik/Sözlüğüm bugüne kadar
+  // tamamen ayrı iki sistemdi (deste kelimeleri hiç Sandığa girmiyordu) —
+  // kullanıcı seçtiği kelimeleri bilinçli olarak buraya taşıyabiliyor artık.
+  const handleAddDeckWordToChest = async (word: VocabDeckWord): Promise<boolean> => {
+    try {
+      const createPayload: VocabCardCreate = {
+        term: word.term,
+        translation: word.translation,
+        example_sentence: word.exampleEn || undefined,
+        part_of_speech: word.pos,
+        cefr_level: word.level,
+        source_label: 'Klasör Pratiği 📁',
+      };
+      const created = await api.post<VocabCardOut>('/vocab-cards', createPayload);
+      setQueue((prev) => (prev.some((c) => c.id === created.id) ? prev : [created, ...prev]));
+      await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
+      showToast(`"${word.term}" Sandığına eklendi! 📦✨`);
+      return true;
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : 'Kelime eklenemedi.');
+      return false;
+    }
   };
 
   // Delete Word from Supabase
@@ -477,6 +615,17 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           </Pressable>
         </View>
 
+        {/* Bu 3 bölüm aynı işi farklı şekillerde yapıyormuş gibi hissettirebiliyordu
+            (aynı ekranda klasör pratiği, SM-2 pratiği ve sözlük ayrı ayrı var) —
+            her sekmenin ne işe yaradığını tek satırda netleştiriyoruz. */}
+        <Text style={styles.tabExplainerText}>
+          {activeTab === 'decks'
+            ? '📁 Tematik desteler — hızlı gözden geçirme, hafıza takvimine dahil değil'
+            : activeTab === 'flashcards'
+              ? '🧠 Sandığındaki kartlardan bugün tekrarı gelenlerin SM-2 kuyruğu'
+              : '📖 Sandığına kaydettiğin TÜM kelimelerin aranabilir kataloğu'}
+        </Text>
+
         {/* 3D Chest Milestone Progress */}
         <View style={[styles.chestHeader, shadow.card]}>
           <Image
@@ -507,17 +656,25 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         {/* ======================================================== */}
         {activeTab === 'decks' && (
           <ScrollView contentContainerStyle={styles.decksContainer} showsVerticalScrollIndicator={false}>
-            {/* Top Action & Subtitle */}
+            {/* SECTION 1: Kendi Klasörlerim — her zaman kendi bölümünde, tavanlı
+                (bkz. MAX_CUSTOM_DECKS) böylece "Hazır Temalar"ın arasına
+                karışıp anlamsız bir yığın oluşturamıyor. */}
             <View style={styles.decksHeaderRow}>
               <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={styles.decksSectionTitle}>🎴 Kelime Klasörlerim & Temalar</Text>
+                <Text style={styles.decksSectionTitle}>
+                  📁 Kendi Klasörlerim ({customDecks.length}/{MAX_CUSTOM_DECKS})
+                </Text>
                 <Text style={styles.decksSectionSub}>
-                  İstediğin desteyi seç, sağa sola kaydırarak eğlenerek öğren.
+                  Kendi başlıklarınla grupladığın kelimeler.
                 </Text>
               </View>
               <BouncyPressable
-                onPress={() => setCreateDeckVisible(true)}
-                style={[styles.createDeckHeaderBtn, shadow.card]}
+                onPress={handleOpenCreateDeck}
+                style={[
+                  styles.createDeckHeaderBtn,
+                  shadow.card,
+                  isCustomDeckCapReached && styles.createDeckHeaderBtnDisabled,
+                ]}
                 hapticType="medium"
                 scaleTo={0.94}
               >
@@ -526,7 +683,21 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               </BouncyPressable>
             </View>
 
-            {/* Filter Pills */}
+            {customDecks.length > 0 ? (
+              <View style={[styles.decksGrid, { marginBottom: 24 }]}>
+                {customDecks.map((deck) => renderDeckCard(deck))}
+              </View>
+            ) : (
+              <View style={styles.emptyCustomDecksBox}>
+                <Text style={styles.emptyCustomDecksText}>
+                  Henüz özel klasörün yok. Ör. "Mülakat Terimlerim" gibi kendi temanı oluşturup istediğin kelimeleri içine topla.
+                </Text>
+              </View>
+            )}
+
+            {/* SECTION 2: Hazır Temalar — sabit 6 deste, sadece bunlar seviye/tema
+                filtresine giriyor (custom klasörler zaten yukarıda tam liste). */}
+            <Text style={styles.decksSectionTitle}>🎴 Hazır Temalar</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deckFiltersScroll}>
               {[
                 { id: 'all', label: '🌟 Tümü' },
@@ -534,7 +705,6 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 { id: 'A2', label: '🔵 A2 Seviye' },
                 { id: 'B1', label: '🟣 B1 Seviye' },
                 { id: 'thematic', label: '🎨 Tematik' },
-                { id: 'custom', label: '⭐ Özel Klasörlerim' },
               ].map((f) => (
                 <BouncyPressable
                   key={f.id}
@@ -558,77 +728,20 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               ))}
             </ScrollView>
 
-            {/* Decks Grid */}
             <View style={styles.decksGrid}>
-              {filteredDecks.map((deck) => {
-                const total = deck.words.length;
-                const mastered = deckMasteryMap[deck.id] || 0;
-                const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
-
-                return (
-                  <View key={deck.id} style={[styles.deckBentoCard, shadow.card, { borderColor: deck.color }]}>
-                    <View style={styles.deckCardTop}>
-                      <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
-                        <Text style={styles.deckEmojiBig}>{deck.emoji}</Text>
-                      </View>
-                      <View style={{ flex: 1, marginLeft: 10 }}>
-                        <Text style={styles.deckCardTitle} numberOfLines={1}>{deck.title}</Text>
-                        <Text style={styles.deckCardSub} numberOfLines={1}>{deck.subtitle}</Text>
-                      </View>
-                      <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
-                        <Text style={styles.deckPillLevelText}>{deck.level}</Text>
-                      </View>
-                      {deck.isCustom && (
-                        <BouncyPressable
-                          onPress={() => handleDeleteCustomDeck(deck.id)}
-                          style={styles.deckDeleteBtn}
-                          hapticType="warning"
-                          scaleTo={0.88}
-                        >
-                          <Ionicons name="trash-outline" size={15} color="#EF4444" />
-                        </BouncyPressable>
-                      )}
-                    </View>
-
-                    {/* Progress Bar & Word Count */}
-                    <View style={styles.deckCardProgressArea}>
-                      <View style={styles.deckProgressLabelRow}>
-                        <Text style={styles.deckWordCountText}>{total} Kelime</Text>
-                        <Text style={styles.deckPercentText}>
-                          {mastered}/{total} Öğrenildi • %{percent}
-                        </Text>
-                      </View>
-                      <View style={styles.deckBarTrack}>
-                        <View
-                          style={[
-                            styles.deckBarFill,
-                            { width: `${Math.max(6, percent)}%`, backgroundColor: deck.color },
-                          ]}
-                        />
-                      </View>
-                    </View>
-
-                    {/* Action CTA */}
-                    <BouncyPressable
-                      onPress={() => setSelectedStudyDeck(deck)}
-                      style={[styles.deckStartBtn, { backgroundColor: deck.color }, shadow.card]}
-                      hapticType="medium"
-                      scaleTo={0.96}
-                    >
-                      <Text style={styles.deckStartBtnText}>Pratiğe Başla ➔</Text>
-                    </BouncyPressable>
-                  </View>
-                );
-              })}
+              {filteredDefaultDecks.map((deck) => renderDeckCard(deck))}
             </View>
           </ScrollView>
         )}
 
         {/* ======================================================== */}
-        {/* SEKMELER: 1. AKILLI FLASHCARD PRATİĞİ                   */}
+        {/* SEKMELER: 1. AKILLI FLASHCARD PRATİĞİ (SM-2)             */}
         {/* ======================================================== */}
         {activeTab === 'flashcards' && (
-          <>
+          <ScrollView
+            contentContainerStyle={styles.practiceScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             {dueLoading && !dueCards ? (
               <View style={[styles.emptyBox, shadow.card]}>
                 <ActivityIndicator color={colors.brand} />
@@ -669,7 +782,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 {/* Bottom 3 Grade Action Buttons */}
                 <View style={styles.gradeContainer}>
                   <View style={styles.gradeRow}>
-                    {GRADE_BUTTONS.map(({ grade, label, sub, iconName, color, bgColor, borderColor }) => (
+                    {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => (
                       <Pressable
                         key={grade}
                         style={[
@@ -682,7 +795,9 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                           <Ionicons name={iconName} size={15} color={color} />
                           <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
                         </View>
-                        <Text style={[styles.gradeButtonSub, { color }]}>{sub}</Text>
+                        <Text style={[styles.gradeButtonSub, { color }]}>
+                          {gradeForecastDays ? formatIntervalLabel(gradeForecastDays[grade]) : ''}
+                        </Text>
                       </Pressable>
                     ))}
                   </View>
@@ -705,31 +820,23 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                     : reviewedCount > 1
                       ? 'Günlük Tekrar Tamamlandı 🎉'
                       : totalCardsInChest > 0
-                        ? 'Bugün İçin Planlı Kelime Yok ✅'
+                        ? 'Bugün İçin Planlı Kart Yok ✅'
                         : 'Kelime Sandığın Henüz Boş 📦'}
                 </Text>
                 <Text style={styles.emptySub}>
-                  {reviewedCount === 1
-                    ? '1 kelimeyi başarıyla hafızana aldın. Dilersen tematik klasörlerden veya tüm kelimelerle pratiğe devam edebilirsin.'
-                    : reviewedCount > 1
-                      ? `${reviewedCount} kelimeyi başarıyla hafızana aldın. İstediğin an tüm kelimelerle serbest tekrar yapabilirsin!`
-                      : totalCardsInChest > 0
-                        ? 'SM-2 algoritmasına göre hiçbir kelimenin tekrar zamanı gelmedi — iyi gidiyorsun! İstersen yine de tüm kelimelerle serbest pratik yapabilirsin.'
-                        : 'Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.'}
+                  {reviewedCount > 0
+                    ? `${reviewedCount} kelimeyi başarıyla hafızana aldın. SM-2 aralıklı tekrar algoritmasıyla kalıcı hafızan güçleniyor!`
+                    : totalCardsInChest > 0
+                      ? 'SM-2 algoritmasına göre bugün tekrarı gelen kart yok — harika gidiyorsun! Dilersen tüm kelimelerinle serbest pratik yapabilir veya klasörlerinden pratik seçebilirsin.'
+                      : 'Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.'}
                 </Text>
 
                 <View style={styles.emptyActionRow}>
-                  <Button
-                    label="🎴 Kelime Klasörlerinden Pratik Yap"
-                    onPress={() => setActiveTab('decks')}
-                    style={styles.emptyButton}
-                  />
                   {totalCardsInChest > 0 ? (
                     <Button
                       label="🔄 Tüm Kelimelerle Serbest Pratik Yap"
-                      variant="secondary"
                       onPress={handleRestartPractice}
-                      style={{ marginTop: 8 }}
+                      style={styles.emptyButton}
                     />
                   ) : (
                     <Button
@@ -739,9 +846,9 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                     />
                   )}
                   <Button
-                    label="📖 Hikaye Oku & Kelime Topla"
+                    label="🎴 Kelime Klasörlerinden Pratik Yap"
                     variant="ghost"
-                    onPress={() => navigation.navigate('ReadingList')}
+                    onPress={() => setActiveTab('decks')}
                     style={styles.emptyButtonGhost}
                   />
                 </View>
@@ -766,7 +873,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 </Pressable>
               </View>
             )}
-          </>
+          </ScrollView>
         )}
 
         {/* ======================================================== */}
@@ -1460,6 +1567,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           loadDecksAndMastery();
           showToast('🎉 Deste tamamlandı! +25 XP');
         }}
+        savedTermsLower={savedTermsLower}
+        onAddToChest={handleAddDeckWordToChest}
       />
 
       {/* ➕ CREATE DECK MODAL */}
@@ -1543,6 +1652,25 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingSemiBold,
     fontSize: 11,
     color: '#FFFFFF',
+  },
+  createDeckHeaderBtnDisabled: {
+    backgroundColor: '#CBD5E1',
+  },
+  emptyCustomDecksBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    padding: 16,
+    marginBottom: 24,
+  },
+  emptyCustomDecksText: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12.5,
+    color: '#64748B',
+    lineHeight: 18,
+    textAlign: 'center',
   },
   deckFiltersScroll: {
     paddingVertical: 4,
@@ -1674,6 +1802,13 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     padding: 3,
     marginBottom: spacing.sm,
+  },
+  tabExplainerText: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: '#64748B',
+    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   segmentedTab: {
     flex: 1,
@@ -2465,5 +2600,10 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: '#64748B',
     marginTop: 2,
+  },
+
+  /* Active Practice Scroll Content */
+  practiceScrollContent: {
+    paddingBottom: 40,
   },
 });

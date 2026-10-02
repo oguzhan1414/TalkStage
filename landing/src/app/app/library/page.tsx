@@ -15,7 +15,7 @@ import {
   VERBS_200,
   VERBS_300,
   type LibraryWordEntry,
-} from '@/data/vocabLibrary';
+} from '@talkstage/shared-data/vocabLibrary';
 import { speakEnglish } from '@/lib/audio';
 import { getSavedVocabCards, saveVocabCard, type SavedVocabCard } from '@/lib/storage';
 import { api, ApiError } from '@/lib/api';

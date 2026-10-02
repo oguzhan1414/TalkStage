@@ -4,6 +4,7 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { api } from '../lib/api';
 import type { OnboardingCompleteRequest, ProfileOut } from '../types/api';
 import { useAuth } from './AuthContext';
+import { useAnalytics } from '../lib/analytics';
 
 export type OnboardingDraft = {
   displayName: string;
@@ -56,6 +57,7 @@ const OnboardingContext = createContext<OnboardingContextValue | undefined>(unde
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
+  const analytics = useAnalytics();
   const [draft, setDraft] = useState<OnboardingDraft>(DEFAULT_DRAFT);
   const [completedProfile, setCompletedProfile] = useState<ProfileOut | null>(null);
 
@@ -87,6 +89,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const finishOnboarding = () => {
     if (completedProfile) {
       queryClient.setQueryData(['me'], completedProfile);
+      analytics.track('onboarding_completed', {
+        persona_id: completedProfile.persona_id,
+        learning_goal: completedProfile.learning_goal,
+        cefr_level: completedProfile.cefr_level,
+      });
     }
   };
 

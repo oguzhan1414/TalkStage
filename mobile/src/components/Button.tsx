@@ -23,6 +23,9 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
       disabled={isDisabled}
       hapticType={variant === 'primary' ? 'medium' : 'light'}
       scaleTo={0.97}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={[
         styles.base,
         variantStyles[variant],

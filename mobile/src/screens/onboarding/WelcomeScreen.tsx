@@ -6,6 +6,7 @@ import { BouncyPressable } from '../../components/BouncyPressable';
 import { Button } from '../../components/Button';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 const PILLARS = [
   {
@@ -29,6 +30,7 @@ const PILLARS = [
 ];
 
 export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcome'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'welcome' });
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>

@@ -7,8 +7,10 @@ import { DAILY_GOAL_OPTIONS } from '../../constants/onboarding';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'DailyTime'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'daily_time' });
   const { draft, updateDraft } = useOnboarding();
   const selectedId = DAILY_GOAL_OPTIONS.find((d) => d.minutes === draft.dailyTargetMinutes)?.id ?? 'regular';
 

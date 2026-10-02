@@ -7,8 +7,10 @@ import { GOAL_OPTIONS } from '../../constants/onboarding';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'goal' });
   const { draft, updateDraft } = useOnboarding();
 
   return (

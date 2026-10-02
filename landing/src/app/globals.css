@@ -16,7 +16,7 @@
   --color-coral: #f43f5e;
   --color-heading: #14161f;
   --color-body: #4b4d5a;
-  --color-muted: #8b8d99;
+  --color-muted: #6d6f80;
   --color-line: #e7e2d8;
 }
 
@@ -73,6 +73,18 @@
 
 * {
   border-color: var(--color-line);
+}
+
+/* Global keyboard-focus safety net — written as a plain (unlayered) rule, so
+   it wins over Tailwind's layered `outline-none`/`focus:outline-none`
+   utilities regardless of source order, without having to audit every
+   interactive element individually. Components that already ship their own
+   deliberate focus ring (e.g. `focus:ring-2 focus:ring-indigo-500/20`) are
+   unaffected — this only fills the gap where nothing else is providing one. */
+:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 html {

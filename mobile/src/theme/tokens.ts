@@ -17,7 +17,10 @@ export const colors = {
   error: '#F43F5E', // Coral Sunset
   textHeading: '#0F172A',
   textBody: '#475569',
-  textMuted: '#94A3B8',
+  // Darkened from the design doc's #94A3B8 (2.56:1 on white — fails WCAG AA
+  // for normal text, which this is used for via typography.caption) to a
+  // value in the same blue-gray family that clears 4.5:1.
+  textMuted: '#687689',
   border: 'rgba(226, 232, 240, 0.8)',
   borderLight: '#F1F5F9',
 } as const;

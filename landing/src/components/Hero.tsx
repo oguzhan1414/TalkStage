@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { speakEnglish } from '@/lib/audio';
 import PhoneFrame from '@/components/PhoneFrame';
+import { trackEvent } from '@/lib/analytics';
 
 const DEMO_SCENARIOS = [
   {
@@ -166,6 +167,7 @@ export default function Hero() {
         <div className="gsap-hero-cta mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/onboarding"
+            onClick={() => trackEvent('cta_clicked', { location: 'hero_primary' })}
             className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo via-indigo-600 to-indigo-700 px-8 py-4 text-base font-bold text-white shadow-[0_18px_36px_-10px_rgba(79,70,229,0.5)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_44px_-8px_rgba(79,70,229,0.65)]"
           >
             <span>Hemen Ücretsiz Başla</span>
@@ -384,6 +386,7 @@ export default function Hero() {
 
               <Link
                 href="/onboarding"
+                onClick={() => trackEvent('cta_clicked', { location: 'hero_secondary' })}
                 className="text-indigo hover:text-indigo-700 font-bold flex items-center gap-1 underline"
               >
                 <span>Ücretsiz Kişiselleştirilmiş Planına Başla</span>

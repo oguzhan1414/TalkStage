@@ -12,6 +12,7 @@ import { Waveform } from '../components/Waveform';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { api, ApiError } from '../lib/api';
+import { useAnalytics } from '../lib/analytics';
 import type { ReadingPassageScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type {
@@ -250,6 +251,7 @@ function DraggableBankTile({
 
 export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreenProps) {
   const { slug } = route.params;
+  const { track } = useAnalytics();
   const queryClient = useQueryClient();
   const {
     pronounce,
@@ -613,6 +615,7 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     setCelebrationVisible(true);
     try {
       await api.post(`/reading/${slug}/complete`);
+      track('reading_passage_completed', { slug });
       queryClient.invalidateQueries({ queryKey: ['reading', 'completed'] });
     } catch {
       // Non-fatal

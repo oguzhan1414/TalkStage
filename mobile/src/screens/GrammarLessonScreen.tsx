@@ -7,8 +7,8 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { companionImage } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
-import { CEFR_CURRICULUM } from '../data/curriculumData';
-import { findGrammarLesson, type GrammarQuizQuestion } from '../data/grammarLessons';
+import { CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
+import { findGrammarLesson, type GrammarQuizQuestion } from '@talkstage/shared-data/grammarLessons';
 import { PODCAST_EPISODES } from '../data/podcastData';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api } from '../lib/api';

@@ -1,26 +1,31 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useMemo, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import {
   avatarImages,
-  cefrLevelImages,
   companionImage,
+  dynamicCompanion,
   homeImages,
-  levelsRoadmapIslandBg,
-  podcastHubIcon,
+  quickIcons,
+  resolveScenarioCategoryFallback,
   scenarioCategoryImages,
   stateImages,
-  yankiMagicImage,
 } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
+import { Toast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { PERSONA_OPTIONS } from '../constants/onboarding';
 import { api } from '../lib/api';
+import { haptics } from '../lib/haptics';
+import { resolveMediaUrl } from '../lib/media';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
+import { colors, fonts, gradients, radii, shadow, spacing } from '../theme/tokens';
 import type {
   GrammarMistakeOut,
   ProfileOut,
@@ -43,53 +48,74 @@ const AVATAR_MAP: Record<string, ReturnType<typeof require>> = {
   service: avatarImages.femaleEntrepreneur,
 };
 
-const CEFR_LEVEL_META = [
-  { level: 'A1', title: 'Başlangıç', icon: cefrLevelImages.A1, color: '#10B981' },
-  { level: 'A2', title: 'Temel Pratik', icon: cefrLevelImages.A2, color: '#0EA5E9' },
-  { level: 'B1', title: 'İş & Standup', icon: cefrLevelImages.B1, color: '#6366F1' },
-  { level: 'B2', title: 'Akıcı Sohbet', icon: cefrLevelImages.B2, color: '#8B5CF6' },
-  { level: 'C1', title: 'Mülakat & Sunum', icon: cefrLevelImages.C1, color: '#EC4899' },
-  { level: 'C2', title: 'Usta Sahne', icon: cefrLevelImages.C2, color: '#F59E0B' },
-];
+/** Quick-link chip themes with pastel gradients and tactile borders */
+const QUICK_LINK_THEME = {
+  indigo: { gradient: ['#EEF2FF', '#E0E7FF'] as const, border: '#C7D2FE', text: '#4338CA' },
+  emerald: { gradient: ['#ECFDF5', '#D1FAE5'] as const, border: '#A7F3D0', text: '#047857' },
+  violet: { gradient: ['#F5F3FF', '#EDE9FE'] as const, border: '#DDD6FE', text: '#6D28D9' },
+  amber: { gradient: ['#FFFBEB', '#FEF3C7'] as const, border: '#FDE68A', text: '#B45309' },
+  rose: { gradient: ['#FDF2F8', '#FCE7F3'] as const, border: '#FBCFE8', text: '#BE185D' },
+};
 
 function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function getTimeGreeting(): { greeting: string; subtitle: string } {
+function getTimeGreeting(): {
+  greeting: string;
+  subtitle: string;
+  timeOfDay: 'morning' | 'afternoon' | 'evening';
+} {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
     return {
       greeting: 'GÜNAYDIN ☀️',
       subtitle: 'Sabah kahvesiyle 5 dk Standup provası yapalım mı?',
+      timeOfDay: 'morning',
     };
   } else if (hour >= 12 && hour < 17) {
     return {
       greeting: 'TÜNAYDIN ☕',
       subtitle: 'Öğle molasında hızlı bir mülakat simülasyonu yapalım!',
+      timeOfDay: 'afternoon',
     };
   } else if (hour >= 17 && hour < 22) {
     return {
       greeting: 'İYİ AKŞAMLAR 🌆',
       subtitle: 'Günü kapatmadan önce akıcı bir diyalogla serini koru!',
+      timeOfDay: 'evening',
     };
   } else {
     return {
       greeting: 'İYİ GECELER 🌙',
       subtitle: 'Uyumadan önce 3 dakikalık hızlı telaffuz pratiği yapalım.',
+      timeOfDay: 'evening',
     };
   }
 }
 
-function buildCefrSteps(currentLevel: string | null | undefined) {
-  const currentIdx = Math.max(
-    0,
-    CEFR_LEVEL_META.findIndex((m) => m.level === (currentLevel ?? 'A1'))
-  );
-  return CEFR_LEVEL_META.map((meta, idx) => ({
-    ...meta,
-    status: idx < currentIdx ? 'completed' : idx === currentIdx ? 'current' : 'locked',
-  }));
+/** Just enough per-day signal for the 7 mini streak dots — no labels/numbers
+ * (those live in the full Calendar screen this card links to). */
+function getWeekCompletionDots(progressList: ProgressOut[], currentStreak: number) {
+  const now = new Date();
+  const currentDayOfWeek = (now.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - currentDayOfWeek);
+
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const dateKey = toDateKey(d);
+    const isPast = i < currentDayOfWeek;
+    const prog = (progressList ?? []).find((p) => p.practice_date === dateKey);
+    const hasPracticed = (prog?.minutes_practiced ?? 0) > 0;
+    days.push({
+      isToday: i === currentDayOfWeek,
+      isCompleted: hasPracticed || (isPast && currentDayOfWeek - i < currentStreak),
+    });
+  }
+  return days;
 }
 
 export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
@@ -106,10 +132,6 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { data: recommended } = useQuery({
     queryKey: ['scenarios', 'recommended'],
     queryFn: () => api.get<ScenarioOut>('/scenarios/recommended'),
-  });
-  const { data: allScenarios } = useQuery({
-    queryKey: ['scenarios'],
-    queryFn: () => api.get<ScenarioOut[]>('/scenarios'),
   });
   const { data: dueVocabCards } = useQuery({
     queryKey: ['vocab-cards'],
@@ -133,20 +155,8 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   const currentLevel = profile?.cefr_level ?? 'A1';
   const streak = profile?.streak_count ?? 1;
-  const xp = profile?.xp ?? 0;
-  const userGems = Math.max(50, Math.floor(xp / 3) + streak * 15);
-  const cefrSteps = buildCefrSteps(currentLevel);
 
-  // Real persona-driven recommendations — `profile.interests` is derived
-  // server-side from `persona_id`+`learning_goal` at onboarding (see
-  // `POST /onboarding/complete`), so this is a genuine match against the
-  // user's actual answers, not a guess. Only rendered when there's a real
-  // match — no generic filler pretending to be "for you".
   const personaObj = PERSONA_OPTIONS.find((p) => p.id === profile?.persona_id);
-  const forYouScenarios = (allScenarios ?? []).filter((s) =>
-    (profile?.interests ?? []).includes(s.category)
-  );
-  const popularScenarios = (allScenarios ?? []).slice(0, 3);
   const mistakesCount = mistakes?.length ?? 0;
   const dueVocabCount = dueVocabCards?.length ?? 0;
 
@@ -155,9 +165,31 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const todayProgress = (progress ?? []).find((p) => p.practice_date === todayKey);
   const todayMinutes = todayProgress?.minutes_practiced ?? 0;
   const dailyTargetMinutes = profile?.daily_target_minutes ?? 15;
-  const todayGoalPercent = Math.min(100, Math.round((todayMinutes / dailyTargetMinutes) * 100));
+  const dailyProgressPct = Math.min(
+    100,
+    Math.round((todayMinutes / Math.max(1, dailyTargetMinutes)) * 100)
+  );
+
+  const [selectedVideoScenario, setSelectedVideoScenario] = useState<ScenarioEntry | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  // Real load-failure tracking per card (see ScenariosScreen's Sinema
+  // Stüdyosu list for why: previously the fallback only kicked in when
+  // `coverImage` was missing, never on an actual runtime load failure).
+  const [videoCoverErrorIds, setVideoCoverErrorIds] = useState<Set<string>>(new Set());
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 1800);
+  };
+
+  const readyVideoScenarios = useMemo(
+    () => SCENARIOS.filter((s) => s.videoSteps && s.videoSteps.length > 0 && s.videoReady),
+    []
+  );
 
   const timeGreeting = useMemo(() => getTimeGreeting(), []);
+  const yankiMascot = dynamicCompanion[timeGreeting.timeOfDay] || companionImage;
+  const weekDots = useMemo(() => getWeekCompletionDots(progress ?? [], streak), [progress, streak]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -166,509 +198,473 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         showsVerticalScrollIndicator={false}
       >
         {/* ======================================================== */}
-        {/* 1. TOP GAMIFIED APP BAR (Avatar, Greeting, Trio Pills)  */}
+        {/* 1. TOP APP BAR (Avatar, Greeting + XP & CEFR Pill)      */}
         {/* ======================================================== */}
         <View style={styles.header}>
+          <View style={styles.headerLeftCol}>
+            <BouncyPressable
+              onPress={() => navigation.navigate('Profile')}
+              style={styles.avatarWrapper}
+              hitSlop={8}
+              hapticType="light"
+              scaleTo={0.93}
+            >
+              <Image source={userAvatar} style={styles.avatarImage} resizeMode="cover" />
+              <View style={styles.avatarLevelBadge}>
+                <Text style={styles.avatarLevelText}>{currentLevel}</Text>
+              </View>
+            </BouncyPressable>
+
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greetingSub}>{timeGreeting.greeting}</Text>
+              <Text style={styles.greetingName} numberOfLines={1}>
+                {displayName}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.headerStatsRow}>
+            <BouncyPressable
+              onPress={() => navigation.navigate('Badges')}
+              style={[styles.headerStatPill, styles.headerXpPill]}
+              hitSlop={6}
+              hapticType="light"
+              scaleTo={0.93}
+            >
+              <Image
+                source={stateImages.xpBolt}
+                style={styles.headerXpBoltIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerXpText}>{profile?.xp ?? 140} XP</Text>
+            </BouncyPressable>
+
+            <BouncyPressable
+              onPress={() => navigation.navigate('Roadmap')}
+              style={[styles.headerStatPill, styles.headerLevelPill]}
+              hitSlop={6}
+              hapticType="light"
+              scaleTo={0.93}
+            >
+              <Text style={styles.headerLevelEmoji}>🏆</Text>
+              <Text style={styles.headerLevelText}>{currentLevel}</Text>
+            </BouncyPressable>
+          </View>
+        </View>
+
+        {/* ======================================================== */}
+        {/* 2. BUGÜN HERO — 3D alev, kristal seri ve dinamik maskot  */}
+        {/* ======================================================== */}
+        <View style={[styles.heroCard, shadow.porcelain]}>
+          <View style={styles.heroGlowBlob} />
+
+          <View style={styles.heroTopRow}>
+            <View style={styles.streakPill}>
+              <Image
+                source={stateImages.streakFlame3d}
+                style={styles.streakPillFlameImg}
+                resizeMode="contain"
+              />
+              <Text style={styles.streakPillText}>{streak} Gün</Text>
+            </View>
+
+            <View style={styles.weekDotsRow}>
+              {weekDots.map((day, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.weekDot,
+                    day.isCompleted && styles.weekDotCompleted,
+                    day.isToday && !day.isCompleted && styles.weekDotToday,
+                  ]}
+                >
+                  {day.isCompleted && <View style={styles.weekDotInnerGlow} />}
+                </View>
+              ))}
+            </View>
+
+            <Pressable onPress={() => navigation.navigate('Calendar')} hitSlop={8}>
+              <Text style={styles.heroMinutesText}>
+                {todayMinutes}/{dailyTargetMinutes} dk →
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Daily Goal Progress Bar */}
           <BouncyPressable
-            onPress={() => navigation.navigate('Profile')}
-            style={styles.avatarWrapper}
-            hitSlop={8}
+            onPress={() => navigation.navigate('Calendar')}
+            style={styles.dailyGoalBarWrap}
+            hitSlop={4}
             hapticType="light"
-            scaleTo={0.93}
+            scaleTo={0.98}
           >
-            <Image source={userAvatar} style={styles.avatarImage} resizeMode="cover" />
-            <View style={styles.avatarLevelBadge}>
-              <Text style={styles.avatarLevelText}>{currentLevel}</Text>
+            <View style={styles.dailyGoalBarTop}>
+              <View style={styles.dailyGoalLabelRow}>
+                <Ionicons name="flag" size={12} color="#EA580C" />
+                <Text style={styles.dailyGoalBarLabel}>
+                  Günün Hedefi:{' '}
+                  <Text style={styles.dailyGoalBarPercent}>%{dailyProgressPct}</Text>
+                </Text>
+              </View>
+              <Text style={styles.dailyGoalBarMinutes}>
+                {todayMinutes}/{dailyTargetMinutes} dk →
+              </Text>
+            </View>
+            <View style={styles.dailyGoalTrack}>
+              <View
+                style={[
+                  styles.dailyGoalFill,
+                  { width: `${Math.max(5, dailyProgressPct)}%` },
+                  dailyProgressPct >= 100 && styles.dailyGoalFillComplete,
+                ]}
+              />
             </View>
           </BouncyPressable>
 
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greetingSub}>{timeGreeting.greeting}</Text>
-            <Text style={styles.greetingName} numberOfLines={1}>
-              {displayName}
-            </Text>
-          </View>
-
-          {/* Trio Gamification Badges */}
-          <View style={styles.statsPillRow}>
-            {/* Streak Flame -> StudyPath (Konuşma Rotası) */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('StudyPath')}
-              style={[styles.statPill, shadow.card]}
-              hapticType="medium"
-              scaleTo={0.92}
-            >
-              <Text style={styles.statEmoji}>🔥</Text>
-              <Text style={[styles.statNumber, { color: '#EA580C' }]}>{streak}</Text>
-            </BouncyPressable>
-
-            {/* Gems Diamond -> Profile */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('Profile')}
-              style={[styles.statPill, shadow.card]}
-              hapticType="light"
-              scaleTo={0.92}
-            >
-              <Text style={styles.statEmoji}>💎</Text>
-              <Text style={[styles.statNumber, { color: '#0284C7' }]}>{userGems}</Text>
-            </BouncyPressable>
-
-            {/* Mistakes Vault -> MistakesNotebook */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('MistakesNotebook')}
-              style={[
-                styles.statPill,
-                shadow.card,
-                mistakesCount > 0 && { borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' },
-              ]}
-              hapticType="light"
-              scaleTo={0.92}
-            >
-              <Text style={styles.statEmoji}>📓</Text>
-              <Text style={[styles.statNumber, { color: '#4338CA' }]}>{mistakesCount}</Text>
-            </BouncyPressable>
-          </View>
-        </View>
-
-        {/* ======================================================== */}
-        {/* 2. YANKI 3D LIVING COMPANION SPOTLIGHT BANNER           */}
-        {/* ======================================================== */}
-        <View style={[styles.yankiBanner, shadow.card]}>
-          <View style={styles.yankiGlowBackdrop} />
-
-          <View style={styles.yankiContent}>
-            {/* Mascot Status Badge */}
-            <View style={styles.yankiBadge}>
-              <View style={styles.pulseDot} />
-              <Text style={styles.yankiBadgeText}>Yankı Canlı • &lt;1.2s Voice AI</Text>
-            </View>
-
-            {/* Speaking Dialogue */}
-            <Text style={styles.yankiTitle}>
-              &ldquo;{timeGreeting.subtitle}&rdquo;
-            </Text>
-            <Text style={styles.yankiSub}>
-              Takıldığın anda alttan Türkçe fısıldarım, donmadan akıcı konuşursun.
-            </Text>
-
-            {/* Action CTA Buttons */}
-            <View style={styles.yankiActionsRow}>
-              <BouncyPressable
-                onPress={() =>
-                  recommended
-                    ? navigation.navigate('LiveConversationRoom', {
-                        scenarioId: recommended.id,
-                        scenarioSlug: recommended.slug,
-                        scenarioTitle: recommended.title,
-                      })
-                    : navigation.navigate('Scenarios')
-                }
-                style={[styles.yankiButton, shadow.card]}
-                hapticType="medium"
-                scaleTo={0.95}
-              >
-                <Ionicons name="mic" size={15} color="#FFFFFF" />
-                <Text style={styles.yankiButtonText}>Hemen Canlı Konuş</Text>
-                <Ionicons name="arrow-forward" size={13} color="#FFFFFF" />
-              </BouncyPressable>
-
-              <BouncyPressable
-                onPress={() => navigation.navigate('TextChat')}
-                style={styles.yankiSecondaryBtn}
-                hapticType="light"
-                scaleTo={0.95}
-              >
-                <Ionicons name="chatbubble-ellipses-outline" size={15} color="#4F46E5" />
-                <Text style={styles.yankiSecondaryText}>Yazılı Chat</Text>
-              </BouncyPressable>
-            </View>
-          </View>
-
-          {/* 3D Floating Original Yankı Character (İlk Göz Ağrımız) */}
-          <View style={styles.yankiImageContainer}>
-            <Image
-              source={companionImage}
-              style={styles.yankiImage}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        {/* ======================================================== */}
-        {/* 3. TODAY'S DAILY PRACTICE GOAL WIDGET                   */}
-        {/* ======================================================== */}
-        <BouncyPressable
-          onPress={() => {
-            navigation.navigate('StudyPath');
-          }}
-          style={[styles.dailyGoalCard, shadow.card]}
-          hapticType="medium"
-          scaleTo={0.97}
-        >
-          <View style={styles.dailyGoalHeaderRow}>
-            <View style={styles.dailyGoalTitleCol}>
-              <View style={styles.dailyGoalTag}>
-                <Ionicons name="flame" size={13} color="#EA580C" />
-                <Text style={styles.dailyGoalTagText}>GÜNLÜK KONUŞMA ROTASI (STUDY PATH)</Text>
-              </View>
-              <Text style={styles.dailyGoalTitle}>
-                {todayMinutes >= dailyTargetMinutes
-                  ? 'Günün Pratik Hedefi Tamamlandı! 🎉'
-                  : `${todayMinutes} / ${dailyTargetMinutes} Dk • Konuşma Rotasına Git ➔`}
+          <View style={styles.heroMissionRow}>
+            <View style={styles.heroMissionTextCol}>
+              <Text style={styles.heroMissionTitle} numberOfLines={2}>
+                &ldquo;{timeGreeting.subtitle}&rdquo;
+              </Text>
+              <Text style={styles.heroMissionSub}>
+                Takıldığın anda alttan Türkçe fısıldarım, donmadan akıcı konuşursun.
               </Text>
             </View>
-            <View style={styles.goalPercentBadge}>
-              <Text style={styles.goalPercentText}>%{todayGoalPercent}</Text>
+            <View style={styles.mascotWithAuraWrapper}>
+              <View style={styles.mascotAuraGlow} />
+              <Image source={yankiMascot} style={styles.heroMascotImg} resizeMode="contain" />
             </View>
           </View>
 
-          {/* Progress Bar Track */}
-          <View style={styles.goalProgressBarTrack}>
-            <View style={[styles.goalProgressBarFill, { width: `${todayGoalPercent}%` }]} />
-          </View>
-        </BouncyPressable>
+          <BouncyPressable
+            onPress={() =>
+              recommended
+                ? navigation.navigate('LiveConversationRoom', {
+                    scenarioId: recommended.id,
+                    scenarioSlug: recommended.slug,
+                    scenarioTitle: recommended.title,
+                  })
+                : navigation.navigate('Scenarios')
+            }
+            style={styles.chunkyBtnWrapper}
+            hapticType="medium"
+            scaleTo={0.96}
+          >
+            <LinearGradient
+              colors={gradients.airyIndigo}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.chunkyPrimaryBtn}
+            >
+              <Ionicons name="mic" size={18} color="#FFFFFF" />
+              <Text style={styles.chunkyPrimaryBtnText}>Canlı Konuş</Text>
+            </LinearGradient>
+          </BouncyPressable>
+
+          <Pressable onPress={() => navigation.navigate('TextChat')} hitSlop={8}>
+            <Text style={styles.heroSecondaryLink}>veya yazarak pratik yap →</Text>
+          </Pressable>
+        </View>
 
         {/* ======================================================== */}
-        {/* 4. STEP-BY-STEP LEVEL LEARNING PATH (A1 -> C2 Roadmap)  */}
+        {/* 3. HIZLI ERİŞİM ŞERİDİ — 3D Micro-Art İkonlarla           */}
+        {/* ======================================================== */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.quickLinksScroll}
+        >
+          {/* 1. Yol Haritası */}
+          <BouncyPressable
+            onPress={() => navigation.navigate('StudyPath')}
+            hapticType="light"
+            scaleTo={0.95}
+          >
+            <LinearGradient
+              colors={QUICK_LINK_THEME.indigo.gradient}
+              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.indigo.border }]}
+            >
+              <View style={styles.quickLinkIconWrap}>
+                <Image
+                  source={quickIcons.roadmap}
+                  style={styles.quickLinkIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.indigo.text }]} numberOfLines={1}>
+                Yol Haritası
+              </Text>
+            </LinearGradient>
+          </BouncyPressable>
+
+          {/* 2. Kelimeler & Sandık */}
+          <BouncyPressable onPress={() => navigation.navigate('Vocab')} hapticType="light" scaleTo={0.95}>
+            <LinearGradient
+              colors={QUICK_LINK_THEME.emerald.gradient}
+              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.emerald.border }]}
+            >
+              {dueVocabCount > 0 && (
+                <View style={styles.quickLinkBadge}>
+                  <Text style={styles.quickLinkBadgeText}>{dueVocabCount}</Text>
+                </View>
+              )}
+              <View style={styles.quickLinkIconWrap}>
+                <Image
+                  source={quickIcons.vocab}
+                  style={styles.quickLinkIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.emerald.text }]} numberOfLines={1}>
+                Kelimeler
+              </Text>
+            </LinearGradient>
+          </BouncyPressable>
+
+          {/* 3. 900 Kelime Sözlüğü */}
+          <BouncyPressable onPress={() => navigation.navigate('VocabLibrary')} hapticType="light" scaleTo={0.95}>
+            <LinearGradient
+              colors={QUICK_LINK_THEME.violet.gradient}
+              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.violet.border }]}
+            >
+              <View style={styles.quickLinkIconWrap}>
+                <Image
+                  source={quickIcons.dictionary}
+                  style={styles.quickLinkIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.violet.text }]} numberOfLines={1}>
+                900 Kelime
+              </Text>
+            </LinearGradient>
+          </BouncyPressable>
+
+          {/* 4. Podcast Stüdyosu */}
+          <BouncyPressable onPress={() => navigation.navigate('PodcastList')} hapticType="light" scaleTo={0.95}>
+            <LinearGradient
+              colors={QUICK_LINK_THEME.amber.gradient}
+              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.amber.border }]}
+            >
+              <View style={styles.quickLinkIconWrap}>
+                <Image
+                  source={quickIcons.podcast}
+                  style={styles.quickLinkIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.amber.text }]} numberOfLines={1}>
+                Podcasts
+              </Text>
+            </LinearGradient>
+          </BouncyPressable>
+
+          {/* 5. Hata Defteri */}
+          <BouncyPressable onPress={() => navigation.navigate('MistakesNotebook')} hapticType="light" scaleTo={0.95}>
+            <LinearGradient
+              colors={QUICK_LINK_THEME.rose.gradient}
+              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.rose.border }]}
+            >
+              {mistakesCount > 0 && (
+                <View style={styles.quickLinkBadge}>
+                  <Text style={styles.quickLinkBadgeText}>{mistakesCount}</Text>
+                </View>
+              )}
+              <View style={styles.quickLinkIconWrap}>
+                <Image
+                  source={quickIcons.mistakes}
+                  style={styles.quickLinkIconImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.rose.text }]} numberOfLines={1}>
+                Hata Defteri
+              </Text>
+            </LinearGradient>
+          </BouncyPressable>
+        </ScrollView>
+
+        {/* ======================================================== */}
+        {/* 4. 3D CANLI SİNEMA SPOTLIGHT — Pixar Kalitesinde Sahneler*/}
         {/* ======================================================== */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <View>
-              <Text style={styles.sectionSubTitle}>SEVİYE YOLCULUĞU</Text>
-              <Text style={styles.sectionMainTitle}>A1 &rarr; C2 Adım Adım İlerle</Text>
+              <View style={styles.cinemaLiveBadgeRow}>
+                <View style={styles.livePulseDot} />
+                <Text style={styles.sectionSubTitle}>3D CANLI SİNEMA STÜDYOSU</Text>
+              </View>
+              <Text style={styles.sectionMainTitle}>Karakterlerle Yüz Yüze Konuş</Text>
             </View>
-            <BouncyPressable
-              onPress={() => navigation.navigate('StudyPath')}
-              hapticType="light"
-              scaleTo={0.95}
-            >
-              <Text style={styles.seeAllText}>Yol Haritası (Study Path) &rarr;</Text>
-            </BouncyPressable>
+            <Pressable onPress={() => navigation.navigate('Scenarios')}>
+              <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+            </Pressable>
           </View>
 
-          {/* 4a. 3D Panoramic Floating Island Showcase Window */}
-          <BouncyPressable
-            onPress={() => navigation.navigate('StudyPath')}
-            style={[styles.islandPanoramicCard, shadow.card]}
-            hapticType="medium"
-            scaleTo={0.97}
-          >
-            <ImageBackground
-              source={levelsRoadmapIslandBg}
-              style={styles.islandPanoramicBg}
-              imageStyle={styles.islandPanoramicImg}
-              resizeMode="cover"
-            >
-              <View style={styles.islandPanoramicOverlay}>
-                <View style={styles.islandTagBadge}>
-                  <Text style={styles.islandTagEmoji}>🏝️</Text>
-                  <Text style={styles.islandTagBadgeText}>6 BASAMAKLI ADA MÜFREDATI</Text>
-                </View>
-                <View style={styles.islandCtaRow}>
-                  <Text style={styles.islandCtaTitle}>Haritada İlerlemeyi Gör</Text>
-                  <View style={styles.islandCtaArrow}>
-                    <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-                  </View>
-                </View>
-              </View>
-            </ImageBackground>
-          </BouncyPressable>
-
-          {/* 4b. Unobstructed Horizontal CEFR Level Shields */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.levelsScroll}
+            contentContainerStyle={styles.cinemaSpotlightScroll}
           >
-            {cefrSteps.map((step) => {
-              const isCurrent = step.status === 'current';
-              const isCompleted = step.status === 'completed';
+            {readyVideoScenarios.map((sc) => {
+              const coverUrl = sc.coverImage ? resolveMediaUrl(sc.coverImage) : null;
+              const coverFailed = videoCoverErrorIds.has(sc.id);
+              const stepCount = sc.videoSteps?.length ?? 6;
 
               return (
                 <BouncyPressable
-                  key={step.level}
-                  onPress={() => navigation.navigate('StudyPath')}
-                  style={[
-                    styles.levelCard,
-                    shadow.card,
-                    isCurrent && { borderColor: step.color, borderWidth: 2 },
-                    isCompleted && styles.levelCardCompleted,
-                  ]}
-                  hapticType="light"
-                  scaleTo={0.94}
+                  key={sc.id}
+                  onPress={() => {
+                    haptics.success();
+                    setSelectedVideoScenario(sc);
+                  }}
+                  style={[styles.cinemaSpotlightCard, shadow.card]}
+                  hapticType="medium"
+                  scaleTo={0.96}
                 >
-                  <View style={styles.levelBadgeRow}>
-                    <Text
-                      style={[
-                        styles.levelCode,
-                        isCurrent && { color: step.color },
-                      ]}
-                    >
-                      {step.level}
-                    </Text>
-                    {isCompleted && (
-                      <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-                    )}
-                    {isCurrent && <View style={[styles.currentDot, { backgroundColor: step.color }]} />}
+                  <View style={styles.cinemaSpotlightCoverBox}>
+                    <Image
+                      source={
+                        coverUrl && !coverFailed
+                          ? { uri: coverUrl }
+                          : resolveScenarioCategoryFallback(sc.category)
+                      }
+                      onError={() =>
+                        setVideoCoverErrorIds((prev) => new Set(prev).add(sc.id))
+                      }
+                      style={styles.cinemaSpotlightCoverImage}
+                      resizeMode="cover"
+                    />
+                    <LinearGradient
+                      colors={['rgba(15,23,42,0.1)', 'rgba(15,23,42,0.85)']}
+                      style={styles.cinemaSpotlightCoverOverlay}
+                    />
+
+                    {/* Top badges */}
+                    <View style={styles.cinemaSpotlightTopBadges}>
+                      <View style={styles.cinemaSpotlightLivePill}>
+                        <View style={styles.cinemaSpotlightLiveDot} />
+                        <Text style={styles.cinemaSpotlightLiveText}>3D VİDEO</Text>
+                      </View>
+                      <View style={styles.cinemaSpotlightLevelPill}>
+                        <Text style={styles.cinemaSpotlightLevelText}>{sc.level}</Text>
+                      </View>
+                    </View>
+
+                    {/* Bottom info on cover */}
+                    <View style={styles.cinemaSpotlightBottomInfo}>
+                      <View style={styles.cinemaSpotlightCharRow}>
+                        <Text style={styles.cinemaSpotlightCharEmoji}>{sc.emoji}</Text>
+                        <Text style={styles.cinemaSpotlightCharName}>
+                          {sc.aiName} • {sc.aiRole}
+                        </Text>
+                      </View>
+                      <Text style={styles.cinemaSpotlightTitle} numberOfLines={1}>
+                        {sc.title}
+                      </Text>
+                    </View>
                   </View>
 
-                  <Image
-                    source={step.icon}
-                    style={styles.levelShieldImage}
-                    resizeMode="contain"
-                  />
+                  {/* Bottom Action Row */}
+                  <View style={styles.cinemaSpotlightCtaRow}>
+                    <View style={styles.cinemaSpotlightStepChip}>
+                      <Ionicons name="film-outline" size={13} color={colors.textMuted} />
+                      <Text style={styles.cinemaSpotlightStepText}>{stepCount} Sahne</Text>
+                    </View>
 
-                  <Text
-                    style={[
-                      styles.levelTitle,
-                      isCurrent && { color: step.color },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {step.title}
-                  </Text>
-
-                  <Text style={styles.levelStatusText}>
-                    {isCompleted
-                      ? 'Tamamlandı'
-                      : isCurrent
-                        ? 'Şu Anki Seviye'
-                        : 'Kilitli'}
-                  </Text>
+                    <View style={styles.cinemaSpotlightStartBtn}>
+                      <Text style={styles.cinemaSpotlightStartBtnText}>Sahneye Gir</Text>
+                      <Ionicons name="arrow-forward" size={12} color="#FFFFFF" />
+                    </View>
+                  </View>
                 </BouncyPressable>
               );
             })}
           </ScrollView>
         </View>
 
-        {/* ======================================================== */}
-        {/* 5. 4'LÜ HIZLI GELİŞİM MODÜLLERİ (BENTO POWER HUBS)      */}
-        {/* ======================================================== */}
-        <View style={styles.section}>
-          <Text style={styles.sectionSubTitle}>GÜNLÜK HIZLI PRATİK</Text>
-          <Text style={styles.sectionMainTitle}>Gelişim Modülleri & Kasalar</Text>
-
-          <View style={styles.bentoGrid}>
-            {/* 1. Podcasts Hub */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('PodcastList')}
-              style={[styles.bentoCard, shadow.card]}
-              hapticType="light"
-              scaleTo={0.95}
-            >
-              <Image
-                source={podcastHubIcon}
-                style={styles.bentoCardImage}
-                resizeMode="cover"
-              />
-              <Text style={styles.bentoCardTitle}>Podcasts 🎧</Text>
-              <Text style={styles.bentoCardSub} numberOfLines={2}>
-                40 Bölüm • A1-B2 Doğal Diyaloglar
-              </Text>
-              <View style={[styles.bentoPill, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={[styles.bentoPillText, { color: '#B45309' }]}>Dinle &rarr;</Text>
-              </View>
-            </BouncyPressable>
-
-            {/* 2. Smart Reading & Stories */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('ReadingList')}
-              style={[styles.bentoCard, shadow.card]}
-              hapticType="light"
-              scaleTo={0.95}
-            >
-              <Image
-                source={homeImages.readingModule}
-                style={styles.bentoCardImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.bentoCardTitle}>Smart Reading 📖</Text>
-              <Text style={styles.bentoCardSub} numberOfLines={2}>
-                3 Adımlı Video & Cümle Sıralama
-              </Text>
-              <View style={[styles.bentoPill, { backgroundColor: '#EEF2FF' }]}>
-                <Text style={[styles.bentoPillText, { color: '#4338CA' }]}>Oku &rarr;</Text>
-              </View>
-            </BouncyPressable>
-
-            {/* 3. Kelime Sandığı */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('Vocab')}
-              style={[styles.bentoCard, shadow.card]}
-              hapticType="light"
-              scaleTo={0.95}
-            >
-              <Image
-                source={homeImages.vocabDeck}
-                style={styles.bentoCardImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.bentoCardTitle}>Kelime Sandığı 📦</Text>
-              <Text style={styles.bentoCardSub} numberOfLines={2}>
-                {dueVocabCount > 0
-                  ? `${dueVocabCount} kelime tekrar bekliyor`
-                  : 'Tüm kelimeler tekrarlandı'}
-              </Text>
-              <View style={[styles.bentoPill, { backgroundColor: '#ECFDF5' }]}>
-                <Text style={[styles.bentoPillText, { color: '#047857' }]}>Çalış &rarr;</Text>
-              </View>
-            </BouncyPressable>
-
-            {/* 4. Hata Defterim */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('MistakesNotebook')}
-              style={[styles.bentoCard, shadow.card]}
-              hapticType="light"
-              scaleTo={0.95}
-            >
-              <Image
-                source={stateImages.mistakesNotebook}
-                style={styles.bentoCardImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.bentoCardTitle}>Hata Defterim 📓</Text>
-              <Text style={styles.bentoCardSub} numberOfLines={2}>
-                {mistakesCount > 0
-                  ? `${mistakesCount} kayıtlı zayıf nokta`
-                  : 'Tertemiz bir sayfa'}
-              </Text>
-              <View style={[styles.bentoPill, { backgroundColor: '#FDF2F8' }]}>
-                <Text style={[styles.bentoPillText, { color: '#BE185D' }]}>İncele &rarr;</Text>
-              </View>
-            </BouncyPressable>
-          </View>
-
-          {/* 5. 600 Core Words Library Feature Banner */}
-          <BouncyPressable
-            onPress={() => navigation.navigate('VocabLibrary')}
-            style={[styles.libraryBannerCard, shadow.card]}
-            hapticType="medium"
-            scaleTo={0.97}
-          >
-            <View style={styles.libraryBannerLeft}>
-              <View style={styles.libraryBannerBadge}>
-                <Ionicons name="sparkles" size={11} color="#0EA5E9" />
-                <Text style={styles.libraryBannerBadgeText}>YENİ ÖZELLİK • 900 KELİME</Text>
-              </View>
-              <Text style={styles.libraryBannerTitle}>Çekirdek Kelime Kütüphanesi 📚</Text>
-              <Text style={styles.libraryBannerSub}>
-                En sık kullanılan İsim, Fiil ve Sıfatları tüm gramer çekimleriyle incele &amp; sandığına ekle!
-              </Text>
-            </View>
-            <View style={styles.libraryBannerArrow}>
-              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-            </View>
-          </BouncyPressable>
-        </View>
-
-        {/* ======================================================== */}
-        {/* 5.5 SANA ÖZEL — PERSONA/HEDEF EŞLEŞMELİ SAHNELER        */}
-        {/* ======================================================== */}
-        {forYouScenarios.length > 0 ? (
-          <View style={styles.section}>
+        {/* 5. GÜNÜN SESLİ ROL ÖNERİSİ (Recommended AI Voice Roleplay) */}
+        {recommended && (
+          <View style={[styles.section, { marginTop: spacing.md }]}>
             <View style={styles.sectionHeaderRow}>
               <View>
-                <Text style={styles.sectionSubTitle}>SANA ÖZEL</Text>
+                <Text style={styles.sectionSubTitle}>SESLİ DİYALOG KOÇU</Text>
                 <Text style={styles.sectionMainTitle}>
-                  {personaObj ? `${personaObj.title} İçin Önerilenler` : 'Sana Uygun Sahneler'}
+                  {personaObj ? `${personaObj.title} İçin Önerilen` : 'Sesli Pratik Önerisi'}
                 </Text>
               </View>
-              <Pressable onPress={() => navigation.navigate('Scenarios')}>
-                <Text style={styles.seeAllText}>Tümünü Gör &rarr;</Text>
-              </Pressable>
             </View>
 
-            <View style={styles.scenarioList}>
-              {forYouScenarios.slice(0, 3).map((sc) => (
-                <Pressable
-                  key={sc.id}
+            <View style={[styles.recommendedCard, shadow.card]}>
+              <View style={styles.recommendedCoverWrapper}>
+                <Image
+                  source={scenarioCategoryImages[recommended.category] ?? companionImage}
+                  style={styles.recommendedCoverImage}
+                  resizeMode="cover"
+                />
+                <LinearGradient
+                  colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.65)']}
+                  style={styles.recommendedCoverOverlay}
+                />
+                <View style={styles.recommendedTopBadgeRow}>
+                  <View style={styles.cefrLevelTag}>
+                    <Text style={styles.cefrLevelTagText}>{recommended.cefr_level ?? 'A2'}</Text>
+                  </View>
+                  <View style={styles.durationTag}>
+                    <Ionicons name="time-outline" size={11} color="#FFFFFF" />
+                    <Text style={styles.durationTagText}>{recommended.estimated_minutes} Dk</Text>
+                  </View>
+                </View>
+                <Text style={styles.recommendedCoverTitle} numberOfLines={1}>
+                  {recommended.title}
+                </Text>
+              </View>
+
+              <View style={styles.recommendedBody}>
+                <Text style={styles.recommendedDesc} numberOfLines={2}>
+                  {recommended.description}
+                </Text>
+
+                <BouncyPressable
                   onPress={() =>
                     navigation.navigate('LiveConversationRoom', {
-                      scenarioId: sc.id,
-                      scenarioSlug: sc.slug,
-                      scenarioTitle: sc.title,
+                      scenarioId: recommended.id,
+                      scenarioSlug: recommended.slug,
+                      scenarioTitle: recommended.title,
                     })
                   }
-                  style={[styles.scenarioCardItem, styles.forYouCardItem, shadow.card]}
+                  style={styles.chunkyBtnWrapper}
+                  hapticType="medium"
+                  scaleTo={0.96}
                 >
-                  <Image
-                    source={scenarioCategoryImages[sc.category]}
-                    style={styles.scenarioCardItemImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.scenarioCardItemContent}>
-                    <View style={styles.scenarioMetaRow}>
-                      <Text style={styles.scenarioMetaBadge}>{sc.cefr_level ?? 'A2'} Seviye</Text>
-                      <Text style={styles.scenarioMetaTime}>⏱️ {sc.estimated_minutes} Dk</Text>
-                    </View>
-                    <Text style={styles.scenarioCardItemTitle} numberOfLines={1}>
-                      {sc.title}
-                    </Text>
-                  </View>
-                  <View style={styles.scenarioCardItemArrow}>
-                    <Ionicons name="mic" size={16} color="#4F46E5" />
-                  </View>
-                </Pressable>
-              ))}
+                  <LinearGradient
+                    colors={gradients.airyIndigo}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.recommendedCtaBtn}
+                  >
+                    <Ionicons name="mic" size={15} color="#FFFFFF" />
+                    <Text style={styles.recommendedCtaBtnText}>Sesli Başlat</Text>
+                  </LinearGradient>
+                </BouncyPressable>
+              </View>
             </View>
           </View>
-        ) : null}
-
-        {/* ======================================================== */}
-        {/* 6. POPULAR SCENARIOS 3D CAROUSEL                        */}
-        {/* ======================================================== */}
-        <View style={[styles.section, styles.lastSection]}>
-          <View style={styles.sectionHeaderRow}>
-            <View>
-              <Text style={styles.sectionSubTitle}>POPÜLER SAHNELER</Text>
-              <Text style={styles.sectionMainTitle}>Gerçek Hayat Simülasyonları</Text>
-            </View>
-            <Pressable onPress={() => navigation.navigate('Scenarios')}>
-              <Text style={styles.seeAllText}>Tümünü Gör &rarr;</Text>
-            </Pressable>
-          </View>
-
-          {popularScenarios.length === 0 ? (
-            <Text style={styles.emptyScenariosText}>
-              Henüz sahne eklenmedi, çok yakında burada olacak.
-            </Text>
-          ) : (
-            <View style={styles.scenarioList}>
-              {popularScenarios.map((sc) => (
-                <Pressable
-                  key={sc.id}
-                  onPress={() =>
-                    navigation.navigate('LiveConversationRoom', {
-                      scenarioId: sc.id,
-                      scenarioSlug: sc.slug,
-                      scenarioTitle: sc.title,
-                    })
-                  }
-                  style={[styles.scenarioCardItem, shadow.card]}
-                >
-                  <Image
-                    source={scenarioCategoryImages[sc.category]}
-                    style={styles.scenarioCardItemImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.scenarioCardItemContent}>
-                    <View style={styles.scenarioMetaRow}>
-                      <Text style={styles.scenarioMetaBadge}>{sc.cefr_level ?? 'A2'} Seviye</Text>
-                      <Text style={styles.scenarioMetaTime}>⏱️ {sc.estimated_minutes} Dk</Text>
-                    </View>
-                    <Text style={styles.scenarioCardItemTitle} numberOfLines={1}>
-                      {sc.title}
-                    </Text>
-                  </View>
-                  <View style={styles.scenarioCardItemArrow}>
-                    <Ionicons name="mic" size={16} color="#4F46E5" />
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
+        )}
       </ScrollView>
+
+      {toast ? <Toast message={toast} /> : null}
+
+      {/* 3D Interactive Video Scenario Modal */}
+      <InteractiveVideoScenarioModal
+        visible={!!selectedVideoScenario}
+        scenario={selectedVideoScenario}
+        onClose={() => setSelectedVideoScenario(null)}
+        onComplete={(earnedXp) => {
+          showToast(`🏆 Harika! 3D senaryoyu tamamladın (+${earnedXp} XP)`);
+          setSelectedVideoScenario(null);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -688,18 +684,67 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
   },
-  avatarWrapper: {
-    width: 48,
-    height: 48,
-    position: 'relative',
+  headerLeftCol: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
     marginRight: 10,
   },
+  headerStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerStatPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+  },
+  headerXpPill: {
+    backgroundColor: '#FFFBEB',
+    borderColor: '#FDE68A',
+    gap: 4,
+  },
+  headerXpBoltIcon: {
+    width: 14,
+    height: 14,
+  },
+  headerXpText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  headerLevelPill: {
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
+    gap: 4,
+  },
+  headerLevelEmoji: {
+    fontSize: 11,
+  },
+  headerLevelText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4338CA',
+  },
+  avatarWrapper: {
+    width: 50,
+    height: 50,
+    position: 'relative',
+    marginRight: 12,
+  },
   avatarImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: '#4F46E5',
   },
@@ -708,15 +753,15 @@ const styles = StyleSheet.create({
     bottom: -2,
     right: -2,
     backgroundColor: '#4F46E5',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
     borderRadius: radii.pill,
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
   avatarLevelText: {
     fontFamily: fonts.mono,
-    fontSize: 8,
+    fontSize: 8.5,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
@@ -725,529 +770,590 @@ const styles = StyleSheet.create({
   },
   greetingSub: {
     fontFamily: fonts.headingBold,
-    fontSize: 10,
+    fontSize: 10.5,
     color: colors.textMuted,
     letterSpacing: 0.8,
   },
   greetingName: {
     fontFamily: fonts.headingBold,
-    fontSize: 17,
+    fontSize: 18,
     color: colors.textHeading,
-  },
-  statsPillRow: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  statPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  statEmoji: {
-    fontSize: 12,
-    marginRight: 3,
-  },
-  statNumber: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11.5,
+    marginTop: 1,
   },
 
-  /* 2. Yankı Spotlight Banner */
-  yankiBanner: {
+  /* 2. Bugün Hero */
+  heroCard: {
     position: 'relative',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 16,
-    flexDirection: 'row',
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 26,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
   },
-  yankiGlowBackdrop: {
+  heroGlowBlob: {
     position: 'absolute',
-    top: -50,
-    right: -50,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    top: -60,
+    right: -60,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(79, 70, 229, 0.10)',
   },
-  yankiContent: {
-    flex: 1,
-    paddingRight: 6,
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  streakPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    gap: 6,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  streakPillFlameImg: {
+    width: 22,
+    height: 22,
+  },
+  streakPillText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: '#EA580C',
+  },
+  weekDotsRow: {
+    flexDirection: 'row',
+    gap: 5,
+    marginHorizontal: 10,
+    alignItems: 'center',
+  },
+  weekDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E2E8F0',
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  yankiBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    marginBottom: 6,
-  },
-  pulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.success,
-    marginRight: 6,
-  },
-  yankiBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    color: colors.brand,
-    fontWeight: 'bold',
-  },
-  yankiTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-    color: colors.textHeading,
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  yankiSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textBody,
-    lineHeight: 15,
-    marginBottom: 10,
-  },
-  yankiActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  yankiButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4F46E5',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    gap: 5,
-  },
-  yankiButtonText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11.5,
-    color: '#FFFFFF',
-  },
-  yankiSecondaryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    gap: 4,
+  weekDotCompleted: {
+    backgroundColor: '#EA580C',
     borderWidth: 1,
+    borderColor: '#FED7AA',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.35,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  weekDotToday: {
+    backgroundColor: colors.brand,
+    transform: [{ scale: 1.25 }],
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
   },
-  yankiSecondaryText: {
-    fontFamily: fonts.headingBold,
+  weekDotInnerGlow: {
+    width: 2.5,
+    height: 2.5,
+    borderRadius: 1.25,
+    backgroundColor: '#FFF7ED',
+  },
+  heroMinutesText: {
+    marginLeft: 'auto',
+    fontFamily: fonts.mono,
     fontSize: 11,
-    color: '#4F46E5',
-  },
-  yankiImageContainer: {
-    width: 95,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  yankiImage: {
-    width: 100,
-    height: 100,
+    color: colors.brand,
+    fontWeight: '700',
   },
 
-  /* 3. Daily Practice Goal Widget */
-  dailyGoalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: spacing.md,
-    borderWidth: 1.5,
-    borderColor: '#E0F2FE',
+  /* Daily Goal Progress inside Hero */
+  dailyGoalBarWrap: {
+    backgroundColor: '#FFF7ED',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    marginBottom: 16,
   },
-  dailyGoalHeaderRow: {
+  dailyGoalBarTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  dailyGoalTitleCol: {
+  dailyGoalLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  dailyGoalBarLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    color: '#9A3412',
+  },
+  dailyGoalBarPercent: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#EA580C',
+  },
+  dailyGoalBarMinutes: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#C2410C',
+  },
+  dailyGoalTrack: {
+    height: 7,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFEDD5',
+    overflow: 'hidden',
+  },
+  dailyGoalFill: {
+    height: '100%',
+    borderRadius: radii.pill,
+    backgroundColor: '#EA580C',
+  },
+  dailyGoalFillComplete: {
+    backgroundColor: '#10B981',
+  },
+
+  mascotWithAuraWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotAuraGlow: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(99, 102, 241, 0.18)',
+    bottom: -4,
+  },
+  heroMissionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 18,
+  },
+  heroMissionTextCol: {
     flex: 1,
+    paddingRight: 8,
   },
-  dailyGoalTag: {
+  heroMissionTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 16,
+    color: colors.textHeading,
+    lineHeight: 21,
+    marginBottom: 5,
+  },
+  heroMissionSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+    color: colors.textMuted,
+    lineHeight: 17,
+  },
+  heroMascotImg: {
+    width: 106,
+    height: 124,
+    marginBottom: -6,
+  },
+
+  /* Shared "chunky 3D" CTA language — gradient fill + darker bottom border +
+     colored glow, same depth recipe as Scenarios' stepping-stone path. */
+  chunkyBtnWrapper: {
+    borderRadius: radii.lg,
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  chunkyPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 4,
+    borderBottomColor: '#3730A3',
+    borderRadius: radii.lg,
+    paddingVertical: 15,
+    gap: 8,
+  },
+  chunkyPrimaryBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: '#FFFFFF',
+  },
+  heroSecondaryLink: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: 12,
+  },
+
+  /* 3. Quick Links Strip */
+  quickLinksScroll: {
+    gap: 12,
+    paddingVertical: 2,
+    marginBottom: spacing.lg,
+  },
+  quickLinkChip: {
+    position: 'relative',
+    width: 94,
+    alignItems: 'center',
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderBottomWidth: 3,
+    gap: 8,
+  },
+  quickLinkIconWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.95)',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  quickLinkIconImage: {
+    width: 44,
+    height: 44,
+  },
+  quickLinkLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10.5,
+    textAlign: 'center',
+  },
+  quickLinkBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    zIndex: 2,
+    backgroundColor: '#EF4444',
+    borderRadius: radii.pill,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  quickLinkBadgeText: {
+    fontFamily: fonts.mono,
+    fontSize: 8.5,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+
+  /* 4. 3D Canlı Sinema Spotlight & Sahneler */
+  cinemaLiveBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  livePulseDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#EF4444',
+  },
+  cinemaSpotlightScroll: {
+    gap: 14,
+    paddingVertical: 4,
+    paddingRight: 10,
+    marginBottom: spacing.md,
+  },
+  cinemaSpotlightCard: {
+    width: 270,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+  },
+  cinemaSpotlightCoverBox: {
+    position: 'relative',
+    height: 155,
+    width: '100%',
+    justifyContent: 'space-between',
+    padding: 12,
+    backgroundColor: '#0F172A',
+  },
+  cinemaSpotlightCoverImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  cinemaSpotlightCoverOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  cinemaSpotlightTopBadges: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 2,
+  },
+  cinemaSpotlightLivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  cinemaSpotlightLiveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+  },
+  cinemaSpotlightLiveText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 9.5,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  cinemaSpotlightLevelPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
+  cinemaSpotlightLevelText: {
+    fontFamily: fonts.mono,
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#4338CA',
+  },
+  cinemaSpotlightBottomInfo: {
+    zIndex: 2,
+  },
+  cinemaSpotlightCharRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     marginBottom: 2,
   },
-  dailyGoalTagText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#EA580C',
+  cinemaSpotlightCharEmoji: {
+    fontSize: 12,
   },
-  dailyGoalTitle: {
+  cinemaSpotlightCharName: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11,
+    color: '#E2E8F0',
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  cinemaSpotlightTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.textHeading,
+    fontSize: 15,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.7)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
-  goalPercentBadge: {
-    backgroundColor: '#E0F2FE',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
+  cinemaSpotlightCtaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
   },
-  goalPercentText: {
+  cinemaSpotlightStepChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  cinemaSpotlightStepText: {
     fontFamily: fonts.mono,
     fontSize: 10.5,
-    fontWeight: 'bold',
-    color: '#0369A1',
+    color: colors.textMuted,
+    fontWeight: '600',
   },
-  goalProgressBarTrack: {
-    height: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: radii.pill,
-    overflow: 'hidden',
+  cinemaSpotlightStartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.sm,
+    borderBottomWidth: 2,
+    borderBottomColor: '#3730A3',
   },
-  goalProgressBarFill: {
-    height: '100%',
-    backgroundColor: '#0EA5E9',
-    borderRadius: radii.pill,
+  cinemaSpotlightStartBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    color: '#FFFFFF',
   },
-
-  /* Section Common */
   section: {
-    marginBottom: spacing.md,
-  },
-  lastSection: {
-    marginBottom: spacing.sm,
+    marginBottom: 0,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   sectionSubTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 10,
-    color: colors.brand,
+    color: colors.textMuted,
     letterSpacing: 0.8,
   },
   sectionMainTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 15,
+    fontSize: 16,
     color: colors.textHeading,
     marginTop: 1,
   },
   seeAllText: {
     fontFamily: fonts.headingBold,
-    fontSize: 11.5,
+    fontSize: 12,
     color: colors.brand,
   },
-
-  /* 4a. 3D Panoramic Floating Island Showcase Window */
-  islandPanoramicCard: {
-    borderRadius: 22,
+  recommendedCard: {
+    borderRadius: 24,
     overflow: 'hidden',
-    marginBottom: spacing.sm,
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
     backgroundColor: '#FFFFFF',
   },
-  islandPanoramicBg: {
+  recommendedCoverWrapper: {
+    position: 'relative',
+    height: 150,
+    justifyContent: 'flex-end',
+    padding: 14,
+  },
+  recommendedCoverImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: '100%',
-    height: 124,
-    justifyContent: 'space-between',
+    height: '100%',
   },
-  islandPanoramicImg: {
-    borderRadius: 22,
+  recommendedCoverOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  islandPanoramicOverlay: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(0, 0, 0, 0.15)',
-  },
-  islandTagBadge: {
+  recommendedTopBadgeRow: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    right: 14,
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    justifyContent: 'space-between',
+  },
+  cefrLevelTag: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: radii.pill,
   },
-  islandTagEmoji: {
-    fontSize: 11,
-  },
-  islandTagBadgeText: {
+  cefrLevelTagText: {
     fontFamily: fonts.mono,
-    fontSize: 9,
+    fontSize: 10.5,
     fontWeight: 'bold',
     color: colors.brand,
-    letterSpacing: 0.5,
   },
-  islandCtaRow: {
+  durationTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(15, 23, 42, 0.65)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: radii.pill,
+    gap: 3,
   },
-  islandCtaTitle: {
+  durationTagText: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  recommendedCoverTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 12,
+    fontSize: 19,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  recommendedBody: {
+    padding: 16,
+  },
+  recommendedDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12.5,
+    color: colors.textMuted,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  recommendedCtaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: '#3730A3',
+    borderRadius: radii.md,
+    paddingVertical: 12,
+    gap: 6,
+  },
+  recommendedCtaBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13.5,
     color: '#FFFFFF',
   },
-  islandCtaArrow: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: colors.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Levels Scroll */
-  levelsScroll: {
-    flexDirection: 'row',
-    paddingVertical: 4,
-    gap: 10,
-  },
-  levelCard: {
-    width: 108,
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+  recommendedEmptyCard: {
+    backgroundColor: '#F8FAFC',
     borderRadius: 18,
-    padding: 10,
-    alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    padding: 18,
   },
-  levelCardCompleted: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
-  },
-  levelBadgeRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  levelCode: {
-    fontFamily: fonts.mono,
-    fontSize: 11.5,
-    fontWeight: 'bold',
-    color: colors.textMuted,
-  },
-  currentDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  levelShieldImage: {
-    width: 48,
-    height: 48,
-    marginVertical: 4,
-  },
-  levelTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.textHeading,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  levelStatusText: {
+  recommendedEmptyText: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 9,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
-  /* Bento Grid */
-  bentoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 10,
-    marginTop: 4,
-  },
-  bentoCard: {
-    width: '48.5%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#EEF2FF',
-  },
-  bentoCardImage: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    marginBottom: 6,
-  },
-  bentoCardTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-    textAlign: 'center',
-  },
-  bentoCardSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
+    fontSize: 12.5,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 2,
-    marginBottom: 8,
-    lineHeight: 14,
-    height: 28,
-  },
-  bentoPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-  },
-  bentoPillText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10.5,
-  },
-  libraryBannerCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 14,
-    marginTop: spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-  },
-  libraryBannerLeft: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  libraryBannerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#F0F9FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    alignSelf: 'flex-start',
-    marginBottom: 5,
-    borderWidth: 1,
-    borderColor: '#BAE6FD',
-  },
-  libraryBannerBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#0284C7',
-    letterSpacing: 0.4,
-  },
-  libraryBannerTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: colors.textHeading,
-  },
-  libraryBannerSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textBody,
-    marginTop: 3,
-    lineHeight: 15,
-  },
-  libraryBannerArrow: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Scenario List */
-  emptyScenariosText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
-  scenarioList: {
-    gap: 8,
-    marginTop: 4,
-  },
-  scenarioCardItem: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-  },
-  forYouCardItem: {
-    borderColor: '#C7D2FE',
-    backgroundColor: '#F5F7FF',
-  },
-  scenarioCardItemImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  scenarioCardItemContent: {
-    flex: 1,
-  },
-  scenarioMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
-  },
-  scenarioMetaBadge: {
-    fontFamily: fonts.headingBold,
-    fontSize: 9,
-    color: colors.brand,
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  scenarioMetaTime: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  scenarioCardItemTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-  },
-  scenarioCardItemArrow: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
+    lineHeight: 18,
   },
 });

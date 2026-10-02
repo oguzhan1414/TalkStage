@@ -19,6 +19,7 @@ import { ConfigMissingScreen } from './src/screens/ConfigMissingScreen';
 import { ApiError } from './src/lib/api';
 import { isSupabaseConfigured } from './src/lib/supabase';
 import { navigationRef } from './src/navigation/navigationRef';
+import { AnalyticsProvider } from './src/lib/analytics';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore — already hidden (e.g. fast refresh) or unsupported on this platform.
@@ -61,13 +62,15 @@ export default function App() {
       <SafeAreaProvider>
         <View style={styles.flex}>
           <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <OnboardingProvider>
-                <NavigationContainer ref={navigationRef} theme={talkStageNavigationTheme}>
-                  <RootNavigator />
-                </NavigationContainer>
-              </OnboardingProvider>
-            </AuthProvider>
+            <AnalyticsProvider>
+              <AuthProvider>
+                <OnboardingProvider>
+                  <NavigationContainer ref={navigationRef} theme={talkStageNavigationTheme}>
+                    <RootNavigator />
+                  </NavigationContainer>
+                </OnboardingProvider>
+              </AuthProvider>
+            </AnalyticsProvider>
           </QueryClientProvider>
           <StatusBar style="dark" />
         </View>

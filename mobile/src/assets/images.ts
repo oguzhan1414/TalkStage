@@ -8,6 +8,23 @@ export const companionImage = require('../../assets/images/companion/yanki.png')
 export const onboardingHero = require('../../assets/images/companion/yanki.png');
 /** Yankı with a wand + sparkles — used by the onboarding "AI Plan Hazırlığı" (Magic Moment) screen. */
 export const yankiMagicImage = require('../../assets/images/companion/yanki_magic.png');
+
+/** Dynamic Time-of-Day Yankı Companions (Morning Coffee, Afternoon Headphone, Evening Lantern) */
+export const dynamicCompanion = {
+  morning: require('../../assets/images/companion/yanki_morning.png'),
+  afternoon: require('../../assets/images/companion/yanki_afternoon.png'),
+  evening: require('../../assets/images/companion/yanki_evening.png'),
+};
+
+/** 3D Home Quick Access Micro-Icons (Vibrant Pixar 3D Game Assets) */
+export const quickIcons = {
+  roadmap: require('../../assets/images/home/quick_roadmap.png'),
+  vocab: require('../../assets/images/home/quick_vocab.png'),
+  podcast: require('../../assets/images/home/quick_podcast.png'),
+  dictionary: require('../../assets/images/home/quick_dictionary.png'),
+  mistakes: require('../../assets/images/home/quick_mistakes.png'),
+};
+
 export const aiOrb = require('../../assets/images/ai-orb.jpg');
 export const learningPathLandscape = require('../../assets/images/learning_path_landscape.jpg');
 export const levelsRoadmapIslandBg = require('../../assets/images/levels_roadmap_island_bg.jpg');
@@ -57,6 +74,22 @@ export const scenarioCategoryImages: Record<ScenarioCategory, ReturnType<typeof 
   daily: require('../../assets/images/scenarios/daily.jpg'),
 };
 
+/**
+ * Resolves a 3D video scenario's cover-photo fallback (used when there's no
+ * cover URL yet, or the real one fails to load at runtime). The video
+ * scenarios' own category label set (`@talkstage/shared-data/scenariosData`'s
+ * `ScenarioEntry.category`: business/interview/daily/travel/tech) doesn't
+ * fully match this file's photo-library category set (b2b/career/visa/tech/
+ * travel/daily) — 'business' and 'interview' need remapping. This was
+ * previously copy-pasted (with the interview→career step missing) into the
+ * Sinema Stüdyosu card, the Ana Ekran spotlight card, and the video modal
+ * separately; now there's one place to get it right.
+ */
+export function resolveScenarioCategoryFallback(category: string): ReturnType<typeof require> {
+  const mapped = category === 'business' ? 'b2b' : category === 'interview' ? 'career' : category;
+  return scenarioCategoryImages[mapped as ScenarioCategory] ?? companionImage;
+}
+
 /** 3D Glass CEFR Progression Shields (47 - 52) */
 export const cefrLevelImages: Record<string, ReturnType<typeof require>> = {
   A1: require('../../assets/images/levels/a1.png'),
@@ -96,6 +129,7 @@ export const stateImages = {
   gemDiamond: require('../../assets/images/states/gem_diamond.png'),
   xpBolt: require('../../assets/images/states/xp_bolt.png'),
   mistakesNotebook: require('../../assets/images/states/mistakes_notebook.jpg'),
+  streakFlame3d: require('../../assets/images/states/streak_flame_3d.png'),
 };
 
 /** 3D Module Feature Cards (24 - 27) */

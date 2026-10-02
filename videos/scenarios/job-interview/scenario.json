@@ -1,0 +1,72 @@
+{
+  "id": "job-interview",
+  "title": "Job Interview & Professional Introduction",
+  "titleTr": "İngilizce İş Mülakatı & Kariyer Tanıtımı",
+  "level": "B1",
+  "category": "interview",
+  "coverImage": "scenarios/job-interview/interview.jpeg",
+  "description": "Londra'da prestijli bir şirkette İK Direktörü Sarah ile iş mülakatına katıl, tecrübelerini anlat, güçlü yönlerini ve hedeflerini paylaş, mülakatı başarıyla tamamla.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Karşılama & Kendini Tanıtma",
+      "aiSpeech": "Good morning! Thank you for coming in today. To get started, could you tell me a little bit about yourself?",
+      "aiSpeechTr": "Günaydın! Bugün geldiğiniz için teşekkürler. Başlamak adına, bize biraz kendinizden bahsedebilir misiniz?",
+      "expectedUserResponse": "Good morning, Sarah! I have a background in technology and I love collaborating with innovative teams.",
+      "userHint": "Good morning Sarah, I have a background in... diyerek mesleki geçmişini özetle.",
+      "keywords": ["good", "morning", "sarah", "background", "technology", "experience", "love", "teams"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Başvuru Nedeni & Motivasyon",
+      "aiSpeech": "That is great experience! What made you interested in joining our company for this role?",
+      "aiSpeechTr": "Harika bir deneyim! Bu pozisyon için şirketimize katılma konusunda ilginizi çeken ne oldu?",
+      "expectedUserResponse": "I admire your innovative culture, and I want to contribute to high-impact international projects.",
+      "userHint": "I admire your company culture... (Şirket kültürünüzü takdir ediyorum) kalıbını kullan.",
+      "keywords": ["admire", "culture", "innovative", "contribute", "international", "projects", "company", "role"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "En Güçlü Yönün",
+      "aiSpeech": "We value that passion! What would you consider your greatest professional strength?",
+      "aiSpeechTr": "Bu tutkuya çok değer veriyoruz! En büyük mesleki güçlü yönünüzün ne olduğunu söylerdiniz?",
+      "expectedUserResponse": "My greatest strength is problem-solving and adapting quickly to new challenges.",
+      "userHint": "My greatest strength is problem-solving (En büyük gücüm problem çözmektir) kalıbıyla yanıtla.",
+      "keywords": ["greatest", "strength", "problem-solving", "adapting", "quickly", "challenges", "learning"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Baskı ve Zaman Yönetimi",
+      "aiSpeech": "That is essential here. How do you usually handle tight deadlines or stressful situations?",
+      "aiSpeechTr": "Burada bu çok önemli. Genellikle sıkışık teslim tarihlerini veya stresli durumları nasıl yönetirsiniz?",
+      "expectedUserResponse": "I prioritize tasks, communicate transparently with the team, and stay focused on solutions.",
+      "userHint": "I prioritize tasks and communicate with the team (Görevleri önceliklendirir ve ekiple iletişim kurarım) de.",
+      "keywords": ["prioritize", "tasks", "communicate", "team", "focused", "solutions", "stay", "deadlines"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Takım Çalışması & İletişim",
+      "aiSpeech": "We value teamwork here. How do you like to collaborate with your team?",
+      "aiSpeechTr": "Burada takım çalışmasına çok değer veriyoruz. Ekibinizle nasıl iş birliği yapmayı seversiniz?",
+      "expectedUserResponse": "I believe in open communication, active listening, and supporting my teammates.",
+      "userHint": "I believe in open communication (Açık iletişime ve ekip desteğine inanırım) diyerek yanıtla.",
+      "keywords": ["team", "communication", "collaborate", "support", "listen", "together", "open", "work"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Adayın Sorusu & Kapanış",
+      "aiSpeech": "You have given wonderful answers! Before we wrap up, do you have any questions for me about the team?",
+      "aiSpeechTr": "Harika yanıtlar verdiniz! Bitirmeden önce, ekip hakkında bana sormak istediğiniz bir soru var mı?",
+      "expectedUserResponse": "Yes, could you tell me more about how the team collaborates on day-to-day projects?",
+      "userHint": "Could you tell me more about the team? (Ekip hakkında biraz daha bilgi verebilir misiniz?) diye sor.",
+      "keywords": ["could", "tell", "more", "team", "collaborates", "projects", "thank", "sarah"]
+    }
+  ]
+}

@@ -32,11 +32,12 @@ type TopTabItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  badge?: string;
 };
 
 const TOP_NAV_TABS: TopTabItem[] = [
   { href: '/app', label: 'Öğren', icon: BookOpen },
-  { href: '/app/scenarios', label: 'Konuş', icon: Mic },
+  { href: '/app/scenarios', label: 'Konuş', icon: Mic, badge: '3D' },
   { href: '/app/vocab', label: 'Tekrar', icon: Archive },
   { href: '/app/podcasts', label: 'Dinle', icon: Headphones },
   { href: '/app/library', label: 'Kütüphane', icon: Layers },
@@ -143,7 +144,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all relative ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -151,6 +152,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span>{tab.label}</span>
+                  {tab.badge && (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 shadow-xs animate-pulse">
+                      {tab.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

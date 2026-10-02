@@ -9,6 +9,7 @@ import { GOAL_OPTIONS, ONBOARDING_LEVEL_OPTIONS, PERSONA_OPTIONS } from '../../c
 import { ApiError } from '../../lib/api';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 /** "Magic Moment" — this is where the real `POST /onboarding/complete` call
  * fires (see `useOnboarding().completeOnboarding`). The progress bar animates
@@ -16,6 +17,7 @@ import type { OnboardingStackScreenProps } from '../../navigation/types';
  * completes to 100% and advances once the real backend call actually
  * succeeds — never a fake fixed-duration timer pretending to be a result. */
 export function PreparingScreen({ navigation }: OnboardingStackScreenProps<'Preparing'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'preparing' });
   const { draft, completeOnboarding } = useOnboarding();
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);

@@ -25,6 +25,7 @@ import { colors, fonts, radii, shadow, spacing, typography } from '../theme/toke
 import type { ScenarioOut, SessionEndRequest, SessionOut, VocabCardCreate } from '../types/api';
 import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import type { LiveConversationRoomScreenProps } from '../navigation/types';
+import { useAnalytics, useTrackScreenView } from '../lib/analytics';
 
 const ADVANCED_PATTERNS = [
   { regex: /\b(in my opinion|from my perspective|in my experience)\b/i, label: 'STAR İfade Metodu ✨', color: '#10B981' },
@@ -57,6 +58,8 @@ function formatTimer(seconds: number): string {
 
 export function LiveConversationRoomScreen({ navigation, route }: LiveConversationRoomScreenProps) {
   const { scenarioSlug, scenarioId: paramScenarioId, scenarioTitle: paramScenarioTitle } = route.params;
+  useTrackScreenView('scenario_started', { scenario_slug: scenarioSlug });
+  const { track } = useAnalytics();
 
   // Always fetched (not just when nav params are missing) — the mission card
   // and guide sections below need the real per-scenario ai_name/ai_role/
@@ -193,6 +196,11 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
         fluency_scores: fluencyScores,
       };
       const result = await api.post<SessionOut>('/sessions/end', payload);
+      track('scenario_session_ended', {
+        scenario_slug: scenarioSlug,
+        duration_seconds: result.duration_seconds,
+        fluency_score: result.fluency_score,
+      });
       navigation.replace('Scorecard', { session: result, scenarioTitle, wordsAddedCount });
     } catch {
       navigation.goBack();
@@ -214,7 +222,13 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
     <SafeAreaView style={styles.container}>
       {/* Top Header */}
       <View style={styles.header}>
-        <Pressable onPress={handleExit} hitSlop={12} style={styles.headerIconButton}>
+        <Pressable
+          onPress={handleExit}
+          hitSlop={12}
+          style={styles.headerIconButton}
+          accessibilityRole="button"
+          accessibilityLabel="Sahneden çık"
+        >
           <Ionicons name="close" size={22} color={colors.textHeading} />
         </Pressable>
 

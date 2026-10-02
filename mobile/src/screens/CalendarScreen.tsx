@@ -14,7 +14,7 @@ import {
   ALL_TOPIC_CODES,
   CEFR_CURRICULUM,
   computeFullCompletion,
-} from '../data/curriculumData';
+} from '@talkstage/shared-data/curriculumData';
 import { buildMissionsForLevel } from '../data/writingCurriculum';
 import { api } from '../lib/api';
 import { pullLearningFlags } from '../lib/learningFlags';

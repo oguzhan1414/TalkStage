@@ -11,7 +11,7 @@ import {
   ChevronRight,
   Clock,
 } from 'lucide-react';
-import { CEFR_CURRICULUM, isTopicCompleted, type CurriculumTopic } from '@/data/curriculumData';
+import { CEFR_CURRICULUM, isTopicCompleted, type CurriculumTopic } from '@talkstage/shared-data/curriculumData';
 import { listReadingPassages, getCompletedReadingSlugs } from '@/lib/reading';
 import { getSavedVocabCards, syncCloudVocabCards } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';

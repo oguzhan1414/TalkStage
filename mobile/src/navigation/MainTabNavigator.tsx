@@ -3,6 +3,7 @@ import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { navIcons } from '../assets/images';
+import { CurriculumScreen } from '../screens/CurriculumScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ScenariosScreen } from '../screens/ScenariosScreen';
@@ -16,15 +17,16 @@ const TAB_CONFIG: Record<
   keyof MainTabParamList,
   { label: string; icon: ReturnType<typeof require> }
 > = {
-  Home: { label: 'Sahne', icon: navIcons.home },
-  Scenarios: { label: 'Seviyeler', icon: navIcons.trophy },
+  Home: { label: 'Ana Sayfa', icon: navIcons.home },
+  Roadmap: { label: 'Harita', icon: navIcons.trophy },
+  Scenarios: { label: '3D Sahne', icon: navIcons.voice },
   Vocab: { label: 'Kelimeler', icon: navIcons.decks },
   Profile: { label: 'Profil', icon: navIcons.profile },
 };
 
 /**
  * Custom Floating Island Capsule Bottom Navigation Bar (Apple Pro / Glassmorphic)
- * Inspired by Reference Image 1 & 4.
+ * 5-tab structure: Ana Sayfa, Harita (CEFR Roadmap), 3D Sahne (Cinema Studio), Kelimeler, Profil
  */
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
@@ -37,15 +39,15 @@ export function MainTabNavigator() {
         tabBarStyle: {
           position: 'absolute',
           bottom: bottomMargin,
-          left: 18,
-          right: 18,
+          left: 14,
+          right: 14,
           height: 68,
-          backgroundColor: 'rgba(255, 255, 255, 0.94)',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
           borderRadius: 34,
           borderWidth: 1,
           borderColor: 'rgba(255, 255, 255, 0.9)',
           paddingBottom: 0,
-          paddingHorizontal: 8,
+          paddingHorizontal: 4,
           ...shadow.card,
           shadowOpacity: 0.14,
           shadowRadius: 25,
@@ -74,6 +76,9 @@ export function MainTabNavigator() {
               <Pressable
                 key={route.key}
                 onPress={onPress}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isFocused }}
+                accessibilityLabel={config.label}
                 style={[styles.tabItem, isFocused && styles.tabItemActive]}
               >
                 <View style={[styles.iconContainer, isFocused && styles.iconContainerActive]}>
@@ -99,6 +104,7 @@ export function MainTabNavigator() {
       )}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Roadmap" component={CurriculumScreen} />
       <Tab.Screen name="Scenarios" component={ScenariosScreen} />
       <Tab.Screen name="Vocab" component={VocabScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -109,17 +115,17 @@ export function MainTabNavigator() {
 const styles = StyleSheet.create({
   floatingBar: {
     position: 'absolute',
-    left: 18,
-    right: 18,
-    height: 70,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 35,
+    left: 12,
+    right: 12,
+    height: 68,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
+    borderRadius: 34,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.95)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',
@@ -136,37 +142,36 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
-    borderRadius: 24,
+    paddingVertical: 5,
+    borderRadius: 20,
   },
   tabItemActive: {},
   iconContainer: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
   },
   iconContainerActive: {
-    backgroundColor: 'rgba(79, 70, 229, 0.12)',
-    borderWidth: 1.5,
-    borderColor: colors.brand,
-    transform: [{ scale: 1.06 }],
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    borderColor: 'rgba(79, 70, 229, 0.25)',
+    transform: [{ scale: 1.08 }],
   },
   iconImage: {
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
   },
   iconImageInactive: {
-    opacity: 0.8,
+    opacity: 0.6,
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontFamily: fonts.bodyMedium,
-    marginTop: 2,
+    marginTop: 1.5,
   },
   tabLabelActive: {
     color: colors.brand,

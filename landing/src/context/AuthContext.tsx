@@ -5,6 +5,7 @@ import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { api, ApiError } from '@/lib/api';
 import type { OnboardingCompleteRequest, ProfileOut, ProfileUpdate } from '@/types/api';
+import { identifyUser, resetAnalyticsIdentity, trackEvent } from '@/lib/analytics';
 
 // Web's onboarding form uses its own short goal ids for copywriting reasons —
 // the backend (and mobile) expect the real enum values from
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async (currentUser: User) => {
+    identifyUser(currentUser.id, { email: currentUser.email ?? null });
     try {
       const { data: dbProfile } = await supabase
         .from('profiles')
@@ -204,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       setSession(data.session);
       await fetchUserProfile(data.user);
+      trackEvent('sign_in_completed');
       return {};
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu';
@@ -272,6 +275,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // shows up (i.e. once the user confirms their email and signs in).
       }
 
+      if (data.user) {
+        trackEvent('sign_up_completed', { needs_email_confirmation: !data.session });
+      }
       return { user: data.user ?? undefined, needsEmailConfirmation: !data.session };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu';
@@ -293,6 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    resetAnalyticsIdentity();
     window.location.href = '/giris';
   };
 

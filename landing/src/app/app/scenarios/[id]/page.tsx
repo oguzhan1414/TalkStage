@@ -13,12 +13,13 @@ import {
   Award,
   Plus,
 } from 'lucide-react';
-import { SCENARIOS, type ScenarioEntry } from '@/data/scenariosData';
+import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { speakEnglish } from '@/lib/audio';
 import { saveVocabCard } from '@/lib/storage';
 import { api, ApiError } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { ChatCorrection, ChatMessageResponse, ChatTurn } from '@/types/api';
+import { InteractiveVideoScenario } from '@/components/InteractiveVideoScenario';
 
 type ChatMessage = {
   id: string;
@@ -49,6 +50,7 @@ export default function ScenarioStudioPage({ params }: { params: Promise<{ id: s
   const [completedObjectives, setCompletedObjectives] = useState<string[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const practiceLoggedRef = useRef(false);
@@ -188,6 +190,33 @@ export default function ScenarioStudioPage({ params }: { params: Promise<{ id: s
           <span className="text-xs font-medium text-slate-400">• {scenario.durationMin} dk</span>
         </div>
       </div>
+
+      {/* 3D Video Scenario Callout Banner */}
+      {scenario.videoSteps && scenario.videoSteps.length > 0 && (
+        <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-xl shrink-0">
+              🎬
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xs text-amber-300">3D Pixar Animasyon Modu Aktif</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-200 font-semibold">Yeni</span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                Yankı ile kafede yüz yüze buluş, 6 adımlı animasyonlu sahnede mikrofonunla doğrudan konuş.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowVideoModal(true)}
+            className="shrink-0 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-bold text-xs shadow-md transition-all inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>3D Sahneyi Başlat</span>
+            <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+          </button>
+        </div>
+      )}
 
       {/* DUAL-PANEL LAYOUT (Left: Interactive Chat, Right: Live AI Coaching Radar) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start h-[calc(100vh-12rem)]">
@@ -466,6 +495,18 @@ export default function ScenarioStudioPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </div>
+
+      {/* 3D Interactive Video Modal */}
+      {showVideoModal && (
+        <InteractiveVideoScenario
+          scenario={scenario}
+          onClose={() => setShowVideoModal(false)}
+          onComplete={(xp) => {
+            setToastMessage(`Tebrikler! 3D senaryoyu başarıyla tamamladın (+${xp} XP) 🎉`);
+            setShowVideoModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

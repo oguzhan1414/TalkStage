@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Modal,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
+  DEFAULT_VOCAB_DECKS,
   markWordAsMasteredInDeck,
   type VocabDeck,
   type VocabDeckWord,
@@ -36,15 +37,26 @@ type Props = {
   deck: VocabDeck | null;
   onClose: () => void;
   onDeckCompleted?: () => void;
+  /** Lowercased terms already saved to the user's real vocab_cards ("Sandık")
+   * — used to show "✓ Sandığında" instead of an add button for words that
+   * are already tracked by the SM-2 system. */
+  savedTermsLower?: Set<string>;
+  /** Bridges a deck word into the SM-2 review queue on request — Klasörler
+   * and Akıllı Pratik/Sözlüğüm are otherwise two fully separate systems
+   * (deck "mastery" here never touched vocab_cards), which read as
+   * duplicated features. This lets the user consciously connect the two. */
+  onAddToChest?: (word: VocabDeckWord) => Promise<boolean>;
 };
 
-export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted }: Props) {
+export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedTermsLower, onAddToChest }: Props) {
   const { pronounce, isPlaying } = usePronunciation();
   const [queue, setQueue] = useState<VocabDeckWord[]>([]);
   const [initialCount, setInitialCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [masteredCount, setMasteredCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [addingToChest, setAddingToChest] = useState(false);
+  const [locallyAddedIds, setLocallyAddedIds] = useState<Set<string>>(new Set());
 
   const pan = useRef(new Animated.ValueXY()).current;
 
@@ -137,6 +149,19 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted }: Prop
 
   const posInfo = currentWord?.pos ? POS_LABELS[currentWord.pos.toLowerCase()] : null;
   const progressRatio = initialCount > 0 ? Math.min(1, masteredCount / initialCount) : 0;
+  const isCurrentWordSaved = currentWord
+    ? locallyAddedIds.has(currentWord.id) || Boolean(savedTermsLower?.has(currentWord.term.trim().toLowerCase()))
+    : false;
+
+  const handleAddCurrentToChest = async () => {
+    if (!currentWord || !onAddToChest || addingToChest || isCurrentWordSaved) return;
+    setAddingToChest(true);
+    const success = await onAddToChest(currentWord);
+    setAddingToChest(false);
+    if (success) {
+      setLocallyAddedIds((prev) => new Set(prev).add(currentWord.id));
+    }
+  };
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
@@ -266,11 +291,31 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted }: Prop
               <Pressable style={styles.cardInner} onPress={() => setIsFlipped(!isFlipped)}>
                 {/* Top Badge Row */}
                 <View style={styles.cardTopRow}>
-                  {posInfo && (
-                    <View style={[styles.posBadge, { backgroundColor: posInfo.bg }]}>
-                      <Text style={[styles.posBadgeText, { color: posInfo.text }]}>{posInfo.label}</Text>
-                    </View>
-                  )}
+                  <View style={styles.cardTopLeftGroup}>
+                    {posInfo && (
+                      <View style={[styles.posBadge, { backgroundColor: posInfo.bg }]}>
+                        <Text style={[styles.posBadgeText, { color: posInfo.text }]}>{posInfo.label}</Text>
+                      </View>
+                    )}
+                    {onAddToChest && (
+                      <BouncyPressable
+                        onPress={handleAddCurrentToChest}
+                        disabled={isCurrentWordSaved || addingToChest}
+                        style={[styles.addToChestBtn, isCurrentWordSaved && styles.addToChestBtnSaved]}
+                        hapticType={isCurrentWordSaved ? 'light' : 'success'}
+                        scaleTo={0.94}
+                      >
+                        <Ionicons
+                          name={isCurrentWordSaved ? 'checkmark-circle' : 'add-circle-outline'}
+                          size={13}
+                          color={isCurrentWordSaved ? '#059669' : '#4F46E5'}
+                        />
+                        <Text style={[styles.addToChestBtnText, isCurrentWordSaved && styles.addToChestBtnTextSaved]}>
+                          {isCurrentWordSaved ? 'Sandığında' : 'Sandığa Ekle'}
+                        </Text>
+                      </BouncyPressable>
+                    )}
+                  </View>
                   <BouncyPressable
                     onPress={() => pronounce(currentWord.term)}
                     style={styles.audioBtn}
@@ -454,6 +499,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  cardTopLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  addToChestBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#EEF2FF',
+  },
+  addToChestBtnSaved: {
+    backgroundColor: '#F0FDF4',
+  },
+  addToChestBtnText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 10.5,
+    color: '#4F46E5',
+  },
+  addToChestBtnTextSaved: {
+    color: '#059669',
   },
   posBadge: {
     paddingHorizontal: 10,

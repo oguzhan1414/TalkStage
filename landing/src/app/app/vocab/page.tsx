@@ -714,7 +714,7 @@ export default function VocabPage() {
         <div className="space-y-6">
           {/* Practice Header & Study Source Selector */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 text-xs flex-wrap">
               <span className="font-bold text-slate-700">Çalışma Seti:</span>
               <select
                 value={studyDeckId}
@@ -737,13 +737,12 @@ export default function VocabPage() {
               </select>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-slate-500 font-mono">
-              <span>Kart: {studyQueue.length > 0 ? currentIndex + 1 : 0} / {studyQueue.length}</span>
-              <span>•</span>
-              <span className="text-emerald-600 font-bold">Tamamlanan: {reviewedSessionCount}</span>
+            <div className="text-xs text-slate-400 font-medium">
+              Kalan: <span className="font-bold text-slate-700">{studyQueue.length - currentIndex}</span> • Tamamlanan: <span className="font-bold text-indigo-600">{reviewedSessionCount}</span>
             </div>
           </div>
 
+          {/* 3D FLASHCARD (SM-2) */}
           {currentStudyCard ? (
             <div className="max-w-2xl mx-auto space-y-6">
               {/* 3D Flip Card */}
@@ -801,7 +800,7 @@ export default function VocabPage() {
                       e.stopPropagation();
                       speakEnglish(currentStudyCard.term);
                     }}
-                    className="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-bold"
+                    className="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
                   >
                     <Volume2 className="w-4 h-4" />
                     <span>Telaffuzu Dinle</span>
@@ -839,21 +838,34 @@ export default function VocabPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto">
+            <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto shadow-sm">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl">
                 🎉
               </div>
               <h3 className="font-extrabold text-slate-900 text-lg">Bu Set İçin Tekrarlar Bitti!</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Tebrikler! Seçtiğin klasördeki tüm kelimeleri çalıştın. Başka bir klasör seçebilir veya sözlüğüne yeni kelimeler ekleyebilirsin.
+                Tebrikler! Seçtiğin setteki tüm kartları gözden geçirdin. SM-2 algoritması sayesinde kalıcı hafızan güçleniyor.
               </p>
-              <button
-                onClick={() => setTab('decks')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-all cursor-pointer"
-              >
-                <Folder className="w-4 h-4" />
-                <span>Klasörlere Dön</span>
-              </button>
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setStudyDeckId('all');
+                    setCurrentIndex(0);
+                    setIsFlipped(false);
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Tüm Kelimelerle Pratik Yap</span>
+                </button>
+                <button
+                  onClick={() => setTab('decks')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-all cursor-pointer"
+                >
+                  <Folder className="w-4 h-4" />
+                  <span>Klasörlere Dön</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

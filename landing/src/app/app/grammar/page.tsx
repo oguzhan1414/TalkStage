@@ -22,13 +22,13 @@ import {
   FileText,
   Table,
 } from 'lucide-react';
-import { CEFR_CURRICULUM, type CurriculumTopic } from '@/data/curriculumData';
+import { CEFR_CURRICULUM, type CurriculumTopic } from '@talkstage/shared-data/curriculumData';
 import {
   ALL_GRAMMAR_LESSONS,
   findGrammarLesson,
   type GrammarLesson,
   type GrammarQuizQuestion,
-} from '@/data/grammarLessons';
+} from '@talkstage/shared-data/grammarLessons';
 import { speakEnglish } from '@/lib/audio';
 import { completeLesson, getStudyStats, getSavedVocabCards } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';

@@ -1,0 +1,72 @@
+{
+  "id": "doctor-visit",
+  "title": "Doctor's Consultation & Health Check",
+  "titleTr": "Doktor Muayenesi & Sağlık Şikayeti",
+  "level": "A2",
+  "category": "daily",
+  "coverImage": "scenarios/doctor-visit/doctor.jpeg",
+  "description": "Londra kliniğinde Dr. Emma ile görüş, baş ve boğaz ağrısı şikayetlerini anlat, muayeneden geç, reçeteni al ve sağlığına hızla kavuş.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Klinikte Karşılama & Şikayeti Anlatma",
+      "aiSpeech": "Good morning! Please take a seat. What brings you into the clinic today?",
+      "aiSpeechTr": "Günaydın! Lütfen oturun. Bugün sizi kliniğe getiren şikayetiniz nedir?",
+      "expectedUserResponse": "Good morning, doctor. I have had a terrible headache and a sore throat since yesterday.",
+      "userHint": "Good morning doctor, I have a headache and sore throat (Başım ve boğazım ağrıyor) diyerek başla.",
+      "keywords": ["good", "morning", "doctor", "headache", "sore", "throat", "pain", "yesterday"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Ateş & Semptom Detayları",
+      "aiSpeech": "I am sorry to hear that. Have you had any fever or chills alongside the throat pain?",
+      "aiSpeechTr": "Bunu duyduğuma üzüldüm. Boğaz ağrısının yanında ateş veya titreme hissettiniz mi?",
+      "expectedUserResponse": "Yes, I felt feverish last night and my temperature was around 38 degrees.",
+      "userHint": "Yes, I had a mild fever last night (Evet dün gece ateşim vardı) diyerek yanıtla.",
+      "keywords": ["yes", "fever", "temperature", "chills", "degrees", "felt", "night"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Boğaz ve Ciğer Muayenesi",
+      "aiSpeech": "Let me take a quick look. Please open your mouth wide and say 'Ah' for me.",
+      "aiSpeechTr": "Hemen hızlıca bir bakayım. Lütfen ağzınızı iyice açın ve benim için 'Aa' deyin.",
+      "expectedUserResponse": "Ah... Does the back of my throat look very inflamed or red?",
+      "userHint": "Ah... diyerek 'Does it look inflamed?' (İltihaplı görünüyor mu?) diye sor.",
+      "keywords": ["ah", "throat", "inflamed", "red", "look", "doctor", "does"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Teşhis Açıklaması",
+      "aiSpeech": "Your throat is slightly inflamed, but your lungs sound completely clear. It looks like a mild viral infection.",
+      "aiSpeechTr": "Boğazınız biraz iltihaplı ama ciğerlerinizin sesi tamamen temiz geliyor. Hafif bir viral enfeksiyon gibi görünüyor.",
+      "expectedUserResponse": "That is a relief! Do I need to take any antibiotics for this?",
+      "userHint": "That is a relief! (Bu bir rahatlama!) de ve antibiyotik gerekip gerekmediğini sor.",
+      "keywords": ["relief", "antibiotics", "need", "take", "that", "good", "thank"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Reçete & İlaç Bilgisi",
+      "aiSpeech": "No antibiotics needed. I will write a prescription for pain relief and a soothing throat spray.",
+      "aiSpeechTr": "Antibiyotiğe gerek yok. Ağrıyı dindirmek için bir ağrı kesici ve rahatlatıcı bir boğaz spreyi reçete edeceğim.",
+      "expectedUserResponse": "How often should I use the throat spray throughout the day?",
+      "userHint": "How often should I use the throat spray? (Boğaz spreyini günde kaç kez kullanmalıyım?) diye sor.",
+      "keywords": ["often", "how", "use", "spray", "throat", "day", "prescription"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Tavsiyeler & Reçeteyi Teslim Etme",
+      "aiSpeech": "Use it three times a day after meals, drink plenty of warm fluids, and get lots of rest!",
+      "aiSpeechTr": "Yemeklerden sonra günde üç kez kullanın, bol ılık sıvı tüketin ve bol bol dinlenin!",
+      "expectedUserResponse": "Thank you so much for your care, Dr. Emma. Have a wonderful day!",
+      "userHint": "Thank you so much for your care, Dr. Emma! (İlginiz için teşekkürler!) diyerek vedalaş.",
+      "keywords": ["thank", "much", "care", "doctor", "emma", "day", "goodbye"]
+    }
+  ]
+}

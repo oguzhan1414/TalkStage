@@ -1,0 +1,72 @@
+{
+  "id": "restaurant-dinner",
+  "title": "Italian Dinner & Ordering Food",
+  "titleTr": "İtalyan Restoranında Akşam Yemeği",
+  "level": "A2",
+  "category": "daily",
+  "coverImage": "scenarios/restaurant-dinner/restaurant.jpeg",
+  "description": "Trattoria Bella'da masaya geç, sıcakkanlı İtalyan şef Marco ile tanış, günün deniz ürünlü fettuccine spesiyalını sipariş et, tiramisu ve espresso ile harika bir akşam geçir.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Masaya Karşılama & Menü Takdimi",
+      "aiSpeech": "Good evening! Welcome to Trattoria Bella. Table for one or two tonight?",
+      "aiSpeechTr": "İyi akşamlar! Trattoria Bella'ya hoş geldiniz. Bu akşam bir mi iki kişilik masa mı arzu edersiniz?",
+      "expectedUserResponse": "Good evening! A table for one by the window, please.",
+      "userHint": "Good evening! A table for one, please (Tek kişilik bir masa lütfen) diyerek başla.",
+      "keywords": ["good", "evening", "table", "one", "two", "window", "please"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Başlangıç & İçecek Siparişi",
+      "aiSpeech": "Right this way! Can I start you off with some sparkling water or wine?",
+      "aiSpeechTr": "Bu taraftan lütfen! Başlangıç olarak maden suyu veya şarap ikram edebilir miyim?",
+      "expectedUserResponse": "I would like a glass of sparkling water with lemon, please.",
+      "userHint": "I would like a glass of sparkling water (Bir bardak maden suyu lütfen) kalıbını kullan.",
+      "keywords": ["would", "like", "glass", "water", "sparkling", "lemon", "wine", "please"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Günün Spesiyali & Ana Yemek Siparişi",
+      "aiSpeech": "Our chef's special tonight is handmade seafood fettuccine. What would you like for dinner?",
+      "aiSpeechTr": "Şefimizin bu akşamki spesiyali el yapımı deniz ürünlü fettuccine. Akşam yemeği için ne arzu edersiniz?",
+      "expectedUserResponse": "The fettuccine sounds delicious! I will have that, please.",
+      "userHint": "The fettuccine sounds delicious! I will have that (Ondan alayım lütfen) de.",
+      "keywords": ["fettuccine", "sounds", "delicious", "will", "have", "that", "please", "pasta"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Yemek Kontrolü & Lezzet Geri Bildirimi",
+      "aiSpeech": "How is everything tasting tonight? Is the pasta cooked to your liking?",
+      "aiSpeechTr": "Yemeğinizin tadı nasıl, her şey yolunda mı? Makarnanız tam istediğiniz kıvamda mı?",
+      "expectedUserResponse": "Everything is absolutely delicious! The pasta is perfect, thank you.",
+      "userHint": "Everything is absolutely delicious! (Her şey son derece lezzetli!) diyerek teşekkür et.",
+      "keywords": ["everything", "delicious", "pasta", "perfect", "thank", "tasting", "good"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Tatlı & Espresso Önerisi",
+      "aiSpeech": "Wonderful! Room for dessert? We have fresh homemade tiramisu and hot espresso.",
+      "aiSpeechTr": "Harika! Tatlıya yeriniz var mı? Taze ev yapımı tiramisu ve sıcak espressomuz var.",
+      "expectedUserResponse": "I cannot resist tiramisu! One tiramisu and an espresso, please.",
+      "userHint": "One tiramisu and an espresso, please (Bir tiramisu ve bir espresso lütfen) diyerek sipariş ver.",
+      "keywords": ["tiramisu", "espresso", "one", "please", "dessert", "resist", "coffee"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Hesap & Bahşiş Bırakma",
+      "aiSpeech": "Here is your bill! Take your time, whenever you are ready.",
+      "aiSpeechTr": "İşte hesabınız! Acele etmeyin, ne zaman hazır olursanız buradayım.",
+      "expectedUserResponse": "Can I pay with card? Keep the change as a tip, thank you so much!",
+      "userHint": "Can I pay with card? (Kartla ödeyebilir miyim?) de ve bahşiş bırak.",
+      "keywords": ["bill", "pay", "card", "keep", "change", "tip", "thank", "much"]
+    }
+  ]
+}

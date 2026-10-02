@@ -1,0 +1,72 @@
+{
+  "id": "hotel-checkin",
+  "title": "Hotel Check-In & Room Preferences",
+  "titleTr": "Otelde Check-In & Oda Tercihleri",
+  "level": "A1",
+  "category": "travel",
+  "coverImage": "scenarios/hotel-checkin/hotel.jpeg",
+  "description": "Grand Hotel lobisinde resepsiyonist Oliver ile tanış, rezervasyonunu teyit et, oda tercihini belirt, Wi-Fi ve kahvaltı bilgilerini alıp oda kartını teslim al.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Resepsiyonda Karşılama & Rezervasyon",
+      "aiSpeech": "Good afternoon! Welcome to the Grand Hotel. Do you have a reservation with us?",
+      "aiSpeechTr": "Tünaydın! Grand Hotel'e hoş geldiniz. Bizde bir rezervasyonunuz var mıydı?",
+      "expectedUserResponse": "Good afternoon! Yes, I have a reservation under my name.",
+      "userHint": "Good afternoon! Yes, I have a reservation (Evet rezervasyonum var) diyerek başla.",
+      "keywords": ["good", "afternoon", "reservation", "name", "yes", "hotel", "hello"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Rezervasyon Onayı & Belgeler",
+      "aiSpeech": "Perfect! May I please see your booking confirmation and travel documents?",
+      "aiSpeechTr": "Harika! Check-in işlemini tamamlamak için rezervasyon onayınızı ve seyahat belgelerinizi görebilir miyim?",
+      "expectedUserResponse": "Sure, here is my booking confirmation and travel document.",
+      "userHint": "Sure, here is my booking confirmation (Elbette, işte rezervasyon onayım) kalıbını kullan.",
+      "keywords": ["sure", "here", "booking", "confirmation", "travel", "document", "please", "yes"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Oda Tercihi & Kat Seçimi",
+      "aiSpeech": "Thank you. Would you prefer a room on a higher floor or closer to the garden?",
+      "aiSpeechTr": "Teşekkürler. Yüksek katta bir oda mı yoksa bahçeye yakın bir oda mı tercih edersiniz?",
+      "expectedUserResponse": "I would prefer a room on a higher floor with a nice view, please.",
+      "userHint": "I would prefer a room on a higher floor (Yüksek katta bir oda tercih ederim) de.",
+      "keywords": ["prefer", "higher", "floor", "view", "garden", "room", "please"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Kahvaltı & Wi-Fi Bilgileri",
+      "aiSpeech": "Breakfast is served every morning from seven to ten, and Wi-Fi is completely free.",
+      "aiSpeechTr": "Kahvaltı her sabah yedi ile on arasında servis edilir ve Wi-Fi tamamen ücretsizdir.",
+      "expectedUserResponse": "That sounds great! Where is the breakfast room located?",
+      "userHint": "That sounds great! Where is breakfast? (Kahvaltı nerede?) diyerek sor.",
+      "keywords": ["sounds", "great", "where", "breakfast", "located", "room", "thank"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Oda Kartı & Asansör Yönlendirmesi",
+      "aiSpeech": "Here is your electronic room keycard for room 305. The elevators are just to your right.",
+      "aiSpeechTr": "İşte 305 numaralı odanız için elektronik kart anahtarınız. Asansörler hemen sağınızda.",
+      "expectedUserResponse": "Thank you very much! Does this keycard also open the main entrance?",
+      "userHint": "Thank you very much! (Çok teşekkür ederim) diyerek anahtar kartını al.",
+      "keywords": ["thank", "much", "keycard", "open", "door", "room", "elevator"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Bagaj Yardımı & İyi Konaklamalar",
+      "aiSpeech": "Our bellboy can help with your luggage. We hope you enjoy your stay with us!",
+      "aiSpeechTr": "Belboyumuz bagajlarınız için yardımcı olabilir. Umarız bizimle harika bir konaklama geçirirsiniz!",
+      "expectedUserResponse": "Thank you for your help, Oliver! Have a wonderful day, goodbye!",
+      "userHint": "Thank you for your help! (Yardımın için teşekkürler) diyerek iyi günler dile.",
+      "keywords": ["thank", "help", "oliver", "wonderful", "day", "goodbye", "bye"]
+    }
+  ]
+}

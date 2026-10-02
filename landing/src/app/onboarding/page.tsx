@@ -322,10 +322,11 @@ export default function OnboardingPage() {
             )}
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Adınız & Soyadınız</label>
+              <label htmlFor="onboarding-name" className="block text-xs font-bold text-slate-700 mb-1">Adınız & Soyadınız</label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="onboarding-name"
                   type="text"
                   autoFocus
                   placeholder="Örn: Ahmet Yılmaz"
@@ -687,12 +688,13 @@ export default function OnboardingPage() {
 
             <form className="space-y-4" onSubmit={handleCreateAccount}>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="onboarding-signup-email" className="block text-xs font-bold text-slate-700 mb-1">
                   E-posta Adresi
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
+                    id="onboarding-signup-email"
                     type="email"
                     required
                     placeholder="ornek@email.com"
@@ -704,10 +706,11 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Şifre</label>
+                <label htmlFor="onboarding-signup-password" className="block text-xs font-bold text-slate-700 mb-1">Şifre</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
+                    id="onboarding-signup-password"
                     type="password"
                     required
                     placeholder="En az 6 karakter"

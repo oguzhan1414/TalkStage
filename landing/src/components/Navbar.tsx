@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Logo from './Logo';
+import { trackEvent } from '@/lib/analytics';
 
 const NAV_LINKS = [
   { href: '/app', label: '💻 Web Stüdyosu', highlight: true },
@@ -44,6 +45,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/onboarding"
+            onClick={() => trackEvent('cta_clicked', { location: 'navbar' })}
             className="inline-flex items-center gap-1.5 rounded-full bg-linear-to-r from-indigo to-indigo-dark px-5 py-2 text-xs font-bold text-white shadow-[0_10px_24px_-8px_rgba(227,167,63,0.5)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-6px_rgba(227,167,63,0.6)]"
           >
             <span>Ücretsiz Başla</span>

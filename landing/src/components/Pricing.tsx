@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Reveal from "./Reveal";
+import { trackEvent } from "@/lib/analytics";
 
 const plans = [
   {
@@ -141,6 +144,7 @@ export default function Pricing() {
 
                 <a
                   href="#indir"
+                  onClick={() => trackEvent('cta_clicked', { location: 'pricing', plan: plan.name })}
                   className={`mt-8 inline-flex items-center justify-center rounded-full py-3.5 text-[0.95rem] font-semibold transition-all hover:-translate-y-0.5 ${plan.ctaStyle}`}
                 >
                   {plan.cta}

@@ -1,0 +1,72 @@
+{
+  "id": "airport-travel",
+  "title": "Airport Check-In & Flight Departure",
+  "titleTr": "Havalimanında Check-In ve Uçuş",
+  "level": "A1",
+  "category": "travel",
+  "coverImage": "scenarios/airport-travel/airport.jpeg",
+  "description": "Yankı ile havalimanında buluş, check-in kontuarında bilet ve pasaport işlemlerini yap, bavulunu teslim et ve uçağa biniş kapısına doğru ilerle.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Havalimanına Varış & Bilgi Ekranı",
+      "aiSpeech": "Welcome to the airport! We have a flight to catch. Are you ready for check-in?",
+      "aiSpeechTr": "Havalimanına hoş geldin! Yetişmemiz gereken bir uçuş var. Check-in için hazır mısın?",
+      "expectedUserResponse": "Yes, I am ready! Which airline are we flying with?",
+      "userHint": "Yes, I am ready! (Evet hazırım) diyerek başla.",
+      "keywords": ["yes", "ready", "flight", "check-in", "airline", "airport"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Check-In Deski & Belgeler",
+      "aiSpeech": "First, let's check in! Do you have your ticket and travel documents with you?",
+      "aiSpeechTr": "Önce check-in yapalım! Biletin ve seyahat belgelerin yanında mı?",
+      "expectedUserResponse": "Yes, here is my ticket and travel document.",
+      "userHint": "Here is my ticket (İşte biletim) kalıbını kullan.",
+      "keywords": ["here", "ticket", "travel", "document", "passport", "yes"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Bagaj Tartımı & Bavul Teslimi",
+      "aiSpeech": "Please put your suitcase on the luggage scale. How many bags are you checking in today?",
+      "aiSpeechTr": "Lütfen bavulunu bagaj tartısına koy. Bugün kaç parça valiz veriyorsun?",
+      "expectedUserResponse": "I have one suitcase to check in, and this small backpack as carry-on.",
+      "userHint": "I have one suitcase (Bir bavulum var) diyerek yanıtla.",
+      "keywords": ["one", "suitcase", "bag", "backpack", "carry-on", "check"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Güvenlik Kontrolü & X-Ray Tepsisi",
+      "aiSpeech": "We need to pass through security screening now. Please place your electronics in the plastic tray.",
+      "aiSpeechTr": "Şimdi güvenlik kontrolünden geçmemiz gerekiyor. Lütfen elektronik cihazlarını plastik tepsiye koy.",
+      "expectedUserResponse": "Sure, here is my laptop and phone in the tray.",
+      "userHint": "Sure, here is my laptop (Elbette, işte dizüstü bilgisayarım) de.",
+      "keywords": ["sure", "laptop", "phone", "tray", "electronics", "here"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Kapı Bekleme Alanı & Koltuk Tercihi",
+      "aiSpeech": "Our flight departs from Gate 14. Which seat do you prefer: window seat or aisle seat?",
+      "aiSpeechTr": "Uçağımız 14 numaralı kapıdan kalkıyor. Hangi koltuğu tercih edersin: pencere kenarı mı, koridor mu?",
+      "expectedUserResponse": "I prefer a window seat so I can see the clouds.",
+      "userHint": "I prefer a window seat (Pencere kenarını tercih ederim) de.",
+      "keywords": ["window", "aisle", "seat", "prefer", "clouds", "like"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Uçağa Biniş & İyi Uçuşlar",
+      "aiSpeech": "Our flight is boarding now! You spoke great English at the airport. Have a wonderful flight and safe travels!",
+      "aiSpeechTr": "Uçağımız binişe başladı! Havalimanında harika İngilizce konuştun. Harika bir uçuş ve güvenli yolculuklar dilerim!",
+      "expectedUserResponse": "Thank you so much Yankı! Have a great journey too, goodbye!",
+      "userHint": "Thank you Yankı! Have a great journey (Sana da iyi yolculuklar) diyerek vedalaş.",
+      "keywords": ["thank", "you", "flight", "safe", "journey", "goodbye", "bye"]
+    }
+  ]
+}

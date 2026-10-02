@@ -38,6 +38,7 @@ export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList>
 
 export type MainTabParamList = {
   Home: undefined;
+  Roadmap: undefined;
   Scenarios: undefined;
   Vocab: undefined;
   Profile: undefined;

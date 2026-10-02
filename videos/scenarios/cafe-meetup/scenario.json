@@ -1,0 +1,72 @@
+{
+  "id": "cafe-meetup",
+  "title": "Café Meetup & Ordering Coffee",
+  "titleTr": "Kafede Tanışma ve Kahve Siparişi",
+  "level": "A1",
+  "category": "daily",
+  "coverImage": "scenarios/cafe-meetup/coffe.jpeg",
+  "description": "Yankı ile kafede buluş, barista tezgahından içeceğini sipariş et ve pencere kenarında kahveni yudumlarken tanışma sohbeti yap.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Girişte Karşılama",
+      "aiSpeech": "Hey! Over here! Welcome to the café! I am so happy to meet you. What is your name?",
+      "aiSpeechTr": "Hey! Buradayım! Kafeye hoş geldin! Seninle tanıştığıma çok sevindim. Adın neydi?",
+      "expectedUserResponse": "Hello Yankı! My name is [Adın]. Nice to meet you too!",
+      "userHint": "Hello Yankı! My name is... diyerek kendini tanıt.",
+      "keywords": ["hello", "name", "nice", "meet", "yanki", "hi"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Barista Tezgahı & Sipariş",
+      "aiSpeech": "Let's get some drinks first! They have great coffee and tea here. What would you like to drink?",
+      "aiSpeechTr": "Önce içeceklerimizi alalım! Burada harika kahve ve çaylar var. Ne içmek istersin?",
+      "expectedUserResponse": "I would like a cappuccino, please.",
+      "userHint": "Sipariş ver: 'I would like a cappuccino, please' veya 'A cup of tea, please'",
+      "keywords": ["cappuccino", "coffee", "tea", "like", "please", "water", "want"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Masaya Oturma & Kahveler",
+      "aiSpeech": "Mmm, this coffee smells delicious! Cheers! So, tell me, where are you from?",
+      "aiSpeechTr": "Mmm, bu kahve nefis kokuyor! Şerefe! Söyle bakalım, nerelisin?",
+      "expectedUserResponse": "Cheers! I am from Turkey, and I live in Istanbul.",
+      "userHint": "Cheers! (Şerefe) de ve 'I am from Turkey' kalıbını kullan.",
+      "keywords": ["cheers", "turkey", "from", "live", "istanbul", "ankara", "izmir"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Masada Sohbet",
+      "aiSpeech": "Turkey is an amazing country! And what do you do? Are you working, or are you a student?",
+      "aiSpeechTr": "Türkiye harika bir ülke! Peki ne iş yapıyorsun? Çalışıyor musun, yoksa öğrenci misin?",
+      "expectedUserResponse": "I am working as an engineer.",
+      "userHint": "I am working (Çalışıyorum) veya I am a student (Öğrenciyim) de.",
+      "keywords": ["work", "working", "student", "engineer", "job", "study"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Neden İngilizce?",
+      "aiSpeech": "That is great! So, why are you learning English? Do you want to travel to other countries?",
+      "aiSpeechTr": "Çok iyi! Peki neden İngilizce öğreniyorsun? Başka ülkelere seyahat etmek istiyor musun?",
+      "expectedUserResponse": "Yes, I love traveling! I want to speak English fluently.",
+      "userHint": "Yes, I want to travel (Evet, seyahat etmek istiyorum) kalıbını kullan.",
+      "keywords": ["yes", "travel", "traveling", "english", "fluently", "world", "country"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Kalkış & Vedalaşma",
+      "aiSpeech": "You spoke English really well today! Thank you for the coffee. Let's meet again tomorrow! Have a great day!",
+      "aiSpeechTr": "Bugün gerçekten çok güzel İngilizce konuştun! Kahve için teşekkür ederim. Yarın yine buluşalım! Harika bir gün geçir!",
+      "expectedUserResponse": "Thank you Yankı! See you tomorrow, goodbye!",
+      "userHint": "Thank you Yankı! See you tomorrow, goodbye! diyerek vedalaş.",
+      "keywords": ["thank", "you", "see", "tomorrow", "goodbye", "bye", "day"]
+    }
+  ]
+}

@@ -78,12 +78,13 @@ export default function LoginPage() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label htmlFor="login-email" className="block text-xs font-bold text-slate-700 mb-1">
                 E-posta Adresi
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="login-email"
                   type="email"
                   required
                   placeholder="ornek@email.com"
@@ -96,7 +97,7 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-slate-700">Şifre</label>
+                <label htmlFor="login-password" className="block text-xs font-bold text-slate-700">Şifre</label>
                 <span className="text-[11px] text-indigo-600 hover:text-indigo-700 cursor-pointer font-medium">
                   Şifremi unuttum
                 </span>
@@ -104,6 +105,7 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="login-password"
                   type="password"
                   required
                   placeholder="••••••••"

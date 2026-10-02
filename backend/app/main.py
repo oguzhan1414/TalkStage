@@ -45,6 +45,15 @@ app.include_router(chat.router)
 app.include_router(learning_flags.router)
 
 
+import os
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+videos_dir = Path(__file__).resolve().parent.parent.parent / "videos"
+if videos_dir.exists():
+    app.mount("/videos", StaticFiles(directory=str(videos_dir)), name="videos")
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "environment": settings.environment}

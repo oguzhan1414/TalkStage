@@ -1,4 +1,4 @@
-import { CEFR_CURRICULUM, type CurriculumTopic } from './curriculumData';
+import { CEFR_CURRICULUM, type CurriculumTopic } from '@talkstage/shared-data/curriculumData';
 
 export type WritingMission = {
   id: string;

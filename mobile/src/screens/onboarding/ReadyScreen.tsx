@@ -7,8 +7,10 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, ONBOARDING_LEVEL_OPTIONS, PERSONA_OPTIONS } from '../../constants/onboarding';
 import { colors, fonts, radii, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenProps<'Ready'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'ready' });
   const { draft, completedProfile, finishOnboarding } = useOnboarding();
 
   // `completedProfile` is set the instant `Preparing` succeeds — normal flow

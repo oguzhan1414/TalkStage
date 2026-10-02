@@ -4,8 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Search, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
-import { SCENARIOS, type ScenarioCategory } from '@/data/scenariosData';
+import { SCENARIOS, type ScenarioCategory, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { getStudyStats } from '@/lib/storage';
+import { InteractiveVideoScenario } from '@/components/InteractiveVideoScenario';
 
 const CATEGORIES: { id: ScenarioCategory | 'all'; label: string; icon: string }[] = [
   { id: 'all', label: 'Tüm Senaryolar', icon: '✨' },
@@ -28,6 +29,7 @@ const CATEGORY_IMAGES: Record<ScenarioCategory, string> = {
 export default function ScenariosCatalogPage() {
   const [selectedCat, setSelectedCat] = useState<ScenarioCategory | 'all'>('all');
   const [search, setSearch] = useState('');
+  const [activeVideoScenario, setActiveVideoScenario] = useState<ScenarioEntry | null>(null);
   const stats = getStudyStats();
 
   const filtered = SCENARIOS.filter((s) => {
@@ -38,6 +40,8 @@ export default function ScenariosCatalogPage() {
       s.description.toLowerCase().includes(search.toLowerCase());
     return matchesCat && matchesSearch;
   });
+
+  const cafeMeetupScenario = SCENARIOS.find((s) => s.id === 'cafe-meetup');
 
   return (
     <div className="space-y-6">
@@ -55,6 +59,48 @@ export default function ScenariosCatalogPage() {
           <p className="text-xs text-slate-500 mt-1">
             Gerçek dünya durumlarında yapay zeka ile rol yapın; her cümlenizde anlık gramer, akıcılık ve kelime geribildirimi alın.
           </p>
+        </div>
+      </div>
+
+      {/* 3D Interactive Feature Spotlight Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 border border-indigo-500/30 p-6 md:p-7 shadow-xl text-white">
+        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2.5 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>YENİ NESİL 3D ETKİLEŞİMLİ DİYALOG</span>
+            </div>
+            <h2 className="text-xl md:text-2xl font-black tracking-tight text-white">
+              Yankı ile Kafede Buluşma & Sipariş ☕
+            </h2>
+            <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
+              Pixar 3D tarzı 6 adımlı canlı video sahneleriyle pratik yap. Yankı&apos;nın söylediklerini dinle, mikrofona konuş ve anlık ses tanıma ile akıcılığını geliştir!
+            </p>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1">
+              <span className="flex items-center gap-1.5 font-semibold text-emerald-400">
+                <span>✓</span> 6 Video Sahnesi
+              </span>
+              <span className="flex items-center gap-1.5 font-semibold text-indigo-300">
+                <span>✓</span> Canlı Ses Tanıma
+              </span>
+              <span className="flex items-center gap-1.5 font-semibold text-amber-400">
+                <span>✓</span> +60 XP
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center">
+            {cafeMeetupScenario && (
+              <button
+                onClick={() => setActiveVideoScenario(cafeMeetupScenario)}
+                className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs sm:text-sm shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>🎬 3D Canlı Sahneyi Başlat</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -115,6 +161,12 @@ export default function ScenariosCatalogPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
+                    {s.videoSteps && s.videoSteps.length > 0 && (
+                      <span className="font-mono text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span>🎬</span>
+                        <span>3D Sahne</span>
+                      </span>
+                    )}
                     <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
                       {s.level}
                     </span>
@@ -186,18 +238,44 @@ export default function ScenariosCatalogPage() {
                   <span className="text-xs text-slate-400 font-medium">3 Hedef Görev</span>
                 )}
 
-                <Link
-                  href={`/app/scenarios/${s.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all transform group-hover:translate-x-0.5"
-                >
-                  <span>Stüdyoya Başla</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                {s.videoSteps && s.videoSteps.length > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setActiveVideoScenario(s)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                    >
+                      <span>🎬 3D Oyna</span>
+                    </button>
+                    <Link
+                      href={`/app/scenarios/${s.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 font-semibold text-xs border border-slate-200 transition-all"
+                    >
+                      <span>Stüdyo</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    href={`/app/scenarios/${s.id}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all transform group-hover:translate-x-0.5"
+                  >
+                    <span>Stüdyoya Başla</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                )}
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* 3D Interactive Video Player Modal */}
+      {activeVideoScenario && (
+        <InteractiveVideoScenario
+          scenario={activeVideoScenario}
+          onClose={() => setActiveVideoScenario(null)}
+        />
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { configureRevenueCat } from '../lib/revenuecat';
 import { supabase } from '../lib/supabase';
+import { useAnalytics } from '../lib/analytics';
 
 type AuthContextValue = {
   session: Session | null;
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [initializing, setInitializing] = useState(true);
+  const analytics = useAnalytics();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -33,7 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (session?.user.id) {
       configureRevenueCat(session.user.id);
+      analytics.identify(session.user.id);
+    } else {
+      analytics.reset();
     }
+    // analytics is a stable no-op-safe object from context, not a real dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user.id]);
 
   const value = useMemo<AuthContextValue>(

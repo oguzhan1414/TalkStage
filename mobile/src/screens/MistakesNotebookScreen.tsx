@@ -2,13 +2,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { stateImages } from '../assets/images';
+import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
 import { api } from '../lib/api';
 import type { MistakesNotebookScreenProps } from '../navigation/types';
-import { colors, fonts, radii, spacing } from '../theme/tokens';
+import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut } from '../types/api';
 
 type SourceFilter = 'ALL' | 'mini_quiz' | 'text_chat' | 'voice_session' | 'sentence_order';
@@ -30,9 +41,15 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
   const [selectedFilter, setSelectedFilter] = useState<SourceFilter>('ALL');
   const [toast, setToast] = useState<string | null>(null);
 
+  // Active recall practice quiz modal state
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [activeQuizItem, setActiveQuizItem] = useState<GrammarMistakeOut | null>(null);
+  const [quizSelectedChoice, setQuizSelectedChoice] = useState<'wrong' | 'right' | null>(null);
+  const [quizFeedback, setQuizFeedback] = useState<'correct' | 'wrong' | null>(null);
+
   const showToast = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 2200);
+    setTimeout(() => setToast(null), 2400);
   };
 
   const { data: mistakes, isLoading } = useQuery({
@@ -47,6 +64,10 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
         (prev ?? []).filter((m) => m.id !== id)
       );
       showToast('🎉 Harika! Kuralı pekiştirdin ve defterden temizlendi.');
+      if (activeQuizItem?.id === id) {
+        setQuizModalOpen(false);
+        setActiveQuizItem(null);
+      }
     },
   });
 
@@ -76,6 +97,27 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
   const voiceCount = allMistakes.filter((m) => m.source === 'voice_session').length;
   const readingCount = allMistakes.filter((m) => m.source === 'sentence_order').length;
 
+  // Start single quiz for a mistake
+  const startQuizForMistake = (item: GrammarMistakeOut) => {
+    setActiveQuizItem(item);
+    setQuizSelectedChoice(null);
+    setQuizFeedback(null);
+    setQuizModalOpen(true);
+  };
+
+  // Start general session quiz with first available mistake
+  const startGeneralQuiz = () => {
+    if (allMistakes.length === 0) return;
+    const randomItem = allMistakes[Math.floor(Math.random() * allMistakes.length)];
+    startQuizForMistake(randomItem);
+  };
+
+  // Randomize choice order for quiz
+  const isCorrectChoiceFirst = useMemo(() => {
+    if (!activeQuizItem) return true;
+    return activeQuizItem.id.charCodeAt(0) % 2 === 0;
+  }, [activeQuizItem]);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Top App Bar */}
@@ -99,17 +141,16 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.headerContainer}>
-            {/* 1. Hero 3D Bento Vault Card (Porcelain Luxury) */}
-            <View style={styles.heroBentoCard}>
+            {/* 1. Hero 3D Bento Vault Card */}
+            <View style={[styles.heroBentoCard, shadow.card]}>
               <View style={styles.heroLeftCol}>
                 <View style={styles.heroBadgeRow}>
                   <Ionicons name="shield-checkmark" size={12} color={colors.brand} />
                   <Text style={styles.heroBadgeText}>ÖZEL GELİŞİM KASASI</Text>
                 </View>
-                <Text style={styles.heroTitle}>Zayıf Noktalarını Güce Dönüştür</Text>
+                <Text style={styles.heroTitle}>Zayıf Noktalarını Kalıcı Reflekse Dönüştür</Text>
                 <Text style={styles.heroDesc}>
-                  Yapay zeka sohbetleri, testler ve okuma alıştırmalarındaki yanlışların burada
-                  toplanır. Kuralı kavradığında tek tıkla temizle!
+                  Konuşmalarda ve sınavlarda yaptığın hatalar burada toplanır. Kendini sına, kuralı kavra ve defterden temizle!
                 </Text>
 
                 {/* 3-Pill Micro Stats */}
@@ -127,6 +168,20 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                     <Text style={styles.microStatLblEmerald}>Özel Analiz</Text>
                   </View>
                 </View>
+
+                {/* Quick Quiz Action CTA */}
+                {allMistakes.length > 0 && (
+                  <BouncyPressable
+                    onPress={startGeneralQuiz}
+                    style={styles.quickQuizBtn}
+                    hapticType="medium"
+                    scaleTo={0.96}
+                  >
+                    <Ionicons name="flash" size={15} color="#FFFFFF" />
+                    <Text style={styles.quickQuizBtnText}>Hızlı Pekiştirme Sınavı Başlat</Text>
+                    <Ionicons name="arrow-forward" size={13} color="#FFFFFF" />
+                  </BouncyPressable>
+                )}
               </View>
 
               <View style={styles.heroRightIconWrapper}>
@@ -142,8 +197,8 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
             {topicSummary.length > 0 ? (
               <View style={styles.summarySection}>
                 <View style={styles.sectionHeaderRow}>
-                  <Text style={styles.summaryTitle}>🎯 En Çok Tekrarlanan Konular</Text>
-                  <Text style={styles.summarySub}>Dersi çalış ve pekiştir</Text>
+                  <Text style={styles.summaryTitle}>🎯 En Çok Tekrarlanan Kurallar</Text>
+                  <Text style={styles.summarySub}>Dersi incele ve pekiştir</Text>
                 </View>
                 <ScrollView
                   horizontal
@@ -172,7 +227,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               </View>
             ) : null}
 
-            {/* 3. Source Filter Tabs (Segmented Bar) */}
+            {/* 3. Source Filter Tabs */}
             <View style={styles.filterSection}>
               <ScrollView
                 horizontal
@@ -284,14 +339,24 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               <Text style={styles.emptyTitle}>Tertemiz Bir Sayfa! 🎯</Text>
               <Text style={styles.emptyText}>
                 {selectedFilter === 'ALL'
-                  ? 'Henüz kayıtlı bir hatan bulunmuyor. Yapay zeka sohbetlerinde, testlerde ve okuma alıştırmalarında pratik yaptıkça takıldığın noktalar burada birikecek.'
+                  ? 'Henüz kayıtlı bir hatan bulunmuyor. Yapay zeka sohbetlerinde ve testlerde pratik yaptıkça takıldığın noktalar burada toplanacak.'
                   : 'Bu kategoride kayıtlı bir hatan bulunmuyor. Harika gidiyorsun!'}
               </Text>
+
+              <BouncyPressable
+                onPress={() => navigation.navigate('Main', { screen: 'Scenarios' })}
+                style={styles.emptyActionBtn}
+                hapticType="light"
+                scaleTo={0.96}
+              >
+                <Ionicons name="mic" size={15} color="#FFFFFF" />
+                <Text style={styles.emptyActionBtnText}>Yeni Bir Sahneye Başla ➔</Text>
+              </BouncyPressable>
             </View>
           )
         }
         renderItem={({ item, index }) => (
-          <View style={styles.mistakeCard}>
+          <View style={[styles.mistakeCard, shadow.card]}>
             {/* Top Meta Header */}
             <View style={styles.cardTopRow}>
               <View style={styles.cardIndexBadge}>
@@ -308,12 +373,8 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                   style={styles.topicPill}
                 >
                   <Ionicons name="sparkles" size={11} color={colors.brand} />
-                  <Text style={styles.topicPillText}>{item.topic_code} Konusu ➔</Text>
+                  <Text style={styles.topicPillText}>{item.topic_code} ➔</Text>
                 </Pressable>
-              ) : item.topic_code ? (
-                <View style={styles.topicPillStatic}>
-                  <Text style={styles.topicPillStaticText}>{item.topic_code}</Text>
-                </View>
               ) : null}
 
               <Pressable
@@ -321,58 +382,202 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                 hitSlop={8}
                 style={styles.deleteBtn}
               >
-                <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+                <Ionicons name="checkmark-circle" size={15} color={colors.success} />
                 <Text style={styles.deleteBtnText}>Öğrendim</Text>
               </Pressable>
             </View>
 
-            {/* Wrong sentence diff box */}
+            {/* Wrong sentence box */}
             <View style={styles.wrongBox}>
-              <View style={styles.boxHeaderRow}>
-                <View style={styles.boxTagRed}>
-                  <Ionicons name="close-circle" size={12} color="#DC2626" />
-                  <Text style={styles.boxTagRedText}>HATALI İFADE</Text>
-                </View>
+              <View style={styles.boxTagRed}>
+                <Ionicons name="close-circle" size={12} color="#DC2626" />
+                <Text style={styles.boxTagRedText}>HATALI İFADE</Text>
               </View>
               <Text style={styles.wrongText}>{item.wrong_text}</Text>
             </View>
 
-            {/* Corrected sentence diff box */}
+            {/* Corrected sentence box */}
             <View style={styles.rightBox}>
-              <View style={styles.boxHeaderRow}>
-                <View style={styles.boxTagGreen}>
-                  <Ionicons name="checkmark-circle" size={12} color="#059669" />
-                  <Text style={styles.boxTagGreenText}>DOĞRU KULLANIM</Text>
-                </View>
+              <View style={styles.boxTagGreen}>
+                <Ionicons name="checkmark-circle" size={12} color="#059669" />
+                <Text style={styles.boxTagGreenText}>DOĞRU KULLANIM</Text>
               </View>
               <Text style={styles.rightText}>{item.corrected_text}</Text>
             </View>
 
-            {/* Turkish explanation & tip card */}
+            {/* Turkish explanation note */}
             {item.explanation_tr ? (
               <View style={styles.explBox}>
                 <View style={styles.explHeaderRow}>
                   <Ionicons name="bulb" size={13} color="#D97706" />
-                  <Text style={styles.explLabel}>KURAL & DÜZELTME NOTU:</Text>
+                  <Text style={styles.explLabel}>KURAL VE AÇIKLAMA:</Text>
                 </View>
                 <Text style={styles.explText}>{item.explanation_tr}</Text>
               </View>
             ) : null}
 
-            {/* Quick action footer if grammar lesson is available */}
-            {item.topic_code && isGrammarLessonCode(item.topic_code) ? (
+            {/* Action Bar: Kendini Sına & Dersi Aç */}
+            <View style={styles.cardActionsRow}>
               <Pressable
-                onPress={() => navigation.navigate('GrammarLesson', { code: item.topic_code! })}
-                style={styles.cardFooterAction}
+                onPress={() => startQuizForMistake(item)}
+                style={styles.testSelfBtn}
               >
-                <Text style={styles.cardFooterActionText}>
-                  📖 Bu kuralın detaylı dersini ve tablosunu incele ➔
-                </Text>
+                <Ionicons name="flash-outline" size={13} color={colors.brand} />
+                <Text style={styles.testSelfBtnText}>Kendini Sına 🎯</Text>
               </Pressable>
-            ) : null}
+
+              {item.topic_code && isGrammarLessonCode(item.topic_code) && (
+                <Pressable
+                  onPress={() => navigation.navigate('GrammarLesson', { code: item.topic_code! })}
+                  style={styles.readLessonBtn}
+                >
+                  <Text style={styles.readLessonBtnText}>Kural Dersini İncele ➔</Text>
+                </Pressable>
+              )}
+            </View>
           </View>
         )}
       />
+
+      {/* ============================================================ */}
+      {/* ACTIVE RECALL QUIZ MODAL (KENDİNİ SINA & PEKİŞTİR)            */}
+      {/* ============================================================ */}
+      {activeQuizItem && (
+        <Modal
+          visible={quizModalOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setQuizModalOpen(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={[styles.modalCard, shadow.card]}>
+              <View style={styles.modalHeader}>
+                <View style={styles.modalHeaderTitleRow}>
+                  <Ionicons name="flash" size={16} color={colors.brand} />
+                  <Text style={styles.modalTitle}>Hata Pekiştirme Sınavı</Text>
+                </View>
+                <Pressable onPress={() => setQuizModalOpen(false)} hitSlop={10}>
+                  <Ionicons name="close" size={20} color={colors.textMuted} />
+                </Pressable>
+              </View>
+
+              <Text style={styles.modalPrompt}>
+                Aşağıdaki seçeneklerden hangisi dilbilgisi kurallarına uygundur?
+              </Text>
+
+              {/* Option Choices */}
+              <View style={styles.modalChoicesCol}>
+                {isCorrectChoiceFirst ? (
+                  <>
+                    <Pressable
+                      onPress={() => {
+                        setQuizSelectedChoice('right');
+                        setQuizFeedback('correct');
+                      }}
+                      style={[
+                        styles.modalChoiceBtn,
+                        quizSelectedChoice === 'right' && styles.modalChoiceBtnCorrect,
+                      ]}
+                    >
+                      <Text style={styles.modalChoiceText}>{activeQuizItem.corrected_text}</Text>
+                      {quizSelectedChoice === 'right' && (
+                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                      )}
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => {
+                        setQuizSelectedChoice('wrong');
+                        setQuizFeedback('wrong');
+                      }}
+                      style={[
+                        styles.modalChoiceBtn,
+                        quizSelectedChoice === 'wrong' && styles.modalChoiceBtnWrong,
+                      ]}
+                    >
+                      <Text style={styles.modalChoiceText}>{activeQuizItem.wrong_text}</Text>
+                      {quizSelectedChoice === 'wrong' && (
+                        <Ionicons name="close-circle" size={18} color="#DC2626" />
+                      )}
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Pressable
+                      onPress={() => {
+                        setQuizSelectedChoice('wrong');
+                        setQuizFeedback('wrong');
+                      }}
+                      style={[
+                        styles.modalChoiceBtn,
+                        quizSelectedChoice === 'wrong' && styles.modalChoiceBtnWrong,
+                      ]}
+                    >
+                      <Text style={styles.modalChoiceText}>{activeQuizItem.wrong_text}</Text>
+                      {quizSelectedChoice === 'wrong' && (
+                        <Ionicons name="close-circle" size={18} color="#DC2626" />
+                      )}
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => {
+                        setQuizSelectedChoice('right');
+                        setQuizFeedback('correct');
+                      }}
+                      style={[
+                        styles.modalChoiceBtn,
+                        quizSelectedChoice === 'right' && styles.modalChoiceBtnCorrect,
+                      ]}
+                    >
+                      <Text style={styles.modalChoiceText}>{activeQuizItem.corrected_text}</Text>
+                      {quizSelectedChoice === 'right' && (
+                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                      )}
+                    </Pressable>
+                  </>
+                )}
+              </View>
+
+              {/* Feedback Alert */}
+              {quizFeedback === 'correct' && (
+                <View style={styles.feedbackSuccessBox}>
+                  <Text style={styles.feedbackSuccessTitle}>🎉 Mükemmel! Doğru Cevap.</Text>
+                  <Text style={styles.feedbackSuccessSub}>{activeQuizItem.explanation_tr}</Text>
+                </View>
+              )}
+
+              {quizFeedback === 'wrong' && (
+                <View style={styles.feedbackErrorBox}>
+                  <Text style={styles.feedbackErrorTitle}>❌ Yanlış Seçenek</Text>
+                  <Text style={styles.feedbackErrorSub}>{activeQuizItem.explanation_tr}</Text>
+                </View>
+              )}
+
+              {/* Modal Bottom Buttons */}
+              <View style={styles.modalBottomRow}>
+                {quizFeedback === 'correct' ? (
+                  <BouncyPressable
+                    onPress={() => deleteMutation.mutate(activeQuizItem.id)}
+                    style={styles.modalMasteredBtn}
+                    hapticType="medium"
+                    scaleTo={0.96}
+                  >
+                    <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
+                    <Text style={styles.modalMasteredBtnText}>Pekiştirdim, Defterden Temizle</Text>
+                  </BouncyPressable>
+                ) : (
+                  <Pressable
+                    onPress={() => setQuizModalOpen(false)}
+                    style={styles.modalCloseBtn}
+                  >
+                    <Text style={styles.modalCloseBtnText}>Kapat</Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
 
       {toast ? <Toast message={toast} /> : null}
     </SafeAreaView>
@@ -382,7 +587,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // Porcelain Base
+    backgroundColor: '#F8FAFC',
   },
   header: {
     flexDirection: 'row',
@@ -408,7 +613,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 17,
+    fontSize: 16,
     color: colors.textHeading,
   },
   headerSub: {
@@ -440,22 +645,17 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
 
-  /* 1. Hero 3D Bento Vault Card (Porcelain Luxury) */
+  /* 1. Hero Card */
   heroBentoCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 22,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.md,
     borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    elevation: 2,
+    borderColor: '#E2E8F0',
+    marginBottom: spacing.md,
   },
   heroLeftCol: {
     flex: 1,
@@ -464,95 +664,104 @@ const styles = StyleSheet.create({
   heroBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radii.pill,
-    alignSelf: 'flex-start',
     marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    gap: 4,
   },
   heroBadgeText: {
     fontFamily: fonts.mono,
-    fontSize: 9,
+    fontSize: 9.5,
     fontWeight: 'bold',
     color: colors.brand,
-    letterSpacing: 0.4,
   },
   heroTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 15.5,
+    fontSize: 15,
     color: colors.textHeading,
     lineHeight: 20,
+    marginBottom: 4,
   },
   heroDesc: {
     fontFamily: fonts.bodyRegular,
     fontSize: 11,
-    color: colors.textBody,
-    marginTop: 4,
-    lineHeight: 16,
+    color: colors.textMuted,
+    lineHeight: 15,
+    marginBottom: 10,
   },
   microStatsRow: {
     flexDirection: 'row',
     gap: 6,
-    marginTop: 10,
+    marginBottom: 10,
   },
   microStatPill: {
     backgroundColor: '#F8FAFC',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderRadius: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    alignItems: 'center',
   },
   microStatVal: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
     color: colors.textHeading,
   },
   microStatLbl: {
-    fontFamily: fonts.bodyRegular,
+    fontFamily: fonts.mono,
     fontSize: 8.5,
     color: colors.textMuted,
+    marginTop: 1,
   },
   microStatPillEmerald: {
     backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#A7F3D0',
-    borderRadius: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    alignItems: 'center',
   },
   microStatValEmerald: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.success,
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: '#047857',
   },
   microStatLblEmerald: {
-    fontFamily: fonts.bodyRegular,
+    fontFamily: fonts.mono,
     fontSize: 8.5,
-    color: colors.success,
+    color: '#059669',
+    marginTop: 1,
+  },
+  quickQuizBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.brand,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radii.sm,
+    gap: 6,
+    alignSelf: 'flex-start',
+  },
+  quickQuizBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11.5,
+    color: '#FFFFFF',
   },
   heroRightIconWrapper: {
-    width: 76,
-    height: 76,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 3,
+    width: 80,
+    height: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hero3dImage: {
-    width: '100%',
-    height: '100%',
+    width: 75,
+    height: 85,
+    borderRadius: 14,
   },
 
   /* 2. Topic Focus Carousel */
@@ -564,7 +773,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
-    paddingHorizontal: 2,
   },
   summaryTitle: {
     fontFamily: fonts.headingBold,
@@ -573,8 +781,8 @@ const styles = StyleSheet.create({
   },
   summarySub: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.brand,
+    fontSize: 11,
+    color: colors.textMuted,
   },
   summaryScroll: {
     gap: 8,
@@ -583,18 +791,13 @@ const styles = StyleSheet.create({
   summaryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    paddingVertical: 7,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 8,
   },
   summaryIconBox: {
     width: 26,
@@ -605,52 +808,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   summaryChipCode: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#4338CA',
+    fontFamily: fonts.headingBold,
+    fontSize: 11.5,
+    color: colors.textHeading,
   },
   summaryChipAction: {
-    fontFamily: fonts.bodyRegular,
+    fontFamily: fonts.mono,
     fontSize: 9.5,
-    color: '#6366F1',
-    marginTop: 1,
+    color: colors.brand,
+    fontWeight: 'bold',
   },
   summaryChipCountPill: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    marginLeft: 4,
   },
   summaryChipCountText: {
     fontFamily: fonts.mono,
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: 'bold',
-    color: '#DC2626',
+    color: colors.textMuted,
   },
 
-  /* 3. Source Filter Tabs */
+  /* 3. Filter Section */
   filterSection: {
     marginBottom: spacing.xs,
   },
   filterTabsRow: {
-    gap: 8,
+    gap: 6,
     paddingVertical: 2,
   },
   filterTab: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 13,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: radii.pill,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   filterTabActive: {
     backgroundColor: colors.brand,
-    borderColor: '#4338CA',
+    borderColor: colors.brand,
   },
   filterTabText: {
     fontFamily: fonts.headingBold,
@@ -661,97 +860,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  /* Center Loading */
-  centerLoading: {
-    paddingVertical: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  /* Empty State */
-  emptyCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    marginTop: spacing.md,
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  emptyImageWrapper: {
-    position: 'relative',
-    width: 88,
-    height: 88,
-    marginBottom: 16,
-  },
-  empty3dImage: {
-    width: 88,
-    height: 88,
-    borderRadius: 22,
-  },
-  emptyCheckBadge: {
-    position: 'absolute',
-    bottom: -4,
-    right: -4,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.success,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  emptyTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 18,
-    color: colors.textHeading,
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textBody,
-    textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 8,
-  },
-
-  /* Mistake Card */
+  /* 4. Mistake Cards */
   mistakeCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 15,
-    borderWidth: 1.5,
+    padding: 14,
+    borderWidth: 1,
     borderColor: '#E2E8F0',
     gap: 10,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 1,
   },
   cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 6,
-    rowGap: 6,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   cardIndexBadge: {
     backgroundColor: '#F1F5F9',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 6,
   },
   cardIndexText: {
@@ -761,28 +888,26 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   sourceBadge: {
-    backgroundColor: '#F5F3FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#EDE9FE',
+    borderColor: '#F1F5F9',
   },
   sourceBadgeText: {
-    fontFamily: fonts.headingSemiBold,
+    fontFamily: fonts.bodyRegular,
     fontSize: 10.5,
-    color: '#6D28D9',
+    color: colors.textHeading,
   },
   topicPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
     backgroundColor: '#EEF2FF',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    gap: 3,
   },
   topicPillText: {
     fontFamily: fonts.mono,
@@ -790,131 +915,324 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.brand,
   },
-  topicPillStatic: {
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  topicPillStaticText: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
   deleteBtn: {
-    marginLeft: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
     backgroundColor: '#ECFDF5',
-    paddingHorizontal: 9,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
+    gap: 3,
+    marginLeft: 'auto',
   },
   deleteBtnText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: colors.success,
+    fontFamily: fonts.headingBold,
+    fontSize: 10.5,
+    color: '#047857',
   },
-
-  /* Diff Boxes */
   wrongBox: {
     backgroundColor: '#FEF2F2',
-    borderRadius: 14,
-    padding: 12,
     borderWidth: 1,
-    borderColor: '#FECACA',
-  },
-  boxHeaderRow: {
-    marginBottom: 4,
+    borderColor: '#FEE2E2',
+    borderRadius: 14,
+    padding: 10,
+    gap: 4,
   },
   boxTagRed: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    alignSelf: 'flex-start',
   },
   boxTagRedText: {
     fontFamily: fonts.mono,
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: 'bold',
     color: '#DC2626',
-    letterSpacing: 0.4,
   },
   wrongText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: fonts.bodyRegular,
     fontSize: 13,
     color: '#991B1B',
     lineHeight: 18,
+    textDecorationLine: 'line-through',
   },
-
   rightBox: {
-    backgroundColor: '#ECFDF5',
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: '#F0FDF4',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#DCFCE7',
+    borderRadius: 14,
+    padding: 10,
+    gap: 4,
   },
   boxTagGreen: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    alignSelf: 'flex-start',
   },
   boxTagGreenText: {
     fontFamily: fonts.mono,
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: 'bold',
     color: '#059669',
-    letterSpacing: 0.4,
   },
   rightText: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: fonts.headingBold,
     fontSize: 13,
     color: '#065F46',
     lineHeight: 18,
   },
-
-  /* Explanation */
   explBox: {
     backgroundColor: '#FFFBEB',
-    borderRadius: 14,
-    padding: 12,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#FEF3C7',
+    borderRadius: 14,
+    padding: 10,
+    gap: 3,
   },
   explHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 4,
   },
   explLabel: {
     fontFamily: fonts.mono,
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: 'bold',
-    color: '#B45309',
-    letterSpacing: 0.3,
+    color: '#D97706',
   },
   explText: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: '#78350F',
-    lineHeight: 17,
+    fontSize: 11.5,
+    color: '#92400E',
+    lineHeight: 16,
   },
-
-  /* Card Footer Action */
-  cardFooterAction: {
-    paddingTop: 4,
-    alignItems: 'flex-start',
+  cardActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
   },
-  cardFooterActionText: {
-    fontFamily: fonts.headingSemiBold,
+  testSelfBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.sm,
+    gap: 4,
+  },
+  testSelfBtnText: {
+    fontFamily: fonts.headingBold,
     fontSize: 11,
     color: colors.brand,
+  },
+  readLessonBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  readLessonBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+
+  /* 5. Empty State */
+  centerLoading: {
+    paddingVertical: 50,
+    alignItems: 'center',
+  },
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 20,
+    gap: 10,
+  },
+  emptyImageWrapper: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+    marginBottom: 4,
+  },
+  empty3dImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+  },
+  emptyCheckBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  emptyTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 16,
+    color: colors.textHeading,
+  },
+  emptyText: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 17,
+  },
+  emptyActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.brand,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: radii.sm,
+    gap: 6,
+    marginTop: 6,
+  },
+  emptyActionBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
+
+  /* 6. Active Recall Modal */
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    gap: 14,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  modalHeaderTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modalTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: colors.textHeading,
+  },
+  modalPrompt: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12.5,
+    color: colors.textMuted,
+    lineHeight: 17,
+  },
+  modalChoicesCol: {
+    gap: 10,
+  },
+  modalChoiceBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    padding: 14,
+  },
+  modalChoiceBtnCorrect: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#10B981',
+  },
+  modalChoiceBtnWrong: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#EF4444',
+  },
+  modalChoiceText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: colors.textHeading,
+    flex: 1,
+  },
+  feedbackSuccessBox: {
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 14,
+    padding: 12,
+    gap: 4,
+  },
+  feedbackSuccessTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: '#047857',
+  },
+  feedbackSuccessSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: '#065F46',
+    lineHeight: 15,
+  },
+  feedbackErrorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 14,
+    padding: 12,
+    gap: 4,
+  },
+  feedbackErrorTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: '#B91C1C',
+  },
+  feedbackErrorSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: '#991B1B',
+    lineHeight: 15,
+  },
+  modalBottomRow: {
+    paddingTop: 8,
+  },
+  modalMasteredBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.success,
+    paddingVertical: 12,
+    borderRadius: radii.sm,
+    gap: 6,
+  },
+  modalMasteredBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: '#FFFFFF',
+  },
+  modalCloseBtn: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  modalCloseBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: colors.textMuted,
   },
 });

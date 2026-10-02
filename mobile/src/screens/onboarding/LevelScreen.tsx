@@ -7,8 +7,10 @@ import { ONBOARDING_LEVEL_OPTIONS } from '../../constants/onboarding';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'level' });
   const { draft, updateDraft } = useOnboarding();
 
   return (

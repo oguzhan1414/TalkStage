@@ -23,7 +23,7 @@ import {
   CEFR_CURRICULUM,
   computeFullCompletion,
   isTopicCompleted,
-} from '../data/curriculumData';
+} from '@talkstage/shared-data/curriculumData';
 import { useDailyReminder } from '../hooks/useDailyReminder';
 import { useEarnedBadges } from '../hooks/useEarnedBadges';
 import { api } from '../lib/api';

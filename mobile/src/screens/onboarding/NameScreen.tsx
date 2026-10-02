@@ -7,8 +7,10 @@ import { OnboardingProgressHeader } from '../../components/OnboardingProgressHea
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function NameScreen({ navigation }: OnboardingStackScreenProps<'Name'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'name' });
   const { draft, updateDraft } = useOnboarding();
   const trimmedName = draft.displayName.trim();
 

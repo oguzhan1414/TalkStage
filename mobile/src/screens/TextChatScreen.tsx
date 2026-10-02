@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { pickDailyTopic } from '../data/conversationTopics';
 import { api, ApiError } from '../lib/api';
 import { setLearningFlag } from '../lib/learningFlags';
+import { useTrackScreenView } from '../lib/analytics';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type {
   ChatCorrection,
@@ -115,6 +116,9 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   const focusTopic = route.params?.focusTopic;
   const dailyTask = route.params?.dailyTask;
   const isFreeChat = !dailyTask && !focusTopic;
+  useTrackScreenView('text_chat_started', {
+    mode: dailyTask ? 'daily_task' : focusTopic ? 'focus_topic' : 'free',
+  });
 
   // Free chat used to always open with one fixed generic greeting and never
   // suggest what to talk about — a real "blank page" problem. A deterministic

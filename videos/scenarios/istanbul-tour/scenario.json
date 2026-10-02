@@ -1,0 +1,92 @@
+{
+  "id": "istanbul-tour",
+  "title": "Istanbul City Highlights & Cultural Journey",
+  "titleTr": "Büyülü İstanbul Şehir Turu & Kültür Yolculuğu",
+  "level": "A2",
+  "category": "travel",
+  "coverImage": "scenarios/istanbul-tour/istanbul.jpeg",
+  "description": "Boğaz'ın serin rüzgarından Galata'nın tarihi taş sokaklarına, İstiklal Caddesi'nin kırmızı nostaljik tramvayından Kapalıçarşı'nın baharat kokularına ve sevimli sokak kedilerine kadar 8 adımda büyülü İstanbul'u İngilizce keşfet.",
+  "totalSteps": 8,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Boğaz & Vapur Manzarası",
+      "aiSpeech": "Welcome to Istanbul! The view of the Bosphorus is breathtaking today!",
+      "aiSpeechTr": "İstanbul'a hoş geldin! Bugün Boğaz manzarası nefes kesici!",
+      "expectedUserResponse": "It is incredible! The seagulls and historic ferries look like a painting.",
+      "userHint": "It is incredible! (İnanılmaz!) diyerek Boğaz manzarasına hayranlığını belirt.",
+      "keywords": ["incredible", "seagulls", "ferries", "bosphorus", "painting", "view", "istanbul"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Galata Kulesi & Sokak Kedisi",
+      "aiSpeech": "Look at this friendly street cat resting near the historic Galata Tower!",
+      "aiSpeechTr": "Tarihi Galata Kulesi'nin yanında dinlenen şu cana yakın sokak kedisine bak!",
+      "expectedUserResponse": "Istanbul cats are so adorable! Everyone treats them with so much love.",
+      "userHint": "Istanbul cats are adorable! (İstanbul kedileri çok sevimli!) de.",
+      "keywords": ["cats", "adorable", "love", "galata", "tower", "treats", "friendly"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "İstiklal Caddesi & Kırmızı Tramvay",
+      "aiSpeech": "Here is Istiklal Street! Hear the bell of the nostalgic red tram?",
+      "aiSpeechTr": "İşte İstiklal Caddesi! Kırmızı nostaljik tramvayın çan sesini duyuyor musun?",
+      "expectedUserResponse": "Yes, it is so energetic! I love the historic architecture of these buildings.",
+      "userHint": "Yes, it is so energetic! (Evet, çok enerjik!) diyerek caddenin atmosferini öv.",
+      "keywords": ["energetic", "tram", "architecture", "buildings", "historic", "istiklal", "street"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Kapalıçarşı & Mozaik Lambalar",
+      "aiSpeech": "Welcome inside the Grand Bazaar! The colorful handmade lamps look magical!",
+      "aiSpeechTr": "Kapalıçarşı'ya hoş geldin! Renkli el yapımı lambalar büyüleyici görünüyor!",
+      "expectedUserResponse": "The aromas of spices and sparkling lanterns are absolutely fascinating!",
+      "userHint": "The aromas of spices are fascinating! (Baharat kokuları büyüleyici!) de.",
+      "keywords": ["aromas", "spices", "lanterns", "fascinating", "grand", "bazaar", "lamps", "magical"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Ortaköy & Boğaz Çay Molası",
+      "aiSpeech": "Time for a tea break! Fresh Turkish tea by the sea is perfect.",
+      "aiSpeechTr": "Çay molası vakti! Deniz kenarında taze demli Türk çayı harika gider.",
+      "expectedUserResponse": "Turkish tea in this tulip glass with the bridge view is wonderful!",
+      "userHint": "Turkish tea with the bridge view is wonderful! (Köprü manzaralı çay harika!) de.",
+      "keywords": ["turkish", "tea", "tulip", "glass", "bridge", "wonderful", "view", "sea"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Tarihi Sultanahmet Meydanı",
+      "aiSpeech": "We are at Sultanahmet! Centuries of history meet right here in this square.",
+      "aiSpeechTr": "Sultanahmet'teyiz! Yüzyılların tarihi tam burada, bu meydanda buluşuyor.",
+      "expectedUserResponse": "Standing between these ancient historic monuments feels so majestic!",
+      "userHint": "Standing between historic monuments feels majestic! (Tarihin ortasında durmak muhteşem!) de.",
+      "keywords": ["standing", "ancient", "historic", "monuments", "majestic", "sultanahmet", "square"]
+    },
+    {
+      "step": 7,
+      "videoFile": "step_7.mp4",
+      "title": "Kadıköy Moda Sahili & Gün Batımı",
+      "aiSpeech": "We crossed to the Asian side! The sunset over Moda is breathtaking.",
+      "aiSpeechTr": "Anadolu yakasına geçtik! Moda üzerindeki gün batımı nefes kesici.",
+      "expectedUserResponse": "The golden sunset over the sea is unforgettable. Kadikoy has such a cool vibe.",
+      "userHint": "The sunset over the sea is unforgettable! (Denizdeki gün batımı unutulmaz!) de.",
+      "keywords": ["golden", "sunset", "sea", "unforgettable", "kadikoy", "moda", "vibe", "asian"]
+    },
+    {
+      "step": 8,
+      "videoFile": "step_8.mp4",
+      "title": "Gece Boğaz Köprüsü Işıkları & Veda",
+      "aiSpeech": "What a memorable journey! Istanbul will always hold a piece of your heart!",
+      "aiSpeechTr": "Ne unutulmaz bir yolculuktu! İstanbul her zaman kalbinde bir yer tutacak!",
+      "expectedUserResponse": "Thank you so much, Ela! This city tour was truly unforgettable, goodbye!",
+      "userHint": "Thank you so much, Ela! (Çok teşekkürler Ela!) diyerek vedalaş.",
+      "keywords": ["thank", "you", "ela", "city", "tour", "unforgettable", "goodbye", "istanbul"]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono, Fraunces } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Analytics } from "@/lib/analytics";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -62,6 +63,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-body selection:bg-indigo selection:text-white">
         <AuthProvider>
+          <Analytics />
           <ScrollToTop />
           {children}
         </AuthProvider>

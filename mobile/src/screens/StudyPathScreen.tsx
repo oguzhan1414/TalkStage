@@ -15,7 +15,7 @@ import {
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
-import { CEFR_CURRICULUM } from '../data/curriculumData';
+import { CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
 import { buildMissionsForLevel, type WritingMission } from '../data/writingCurriculum';
 import { api } from '../lib/api';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';

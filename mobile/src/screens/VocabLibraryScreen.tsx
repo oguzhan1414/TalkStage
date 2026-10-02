@@ -16,7 +16,7 @@ import {
   VERBS_200,
   VERBS_300,
   type LibraryWordEntry,
-} from '../data/vocabLibrary';
+} from '@talkstage/shared-data/vocabLibrary';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
 import type { VocabLibraryScreenProps } from '../navigation/types';

@@ -30,8 +30,10 @@ import {
   type TimelineUnit,
   type LevelTimeline,
 } from '@/data/timelineCurriculum';
-import { A1_GRAMMAR_LESSONS, A2_GRAMMAR_LESSONS, B1_GRAMMAR_LESSONS, B2_GRAMMAR_LESSONS, C1_GRAMMAR_LESSONS, C2_GRAMMAR_LESSONS, type GrammarLesson } from '@/data/grammarLessons';
+import { A1_GRAMMAR_LESSONS, A2_GRAMMAR_LESSONS, B1_GRAMMAR_LESSONS, B2_GRAMMAR_LESSONS, C1_GRAMMAR_LESSONS, C2_GRAMMAR_LESSONS, type GrammarLesson } from '@talkstage/shared-data/grammarLessons';
 import { speakEnglish } from '@/lib/audio';
+import { SCENARIOS } from '@talkstage/shared-data/scenariosData';
+import { InteractiveVideoScenario } from '@/components/InteractiveVideoScenario';
 
 export default function AppDashboardPage() {
   const { user, profile } = useAuth();
@@ -45,6 +47,7 @@ export default function AppDashboardPage() {
   const [quizAnswerIndex, setQuizAnswerIndex] = useState<number | null>(null);
   const [quizFeedback, setQuizFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [readingSceneIndex, setReadingSceneIndex] = useState(0);
+  const [show3dModal, setShow3dModal] = useState(false);
 
   const refreshProgress = () => {
     setCompletedNodeIds(getCompletedTimelineNodeIds());
@@ -149,6 +152,43 @@ export default function AppDashboardPage() {
             </select>
           </div>
         </div>
+
+        {/* 3D Interactive Video Scenario Spotlight Banner */}
+        {SCENARIOS.find((s) => s.id === 'cafe-meetup') && (
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 border border-indigo-500/30 p-5 sm:p-6 shadow-xl text-white">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+              <div className="space-y-1.5 max-w-xl">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[11px] font-bold tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>YENİ 3D PİXAR ANİMASYONLU SAHNE</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-black text-white">
+                  Yankı ile Kafede Buluşma & Kahve Siparişi ☕
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                  6 adımlı canlı video sahneleriyle Yankı ile yüz yüze konuş, siparişini ver ve mikrofonunla doğrudan diyalog kur.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => setShow3dModal(true)}
+                  className="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-black text-xs shadow-lg shadow-amber-400/20 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>🎬 3D Canlı Oyna (+60 XP)</span>
+                </button>
+
+                <Link
+                  href="/app/scenarios"
+                  className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center gap-1.5"
+                >
+                  <span>Konuş / Senaryolar</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Level Overall Progress Bar Card */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -439,7 +479,7 @@ export default function AppDashboardPage() {
                         <div className="text-xs font-mono font-bold text-slate-400 uppercase">
                           Örnek Cümleler:
                         </div>
-                        {lesson.examples.slice(0, 3).map((ex, idx) => (
+                        {lesson.examples.slice(0, 3).map((ex: { en: string; tr: string }, idx: number) => (
                           <div
                             key={idx}
                             className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between text-xs gap-3"
@@ -466,7 +506,7 @@ export default function AppDashboardPage() {
                             Pekiştirme Sorusu: {lesson.quiz[0].question}
                           </div>
                           <div className="grid grid-cols-2 gap-2">
-                            {lesson.quiz[0].options.map((opt, optIdx) => {
+                            {lesson.quiz[0].options.map((opt: string, optIdx: number) => {
                               const isSelected = quizAnswerIndex === optIdx;
                               const isCorrect = optIdx === lesson.quiz![0].correctIndex;
                               return (
@@ -619,6 +659,14 @@ export default function AppDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 3D Interactive Video Scenario Modal */}
+      {show3dModal && SCENARIOS.find((s) => s.id === 'cafe-meetup') && (
+        <InteractiveVideoScenario
+          scenario={SCENARIOS.find((s) => s.id === 'cafe-meetup')!}
+          onClose={() => setShow3dModal(false)}
+        />
       )}
     </div>
   );

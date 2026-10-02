@@ -1,0 +1,72 @@
+{
+  "id": "taxi-ride",
+  "title": "London Taxi Ride & Sightseeing",
+  "titleTr": "Londra Taksi Yolculuğu & Şehir Rehberi",
+  "level": "A2",
+  "category": "travel",
+  "coverImage": "scenarios/taxi-ride/taxi.jpeg",
+  "description": "Londra'da ikonik siyah taksiye bin, sıcakkanlı taksici Sam ile nereye gideceğini konuş, rota ve trafik hakkında bilgi al, Big Ben manzarasını izle ve ücreti öde.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Taksiye Biniş & Varış Noktası",
+      "aiSpeech": "Hello there! Jump right in and make yourself comfortable. Where can I take you today?",
+      "aiSpeechTr": "Merhaba! Hemen atlayın ve rahatınıza bakın. Sizi bugün nereye götürebilirim?",
+      "expectedUserResponse": "Hello! Could you please take me to the British Museum?",
+      "userHint": "Hello! Could you take me to the British Museum? (Beni British Museum'a götürebilir misiniz?) de.",
+      "keywords": ["hello", "take", "british", "museum", "please", "could", "to"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Rota Tercihi & Trafik Durumu",
+      "aiSpeech": "The British Museum, brilliant! Traffic is a bit busy on Oxford Street, so I will take the scenic river route.",
+      "aiSpeechTr": "British Museum, harika! Oxford Caddesi'nde trafik biraz yoğun, bu yüzden nehir kenarındaki manzaralı rotadan gideceğim.",
+      "expectedUserResponse": "That sounds wonderful! How long will the ride take?",
+      "userHint": "That sounds wonderful! How long will it take? (Yolculuk ne kadar sürer?) diyerek sor.",
+      "keywords": ["sounds", "wonderful", "great", "how", "long", "take", "ride", "time"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Şehir Simgeleri & Big Ben Manzarası",
+      "aiSpeech": "It should take about fifteen minutes. Look out your left window, you can see Big Ben and the river Thames!",
+      "aiSpeechTr": "Yaklaşık on beş dakika sürer. Sol pencerenizden dışarı bakın, Big Ben ve Thames nehrini görebilirsiniz!",
+      "expectedUserResponse": "Wow, the view is spectacular! London looks so beautiful in this weather.",
+      "userHint": "The view is spectacular! (Manzara muhteşem!) diyerek heyecanını paylaş.",
+      "keywords": ["view", "spectacular", "beautiful", "london", "wow", "amazing", "weather"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Müze Tavsiyesi & Bilet Bilgisi",
+      "aiSpeech": "Are you visiting London for holiday? The museum has free entry, but remember to book an online timed ticket!",
+      "aiSpeechTr": "Londra'yı tatil için mi ziyaret ediyorsunuz? Müzeye giriş ücretsizdir ama internetten saatli bilet almayı unutmayın!",
+      "expectedUserResponse": "Yes, I am on vacation! Thank you for the advice, I already reserved my ticket.",
+      "userHint": "Yes, I am on vacation! (Evet, tatildeyim!) de ve tavsiyesi için teşekkür et.",
+      "keywords": ["yes", "vacation", "holiday", "thank", "advice", "reserved", "ticket", "already"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Müzeye Varış & Taksi Ücreti",
+      "aiSpeech": "And here we are, right outside the main museum gates! The total fare is fourteen pounds, card or cash is fine.",
+      "aiSpeechTr": "Ve işte geldik, tam ana müze kapısının önündeyiz! Toplam ücret 14 pound, kart veya nakit kabul edebilirim.",
+      "expectedUserResponse": "Here is my contactless card. Keep the change as a tip, thank you!",
+      "userHint": "Here is my contactless card (İşte temassız kartım) de ve bahşiş bırak.",
+      "keywords": ["here", "card", "contactless", "change", "tip", "thank", "fourteen", "pounds"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Ödeme Onayı & İyi Günler Dileği",
+      "aiSpeech": "Payment went through smoothly! Mind your step getting out, and enjoy your time in London!",
+      "aiSpeechTr": "Ödeme sorunsuzca geçti! İnerken basamağa dikkat edin ve Londra'daki vaktinizin tadını çıkarın!",
+      "expectedUserResponse": "Thank you so much for the lovely ride, Sam! Have a great day, goodbye!",
+      "userHint": "Thank you so much for the lovely ride! (Güzel yolculuk için çok teşekkürler!) diyerek vedalaş.",
+      "keywords": ["thank", "lovely", "ride", "sam", "great", "day", "goodbye", "bye"]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "neighbor-meetup",
+  "title": "Meeting the New Neighbor & Welcome Chat",
+  "titleTr": "Yeni Komşu ile Tanışma & Hoş Geldin Sohbeti",
+  "level": "A1",
+  "category": "daily",
+  "coverImage": "scenarios/neighbor-meetup/neighbor.jpeg",
+  "description": "Yeni taşındığın binada komşun Yankı ile koridorda karşılaş, tanışma sohbeti yap, mahalle önerilerini dinle ve hafta sonu çay davetini kabul et.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Koridorda Karşılaşma & Hoş Geldin",
+      "aiSpeech": "Hello there! Welcome to the building! Did you just move in today?",
+      "aiSpeechTr": "Merhaba! Binaya hoş geldin! Buraya bugün mü taşındın?",
+      "expectedUserResponse": "Hello! Yes, I just moved in today. Nice to meet you!",
+      "userHint": "Hello! Yes, I just moved in today (Evet bugün taşındım) diyerek kendini tanıt.",
+      "keywords": ["hello", "yes", "moved", "today", "nice", "meet", "neighbor"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "İsim Tanışması & Daire Numarası",
+      "aiSpeech": "I am Yanki, and I live in apartment number 4. Which floor are you on?",
+      "aiSpeechTr": "Ben Yankı, 4 numaralı dairede oturuyorum. Sen kaçıncı kattasın?",
+      "expectedUserResponse": "Nice to meet you Yanki! I live on the second floor, in apartment 7.",
+      "userHint": "I live on the second floor (İkinci katta oturuyorum) kalıbını kullan.",
+      "keywords": ["nice", "yanki", "live", "floor", "apartment", "second", "first"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Taşınma Kutuları & Yardım Teklifi",
+      "aiSpeech": "Moving into a new home can be tiring! Do you need any help with your boxes?",
+      "aiSpeechTr": "Yeni bir eve taşınmak yorucu olabilir! Kutuların için yardıma ihtiyacın var mı?",
+      "expectedUserResponse": "Thank you so much, but I am almost finished unpacking!",
+      "userHint": "Thank you so much, but I am almost finished (Neredeyse bitirdim) diyerek teşekkür et.",
+      "keywords": ["thank", "you", "help", "almost", "finished", "fine", "boxes"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Mahalle Rehberi & Süpermarket",
+      "aiSpeech": "There is a fresh bakery and a great supermarket right around the corner. Would you like directions?",
+      "aiSpeechTr": "Köşeyi dönünce taze bir fırın ve harika bir süpermarket var. Yol tarifini ister misin?",
+      "expectedUserResponse": "That would be wonderful! Where is the nearest supermarket?",
+      "userHint": "That would be wonderful (Çok iyi olur) diyerek süpermarketin yerini sor.",
+      "keywords": ["wonderful", "where", "nearest", "supermarket", "bakery", "thanks", "yes"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Sessiz Saatler & Komşuluk Desteği",
+      "aiSpeech": "Our apartment building is very quiet and friendly. If you ever need anything, just knock on my door!",
+      "aiSpeechTr": "Apartmanımız çok sessiz ve samimidir. Bir şeye ihtiyacın olursa kapımı çalman yeterli!",
+      "expectedUserResponse": "That is very kind of you! Thank you for being so welcoming.",
+      "userHint": "That is very kind of you (Çok naziksiniz) kalıbıyla karşılık ver.",
+      "keywords": ["kind", "thank", "you", "welcoming", "door", "good", "neighbor"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Hafta Sonu Çay Daveti & Vedalaşma",
+      "aiSpeech": "Good luck with unpacking! Let us have some tea together this weekend. Have a wonderful day!",
+      "aiSpeechTr": "Kutuları açarken kolay gelsin! Bu hafta sonu birlikte çay içelim. Harika bir gün geçir!",
+      "expectedUserResponse": "Sounds great! See you this weekend, goodbye Yanki!",
+      "userHint": "Sounds great! See you this weekend (Kulağa harika geliyor, hafta sonu görüşürüz) de.",
+      "keywords": ["sounds", "great", "see", "weekend", "tea", "goodbye", "bye"]
+    }
+  ]
+}

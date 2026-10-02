@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "workspaces": [
     "mobile",
-    "landing"
+    "landing",
+    "packages/shared-data"
   ],
   "scripts": {
     "mobile": "npm run start --workspace=mobile",

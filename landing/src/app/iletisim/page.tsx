@@ -148,10 +148,11 @@ export default function ContactPage() {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-heading">
+                      <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-heading">
                         Adınız Soyadınız
                       </label>
                       <input
+                        id="contact-name"
                         type="text"
                         required
                         placeholder="Örn: Ahmet Yılmaz"
@@ -162,10 +163,11 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-heading">
+                      <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-heading">
                         E-posta Adresiniz
                       </label>
                       <input
+                        id="contact-email"
                         type="email"
                         required
                         placeholder="ahmet@sirketiniz.com"
@@ -176,10 +178,11 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-heading">
+                      <label htmlFor="contact-subject" className="block text-xs font-bold uppercase tracking-wider text-heading">
                         Konu
                       </label>
                       <select
+                        id="contact-subject"
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
@@ -193,10 +196,11 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-heading">
+                      <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-heading">
                         Mesajınız
                       </label>
                       <textarea
+                        id="contact-message"
                         required
                         rows={4}
                         placeholder="Mesajınızı veya merak ettiğiniz konuyu yazın..."

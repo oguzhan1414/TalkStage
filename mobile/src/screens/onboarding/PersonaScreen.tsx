@@ -8,8 +8,10 @@ import { PERSONA_OPTIONS } from '../../constants/onboarding';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { useTrackScreenView } from '../../lib/analytics';
 
 export function PersonaScreen({ navigation }: OnboardingStackScreenProps<'Persona'>) {
+  useTrackScreenView('onboarding_step_viewed', { step: 'persona' });
   const { draft, updateDraft } = useOnboarding();
 
   return (
