@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 from app.core.config import settings
 
-CHAT_MODEL = "gpt-4o-mini"
+#: Same gpt-5-nano switch as llm_orchestrator.py — cheaper, and this is a
+#: one-shot classification task, not something deep reasoning improves.
+CHAT_MODEL = "gpt-5.6-luna"
 
 CEFRLevel = Literal["A1", "A2", "B1", "B2", "C1", "C2"]
 
@@ -14,13 +16,22 @@ _SYSTEM_PROMPT = (
     "transcripts of their spoken answers to a few short questions, evaluate grammar "
     "accuracy, vocabulary range, and fluency, then assign a single CEFR level (A1-C2). "
     "Be decisive even with short or imperfect answers — never refuse to pick a level. "
-    "summary_tr must be a short, encouraging 1-2 sentence explanation in Turkish."
+    "summary_tr must be a short, encouraging 1-2 sentence explanation in Turkish. "
+    "reasons must be 2-3 short, concrete Turkish bullet points that justify the level — "
+    "each one grounded in something specific from their actual answers (a word or phrase "
+    "they used, a sentence structure, a grammar slip, how fluently they expressed an idea), "
+    "never generic/templated praise. If an answer was empty or unintelligible, say so plainly "
+    "in one of the reasons instead of inventing detail."
 )
 
 
 class LevelAssessment(BaseModel):
     cefr_level: CEFRLevel
     summary_tr: str = Field(description="1-2 sentence Turkish explanation of the assessment, shown to the user")
+    reasons: list[str] = Field(
+        description="2-3 short, concrete Turkish observations justifying the level, each tied to something "
+        "specific the user actually said — shown to the user as a 'why this level' breakdown"
+    )
 
 
 def assess_level(transcripts: list[str]) -> LevelAssessment:
@@ -37,6 +48,7 @@ def assess_level(transcripts: list[str]) -> LevelAssessment:
             {"role": "user", "content": joined},
         ],
         response_format=LevelAssessment,
+        reasoning_effort="none",
     )
     parsed = completion.choices[0].message.parsed
     if parsed is None:

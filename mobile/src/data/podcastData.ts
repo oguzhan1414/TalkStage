@@ -1,5 +1,6 @@
 import type { ImageSourcePropType } from 'react-native';
 import { podcastCovers, avatarImages } from '../assets/images';
+import { resolvePodcastAudio } from '../lib/media';
 
 export interface PodcastDialogueTurn {
   id: string;
@@ -38,7 +39,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:24 Dk',
     durationSec: 84,
     coverImage: podcastCovers.a1Cafe,
-    audioAsset: require('../../assets/audio/podcast_a1_ep01_the_morning_.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep01_the_morning_.mp3'),
     description: 'Güneşli bir sabah kafesinde büyük boy yulaf sütlü latte ve ılık kruvasan siparişi verme, fiyat sorma, temassız kartla ödeme yapma ve Wi-Fi şifresi sorma.',
     topicsCovered: ["Nezaket kalıpları (Could I please have...)", "Fiyat sorma (How much is...?)", "'To be' fiili", "İşaret zamirleri (this/that)."],
     speakers: [
@@ -201,7 +202,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:19 Dk',
     durationSec: 79,
     coverImage: podcastCovers.a1Routines,
-    audioAsset: require('../../assets/audio/podcast_a1_ep02_morning_alar.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep02_morning_alar.mp3'),
     description: 'Sabah kaçta uyanıldığını anlatma, kahvaltı tercihleri (omlet, tost), işe bisikletle/metroyla ulaşım alışkanlıkları ve çalışma saatleri.',
     topicsCovered: ["Geniş Zaman (Present Simple: do/does", "-s takısı)", "Sıklık Zarfları (always", "usually"],
     speakers: [
@@ -336,7 +337,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:18 Dk',
     durationSec: 78,
     coverImage: podcastCovers.a1City,
-    audioAsset: require('../../assets/audio/podcast_a1_ep03_lost_in_the_.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep03_lost_in_the_.mp3'),
     description: 'Şehir merkezinde kaybolan birinin sokakta birini durdurup kibarca Merkez Metro İstasyonunu sorması, sokak tarifleri ve bilet otomatı bulma.',
     topicsCovered: ["Yol tarif kalıpları (walk straight", "turn left", "turn right)", "Konum edatları (opposite"],
     speakers: [
@@ -489,7 +490,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:17 Dk',
     durationSec: 77,
     coverImage: podcastCovers.a1Bistro,
-    audioAsset: require('../../assets/audio/podcast_a1_ep04_dinner_at_th.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep04_dinner_at_th.mp3'),
     description: 'Restoranda masa isteme, başlangıç tabağı (domatesli bruschetta), ana yemek (ızgara tavuk ve salata) siparişi verme ve hesabı isteme.',
     topicsCovered: ["Yemek siparişi kalıpları (I would like...", "Could we have...)", "Restoran nezaket ifadeleri", "Sayılan/Sayılamayan isimler (some water)."],
     speakers: [
@@ -635,7 +636,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:13 Dk',
     durationSec: 73,
     coverImage: podcastCovers.a1Picnic,
-    audioAsset: require('../../assets/audio/podcast_a1_ep05_weekend_memo.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep05_weekend_memo.mp3'),
     description: 'Dün öğleden sonra parkta yürüyüş yapmayı anlatma, dün akşam evde film izleme ve cumartesi günü şehir parkında piknik planlama.',
     topicsCovered: ["Geçmiş Zaman (Past Simple: was", "walked", "watched", "cooked)"],
     speakers: [
@@ -779,7 +780,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:14 Dk',
     durationSec: 74,
     coverImage: podcastCovers.a1Cafe,
-    audioAsset: require('../../assets/audio/podcast_a1_ep06_meeting_a_ne.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep06_meeting_a_ne.mp3'),
     description: 'Ofiste ilk gününde yeni bir iş arkadaşıyla tanışma, nereli olduğunu sorma, görevini anlatma ve kahve alanını gösterme.',
     topicsCovered: ["To Be fiili (am/is/are)", "Ülke/Milliyet sorma (Where are you from?)", "İyelik sıfatları (my", "your)."],
     speakers: [
@@ -868,7 +869,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:14 Dk',
     durationSec: 74,
     coverImage: podcastCovers.a1City,
-    audioAsset: require('../../assets/audio/podcast_a1_ep07_grocery_shop.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep07_grocery_shop.mp3'),
     description: 'Süpermarkette meyve, sebze ve peynir arama, miktar sorma, fiyat öğrenme ve poşet isteme diyaloğu.',
     topicsCovered: ["There is / There are", "Sayılan/Sayılamayan (some", "any)", "Fiyat sorma (How much is/are...)."],
     speakers: [
@@ -1031,7 +1032,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:07 Dk',
     durationSec: 67,
     coverImage: podcastCovers.a1Picnic,
-    audioAsset: require('../../assets/audio/podcast_a1_ep08_my_family_ho.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep08_my_family_ho.mp3'),
     description: 'Aile bireylerinden bahsetme (anne, baba, kardeş), meslekleri, boş zamanlarda yapılan hobiler (futbol oynama, gitar çalma, resim yapma).',
     topicsCovered: ["Geniş Zaman (Present Simple likes: He likes", "She plays)", "İyelik sıfatları (my father", "her name)."],
     speakers: [
@@ -1175,7 +1176,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:13 Dk',
     durationSec: 73,
     coverImage: podcastCovers.a2Doctor,
-    audioAsset: require('../../assets/audio/podcast_a1_ep09_at_the_pharm.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep09_at_the_pharm.mp3'),
     description: 'Hafif baş ağrısı ve soğuk algınlığı için eczaneye gitme, şikayeti basitçe anlatma, ağrı kesici ve vitamin alma.',
     topicsCovered: ["Basit sağlık cümleleri (I have a headache / cold)", "'Can I get...'", "İlaç kullanım talimatları (take one tablet after meals)."],
     speakers: [
@@ -1328,7 +1329,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:17 Dk',
     durationSec: 77,
     coverImage: podcastCovers.a1Routines,
-    audioAsset: require('../../assets/audio/podcast_a1_ep10_a_simple_pho.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a1_ep10_a_simple_pho.mp3'),
     description: 'Diş kliniğini arayıp kontrol için randevu isteme, gün ve saat seçme, isim ve telefon numarası heceleme.',
     topicsCovered: ["Telefon kalıpları (This is Lisa calling", "Can I make an appointment?)", "Günler ve saatler (on Thursday at 3 PM)."],
     speakers: [
@@ -1490,7 +1491,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:32 Dk',
     durationSec: 92,
     coverImage: podcastCovers.a2Airport,
-    audioAsset: require('../../assets/audio/podcast_a2_ep01_boarding_pas.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep01_boarding_pas.mp3'),
     description: 'Londra uçuşu için check-in yapma, bagaj tartma (21 kg), el çantası kuralları, pencere kenarı koltuk (14A) seçme ve güvenlik kontrolüne geçiş.',
     topicsCovered: ["Havalimanı diyalog kalıpları", "İzin/Rica kipleri (Would it be possible to...)", "Konum ve yön tarifleri (Gate 24)."],
     speakers: [
@@ -1653,7 +1654,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:22 Dk',
     durationSec: 82,
     coverImage: podcastCovers.a2Hotel,
-    audioAsset: require('../../assets/audio/podcast_a2_ep02_hotel_check_.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep02_hotel_check_.mp3'),
     description: '3 gecelik Deluxe King oda girişi yapma, kahvaltı saatlerini öğrenme, Wi-Fi bağlantısı ve odaya 2 ekstra yastık isteme.',
     topicsCovered: ["Dolaylı soru sorma (Could you please tell me what time...)", "Otel terminolojisi", "Gelecek planı."],
     speakers: [
@@ -1798,7 +1799,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:22 Dk',
     durationSec: 82,
     coverImage: podcastCovers.a2Shopping,
-    audioAsset: require('../../assets/audio/podcast_a2_ep03_shopping_spr.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep03_shopping_spr.mp3'),
     description: 'Lacivert yün kazağın medium bedenini arama, deneme kabininde deneme, %20 indirimden faydalanma ve 30 günlük iade politikasını öğrenme.',
     topicsCovered: ["Alışveriş kalıpları (I am looking for", "Do you have this in medium?)", "İndirim hesaplama (twenty percent off)", "Şart cümleleri."],
     speakers: [
@@ -1942,7 +1943,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:26 Dk',
     durationSec: 86,
     coverImage: podcastCovers.a2Doctor,
-    audioAsset: require('../../assets/audio/podcast_a2_ep04_a_doctor_s_v.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep04_a_doctor_s_v.mp3'),
     description: '3 gündür süren boğaz ağrısı, kuru öksürük ve ateş şikayetini anlatma, muayene olma, viral teşhis alma ve tavsiyeler.',
     topicsCovered: ["Hastalık bildirme (I have a sore throat", "I have been feeling tired)", "Tavsiye modalları (You should rest", "You shouldn't drink cold water)."],
     speakers: [
@@ -2077,7 +2078,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:22 Dk',
     durationSec: 82,
     coverImage: podcastCovers.a2Cinema,
-    audioAsset: require('../../assets/audio/podcast_a2_ep05_cinema_night.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep05_cinema_night.mp3'),
     description: 'Yeni bilim kurgu macera filmine gitme planı yapma, fragmanı ve görsel efektleri değerlendirme, online bilet alma ve buluşma saati belirleme.',
     topicsCovered: ["Üstünlük dereceleri (Superlatives: the most exciting", "the best)", "Öneri kalıpları (Shall we...", "Why don't we...)."],
     speakers: [
@@ -2212,7 +2213,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:37 Dk',
     durationSec: 97,
     coverImage: podcastCovers.a2Airport,
-    audioAsset: require('../../assets/audio/podcast_a2_ep06_renting_a_ca.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep06_renting_a_ca.mp3'),
     description: 'Hafta sonu gezisi için ekonomik veya SUV araç kiralama, yakıt politikası, tam kasko sigortası ve ehliyet kontrolü.',
     topicsCovered: ["Comparatives (more spacious than", "cheaper than)", "Zorunluluk kipleri (You have to return with full tank)."],
     speakers: [
@@ -2365,7 +2366,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:29 Dk',
     durationSec: 89,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_a2_ep07_tech_support.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep07_tech_support.mp3'),
     description: 'Akıllı telefonun sistem güncellemesi sırasında donması, yeniden başlatma adımları, garanti kapsamı ve veri yedekleme kontrolü.',
     topicsCovered: ["Past Continuous with when/while (It froze while I was updating)", "Emir kipleri ve adım adım yönlendirme."],
     speakers: [
@@ -2509,7 +2510,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:21 Dk',
     durationSec: 81,
     coverImage: podcastCovers.a1Bistro,
-    audioAsset: require('../../assets/audio/podcast_a2_ep08_inviting_a_f.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep08_inviting_a_f.mp3'),
     description: 'Arkadaşını cuma akşamı ev yapımı İtalyan makarnasına davet etme, alerji ve diyet kısıtlamalarını sorma, tatlı getirmeyi teklif etme.',
     topicsCovered: ["Quantifiers (a few tomatoes", "a little cheese)", "Davet kalıpları (Would you like to come over...)", "İzin/Rica."],
     speakers: [
@@ -2653,7 +2654,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:20 Dk',
     durationSec: 80,
     coverImage: podcastCovers.a1Picnic,
-    audioAsset: require('../../assets/audio/podcast_a2_ep09_planning_a_s.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep09_planning_a_s.mp3'),
     description: 'Akdeniz kıyısında deniz tatili ile İskandinavya doğa turunu kıyaslama, bütçe hesaplama, otel vs. kiralık daire tercihi ve bilet alma.',
     topicsCovered: ["Comparatives & Superlatives (more relaxing than", "the cheapest option)", "Be going to planları", "Şart cümleleri (Type 1)."],
     speakers: [
@@ -2788,7 +2789,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:32 Dk',
     durationSec: 92,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_a2_ep10_a_job_fair_b.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_a2_ep10_a_job_fair_b.mp3'),
     description: 'Üniversite kariyer fuarında bir teknoloji şirketi standını ziyaret etme, staj imkanlarını sorma, programlama yeteneklerini ve projelerini anlatma.',
     topicsCovered: ["Present Perfect ile tecrübe (Have you built any apps?)", "Modals of ability (I can code in Python and Kotlin)", "Hedef planlar."],
     speakers: [
@@ -2923,7 +2924,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:45 Dk',
     durationSec: 105,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_b1_ep01_the_job_inte.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep01_the_job_inte.mp3'),
     description: '4 yıllık dijital ürün ve pazarlama geçmişini anlatma, kriz anlarında sıkışık teslim tarihlerini yönetme, veriye dayalı problem çözme ve liderlik vizyonu.',
     topicsCovered: ["Present Perfect Continuous (I have been working as...)", "Davranışsal mülakat yanıt kalıpları (When facing tight deadlines...)", "Relative clauses."],
     speakers: [
@@ -3041,7 +3042,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:40 Dk',
     durationSec: 100,
     coverImage: podcastCovers.b1Apartment,
-    audioAsset: require('../../assets/audio/podcast_b1_ep02_apartment_hu.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep02_apartment_hu.mp3'),
     description: 'İki yatak odalı yenilenmiş köşe daireyi gezme, 1800$ kira ve dahil olan giderler (ısınma, su), 12 aylık sözleşme, 1 aylık depozito ve evcil hayvan şartları.',
     topicsCovered: ["Gayrimenkul ve kira hukuku terimleri (lease agreement", "security deposit)", "Şart cümleleri (If heating is included...)", "Relative clauses."],
     speakers: [
@@ -3185,7 +3186,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:46 Dk',
     durationSec: 106,
     coverImage: podcastCovers.b1Luggage,
-    audioAsset: require('../../assets/audio/podcast_b1_ep03_delayed_flig.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep03_delayed_flig.mp3'),
     description: 'Frankfurt aktarmasında uçağa yetişemeyen bavulun kayıp bildirimini yapma, 150$\'a kadar acil harcama ödeneği (PIR raporu) ve oteline kuryeyle teslimat sözü.',
     topicsCovered: ["Edilgen çatı / Passive Voice (your bag was loaded onto...)", "Şikayet ve hak arama dili", "Zaman bağlaçları."],
     speakers: [
@@ -3321,7 +3322,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:29 Dk',
     durationSec: 89,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b1_ep04_smart_techno.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep04_smart_techno.mp3'),
     description: 'Günlük iş akışlarında üretken yapay zeka ve otomasyon araçlarının kullanımı, bildirim kirliliği, veri güvenliği ve ekran süresi dengesi.',
     topicsCovered: ["Second Conditional (If I didn't use automation", "I would spend hours...)", "Phrasal verbs (turn off", "cut down on"],
     speakers: [
@@ -3429,7 +3430,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:30 Dk',
     durationSec: 90,
     coverImage: podcastCovers.b1Green,
-    audioAsset: require('../../assets/audio/podcast_b1_ep05_eco_friendly.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep05_eco_friendly.mp3'),
     description: 'Plastik atıkları azaltma, çatılarda güneş panelleri kullanımı, bisikletle ulaşım ve organik ev atıklarını kompost yapma alışkanlıkları.',
     topicsCovered: ["Modals of obligation & advice (We should reduce", "We must protect)", "Complex Gerunds (interested in recycling", "stop buying)."],
     speakers: [
@@ -3546,7 +3547,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:39 Dk',
     durationSec: 99,
     coverImage: podcastCovers.b1Apartment,
-    audioAsset: require('../../assets/audio/podcast_b1_ep06_opening_a_ba.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep06_opening_a_ba.mp3'),
     description: 'Yurtdışında uluslararası öğrenci/çalışan hesabı açma, adres kanıtı sunma, temassız banka kartı ve mobil bankacılık kurulumu.',
     topicsCovered: ["Passive Voice (Accounts are opened", "Documents are verified)", "Dolaylı soru sorma (Could you clarify if...)", "Relative clauses."],
     speakers: [
@@ -3681,7 +3682,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:32 Dk',
     durationSec: 92,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_b1_ep07_freelancing_.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep07_freelancing_.mp3'),
     description: 'Serbest zamanlı (freelance) çalışmanın esnekliği ve gelir belirsizliği ile kurumsal ofis hayatının sosyal avantajları ve güvencesini karşılaştırma.',
     topicsCovered: ["Used to (I used to work in a cubicle)", "Second Conditional (If I had a fixed salary", "I would worry less)", "Zıtlık bağlaçları (whereas"],
     speakers: [
@@ -3789,7 +3790,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:28 Dk',
     durationSec: 88,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b1_ep08_organizing_a.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep08_organizing_a.mp3'),
     description: 'Üniversitede yapay zeka ve mobil geliştirme üzerine 100 kişilik bir teknoloji buluşması (meetup) organize etme, salon kiralama, konuşmacı teyidi ve sponsorluklar.',
     topicsCovered: ["Phrasal verbs (set up", "figure out", "reach out to", "call off)"],
     speakers: [
@@ -3878,7 +3879,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:40 Dk',
     durationSec: 100,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_b1_ep09_handling_a_c.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep09_handling_a_c.mp3'),
     description: 'E-ticaret ödeme modülündeki kesinti nedeniyle mağdur olan kurumsal müşterinin şikayetini dinleme, empati kurma, teknik kök nedeni açıklama ve telafi teklifi.',
     topicsCovered: ["Present Perfect Continuous (We have been investigating)", "Diplomatik nezaket kalıpları (I completely understand your frustration)", "Gelecek taahhütleri."],
     speakers: [
@@ -3995,7 +3996,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:40 Dk',
     durationSec: 100,
     coverImage: podcastCovers.b1Green,
-    audioAsset: require('../../assets/audio/podcast_b1_ep10_a_university.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b1_ep10_a_university.mp3'),
     description: 'Yapay zeka destekli akıllı trafik yönetim sistemi (GÖZCÜ) projesinin mimarisini, YOLOv8 araç tespit doğruluğunu ve MQTT gecikme testlerini değerlendirme.',
     topicsCovered: ["Complex Gerunds & Infinitives (Remember to include", "Avoid using)", "Passive Voice (The model was trained on...)", "Relative clauses."],
     speakers: [
@@ -4084,7 +4085,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:32 Dk',
     durationSec: 92,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b2_ep01_ai_ethics_co.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep01_ai_ethics_co.mp3'),
     description: 'Üretken yapay zekanın açık kaynak kodları ve tescilli veriler üzerindeki telif riskleri, zanaatkarlık duygusu, genç geliştiricilerin bilişsel gelişimi ve yasal düzenlemeler.',
     topicsCovered: ["Third & Mixed Conditionals (If we had trained models ethically...)", "Inversion (Rarely have we seen)", "Subjunctive (vital that AI be transparent)."],
     speakers: [
@@ -4183,7 +4184,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:35 Dk',
     durationSec: 95,
     coverImage: podcastCovers.b1Green,
-    audioAsset: require('../../assets/audio/podcast_b2_ep02_green_infras.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep02_green_infras.mp3'),
     description: 'Metropollerin net sıfır karbon salınımına geçişindeki altyapı zorlukları, merkezi olmayan mikro elektrik şebekeleri, kentsel ısı adası etkisi ve sürdürülebilir toplu taşıma.',
     topicsCovered: ["Discourse markers (Notwithstanding", "whereas", "furthermore)", "Participle clauses (Operating at capacity"],
     speakers: [
@@ -4291,7 +4292,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:50 Dk',
     durationSec: 110,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_b2_ep03_startup_vent.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep03_startup_vent.mp3'),
     description: 'B2B SaaS yapay zeka girişiminin tohum sonrası Seri A yatırım sunumu, müşteri edinme maliyeti (CAC), yıllık tekrarlayan gelir (ARR), pazar payı ve ölçeklenme stratejisi.',
     topicsCovered: ["Past Modals of Deduction (must have achieved", "could have scaled)", "Causatives (get enterprise clients to adopt)", "İleri karşılaştırma."],
     speakers: [
@@ -4417,7 +4418,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:41 Dk',
     durationSec: 101,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b2_ep04_crisis_manag.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep04_crisis_manag.mp3'),
     description: 'Uluslararası bir e-ticaret platformuna yapılan fidye yazılımı ve veri sızıntısı saldırısına müdahale, sistem karantinası, yasal bildirimler ve basın açıklaması yönetimi.',
     topicsCovered: ["Past Modals of deduction & regret (The attacker must have breached", "We should have isolated)", "Passive voice", "Subjunctive."],
     speakers: [
@@ -4534,7 +4535,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:31 Dk',
     durationSec: 91,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b2_ep05_autonomous_v.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep05_autonomous_v.mp3'),
     description: 'Seviye 4 otonom araçlarda sensör füzyonu (LiDAR, Kamera, Radar), beklenmeyen acil durum manevralarında yapay zekanın etik karar verme ikilemleri ve regülasyonlar.',
     topicsCovered: ["Advanced Passive (is estimated to reduce", "are considered to be)", "Conditionals", "Participle clauses."],
     speakers: [
@@ -4633,7 +4634,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:36 Dk',
     durationSec: 96,
     coverImage: podcastCovers.b1Interview,
-    audioAsset: require('../../assets/audio/podcast_b2_ep06_negotiating_.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep06_negotiating_.mp3'),
     description: 'Üç yıllık bulut yazılım lisansı sözleşmesi müzakeresi, hizmet seviyesi anlaşması (SLA) kesinti tazminatları, veri mülkiyeti ve erken fesih maddeleri.',
     topicsCovered: ["Subjunctive Mood (mandates that uptime be 99.99%)", "Conditionals with inversion (Should your service fail...)", "Concession phrases."],
     speakers: [
@@ -4741,7 +4742,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:41 Dk',
     durationSec: 101,
     coverImage: podcastCovers.b1Apartment,
-    audioAsset: require('../../assets/audio/podcast_b2_ep07_workplace_bu.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep07_workplace_bu.mp3'),
     description: 'Sürekli çevrim içi kalma baskısı, yazılımcı ve tasarımcılarda tükenmişlik sendromu, esnek çalışma saatleri ve asenkron iletişim kültürünün önemi.',
     topicsCovered: ["Participle clauses (Experiencing chronic stress...)", "Causatives (having managers respect boundaries)", "Inversion."],
     speakers: [
@@ -4849,7 +4850,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:42 Dk',
     durationSec: 102,
     coverImage: podcastCovers.a2Doctor,
-    audioAsset: require('../../assets/audio/podcast_b2_ep08_medical_biot.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep08_medical_biot.mp3'),
     description: 'CRISPR gen düzenleme teknolojisiyle nadir kalıtsal hastalıkların tedavisi, mRNA aşılarının onkolojideki geleceği, etik sınırlar ve klinik onay süreçleri.',
     topicsCovered: ["Advanced Passive (is believed to have cured", "are being engineered)", "Relative clauses with prepositions (the mechanism through which...)", "Mixed Conditionals."],
     speakers: [
@@ -4966,7 +4967,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:39 Dk',
     durationSec: 99,
     coverImage: podcastCovers.b1Apartment,
-    audioAsset: require('../../assets/audio/podcast_b2_ep09_the_philosop.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep09_the_philosop.mp3'),
     description: 'Farklı saat dilimlerine yayılmış küresel ekipleri yönetme, fiziksel ofis zorunluluğunun ortadan kalkması, güvene dayalı performans yönetimi ve kültürel çeşitlilik.',
     topicsCovered: ["Future in the Past (We knew remote work would prevail)", "Negative Inversion", "Complex contrast markers (whereas", "despite)."],
     speakers: [
@@ -5074,7 +5075,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     durationLabel: '1:33 Dk',
     durationSec: 93,
     coverImage: podcastCovers.b1AI,
-    audioAsset: require('../../assets/audio/podcast_b2_ep10_cybersecurit.mp3'),
+    audioAsset: resolvePodcastAudio('podcast_b2_ep10_cybersecurit.mp3'),
     description: 'Yapay zeka çağında kullanıcı verilerinin korunması, GDPR ve KVKK gibi uluslararası regülasyonlar, gözetim kapitalizmi ve geleceğin veri egemenliği yasaları.',
     topicsCovered: ["Nominalization (the enforcement of regulatory frameworks)", "Subjunctive (demands that data be deleted)", "Cleft sentences."],
     speakers: [

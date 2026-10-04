@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import {
   avatarImages,
@@ -14,6 +14,7 @@ import {
 } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
+import { ContributionHeatmap } from '../components/ContributionHeatmap';
 import { SkillsRadarChart, type RadarMetrics } from '../components/SkillsRadarChart';
 import { BADGES } from '../constants/badges';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +43,7 @@ import type {
 
 /** Preview shows the first 4 of the canonical 10-badge list; "Tümünü Gör" opens the full grid. */
 const PROFILE_BADGE_PREVIEW = BADGES.slice(0, 4);
+const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://talkstage.app/gizlilik';
 
 const AVATAR_LIST = [
   { id: 'student', name: 'Öğrenci', source: avatarImages.studentYouth },
@@ -69,7 +71,7 @@ function toDateKey(date: Date) {
 }
 
 export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
-  const { session, signOut } = useAuth();
+  const { session, signOut, deleteAccount } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: profile } = useQuery({
@@ -114,6 +116,45 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const [nameInput, setNameInput] = useState('');
   const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
   const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
+  const [signingOut, setSigningOut] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch {
+      Alert.alert('Çıkış yapılamadı', 'Bağlantını kontrol edip tekrar dene.');
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Hesabını kalıcı olarak sil?',
+      'Konuşma geçmişin, kelimelerin, ilerlemen ve profilin geri alınamayacak şekilde silinir. Aktif mağaza aboneliğin varsa ayrıca App Store veya Google Play üzerinden iptal etmelisin.',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Hesabımı Sil',
+          style: 'destructive',
+          onPress: async () => {
+            if (deletingAccount) return;
+            setDeletingAccount(true);
+            try {
+              await deleteAccount();
+            } catch {
+              Alert.alert('Hesap silinemedi', 'Bağlantını kontrol edip tekrar dene.');
+            } finally {
+              setDeletingAccount(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   // Refreshed on focus (e.g. returning from a finished TextChat topic
   // practice or a finished lesson quiz) — same AsyncStorage signals
@@ -249,14 +290,13 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   );
 
   const userXp = profile?.xp ?? 0;
-  const userGems = Math.max(50, Math.floor(userXp / 3) + (profile?.streak_count ?? 1) * 15);
   const userStreak = profile?.streak_count ?? 1;
 
   // Today Practice Check
   const todayKey = toDateKey(new Date());
   const todayProgress = (progress ?? []).find((p) => p.practice_date === todayKey);
   const todayMinutes = todayProgress?.minutes_practiced ?? 0;
-  const dailyTargetMinutes = 15;
+  const dailyTargetMinutes = profile?.daily_target_minutes ?? 15;
   const todayGoalPercent = Math.min(100, Math.round((todayMinutes / dailyTargetMinutes) * 100));
 
   const avgFluency =
@@ -393,7 +433,9 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             </View>
           </Pressable>
 
-          {/* 3D Core Economy Stats Row (XP, Elmas, Seri) */}
+          {/* Core Stats Row (XP, Seri) — the "Elmas" (gems) card that used
+              to sit here was a fully fabricated currency (see guide modal
+              below) and was removed rather than kept as decoration. */}
           <View style={styles.economyStatsRow}>
             {/* XP Card */}
             <Pressable
@@ -409,37 +451,26 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               <Text style={styles.economyStatLabel}>⚡ Toplam XP</Text>
             </Pressable>
 
-            {/* Elmas Card */}
-            <Pressable
-              style={styles.economyStatBox}
-              onPress={() => setGuideModalVisible(true)}
-            >
-              <Image
-                source={stateImages.gemDiamond}
-                style={styles.economyStatIcon}
-                resizeMode="contain"
-              />
-              <Text style={[styles.economyStatNumber, { color: '#0284C7' }]}>
-                {userGems}
-              </Text>
-              <Text style={styles.economyStatLabel}>💎 Elmas</Text>
-            </Pressable>
-
             {/* Streak Card */}
-            <Pressable
-              style={styles.economyStatBox}
-              onPress={() => navigation.navigate('Calendar')}
-            >
-              <Text style={styles.economyStatFlame}>🔥</Text>
-              <Text style={[styles.economyStatNumber, { color: '#EA580C' }]}>
+            <View style={styles.economyStatBox}>
+              <Ionicons name="checkmark-done-circle" size={26} color={colors.brand} />
+              <Text style={[styles.economyStatNumber, { color: colors.brand }]}>
                 {userStreak} Gün
               </Text>
               <Text style={styles.economyStatLabel}>Seri</Text>
               {profile?.longest_streak ? (
                 <Text style={styles.economyStatSubLabel}>En: {profile.longest_streak} gün</Text>
               ) : null}
-            </Pressable>
+            </View>
           </View>
+        </View>
+
+        {/* ======================================================== */}
+        {/* 1b. PRATİK GEÇMİŞİ — GitHub tarzı contribution heatmap   */}
+        {/* ======================================================== */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pratik Geçmişi</Text>
+          <ContributionHeatmap progress={progress ?? []} dailyTargetMinutes={dailyTargetMinutes} />
         </View>
 
         {/* ======================================================== */}
@@ -494,7 +525,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         </View>
 
         {/* ======================================================== */}
-        {/* 3. 4'LÜ TEMEL GELİŞİM KASASI (FULL-WIDTH BENTO STACK)   */}
+        {/* 3. TEMEL GELİŞİM KASALARI (FULL-WIDTH BENTO STACK)      */}
         {/* ======================================================== */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Gelişim Kasaları &amp; Merkezler</Text>
@@ -579,33 +610,6 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               </View>
             </BouncyPressable>
 
-            {/* 4. Çalışma Takvimi */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('Calendar')}
-              style={[styles.hubCard, shadow.card]}
-              hapticType="light"
-              scaleTo={0.97}
-            >
-              <View style={[styles.hubIconBg, { backgroundColor: '#FFF7ED', borderColor: '#FFEDD5' }]}>
-                <Image
-                  source={homeImages.streakCalendar}
-                  style={styles.hubThumbImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.hubContent}>
-                <Text style={styles.hubTitle}>Çalışma Takvimi &amp; Seri</Text>
-                <Text style={styles.hubDesc}>Aylık pratik geçmişi ve seri koruma</Text>
-              </View>
-              <View style={styles.hubRightCol}>
-                <View style={[styles.hubCountPill, { backgroundColor: '#FFF7ED', borderColor: '#FFEDD5' }]}>
-                  <Text style={[styles.hubCountText, { color: '#C2410C' }]}>
-                    {userStreak} Gün Seri
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
-              </View>
-            </BouncyPressable>
           </View>
         </View>
 
@@ -773,17 +777,35 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
 
             <View style={styles.settingDivider} />
 
-            {/* XP & Elmas Rehberi */}
+            {/* XP & Seri Rehberi */}
             <Pressable
               onPress={() => setGuideModalVisible(true)}
               style={styles.settingRow}
             >
               <Ionicons name="information-circle-outline" size={20} color={colors.brand} />
               <View style={styles.settingTextCol}>
-                <Text style={styles.settingLabel}>XP ve Elmas Sistemi Rehberi</Text>
-                <Text style={styles.settingDesc}>Ödül kazanma yolları & mağaza mekanikleri</Text>
+                <Text style={styles.settingLabel}>XP ve Seri Rehberi</Text>
+                <Text style={styles.settingDesc}>Ödül kazanma yolları nasıl çalışır</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            </Pressable>
+
+            <View style={styles.settingDivider} />
+
+            <Pressable
+              onPress={() => {
+                void Linking.openURL(PRIVACY_URL);
+              }}
+              style={styles.settingRow}
+              accessibilityRole="link"
+              accessibilityLabel="Gizlilik politikasını aç"
+            >
+              <Ionicons name="shield-checkmark-outline" size={20} color={colors.brand} />
+              <View style={styles.settingTextCol}>
+                <Text style={styles.settingLabel}>Gizlilik ve Ses Verileri</Text>
+                <Text style={styles.settingDesc}>Verilerinin nasıl işlendiğini ve haklarını incele</Text>
+              </View>
+              <Ionicons name="open-outline" size={18} color={colors.textMuted} />
             </Pressable>
           </View>
 
@@ -791,14 +813,22 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           <Button
             label="Çıkış Yap"
             variant="ghost"
-            onPress={() => signOut()}
+            onPress={handleSignOut}
+            loading={signingOut}
             style={styles.logoutButton}
+          />
+          <Button
+            label="Hesabımı Kalıcı Olarak Sil"
+            variant="ghost"
+            onPress={confirmDeleteAccount}
+            loading={deletingAccount}
+            style={styles.deleteAccountButton}
           />
         </View>
       </ScrollView>
 
       {/* ======================================================== */}
-      {/* 📖 MODAL: TALKSTAGE XP & ELMAS REHBERİ                    */}
+      {/* 📖 MODAL: TALKSTAGE XP & SERİ REHBERİ                     */}
       {/* ======================================================== */}
       <Modal
         visible={guideModalVisible}
@@ -810,8 +840,8 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           <View style={styles.guideModalCard}>
             <View style={styles.guideModalHeader}>
               <View>
-                <Text style={styles.guideModalTitle}>TalkStage Ödül Sistemi 💎⚡</Text>
-                <Text style={styles.guideModalSub}>XP, Elmas ve Seri mekaniklerinin rehberi</Text>
+                <Text style={styles.guideModalTitle}>TalkStage Ödül Sistemi ⚡</Text>
+                <Text style={styles.guideModalSub}>XP ve Seri mekaniklerinin rehberi</Text>
               </View>
               <Pressable
                 onPress={() => setGuideModalVisible(false)}
@@ -829,34 +859,33 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
                   <Image source={stateImages.xpBolt} style={styles.guideBlockIcon} resizeMode="contain" />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.guideBlockTitle}>⚡ XP (Deneyim Puanı) Nedir?</Text>
-                    <Text style={styles.guideBlockTag}>Kalıcı Seviye & Lig İlerlemesi</Text>
+                    <Text style={styles.guideBlockTag}>Kalıcı İlerleme</Text>
                   </View>
                 </View>
                 <Text style={styles.guideBlockBody}>
                   XP, TalkStage'e verdiğin emeğin ve İngilizce seviyenin kalıcı kanıtıdır. Asla silinmez veya harcanamaz.
                 </Text>
                 <View style={styles.guideBulletBox}>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>Nasıl Kazanılır?</Text> Canlı AI konuşmaları (+50 XP), okuma parçaları (+30 XP) ve testlerden (+20 XP).</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>Ne İşe Yarar?</Text> A1'den C2'ye seviye atlamanı sağlar ve Liderlik Liglerinde seni öne taşır.</Text>
+                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>Nasıl Kazanılır?</Text> Canlı AI konuşmaları, okuma parçaları, kelime tekrarları ve günlük görevlerin tamamı XP kazandırır.</Text>
+                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>Ne İşe Yarar?</Text> Seviye İlerleme Raporu'nda görünür ve A1'den C2'ye gerçek ilerlemeni yansıtır.</Text>
                 </View>
               </View>
 
-              {/* GEMS */}
+              {/* SERİ */}
               <View style={styles.guideBlock}>
                 <View style={styles.guideBlockHeader}>
-                  <Image source={stateImages.gemDiamond} style={styles.guideBlockIcon} resizeMode="contain" />
+                  <Ionicons name="checkmark-done-circle" size={32} color={colors.brand} style={styles.guideBlockIcon} />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.guideBlockTitle, { color: '#0284C7' }]}>💎 Elmas (Gems) Nedir?</Text>
-                    <Text style={styles.guideBlockTag}>Harcanabilir Ödül Para Birimi</Text>
+                    <Text style={styles.guideBlockTitle}>Seri (Streak) Nedir?</Text>
+                    <Text style={styles.guideBlockTag}>Düzenli Pratik Takibi</Text>
                   </View>
                 </View>
                 <Text style={styles.guideBlockBody}>
-                  Elmas, özel görevleri tamamladığında ve serilerini koruduğunda kazandığın değerli uygulama içi para birimidir.
+                  Üst üste kaç gün pratik yaptığını gösterir — aynı güne ait herhangi bir pratik (konuşma, okuma, kelime tekrarı) o günü sayar.
                 </Text>
                 <View style={styles.guideBulletBox}>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>🛡️ Seri Kalkanı:</Text> Giremediğin gün serinin (Streak) bozulmasını engeller.</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>🎭 VIP Özel Mülakatlar:</Text> İleri düzey mülakat ve iş senaryolarını açar.</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>🎙️ Ekstra AI Süresi:</Text> Günlük sınır dolduğunda seansı uzatmanı sağlar.</Text>
+                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>Nasıl Korunur?</Text> Her gün en az bir pratik yap.</Text>
+                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>En Uzun Serin</Text> kalıcı olarak kaydedilir, seri bozulsa bile kaybolmaz.</Text>
                 </View>
               </View>
 
@@ -1427,10 +1456,6 @@ const styles = StyleSheet.create({
     height: 24,
     marginBottom: 2,
   },
-  economyStatFlame: {
-    fontSize: 20,
-    marginBottom: 2,
-  },
   economyStatNumber: {
     fontFamily: fonts.headingBold,
     fontSize: 15,
@@ -1785,6 +1810,11 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 4,
+  },
+  deleteAccountButton: {
+    marginTop: 2,
+    borderWidth: 1,
+    borderColor: '#FECACA',
   },
 
   /* Modal Base */

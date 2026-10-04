@@ -33,18 +33,19 @@ export default function HomeFaq() {
   };
 
   return (
-    <section id="sss" className="relative scroll-mt-24 bg-porcelain px-6 py-24 sm:py-32">
+    <section id="sss" className="relative scroll-mt-24 bg-bg-warm px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-4xl">
         {/* Section Header */}
         <Reveal className="text-center">
-          <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">
-            Sıkça Sorulan Sorular
-          </span>
-          <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
-            Aklınıza Takılan Temel Sorular
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-orange-200/60 text-sm font-bold text-heading shadow-xs mb-4">
+            <span>❓</span>
+            <span>Sıkça Sorulan Sorular</span>
+          </div>
+          <h2 className="mt-2 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
+            Aklına Takılan Sorular 🤔
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-body">
-            En çok merak edilen noktaları özetledik. Tüm detaylı sorular ve teknik yanıtlar için SSS merkezimizi ziyaret edebilirsiniz.
+            Merak ettiğin her şeyi özetledik! Detaylı yanıtlar için SSS merkezimizi ziyaret edebilirsin.
           </p>
         </Reveal>
 
@@ -55,10 +56,10 @@ export default function HomeFaq() {
             return (
               <Reveal key={faq.id}>
                 <div
-                  className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+                  className={`overflow-hidden rounded-[24px] border transition-all duration-200 ${
                     isOpen
-                      ? "border-indigo/30 bg-white shadow-sm ring-1 ring-indigo/10"
-                      : "border-line bg-white/90 hover:border-line hover:bg-white shadow-2xs"
+                      ? "border-pink-pop/30 bg-white shadow-md ring-1 ring-pink-pop/10"
+                      : "border-slate-200/60 bg-white/90 hover:border-pink-pop/20 hover:bg-white shadow-xs"
                   }`}
                 >
                   <button
@@ -73,8 +74,8 @@ export default function HomeFaq() {
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base font-bold transition-transform duration-200 ${
                         isOpen
-                          ? "bg-indigo text-white rotate-45"
-                          : "bg-porcelain text-muted"
+                          ? "bg-pink-pop text-white rotate-45"
+                          : "bg-slate-100 text-muted"
                       }`}
                     >
                       +
@@ -98,10 +99,10 @@ export default function HomeFaq() {
         <Reveal delay={200} className="mt-12 text-center">
           <Link
             href="/sss"
-            className="inline-flex items-center gap-2.5 rounded-full border border-line bg-white px-8 py-3.5 text-sm font-semibold text-heading shadow-xs transition-all hover:-translate-y-0.5 hover:border-indigo hover:text-indigo hover:shadow-md"
+            className="inline-flex items-center gap-2.5 rounded-full border border-slate-200/60 bg-white px-8 py-3.5 text-sm font-bold text-heading shadow-xs transition-all hover:-translate-y-0.5 hover:border-pink-pop/40 hover:text-pink-pop hover:shadow-md"
           >
-            <span>Tüm 30+ Soruyu ve Detaylı Yanıtları İncele</span>
-            <span className="text-indigo">→</span>
+            <span>Tüm 30+ Soruyu İncele 📖</span>
+            <span className="text-pink-pop">→</span>
           </Link>
         </Reveal>
       </div>

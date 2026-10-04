@@ -9,4 +9,5 @@ class CalibrationAnswerResult(BaseModel):
 class CalibrationResult(BaseModel):
     cefr_level: str
     summary_tr: str
+    reasons: list[str]
     answers: list[CalibrationAnswerResult]

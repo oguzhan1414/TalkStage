@@ -31,8 +31,8 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-line/80 bg-porcelain px-6 pt-16 pb-12">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-gold/50 to-transparent" />
+    <footer className="relative overflow-hidden border-t border-slate-200/60 bg-heading px-6 pt-16 pb-12 text-white">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-pink-pop via-blue-pop to-lime-pop" />
       {/* 3D Footer Ambient Backdrop (36_bg_footer_ambient.png) */}
       <div
         aria-hidden

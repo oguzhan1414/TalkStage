@@ -33,17 +33,22 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
     if (!email.trim() || !password) return;
     setError(null);
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    setLoading(false);
-    if (signInError) {
-      setError(
-        signInError.message.includes('Invalid login credentials')
-          ? 'E-posta veya şifre hatalı. Lütfen kontrol edin.'
-          : signInError.message
-      );
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError) {
+        setError(
+          signInError.message.includes('Invalid login credentials')
+            ? 'E-posta veya şifre hatalı. Lütfen kontrol edin.'
+            : signInError.message
+        );
+      }
+    } catch {
+      setError('Giriş yapılamadı. İnternet bağlantını kontrol edip tekrar dene.');
+    } finally {
+      setLoading(false);
     }
   };
 

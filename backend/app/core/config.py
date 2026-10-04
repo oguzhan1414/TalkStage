@@ -1,8 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
 
     environment: str = "development"
 
@@ -34,6 +39,13 @@ class Settings(BaseSettings):
 
     # Observability
     sentry_dsn: str = ""
+
+    # Testing-only override — see entitlements.py::is_pro. Lifts the free-tier
+    # daily session cap and the 5-minute per-session limit so real-device
+    # testing isn't rate-limited by the same rules real users will hit.
+    # Remove/set to false before any real user ever sees this backend.
+    test_mode_unlimited: bool = False
+    voice_quota_enabled: bool = False
 
 
 settings = Settings()

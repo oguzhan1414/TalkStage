@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { api } from '../lib/api';
 import type { OnboardingCompleteRequest, ProfileOut } from '../types/api';
@@ -11,6 +11,9 @@ export type OnboardingDraft = {
   personaId: string | null;
   learningGoal: string | null;
   cefrLevel: string | null;
+  // Lets `PreparingScreen` show path-aware copy (voice demo vs. self-pick) —
+  // purely a UI nicety, never sent to the backend.
+  cefrSource: 'calibrated' | 'self_selected' | null;
   dailyTargetMinutes: number;
 };
 
@@ -22,11 +25,15 @@ const DEFAULT_DRAFT: OnboardingDraft = {
   personaId: 'student',
   learningGoal: 'freeze_barrier',
   cefrLevel: 'A2',
+  cefrSource: null,
   dailyTargetMinutes: 10,
 };
 
 type OnboardingContextValue = {
   loading: boolean;
+  loadError: boolean;
+  retryLoading: boolean;
+  retryProfile: () => void;
   completed: boolean;
   draft: OnboardingDraft;
   updateDraft: (patch: Partial<OnboardingDraft>) => void;
@@ -60,8 +67,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const analytics = useAnalytics();
   const [draft, setDraft] = useState<OnboardingDraft>(DEFAULT_DRAFT);
   const [completedProfile, setCompletedProfile] = useState<ProfileOut | null>(null);
+  const completionPromiseRef = useRef<Promise<ProfileOut> | null>(null);
 
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    isError: profileError,
+    isFetching: profileFetching,
+    refetch: refetchProfile,
+  } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
     enabled: Boolean(session),
@@ -75,15 +89,31 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     if (!draft.personaId || !draft.learningGoal || !draft.cefrLevel) {
       throw new Error('Onboarding tamamlanmadan önce persona, hedef ve seviye seçilmeli.');
     }
-    const updated = await api.post<ProfileOut>('/onboarding/complete', {
-      display_name: draft.displayName.trim() || 'Konuşmacı',
-      persona_id: draft.personaId,
-      learning_goal: draft.learningGoal,
-      cefr_level: draft.cefrLevel,
-      daily_target_minutes: draft.dailyTargetMinutes,
-    } satisfies OnboardingCompleteRequest);
-    setCompletedProfile(updated);
-    return updated;
+
+    // React development remounts or a quick retry must not create concurrent
+    // completion writes. All callers share the same in-flight request.
+    if (completionPromiseRef.current) return completionPromiseRef.current;
+
+    const request = api
+      .post<ProfileOut>('/onboarding/complete', {
+        display_name: draft.displayName.trim() || 'Konuşmacı',
+        persona_id: draft.personaId,
+        learning_goal: draft.learningGoal,
+        cefr_level: draft.cefrLevel,
+        daily_target_minutes: draft.dailyTargetMinutes,
+      } satisfies OnboardingCompleteRequest)
+      .then((updated) => {
+        setCompletedProfile(updated);
+        return updated;
+      })
+      .finally(() => {
+        if (completionPromiseRef.current === request) {
+          completionPromiseRef.current = null;
+        }
+      });
+
+    completionPromiseRef.current = request;
+    return request;
   };
 
   const finishOnboarding = () => {
@@ -100,6 +130,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const value = useMemo<OnboardingContextValue>(
     () => ({
       loading: Boolean(session) && profileLoading,
+      loadError: Boolean(session) && profileError,
+      retryLoading: profileFetching && !profileLoading,
+      retryProfile: () => {
+        void refetchProfile();
+      },
       completed: Boolean(profile?.onboarding_completed_at),
       draft,
       updateDraft,
@@ -108,7 +143,16 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       finishOnboarding,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, profileLoading, profile?.onboarding_completed_at, draft, completedProfile]
+    [
+      session,
+      profileLoading,
+      profileError,
+      profileFetching,
+      profile?.onboarding_completed_at,
+      draft,
+      completedProfile,
+      refetchProfile,
+    ]
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;

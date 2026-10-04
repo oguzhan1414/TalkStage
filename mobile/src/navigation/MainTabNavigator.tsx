@@ -17,9 +17,9 @@ const TAB_CONFIG: Record<
   keyof MainTabParamList,
   { label: string; icon: ReturnType<typeof require> }
 > = {
-  Home: { label: 'Ana Sayfa', icon: navIcons.home },
-  Roadmap: { label: 'Harita', icon: navIcons.trophy },
-  Scenarios: { label: '3D Sahne', icon: navIcons.voice },
+  Home: { label: 'Bugün', icon: navIcons.home },
+  Roadmap: { label: 'Öğrenme Yolu', icon: navIcons.trophy },
+  Scenarios: { label: 'Pratik', icon: navIcons.voice },
   Vocab: { label: 'Kelimeler', icon: navIcons.decks },
   Profile: { label: 'Profil', icon: navIcons.profile },
 };

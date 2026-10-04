@@ -1,26 +1,64 @@
 import { createAudioPlayer, requestRecordingPermissionsAsync, type AudioPlayer } from 'expo-audio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '../context/AuthContext';
 import { arrayBufferToBase64 } from '../lib/base64';
 import { useVoiceStream } from './useVoiceStream';
-import type { TranscriptTurn } from '../types/api';
-import type { WsCorrectionData, WsServerMessage, WsWordMetric, WsTurnMetrics } from '../types/ws';
+import type {
+  ConversationTurn,
+  WsCorrectionData,
+  WsServerMessage,
+  WsWordMetric,
+  WsTurnMetrics,
+} from '../types/ws';
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
 
 export type OrbState = 'idle' | 'listening' | 'thinking' | 'speaking';
+
+/**
+ * Push-to-talk turn state machine (replaces automatic silence-based turn
+ * detection). Mic is only ever actually forwarded to the server during
+ * 'recording' — every other phase is mic-off.
+ *   ai_speaking  — Yankı's reply audio is playing.
+ *   thinking_time — mic off, waiting for the user to tap "Konuşmaya Başla".
+ *   recording    — mic on, user is speaking, waiting for "Konuşmayı Bitir".
+ *   reviewing    — mic off, showing the transcript confirmation card.
+ *   ai_thinking  — mic off, confirm_turn sent, waiting for the first reply.
+ *   error        — mic off, last turn failed; retry or fall back to text.
+ */
+export type TurnPhase =
+  | 'ai_speaking'
+  | 'thinking_time'
+  | 'recording'
+  | 'reviewing'
+  | 'ai_thinking'
+  | 'error';
 
 export type CloseInfo = {
   code: number;
   reason: string;
 };
 
-function buildWsUrl(scenarioSlug: string, accessToken: string): string | null {
+const VOICE_PRIVACY_ACK_KEY = '@talkstage:voice_privacy_ack_v1';
+
+// Above this, Deepgram almost certainly heard correctly — skip the manual
+// review card and send straight away. Below it, show the review card (the
+// lower LOW_CONFIDENCE_THRESHOLD in LiveConversationRoomScreen.tsx further
+// distinguishes "probably fine, just glance" from "I likely misheard you").
+const AUTO_CONFIRM_CONFIDENCE_THRESHOLD = 0.8;
+
+// How long to wait for a transcript.final after end_turn before giving up —
+// covers press-and-hold's accidental near-zero-length recordings, where
+// Deepgram has nothing to Finalize into a result.
+const REVIEW_TIMEOUT_MS = 6000;
+
+function buildWsUrl(scenarioSlug: string): string | null {
   const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (!apiBaseUrl) return null;
   const wsBase = apiBaseUrl.replace(/^http/, 'ws');
-  return `${wsBase}/ws/session/${encodeURIComponent(scenarioSlug)}?token=${encodeURIComponent(accessToken)}`;
+  return `${wsBase}/ws/session/${encodeURIComponent(scenarioSlug)}`;
 }
 
 /** RMS-based dBFS approximation from a raw int16 PCM buffer — drives the live waveform. */
@@ -53,29 +91,78 @@ export function useConversationSocket(scenarioSlug: string) {
   const [latestMetrics, setLatestMetrics] = useState<WsTurnMetrics | null>(null);
   const [aiReplyText, setAiReplyText] = useState('');
   const [correction, setCorrection] = useState<WsCorrectionData | null>(null);
-  const [turns, setTurns] = useState<TranscriptTurn[]>([]);
+  const [turns, setTurns] = useState<ConversationTurn[]>([]);
   const [micLevelDb, setMicLevelDb] = useState(-160);
   const [waitingForReply, setWaitingForReply] = useState(false);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [isAiReplyStreaming, setIsAiReplyStreaming] = useState(false);
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [correctionsCount, setCorrectionsCount] = useState(0);
   const [fluencyScores, setFluencyScores] = useState<number[]>([]);
   const [totalFillersCount, setTotalFillersCount] = useState(0);
   const [wpmHistory, setWpmHistory] = useState<number[]>([]);
+  // Per-turn avg_confidence, parallel to wpmHistory — feeds the Scorecard's
+  // real "pronunciation" radar axis (was fabricated from fluency before).
+  const [confidenceHistory, setConfidenceHistory] = useState<number[]>([]);
   const [sceneCompleteSummary, setSceneCompleteSummary] = useState<string | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
+  const [voicePrivacyAcknowledged, setVoicePrivacyAcknowledged] = useState<boolean | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
+  const [pendingWords, setPendingWords] = useState<WsWordMetric[]>([]);
+  const [pendingConfidence, setPendingConfidence] = useState<number | null>(null);
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+  const [coachTipTr, setCoachTipTr] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const currentPlayerRef = useRef<AudioPlayer | null>(null);
+  const turnProcessingRef = useRef(false);
+  const aiAudioPlayingRef = useRef(false);
+  const endRequestedRef = useRef(false);
+  // Push-to-talk: mic buffers are only forwarded to the socket while this is
+  // true — flipped on by startTurn(), off by stopTurn(). Separate from
+  // `isRecording` state (same value) because handleBuffer reads this on
+  // every single PCM buffer and can't afford a stale-closure risk or a
+  // state-read; the state copy exists purely so the UI can react/render.
+  const isRecordingActiveRef = useRef(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Press-and-hold can produce a near-zero-length recording (an accidental
+  // tap, or a release that races the start) — Deepgram then has nothing to
+  // Finalize into a transcript.final, which would otherwise leave the
+  // review card's loading spinner stuck forever. This bounds that wait.
+  const reviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const recordStartTimeRef = useRef(0);
+  const micLevelRef = useRef(-160);
+  const micLevelFrameRef = useRef<number | null>(null);
+  // `onmessage` is assigned once per connection, so reading React state
+  // (`correction`) inside it would be a stale closure — this ref is what
+  // `turn.complete` actually snapshots into the new turn.
+  const lastCorrectionRef = useRef<WsCorrectionData | null>(null);
+  // Separate from `currentPlayerRef`'s own cleanup inside playNextInQueue's
+  // closure — stopAiAudio() needs to reach the *current* listener from
+  // outside that closure to remove it before an abrupt stop.
+  const currentSubscriptionRef = useRef<{ remove: () => void } | null>(null);
+  // Every URI from the reply currently playing (or just finished) — NOT
+  // mutated by playback (unlike audioQueueRef, which drains via .shift()),
+  // so "Tekrar Dinle" can replay the same reply. Cleared when the next
+  // confirm_turn fires, since a new reply is about to replace it.
+  const lastReplyAudioUrisRef = useRef<string[]>([]);
+  const [hasReplayableAudio, setHasReplayableAudio] = useState(false);
 
   const playNextInQueue = useCallback(() => {
     const nextUri = audioQueueRef.current.shift();
     if (!nextUri) {
       setIsAiSpeaking(false);
+      aiAudioPlayingRef.current = false;
       currentPlayerRef.current = null;
+      currentSubscriptionRef.current = null;
       return;
     }
     setIsAiSpeaking(true);
+    aiAudioPlayingRef.current = true;
     const player = createAudioPlayer({ uri: nextUri });
     currentPlayerRef.current = player;
     const subscription = player.addListener('playbackStatusUpdate', (playerStatus) => {
@@ -85,12 +172,16 @@ export function useConversationSocket(scenarioSlug: string) {
         playNextInQueue();
       }
     });
+    currentSubscriptionRef.current = subscription;
     player.play();
   }, []);
 
   const enqueueAudio = useCallback(
     (buffer: ArrayBuffer) => {
-      audioQueueRef.current.push(`data:audio/wav;base64,${arrayBufferToBase64(buffer)}`);
+      const uri = `data:audio/wav;base64,${arrayBufferToBase64(buffer)}`;
+      audioQueueRef.current.push(uri);
+      lastReplyAudioUrisRef.current.push(uri);
+      setHasReplayableAudio(true);
       if (!currentPlayerRef.current) {
         playNextInQueue();
       }
@@ -98,9 +189,53 @@ export function useConversationSocket(scenarioSlug: string) {
     [playNextInQueue],
   );
 
+  // "Sesi Durdur" — cuts Yankı's reply short, mid-sentence if needed.
+  const stopAiAudio = useCallback(() => {
+    currentSubscriptionRef.current?.remove();
+    currentSubscriptionRef.current = null;
+    currentPlayerRef.current?.remove();
+    currentPlayerRef.current = null;
+    audioQueueRef.current = [];
+    aiAudioPlayingRef.current = false;
+    setIsAiSpeaking(false);
+  }, []);
+
+  // "Tekrar Dinle" — replays the reply that just finished, while the user
+  // is still deciding what to say next (thinking_time/recording/reviewing).
+  const replayAiAudio = useCallback(() => {
+    if (lastReplyAudioUrisRef.current.length === 0 || currentPlayerRef.current) return;
+    audioQueueRef.current = [...lastReplyAudioUrisRef.current];
+    playNextInQueue();
+  }, [playNextInQueue]);
+
   const handleBuffer = useCallback((buffer: { data: ArrayBuffer }) => {
-    setMicLevelDb(levelFromPcm16(buffer.data));
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
+    // Raw PCM buffers can arrive in tight synchronous bursts (observed on
+    // real devices — see backend/mobile session notes on "Maximum update
+    // depth exceeded" here). Calling setMicLevelDb on every single buffer
+    // let a burst of back-to-back synchronous calls cascade past React's
+    // update-depth safety limit. The waveform only needs ~60fps of visual
+    // updates anyway, so the latest level is stashed in a ref immediately
+    // (cheap, no re-render) and flushed to React state at most once per
+    // animation frame — this structurally caps setState frequency
+    // regardless of how bursty the native buffer delivery actually is.
+    micLevelRef.current = levelFromPcm16(buffer.data);
+    if (micLevelFrameRef.current == null) {
+      micLevelFrameRef.current = requestAnimationFrame(() => {
+        micLevelFrameRef.current = null;
+        setMicLevelDb(micLevelRef.current);
+      });
+    }
+    // Push-to-talk: only ever forward audio while the user has explicitly
+    // started a turn. The other guards are defense-in-depth (the UI
+    // shouldn't let startTurn() fire during these phases anyway) so Yankı's
+    // own playback can never be mistaken for a second user turn.
+    if (
+      isRecordingActiveRef.current &&
+      !turnProcessingRef.current &&
+      !aiAudioPlayingRef.current &&
+      !endRequestedRef.current &&
+      wsRef.current?.readyState === WebSocket.OPEN
+    ) {
       wsRef.current.send(buffer.data);
     }
   }, []);
@@ -108,8 +243,22 @@ export function useConversationSocket(scenarioSlug: string) {
   const { stream } = useVoiceStream(handleBuffer);
 
   useEffect(() => {
-    if (!accessToken) return;
-    const wsUrl = buildWsUrl(scenarioSlug, accessToken);
+    let active = true;
+    AsyncStorage.getItem(VOICE_PRIVACY_ACK_KEY)
+      .then((value) => {
+        if (active) setVoicePrivacyAcknowledged(value === 'true');
+      })
+      .catch(() => {
+        if (active) setVoicePrivacyAcknowledged(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken || voicePrivacyAcknowledged !== true) return;
+    const wsUrl = buildWsUrl(scenarioSlug);
     if (!wsUrl) {
       setStatus('closed');
       setCloseInfo({ code: 0, reason: 'missing_api_base_url' });
@@ -118,6 +267,12 @@ export function useConversationSocket(scenarioSlug: string) {
 
     let cancelled = false;
     let socket: WebSocket | null = null;
+
+    setStatus('connecting');
+    setCloseInfo(null);
+    setLiveError(null);
+    setPermissionDenied(false);
+    endRequestedRef.current = false;
 
     async function connect() {
       const { granted } = await requestRecordingPermissionsAsync();
@@ -134,10 +289,8 @@ export function useConversationSocket(scenarioSlug: string) {
 
       socket.onopen = () => {
         if (cancelled) return;
-        setStatus('open');
-        setStartedAt(new Date().toISOString());
+        socket?.send(JSON.stringify({ type: 'auth', access_token: accessToken }));
         // `stream` is null on web — expo-audio's useAudioStream is a no-op stub there.
-        stream?.start()?.catch(() => {});
       };
 
       socket.onmessage = (event) => {
@@ -152,11 +305,25 @@ export function useConversationSocket(scenarioSlug: string) {
           return;
         }
         switch (message.type) {
+          case 'session.ready':
+            setLiveError(null);
+            setStatus('open');
+            setStartedAt(new Date().toISOString());
+            // The opening sentence is sent before session.ready and has no
+            // turn.complete event of its own. Audio playback (if available)
+            // continues to keep the speaking phase active independently.
+            setIsAiReplyStreaming(false);
+            break;
           case 'transcript.interim':
             setInterimText(message.text);
             if (message.words) setInterimWords(message.words);
             break;
-          case 'transcript.final':
+          case 'transcript.final': {
+            if (reviewTimeoutRef.current) {
+              clearTimeout(reviewTimeoutRef.current);
+              reviewTimeoutRef.current = null;
+            }
+            setLiveError(null);
             setInterimText(message.text);
             if (message.words) setInterimWords(message.words);
             if (message.metrics) {
@@ -167,28 +334,72 @@ export function useConversationSocket(scenarioSlug: string) {
               if (message.metrics.wpm > 0) {
                 setWpmHistory((h) => [...h, message.metrics!.wpm]);
               }
+              if (message.metrics.avg_confidence > 0) {
+                setConfidenceHistory((h) => [...h, message.metrics!.avg_confidence]);
+              }
             }
-            setWaitingForReply(true);
+            // Smart auto-confirm: a mandatory review card on every single
+            // turn was the #1 complaint testing this against a fast-paced
+            // scenario (ordering food) — three taps (Başla/Bitir/Gönder)
+            // per turn felt heavy for short, clearly-heard exchanges. When
+            // Deepgram is confident it heard correctly, skip straight to
+            // confirmTranscript() — same effect as the user reviewing and
+            // tapping Gönder themselves, just without the extra tap+read.
+            // Low confidence still gets the full review card, which is
+            // exactly the case that safety net was built for in the first
+            // place (see the plan's original "düşük güven" design).
+            const avgConf = message.metrics?.avg_confidence ?? null;
+            if (avgConf != null && avgConf >= AUTO_CONFIRM_CONFIDENCE_THRESHOLD) {
+              confirmTranscript(message.text);
+              break;
+            }
+            // Does NOT trigger the AI turn anymore — just fills the
+            // transcript confirmation card. confirmTranscript() is what
+            // actually sends confirm_turn.
+            setPendingTranscript(message.text);
+            setPendingWords(message.words ?? []);
+            setPendingConfidence(avgConf);
+            setIsReviewing(true);
             break;
+          }
           case 'correction':
             setCorrection(message.data);
+            lastCorrectionRef.current = message.data;
             if (message.data.has_error) setCorrectionsCount((c) => c + 1);
             break;
           case 'reply.sentence':
-            setWaitingForReply(false);
+            // Deliberately NOT clearing waitingForReply here — see the
+            // real bug this caused below. Sentence TEXT arrives before its
+            // TTS audio does (synthesis takes a beat), so clearing it here
+            // let turnPhase fall through to 'thinking_time' (mic-ready) for
+            // that gap, since isAiSpeaking only flips true once audio
+            // actually starts PLAYING. A user who tapped "Konuşmaya Başla"
+            // during that window started streaming mic audio while Yankı's
+            // reply was literally about to start/was playing over the
+            // speaker — the mic picked up her own voice, which Deepgram
+            // then transcribed as the user's turn. waitingForReply now
+            // stays true for the whole confirm_turn → turn.complete span
+            // (ai_thinking, minus whatever's genuinely ai_speaking), with
+            // no gap in between.
+            setIsAiReplyStreaming(true);
             setAiReplyText((prev) => (prev ? `${prev} ${message.text}` : message.text));
             break;
           case 'turn.complete':
+            turnProcessingRef.current = false;
             setTurns((prev) => [
               ...prev,
-              { role: 'user', text: message.user_text },
+              { role: 'user', text: message.user_text, correction: lastCorrectionRef.current },
               { role: 'assistant', text: message.assistant_text },
             ]);
+            lastCorrectionRef.current = null;
             setInterimText('');
             setInterimWords([]);
             setAiReplyText('');
             setCorrection(null);
             setWaitingForReply(false);
+            setIsAiReplyStreaming(false);
+            setSuggestedReplies(message.suggested_replies ?? []);
+            setCoachTipTr(message.coach_tip_tr ?? null);
             break;
           case 'scene.complete':
             // Soft nudge, not a forced end — the model judged the scenario's
@@ -202,8 +413,14 @@ export function useConversationSocket(scenarioSlug: string) {
             setCloseInfo({ code: 0, reason: 'time_limit_reached' });
             break;
           case 'error':
+            turnProcessingRef.current = false;
             setWaitingForReply(false);
-            setCloseInfo({ code: 0, reason: message.message });
+            setIsAiReplyStreaming(false);
+            setIsReviewing(false);
+            if (!message.retryable) {
+              setCloseInfo({ code: 0, reason: message.code });
+            }
+            setLiveError(message.message);
             break;
           case 'fluency_score':
             // Not shown live — accumulated here so /sessions/end (Görev 11) can average them server-side.
@@ -214,6 +431,8 @@ export function useConversationSocket(scenarioSlug: string) {
 
       socket.onclose = (event) => {
         if (cancelled) return;
+        if (wsRef.current === socket) wsRef.current = null;
+        turnProcessingRef.current = false;
         setStatus('closed');
         setCloseInfo((prev) => prev ?? { code: event.code, reason: event.reason });
         stream?.stop();
@@ -222,6 +441,7 @@ export function useConversationSocket(scenarioSlug: string) {
       socket.onerror = () => {
         if (cancelled) return;
         setStatus('closed');
+        setCloseInfo((prev) => prev ?? { code: 0, reason: 'connection_error' });
       };
     }
 
@@ -229,6 +449,7 @@ export function useConversationSocket(scenarioSlug: string) {
 
     return () => {
       cancelled = true;
+      if (wsRef.current === socket) wsRef.current = null;
       socket?.close();
       // Deliberately NOT calling stream?.stop() here: `useVoiceStream`
       // (expo-audio's useAudioStream) already auto-releases the native
@@ -240,37 +461,220 @@ export function useConversationSocket(scenarioSlug: string) {
       currentPlayerRef.current?.remove();
       currentPlayerRef.current = null;
       audioQueueRef.current = [];
+      aiAudioPlayingRef.current = false;
+      turnProcessingRef.current = false;
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+      if (reviewTimeoutRef.current) {
+        clearTimeout(reviewTimeoutRef.current);
+        reviewTimeoutRef.current = null;
+      }
+      if (micLevelFrameRef.current != null) {
+        cancelAnimationFrame(micLevelFrameRef.current);
+        micLevelFrameRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioSlug, accessToken]);
+  }, [scenarioSlug, accessToken, connectionAttempt, voicePrivacyAcknowledged]);
+
+  const acknowledgeVoicePrivacy = useCallback(() => {
+    void AsyncStorage.setItem(VOICE_PRIVACY_ACK_KEY, 'true');
+    setVoicePrivacyAcknowledged(true);
+  }, []);
+
+  const reconnect = useCallback(() => {
+    if (turns.length > 0) return;
+    setConnectionAttempt((attempt) => attempt + 1);
+  }, [turns.length]);
+
+  // Remembers the last text actually sent as confirm_turn, so a
+  // "voice_reply_failed" error can offer "Tekrar Dene" (resend the exact
+  // same text) without forcing the user to redo the whole recording.
+  const lastConfirmedTextRef = useRef<string | null>(null);
+
+  const startTurn = useCallback(() => {
+    if (status !== 'open') return;
+    if (
+      isRecordingActiveRef.current ||
+      isReviewing ||
+      waitingForReply ||
+      isAiSpeaking ||
+      isAiReplyStreaming
+    ) return;
+    setLiveError(null);
+    setInterimText('');
+    setInterimWords([]);
+    setPendingTranscript(null);
+    setPendingWords([]);
+    setPendingConfidence(null);
+    recordStartTimeRef.current = Date.now();
+    isRecordingActiveRef.current = true;
+    setIsRecording(true);
+    // The native microphone is started only while the button is held. The
+    // previous implementation started it at session.ready and merely
+    // discarded buffers outside recording, which left the OS microphone
+    // active while the tutor was speaking.
+    stream?.start()?.catch(() => {
+      isRecordingActiveRef.current = false;
+      setIsRecording(false);
+      setLiveError('Mikrofon başlatılamadı. Uygulama izinlerini kontrol et.');
+    });
+  }, [status, isReviewing, waitingForReply, isAiSpeaking, isAiReplyStreaming, stream]);
+
+  const stopTurn = useCallback(() => {
+    if (!isRecordingActiveRef.current) return;
+    isRecordingActiveRef.current = false;
+    setIsRecording(false);
+    stream?.stop();
+    // Press-and-hold means an accidental brief tap is a real possibility —
+    // silently return to thinking_time instead of bothering the backend
+    // and flashing a "couldn't hear you" error for a non-attempt.
+    if (Date.now() - recordStartTimeRef.current < 200) return;
+    setIsReviewing(true);
+    const socket = wsRef.current;
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: 'end_turn' }));
+    }
+    if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current);
+    reviewTimeoutRef.current = setTimeout(() => {
+      reviewTimeoutRef.current = null;
+      setIsReviewing(false);
+      setPendingTranscript(null);
+      setPendingWords([]);
+      setPendingConfidence(null);
+      setLiveError('Seni duyamadım, tekrar dener misin?');
+    }, REVIEW_TIMEOUT_MS);
+  }, [stream]);
+
+  // Discards the pending transcript and goes back to recording — "Tekrar
+  // Söyle". Purely client-side: the backend already reset its own
+  // per-utterance buffers right after sending transcript.final, so there's
+  // nothing to tell it to forget. Also doubles as the error phase's "Tekrar
+  // Söyle" escape hatch, so it clears liveError too — otherwise turnPhase
+  // would stay stuck on 'error' (that check takes priority) even after the
+  // user picked a recovery action.
+  const redoTurn = useCallback(() => {
+    setIsReviewing(false);
+    setPendingTranscript(null);
+    setPendingWords([]);
+    setPendingConfidence(null);
+    setInterimText('');
+    setInterimWords([]);
+    setLiveError(null);
+  }, []);
+
+  const confirmTranscript = useCallback(
+    (text: string) => {
+      const confirmedText = text.trim();
+      if (!confirmedText) return;
+      const socket = wsRef.current;
+      if (socket?.readyState !== WebSocket.OPEN) return;
+      lastConfirmedTextRef.current = confirmedText;
+      setLiveError(null);
+      setIsReviewing(false);
+      setPendingTranscript(null);
+      setPendingWords([]);
+      setPendingConfidence(null);
+      turnProcessingRef.current = true;
+      setWaitingForReply(true);
+      // A new reply is about to be generated — the just-finished one is no
+      // longer "the last thing Yankı said", so stop offering to replay it.
+      lastReplyAudioUrisRef.current = [];
+      setHasReplayableAudio(false);
+      socket.send(JSON.stringify({ type: 'confirm_turn', text: confirmedText }));
+    },
+    []
+  );
+
+  const retryLastTurn = useCallback(() => {
+    if (lastConfirmedTextRef.current) {
+      confirmTranscript(lastConfirmedTextRef.current);
+    } else {
+      redoTurn();
+    }
+  }, [confirmTranscript, redoTurn]);
 
   const endSession = useCallback(() => {
+    if (endRequestedRef.current) return;
+    endRequestedRef.current = true;
+    turnProcessingRef.current = true;
     const socket = wsRef.current;
     if (socket?.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: 'end_session' }));
+      // Let the control frame leave the native socket before initiating the
+      // close handshake. Closing immediately can discard the queued frame on
+      // slower mobile networks.
+      closeTimerRef.current = setTimeout(() => {
+        socket.close(1000, 'user_ended_session');
+        closeTimerRef.current = null;
+      }, 300);
+      return;
     }
     socket?.close();
   }, []);
 
   const orbState: OrbState =
-    status !== 'open' ? 'idle' : isAiSpeaking ? 'speaking' : waitingForReply ? 'thinking' : 'listening';
+    status !== 'open'
+      ? 'idle'
+      : isAiSpeaking || isAiReplyStreaming
+      ? 'speaking'
+      : waitingForReply
+      ? 'thinking'
+      : isRecording
+      ? 'listening'
+      : 'idle';
+
+  const turnPhase: TurnPhase =
+    status === 'open' && liveError
+      ? 'error'
+      : isAiSpeaking || isAiReplyStreaming
+      ? 'ai_speaking'
+      : waitingForReply
+      ? 'ai_thinking'
+      : isReviewing
+      ? 'reviewing'
+      : isRecording
+      ? 'recording'
+      : 'thinking_time';
 
   return {
     status,
     closeInfo,
     permissionDenied,
+    voicePrivacyLoading: voicePrivacyAcknowledged === null,
+    needsVoicePrivacyAcknowledgement: voicePrivacyAcknowledged === false,
+    acknowledgeVoicePrivacy,
     interimText,
     interimWords,
     latestMetrics,
     totalFillersCount,
     wpmHistory,
+    confidenceHistory,
     sceneCompleteSummary,
+    liveError,
     aiReplyText,
     correction,
     turns,
+    turnPhase,
+    startTurn,
+    stopTurn,
+    redoTurn,
+    confirmTranscript,
+    retryLastTurn,
+    pendingTranscript,
+    pendingWords,
+    pendingConfidence,
+    suggestedReplies,
+    coachTipTr,
+    stopAiAudio,
+    replayAiAudio,
+    hasReplayableAudio,
     micLevelDb,
     orbState,
     endSession,
+    reconnect,
     startedAt,
     correctionsCount,
     fluencyScores,

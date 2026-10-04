@@ -25,6 +25,13 @@ export type OnboardingStackParamList = {
   Name: undefined;
   Persona: undefined;
   Goal: undefined;
+  // Voice mini-demo beat (revived `/onboarding/calibrate`, see `backend/CLAUDE.md`
+  // Ek 23/Ek 1) — `MicPermission` explains + requests mic access, `Calibration`
+  // records 2 short answers and estimates CEFR level. `Level` is no longer on
+  // the main path; it's the fallback both of these can drop into (denied
+  // permission, skipped, or a calibration API failure).
+  MicPermission: undefined;
+  Calibration: undefined;
   Level: undefined;
   DailyTime: undefined;
   Preparing: undefined;
@@ -57,13 +64,12 @@ export type RootStackParamList = {
   // (`talkstage://scenario/:slug` only ever carries the slug) — the screen
   // resolves them itself via `GET /scenarios/{slug}` when missing.
   LiveConversationRoom: { scenarioSlug: string; scenarioId?: string; scenarioTitle?: string };
+  BurgerOrderLive: undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   ReadingList: undefined;
   ReadingPassage: { slug: string };
-  Calendar: undefined;
   Paywall: undefined;
   Badges: undefined;
-  StudyPath: undefined;
   // Full teaching content for one A1_G0X grammar topic (table, dialogue,
   // mistakes, examples) — see `data/grammarLessons.ts`. Free for the topic's
   // `isFree` lesson, Pro-gated for the rest (screen checks `isProUser()`
@@ -73,15 +79,14 @@ export type RootStackParamList = {
   VocabLibrary: undefined;
   PodcastList: undefined;
   PodcastPlayer: { episodeId: string };
-  // Always resolves today's deterministically-picked task by id (see
-  // `data/dailyTasks.ts`) — the screen looks up the full template itself.
-  DailyTaskDetail: { taskId: string };
   // `focusTopic` is set when opened from the Seviye Yol Haritası (a grammar
   // topic or the level's boss challenge) so the opening message can steer the
-  // conversation toward practicing that specific structure. `dailyTask` is
-  // set when opened from the Study Path's "bugünün görevi" — richer than
-  // `focusTopic` (role/scenario/goals), and its first user message logs
-  // `POST /progress/log-practice` (see TextChatScreen). Both are omitted for
+  // conversation toward practicing that specific structure. `dailyTask` is a
+  // richer role/scenario/goals variant (its first user message logs
+  // `POST /progress/log-practice`, see TextChatScreen) — its only producer
+  // (the now-removed Çalışma Takvimi screen) is gone, so no caller passes it
+  // today, but TextChatScreen's handling is left in place since it's harmless
+  // and a future entry point could resurrect it cheaply. Both are omitted for
   // the regular Home entry point, which just opens a free daily-chat session.
   TextChat:
     | {
@@ -122,8 +127,6 @@ export type ReadingListScreenProps = NativeStackScreenProps<RootStackParamList, 
 
 export type ReadingPassageScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingPassage'>;
 
-export type CalendarScreenProps = NativeStackScreenProps<RootStackParamList, 'Calendar'>;
-
 export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Paywall'>;
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
@@ -134,11 +137,7 @@ export type VocabLibraryScreenProps = NativeStackScreenProps<RootStackParamList,
 
 export type TextChatScreenProps = NativeStackScreenProps<RootStackParamList, 'TextChat'>;
 
-export type StudyPathScreenProps = NativeStackScreenProps<RootStackParamList, 'StudyPath'>;
-
 export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;
-
-export type DailyTaskDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'DailyTaskDetail'>;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -106,13 +106,13 @@ export default function LiveCorrectionTicker() {
     <section id="geri-bildirim" className="relative -mt-4 scroll-mt-24 px-6 pb-24 sm:pb-32">
       <div className="mx-auto max-w-3xl">
         <div
-          className={`glass-card mx-auto flex flex-col gap-5 rounded-[26px] px-6 py-6 shadow-[var(--shadow-lifted)] transition-opacity duration-500 sm:px-9 sm:py-8 ${
+          className={`mx-auto flex flex-col gap-5 rounded-[28px] bg-white border border-slate-200/60 px-6 py-6 shadow-xl transition-opacity duration-500 sm:px-9 sm:py-8 ${
             isLeaving ? "opacity-40" : "opacity-100"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-2 rounded-full bg-heading/5 px-3 py-1 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-heading">
-              <span className="h-1.5 w-1.5 animate-[pulse-dot_1.8s_ease-in-out_infinite] rounded-full bg-coral" />
+              <span className="h-2 w-2 animate-[pulse-dot_1.8s_ease-in-out_infinite] rounded-full bg-pink-pop" />
               Live
             </span>
             <span className="font-mono text-[0.7rem] text-muted">talkstage · konuşma odası</span>
@@ -163,8 +163,8 @@ export default function LiveCorrectionTicker() {
           </div>
         </div>
 
-        <p className="mt-5 text-center font-mono text-[0.75rem] tracking-wide text-muted">
-          Sen konuş, TalkStage 400ms içinde düzeltsin.
+        <p className="mt-5 text-center text-sm font-semibold text-muted">
+          Sen konuş, TalkStage 400ms içinde düzeltsin! ⚡
         </p>
       </div>
     </section>

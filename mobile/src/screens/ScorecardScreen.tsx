@@ -19,26 +19,56 @@ function formatDuration(seconds: number | null): string {
   return `${m}:${s}`;
 }
 
+// Below this, we don't have enough real per-session data (older sessions
+// saved before avg_wpm/avg_pronunciation_confidence/user_turns_count
+// existed) to back an honest 5-axis radar — rather than fabricate the
+// missing axes the way this screen used to, those sessions just show the
+// (always-real) fluency circle instead.
+function hasFullRadarData(session: ScorecardScreenProps['route']['params']['session']): boolean {
+  return (
+    session.avg_wpm != null && session.avg_pronunciation_confidence != null && session.user_turns_count > 0
+  );
+}
+
+const clampScore = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+
 export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
   const { session, scenarioTitle, wordsAddedCount } = route.params;
   const fluency = session.fluency_score ?? 82;
-  const [activeView, setActiveView] = useState<'radar' | 'circular'>('radar');
+  const radarAvailable = hasFullRadarData(session);
+  const [activeView, setActiveView] = useState<'radar' | 'circular'>(radarAvailable ? 'radar' : 'circular');
 
-  const durationMin = Math.max(0.5, (session.duration_seconds ?? 60) / 60);
-  const wpmEst = Math.round(session.unique_words_count / durationMin);
-
+  // Every axis here now traces back to a genuinely separate measurement —
+  // not the same 1-2 numbers re-scaled five different ways (see backend Ek
+  // on sessions.py / SkillsRadarChart.tsx for what used to be fabricated).
   const radarMetrics: RadarMetrics = {
-    fluency: Math.min(100, Math.max(40, fluency)),
-    pronunciation: Math.min(100, Math.max(50, Math.round(fluency * 1.04))),
-    grammar: Math.min(100, Math.max(45, 100 - session.corrections_count * 7)),
-    vocabulary: Math.min(100, Math.max(50, Math.round(session.unique_words_count * 3.5))),
-    speed: Math.min(100, Math.max(40, Math.round((wpmEst / 140) * 100))),
+    fluency: clampScore(fluency),
+    // Deepgram's own per-word STT confidence, averaged across the session —
+    // a real (if imperfect) proxy for how clearly the learner was understood,
+    // not a copy of the fluency score with a multiplier.
+    pronunciation:
+      session.avg_pronunciation_confidence != null ? clampScore(session.avg_pronunciation_confidence * 100) : 0,
+    // Real ratio: turns without a flagged mistake / total turns — bounded
+    // and meaningful, instead of a linear `100 - corrections*7` that could
+    // go negative or compress wildly different turn counts the same way.
+    grammar:
+      session.user_turns_count > 0
+        ? clampScore(((session.user_turns_count - session.corrections_count) / session.user_turns_count) * 100)
+        : clampScore(fluency),
+    // Gentler curve than before (40 unique words ≈ 100, not 29) so it
+    // doesn't saturate after a handful of words in a short session.
+    vocabulary: clampScore((session.unique_words_count / 40) * 100),
+    // Deepgram's own measured words-per-minute, averaged — not estimated
+    // from unique-word-count ÷ duration, which conflated vocabulary and pace.
+    speed: session.avg_wpm != null ? clampScore((session.avg_wpm / 120) * 100) : 0,
   };
 
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `TalkStage'de "${scenarioTitle}" sahnesini %${fluency} akıcılık ve 360° radar skoruyla tamamladım! 🎉`,
+        message: radarAvailable
+          ? `TalkStage'de "${scenarioTitle}" sahnesini %${fluency} akıcılık ve 360° yetkinlik radarıyla tamamladım! 🎉`
+          : `TalkStage'de "${scenarioTitle}" sahnesini %${fluency} akıcılıkla tamamladım! 🎉`,
       });
     } catch {
       // Cancelled or unsupported
@@ -56,38 +86,44 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
           {scenarioTitle}
         </Text>
 
-        {/* View Switcher: 360° Radar vs Dairesel Skor */}
-        <View style={styles.viewSwitcher}>
-          <Pressable
-            onPress={() => setActiveView('radar')}
-            style={[styles.switchBtn, activeView === 'radar' && styles.switchBtnActive]}
-          >
-            <Ionicons
-              name="sparkles"
-              size={13}
-              color={activeView === 'radar' ? colors.brand : colors.textMuted}
-            />
-            <Text style={[styles.switchBtnText, activeView === 'radar' && styles.switchBtnTextActive]}>
-              360° Yetkinlik Radarı
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setActiveView('circular')}
-            style={[styles.switchBtn, activeView === 'circular' && styles.switchBtnActive]}
-          >
-            <Ionicons
-              name="pie-chart-outline"
-              size={13}
-              color={activeView === 'circular' ? colors.brand : colors.textMuted}
-            />
-            <Text
-              style={[styles.switchBtnText, activeView === 'circular' && styles.switchBtnTextActive]}
+        {/* View Switcher: 360° Radar vs Dairesel Skor — only shown when this
+            session actually has the 5 real measurements to back the radar;
+            older sessions (saved before avg_wpm/avg_pronunciation_confidence
+            existed) just get the always-real fluency circle, no fallback tab
+            to a radar we can't honestly fill in. */}
+        {radarAvailable && (
+          <View style={styles.viewSwitcher}>
+            <Pressable
+              onPress={() => setActiveView('radar')}
+              style={[styles.switchBtn, activeView === 'radar' && styles.switchBtnActive]}
             >
-              Akıcılık Çemberi
-            </Text>
-          </Pressable>
-        </View>
+              <Ionicons
+                name="sparkles"
+                size={13}
+                color={activeView === 'radar' ? colors.brand : colors.textMuted}
+              />
+              <Text style={[styles.switchBtnText, activeView === 'radar' && styles.switchBtnTextActive]}>
+                360° Yetkinlik Radarı
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setActiveView('circular')}
+              style={[styles.switchBtn, activeView === 'circular' && styles.switchBtnActive]}
+            >
+              <Ionicons
+                name="pie-chart-outline"
+                size={13}
+                color={activeView === 'circular' ? colors.brand : colors.textMuted}
+              />
+              <Text
+                style={[styles.switchBtnText, activeView === 'circular' && styles.switchBtnTextActive]}
+              >
+                Akıcılık Çemberi
+              </Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* Visual Chart Area */}
         <View style={[styles.chartCard, shadow.porcelain]}>
@@ -98,6 +134,12 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
               <Text style={styles.scoreValue}>%{fluency}</Text>
               <Text style={styles.scoreLabel}>Genel Akıcılık</Text>
             </CircularProgress>
+          )}
+          {!radarAvailable && (
+            <Text style={styles.radarUnavailableNote}>
+              Bu oturum, detaylı yetkinlik radarı eklenmeden önce kaydedildi — yeni oturumlarda 360°
+              radar da görünecek.
+            </Text>
           )}
         </View>
 
@@ -219,6 +261,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyRegular,
     fontSize: 12,
     color: colors.textMuted,
+  },
+  radarUnavailableNote: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    lineHeight: 15,
   },
   metricsRow: {
     flexDirection: 'row',

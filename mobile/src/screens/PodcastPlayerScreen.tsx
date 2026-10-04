@@ -48,7 +48,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
   // Initialize audio player on mount
   useEffect(() => {
     try {
-      const player = createAudioPlayer(episode.audioAsset);
+      const player = createAudioPlayer(episode.audioAsset, { downloadFirst: true });
       playerRef.current = player;
 
       // Start timer for real-time scrubber tracking
@@ -173,7 +173,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
       };
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
-      showToast(`"${vocab.term}" kelime sandığına eklendi 💎`);
+      showToast(`"${vocab.term}" kelime sandığına eklendi 📦`);
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : 'Kelime kaydedilemedi');
     }
@@ -185,7 +185,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
       queryClient.invalidateQueries({ queryKey: ['me'] });
       queryClient.invalidateQueries({ queryKey: ['progress'] });
     }).catch(() => {});
-    showToast('🎉 Tebrikler! Podcast dersini başarıyla tamamladın (+50 XP)');
+    showToast('🎉 Tebrikler! Podcast dersini başarıyla tamamladın');
   };
 
   // Find currently active spoken sentence
@@ -408,7 +408,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
             {/* 4. Complete Lesson Celebration Button */}
             <Pressable onPress={handleCompleteLesson} style={[styles.completeLessonBtn, shadow.card]}>
               <Text style={styles.completeLessonBtnText}>
-                {isCompleted ? '✓ Ders Tamamlandı (+50 XP • +15 💎)' : '🎉 Dersi Tamamla & XP Kazan ➔'}
+                {isCompleted ? '✓ Ders Tamamlandı' : '🎉 Dersi Tamamla & XP Kazan ➔'}
               </Text>
             </Pressable>
           </ScrollView>

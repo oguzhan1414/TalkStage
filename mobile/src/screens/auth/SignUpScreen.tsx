@@ -32,19 +32,24 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
     if (!email.trim() || password.length < 6) return;
     setError(null);
     setLoading(true);
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-    });
-    setLoading(false);
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
-      return;
-    }
-    // No session yet + no error means Supabase is waiting on email confirmation.
-    if (!data.session) {
-      setConfirmationSent(true);
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+      // No session yet + no error means Supabase is waiting on email confirmation.
+      if (!data.session) {
+        setConfirmationSent(true);
+      }
+    } catch {
+      setError('Hesap oluşturulamadı. İnternet bağlantını kontrol edip tekrar dene.');
+    } finally {
+      setLoading(false);
     }
   };
 

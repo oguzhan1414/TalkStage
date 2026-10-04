@@ -1,6 +1,6 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import { supabase } from '../lib/supabase';
 
@@ -14,7 +14,7 @@ export function AppleSignInButton({ onError }: Props) {
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
-    AppleAuthentication.isAvailableAsync().then(setAvailable);
+    AppleAuthentication.isAvailableAsync().then(setAvailable).catch(() => setAvailable(false));
   }, []);
 
   if (Platform.OS !== 'ios' || !available) {
@@ -50,7 +50,7 @@ export function AppleSignInButton({ onError }: Props) {
         } catch (err) {
           const code = (err as { code?: string }).code;
           if (code === 'ERR_REQUEST_CANCELED') return;
-          Alert.alert('Apple ile giriş başarısız', String(err));
+          onError('Apple ile giriş yapılamadı. Lütfen tekrar dene.');
         }
       }}
     />

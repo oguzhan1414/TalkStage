@@ -91,12 +91,17 @@ export type GoalOption = {
   desc: string;
   badge: string;
   color: string;
+  // Chunky 3D icon replacing the plain emoji on the card — optional because
+  // the art is still being generated; cards fall back to `icon` (the emoji)
+  // until this is filled in (see `GoalScreen.tsx`).
+  iconImage?: ReturnType<typeof require>;
 };
 
 export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'freeze_barrier',
     icon: '😶‍🌫️',
+    iconImage: require('../../assets/images/onboarding/goal_freeze_barrier.png'),
     title: 'Kafamda Kuruyorum Ama Ağzımdan Çıkmıyor',
     desc: 'Konuşurken oluşan heyecan ve tutukluğu yenmek, donmadan konuşmak.',
     badge: 'En Sık Yaşanan',
@@ -105,6 +110,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'exams_school',
     icon: '📚',
+    iconImage: require('../../assets/images/onboarding/goal_exams_school.png'),
     title: 'Okul, Hazırlık veya Speaking Sınavları',
     desc: 'Hazırlık atlama, lise/üniversite sınavları, TOEFL, IELTS veya YDS Speaking.',
     badge: 'Sınav Başarısı',
@@ -113,6 +119,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'work_career',
     icon: '💼',
+    iconImage: require('../../assets/images/onboarding/goal_work_career.png'),
     title: 'İş Hayatı, Toplantılar & Mülakatlar',
     desc: 'Yabancı yöneticilerle toplantı, iş mülakatları ve sunumlarda özgüven kazanmak.',
     badge: 'Kariyer Odağı',
@@ -121,6 +128,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'travel_life',
     icon: '✈️',
+    iconImage: require('../../assets/images/onboarding/goal_travel_life.png'),
     title: 'Yurt Dışı Gezileri & Günlük Hayat',
     desc: 'Restoranda sipariş verme, otelde check-in, kaybolduğunda yön sorma ve sosyalleşme.',
     badge: 'Özgür Gezgin',
@@ -129,6 +137,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'no_partner',
     icon: '🗣️',
+    iconImage: require('../../assets/images/onboarding/goal_no_partner.png'),
     title: 'Gramer Biliyorum Ama Pratik Yapacak Kimsem Yok',
     desc: 'Beni asla yargılamayan, sıfır stresle 7/24 sabırla dinleyen bir partnerle konuşmak.',
     badge: 'Sınırsız Pratik',
@@ -203,6 +212,29 @@ export const ONBOARDING_LEVEL_OPTIONS: OnboardingLevelOption[] = [
   },
 ];
 
+export type CalibrationQuestion = {
+  en: string;
+  hintTr: string;
+};
+
+/**
+ * The voice mini-demo on `CalibrationScreen` — deliberately short (2, not the
+ * old deleted screen's 3) and A1-achievable (unlike the old "tell me about
+ * something interesting that happened last week" / "a goal for the next few
+ * years", which assumed real fluency). Answers are recorded and sent to the
+ * still-working `POST /onboarding/calibrate` (see `backend/CLAUDE.md` Ek 23).
+ */
+export const CALIBRATION_QUESTIONS: CalibrationQuestion[] = [
+  {
+    en: 'Hi! Tell me your name and where you’re from.',
+    hintTr: 'İpucu: "My name is ... I’m from ..."',
+  },
+  {
+    en: 'What do you usually do on weekends?',
+    hintTr: 'İpucu: "I usually ..."',
+  },
+];
+
 export type DailyGoalOption = {
   id: string;
   minutes: number;
@@ -211,6 +243,8 @@ export type DailyGoalOption = {
   flameEmoji: string;
   badge: string;
   color: string;
+  // Same optional-icon pattern as `GoalOption.iconImage` — see there.
+  iconImage?: ReturnType<typeof require>;
 };
 
 export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
@@ -220,6 +254,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
     title: 'Rahat & Hafif',
     desc: 'Günde 1 kahve molasında stressiz pratik (Yoğun günler için ideal)',
     flameEmoji: '☕',
+    iconImage: require('../../assets/images/onboarding/pace_casual.png'),
     badge: 'Kolay Alışkanlık',
     color: '#10B981',
   },
@@ -229,6 +264,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
     title: 'Düzenli & Dengeli',
     desc: '1 Canlı AI Konuşması + 1 Podcast Dinleme (En çok tercih edilen)',
     flameEmoji: '🔥',
+    iconImage: require('../../assets/images/onboarding/pace_regular.png'),
     badge: 'Önerilen 🌟',
     color: '#4F46E5',
   },
@@ -238,6 +274,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
     title: 'Hızlı & Hedef Odaklı',
     desc: 'Yakında sınavı, seyahati veya iş mülakatı olanlar için maksimum ilerleme',
     flameEmoji: '🚀',
+    iconImage: require('../../assets/images/onboarding/pace_intense.png'),
     badge: 'Hızlı Sonuç',
     color: '#EA580C',
   },

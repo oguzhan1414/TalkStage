@@ -8,6 +8,16 @@ export const companionImage = require('../../assets/images/companion/yanki.png')
 export const onboardingHero = require('../../assets/images/companion/yanki.png');
 /** Yankı with a wand + sparkles — used by the onboarding "AI Plan Hazırlığı" (Magic Moment) screen. */
 export const yankiMagicImage = require('../../assets/images/companion/yanki_magic.png');
+/** Same character/pose as `yankiMagicImage`, mouth closed — alternated with
+ * it while AiOrb's `state === 'speaking'` for a simple "talking" effect.
+ * Placeholder (identical copy of yankiMagicImage) until the real
+ * closed-mouth variant is generated and dropped in at this same path. */
+export const yankiMagicMouthClosedImage = require('../../assets/images/companion/yanki_magic_mouth_closed.png');
+/** Onboarding-only emotional-beat poses (Faz 2) — replace the single `yankiMagicImage`
+ * that used to be reused across every screen regardless of mood. */
+export const yankiGreetingImage = require('../../assets/images/companion/yanki_greeting.png');
+export const yankiListeningImage = require('../../assets/images/companion/yanki_listening.png');
+export const yankiCelebrateImage = require('../../assets/images/companion/yanki_celebrate.png');
 
 /** Dynamic Time-of-Day Yankı Companions (Morning Coffee, Afternoon Headphone, Evening Lantern) */
 export const dynamicCompanion = {
@@ -130,6 +140,15 @@ export const stateImages = {
   xpBolt: require('../../assets/images/states/xp_bolt.png'),
   mistakesNotebook: require('../../assets/images/states/mistakes_notebook.jpg'),
   streakFlame3d: require('../../assets/images/states/streak_flame_3d.png'),
+};
+
+/** 3D Onboarding Goal Icons */
+export const onboardingGoals = {
+  freezeBarrier: require('../../assets/images/onboarding/goal_freeze_barrier.png'),
+  examsSchool: require('../../assets/images/onboarding/goal_exams_school.png'),
+  workCareer: require('../../assets/images/onboarding/goal_work_career.png'),
+  travelLife: require('../../assets/images/onboarding/goal_travel_life.png'),
+  noPartner: require('../../assets/images/onboarding/goal_no_partner.png'),
 };
 
 /** 3D Module Feature Cards (24 - 27) */

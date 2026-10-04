@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, Text, Pressable, View } from 'react-native';
+import { Image, StyleSheet, Text, Pressable, View } from 'react-native';
 
 import { Button } from '../../components/Button';
 import { OnboardingProgressHeader } from '../../components/OnboardingProgressHeader';
@@ -16,7 +16,7 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
 
   return (
     <SafeAreaView style={styles.container}>
-      <OnboardingProgressHeader step={5} onBack={() => navigation.goBack()} />
+      <OnboardingProgressHeader step={6} onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
         <Text style={styles.title}>Günde ne kadar vakit ayırabilirsin? ⏱️</Text>
@@ -35,7 +35,11 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
               >
                 <View style={styles.cardTopRow}>
                   <View style={styles.cardTitleRow}>
-                    <Text style={styles.cardIcon}>{dg.flameEmoji}</Text>
+                    {dg.iconImage ? (
+                      <Image source={dg.iconImage} style={styles.cardIconImage} resizeMode="contain" />
+                    ) : (
+                      <Text style={styles.cardIcon}>{dg.flameEmoji}</Text>
+                    )}
                     <Text style={styles.cardTitle}>
                       {dg.minutes} Dakika / Gün ({dg.title})
                     </Text>
@@ -54,7 +58,11 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
       </View>
 
       <View style={styles.footer}>
-        <Button label="Kişisel Konuşma Planımı Oluştur ✨" onPress={() => navigation.navigate('Preparing')} />
+        <Button
+          label="Kişisel Konuşma Planımı Oluştur ✨"
+          variant="chunky"
+          onPress={() => navigation.navigate('Preparing')}
+        />
       </View>
     </SafeAreaView>
   );
@@ -107,6 +115,10 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     fontSize: 16,
+  },
+  cardIconImage: {
+    width: 28,
+    height: 28,
   },
   cardTitle: {
     fontFamily: fonts.headingSemiBold,

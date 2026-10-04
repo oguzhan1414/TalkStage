@@ -2,6 +2,8 @@ from datetime import date, datetime, timezone
 
 from supabase import Client
 
+from app.core.config import settings
+
 FREE_DAILY_SESSION_LIMIT = 1
 FREE_SESSION_MAX_SECONDS = 5 * 60
 
@@ -9,6 +11,12 @@ _ENTITLED_STATUSES = {"active", "trial"}
 
 
 def is_pro(db: Client, user_id: str) -> bool:
+    # Testing-only bypass (TEST_MODE_UNLIMITED=true) — see config.py. Short-
+    # circuits both of this function's callers in ws_session.py: the daily
+    # quota check (can_start_session below) and the 5-minute free-session
+    # timer (only scheduled when `not user_is_pro`).
+    if settings.test_mode_unlimited:
+        return True
     rows = db.table("subscriptions").select("status, current_period_end").eq("user_id", user_id).execute().data
     if not rows:
         return False

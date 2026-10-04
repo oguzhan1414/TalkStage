@@ -167,25 +167,29 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
     }
   };
 
-  // User speaks or passes step successfully
+  // User confirms they said the step's line. A full finished dialogue is
+  // the real, XP-worthy milestone — not each individual line — so every
+  // step except the last just advances straight on with no banner/XP call;
+  // only the LAST step shows the "success" beat and actually logs practice.
   const handlePassStep = () => {
     haptics.success();
     stopPronunciation();
-    setPhase('success');
     const newXp = earnedTotalXp + 10;
     setEarnedTotalXp(newXp);
 
-    // Record practice XP on server silently
-    api.post('/progress/log-practice').catch(() => {});
+    const isLastStep = currentStepIndex >= steps.length - 1;
+    if (!isLastStep) {
+      setCurrentStepIndex((prev) => prev + 1);
+      return;
+    }
 
+    setPhase('success');
+    // Record practice XP on server silently — once, for the completed scenario.
+    api.post('/progress/log-practice').catch(() => {});
     setTimeout(() => {
-      if (currentStepIndex < steps.length - 1) {
-        setCurrentStepIndex((prev) => prev + 1);
-      } else {
-        setPhase('completed');
-        if (onComplete) {
-          onComplete(newXp);
-        }
+      setPhase('completed');
+      if (onComplete) {
+        onComplete(newXp);
       }
     }, 1500);
   };
@@ -208,11 +212,11 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
         <View style={styles.headerBar}>
           <View style={styles.headerTitleRow}>
             <Text style={styles.scenarioEmoji}>{scenario.icon || '☕'}</Text>
-            <View>
+            <View style={styles.headerTitleTextCol}>
               <Text style={styles.headerTitle} numberOfLines={1}>
                 {scenario.titleTr}
               </Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={styles.headerSubtitle} numberOfLines={1}>
                 {phase === 'preview'
                   ? '3D Canlı Önizleme & Hazırlık'
                   : `${currentStep.title} • Adım ${currentStepIndex + 1} / ${steps.length}`}
@@ -457,22 +461,27 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   </Pressable>
                 </View>
 
-                {/* Tek, dürüst bir devam butonu — eski tasarımda burada
-                    hiçbir şey dinlemeyen sahte bir "mikrofon dinliyor"
-                    animasyonu + ayrı bir "Doğru Söyledim" butonu birlikte
-                    duruyordu; ikisi aynı işi yapıyordu, biri sadece süs. */}
-                <Pressable onPress={handlePassStep} style={styles.continueBtn}>
-                  <Text style={styles.continueBtnText}>Yüksek Sesle Söyledim, Devam Et</Text>
-                  <Ionicons name="arrow-forward-circle" size={20} color="#FFFFFF" />
+                {/* Real mic + STT keyword verification was tried here and
+                    reverted — the record/transcribe/match round-trip kept
+                    producing confusing "Tam yakalayamadım" failures (a
+                    start/stop race, plus no visibility into what was even
+                    heard) for what's fundamentally a "repeat this scripted
+                    line out loud" shadowing exercise, not a real
+                    conversation — verifying it was never worth the
+                    complexity. One honest, single button: the user says it
+                    out loud, taps when done, moves on. */}
+                <Pressable onPress={handlePassStep} style={styles.saidItBtn}>
+                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                  <Text style={styles.saidItBtnText}>Yüksek Sesle Söyledim, Devam Et</Text>
                 </Pressable>
               </View>
             ) : phase === 'success' ? (
               <View style={styles.successBanner}>
                 <View style={styles.successRow}>
                   <Ionicons name="checkmark-circle" size={22} color="#10B981" />
-                  <Text style={styles.successTitle}>Harika! Cevabın Onaylandı ✨ (+10 XP)</Text>
+                  <Text style={styles.successTitle}>Harika! Diyaloğu Tamamladın ✨</Text>
                 </View>
-                <Text style={styles.successSub}>Sonraki sahneye geçiliyor...</Text>
+                <Text style={styles.successSub}>Karnen hazırlanıyor...</Text>
               </View>
             ) : (
               /* Phase is 'playing' */
@@ -514,9 +523,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     flex: 1,
+    // Leaves breathing room before the XP tag / close button so a long
+    // title/subtitle truncates instead of pushing into them — RN views
+    // don't shrink by default, so this needed an explicit cap.
+    marginRight: 10,
   },
   scenarioEmoji: {
     fontSize: 22,
+  },
+  // Without `flex: 1` here, this column sizes to its own text content and
+  // ignores headerTitleRow's `flex: 1` entirely (RN's default flexShrink is
+  // 0) — on a long scenario title or step name this pushed past the middle
+  // of the header and overlapped the XP tag/close button on the right.
+  headerTitleTextCol: {
+    flex: 1,
   },
   headerTitle: {
     fontSize: 14,
@@ -533,6 +553,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    flexShrink: 0,
   },
   xpTag: {
     flexDirection: 'row',
@@ -902,11 +923,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingSemiBold,
     color: colors.brand,
   },
-  // Same "chunky 3D" depth language as the Ana Ekran/Seviyeler CTAs — solid
-  // fill + darker bottom border + colored glow — used here as the single,
-  // honest primary action (replaces the old mic-toggle + separate pass
-  // button pairing).
-  continueBtn: {
+  // Same "chunky 3D" depth language as the rest of the app's primary CTAs.
+  saidItBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -922,7 +940,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-  continueBtnText: {
+  saidItBtnText: {
     fontSize: 14,
     fontFamily: fonts.headingBold,
     color: '#FFFFFF',

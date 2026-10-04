@@ -12,7 +12,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  DEFAULT_VOCAB_DECKS,
   markWordAsMasteredInDeck,
   type VocabDeck,
   type VocabDeckWord,

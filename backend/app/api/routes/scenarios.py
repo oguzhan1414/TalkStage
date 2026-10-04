@@ -21,7 +21,10 @@ def list_scenarios(
     category: str | None = None,
     ctx: AuthContext = Depends(get_auth_context),
 ) -> list[ScenarioOut]:
-    query = ctx.db.table("scenarios").select(_LIST_COLUMNS).order("sort_order")
+    # `is_active` lets the catalog be narrowed to a curated set (e.g. the
+    # A1/A2 relaunch) without destroying older, hand-authored scenario rows —
+    # they stay in the table, just filtered out of what's browsable.
+    query = ctx.db.table("scenarios").select(_LIST_COLUMNS).eq("is_active", True).order("sort_order")
     if category:
         query = query.eq("category", category)
     result = query.execute()
@@ -42,7 +45,7 @@ def get_recommended_scenario(ctx: AuthContext = Depends(get_auth_context)) -> Sc
     profile = (
         ctx.db.table("profiles").select("interests, cefr_level").eq("id", ctx.user.id).single().execute().data
     )
-    candidates = ctx.db.table("scenarios").select(_LIST_COLUMNS).execute().data
+    candidates = ctx.db.table("scenarios").select(_LIST_COLUMNS).eq("is_active", True).execute().data
     if not candidates:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No scenarios available")
 

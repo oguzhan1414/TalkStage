@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, Pressable, View } from 'react-native';
 
 import { Button } from '../../components/Button';
 import { OnboardingProgressHeader } from '../../components/OnboardingProgressHeader';
@@ -34,7 +34,11 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
               >
                 <View style={styles.cardTopRow}>
                   <View style={styles.cardTitleRow}>
-                    <Text style={styles.cardIcon}>{g.icon}</Text>
+                    {g.iconImage ? (
+                      <Image source={g.iconImage} style={styles.cardIconImage} resizeMode="contain" />
+                    ) : (
+                      <Text style={styles.cardIcon}>{g.icon}</Text>
+                    )}
                     <Text style={styles.cardTitle}>{g.title}</Text>
                   </View>
                   <View
@@ -56,7 +60,7 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" onPress={() => navigation.navigate('Level')} />
+        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('MicPermission')} />
       </View>
     </SafeAreaView>
   );
@@ -108,6 +112,10 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     fontSize: 16,
+  },
+  cardIconImage: {
+    width: 28,
+    height: 28,
   },
   cardTitle: {
     fontFamily: fonts.headingSemiBold,

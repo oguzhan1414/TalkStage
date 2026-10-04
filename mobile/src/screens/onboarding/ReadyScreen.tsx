@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { yankiMagicImage } from '../../assets/images';
+import { yankiCelebrateImage } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, ONBOARDING_LEVEL_OPTIONS, PERSONA_OPTIONS } from '../../constants/onboarding';
@@ -28,7 +28,7 @@ export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenPr
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Image source={yankiMagicImage} style={styles.avatar} resizeMode="contain" />
+        <Image source={yankiCelebrateImage} style={styles.avatar} resizeMode="contain" />
 
         <View style={styles.doneBadge}>
           <Text style={styles.doneBadgeText}>🎉 KİŞİSEL PLANIN TAMAMLANDI</Text>
@@ -56,15 +56,21 @@ export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenPr
             <Text style={styles.passLabel}>Günlük Pratik</Text>
             <Text style={styles.passValueSuccess}>{dailyObj?.minutes ?? dailyMinutes} Dakika / Gün</Text>
           </View>
-          <View style={[styles.passRow, styles.passRowLast]}>
+          <View style={styles.passRow}>
             <Text style={styles.passLabel}>AI Koç Desteği</Text>
             <Text style={styles.passValueAccent}>Canlı Türkçe Fısıltı Aktif 🎙️</Text>
+          </View>
+          <View style={[styles.passRow, styles.passRowLast]}>
+            <Text style={styles.passLabel}>İlk Sahnen</Text>
+            <Text style={styles.passValue} numberOfLines={1}>
+              {personaObj?.category ?? 'Senin İçin Seçildi'}
+            </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Button label="Sahneye Çık & Başla 🚀" onPress={finishOnboarding} />
+        <Button label="Sahneye Çık & Başla 🚀" variant="chunky" onPress={finishOnboarding} />
       </View>
     </SafeAreaView>
   );

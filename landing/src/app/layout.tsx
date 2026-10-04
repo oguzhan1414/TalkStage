@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
-    icon: "/images/01_logo_app_icon.jpg",
-    apple: "/images/01_logo_app_icon.jpg",
+    icon: "/brand/talkstage-app-icon.png",
+    apple: "/brand/talkstage-app-icon.png",
   },
 };
 
@@ -61,7 +61,7 @@ export default function RootLayout({
       className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable} ${fraunces.variable} h-full overflow-x-hidden antialiased`}
       style={{ colorScheme: "light" }}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-body selection:bg-indigo selection:text-white">
+      <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-body selection:bg-pink-pop selection:text-white">
         <AuthProvider>
           <Analytics />
           <ScrollToTop />

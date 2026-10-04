@@ -92,12 +92,22 @@ export function PreparingScreen({ navigation }: OnboardingStackScreenProps<'Prep
               <Text style={styles.checkItem}>✓ Öncelikli Odak: {goalObj?.title}</Text>
               <Text style={styles.checkItem}>
                 ✓ CEFR Seviyesi: {levelObj?.code} • {levelObj?.title}
+                {draft.cefrSource === 'calibrated'
+                  ? ' (sesli mini-değerlendirmeyle belirlendi)'
+                  : draft.cefrSource === 'self_selected'
+                    ? ' (kendi seçimin)'
+                    : ''}
               </Text>
               <Text style={styles.checkItem}>✓ Yankı fısıltı ve hata yakalama motoru kalibre edildi</Text>
             </View>
           </>
         ) : (
-          <Button label="Tekrar Dene" onPress={() => setAttempt((a) => a + 1)} style={{ marginTop: spacing.lg }} />
+          <Button
+            label="Tekrar Dene"
+            variant="chunky"
+            onPress={() => setAttempt((a) => a + 1)}
+            style={{ marginTop: spacing.lg }}
+          />
         )}
       </View>
     </SafeAreaView>

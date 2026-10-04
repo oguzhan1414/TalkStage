@@ -71,33 +71,33 @@ export default function SimulatorShowcase() {
     <section
       ref={sectionRef}
       id="canli-simulasyon"
-      className="relative scroll-mt-24 overflow-hidden bg-porcelain px-6 py-24 sm:py-32"
+      className="relative scroll-mt-24 overflow-hidden bg-bg-lavender px-6 py-24 sm:py-32"
     >
       {/* Background Soft Ambient Light */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/3 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-linear-to-br from-indigo/10 via-cyan/8 to-transparent blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-1/3 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-linear-to-br from-purple-pop/12 via-pink-pop/8 to-transparent blur-[120px]"
       />
 
       <div className="mx-auto max-w-5xl">
         {/* Section Heading Intro */}
         <div className="text-center">
-          <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">
-            3D Canlı Simülatör & Tanıtım Sahnesi
-          </span>
-          <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-5xl">
-            Avucunun İçinde Gerçek Zamanlı Voice AI Deneyimi
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-purple-200/60 text-sm font-bold text-heading shadow-xs mb-4">
+            <span>🎬</span>
+            <span>Canlı Simülatör</span>
+          </div>
+          <h2 className="mt-2 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-5xl">
+            Gerçek Zamanlı <span className="text-highlight">Voice AI</span> Deneyimi 🎙️
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-balance leading-relaxed text-body sm:text-lg">
-            Sadece dinleme veya okuma değil; konuştuğun anda 1.2 saniyede yanıt veren ve takıldığında
-            Türkçe anlık ipucu düşüren akıllı sahne teknolojisini 28 saniyelik filmimizde keşfet.
+            Konuştuğun anda 1.2 saniyede yanıt veren akıllı sahne teknolojisini keşfet! ✨
           </p>
         </div>
 
         {/* Grand Full-Width Cinema Theater Player */}
         <div
           ref={theaterContainerRef}
-          className="mt-12 overflow-hidden rounded-[34px] border border-white/80 bg-white/95 p-3 shadow-[0_30px_90px_-15px_rgba(79,70,229,0.2)] backdrop-blur-md sm:p-4 will-change-transform"
+          className="mt-12 overflow-hidden rounded-[36px] border border-purple-200/40 bg-white/95 p-3 shadow-xl backdrop-blur-md sm:p-4 will-change-transform"
         >
           <div className="relative aspect-video w-full overflow-hidden rounded-[26px] bg-slate-950">
             {isPlaying ? (
@@ -152,7 +152,7 @@ export default function SimulatorShowcase() {
         {/* 3-Column Key Technology Highlights Underneath the Cinema */}
         <div ref={featuresRef} className="mt-12 grid gap-6 sm:grid-cols-3">
           {/* Card 1 */}
-          <div className="rounded-[24px] border border-line bg-white p-6 shadow-2xs transition-all hover:border-indigo/30 hover:shadow-xs">
+          <div className="rounded-[24px] bg-card-mint border border-emerald-200/60 p-6 shadow-lg transition-all hover:-translate-y-1 card-playful">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald/15 font-mono text-lg font-bold text-emerald">
                 ⚡
@@ -170,7 +170,7 @@ export default function SimulatorShowcase() {
           </div>
 
           {/* Card 2 */}
-          <div className="rounded-[24px] border border-line bg-white p-6 shadow-2xs transition-all hover:border-indigo/30 hover:shadow-xs">
+          <div className="rounded-[24px] bg-card-blue border border-blue-200/60 p-6 shadow-lg transition-all hover:-translate-y-1 card-playful">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo/10 text-lg font-bold text-indigo">
                 💡
@@ -188,7 +188,7 @@ export default function SimulatorShowcase() {
           </div>
 
           {/* Card 3 */}
-          <div className="rounded-[24px] border border-line bg-white p-6 shadow-2xs transition-all hover:border-indigo/30 hover:shadow-xs">
+          <div className="rounded-[24px] bg-card-orange border border-orange-200/60 p-6 shadow-lg transition-all hover:-translate-y-1 card-playful">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan/15 text-lg font-bold text-cyan-800">
                 🎯

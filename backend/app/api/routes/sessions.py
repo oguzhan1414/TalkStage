@@ -4,9 +4,11 @@ from app.api.deps import AuthContext, get_auth_context
 from app.schemas.session import SessionEndRequest, SessionOut
 from app.services.progress import record_progress, update_streak_and_xp
 from app.services.scorecard import (
+    average_float,
     average_fluency_score,
     calculate_session_xp,
     count_unique_words,
+    count_user_turns,
 )
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
@@ -30,6 +32,9 @@ def end_session(payload: SessionEndRequest, ctx: AuthContext = Depends(get_auth_
     duration_seconds = int((payload.ended_at - payload.started_at).total_seconds())
     unique_words = count_unique_words(payload.transcript)
     fluency_score = average_fluency_score(payload.fluency_scores)
+    avg_wpm = average_float(payload.wpm_values)
+    avg_confidence = average_float(payload.confidence_values, ndigits=3)
+    user_turns = count_user_turns(payload.transcript)
 
     session_row = (
         ctx.db.table("sessions")
@@ -43,6 +48,9 @@ def end_session(payload: SessionEndRequest, ctx: AuthContext = Depends(get_auth_
                 "fluency_score": fluency_score,
                 "unique_words_count": unique_words,
                 "corrections_count": payload.corrections_count,
+                "avg_wpm": avg_wpm,
+                "avg_pronunciation_confidence": avg_confidence,
+                "user_turns_count": user_turns,
                 "transcript": [t.model_dump() for t in payload.transcript],
             }
         )

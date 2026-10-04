@@ -118,7 +118,7 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
                   <View style={styles.heroCurrentBadge}>
                     <Text style={styles.heroCurrentBadgeText}>🎯 SIRADAKİ HİKAYEN</Text>
                   </View>
-                  <Text style={styles.heroRewardText}>+30 XP ⚡ • +10 💎</Text>
+                  <Text style={styles.heroRewardText}>Gerçek XP kazandırır ⚡</Text>
                 </View>
 
                 <View style={styles.heroContentRow}>

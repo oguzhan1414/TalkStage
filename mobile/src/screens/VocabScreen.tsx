@@ -14,7 +14,6 @@ import { SwipeableVocabCard } from '../components/SwipeableVocabCard';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import {
-  DEFAULT_VOCAB_DECKS,
   addWordToAnyDeck,
   deleteCustomDeck,
   getDeckMasteredWordIds,
@@ -117,15 +116,20 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
   });
 
-  const [activeTab, setActiveTab] = useState<TabViewMode>('decks');
+  // Defaults to the SM-2 review queue (Akıllı Pratik) — "what should I
+  // actually do today" is the one job most visits to this tab have, so it's
+  // the implicit home view now instead of one of 3 equal-weight tabs (see
+  // the 2026-10 "Kelimeler sekmesi karışık" simplification pass).
+  const [activeTab, setActiveTab] = useState<TabViewMode>('flashcards');
   const [queue, setQueue] = useState<VocabCardOut[]>([]);
   const [reviewedCount, setReviewedCount] = useState(0);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const { pronounce, toggle, isPlaying } = usePronunciation();
 
-  // Decks & Folders State
+  // Decks & Folders State — "Hazır Temalar" (pre-made decks) was removed
+  // (see 2026-10 simplification note), so this is now purely the user's own
+  // custom folders; no more default/combined deck bookkeeping needed.
   const [customDecks, setCustomDecks] = useState<VocabDeck[]>([]);
-  const [deckFilter, setDeckFilter] = useState<string>('all');
   const [selectedStudyDeck, setSelectedStudyDeck] = useState<VocabDeck | null>(null);
   const [createDeckVisible, setCreateDeckVisible] = useState(false);
   const [deckMasteryMap, setDeckMasteryMap] = useState<Record<string, number>>({});
@@ -133,12 +137,11 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const [assignDeckModalVisible, setAssignDeckModalVisible] = useState(false);
 
   const loadDecksAndMastery = async () => {
-    const allDecks = await loadAllDecks();
-    const customOnly = allDecks.filter((d) => d.isCustom);
-    setCustomDecks(customOnly);
+    const decks = await loadAllDecks();
+    setCustomDecks(decks);
 
     const map: Record<string, number> = {};
-    for (const d of allDecks) {
+    for (const d of decks) {
       const masteredIds = await getDeckMasteredWordIds(d.id);
       map[d.id] = masteredIds.length;
     }
@@ -148,23 +151,6 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   useEffect(() => {
     loadDecksAndMastery();
   }, []);
-
-  const allCombinedDecks = useMemo(() => {
-    return [...DEFAULT_VOCAB_DECKS, ...customDecks];
-  }, [customDecks]);
-
-  // Custom decks now always render in their own "Kendi Klasörlerim" section
-  // (see decks-tab JSX below), so this filter only ever narrows the fixed
-  // "Hazır Temalar" set — it can't grow, so it stays a simple flat list.
-  const filteredDefaultDecks = useMemo(() => {
-    if (deckFilter === 'all') return DEFAULT_VOCAB_DECKS;
-    if (deckFilter === 'thematic') {
-      return DEFAULT_VOCAB_DECKS.filter((d) =>
-        ['deck_colors_shapes', 'deck_numbers_time', 'deck_food_dining', 'deck_travel_airport', 'deck_business_tech'].includes(d.id)
-      );
-    }
-    return DEFAULT_VOCAB_DECKS.filter((d) => d.level === deckFilter);
-  }, [deckFilter]);
 
   const isCustomDeckCapReached = customDecks.length >= MAX_CUSTOM_DECKS;
 
@@ -546,85 +532,74 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           </Pressable>
         </View>
 
-        {/* Segmented Switcher: 3 Tabs (Klasörler / Akıllı Pratik / Tüm Sözlüğüm) */}
-        <View style={styles.segmentedContainer}>
+        {/* Bu ekran eskiden 3 eşit ağırlıklı, büyük sekme (Klasörler / Akıllı
+            Pratik / Sözlüğüm) + ayrıca 2 yerde tekrarlanan bir "900 Kelime
+            Kütüphanesi" banner'ı olarak 4 farklı amacı eşit önemde gösteriyordu
+            — ilk bakışta "hangisi benim asıl işim" sorusu yaratıyordu (bkz.
+            mobile CLAUDE.md 2026-10 sadeleştirme notu). Artık Akıllı Pratik
+            (bugün ne yapmalıyım) varsayılan/örtük ana görünüm, diğer 3'ü ise
+            küçük, sayı rozetsiz ikincil bağlantılar. */}
+        <View style={styles.quickLinksRow}>
+          <Pressable
+            onPress={() => setActiveTab('flashcards')}
+            style={[styles.quickLinkChip, activeTab === 'flashcards' && styles.quickLinkChipActive]}
+          >
+            <Ionicons
+              name="flash"
+              size={13}
+              color={activeTab === 'flashcards' ? '#FFFFFF' : colors.textMuted}
+            />
+            <Text
+              style={[
+                styles.quickLinkChipText,
+                activeTab === 'flashcards' && styles.quickLinkChipTextActive,
+              ]}
+            >
+              Akıllı Pratik
+            </Text>
+          </Pressable>
           <Pressable
             onPress={() => setActiveTab('decks')}
-            style={[
-              styles.segmentedTab,
-              activeTab === 'decks' && styles.segmentedTabActive,
-            ]}
+            style={[styles.quickLinkChip, activeTab === 'decks' && styles.quickLinkChipActive]}
           >
             <Ionicons
               name="folder-open-outline"
-              size={15}
-              color={activeTab === 'decks' ? colors.brand : colors.textMuted}
+              size={13}
+              color={activeTab === 'decks' ? '#FFFFFF' : colors.textMuted}
             />
             <Text
               style={[
-                styles.segmentedTabText,
-                activeTab === 'decks' && styles.segmentedTabTextActive,
+                styles.quickLinkChipText,
+                activeTab === 'decks' && styles.quickLinkChipTextActive,
               ]}
             >
-              Klasörler ({allCombinedDecks.length})
+              Klasörler
             </Text>
           </Pressable>
-
-          <Pressable
-            onPress={() => setActiveTab('flashcards')}
-            style={[
-              styles.segmentedTab,
-              activeTab === 'flashcards' && styles.segmentedTabActive,
-            ]}
-          >
-            <Ionicons
-              name="card-outline"
-              size={15}
-              color={activeTab === 'flashcards' ? colors.brand : colors.textMuted}
-            />
-            <Text
-              style={[
-                styles.segmentedTabText,
-                activeTab === 'flashcards' && styles.segmentedTabTextActive,
-              ]}
-            >
-              Akıllı Pratik ({queue.length})
-            </Text>
-          </Pressable>
-
           <Pressable
             onPress={() => setActiveTab('dictionary')}
-            style={[
-              styles.segmentedTab,
-              activeTab === 'dictionary' && styles.segmentedTabActive,
-            ]}
+            style={[styles.quickLinkChip, activeTab === 'dictionary' && styles.quickLinkChipActive]}
           >
             <Ionicons
               name="book-outline"
-              size={15}
-              color={activeTab === 'dictionary' ? colors.brand : colors.textMuted}
+              size={13}
+              color={activeTab === 'dictionary' ? '#FFFFFF' : colors.textMuted}
             />
             <Text
               style={[
-                styles.segmentedTabText,
-                activeTab === 'dictionary' && styles.segmentedTabTextActive,
+                styles.quickLinkChipText,
+                activeTab === 'dictionary' && styles.quickLinkChipTextActive,
               ]}
             >
-              Sözlüğüm ({totalCardsInChest})
+              Sözlüğüm
             </Text>
           </Pressable>
+          <View style={styles.quickLinksDivider} />
+          <Pressable onPress={() => navigation.navigate('VocabLibrary')} style={styles.quickLinkChip}>
+            <Ionicons name="sparkles-outline" size={13} color={colors.brand} />
+            <Text style={[styles.quickLinkChipText, { color: colors.brand }]}>Kütüphane</Text>
+          </Pressable>
         </View>
-
-        {/* Bu 3 bölüm aynı işi farklı şekillerde yapıyormuş gibi hissettirebiliyordu
-            (aynı ekranda klasör pratiği, SM-2 pratiği ve sözlük ayrı ayrı var) —
-            her sekmenin ne işe yaradığını tek satırda netleştiriyoruz. */}
-        <Text style={styles.tabExplainerText}>
-          {activeTab === 'decks'
-            ? '📁 Tematik desteler — hızlı gözden geçirme, hafıza takvimine dahil değil'
-            : activeTab === 'flashcards'
-              ? '🧠 Sandığındaki kartlardan bugün tekrarı gelenlerin SM-2 kuyruğu'
-              : '📖 Sandığına kaydettiğin TÜM kelimelerin aranabilir kataloğu'}
-        </Text>
 
         {/* 3D Chest Milestone Progress */}
         <View style={[styles.chestHeader, shadow.card]}>
@@ -656,9 +631,11 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         {/* ======================================================== */}
         {activeTab === 'decks' && (
           <ScrollView contentContainerStyle={styles.decksContainer} showsVerticalScrollIndicator={false}>
-            {/* SECTION 1: Kendi Klasörlerim — her zaman kendi bölümünde, tavanlı
-                (bkz. MAX_CUSTOM_DECKS) böylece "Hazır Temalar"ın arasına
-                karışıp anlamsız bir yığın oluşturamıyor. */}
+            {/* Hazır (önceden hazırlanmış) temalar kaldırıldı — içerik olarak
+                Kütüphane'nin 900 kelimesiyle ve müfredat konularının kendi
+                kelime havuzlarıyla çakışıyordu, SM-2 Sandığına da bağlı
+                değildi (bkz. 2026-10 sadeleştirme notu). Klasörler artık
+                sadece kullanıcının kendi oluşturduklarını gösteriyor. */}
             <View style={styles.decksHeaderRow}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <Text style={styles.decksSectionTitle}>
@@ -684,7 +661,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             </View>
 
             {customDecks.length > 0 ? (
-              <View style={[styles.decksGrid, { marginBottom: 24 }]}>
+              <View style={styles.decksGrid}>
                 {customDecks.map((deck) => renderDeckCard(deck))}
               </View>
             ) : (
@@ -694,43 +671,6 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 </Text>
               </View>
             )}
-
-            {/* SECTION 2: Hazır Temalar — sabit 6 deste, sadece bunlar seviye/tema
-                filtresine giriyor (custom klasörler zaten yukarıda tam liste). */}
-            <Text style={styles.decksSectionTitle}>🎴 Hazır Temalar</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deckFiltersScroll}>
-              {[
-                { id: 'all', label: '🌟 Tümü' },
-                { id: 'A1', label: '🟢 A1 Seviye' },
-                { id: 'A2', label: '🔵 A2 Seviye' },
-                { id: 'B1', label: '🟣 B1 Seviye' },
-                { id: 'thematic', label: '🎨 Tematik' },
-              ].map((f) => (
-                <BouncyPressable
-                  key={f.id}
-                  onPress={() => setDeckFilter(f.id)}
-                  style={[
-                    styles.deckFilterChip,
-                    deckFilter === f.id && styles.deckFilterChipActive,
-                  ]}
-                  hapticType="light"
-                  scaleTo={0.92}
-                >
-                  <Text
-                    style={[
-                      styles.deckFilterChipText,
-                      deckFilter === f.id && styles.deckFilterChipTextActive,
-                    ]}
-                  >
-                    {f.label}
-                  </Text>
-                </BouncyPressable>
-              ))}
-            </ScrollView>
-
-            <View style={styles.decksGrid}>
-              {filteredDefaultDecks.map((deck) => renderDeckCard(deck))}
-            </View>
           </ScrollView>
         )}
 
@@ -881,25 +821,6 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         {/* ======================================================== */}
         {activeTab === 'dictionary' && (
           <View style={styles.dictionaryContainer}>
-            {/* 900 Words Library Discovery Banner */}
-            <Pressable
-              onPress={() => navigation.navigate('VocabLibrary')}
-              style={[styles.libraryQuickLinkBanner, shadow.card]}
-            >
-              <View style={styles.libraryQuickLinkLeft}>
-                <View style={styles.libraryQuickLinkIconBox}>
-                  <Ionicons name="sparkles" size={14} color={colors.brand} />
-                </View>
-                <View style={styles.libraryQuickLinkTextCol}>
-                  <Text style={styles.libraryQuickLinkTitle}>900 Çekirdek Kelime Kütüphanesi 📚</Text>
-                  <Text style={styles.libraryQuickLinkSub}>
-                    İsim, Fiil ve Sıfat paketlerini incele &amp; sandığına ekle
-                  </Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.brand} />
-            </Pressable>
-
             {/* Search Input */}
             <View style={styles.searchBarBox}>
               <Ionicons name="search" size={18} color={colors.textMuted} />
@@ -1319,7 +1240,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                       🌟 Genel Sandık
                     </Text>
                   </Pressable>
-                  {allCombinedDecks.map((deck) => (
+                  {customDecks.map((deck) => (
                     <Pressable
                       key={deck.id}
                       onPress={() => setFormSelectedDeckId(deck.id)}
@@ -1486,7 +1407,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           </View>
 
           <ScrollView contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
-            {allCombinedDecks.map((deck) => (
+            {customDecks.map((deck) => (
               <BouncyPressable
                 key={deck.id}
                 onPress={() => handleAssignCardToDeck(deck)}
@@ -1672,32 +1593,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: 'center',
   },
-  deckFiltersScroll: {
-    paddingVertical: 4,
-    gap: 6,
-    marginBottom: 12,
-  },
-  deckFilterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  deckFilterChipActive: {
-    backgroundColor: '#EEF2FF',
-    borderColor: colors.brand,
-  },
-  deckFilterChipText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11.5,
-    color: '#64748B',
-  },
-  deckFilterChipTextActive: {
-    color: colors.brand,
-    fontWeight: 'bold',
-  },
   decksGrid: {
     gap: 12,
   },
@@ -1795,40 +1690,41 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  /* Segmented Top Switcher */
-  segmentedContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#E2E8F0',
-    borderRadius: radii.pill,
-    padding: 3,
-    marginBottom: spacing.sm,
-  },
-  tabExplainerText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: '#64748B',
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  segmentedTab: {
-    flex: 1,
+  /* Secondary quick-links row — small, auto-width pills (not equal-weight
+     boxed tabs) so the 3 alternate views + the library read as "optional
+     side destinations", not as 4 equally important systems. */
+  quickLinksRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 7,
-    borderRadius: radii.pill,
+    flexWrap: 'wrap',
     gap: 6,
+    marginBottom: spacing.sm,
   },
-  segmentedTabActive: {
-    backgroundColor: '#FFFFFF',
+  quickLinkChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: '#F1F5F9',
   },
-  segmentedTabText: {
+  quickLinkChipActive: {
+    backgroundColor: colors.brand,
+  },
+  quickLinkChipText: {
     fontFamily: fonts.headingBold,
     fontSize: 11,
     color: colors.textMuted,
   },
-  segmentedTabTextActive: {
-    color: colors.brand,
+  quickLinkChipTextActive: {
+    color: '#FFFFFF',
+  },
+  quickLinksDivider: {
+    width: 1,
+    height: 16,
+    backgroundColor: '#E2E8F0',
+    marginHorizontal: 2,
   },
 
   /* Chest Header */

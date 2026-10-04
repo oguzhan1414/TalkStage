@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
+    burger_session,
     chat,
     learning_flags,
     onboarding,
@@ -10,7 +11,9 @@ from app.api.routes import (
     reading,
     scenarios,
     sessions,
+    speech,
     tts,
+    tutor,
     vocab,
     vocab_library,
     webhooks,
@@ -41,8 +44,11 @@ app.include_router(tts.router)
 app.include_router(sessions.router)
 app.include_router(webhooks.router)
 app.include_router(ws_session.router)
+app.include_router(burger_session.router)
 app.include_router(chat.router)
+app.include_router(tutor.router)
 app.include_router(learning_flags.router)
+app.include_router(speech.router)
 
 
 import os
@@ -52,6 +58,10 @@ from fastapi.staticfiles import StaticFiles
 videos_dir = Path(__file__).resolve().parent.parent.parent / "videos"
 if videos_dir.exists():
     app.mount("/videos", StaticFiles(directory=str(videos_dir)), name="videos")
+
+podcasts_dir = Path(__file__).resolve().parent.parent / "static" / "podcasts"
+if podcasts_dir.exists():
+    app.mount("/podcasts", StaticFiles(directory=str(podcasts_dir)), name="podcasts")
 
 
 @app.get("/health")

@@ -1,11 +1,21 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
+import {
+  ALL_SPEAKING_TOPIC_CODES,
+  ALL_TOPIC_CODES,
+  CEFR_CURRICULUM,
+  computeFullCompletion,
+  isTopicCompleted,
+  type CurriculumTopic,
+} from '@talkstage/shared-data/curriculumData';
 import {
   avatarImages,
   companionImage,
@@ -19,10 +29,13 @@ import {
 import { BouncyPressable } from '../components/BouncyPressable';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
 import { Toast } from '../components/Toast';
+import { TopicTaskSteps } from '../components/TopicTaskSteps';
 import { useAuth } from '../context/AuthContext';
 import { PERSONA_OPTIONS } from '../constants/onboarding';
+import { findCurriculumWord } from '../data/curriculumVocabulary';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
+import { pullLearningFlags } from '../lib/learningFlags';
 import { resolveMediaUrl } from '../lib/media';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, gradients, radii, shadow, spacing } from '../theme/tokens';
@@ -30,6 +43,7 @@ import type {
   GrammarMistakeOut,
   ProfileOut,
   ProgressOut,
+  ReadingPassageOut,
   ScenarioOut,
   VocabCardOut,
 } from '../types/api';
@@ -129,6 +143,8 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     queryKey: ['progress'],
     queryFn: () => api.get<ProgressOut[]>('/progress'),
   });
+  const queryClient = useQueryClient();
+
   const { data: recommended } = useQuery({
     queryKey: ['scenarios', 'recommended'],
     queryFn: () => api.get<ScenarioOut>('/scenarios/recommended'),
@@ -136,6 +152,18 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { data: dueVocabCards } = useQuery({
     queryKey: ['vocab-cards'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards'),
+  });
+  const { data: allVocabCards } = useQuery({
+    queryKey: ['vocab-cards', 'all'],
+    queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
+  });
+  const { data: readingPassages } = useQuery({
+    queryKey: ['reading'],
+    queryFn: () => api.get<ReadingPassageOut[]>('/reading'),
+  });
+  const { data: completedReadingSlugs } = useQuery({
+    queryKey: ['reading', 'completed'],
+    queryFn: () => api.get<string[]>('/reading/completed-slugs'),
   });
   const { data: mistakes } = useQuery({
     queryKey: ['grammar-mistakes'],
@@ -172,14 +200,122 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   const [selectedVideoScenario, setSelectedVideoScenario] = useState<ScenarioEntry | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  // Real load-failure tracking per card (see ScenariosScreen's Sinema
-  // Stüdyosu list for why: previously the fallback only kicked in when
-  // `coverImage` was missing, never on an actual runtime load failure).
   const [videoCoverErrorIds, setVideoCoverErrorIds] = useState<Set<string>>(new Set());
+
+  // Systematic learning roadmap flags
+  const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
+  const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
+
+  const reloadStationFlags = useCallback(() => {
+    pullLearningFlags().then(() => {
+      AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+        (pairs) => {
+          setChatCompletedCodes(
+            new Set(
+              pairs
+                .filter(([, v]) => v === '1')
+                .map(([k]) => k.replace('topic_chat_completed_', ''))
+            )
+          );
+        }
+      );
+      AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
+        setLessonQuizDoneCodes(
+          new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
+        );
+      });
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      reloadStationFlags();
+    }, [reloadStationFlags])
+  );
+
+  const savedWordsSet = useMemo(
+    () => new Set((allVocabCards ?? []).map((c) => c.term.trim().toLowerCase())),
+    [allVocabCards]
+  );
+  const completedReadingSlugSet = useMemo(
+    () => new Set(completedReadingSlugs ?? []),
+    [completedReadingSlugs]
+  );
+  const completedReadingCountForLevel = useMemo(
+    () =>
+      (readingPassages ?? []).filter(
+        (p) => (p.cefr_level ?? 'A1') === currentLevel && completedReadingSlugSet.has(p.slug)
+      ).length,
+    [readingPassages, currentLevel, completedReadingSlugSet]
+  );
+
+  const currentCurriculum = CEFR_CURRICULUM[currentLevel] ?? CEFR_CURRICULUM.A1;
+  const fullCompletion = useMemo(
+    () =>
+      computeFullCompletion(
+        currentCurriculum.topics,
+        savedWordsSet,
+        chatCompletedCodes,
+        completedReadingCountForLevel,
+        lessonQuizDoneCodes
+      ),
+    [
+      currentCurriculum.topics,
+      savedWordsSet,
+      chatCompletedCodes,
+      completedReadingCountForLevel,
+      lessonQuizDoneCodes,
+    ]
+  );
+
+  // Active current topic on roadmap
+  const currentTopic = useMemo(
+    () => currentCurriculum.topics.find((t) => !fullCompletion[t.code]) ?? currentCurriculum.topics[0],
+    [currentCurriculum.topics, fullCompletion]
+  );
+
+  const isQuizDone = currentTopic ? lessonQuizDoneCodes.has(currentTopic.code) : false;
+  const isVocabDone = currentTopic ? isTopicCompleted(currentTopic, savedWordsSet) : false;
+  const isPracticeDone = !currentTopic
+    ? false
+    : currentTopic.moduleType === 'vocab'
+      ? true
+      : currentTopic.moduleType === 'speaking'
+        ? chatCompletedCodes.has(currentTopic.code)
+        : completedReadingCountForLevel > 0;
+
+  const completedStepsCount = (isQuizDone ? 1 : 0) + (isVocabDone ? 1 : 0) + (isPracticeDone ? 1 : 0);
+  const isStationMastered = currentTopic ? (fullCompletion[currentTopic.code] ?? false) : false;
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 1800);
+  };
+
+  const handleAddTopicWords = async (topic: CurriculumTopic) => {
+    const missing = topic.targetWords.filter((w) => !savedWordsSet.has(w.trim().toLowerCase()));
+    if (missing.length === 0) {
+      showToast('Kelimeler zaten sandığında ✓');
+      return;
+    }
+    try {
+      await Promise.all(
+        missing.map((word) => {
+          const found = findCurriculumWord(word);
+          return api.post('/vocab-cards', {
+            term: word,
+            translation: found?.tr,
+            example_sentence: found?.exampleEn,
+            source_label: `${topic.code} · ${currentLevel} Müfredatı`,
+          });
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
+      showToast(`${missing.length} kelime sandığına eklendi! 📚`);
+    } catch {
+      showToast('Kelimeler eklenirken hata oluştu.');
+    }
   };
 
   const readyVideoScenarios = useMemo(
@@ -253,18 +389,14 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
 
         {/* ======================================================== */}
-        {/* 2. BUGÜN HERO — 3D alev, kristal seri ve dinamik maskot  */}
+        {/* 2. BUGÜN HERO — seri rozeti ve dinamik maskot             */}
         {/* ======================================================== */}
         <View style={[styles.heroCard, shadow.porcelain]}>
           <View style={styles.heroGlowBlob} />
 
           <View style={styles.heroTopRow}>
             <View style={styles.streakPill}>
-              <Image
-                source={stateImages.streakFlame3d}
-                style={styles.streakPillFlameImg}
-                resizeMode="contain"
-              />
+              <Ionicons name="checkmark-done-circle" size={18} color={colors.brand} />
               <Text style={styles.streakPillText}>{streak} Gün</Text>
             </View>
 
@@ -282,17 +414,11 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                 </View>
               ))}
             </View>
-
-            <Pressable onPress={() => navigation.navigate('Calendar')} hitSlop={8}>
-              <Text style={styles.heroMinutesText}>
-                {todayMinutes}/{dailyTargetMinutes} dk →
-              </Text>
-            </Pressable>
           </View>
 
           {/* Daily Goal Progress Bar */}
           <BouncyPressable
-            onPress={() => navigation.navigate('Calendar')}
+            onPress={() => navigation.navigate('Profile')}
             style={styles.dailyGoalBarWrap}
             hitSlop={4}
             hapticType="light"
@@ -300,7 +426,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           >
             <View style={styles.dailyGoalBarTop}>
               <View style={styles.dailyGoalLabelRow}>
-                <Ionicons name="flag" size={12} color="#EA580C" />
+                <Ionicons name="flag" size={12} color={colors.brand} />
                 <Text style={styles.dailyGoalBarLabel}>
                   Günün Hedefi:{' '}
                   <Text style={styles.dailyGoalBarPercent}>%{dailyProgressPct}</Text>
@@ -321,49 +447,193 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             </View>
           </BouncyPressable>
 
-          <View style={styles.heroMissionRow}>
-            <View style={styles.heroMissionTextCol}>
-              <Text style={styles.heroMissionTitle} numberOfLines={2}>
-                &ldquo;{timeGreeting.subtitle}&rdquo;
-              </Text>
-              <Text style={styles.heroMissionSub}>
-                Takıldığın anda alttan Türkçe fısıldarım, donmadan akıcı konuşursun.
-              </Text>
+          {/* ======================================================== */}
+          {/* SİSTEMATİK İSTASYON GÖREVLERİ (TUR ATLAMA ŞARTLARI)      */}
+          {/* ======================================================== */}
+          {currentTopic && (
+            <View style={styles.stationMissionCard}>
+              <View style={styles.heroMissionRow}>
+                <View style={styles.heroMissionTextCol}>
+                  <View style={styles.dailyPlanBadge}>
+                    <Ionicons name="sparkles" size={12} color={colors.brand} />
+                    <Text style={styles.dailyPlanBadgeText}>
+                      {currentLevel} · {currentTopic.code} İSTASYONU
+                    </Text>
+                  </View>
+                  <Text style={styles.heroMissionTitle} numberOfLines={2}>
+                    {currentTopic.title}
+                  </Text>
+                </View>
+                <View style={styles.mascotWithAuraWrapper}>
+                  <View style={styles.mascotAuraGlow} />
+                  <Image source={yankiMascot} style={styles.heroMascotImg} resizeMode="contain" />
+                </View>
+              </View>
+
+              {/* Progress counter badge */}
+              <View style={styles.stationProgressRow}>
+                <Text style={styles.stationProgressLabel}>Tur Atlama Görevleri:</Text>
+                <View style={[styles.stationProgressPill, isStationMastered && styles.stationProgressPillMastered]}>
+                  <Text style={[styles.stationProgressPillText, isStationMastered && styles.stationProgressPillTextMastered]}>
+                    {completedStepsCount}/3 Görev {isStationMastered ? '⭐⭐⭐' : ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Same 3-task list CurriculumScreen's topic modal shows — see
+                  TopicTaskSteps.tsx for why this used to be two separate,
+                  drifting copies of the same logic. */}
+              <TopicTaskSteps
+                topic={currentTopic}
+                isQuizDone={isQuizDone}
+                isVocabDone={isVocabDone}
+                isPracticeDone={isPracticeDone}
+                onOpenLesson={() => navigation.navigate('GrammarLesson', { code: currentTopic.code })}
+                onAddWords={() => handleAddTopicWords(currentTopic)}
+                onStartPractice={() => {
+                  // vocab-type topics have no separate "practice" destination
+                  // (isPracticeDone is always true for them) — matches
+                  // CurriculumScreen's handleStartTopicAction, which this used
+                  // to NOT match: this button would have tried to open
+                  // TextChat for a vocab topic too before this fix.
+                  if (currentTopic.moduleType === 'vocab') {
+                    handleAddTopicWords(currentTopic);
+                  } else if (currentTopic.moduleType === 'reading') {
+                    navigation.navigate('ReadingList');
+                  } else {
+                    navigation.navigate('TextChat', {
+                      focusTopic: {
+                        title: currentTopic.title,
+                        formula: currentTopic.formula,
+                        targetWords: currentTopic.targetWords,
+                        topicCode: currentTopic.code,
+                      },
+                    });
+                  }
+                }}
+              />
+
+              {/* Optional reinforcement chat — speaking topics already have
+                  this as their required practice step above; for reading/
+                  vocab topics (which have no chat-based practice at all) this
+                  is a bonus, not a requirement, so it only appears once the
+                  lesson is actually done ("öğrendikten sonra pekiştirme",
+                  not before). Reuses the exact same focusTopic chat speaking
+                  topics use — no new backend/per-topic work needed, every
+                  topic already carries its own formula/targetWords. */}
+              {currentTopic.moduleType !== 'speaking' && isQuizDone && (
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('TextChat', {
+                      focusTopic: {
+                        title: currentTopic.title,
+                        formula: currentTopic.formula,
+                        targetWords: currentTopic.targetWords,
+                        topicCode: currentTopic.code,
+                      },
+                    })
+                  }
+                  style={styles.reinforceChatLink}
+                  hitSlop={6}
+                >
+                  <Ionicons name="chatbubbles-outline" size={13} color={colors.brand} />
+                  <Text style={styles.reinforceChatLinkText}>
+                    Konuyu Sohbetle Pekiştir (opsiyonel)
+                  </Text>
+                </Pressable>
+              )}
+
+              {/* Station completion or roadmap link */}
+              {isStationMastered ? (
+                <View style={styles.masteredBanner}>
+                  <Text style={styles.masteredBannerText}>
+                    🎉 Tebrikler! {currentTopic.code} durağını tamamladın. Sıradaki durak açıldı!
+                  </Text>
+                  <BouncyPressable
+                    onPress={() => navigation.navigate('Roadmap')}
+                    style={styles.masteredBtn}
+                    hapticType="success"
+                  >
+                    <Text style={styles.masteredBtnText}>Öğrenme Yolunu Gör 🗺️</Text>
+                  </BouncyPressable>
+                </View>
+              ) : (
+                <BouncyPressable
+                  onPress={() => navigation.navigate('Roadmap')}
+                  style={styles.roadmapInlineLink}
+                  hitSlop={6}
+                >
+                  <Text style={styles.roadmapInlineLinkText}>
+                    Tüm Aday Adası Yol Haritasını Gör ➔
+                  </Text>
+                </BouncyPressable>
+              )}
             </View>
-            <View style={styles.mascotWithAuraWrapper}>
-              <View style={styles.mascotAuraGlow} />
-              <Image source={yankiMascot} style={styles.heroMascotImg} resizeMode="contain" />
-            </View>
+          )}
+        </View>
+
+        {/* ======================================================== */}
+        {/* İSTEĞE BAĞLI SERBEST PRATİK & KEŞFET                      */}
+        {/* ======================================================== */}
+        <View style={styles.sandboxSection}>
+          <View style={styles.sandboxHeader}>
+            <Text style={styles.sandboxTitle}>İsteğe Bağlı Serbest Pratik 🎯</Text>
+            <Text style={styles.sandboxSub}>Ana ilerlemeni bozmadan istediğin zaman girip pratik yap</Text>
           </View>
 
-          <BouncyPressable
-            onPress={() =>
-              recommended
-                ? navigation.navigate('LiveConversationRoom', {
-                    scenarioId: recommended.id,
-                    scenarioSlug: recommended.slug,
-                    scenarioTitle: recommended.title,
-                  })
-                : navigation.navigate('Scenarios')
-            }
-            style={styles.chunkyBtnWrapper}
-            hapticType="medium"
-            scaleTo={0.96}
-          >
-            <LinearGradient
-              colors={gradients.airyIndigo}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.chunkyPrimaryBtn}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sandboxScroll}>
+            {/* 1. Maya's Burgers */}
+            <BouncyPressable
+              onPress={() => (navigation as any).navigate('BurgerOrderLive')}
+              style={styles.sandboxCard}
+              hapticType="medium"
             >
-              <Ionicons name="mic" size={18} color="#FFFFFF" />
-              <Text style={styles.chunkyPrimaryBtnText}>Canlı Konuş</Text>
-            </LinearGradient>
-          </BouncyPressable>
+              <LinearGradient colors={['#FFF7ED', '#FFEDD5']} style={styles.sandboxCardGradient}>
+                <Text style={styles.sandboxCardEmoji}>🍔</Text>
+                <Text style={styles.sandboxCardTitle}>Maya's Burgers</Text>
+                <Text style={styles.sandboxCardDesc}>Canlı Sipariş & Gramer</Text>
+              </LinearGradient>
+            </BouncyPressable>
 
-          <Pressable onPress={() => navigation.navigate('TextChat')} hitSlop={8}>
-            <Text style={styles.heroSecondaryLink}>veya yazarak pratik yap →</Text>
-          </Pressable>
+            {/* 2. 3D Sahne Pratiği */}
+            <BouncyPressable
+              onPress={() => navigation.navigate('Scenarios')}
+              style={styles.sandboxCard}
+              hapticType="medium"
+            >
+              <LinearGradient colors={['#EEF2FF', '#E0E7FF']} style={styles.sandboxCardGradient}>
+                <Text style={styles.sandboxCardEmoji}>🎬</Text>
+                <Text style={styles.sandboxCardTitle}>3D Sahneler</Text>
+                <Text style={styles.sandboxCardDesc}>Kafede & Havalimanında</Text>
+              </LinearGradient>
+            </BouncyPressable>
+
+            {/* 3. Serbest Yazma */}
+            <BouncyPressable
+              onPress={() => navigation.navigate('TextChat')}
+              style={styles.sandboxCard}
+              hapticType="medium"
+            >
+              <LinearGradient colors={['#F0FDF4', '#DCFCE7']} style={styles.sandboxCardGradient}>
+                <Text style={styles.sandboxCardEmoji}>✍️</Text>
+                <Text style={styles.sandboxCardTitle}>Serbest Yazma</Text>
+                <Text style={styles.sandboxCardDesc}>Maya ile Chat</Text>
+              </LinearGradient>
+            </BouncyPressable>
+
+            {/* 4. Podcast Kulübü */}
+            <BouncyPressable
+              onPress={() => navigation.navigate('PodcastList')}
+              style={styles.sandboxCard}
+              hapticType="medium"
+            >
+              <LinearGradient colors={['#FAF5FF', '#F3E8FF']} style={styles.sandboxCardGradient}>
+                <Text style={styles.sandboxCardEmoji}>🎧</Text>
+                <Text style={styles.sandboxCardTitle}>Podcastler</Text>
+                <Text style={styles.sandboxCardDesc}>Dinleme & Telaffuz</Text>
+              </LinearGradient>
+            </BouncyPressable>
+          </ScrollView>
         </View>
 
         {/* ======================================================== */}
@@ -376,7 +646,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         >
           {/* 1. Yol Haritası */}
           <BouncyPressable
-            onPress={() => navigation.navigate('StudyPath')}
+            onPress={() => navigation.navigate('Roadmap')}
             hapticType="light"
             scaleTo={0.95}
           >
@@ -665,7 +935,8 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           setSelectedVideoScenario(null);
         }}
       />
-    </SafeAreaView>
+
+      </SafeAreaView>
   );
 }
 
@@ -809,27 +1080,23 @@ const styles = StyleSheet.create({
   streakPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#EEF2FF',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radii.pill,
     borderWidth: 1.5,
-    borderColor: '#FED7AA',
+    borderColor: '#C7D2FE',
     gap: 6,
-    shadowColor: '#EA580C',
+    shadowColor: colors.brand,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 2,
   },
-  streakPillFlameImg: {
-    width: 22,
-    height: 22,
-  },
   streakPillText: {
     fontFamily: fonts.headingBold,
     fontSize: 12.5,
-    color: '#EA580C',
+    color: colors.brand,
   },
   weekDotsRow: {
     flexDirection: 'row',
@@ -846,10 +1113,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   weekDotCompleted: {
-    backgroundColor: '#EA580C',
+    backgroundColor: colors.brand,
     borderWidth: 1,
-    borderColor: '#FED7AA',
-    shadowColor: '#EA580C',
+    borderColor: '#C7D2FE',
+    shadowColor: colors.brand,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.35,
     shadowRadius: 2,
@@ -865,22 +1132,14 @@ const styles = StyleSheet.create({
     width: 2.5,
     height: 2.5,
     borderRadius: 1.25,
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#EEF2FF',
   },
-  heroMinutesText: {
-    marginLeft: 'auto',
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    color: colors.brand,
-    fontWeight: '700',
-  },
-
   /* Daily Goal Progress inside Hero */
   dailyGoalBarWrap: {
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#EEF2FF',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#FED7AA',
+    borderColor: '#C7D2FE',
     paddingHorizontal: 12,
     paddingVertical: 9,
     marginBottom: 16,
@@ -899,30 +1158,30 @@ const styles = StyleSheet.create({
   dailyGoalBarLabel: {
     fontFamily: fonts.headingBold,
     fontSize: 11,
-    color: '#9A3412',
+    color: '#3730A3',
   },
   dailyGoalBarPercent: {
     fontFamily: fonts.mono,
     fontSize: 11,
     fontWeight: '800',
-    color: '#EA580C',
+    color: colors.brand,
   },
   dailyGoalBarMinutes: {
     fontFamily: fonts.mono,
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#C2410C',
+    color: '#4338CA',
   },
   dailyGoalTrack: {
     height: 7,
     borderRadius: radii.pill,
-    backgroundColor: '#FFEDD5',
+    backgroundColor: '#E0E7FF',
     overflow: 'hidden',
   },
   dailyGoalFill: {
     height: '100%',
     borderRadius: radii.pill,
-    backgroundColor: '#EA580C',
+    backgroundColor: colors.brand,
   },
   dailyGoalFillComplete: {
     backgroundColor: '#10B981',
@@ -957,12 +1216,6 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     marginBottom: 5,
   },
-  heroMissionSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textMuted,
-    lineHeight: 17,
-  },
   heroMascotImg: {
     width: 106,
     height: 124,
@@ -994,12 +1247,157 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#FFFFFF',
   },
-  heroSecondaryLink: {
+  dailyPlanBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  dailyPlanBadgeText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10.5,
+    color: colors.brand,
+    letterSpacing: 0.4,
+  },
+  stationMissionCard: {
+    marginTop: 4,
+  },
+  stationProgressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    marginTop: 2,
+  },
+  stationProgressLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: colors.textHeading,
+  },
+  stationProgressPill: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  stationProgressPillMastered: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
+  },
+  stationProgressPillText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  stationProgressPillTextMastered: {
+    color: '#059669',
+  },
+  masteredBanner: {
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    gap: 8,
+  },
+  masteredBannerText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: '#065F46',
+    textAlign: 'center',
+  },
+  masteredBtn: {
+    backgroundColor: '#059669',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  masteredBtnText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
+  reinforceChatLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 8,
+    marginBottom: 4,
+  },
+  reinforceChatLinkText: {
     fontFamily: fonts.headingSemiBold,
     fontSize: 12,
+    color: colors.brand,
+  },
+  roadmapInlineLink: {
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  roadmapInlineLinkText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: colors.brand,
+  },
+  sandboxSection: {
+    marginBottom: spacing.lg,
+  },
+  sandboxHeader: {
+    marginBottom: 10,
+  },
+  sandboxTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: colors.textHeading,
+  },
+  sandboxSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
     color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: 12,
+    marginTop: 1,
+  },
+  sandboxScroll: {
+    gap: 10,
+    paddingVertical: 4,
+  },
+  sandboxCard: {
+    width: 140,
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    ...shadow.sm,
+  },
+  sandboxCardGradient: {
+    padding: spacing.md,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.8)',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  sandboxCardEmoji: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  sandboxCardTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 13,
+    color: colors.textHeading,
+  },
+  sandboxCardDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10.5,
+    color: colors.textMuted,
   },
 
   /* 3. Quick Links Strip */
@@ -1355,5 +1753,77 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  burgerPromoCard: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    ...shadow.card,
+  },
+  burgerPromoGradient: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  burgerPromoLeft: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  burgerPromoBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFEDD5',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#FDBA74',
+    marginBottom: 6,
+  },
+  burgerPromoBadgeText: {
+    fontSize: 10,
+    fontFamily: fonts.headingBold,
+    color: '#C2410C',
+  },
+  burgerPromoTitle: {
+    fontSize: 15,
+    fontFamily: fonts.headingBold,
+    color: '#7C2D12',
+    marginBottom: 2,
+  },
+  burgerPromoSub: {
+    fontSize: 12,
+    fontFamily: fonts.bodyMedium,
+    color: '#9A3412',
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  burgerPromoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+  },
+  burgerPromoBtnText: {
+    fontSize: 12,
+    fontFamily: fonts.headingBold,
+    color: '#C2410C',
+  },
+  burgerPromoRight: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 6,
+  },
+  burgerPromoEmoji: {
+    fontSize: 48,
   },
 });

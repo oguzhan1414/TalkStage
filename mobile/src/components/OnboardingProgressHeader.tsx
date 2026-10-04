@@ -9,10 +9,10 @@ type Props = {
   onBack?: () => void;
 };
 
-/** Shared step indicator for onboarding screens 2-6 (Name/Persona/Goal/Level/DailyTime) —
- * one consistent back button + progress dots + "X/5" label instead of each screen
- * rolling its own. */
-export function OnboardingProgressHeader({ step, total = 5, onBack }: Props) {
+/** Shared step indicator for onboarding screens 2-7 (Name/Persona/Goal/MicPermission/
+ * Calibration-or-Level/DailyTime) — one consistent back button + progress dots +
+ * "X/6" label instead of each screen rolling its own. */
+export function OnboardingProgressHeader({ step, total = 6, onBack }: Props) {
   return (
     <View style={styles.row}>
       {onBack ? (

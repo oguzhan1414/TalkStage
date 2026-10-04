@@ -1,20 +1,48 @@
 @import "tailwindcss";
 
 :root {
+  /* ─── Core Backgrounds ─── */
   --color-white: #ffffff;
   --color-porcelain: #faf8f4;
+  --color-bg-warm: #FFF9F0;
+  --color-bg-pink: #FFF5F8;
+  --color-bg-lime: #FAFFF0;
+  --color-bg-lavender: #F8F5FF;
+  --color-bg-sky: #F4F8FF;
+
+  /* ─── Dark / Text ─── */
   --color-ink: #0b0e14;
   --color-ink-soft: #171a24;
   --color-ink-line: #2b2e3a;
+
+  /* ─── Primary Accents (Kodland-inspired vivid) ─── */
   --color-indigo: #4338ca;
   --color-indigo-dark: #362d94;
+  --color-pink-pop: #EF5DA8;
+  --color-lime-pop: #D3FF5F;
+  --color-blue-pop: #5988FF;
+  --color-orange-pop: #FF8A50;
+  --color-purple-pop: #9B6DFF;
+  --color-mint-pop: #34D399;
+
+  /* ─── Legacy accents (kept for backward compat) ─── */
   --color-gold: #e3a73f;
   --color-gold-light: #f3c876;
   --color-cyan: #0ea5e9;
   --color-emerald: #10b981;
   --color-emerald-light: #34d399;
   --color-coral: #f43f5e;
-  --color-heading: #14161f;
+
+  /* ─── Pastel Card Backgrounds ─── */
+  --color-card-pink: #FEEFFE;
+  --color-card-orange: #FFF2ED;
+  --color-card-lime: #F3FFD5;
+  --color-card-blue: #F4F6FF;
+  --color-card-purple: #F5F0FF;
+  --color-card-mint: #E8FFF5;
+
+  /* ─── Typography ─── */
+  --color-heading: #262626;
   --color-body: #4b4d5a;
   --color-muted: #6d6f80;
   --color-line: #e7e2d8;
@@ -23,17 +51,34 @@
 @theme inline {
   --color-white: var(--color-white);
   --color-porcelain: var(--color-porcelain);
+  --color-bg-warm: var(--color-bg-warm);
+  --color-bg-pink: var(--color-bg-pink);
+  --color-bg-lime: var(--color-bg-lime);
+  --color-bg-lavender: var(--color-bg-lavender);
+  --color-bg-sky: var(--color-bg-sky);
   --color-ink: var(--color-ink);
   --color-ink-soft: var(--color-ink-soft);
   --color-ink-line: var(--color-ink-line);
   --color-indigo: var(--color-indigo);
   --color-indigo-dark: var(--color-indigo-dark);
+  --color-pink-pop: var(--color-pink-pop);
+  --color-lime-pop: var(--color-lime-pop);
+  --color-blue-pop: var(--color-blue-pop);
+  --color-orange-pop: var(--color-orange-pop);
+  --color-purple-pop: var(--color-purple-pop);
+  --color-mint-pop: var(--color-mint-pop);
   --color-gold: var(--color-gold);
   --color-gold-light: var(--color-gold-light);
   --color-cyan: var(--color-cyan);
   --color-emerald: var(--color-emerald);
   --color-emerald-light: var(--color-emerald-light);
   --color-coral: var(--color-coral);
+  --color-card-pink: var(--color-card-pink);
+  --color-card-orange: var(--color-card-orange);
+  --color-card-lime: var(--color-card-lime);
+  --color-card-blue: var(--color-card-blue);
+  --color-card-purple: var(--color-card-purple);
+  --color-card-mint: var(--color-card-mint);
   --color-heading: var(--color-heading);
   --color-body: var(--color-body);
   --color-muted: var(--color-muted);
@@ -48,10 +93,12 @@
   --shadow-lifted: 0 30px 70px -20px rgba(20, 15, 10, 0.22), 0 10px 24px -8px rgba(20, 15, 10, 0.08);
   --shadow-glow-indigo: 0 0 60px rgba(67, 56, 202, 0.25);
   --shadow-glow-gold: 0 0 70px rgba(227, 167, 63, 0.35);
+  --shadow-glow-pink: 0 0 60px rgba(239, 93, 168, 0.3);
 
   --animate-float: float 7s ease-in-out infinite;
   --animate-marquee: marquee 32s linear infinite;
   --animate-pulse-dot: pulse-dot 1.8s ease-in-out infinite;
+  --animate-bounce-soft: bounce-soft 2s ease-in-out infinite;
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
@@ -68,6 +115,19 @@
   @keyframes equalizer {
     0%, 100% { height: 4px; }
     50% { height: 14px; }
+  }
+  @keyframes bounce-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
   }
 }
 
@@ -99,11 +159,15 @@ body {
 }
 
 ::selection {
-  background: var(--color-indigo);
+  background: var(--color-pink-pop);
   color: var(--color-white);
 }
 
-/* Reusable design-system utilities (design doc Bölüm 5) */
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Glass Card */
 .glass-card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
@@ -111,9 +175,46 @@ body {
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Signature "stage" motifs — a warm spotlight glow + a filmic grain overlay,
-   the two devices used across dark ("backstage") sections to keep them from
-   reading as flat corporate-dark instead of theatrical. */
+/* Kodland-style highlighted text (lime background behind words) */
+.text-highlight {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  white-space: nowrap;
+}
+.text-highlight::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: 55%;
+  transform: translateY(-50%);
+  height: 75%;
+  background: var(--color-lime-pop);
+  border-radius: 18px;
+  z-index: -1;
+}
+
+.text-highlight-pink {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+  white-space: nowrap;
+}
+.text-highlight-pink::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  top: 55%;
+  transform: translateY(-50%);
+  height: 80%;
+  background: var(--color-pink-pop);
+  border-radius: 18px;
+  z-index: -1;
+}
+
+/* Signature "stage" motifs */
 .grain-overlay {
   position: relative;
 }
@@ -136,10 +237,42 @@ body {
   text-wrap: balance;
 }
 
+/* Playful card hover — Kodland-style icon tilt + card lift */
+.card-playful {
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.4s ease;
+}
+.card-playful:hover {
+  transform: translateY(-6px);
+}
+.card-playful:hover .card-icon {
+  transform: rotate(-15deg) scale(1.1);
+}
+.card-icon {
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Big rounded Kodland-style section cards */
+.section-card {
+  border-radius: 44px;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  .section-card {
+    border-radius: 28px;
+  }
+}
+
+/* CTA shimmer effect */
+.cta-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s ease infinite;
+}
+
+/* Scroll reveal */
 .reveal {
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.is-visible {
@@ -147,9 +280,7 @@ body {
   transform: translateY(0);
 }
 
-/* MobileAppShowcase's interactive screen tour — each tab swap remounts (via
-   React `key`) the phone, its stat chips, and the caption card, so this
-   keyframe re-triggers automatically on every switch without extra JS. */
+/* MobileAppShowcase's interactive screen tour */
 .phone-swap-in {
   animation: phone-swap-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

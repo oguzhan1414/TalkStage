@@ -1,11 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DEFAULT_VOCAB_DECKS, type VocabDeck, type VocabDeckWord } from '@talkstage/shared-data/vocabDecks';
+import type { VocabDeck, VocabDeckWord } from '@talkstage/shared-data/vocabDecks';
 
 export type { VocabDeck, VocabDeckWord };
-export { DEFAULT_VOCAB_DECKS };
 
 const CUSTOM_DECKS_STORAGE_KEY = '@talkstage_custom_vocab_decks';
-const DEFAULT_DECKS_USER_WORDS_KEY = '@talkstage_default_deck_user_words';
 const DECK_PROGRESS_STORAGE_KEY = '@talkstage_vocab_deck_progress';
 
 export async function getStoredCustomDecks(): Promise<VocabDeck[]> {
@@ -18,33 +16,13 @@ export async function getStoredCustomDecks(): Promise<VocabDeck[]> {
   }
 }
 
-export async function getStoredDefaultDeckUserWords(): Promise<Record<string, VocabDeckWord[]>> {
-  try {
-    const json = await AsyncStorage.getItem(DEFAULT_DECKS_USER_WORDS_KEY);
-    if (!json) return {};
-    return JSON.parse(json);
-  } catch {
-    return {};
-  }
-}
-
+// "Hazır Temalar" (pre-made decks) were removed from the Klasörler tab —
+// they overlapped with the Kelime Kütüphanesi and curriculum vocab pools,
+// and weren't wired into SM-2 (see 2026-10 simplification note). Every deck
+// a user can see or add words to is now one of their own custom folders, so
+// this just loads those — no more default/custom merge bookkeeping.
 export async function loadAllDecks(): Promise<VocabDeck[]> {
-  try {
-    const customDecks = await getStoredCustomDecks();
-    const defaultUserWords = await getStoredDefaultDeckUserWords();
-
-    const mergedDefaultDecks = DEFAULT_VOCAB_DECKS.map((d) => {
-      const extraWords = defaultUserWords[d.id] || [];
-      return {
-        ...d,
-        words: [...d.words, ...extraWords.filter((ew) => !d.words.some((w) => w.id === ew.id))],
-      };
-    });
-
-    return [...mergedDefaultDecks, ...customDecks];
-  } catch {
-    return DEFAULT_VOCAB_DECKS;
-  }
+  return getStoredCustomDecks();
 }
 
 export async function saveCustomDeck(newDeck: VocabDeck): Promise<VocabDeck[]> {
@@ -72,25 +50,14 @@ export async function deleteCustomDeck(deckId: string): Promise<VocabDeck[]> {
 export async function addWordToAnyDeck(deckId: string, word: VocabDeckWord): Promise<void> {
   try {
     const customDecks = await getStoredCustomDecks();
-    const isCustom = customDecks.some((d) => d.id === deckId);
-
-    if (isCustom) {
-      const updatedCustom = customDecks.map((d) => {
-        if (d.id === deckId) {
-          const filtered = d.words.filter((w) => w.id !== word.id && w.term.toLowerCase() !== word.term.toLowerCase());
-          return { ...d, words: [word, ...filtered] };
-        }
-        return d;
-      });
-      await AsyncStorage.setItem(CUSTOM_DECKS_STORAGE_KEY, JSON.stringify(updatedCustom));
-    } else {
-      // Default deck (e.g. deck_a1_core, deck_colors_shapes)
-      const defaultUserWords = await getStoredDefaultDeckUserWords();
-      const currentList = defaultUserWords[deckId] || [];
-      const filtered = currentList.filter((w) => w.id !== word.id && w.term.toLowerCase() !== word.term.toLowerCase());
-      defaultUserWords[deckId] = [word, ...filtered];
-      await AsyncStorage.setItem(DEFAULT_DECKS_USER_WORDS_KEY, JSON.stringify(defaultUserWords));
-    }
+    const updated = customDecks.map((d) => {
+      if (d.id !== deckId) return d;
+      const filtered = d.words.filter(
+        (w) => w.id !== word.id && w.term.toLowerCase() !== word.term.toLowerCase()
+      );
+      return { ...d, words: [word, ...filtered] };
+    });
+    await AsyncStorage.setItem(CUSTOM_DECKS_STORAGE_KEY, JSON.stringify(updated));
   } catch (err) {
     console.warn('Failed to add word to deck:', err);
   }

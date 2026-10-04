@@ -43,24 +43,25 @@ const badges = [
 
 export default function GamificationShowcase() {
   return (
-    <section className="overflow-hidden px-6 py-24 sm:py-32">
+    <section className="overflow-hidden px-6 py-24 sm:py-32 bg-card-orange">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <span className="font-mono text-[0.78rem] font-medium uppercase tracking-[0.14em] text-emerald">
-            Oyunlaştırma & Motivasyon
-          </span>
-          <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
-            Pratik yaptıkça 3D başarı rozetleri kazan
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-orange-200/60 text-sm font-bold text-heading shadow-xs mb-4">
+            <span>🏆</span>
+            <span>Oyunlaştırma & Motivasyon</span>
+          </div>
+          <h2 className="mt-2 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
+            Pratik yaptıkça <span className="text-highlight">3D rozetler</span> kazan! 🎮
           </h2>
           <p className="mt-4 text-balance leading-relaxed text-body">
-            İngilizce öğrenmeyi sıkıcı bir ödevden çıkarıp her gün tamamlamak isteyeceğin keyifli bir oyun serisine dönüştürdük.
+            İngilizce öğrenmeyi her gün tamamlamak isteyeceğin keyifli bir oyuna dönüştürdük! 🚀
           </p>
         </Reveal>
 
         <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {badges.map((badge, i) => (
             <Reveal key={badge.name} delay={i * 60}>
-              <div className="group flex h-full flex-col items-center rounded-[22px] border border-line bg-white p-4 text-center shadow-[var(--shadow-layered)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[var(--shadow-lifted)]">
+              <div className="group flex h-full flex-col items-center rounded-[24px] border border-orange-200/40 bg-white p-4 text-center shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl card-playful">
                 <div className="relative aspect-square w-24 overflow-hidden rounded-2xl sm:w-28">
                   <Image
                     src={badge.image}

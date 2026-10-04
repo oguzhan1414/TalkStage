@@ -55,4 +55,39 @@ export const haptics = {
       // Ignore unsupported devices
     }
   },
+
+  /** Aliases for explicit impact naming */
+  impactLight: async () => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {
+      // Ignore unsupported devices
+    }
+  },
+  impactMedium: async () => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {
+      // Ignore unsupported devices
+    }
+  },
+  impactHeavy: async () => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } catch {
+      // Ignore unsupported devices
+    }
+  },
+  /** Generic impact alias */
+  impact: async () => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {
+      // Ignore unsupported devices
+    }
+  },
 };

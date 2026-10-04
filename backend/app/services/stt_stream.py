@@ -11,6 +11,12 @@ DEEPGRAM_LIVE_URL = (
 )
 
 CLOSE_STREAM_MESSAGE = json.dumps({"type": "CloseStream"})
+KEEP_ALIVE_MESSAGE = json.dumps({"type": "KeepAlive"})
+# Push-to-talk: forces Deepgram to immediately finalize the current utterance
+# the instant the user taps "Konuşmayı Bitir", instead of waiting for
+# endpointing's silence-based detection (which never needs to fire anymore —
+# the user controls turn end explicitly now).
+FINALIZE_MESSAGE = json.dumps({"type": "Finalize"})
 
 
 def deepgram_auth_headers() -> dict[str, str]:
@@ -38,6 +44,7 @@ class TranscriptEvent:
     wpm: float = 0.0
     filler_count: int = 0
     avg_confidence: float = 0.0
+    from_finalize: bool = False
 
 
 FILLER_WORDS = {"uh", "um", "umm", "uhh", "er", "ah", "like", "you know", "hmm"}
@@ -52,7 +59,12 @@ def parse_transcript_event(raw_message: str) -> TranscriptEvent | None:
         return None
     alt = alternatives[0]
     text = alt.get("transcript", "")
-    if not text:
+    from_finalize = bool(data.get("from_finalize", False))
+    # Deepgram may acknowledge an explicit Finalize with an empty transcript
+    # when all preceding audio was already emitted as final segments. Keep
+    # that event so the session can close the push-to-talk turn using the
+    # segments it has accumulated.
+    if not text and not from_finalize:
         return None
 
     raw_words = alt.get("words", [])
@@ -94,5 +106,6 @@ def parse_transcript_event(raw_message: str) -> TranscriptEvent | None:
         wpm=wpm,
         filler_count=filler_count,
         avg_confidence=avg_conf,
+        from_finalize=from_finalize,
     )
 

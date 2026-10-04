@@ -23,6 +23,20 @@ def average_fluency_score(scores: list[int]) -> int | None:
     return round(sum(scores) / len(scores))
 
 
+def average_float(values: list[float], ndigits: int = 1) -> float | None:
+    """Same shape as average_fluency_score but for wpm/confidence, which
+    aren't meaningfully rounded to whole numbers."""
+    if not values:
+        return None
+    return round(sum(values) / len(values), ndigits)
+
+
+def count_user_turns(transcript: list[TranscriptTurn]) -> int:
+    """Denominator for an honest grammar-accuracy ratio (correct turns /
+    total turns) instead of an arbitrary `100 - corrections*7` formula."""
+    return sum(1 for turn in transcript if turn.role == "user")
+
+
 #: Flat XP for reviewing a vocab card (any grade) — rewards daily engagement
 #: with the SM-2 queue independently of session-based XP.
 VOCAB_REVIEW_XP = 2

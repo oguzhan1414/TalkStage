@@ -22,6 +22,7 @@ import {
   verticalIslandPathBg,
 } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { TopicTaskSteps } from '../components/TopicTaskSteps';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import {
@@ -80,34 +81,31 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
   const currentStoneRef = useRef<View>(null);
   const hasAutoScrolledRef = useRef(false);
 
+  const reloadCompletionFlags = useCallback(() => {
+    pullLearningFlags().then(() => {
+      AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+        (pairs) => {
+          setChatCompletedCodes(
+            new Set(
+              pairs
+                .filter(([, v]) => v === '1')
+                .map(([k]) => k.replace('topic_chat_completed_', ''))
+            )
+          );
+        }
+      );
+      AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
+        setLessonQuizDoneCodes(
+          new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
+        );
+      });
+    });
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      let cancelled = false;
-      pullLearningFlags().then(() => {
-        if (cancelled) return;
-        AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
-          (pairs) => {
-            if (cancelled) return;
-            setChatCompletedCodes(
-              new Set(
-                pairs
-                  .filter(([, v]) => v === '1')
-                  .map(([k]) => k.replace('topic_chat_completed_', ''))
-              )
-            );
-          }
-        );
-        AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
-          if (cancelled) return;
-          setLessonQuizDoneCodes(
-            new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
-          );
-        });
-      });
-      return () => {
-        cancelled = true;
-      };
-    }, [])
+      reloadCompletionFlags();
+    }, [reloadCompletionFlags])
   );
 
   const showToast = (msg: string) => {
@@ -119,6 +117,17 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
   });
+
+  // Default the level tab to the user's real placement once it loads — the
+  // initial `useState('A1')` can't know this yet since the profile fetch is
+  // async. Only runs once (guarded by the ref) so a later manual tab switch
+  // by the user is never overridden by a background profile refetch.
+  const didInitLevelRef = useRef(false);
+  useEffect(() => {
+    if (didInitLevelRef.current || !profile) return;
+    didInitLevelRef.current = true;
+    setSelectedLevel(profile.cefr_level ?? 'A1');
+  }, [profile]);
 
   const { data: allVocabCards } = useQuery({
     queryKey: ['vocab-cards', 'all'],
@@ -548,11 +557,25 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
                 {/* Center Vertical Winding Track Line */}
                 <View style={styles.duoTrackLine} />
 
-                {currentCurriculum.topics.map((topic, idx) => {
+                {/* Levels below the user's real placement (`profile.cefr_level`)
+                    are optional review — the placement already implies the user
+                    cleared that material, so forcing a brand-new sequential
+                    unlock (topic 1 -> 2 -> 3...) there is just friction, not a
+                    real gate. Sequential unlock-by-mastery is only meaningful
+                    for the user's actual placement level and above. */}
+                {(() => {
+                  const isReviewLevel = CEFR_LEVELS.indexOf(selectedLevel) < userLevelIdx;
+                  const firstIncompleteIdx = currentCurriculum.topics.findIndex(
+                    (t) => !(fullCompletion[t.code] ?? false)
+                  );
+                  return currentCurriculum.topics.map((topic, idx) => {
                   const topicFullyDone = fullCompletion[topic.code] ?? false;
                   const previousTopic = idx > 0 ? currentCurriculum.topics[idx - 1] : null;
-                  const isLocked = previousTopic ? !(fullCompletion[previousTopic.code] ?? false) : false;
-                  const isCurrent = !isLocked && !topicFullyDone;
+                  const sequentialLocked = previousTopic
+                    ? !(fullCompletion[previousTopic.code] ?? false)
+                    : false;
+                  const isLocked = isReviewLevel ? false : sequentialLocked;
+                  const isCurrent = idx === firstIncompleteIdx;
 
                   // Alternating S-Curve horizontal offset (center -> left -> center -> right)
                   const curveAlign =
@@ -664,7 +687,8 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
                       </View>
                     </View>
                   );
-                })}
+                  });
+                })()}
               </View>
             </View>
           </ImageBackground>
@@ -771,77 +795,92 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
                   </View>
                 </View>
 
-                <View style={styles.duoModalActions}>
+                {/* SİSTEMATİK İSTASYON GÖREVLERİ (TUR ATLAMA ŞARTLARI) —
+                    same 3-task list HomeScreen's "Bugün" hero shows; see
+                    TopicTaskSteps.tsx for why this used to be a second,
+                    drifting copy of the same logic. */}
+                <View style={styles.stationModalTasksSection}>
                   {(() => {
-                    const { icon, label } = getPrimaryActionMeta(selectedTopicModal);
+                    const isQuizDone = lessonQuizDoneCodes.has(selectedTopicModal.code);
+                    const wordsAllSaved = selectedTopicModal.targetWords.every((w) =>
+                      savedWordsSet.has(w.trim().toLowerCase())
+                    );
+                    const practiceDone =
+                      selectedTopicModal.moduleType === 'vocab'
+                        ? true
+                        : selectedTopicModal.moduleType === 'speaking'
+                          ? chatCompletedCodes.has(selectedTopicModal.code)
+                          : completedReadingCountForLevel > 0;
+                    const isStationMastered = fullCompletion[selectedTopicModal.code] ?? false;
+                    const completedTasks = (isQuizDone ? 1 : 0) + (wordsAllSaved ? 1 : 0) + (practiceDone ? 1 : 0);
+
                     return (
-                      <BouncyPressable
-                        onPress={() => {
-                          const topic = selectedTopicModal;
-                          setSelectedTopicModal(null);
-                          if (topic) handleStartTopicAction(topic);
-                        }}
-                        style={[styles.duoPrimaryBtn, shadow.porcelain]}
-                        hapticType="medium"
-                        scaleTo={0.96}
-                      >
-                        <Ionicons name={icon} size={18} color="#FFFFFF" />
-                        <Text style={styles.duoPrimaryBtnText}>{label}</Text>
-                      </BouncyPressable>
+                      <>
+                        <View style={styles.stationModalTasksHeader}>
+                          <Text style={styles.stationModalTasksHeaderTitle}>İSTASYON GÖREVLERİ (TUR ATLAMA)</Text>
+                          <Text style={styles.stationModalTasksHeaderProgress}>
+                            {completedTasks}/3 Görev
+                          </Text>
+                        </View>
+
+                        <TopicTaskSteps
+                          topic={selectedTopicModal}
+                          isQuizDone={isQuizDone}
+                          isVocabDone={wordsAllSaved}
+                          isPracticeDone={practiceDone}
+                          onOpenLesson={() => {
+                            const code = selectedTopicModal.code;
+                            setSelectedTopicModal(null);
+                            navigation.navigate('GrammarLesson', { code });
+                          }}
+                          onAddWords={() => handleAddTopicWords(selectedTopicModal)}
+                          onStartPractice={() => {
+                            const topic = selectedTopicModal;
+                            setSelectedTopicModal(null);
+                            handleStartTopicAction(topic);
+                          }}
+                        />
+
+                        {/* Optional reinforcement chat — speaking topics
+                            already have this as their required practice step
+                            above; for reading/vocab topics (no chat-based
+                            practice otherwise) this is a bonus that only
+                            appears once the lesson is actually done. Reuses
+                            the same focusTopic chat speaking topics use. */}
+                        {selectedTopicModal.moduleType !== 'speaking' && isQuizDone && (
+                          <Pressable
+                            onPress={() => {
+                              const topic = selectedTopicModal;
+                              setSelectedTopicModal(null);
+                              navigation.navigate('TextChat', {
+                                focusTopic: {
+                                  title: topic.title,
+                                  formula: topic.formula,
+                                  targetWords: topic.targetWords,
+                                  topicCode: topic.code,
+                                },
+                              });
+                            }}
+                            style={styles.reinforceChatLink}
+                            hitSlop={6}
+                          >
+                            <Ionicons name="chatbubbles-outline" size={13} color={colors.brand} />
+                            <Text style={styles.reinforceChatLinkText}>
+                              Konuyu Sohbetle Pekiştir (opsiyonel)
+                            </Text>
+                          </Pressable>
+                        )}
+
+                        {isStationMastered && (
+                          <View style={styles.stationModalMasteredBadge}>
+                            <Text style={styles.stationModalMasteredBadgeText}>
+                              ⭐⭐⭐ Bu Durak Tamamlandı! Haritada sıradaki durak açıldı.
+                            </Text>
+                          </View>
+                        )}
+                      </>
                     );
                   })()}
-
-                  {/* Konuşma/okuma konularında hedef kelimeler otomatik
-                      eklenmiyor — ama bir konunun "tamamlandı" sayılması için
-                      (bkz. computeFullCompletion) kelimelerin sandıkta olması
-                      da şart. Bu buton olmadan kullanıcı sohbeti/okumayı
-                      bitirse bile durak neden hâlâ kilitli/bitmemiş
-                      göründüğünü anlayamıyordu. */}
-                  {selectedTopicModal.moduleType !== 'vocab' &&
-                    (() => {
-                      const wordsAllSaved = selectedTopicModal.targetWords.every((w) =>
-                        savedWordsSet.has(w.trim().toLowerCase())
-                      );
-                      return (
-                        <BouncyPressable
-                          onPress={() => handleAddTopicWords(selectedTopicModal)}
-                          disabled={wordsAllSaved}
-                          style={[styles.duoSecondaryBtn, wordsAllSaved && styles.duoSecondaryBtnDisabled]}
-                          hapticType="light"
-                          scaleTo={0.96}
-                        >
-                          <Ionicons
-                            name={wordsAllSaved ? 'checkmark-circle' : 'bookmark-outline'}
-                            size={16}
-                            color={wordsAllSaved ? '#059669' : colors.brand}
-                          />
-                          <Text
-                            style={[
-                              styles.duoSecondaryBtnText,
-                              wordsAllSaved && styles.duoSecondaryBtnTextDisabled,
-                            ]}
-                          >
-                            {wordsAllSaved ? 'Kelimeler Sandığında ✓' : 'Bu Konunun Kelimelerini Sandığa Ekle'}
-                          </Text>
-                        </BouncyPressable>
-                      );
-                    })()}
-
-                  {findGrammarLesson(selectedTopicModal.code) && (
-                    <BouncyPressable
-                      onPress={() => {
-                        const code = selectedTopicModal.code;
-                        setSelectedTopicModal(null);
-                        navigation.navigate('GrammarLesson', { code });
-                      }}
-                      style={styles.duoSecondaryBtn}
-                      hapticType="light"
-                      scaleTo={0.96}
-                    >
-                      <Ionicons name="book-outline" size={16} color={colors.brand} />
-                      <Text style={styles.duoSecondaryBtnText}>Konu Anlatımını Oku ➔</Text>
-                    </BouncyPressable>
-                  )}
                 </View>
               </>
             )}
@@ -883,6 +922,7 @@ export function CurriculumScreen({ navigation }: MainTabScreenProps<'Roadmap'>) 
       </Modal>
 
       {toast ? <Toast message={toast} /> : null}
+
     </SafeAreaView>
   );
 }
@@ -1640,42 +1680,54 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textHeading,
   },
-  duoModalActions: {
+  stationModalTasksSection: {
     gap: 8,
   },
-  duoPrimaryBtn: {
+  stationModalTasksHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  stationModalTasksHeaderTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    color: colors.textMuted,
+    letterSpacing: 0.5,
+  },
+  stationModalTasksHeaderProgress: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.brand,
+  },
+  reinforceChatLink: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.brand,
-    paddingVertical: 12,
-    borderRadius: radii.lg,
-    gap: 6,
+    gap: 5,
+    paddingVertical: 8,
+    marginTop: 4,
   },
-  duoPrimaryBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: '#FFFFFF',
-  },
-  duoSecondaryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
-    paddingVertical: 10,
-    borderRadius: radii.lg,
-    gap: 6,
-  },
-  duoSecondaryBtnText: {
-    fontFamily: fonts.headingBold,
+  reinforceChatLinkText: {
+    fontFamily: fonts.headingSemiBold,
     fontSize: 12,
     color: colors.brand,
   },
-  duoSecondaryBtnDisabled: {
+  stationModalMasteredBadge: {
     backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    marginTop: 4,
   },
-  duoSecondaryBtnTextDisabled: {
-    color: '#059669',
+  stationModalMasteredBadgeText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11.5,
+    color: '#065F46',
+    textAlign: 'center',
   },
 
   /* Chest Modal Card */

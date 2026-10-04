@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from postgrest.exceptions import APIError
 
 from app.api.deps import AuthContext, get_auth_context
+from app.core.supabase_client import get_service_client
 from app.schemas.profile import ProfileOut, ProfileUpdate
 
 router = APIRouter(tags=["profile"])
@@ -33,3 +34,21 @@ def update_me(payload: ProfileUpdate, ctx: AuthContext = Depends(get_auth_contex
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
     return ProfileOut(**result.data[0])
+
+
+@router.delete("/me/account", status_code=status.HTTP_204_NO_CONTENT)
+def delete_my_account(ctx: AuthContext = Depends(get_auth_context)) -> None:
+    """Permanently delete the authenticated Supabase Auth user.
+
+    `profiles.id` references `auth.users` with ON DELETE CASCADE and every
+    user-owned learning table cascades from profiles, so this single trusted
+    server-side operation removes the account and its learning history. The
+    service-role credential never leaves the backend.
+    """
+    try:
+        get_service_client().auth.admin.delete_user(ctx.user.id)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Account could not be deleted",
+        ) from exc

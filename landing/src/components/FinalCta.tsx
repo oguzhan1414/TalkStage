@@ -5,15 +5,16 @@ import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 export default function FinalCta() {
   return (
     <section id="indir" className="relative scroll-mt-24 overflow-hidden px-6 py-24 sm:py-32">
-      {/* Background Soft Glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[550px] w-[880px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-linear-to-br from-indigo/15 via-cyan/12 to-transparent blur-[110px]"
-      />
+      {/* Colorful gradient background */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-pink-pop/12 blur-[120px]" />
+        <div className="absolute -bottom-32 right-1/4 w-[400px] h-[400px] rounded-full bg-blue-pop/10 blur-[100px]" />
+        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] rounded-full bg-lime-pop/15 blur-[80px]" />
+      </div>
 
       <Reveal className="relative mx-auto max-w-4xl text-center">
         {/* 3D Sunlit Stage Banner */}
-        <div className="relative mx-auto mb-10 aspect-[21/9] w-full overflow-hidden rounded-[30px] border border-line bg-white shadow-[var(--shadow-lifted)]">
+        <div className="relative mx-auto mb-10 aspect-[21/9] w-full overflow-hidden rounded-[36px] border border-slate-200/60 bg-white shadow-xl">
           <Image
             src="/images/13_final_cta_banner.png"
             alt="TalkStage Sunlit Auditorium Stage and Microphone"
@@ -23,23 +24,24 @@ export default function FinalCta() {
           />
         </div>
 
-        <span className="font-mono text-[0.78rem] font-medium uppercase tracking-[0.14em] text-indigo">
-          Sahnen Seni Bekliyor
-        </span>
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-card-orange border border-orange-200/60 text-sm font-bold text-heading shadow-xs mb-4">
+          <span>🎤</span>
+          <span>Sahnen Seni Bekliyor!</span>
+        </div>
 
-        <h2 className="mt-4 text-balance font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
-          Sahne Hazır. İlk Cümleni Söyle.
+        <h2 className="mt-2 text-balance font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
+          Sahne Hazır. <span className="text-highlight">İlk Cümleni</span> Söyle! 🚀
         </h2>
 
         <p className="mx-auto mt-4 max-w-lg text-balance leading-relaxed text-body sm:text-lg">
-          Günde 5 dakikalık bir canlı senaryo ile konuşma kilitlenmesini geride bırak. İlk oturumun tamamen ücretsiz.
+          Günde 5 dakikalık bir canlı senaryo ile konuşma korkunu geride bırak. İlk oturumun <strong className="text-pink-pop">tamamen ücretsiz!</strong>
         </p>
 
         {/* Store Download Buttons */}
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href={iosStoreUrl}
-            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-3.5 text-white shadow-lg transition-transform hover:-translate-y-0.5"
+            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-4 text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
           >
             <AppleMark />
             <span className="text-left leading-tight">
@@ -50,7 +52,7 @@ export default function FinalCta() {
 
           <a
             href={androidStoreUrl}
-            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-3.5 text-white shadow-lg transition-transform hover:-translate-y-0.5"
+            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-4 text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
           >
             <PlayMark />
             <span className="text-left leading-tight">
@@ -61,7 +63,7 @@ export default function FinalCta() {
         </div>
 
         <p className="mt-6 text-xs text-muted">
-          Kredi kartı gerekmez • Anında kurulum • iOS & Android
+          Kredi kartı gerekmez • Anında kurulum • iOS & Android 📱
         </p>
       </Reveal>
     </section>

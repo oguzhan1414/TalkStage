@@ -15,12 +15,13 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
 
   return (
     <SafeAreaView style={styles.container}>
-      <OnboardingProgressHeader step={4} onBack={() => navigation.goBack()} />
+      <OnboardingProgressHeader step={5} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Şu anki İngilizce seviyeni seç 🎓</Text>
         <Text style={styles.subtitle}>
-          Yapay zeka konuşma hızını ve kelime zorluğunu buna göre ayarlayacak.
+          Sorun değil, kendi seviyeni seçmen de harika bir başlangıç — yapay zeka konuşma hızını
+          ve kelime zorluğunu buna göre ayarlayacak.
         </Text>
 
         <View style={styles.grid}>
@@ -29,7 +30,7 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
             return (
               <Pressable
                 key={lvl.code}
-                onPress={() => updateDraft({ cefrLevel: lvl.code })}
+                onPress={() => updateDraft({ cefrLevel: lvl.code, cefrSource: 'self_selected' })}
                 style={[styles.card, shadow.card, isSelected && { borderColor: colors.brand }]}
               >
                 <View style={styles.cardTopRow}>
@@ -53,7 +54,7 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" onPress={() => navigation.navigate('DailyTime')} />
+        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('DailyTime')} />
       </View>
     </SafeAreaView>
   );

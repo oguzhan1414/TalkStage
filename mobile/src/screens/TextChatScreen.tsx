@@ -66,24 +66,59 @@ function buildRoleContext(dailyTask: {
  * this is what makes `is_completed` a real, deterministic signal instead of
  * never firing. Deliberately `undefined` when there's no `formula` (the
  * level's free-form boss challenge), which stays an untracked, unlimited
- * evaluation chat rather than a topic to "complete". */
-function buildFocusRoleContext(focusTopic: { title: string; formula?: string }): string | undefined {
+ * evaluation chat rather than a topic to "complete".
+ *
+ * For true beginners (A1/A2) this also asks for an explicit teacher-style
+ * flow instead of dropping someone who's never seen the structure before
+ * into an open "tell me something" and leaving them to freeze up (2026-10
+ * feedback: a blank prompt is just as intimidating as an English-only one —
+ * give a concrete, varying micro-prompt every turn instead, but don't let
+ * the whole practice resolve in a single exchange). Also bans the kind of
+ * software/tech jargon the curriculum's own written examples lean on too
+ * heavily (PostgreSQL, APIs, deployments, …) from the model's OWN live
+ * prompts — this is separate from (and doesn't fix) that written content,
+ * just keeps the live conversation itself universally approachable. Free
+ * chat (`topic_context`, no `role_context` at all) is deliberately left
+ * alone — that one's supposed to feel like an open conversation. */
+function buildFocusRoleContext(
+  focusTopic: { title: string; formula?: string },
+  isBeginner: boolean
+): string | undefined {
   if (!focusTopic.formula) return undefined;
-  return `Help the user practice the grammar structure "${focusTopic.title}" (formula: ${focusTopic.formula}). Guide them to build 2-3 correct example sentences using this structure over the course of the chat, gently correcting mistakes. Keep it encouraging and conversational, not a rigid quiz.`;
+  const base = `Help the user practice the grammar structure "${focusTopic.title}" (formula: ${focusTopic.formula}). Guide them to build 2-3 correct example sentences using this structure over the course of the chat, gently correcting mistakes. Keep it encouraging and conversational, not a rigid quiz. Use only everyday, universally familiar topics (food, weather, family, cities, animals, prices, hobbies, daily routines) — never software/technical jargon (no databases, APIs, programming languages, servers, deployments, etc.), since not every learner has a tech background.`;
+  if (!isBeginner) return base;
+  return `${base} TEACHER MODE: this is a true beginner who may not know what's expected — don't assume an English-only exchange makes sense to them yet, and never just say "tell me something" or ask a bare open question — that's as paralyzing as a wall of English for someone who doesn't know what to say. Instead, each turn give a CONCRETE, specific micro-prompt: name a simple everyday scenario or 1-2 concrete things (e.g. "iki yemeği karşılaştır: pizza ve makarna" instead of "bana bir şey anlat"), explained in Turkish first, then your English example. Vary the scenario every turn so it doesn't feel like refilling the same blank — this should still take the full conversation to practice properly, not resolve in one exchange. When you correct a mistake, explain why in Turkish too, not just the corrected English — be a patient teacher sitting next to them, not a native speaker expecting fluent replies back.`;
 }
 
 /** Builds a topic-specific opening line so the conversation naturally steers
  * toward practicing that grammar structure (Groq sees this as the first
- * `history` turn on every later request, so it keeps following the thread). */
-function buildFocusOpeningMessage(focusTopic: {
-  title: string;
-  formula?: string;
-  targetWords?: string[];
-}): ChatMessage {
+ * `history` turn on every later request, so it keeps following the thread).
+ * For beginners this leads with Turkish instead of a wall of English as the
+ * very first thing the user sees in the chat — see `buildFocusRoleContext`'s
+ * doc comment for why. */
+function buildFocusOpeningMessage(
+  focusTopic: { title: string; formula?: string; targetWords?: string[] },
+  isBeginner: boolean
+): ChatMessage {
   if (focusTopic.formula) {
     const wordsHint = focusTopic.targetWords?.length
       ? ` Try to use a word like "${focusTopic.targetWords[0]}" if you can.`
       : '';
+    if (isBeginner) {
+      // A bare "tell me something" is just as paralyzing for a beginner as
+      // an English-only prompt — give a concrete starting point instead of
+      // an empty page. targetWords (when present) at least grounds it in
+      // something specific; the LLM takes over with topic-aware concrete
+      // prompts from the next turn on (see buildFocusRoleContext).
+      const starterHint = focusTopic.targetWords?.length
+        ? ` Örneğin şu kelimelerden birini kullanarak bir cümle kurmayı dene: "${focusTopic.targetWords.slice(0, 2).join('", "')}".`
+        : '';
+      return {
+        id: 'opening',
+        role: 'assistant',
+        text: `Merhaba! Bugün "${focusTopic.title}" konusunu birlikte pekiştireceğiz (${focusTopic.formula}).${starterHint} Hatalarını nazikçe düzelteceğim, hazır olduğunda başlayalım.\n\nHi! Ready? Let's build a sentence together.`,
+      };
+    }
     return {
       id: 'opening',
       role: 'assistant',
@@ -116,6 +151,11 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   const focusTopic = route.params?.focusTopic;
   const dailyTask = route.params?.dailyTask;
   const isFreeChat = !dailyTask && !focusTopic;
+  // `topicCode` is "{LEVEL}_G0X" (e.g. "A2_G01") for every real grammar
+  // topic — derives the actual level instead of a stale hardcoded one.
+  // Boss challenges pass no topicCode at all, hence the fallback.
+  const focusTopicLevel = focusTopic?.topicCode?.split('_')[0];
+  const isFocusTopicBeginner = focusTopicLevel === 'A1' || focusTopicLevel === 'A2';
   useTrackScreenView('text_chat_started', {
     mode: dailyTask ? 'daily_task' : focusTopic ? 'focus_topic' : 'free',
   });
@@ -143,7 +183,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
     dailyTask
       ? buildDailyTaskOpeningMessage(dailyTask)
       : focusTopic
-        ? buildFocusOpeningMessage(focusTopic)
+        ? buildFocusOpeningMessage(focusTopic, isFocusTopicBeginner)
         : DEFAULT_OPENING_MESSAGE,
   ]);
   const [inputText, setInputText] = useState('');
@@ -151,6 +191,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   const [toast, setToast] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [completionSummary, setCompletionSummary] = useState<string | null>(null);
+  const [progressSaved, setProgressSaved] = useState(false);
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const practiceLoggedRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -159,7 +200,10 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   // (profile query resolves), and again whenever "Başka Konu" rerolls it.
   useEffect(() => {
     if (todaysTopic) {
-      setMessages([{ id: 'opening', role: 'assistant', text: todaysTopic.openingEn, trHint: todaysTopic.openingTr }]);
+      setMessages((current) => {
+        if (current.some((message) => message.role === 'user')) return current;
+        return [{ id: 'opening', role: 'assistant', text: todaysTopic.openingEn, trHint: todaysTopic.openingTr }];
+      });
     }
   }, [todaysTopic]);
 
@@ -191,22 +235,13 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
     setSuggestedReplies([]);
     scrollToEnd();
 
-    const focusRoleContext = focusTopic ? buildFocusRoleContext(focusTopic) : undefined;
+    const focusRoleContext = focusTopic
+      ? buildFocusRoleContext(focusTopic, isFocusTopicBeginner)
+      : undefined;
     // A Study Path daily task or a real grammar-topic practice chat (one with
     // a formula, i.e. not the free-form boss challenge) counts as "real
     // practice today" — the free Günlük Sohbet entry and the boss challenge
     // evaluation chat stay low-stakes/untracked.
-    if ((dailyTask || focusRoleContext) && !practiceLoggedRef.current) {
-      practiceLoggedRef.current = true;
-      api
-        .post('/progress/log-practice')
-        .then(() => {
-          queryClient.invalidateQueries({ queryKey: ['me'] });
-          queryClient.invalidateQueries({ queryKey: ['progress'] });
-        })
-        .catch(() => {});
-    }
-
     try {
       const response = await api.post<ChatMessageResponse>('/chat/message', {
         history,
@@ -234,6 +269,20 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
       setSuggestedReplies(response.suggested_replies ?? []);
 
       if (response.is_completed) {
+        if ((dailyTask || focusRoleContext) && !practiceLoggedRef.current) {
+          practiceLoggedRef.current = true;
+          api
+            .post('/progress/log-practice')
+            .then(() => {
+              setProgressSaved(true);
+              queryClient.invalidateQueries({ queryKey: ['me'] });
+              queryClient.invalidateQueries({ queryKey: ['progress'] });
+            })
+            .catch(() => {
+              practiceLoggedRef.current = false;
+              showToast('Görev tamamlandı ancak ilerleme kaydedilemedi.');
+            });
+        }
         setIsCompleted(true);
         setCompletionSummary(response.completion_summary_tr ?? 'Tebrikler! Bu sohbet görevini başarıyla tamamladın.');
         // Durable "this is done" records for other screens to read back
@@ -252,6 +301,8 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
         }
       }
     } catch (err) {
+      setMessages((prev) => prev.filter((message) => message.id !== userMsg.id));
+      setInputText(text);
       showToast(
         err instanceof ApiError
           ? err.message
@@ -279,6 +330,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
   };
 
   const userTurnsCount = messages.filter((m) => m.role === 'user').length;
+  const chatReady = !isFreeChat || !profileLoading;
   const currentStep = Math.min(3, userTurnsCount + 1);
   // "Başka Konu" only makes sense before the user has actually replied —
   // rerolling mid-conversation would erase a real exchange.
@@ -301,7 +353,7 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
               {dailyTask
                 ? dailyTask.title
                 : focusTopic
-                  ? 'A1 İnteraktif Yazma Görevi ✍️'
+                  ? `${focusTopicLevel ? `${focusTopicLevel} ` : ''}İnteraktif Yazma Görevi ✍️`
                   : (todaysTopic?.titleTr ?? 'Serbest Sohbet')}
             </Text>
           </View>
@@ -315,9 +367,12 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
         )}
       </View>
 
-      {/* 3-Step Micro Mission Progress Tracker */}
+      {/* 3-Step Micro Mission Progress Tracker — explicitly labeled as this
+          one task's own steps (not a persistent path/map) so it doesn't
+          read as a second "Öğrenme Yolu" competing with the Harita tab. */}
       {dailyTask && (
         <View style={styles.stepProgressContainer}>
+          <Text style={styles.stepProgressEyebrow}>BU GÖREVİN ADIMLARI</Text>
           <View style={styles.stepProgressBarsRow}>
             <View style={[styles.stepBar, currentStep >= 1 && styles.stepBarActive, currentStep > 1 && styles.stepBarDone]} />
             <View style={[styles.stepBar, currentStep >= 2 && styles.stepBarActive, currentStep > 2 && styles.stepBarDone]} />
@@ -407,7 +462,9 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
           <View style={styles.completionBanner}>
             <View style={styles.completionHeaderRow}>
               <Text style={styles.completionTitle}>🎉 Görev Tamamlandı!</Text>
-              {dailyTask ? <Text style={styles.completionBadge}>Gerçek XP kazandın ⚡</Text> : null}
+              {dailyTask && progressSaved ? (
+                <Text style={styles.completionBadge}>Gerçek XP kazandın ⚡</Text>
+              ) : null}
             </View>
             <Text style={styles.completionSub}>{completionSummary}</Text>
             <Pressable onPress={() => navigation.goBack()} style={styles.completionBtn}>
@@ -446,13 +503,14 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
                 onChangeText={setInputText}
                 onSubmitEditing={handleSend}
                 multiline
+                editable={chatReady && !sending}
               />
               <Pressable
                 onPress={handleSend}
-                disabled={!inputText.trim() || sending}
+                disabled={!chatReady || !inputText.trim() || sending}
                 style={[
                   styles.sendButton,
-                  (!inputText.trim() || sending) && styles.sendButtonDisabled,
+                  (!chatReady || !inputText.trim() || sending) && styles.sendButtonDisabled,
                 ]}
               >
                 <Ionicons name="send" size={18} color="#FFFFFF" />
@@ -691,6 +749,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(226, 232, 240, 0.8)',
     gap: 6,
+  },
+  stepProgressEyebrow: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: colors.textMuted,
+    letterSpacing: 0.5,
   },
   stepProgressBarsRow: {
     flexDirection: 'row',

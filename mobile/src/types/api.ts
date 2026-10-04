@@ -19,8 +19,6 @@ export type ProfileOut = {
   persona_id: string | null;
   learning_goal: string | null;
   daily_target_minutes: number;
-  /** Haftanın planlanan çalışma günleri (0=Pazartesi..6=Pazar) — null/boş, plan seçilmedi demektir. */
-  study_days: number[] | null;
   onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -34,7 +32,6 @@ export type ProfileUpdate = Partial<{
   persona_id: string;
   learning_goal: string;
   daily_target_minutes: number;
-  study_days: number[];
 }>;
 
 /** Body for `POST /onboarding/complete` — see backend `schemas/onboarding.py`. */
@@ -89,6 +86,7 @@ export type CalibrationAnswerResult = {
 export type CalibrationResult = {
   cefr_level: string;
   summary_tr: string;
+  reasons: string[];
   answers: CalibrationAnswerResult[];
 };
 
@@ -144,6 +142,11 @@ export type SessionEndRequest = {
   transcript: TranscriptTurn[];
   corrections_count?: number;
   fluency_scores?: number[];
+  // Real per-turn WPM/avg_confidence straight from Deepgram — back the
+  // Scorecard's "pronunciation"/"speed" radar axes (see backend Ek on
+  // sessions.py) instead of the old fabricated-from-fluency formulas.
+  wpm_values?: number[];
+  confidence_values?: number[];
 };
 
 export type SessionOut = {
@@ -155,6 +158,10 @@ export type SessionOut = {
   fluency_score: number | null;
   unique_words_count: number;
   corrections_count: number;
+  // Null on sessions saved before this field existed.
+  avg_wpm: number | null;
+  avg_pronunciation_confidence: number | null;
+  user_turns_count: number;
   created_at: string;
 };
 
@@ -252,5 +259,39 @@ export type VocabLookupOut = {
   part_of_speech?: string | null;
   example_en?: string | null;
   example_tr?: string | null;
+};
+
+export type TutorCorrection = {
+  has_error: boolean;
+  user_said?: string | null;
+  corrected?: string | null;
+  explanation_tr?: string | null;
+  category?: string | null;
+};
+
+export type TutorTurnResponse = {
+  spoken_reply_en: string;
+  reply_tr_hint?: string | null;
+  correction: TutorCorrection;
+  coach_tip_tr?: string | null;
+  fluency_score?: number | null;
+  suggested_replies: string[];
+  is_task_complete: boolean;
+  summary_tr?: string | null;
+};
+
+export type TutorTurnRequest = {
+  user_input: string;
+  cefr_level?: string;
+  lesson_type?: 'daily_lesson' | 'scenario' | 'free_chat';
+  target_grammar_rule?: string | null;
+  task_goal?: string | null;
+  // Defaults to true server-side (paced/turn-capped) if omitted — only set
+  // false for a soft topic anchor or fully free chat. See backend
+  // schemas/tutor.py's TutorTurnRequest docstring.
+  is_strict_mission?: boolean;
+  turn_index?: number;
+  max_turns?: number;
+  history?: Array<{ role: string; content: string }>;
 };
 

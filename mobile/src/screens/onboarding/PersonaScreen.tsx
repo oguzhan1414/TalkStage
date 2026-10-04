@@ -60,7 +60,7 @@ export function PersonaScreen({ navigation }: OnboardingStackScreenProps<'Person
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" onPress={() => navigation.navigate('Goal')} />
+        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('Goal')} />
       </View>
     </SafeAreaView>
   );

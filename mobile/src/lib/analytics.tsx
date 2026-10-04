@@ -1,5 +1,5 @@
 import { PostHogProvider, usePostHog } from 'posthog-react-native';
-import { useEffect, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 
 /** Real product analytics (PostHog) — off by default. Every call site below
  * uses `useAnalytics()`, which safely no-ops (never throws, never queues
@@ -36,17 +36,17 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
  * chaining below is the actual no-op, not a conditional hook call. */
 export function useAnalytics() {
   const posthog = usePostHog();
-  return {
-    track: (name: string, props?: Record<string, string | number | boolean | null>) => {
+  const track = useCallback((name: string, props?: Record<string, string | number | boolean | null>) => {
       posthog?.capture(name, props);
-    },
-    identify: (id: string, props?: Record<string, string | number | boolean | null>) => {
+    }, [posthog]);
+  const identify = useCallback((id: string, props?: Record<string, string | number | boolean | null>) => {
       posthog?.identify(id, props);
-    },
-    reset: () => {
+    }, [posthog]);
+  const reset = useCallback(() => {
       posthog?.reset();
-    },
-  };
+    }, [posthog]);
+
+  return useMemo(() => ({ track, identify, reset }), [track, identify, reset]);
 }
 
 /** One-line screen/step view tracking for funnels (onboarding drop-off is

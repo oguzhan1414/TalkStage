@@ -133,20 +133,20 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I am a full-stack software engineer.",
-        "tr": "Ben bir tam yığın (full-stack) yazılım mühendisiyim."
+        "en": "I am a high school teacher.",
+        "tr": "Ben bir lise öğretmeniyim."
       },
       {
-        "en": "The production server is currently active and stable.",
-        "tr": "Canlı sunucu şu anda aktif ve kararlıdır."
+        "en": "My grandmother is very kind and patient.",
+        "tr": "Büyükannem çok nazik ve sabırlıdır."
       },
       {
         "en": "We are not ready for the final client demo yet.",
         "tr": "Henüz nihai müşteri demosu için hazır değiliz."
       },
       {
-        "en": "Is this database connection encrypted?",
-        "tr": "Bu veritabanı bağlantısı şifrelenmiş mi?"
+        "en": "Is this water safe to drink?",
+        "tr": "Bu su içmek için güvenli mi?"
       },
       {
         "en": "Are you available for a quick five-minute sync call?",
@@ -161,8 +161,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu kritik bir hata değil, yalnızca küçük bir uyarıdır."
       },
       {
-        "en": "Where are the API configuration files located?",
-        "tr": "API yapılandırma dosyaları nerede bulunmaktadır?"
+        "en": "Where are my house keys located?",
+        "tr": "Ev anahtarlarım nerede?"
       },
       {
         "en": "She is the lead product manager for this application.",
@@ -330,8 +330,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu, ödeme ağ geçidindeki acil bir güvenlik sorunudur."
       },
       {
-        "en": "Can you see that red indicator light on the server rack?",
-        "tr": "Sunucu kabinindeki şu kırmızı uyarı ışığını görebiliyor musun?"
+        "en": "Can you see that red bicycle near the park?",
+        "tr": "Parkın yanındaki şu kırmızı bisikleti görebiliyor musun?"
       },
       {
         "en": "These unit tests verify the authentication module.",
@@ -354,12 +354,12 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Güneş doğudan doğar (Dünyada tek olduğu için 'the')."
       },
       {
-        "en": "This framework is easier to learn than that one.",
-        "tr": "Bu çatı (framework), şuna kıyasla öğrenmesi daha kolaydır."
+        "en": "This book is easier to read than that one.",
+        "tr": "Bu kitap, şuna kıyasla okuması daha kolaydır."
       },
       {
-        "en": "Is there an open-source alternative to this software?",
-        "tr": "Bu yazılıma açık kaynaklı bir alternatif var mı?"
+        "en": "Is there a cheaper alternative to this restaurant?",
+        "tr": "Bu restorana daha ucuz bir alternatif var mı?"
       },
       {
         "en": "These are the official guidelines for the visa interview.",
@@ -569,12 +569,12 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Onun erkek kardeşi 3D modelleme ve katmanlı üretim alanında uzmanlaşmıştır."
       },
       {
-        "en": "Their cloud infrastructure runs on Kubernetes clusters.",
-        "tr": "Onların bulut altyapısı Kubernetes kümeleri üzerinde çalışmaktadır."
+        "en": "Their family runs a small bakery in town.",
+        "tr": "Onların ailesi kasabada küçük bir fırın işletiyor."
       },
       {
-        "en": "What is the database's default timeout duration?",
-        "tr": "Veritabanının varsayılan zaman aşımı süresi nedir?"
+        "en": "What is the museum's opening time on Sundays?",
+        "tr": "Müzenin Pazar günleri açılış saati nedir?"
       },
       {
         "en": "My cousin and I are developing an embedded defense system prototype.",
@@ -726,16 +726,16 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I write clean, modular, and testable code in Kotlin.",
-        "tr": "Kotlin dilinde temiz, modüler ve test edilebilir kod yazarım."
+        "en": "I cook simple, healthy meals every evening.",
+        "tr": "Her akşam basit, sağlıklı yemekler pişiririm."
       },
       {
         "en": "He manages the cloud infrastructure on Google Cloud Platform.",
         "tr": "O, Google Cloud Platform üzerindeki bulut altyapısını yönetir."
       },
       {
-        "en": "The background service synchronizes local data with the remote server.",
-        "tr": "Arka plan servisi, yerel verileri uzak sunucu ile senkronize eder."
+        "en": "The postman delivers letters to our street every morning.",
+        "tr": "Postacı her sabah sokağımıza mektup dağıtır."
       },
       {
         "en": "We do not store plain-text passwords in the user table.",
@@ -750,8 +750,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Su 100 santigrat derecede kaynar (Bilimsel gerçek)."
       },
       {
-        "en": "They usually release software updates on the first Monday of each month.",
-        "tr": "Genellikle her ayın ilk pazartesi günü yazılım güncellemeleri yayınlarlar."
+        "en": "They usually visit their grandparents on the first Sunday of each month.",
+        "tr": "Genellikle her ayın ilk pazar günü büyükanne ve büyükbabalarını ziyaret ederler."
       },
       {
         "en": "Why does the application crash on older Android versions?",
@@ -762,8 +762,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Uygulamada kalma oranını artırmak için kullanıcı davranış metriklerini analiz eder."
       },
       {
-        "en": "Do you use Git for version control in your personal projects?",
-        "tr": "Kişisel projelerinizde sürüm kontrolü için Git kullanıyor musunuz?"
+        "en": "Do you use a notebook to plan your weekly shopping?",
+        "tr": "Haftalık alışverişinizi planlamak için bir defter kullanıyor musunuz?"
       }
     ],
     "quiz": [
@@ -929,8 +929,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Büyük bir sürümden önce her zaman kapsamlı entegrasyon testleri yazarız."
       },
       {
-        "en": "The staging server is usually updated every evening.",
-        "tr": "Test sunucusu genellikle her akşam güncellenir."
+        "en": "The night market is usually busy every evening.",
+        "tr": "Gece pazarı genellikle her akşam kalabalık olur."
       },
       {
         "en": "I often participate in open-source developer discussions on GitHub.",
@@ -941,8 +941,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yoğun trafik saatlerinde ağ gecikmesi bazen öngörülemez olabilir."
       },
       {
-        "en": "Our database administrator never disables security firewalls in production.",
-        "tr": "Veritabanı yöneticimiz canlı ortamda güvenlik duvarlarını asla devre dışı bırakmaz."
+        "en": "Our neighbor never leaves his garden gate open at night.",
+        "tr": "Komşumuz gece bahçe kapısını asla açık bırakmaz."
       },
       {
         "en": "She rarely misses our daily morning standup meeting.",
@@ -961,8 +961,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Otomatik günlük yedeklemelerimiz sayesinde nadiren veri kaybı yaşarız."
       },
       {
-        "en": "Software engineers always need to learn new technologies continuously.",
-        "tr": "Yazılım mühendislerinin her zaman sürekli yeni teknolojiler öğrenmesi gerekir."
+        "en": "Doctors always need to keep learning new treatments continuously.",
+        "tr": "Doktorların her zaman sürekli yeni tedaviler öğrenmesi gerekir."
       }
     ],
     "quiz": [
@@ -1107,8 +1107,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The frontend team is redesigning the user profile screen today.",
-        "tr": "Ön yüz ekibi bugün kullanıcı profil ekranını yeniden tasarlıyor."
+        "en": "The kids are painting a picture of their house today.",
+        "tr": "Çocuklar bugün evlerinin resmini çiziyor."
       },
       {
         "en": "Why is the background worker process consuming so much memory?",
@@ -1119,8 +1119,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu ay eski monolit yapımızı bir mikroservis mimarisine taşıyoruz."
       },
       {
-        "en": "The CI/CD pipeline is currently running automated tests on the server.",
-        "tr": "CI/CD hattı şu anda sunucuda otomatik testleri çalıştırıyor."
+        "en": "The bakery is currently baking fresh bread for the morning.",
+        "tr": "Fırın şu anda sabah için taze ekmek pişiriyor."
       },
       {
         "en": "Are you listening to the tech podcast or attending the virtual standup?",
@@ -1131,8 +1131,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Telefonuna cevap vermiyor çünkü proje demosunu sunuyor."
       },
       {
-        "en": "Our database is handling thousands of concurrent requests right now.",
-        "tr": "Veritabanımız şu anda binlerce eşzamanlı isteği işliyor."
+        "en": "Our kitchen is preparing dinner for fifty guests right now.",
+        "tr": "Mutfağımız şu anda elli misafir için akşam yemeği hazırlıyor."
       },
       {
         "en": "I am learning how to build deep learning models with PyTorch this semester.",
@@ -1301,8 +1301,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "Do you have any previous experience with PostgreSQL or MySQL?",
-        "tr": "PostgreSQL veya MySQL ile ilgili daha önceden hiç deneyiminiz var mı?"
+        "en": "Do you have any previous experience with cooking Italian food?",
+        "tr": "Daha önce İtalyan yemeği pişirme deneyiminiz var mı?"
       },
       {
         "en": "There is a lot of network traffic hitting our web application today.",
@@ -1313,20 +1313,20 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu test sanal makinesinde fazla kullanılabilir RAM'imiz yok."
       },
       {
-        "en": "How many microservices are currently running inside the Kubernetes cluster?",
-        "tr": "Kubernetes kümesi içinde şu anda kaç adet mikroservis çalışıyor?"
+        "en": "How many students are currently sitting inside the classroom?",
+        "tr": "Sınıfın içinde şu anda kaç öğrenci oturuyor?"
       },
       {
         "en": "The senior architect shared some valuable knowledge about system resilience.",
         "tr": "Kıdemli mimar, sistem dayanıklılığı hakkında bazı değerli bilgiler paylaştı."
       },
       {
-        "en": "Are there any open issues reported in the GitHub repository?",
-        "tr": "GitHub deposunda bildirilmiş hiç açık sorun (issue) var mı?"
+        "en": "Are there any empty seats left on the afternoon train?",
+        "tr": "Öğleden sonraki trende hiç boş koltuk kaldı mı?"
       },
       {
-        "en": "We need to purchase some new hardware equipment for the server room.",
-        "tr": "Sunucu odası için biraz yeni donanım ekipmanı satın almamız gerekiyor."
+        "en": "We need to purchase some new furniture for the living room.",
+        "tr": "Oturma odası için biraz yeni mobilya satın almamız gerekiyor."
       },
       {
         "en": "How much money does the cloud hosting cost per month?",
@@ -1491,16 +1491,16 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Binanın dördüncü katında hiç boş toplantı odası var mı?"
       },
       {
-        "en": "There are several microservices communicating behind the API gateway.",
-        "tr": "API ağ geçidinin arkasında haberleşen birkaç mikroservis bulunmaktadır."
+        "en": "There are several ducks swimming behind the old bridge.",
+        "tr": "Eski köprünün arkasında yüzen birkaç ördek var."
       },
       {
         "en": "The backup hard drive is located under the main workstation desk.",
         "tr": "Yedekleme sabit diski ana iş istasyonu masasının altında yer almaktadır."
       },
       {
-        "en": "There is no documentation inside this legacy repository.",
-        "tr": "Bu eski deponun içinde hiçbir dokümantasyon yoktur."
+        "en": "There is no sugar left inside this kitchen cupboard.",
+        "tr": "Bu mutfak dolabının içinde hiç şeker kalmamış."
       },
       {
         "en": "Please place the wireless router next to the fiber modem.",
@@ -1515,12 +1515,12 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Geliştirici, çift monitörlü bir kurulumun önünde oturuyor."
       },
       {
-        "en": "Is there any difference between these two database architectures?",
-        "tr": "Bu iki veritabanı mimarisi arasında herhangi bir fark var mı?"
+        "en": "Is there any difference between these two chocolate cakes?",
+        "tr": "Bu iki çikolatalı kek arasında herhangi bir fark var mı?"
       },
       {
-        "en": "The middleware sits between the web client and the database server.",
-        "tr": "Ara katman yazılımı (middleware), web istemcisi ile veritabanı sunucusu arasında yer alır."
+        "en": "The small café sits between the bookshop and the flower shop.",
+        "tr": "Küçük kafe, kitapçı ile çiçekçi arasında yer alır."
       }
     ],
     "quiz": [
@@ -1675,12 +1675,12 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kotlin Multiplatform kullanarak platformlar arası mobil uygulamalar inşa edebilirim."
       },
       {
-        "en": "You cannot push commits directly to the main branch without code review.",
-        "tr": "Kod incelemesi olmadan ana dala doğrudan commit gönderemezsiniz."
+        "en": "You cannot enter the museum without a valid ticket.",
+        "tr": "Geçerli bir bilet olmadan müzeye giremezsiniz."
       },
       {
-        "en": "Can you explain how the YOLO algorithm detects objects in real time?",
-        "tr": "YOLO algoritmasının nesneleri gerçek zamanlı olarak nasıl tespit ettiğini açıklayabilir misiniz?"
+        "en": "Can you explain how bees find their way back to the hive?",
+        "tr": "Arıların kovanlarına geri dönüş yolunu nasıl bulduğunu açıklayabilir misiniz?"
       },
       {
         "en": "We can optimize this query by adding an index on the email column.",
@@ -1691,8 +1691,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Müşteri, ayarlar paneli üzerinden kontrol panelini kolayca özelleştirebilir."
       },
       {
-        "en": "I can't connect to the remote database due to an expired SSL certificate.",
-        "tr": "Süresi dolmuş bir SSL sertifikası nedeniyle uzak veritabanına bağlanamıyorum."
+        "en": "I can't open the garden gate because the lock is rusty.",
+        "tr": "Kilit paslandığı için bahçe kapısını açamıyorum."
       },
       {
         "en": "Can we schedule a technical interview session for tomorrow afternoon?",
@@ -1846,20 +1846,20 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The server outage yesterday was caused by an unhandled null pointer error.",
-        "tr": "Dünkü sunucu kesintisi, işlenmemiş bir null pointer hatasından kaynaklandı."
+        "en": "The traffic jam yesterday was caused by a broken traffic light.",
+        "tr": "Dünkü trafik sıkışıklığı, arızalı bir trafik ışığından kaynaklandı."
       },
       {
         "en": "Were you in the office when the network connection dropped?",
         "tr": "Ağ bağlantısı koptuğunda ofiste miydiniz?"
       },
       {
-        "en": "The legacy software architecture was not scalable for high traffic.",
-        "tr": "Eski yazılım mimarisi yüksek trafik için ölçeklenebilir değildi."
+        "en": "The old wooden bridge was not strong enough for heavy trucks.",
+        "tr": "Eski ahşap köprü ağır kamyonlar için yeterince sağlam değildi."
       },
       {
-        "en": "We were very exhausted after working all night on the critical deployment.",
-        "tr": "Kritik dağıtım üzerinde bütün gece çalıştıktan sonra çok yorgunduk."
+        "en": "We were very exhausted after hiking all day in the mountains.",
+        "tr": "Dağlarda bütün gün yürüyüş yaptıktan sonra çok yorgunduk."
       },
       {
         "en": "She was the lead mobile developer on the SnapChef application.",
@@ -1874,8 +1874,8 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Beklenmeyen sistem çökmesinden sonra günlükler neden boştu?"
       },
       {
-        "en": "I was not aware of the API specification changes until this morning.",
-        "tr": "Bu sabaha kadar API spesifikasyon değişikliklerinin farkında değildim."
+        "en": "I was not aware of the schedule changes until this morning.",
+        "tr": "Bu sabaha kadar program değişikliklerinin farkında değildim."
       },
       {
         "en": "The workshop was very informative for all junior engineering students.",
@@ -2034,32 +2034,32 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I resolved the merge conflict and deployed the hotfix yesterday afternoon.",
-        "tr": "Dün öğleden sonra birleştirme (merge) çakışmasını giderdim ve acil yamayı dağıttım."
+        "en": "I fixed the leaking tap and cleaned the kitchen yesterday afternoon.",
+        "tr": "Dün öğleden sonra sızdıran musluğu tamir ettim ve mutfağı temizledim."
       },
       {
-        "en": "Did you receive my email regarding the updated database schema?",
-        "tr": "Güncellenmiş veritabanı şemasına ilişkin e-postamı aldın mı?"
+        "en": "Did you receive my letter regarding the weekend trip plans?",
+        "tr": "Hafta sonu gezi planlarıyla ilgili mektubumu aldın mı?"
       },
       {
-        "en": "We built the entire backend infrastructure using Node.js and MongoDB.",
-        "tr": "Tüm arka uç altyapısını Node.js ve MongoDB kullanarak inşa ettik."
+        "en": "We built the entire tree house using old wood and nails.",
+        "tr": "Ağaç evin tamamını eski tahta ve çivilerle inşa ettik."
       },
       {
         "en": "She didn't find any critical vulnerabilities during the automated security scan.",
         "tr": "Otomatik güvenlik taraması sırasında hiçbir kritik güvenlik açığı bulamadı."
       },
       {
-        "en": "The team decided to migrate the frontend codebase to React and Next.js.",
-        "tr": "Ekip, ön yüz kod tabanını React ve Next.js'e taşımaya karar verdi."
+        "en": "The family decided to move the garden furniture to the new terrace.",
+        "tr": "Aile, bahçe mobilyalarını yeni terasa taşımaya karar verdi."
       },
       {
         "en": "What time did the automated backup script finish last night?",
         "tr": "Otomatik yedekleme betiği dün gece saat kaçta bitti?"
       },
       {
-        "en": "He wrote a comprehensive script in Python to parse unstructured JSON data.",
-        "tr": "Yapılandırılmamış JSON verilerini ayrıştırmak için Python'da kapsamlı bir betik yazdı."
+        "en": "He wrote a detailed letter in English to describe his trip to Spain.",
+        "tr": "İspanya gezisini anlatmak için İngilizce ayrıntılı bir mektup yazdı."
       },
       {
         "en": "They didn't understand the legacy architecture because there was no documentation.",
@@ -2232,12 +2232,12 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I am going to deploy the new version of our mobile application tomorrow at 10 AM.",
-        "tr": "Mobil uygulamamızın yeni sürümünü yarın saat 10:00'da yayına alacağım (Planlanmış)."
+        "en": "I am going to visit my grandmother tomorrow at 10 AM.",
+        "tr": "Yarın saat 10:00'da büyükannemi ziyaret edeceğim (Planlanmış)."
       },
       {
-        "en": "Wait a second, I will check the server error logs immediately.",
-        "tr": "Bir saniye bekle, sunucu hata günlüklerini derhal kontrol edeceğim (Anlık karar)."
+        "en": "Wait a second, I will check the train timetable immediately.",
+        "tr": "Bir saniye bekle, tren tarifesini derhal kontrol edeceğim (Anlık karar)."
       },
       {
         "en": "Look at the memory graph; the process is going to run out of RAM in a few minutes.",
@@ -2248,16 +2248,16 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Gelecek sprint PyQt6 kullanarak masaüstü sürümünü geliştirmeye başlayacağız (Kararlaştırılmış niyet)."
       },
       {
-        "en": "I promise I will not disclose any proprietary API keys.",
-        "tr": "Tescilli hiçbir API anahtarını ifşa etmeyeceğime söz veriyorum (Söz)."
+        "en": "I promise I will not tell anyone your birthday surprise.",
+        "tr": "Doğum günü sürprizini kimseye söylemeyeceğime söz veriyorum (Söz)."
       },
       {
         "en": "Are you going to attend the upcoming European developer summit in Berlin?",
         "tr": "Berlin'deki yaklaşan Avrupa geliştirici zirvesine katılacak mısınız? (Plan sorgulama)."
       },
       {
-        "en": "I think artificial intelligence will automate repetitive software testing tasks.",
-        "tr": "Bence yapay zeka tekrarlayan yazılım testi görevlerini otomatikleştirecek (Kişisel öngörü)."
+        "en": "I think renewable energy will replace fossil fuels in the future.",
+        "tr": "Bence yenilenebilir enerji gelecekte fosil yakıtların yerini alacak (Kişisel öngörü)."
       },
       {
         "en": "The weather forecast says it is going to rain this afternoon.",
@@ -2433,8 +2433,8 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "PostgreSQL is significantly more reliable than SQLite for multi-threaded transactions.",
-        "tr": "PostgreSQL, çok iş parçacıklı işlemler için SQLite'tan önemli ölçüde daha güvenilirdir."
+        "en": "Istanbul is significantly more crowded than Izmir in summer.",
+        "tr": "Istanbul, yaz aylarında İzmir'den önemli ölçüde daha kalabalıktır."
       },
       {
         "en": "This is the easiest and most intuitive state management library in the React ecosystem.",
@@ -2449,16 +2449,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Güvenlik, bankacılık uygulamaları için en önemli gereksinimdir."
       },
       {
-        "en": "A dedicated server is more expensive than shared hosting, but it offers better performance.",
-        "tr": "Özel bir sunucu paylaşımlı barındırmadan daha pahalıdır, ancak daha iyi performans sunar."
+        "en": "A private room is more expensive than a shared dorm, but it offers more privacy.",
+        "tr": "Özel bir oda paylaşımlı bir yurttan daha pahalıdır, ancak daha fazla mahremiyet sunar."
       },
       {
-        "en": "Is Kotlin as expressive as Python for rapid prototyping?",
-        "tr": "Hızlı prototipleme için Kotlin, Python kadar ifade gücü yüksek midir?"
+        "en": "Is Turkish coffee as strong as Italian espresso?",
+        "tr": "Türk kahvesi, İtalyan espressosu kadar sert midir?"
       },
       {
-        "en": "This bug is worse than we initially anticipated.",
-        "tr": "Bu hata ilk başta tahmin ettiğimizden daha kötüdür."
+        "en": "This traffic is worse than we initially expected.",
+        "tr": "Bu trafik ilk başta beklediğimizden daha kötü."
       },
       {
         "en": "Redis provides the lowest latency among all in-memory caching solutions.",
@@ -2469,8 +2469,8 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Şimdiki dizüstü bilgisayarım önceki iş istasyonumdan daha hafif ve daha taşınabilirdir."
       },
       {
-        "en": "Which database query is the least resource-intensive?",
-        "tr": "Hangi veritabanı sorgusu kaynakları en az yoğun tüketir?"
+        "en": "Which dessert on the menu is the least sweet?",
+        "tr": "Menüdeki hangi tatlı en az tatlıdır?"
       }
     ],
     "quiz": [
@@ -2619,20 +2619,20 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Dün bütün öğleden sonra kimlik doğrulama modülünü yeniden düzenliyordum."
       },
       {
-        "en": "The server was operating at 95% CPU capacity during the load test.",
-        "tr": "Yük testi sırasında sunucu %95 işlemci kapasitesiyle çalışmaktaydı."
+        "en": "The restaurant was operating at nearly full capacity during the dinner rush.",
+        "tr": "Akşam yemeği yoğunluğunda restoran neredeyse tam kapasiteyle çalışıyordu."
       },
       {
-        "en": "What were you doing when the production database connection dropped?",
-        "tr": "Canlı veritabanı bağlantısı koptuğunda ne yapıyordun?"
+        "en": "What were you doing when the electricity went out last night?",
+        "tr": "Dün gece elektrikler kesildiğinde ne yapıyordun?"
       },
       {
         "en": "They were discussing the microservice migration strategy between 2 PM and 4 PM.",
         "tr": "Saat 14:00 ile 16:00 arasında mikroservis taşıma stratejisini tartışıyorlardı."
       },
       {
-        "en": "She was not working on the frontend; she was optimizing SQL queries.",
-        "tr": "O ön yüz üzerinde çalışmıyordu; SQL sorgularını optimize etmekteydi."
+        "en": "She was not cooking dinner; she was watering the plants in the garden.",
+        "tr": "O akşam yemeği pişirmiyordu; bahçedeki bitkileri suluyordu."
       },
       {
         "en": "The background backup script was running smoothly throughout the night.",
@@ -2803,28 +2803,28 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "While I was deploying the new build, the internet connection suddenly dropped.",
-        "tr": "Yeni derlemeyi dağıtırken internet bağlantısı aniden koptu."
+        "en": "While I was baking the cake, the oven suddenly stopped working.",
+        "tr": "Pasta pişirirken fırın aniden çalışmayı durdurdu."
       },
       {
-        "en": "We were debugging the algorithm when we discovered a critical memory leak.",
-        "tr": "Algoritmadaki hataları ayıklarken kritik bir bellek sızıntısı keşfettik."
+        "en": "We were cleaning the attic when we discovered an old family photo album.",
+        "tr": "Tavan arasını temizlerken eski bir aile fotoğraf albümü keşfettik."
       },
       {
-        "en": "While the machine learning model was training, I wrote the REST API documentation.",
-        "tr": "Makine öğrenmesi modeli eğitilirken ben REST API dokümantasyonunu yazdım."
+        "en": "While the bread dough was rising, I set the table for dinner.",
+        "tr": "Ekmek hamuru kabarırken ben akşam yemeği için sofrayı kurdum."
       },
       {
-        "en": "The server crashed when thousands of users attempted to log in simultaneously.",
-        "tr": "Binlerce kullanıcı aynı anda giriş yapmaya çalıştığında sunucu çöktü."
+        "en": "The phone lines got busy when thousands of fans tried calling the radio station at once.",
+        "tr": "Binlerce hayran aynı anda radyo istasyonunu aramaya çalışınca telefon hatları meşgul oldu."
       },
       {
         "en": "What were you doing when the continuous integration pipeline failed?",
         "tr": "Sürekli entegrasyon hattı başarısız olduğunda sen ne yapıyordun?"
       },
       {
-        "en": "While the backend developer was designing the schema, the frontend team created UI mockups.",
-        "tr": "Arka uç geliştiricisi şemayı tasarlarken, ön yüz ekibi kullanıcı arayüzü taslakları oluşturdu."
+        "en": "While the architect was drawing the building plans, the interior designer chose the furniture.",
+        "tr": "Mimar bina planlarını çizerken, iç mimar mobilyaları seçti."
       },
       {
         "en": "I was reading the official Kotlin documentation when my colleague sent the PR link.",
@@ -2839,8 +2839,8 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Mobil cihaz sahada QR kodları tararken pili bitti."
       },
       {
-        "en": "When the client approved the final prototype, we started writing production code.",
-        "tr": "Müşteri nihai prototipi onayladığında, canlı ortam kodunu yazmaya başladık."
+        "en": "When the teacher approved the final essay, the students started preparing their presentations.",
+        "tr": "Öğretmen son denemeyi onayladığında, öğrenciler sunumlarını hazırlamaya başladı."
       }
     ],
     "quiz": [
@@ -3022,12 +3022,12 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "SQL enjeksiyonu saldırılarını önlemek için kullanıcı girdilerini her zaman temizlemelisiniz."
       },
       {
-        "en": "Every database transaction must maintain consistency and atomicity.",
-        "tr": "Her veritabanı işlemi tutarlılık ve bölünmezliği korumak zorundadır."
+        "en": "Every passenger must wear a seatbelt during the flight.",
+        "tr": "Her yolcu uçuş sırasında emniyet kemeri takmak zorundadır."
       },
       {
-        "en": "We have to deploy this critical security patch before the weekend.",
-        "tr": "Bu kritik güvenlik yamasını hafta sonundan önce dağıtmak zorundayız."
+        "en": "We have to finish the school project before the weekend.",
+        "tr": "Okul projesini hafta sonundan önce bitirmek zorundayız."
       },
       {
         "en": "You don't have to write custom CSS if you use Tailwind or Bootstrap.",
@@ -3038,12 +3038,12 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Boş vaktiniz olduğunda çekme isteğimi inceleyebilir misiniz?"
       },
       {
-        "en": "The server load might increase significantly during the Black Friday campaign.",
-        "tr": "Efsane Cuma kampanyası sırasında sunucu yükü önemli ölçüde artabilir."
+        "en": "The restaurant might get very busy during the holiday season.",
+        "tr": "Tatil sezonunda restoran çok yoğunlaşabilir."
       },
       {
-        "en": "You mustn't share database root passwords in public repositories.",
-        "tr": "Herkese açık depolarda veritabanı kök şifrelerini kesinlikle paylaşmamalısınız (yasak)."
+        "en": "You mustn't share your house keys with strangers.",
+        "tr": "Ev anahtarlarınızı yabancılarla kesinlikle paylaşmamalısınız (yasak)."
       },
       {
         "en": "She could speak English fluently even before starting university.",
@@ -3231,24 +3231,24 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "We only have a few minor merge conflicts to resolve before merging.",
-        "tr": "Birleştirmeden önce çözmemiz gereken yalnızca birkaç küçük çakışma var."
+        "en": "We only have a few small tasks to finish before the trip.",
+        "tr": "Geziden önce bitirmemiz gereken yalnızca birkaç küçük iş var."
       },
       {
         "en": "There is a little storage space left on the virtual machine's primary disk.",
         "tr": "Sanal makinenin birincil diskinde biraz depolama alanı kaldı."
       },
       {
-        "en": "The server query latency is too high for a real-time gaming application.",
-        "tr": "Sunucu sorgu gecikmesi gerçek zamanlı bir oyun uygulaması için aşırı yüksektir."
+        "en": "The waiting time at this restaurant is too long for a quick lunch.",
+        "tr": "Bu restorandaki bekleme süresi hızlı bir öğle yemeği için çok uzun."
       },
       {
         "en": "Is this internet connection fast enough to stream 4K video content?",
         "tr": "Bu internet bağlantısı 4K video içeriği yayınlamak için yeterince hızlı mı?"
       },
       {
-        "en": "Someone committed an unencrypted private key to the public repository.",
-        "tr": "Birisi herkese açık depoya şifrelenmemiş özel bir anahtar gönderdi (commit etti)."
+        "en": "Someone left an umbrella behind at the coffee shop.",
+        "tr": "Birisi kafede bir şemsiye unuttu."
       },
       {
         "en": "I searched the documentation, but I couldn't find anything related to OAuth2.",
@@ -3259,8 +3259,8 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Ekipteki çok az sayıda geliştirici eski kod tabanını anlıyor (neredeyse hiçbiri)."
       },
       {
-        "en": "Everything in the continuous deployment pipeline is running smoothly.",
-        "tr": "Sürekli dağıtım hattındaki her şey sorunsuz bir şekilde çalışıyor."
+        "en": "Everything in the wedding preparations is running smoothly.",
+        "tr": "Düğün hazırlıklarındaki her şey sorunsuz bir şekilde ilerliyor."
       },
       {
         "en": "We don't have enough bandwidth to handle ten thousand concurrent users.",
@@ -3428,16 +3428,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "React ve Node.js ile tam yığın web uygulamaları geliştirmekten keyif alıyorum."
       },
       {
-        "en": "We decided to migrate our entire database from MongoDB to PostgreSQL.",
-        "tr": "Tüm veritabanımızı MongoDB'den PostgreSQL'e taşımaya karar verdik."
+        "en": "We decided to move our whole family from the city to the countryside.",
+        "tr": "Tüm ailemizi şehirden kırsala taşımaya karar verdik."
       },
       {
         "en": "You should avoid storing unencrypted sensitive user data in local storage.",
         "tr": "Yerel depolamada şifrelenmemiş hassas kullanıcı verilerini saklamaktan kaçınmalısınız."
       },
       {
-        "en": "It is very easy to deploy containerized applications using Docker.",
-        "tr": "Docker kullanarak konteynerleştirilmiş uygulamaları dağıtmak çok kolaydır."
+        "en": "It is very easy to grow tomatoes using a small balcony garden.",
+        "tr": "Küçük bir balkon bahçesi kullanarak domates yetiştirmek çok kolaydır."
       },
       {
         "en": "She plans to release the open-source library on GitHub next week.",
@@ -3448,20 +3448,20 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Değişikliklerinizi göndermeden önce tüm otomatik birim testlerini çalıştırmayı unutmayın."
       },
       {
-        "en": "He promised to deliver the backend API documentation by tomorrow evening.",
-        "tr": "Yarın akşama kadar arka uç API dokümantasyonunu teslim etmeye söz verdi."
+        "en": "He promised to deliver the wedding invitations by tomorrow evening.",
+        "tr": "Yarın akşama kadar düğün davetiyelerini teslim etmeye söz verdi."
       },
       {
         "en": "Are you interested in learning deep learning and neural network architectures?",
         "tr": "Derin öğrenme ve yapay sinir ağı mimarilerini öğrenmekle ilgileniyor musunuz?"
       },
       {
-        "en": "We managed to reduce server response time by caching database queries.",
-        "tr": "Veritabanı sorgularını önbelleğe alarak sunucu yanıt süresini azaltmayı başardık."
+        "en": "We managed to reduce our travel time by taking the new highway.",
+        "tr": "Yeni otoyolu kullanarak seyahat süremizi azaltmayı başardık."
       },
       {
-        "en": "It is impossible to access the staging server without an authorized VPN.",
-        "tr": "Yetkilendirilmiş bir VPN olmadan test sunucusuna erişmek imkansızdır."
+        "en": "It is impossible to enter the concert without a valid ticket.",
+        "tr": "Geçerli bir bilet olmadan konsere girmek imkansızdır."
       }
     ],
     "quiz": [
@@ -3612,16 +3612,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Resim varlıklarını optimize edersek, mobil uygulama çok daha hızlı yüklenecektir (Type 1)."
       },
       {
-        "en": "Unless we implement rate limiting, the API will be vulnerable to brute-force attacks.",
-        "tr": "İstek sınırlaması (rate limiting) uygulamadıkça, API kaba kuvvet saldırılarına karşı savunmasız olacaktır (Type 1)."
+        "en": "Unless we lock the door, the house will be vulnerable to burglars.",
+        "tr": "Kapıyı kilitlemedikçe, ev hırsızlara karşı savunmasız olacaktır (Type 1)."
       },
       {
         "en": "If the CPU temperature exceeds 85 degrees, the cooling fan runs at maximum speed.",
         "tr": "İşlemci sıcaklığı 85 dereceyi aşarsa, soğutma fanı maksimum hızda çalışır (Type 0)."
       },
       {
-        "en": "If the client approves the proposal today, we will start backend development on Monday.",
-        "tr": "Müşteri teklifi bugün onaylarsa, pazartesi günü arka uç geliştirmesine başlayacağız (Type 1)."
+        "en": "If the landlord approves the contract today, we will move into the apartment on Monday.",
+        "tr": "Ev sahibi sözleşmeyi bugün onaylarsa, pazartesi günü daireye taşınacağız (Type 1)."
       },
       {
         "en": "Water turns into ice if the temperature falls below zero degrees Celsius.",
@@ -3632,16 +3632,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bildirim izinlerini etkinleştirmedikçe gerçek zamanlı bildirimler almayacaksınız (Type 1)."
       },
       {
-        "en": "If the server crashes during deployment, the automated pipeline will roll back to the previous stable release.",
-        "tr": "Dağıtım sırasında sunucu çökerse, otomatik işlem hattı önceki kararlı sürüme geri dönecektir (Type 1)."
+        "en": "If it rains during the picnic, we will move the party indoors.",
+        "tr": "Piknik sırasında yağmur yağarsa, partiyi içeri taşıyacağız (Type 1)."
       },
       {
         "en": "If you press Ctrl+S in the editor, the IDE automatically formats the file.",
         "tr": "Düzenleyicide Ctrl+S tuşlarına basarsanız, IDE dosyayı otomatik olarak biçimlendirir (Type 0)."
       },
       {
-        "en": "What will you do if you encounter a critical merge conflict in Git?",
-        "tr": "Git'te kritik bir birleştirme çakışmasıyla karşılaşırsan ne yapacaksın? (Type 1 Soru)."
+        "en": "What will you do if you miss the last train home?",
+        "tr": "Eve giden son treni kaçırırsan ne yapacaksın? (Type 1 Soru)."
       }
     ],
     "quiz": [
@@ -3794,24 +3794,24 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bir web uygulamasına hiç PayTR gibi üçüncü taraf bir ödeme ağ geçidi entegre ettiniz mi?"
       },
       {
-        "en": "The backend developer has just pushed the latest security hotfix to the repository.",
-        "tr": "Arka uç geliştiricisi en son güvenlik acil yamasını depoya az önce gönderdi."
+        "en": "The chef has just added a new dessert to the restaurant menu.",
+        "tr": "Şef az önce restoran menüsüne yeni bir tatlı ekledi."
       },
       {
-        "en": "We haven't received the final API specification from the external vendor yet.",
-        "tr": "Dış tedarikçiden nihai API spesifikasyonunu henüz almadık."
+        "en": "We haven't received the final guest list from the wedding planner yet.",
+        "tr": "Düğün organizatöründen son misafir listesini henüz almadık."
       },
       {
-        "en": "She has worked as a freelance software developer for over three years.",
-        "tr": "Üç yılı aşkın bir süredir serbest zamanlı (freelance) yazılım geliştiricisi olarak çalışmaktadır."
+        "en": "She has worked as a freelance photographer for over three years.",
+        "tr": "Üç yılı aşkın bir süredir serbest zamanlı (freelance) fotoğrafçı olarak çalışmaktadır."
       },
       {
         "en": "Our cloud infrastructure has been completely stable since last Monday.",
         "tr": "Bulut altyapımız geçen pazartesiden beri tamamen kararlıdır."
       },
       {
-        "en": "I have never encountered such an unusual database concurrency lockup before.",
-        "tr": "Daha önce hiç böylesine olağandışı bir veritabanı eşzamanlılık kilitlenmesiyle karşılaşmamıştım."
+        "en": "I have never encountered such heavy traffic on this road before.",
+        "tr": "Daha önce bu yolda hiç böylesine yoğun bir trafikle karşılaşmamıştım."
       },
       {
         "en": "Has the team lead approved the new sprint backlog items yet?",
@@ -3982,16 +3982,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Şimdiye kadar Jetpack Compose ile birkaç ticari uygulama inşa ettim (Present Perfect)."
       },
       {
-        "en": "The server crashed yesterday morning due to a memory allocation failure.",
-        "tr": "Sunucu dün sabah bir bellek tahsisi hatası nedeniyle çöktü (Past Simple)."
+        "en": "The car broke down yesterday morning due to an engine problem.",
+        "tr": "Araba dün sabah bir motor sorunu nedeniyle bozuldu (Past Simple)."
       },
       {
-        "en": "The server has crashed three times this week; we need to investigate the logs.",
-        "tr": "Sunucu bu hafta üç kez çöktü; günlükleri araştırmamız gerekiyor (Present Perfect)."
+        "en": "The washing machine has broken three times this week; we need to call a technician.",
+        "tr": "Çamaşır makinesi bu hafta üç kez bozuldu; bir teknisyeni çağırmamız gerekiyor (Present Perfect)."
       },
       {
-        "en": "Did you test the payment gateway before you pushed the commit yesterday?",
-        "tr": "Dün commit'i göndermeden önce ödeme ağ geçidini test ettin mi? (Past Simple)."
+        "en": "Did you check the weather forecast before you planned the picnic yesterday?",
+        "tr": "Dün pikniği planlamadan önce hava durumunu kontrol ettin mi? (Past Simple)."
       },
       {
         "en": "Have you tested the new dark mode theme yet?",
@@ -4187,16 +4187,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Gelen tüm HTTP trafiği Web Uygulaması Güvenlik Duvarı'nın içinden geçmelidir."
       },
       {
-        "en": "The automated script parses data from CSV files and inserts them into PostgreSQL.",
-        "tr": "Otomatik betik CSV dosyalarındaki verileri ayrıştırır ve bunları PostgreSQL'in içine ekler."
+        "en": "The farmer collects eggs from the henhouse and puts them into baskets.",
+        "tr": "Çiftçi kümesten yumurtaları toplar ve onları sepetlerin içine koyar."
       },
       {
-        "en": "Although the new framework has a steep learning curve, it offers immense productivity.",
-        "tr": "Yeni çatı dik bir öğrenme eğrisine sahip olmasına rağmen, muazzam bir verimlilik sunar."
+        "en": "Although the new language is difficult to learn, it opens many doors abroad.",
+        "tr": "Yeni dil öğrenmesi zor olmasına rağmen, yurt dışında birçok kapı açar."
       },
       {
-        "en": "The API authentication token was expired, so the server returned a 401 Unauthorized status.",
-        "tr": "API kimlik doğrulama belirtecinin süresi dolmuştu, bu yüzden sunucu 401 Yetkisiz durum kodu döndürdü."
+        "en": "My bus pass was expired, so the driver asked me to pay in cash.",
+        "tr": "Otobüs kartımın süresi dolmuştu, bu yüzden şoför benden nakit ödeme istedi."
       },
       {
         "en": "Our application distributes workloads evenly across multiple cloud regions.",
@@ -4207,16 +4207,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Hava fırtınalı olduğu için açık hava teknoloji konferansını iptal etmeye karar verdik."
       },
       {
-        "en": "The database query is highly optimized; however, disk I/O remains a noticeable bottleneck.",
-        "tr": "Veritabanı sorgusu oldukça optimize edilmiştir; ancak disk G/Ç belirgin bir darboğaz olmaya devam etmektedir."
+        "en": "The new recipe is very simple; however, finding fresh fish remains a challenge.",
+        "tr": "Yeni tarif çok basittir; ancak taze balık bulmak zorlu olmaya devam etmektedir."
       },
       {
-        "en": "The optical fiber cable runs under the street and into the server data center.",
-        "tr": "Fiber optik kablo caddenin altından geçer ve sunucu veri merkezinin içine girer."
+        "en": "The old water pipe runs under the street and into the city reservoir.",
+        "tr": "Eski su borusu caddenin altından geçer ve şehir rezervuarının içine girer."
       },
       {
-        "en": "She walked across the campus to attend the advanced machine learning lecture.",
-        "tr": "İleri makine öğrenmesi dersine katılmak için kampüsü boydan boya yürüyerek geçti."
+        "en": "She walked across the park to attend the Sunday morning yoga class.",
+        "tr": "Pazar sabahı yoga dersine katılmak için parkı boydan boya yürüyerek geçti."
       },
       {
         "en": "The autonomous robot navigated through the obstacle course towards the target destination.",
@@ -4386,20 +4386,20 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Eşzamansız çalışan, gelen istekleri hızlı ve verimli bir şekilde işler."
       },
       {
-        "en": "You should read the official API documentation carefully before writing client code.",
-        "tr": "İstemci kodunu yazmadan önce resmi API dokümantasyonunu dikkatlice okumalısınız."
+        "en": "You should read the instruction manual carefully before assembling the furniture.",
+        "tr": "Mobilyayı monte etmeden önce kullanım kılavuzunu dikkatlice okumalısınız."
       },
       {
         "en": "Our mobile application runs smoothly on both iOS and Android platforms.",
         "tr": "Mobil uygulamamız hem iOS hem de Android platformlarında sorunsuz bir şekilde çalışır."
       },
       {
-        "en": "She is a brilliant software architect, and she explains complex topics very well.",
-        "tr": "O parlak bir yazılım mimarıdır ve karmaşık konuları çok iyi açıklar."
+        "en": "She is a brilliant history teacher, and she explains complex topics very well.",
+        "tr": "O parlak bir tarih öğretmenidir ve karmaşık konuları çok iyi açıklar."
       },
       {
-        "en": "Developers must test their software thoroughly before submitting pull requests.",
-        "tr": "Geliştiriciler çekme isteklerini göndermeden önce yazılımlarını kapsamlı bir şekilde test etmelidir."
+        "en": "Students must check their essays thoroughly before submitting their homework.",
+        "tr": "Öğrenciler ödevlerini göndermeden önce denemelerini kapsamlı bir şekilde kontrol etmelidir."
       },
       {
         "en": "The background synchronization service handles network interruptions gracefully.",
@@ -4410,16 +4410,16 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu kimlik doğrulama SDK'sını Next.js uygulamanıza kolayca entegre edebilirsiniz."
       },
       {
-        "en": "The database query executed surprisingly fast despite the large table size.",
-        "tr": "Büyük tablo boyutuna rağmen veritabanı sorgusu şaşırtıcı derecede hızlı çalıştı."
+        "en": "The marathon runner finished surprisingly fast despite the steep hills.",
+        "tr": "Dik yokuşlara rağmen maraton koşucusu şaşırtıcı derecede hızlı bitirdi."
       },
       {
         "en": "He spoke confidently during the technical interview with the foreign client.",
         "tr": "Yabancı müşteriyle yapılan teknik mülakat sırasında kendinden emin bir şekilde konuştu."
       },
       {
-        "en": "Please write your code cleanly and maintainable for future team members.",
-        "tr": "Lütfen gelecekteki ekip üyeleri için kodunuzu temiz ve bakımı kolay bir şekilde yazın."
+        "en": "Please write your notes clearly and neatly for future reference.",
+        "tr": "Lütfen ileride başvurmak için notlarınızı açık ve düzenli bir şekilde yazın."
       }
     ],
     "quiz": [
@@ -4747,8 +4747,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I have been debugging this memory leak issue since early this morning.",
-        "tr": "Sabahın erken saatlerinden beri bu bellek sızıntısı sorununu ayıklamaktayım."
+        "en": "I have been painting the garden fence since early this morning.",
+        "tr": "Sabahın erken saatlerinden beri bahçe çitini boyamaktayım."
       },
       {
         "en": "The automated backup service has been running smoothly without any failures for six months.",
@@ -4763,28 +4763,28 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bütün haftadır yaklaşan Avrupa denetimi için teknik dokümantasyonu hazırlamaktadır."
       },
       {
-        "en": "We haven't been receiving any error alerts from the production server recently.",
-        "tr": "Son zamanlarda canlı sunucudan herhangi bir hata uyarısı almamaktayız."
+        "en": "We haven't been receiving any letters from our old neighbors recently.",
+        "tr": "Son zamanlarda eski komşularımızdan hiç mektup almıyoruz."
       },
       {
-        "en": "My hands are tired because I have been typing lines of code all afternoon.",
-        "tr": "Ellerim yoruldu çünkü bütün öğleden sonradır kod satırları yazmaktayım."
+        "en": "My hands are tired because I have been kneading dough all afternoon.",
+        "tr": "Ellerim yoruldu çünkü bütün öğleden sonradır hamur yoğurmaktayım."
       },
       {
         "en": "The marketing team has been testing user conversion rates on the new landing page.",
         "tr": "Pazarlama ekibi yeni açılış sayfasında kullanıcı dönüşüm oranlarını test etmektedir."
       },
       {
-        "en": "Has the database team been monitoring query latency spikes during peak hours?",
-        "tr": "Veritabanı ekibi yoğun saatlerdeki sorgu gecikmesi artışlarını izlemekte midir?"
+        "en": "Has the lifeguard been watching the swimmers closely during busy hours?",
+        "tr": "Cankurtaran yoğun saatlerde yüzücüleri yakından izlemekte midir?"
       },
       {
         "en": "He has been learning full-stack web technologies since he enrolled in computer engineering.",
         "tr": "Bilgisayar mühendisliğine kaydolduğundan beri tam yığın web teknolojilerini öğrenmektedir."
       },
       {
-        "en": "They have been discussing the database partitioning strategy for more than two hours.",
-        "tr": "İki saatten uzun bir süredir veritabanı bölümleme (partitioning) stratejisini tartışmaktalar."
+        "en": "They have been discussing the wedding seating plan for more than two hours.",
+        "tr": "İki saatten uzun bir süredir düğün oturma planını tartışmaktalar."
       }
     ],
     "quiz": [
@@ -4929,32 +4929,32 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "By the time we deployed the critical hotfix, hundreds of users had already reported the bug.",
-        "tr": "Biz acil yamayı dağıtana kadar, yüzlerce kullanıcı hatayı çoktan bildirmişti."
+        "en": "By the time the fire truck arrived, the neighbors had already put out most of the fire.",
+        "tr": "İtfaiye arabası varana kadar, komşular yangının çoğunu çoktan söndürmüştü."
       },
       {
-        "en": "I had saved all my source code changes before the sudden electrical power outage occurred.",
-        "tr": "Ani elektrik kesintisi meydana gelmeden önce tüm kaynak kodu değişikliklerimi kaydetmiştim."
+        "en": "I had finished all my homework before the sudden electrical power outage occurred.",
+        "tr": "Ani elektrik kesintisi meydana gelmeden önce tüm ödevimi bitirmiştim."
       },
       {
-        "en": "After the QA team had approved the pull request, we merged the feature into the main branch.",
-        "tr": "Test ekibi çekme isteğini onayladıktan sonra, özelliği ana dala birleştirdik."
+        "en": "After the committee had approved the budget, the school started building the new library.",
+        "tr": "Komite bütçeyi onayladıktan sonra, okul yeni kütüphaneyi inşa etmeye başladı."
       },
       {
-        "en": "He hadn't encountered such a complex database deadlock until he worked on this enterprise project.",
-        "tr": "Bu kurumsal projede çalışana kadar böylesine karmaşık bir veritabanı kilitlenmesiyle karşılaşmamıştı."
+        "en": "He hadn't encountered such heavy traffic until he moved to this big city.",
+        "tr": "Bu büyük şehre taşınana kadar böylesine yoğun bir trafikle karşılaşmamıştı."
       },
       {
-        "en": "Had you verified the API authentication tokens before you triggered the automated integration tests?",
-        "tr": "Otomatik entegrasyon testlerini tetiklemeden önce API kimlik doğrulama belirteçlerini doğrulamış mıydınız?"
+        "en": "Had you checked the oven temperature before you put the cake in to bake?",
+        "tr": "Pastayı pişirmeye koymadan önce fırın sıcaklığını kontrol etmiş miydiniz?"
       },
       {
-        "en": "The server crashed because someone had deleted a critical configuration file by mistake.",
-        "tr": "Birisi kritik bir yapılandırma dosyasını yanlışlıkla sildiği için sunucu çöktü."
+        "en": "The printer stopped working because someone had removed an important cable by mistake.",
+        "tr": "Birisi önemli bir kabloyu yanlışlıkla çıkardığı için yazıcı çalışmayı durdurdu."
       },
       {
-        "en": "She had already completed the database schema redesign when the client changed the requirements.",
-        "tr": "Müşteri gereksinimleri değiştirdiğinde o veritabanı şemasının yeniden tasarımını çoktan tamamlamıştı."
+        "en": "She had already finished planning the menu when the guests changed the date.",
+        "tr": "Misafirler tarihi değiştirdiğinde o menü planlamasını çoktan tamamlamıştı."
       },
       {
         "en": "By the end of 2025, our startup had expanded its merchant network across five major cities.",
@@ -5114,32 +5114,32 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Senin yerinde olsaydım, monolitik kod tabanını bağımsız mikroservislere ayırırdım."
       },
       {
-        "en": "If we used an automated CI/CD pipeline, we wouldn't spend hours on manual deployments.",
-        "tr": "Otomatik bir CI/CD işlem hattı kullansaydık, manuel dağıtımlara saatler harcamazdık."
+        "en": "If we used a dishwasher, we wouldn't spend hours washing dishes by hand.",
+        "tr": "Bir bulaşık makinesi kullansaydık, bulaşıkları elle yıkamaya saatler harcamazdık."
       },
       {
-        "en": "What would you do if a zero-day security vulnerability were discovered in your production API?",
-        "tr": "Canlı API'nizde bir sıfır gün güvenlik açığı keşfedilseydi ne yapardınız?"
+        "en": "What would you do if you found a large crack in your house's foundation?",
+        "tr": "Evinizin temelinde büyük bir çatlak bulsaydınız ne yapardınız?"
       },
       {
         "en": "If the open-source library had better documentation, developers would adopt it much faster.",
         "tr": "Açık kaynaklı kütüphanenin daha iyi dokümantasyonu olsaydı, geliştiriciler onu çok daha hızlı benimserdi."
       },
       {
-        "en": "We could scale our infrastructure seamlessly if all our database services were containerized.",
-        "tr": "Tüm veritabanı servislerimiz konteynerleştirilmiş olsaydı, altyapımızı sorunsuzca ölçeklendirebilirdik."
+        "en": "We could feed many more guests easily if our kitchen were bigger.",
+        "tr": "Mutfağımız daha büyük olsaydı, çok daha fazla misafiri kolayca doyurabilirdik."
       },
       {
-        "en": "If she spoke English more fluently, she could easily work for international software companies.",
-        "tr": "Daha akıcı İngilizce konuşabilseydi, uluslararası yazılım şirketlerinde kolayca çalışabilirdi."
+        "en": "If she spoke English more fluently, she could easily work for international airlines.",
+        "tr": "Daha akıcı İngilizce konuşabilseydi, uluslararası havayollarında kolayca çalışabilirdi."
       },
       {
-        "en": "If our startup won the seed investment round, we would hire three senior backend engineers immediately.",
-        "tr": "Girişimimiz tohum yatırım turunu kazansaydı, derhal üç kıdemli arka uç mühendisi işe alırdık."
+        "en": "If our restaurant won a cooking award, we would hire three more chefs immediately.",
+        "tr": "Restoranımız bir yemek ödülü kazansaydı, derhal üç şef daha işe alırdık."
       },
       {
-        "en": "The application would run much faster if you cached the database queries in Redis.",
-        "tr": "Veritabanı sorgularını Redis'te önbelleğe alsaydınız uygulama çok daha hızlı çalışırdı."
+        "en": "The bus would arrive much faster if the city added more lanes to this road.",
+        "tr": "Şehir bu yola daha fazla şerit eklese otobüs çok daha hızlı gelirdi."
       },
       {
         "en": "If there were no network latency constraints, distributed systems would be much simpler to design.",
@@ -5297,44 +5297,44 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The software engineer who designed this microservice architecture is now our lead architect.",
-        "tr": "Bu mikroservis mimarisini tasarlayan yazılım mühendisi şu anda bizim baş mimarımızdır."
+        "en": "The architect who designed this old bridge is now a famous city planner.",
+        "tr": "Bu eski köprüyü tasarlayan mimar şu anda ünlü bir şehir plancısıdır."
       },
       {
         "en": "FastAPI, which is built on Starlette and Pydantic, provides automated OpenAPI documentation.",
         "tr": "Starlette ve Pydantic üzerine inşa edilmiş olan FastAPI, otomatik OpenAPI dokümantasyonu sağlar."
       },
       {
-        "en": "The server room where we keep our physical hardware racks is strictly climate-controlled.",
-        "tr": "Fiziksel donanım kabinlerimizi tuttuğumuz sunucu odası sıkı bir şekilde iklimlendirilmektedir."
+        "en": "The wine cellar where we keep our family's old bottles is strictly temperature-controlled.",
+        "tr": "Ailemizin eski şişelerini tuttuğumuz şarap mahzeni sıkı bir şekilde sıcaklık kontrollüdür."
       },
       {
-        "en": "The developer whose pull request resolved the authentication bug received a team bonus.",
-        "tr": "Çekme isteği kimlik doğrulama hatasını çözen geliştirici bir ekip primi aldı."
+        "en": "The student whose essay won the competition received a scholarship.",
+        "tr": "Denemesi yarışmayı kazanan öğrenci bir burs aldı."
       },
       {
-        "en": "This is the exact machine learning dataset that we utilized to train our YOLOv8 vehicle detector.",
-        "tr": "Bu, YOLOv8 araç dedektörümüzü eğitmek için kullandığımız makine öğrenmesi veri setinin tam kendisidir."
+        "en": "This is the exact recipe that we used to bake our grandmother's famous apple pie.",
+        "tr": "Bu, büyükannemizin ünlü elmalı turtasını pişirmek için kullandığımız tarifin tam kendisidir."
       },
       {
         "en": "Kotlin, which was created by JetBrains, is the preferred language for modern Android development.",
         "tr": "JetBrains tarafından yaratılmış olan Kotlin, modern Android geliştirme için tercih edilen dildir."
       },
       {
-        "en": "Do you know the security specialist who discovered the zero-day vulnerability in our API?",
-        "tr": "API'mizdeki sıfır gün güvenlik açığını keşfeden güvenlik uzmanını tanıyor musunuz?"
+        "en": "Do you know the detective who solved the famous jewelry theft downtown?",
+        "tr": "Şehir merkezindeki ünlü mücevher hırsızlığını çözen dedektifi tanıyor musunuz?"
       },
       {
         "en": "The cloud provider where we host our European servers offers a 99.99% uptime guarantee.",
         "tr": "Avrupa sunucularımızı barındırdığımız bulut sağlayıcısı %99.99 çalışma süresi garantisi sunmaktadır."
       },
       {
-        "en": "We need a database solution that can handle millions of concurrent read operations smoothly.",
-        "tr": "Milyonlarca eşzamanlı okuma işlemini sorunsuzca yönetebilecek bir veritabanı çözümüne ihtiyacımız var."
+        "en": "We need a bigger venue that can handle hundreds of wedding guests comfortably.",
+        "tr": "Yüzlerce düğün misafirini rahatça ağırlayabilecek daha büyük bir mekana ihtiyacımız var."
       },
       {
-        "en": "Ajans360, where I completed my summer internship, specializes in digital software solutions.",
-        "tr": "Yaz stajımı tamamladığım Ajans360, dijital yazılım çözümleri konusunda uzmanlaşmıştır."
+        "en": "The city hospital, where I completed my summer internship, specializes in children's healthcare.",
+        "tr": "Yaz stajımı tamamladığım şehir hastanesi, çocuk sağlığı konusunda uzmanlaşmıştır."
       }
     ],
     "quiz": [
@@ -5490,8 +5490,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "All sensitive user credentials are encrypted before being stored in the PostgreSQL database.",
-        "tr": "Tüm hassas kullanıcı kimlik bilgileri PostgreSQL veritabanında saklanmadan önce şifrelenir."
+        "en": "All fresh vegetables are washed carefully before being stored in the restaurant fridge.",
+        "tr": "Tüm taze sebzeler restoran buzdolabında saklanmadan önce dikkatlice yıkanır."
       },
       {
         "en": "The critical security vulnerability was discovered and patched within two hours.",
@@ -5502,12 +5502,12 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Mobil uygulamanın yeni sürümü yarın Google Play Store'da yayınlanacaktır."
       },
       {
-        "en": "Automated unit tests must be executed before any code is merged into the main branch.",
-        "tr": "Herhangi bir kod ana dala birleştirilmeden önce otomatik birim testleri çalıştırılmalıdır."
+        "en": "Safety checks must be completed before any ride is opened to the public at the amusement park.",
+        "tr": "Lunaparkta herhangi bir oyuncak halka açılmadan önce güvenlik kontrolleri tamamlanmalıdır."
       },
       {
-        "en": "The legacy server was shut down after all databases were successfully migrated to the cloud.",
-        "tr": "Tüm veritabanları buluta başarıyla taşındıktan sonra eski sunucu kapatıldı."
+        "en": "The old factory was shut down after all the workers were successfully relocated to the new one.",
+        "tr": "Tüm işçiler yeni fabrikaya başarıyla taşındıktan sonra eski fabrika kapatıldı."
       },
       {
         "en": "Millions of asynchronous HTTP requests are processed by our load balancer every minute.",
@@ -5522,8 +5522,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu PDF raporu her mali ayın sonunda otomatik olarak dışa aktarılabilir mi?"
       },
       {
-        "en": "The database backup files were uploaded to a secure off-site cold storage vault.",
-        "tr": "Veritabanı yedekleme dosyaları güvenli bir tesis dışı soğuk depolama kasasına yüklendi."
+        "en": "The family's old photographs were stored in a secure, climate-controlled archive.",
+        "tr": "Ailenin eski fotoğrafları güvenli, iklim kontrollü bir arşivde saklandı."
       },
       {
         "en": "Special permissions are required in order to modify system environment variables.",
@@ -5676,12 +5676,12 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The server CPU usage is at 100%; an unoptimized infinite loop must be running in the background.",
-        "tr": "Sunucu işlemci kullanımı %100'de; arka planda optimize edilmemiş sonsuz bir döngü çalışıyor olmalı."
+        "en": "The kitchen is incredibly hot; the oven must be running at full temperature.",
+        "tr": "Mutfak inanılmaz sıcak; fırın tam sıcaklıkta çalışıyor olmalı."
       },
       {
-        "en": "This cannot be a database connection issue because all health check endpoints are returning 200 OK.",
-        "tr": "Bu bir veritabanı bağlantısı sorunu olamaz çünkü tüm sağlık kontrolü uç noktaları 200 OK döndürüyor."
+        "en": "This cannot be a plumbing issue because all the taps in the house are working fine.",
+        "tr": "Bu bir tesisat sorunu olamaz çünkü evdeki tüm musluklar sorunsuz çalışıyor."
       },
       {
         "en": "The sudden drop in application performance might be caused by an unindexed SQL query.",
@@ -5696,24 +5696,24 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Müşteri mobil uygulamamızın eski bir sürümünü kullanıyor olamaz çünkü zorunlu güncellemeler etkindir."
       },
       {
-        "en": "There could be a network routing delay between the European client and our American database.",
-        "tr": "Avrupalı istemci ile Amerikan veritabanımız arasında bir ağ yönlendirme gecikmesi olabilir."
+        "en": "There could be a scheduling delay between the European flight and our connecting train.",
+        "tr": "Avrupa uçuşu ile bağlantılı trenimiz arasında bir zamanlama gecikmesi olabilir."
       },
       {
         "en": "The system architecture looks extremely clean; a very experienced senior engineer must have designed it.",
         "tr": "Sistem mimarisi son derece temiz görünüyor; çok deneyimli kıdemli bir mühendis tasarlamış olmalı."
       },
       {
-        "en": "You have been coding for ten hours straight; you must be exhausted.",
-        "tr": "Aralıksız on saattir kod yazıyorsun; bitkin düşmüş olmalısın."
+        "en": "You have been studying for ten hours straight; you must be exhausted.",
+        "tr": "Aralıksız on saattir ders çalışıyorsun; bitkin düşmüş olmalısın."
       },
       {
         "en": "The missing configuration key might be located in the local environment file.",
         "tr": "Eksik yapılandırma anahtarı yerel ortam (.env) dosyasında bulunuyor olabilir."
       },
       {
-        "en": "This library can't be compatible with modern Python versions because it hasn't been updated since 2018\\.",
-        "tr": "Bu kütüphane modern Python sürümleriyle uyumlu olamaz çünkü 2018'den beri güncellenmedi."
+        "en": "This old map can't be accurate anymore because it hasn't been updated since 2018.",
+        "tr": "Bu eski harita artık doğru olamaz çünkü 2018'den beri güncellenmedi."
       }
     ],
     "quiz": [
@@ -5862,8 +5862,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "We used to maintain a complex monolithic architecture before migrating our services to Docker containers.",
-        "tr": "Servislerimizi Docker konteynerlerine taşımadan önce karmaşık bir monolitik mimari sürdürürdük."
+        "en": "We used to run a small family shop before moving our business to the new shopping center.",
+        "tr": "İşimizi yeni alışveriş merkezine taşımadan önce küçük bir aile dükkanı işletirdik."
       },
       {
         "en": "Every Friday morning, our engineering team would gather in the lounge to review open pull requests.",
@@ -5882,20 +5882,20 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kotlin standart hale gelmeden önce Java ile yerel Android uygulamaları geliştirir miydiniz?"
       },
       {
-        "en": "During our university hackathons, we would drink coffee all night and deploy prototypes by sunrise.",
-        "tr": "Üniversite hackathonlarımız sırasında bütün gece kahve içer ve gün doğumuna kadar prototipleri yayına alırdık."
+        "en": "During our university exam weeks, we would drink coffee all night and study until sunrise.",
+        "tr": "Üniversite sınav haftalarımız sırasında bütün gece kahve içer ve gün doğumuna kadar ders çalışırdık."
       },
       {
         "en": "She used to live in Bolu while she was completing her computer engineering bachelor's degree.",
         "tr": "Bilgisayar mühendisliği lisans derecesini tamamlarken Bolu'da yaşardı (artık yaşamıyor)."
       },
       {
-        "en": "Our previous database solution used to crash whenever concurrent traffic exceeded ten thousand requests.",
-        "tr": "Önceki veritabanı çözümümüz, eşzamanlı trafik on bin isteği aştığında çökerdi."
+        "en": "Our old car used to break down whenever the temperature dropped below freezing.",
+        "tr": "Eski arabamız, sıcaklık donma noktasının altına düştüğünde bozulurdu."
       },
       {
-        "en": "I used to play League of Legends competitively, but now I focus entirely on software development.",
-        "tr": "Eskiden rekabetçi olarak League of Legends oynardım, ancak şimdi tamamen yazılım geliştirmeye odaklanıyorum."
+        "en": "I used to play competitive chess, but now I focus entirely on painting.",
+        "tr": "Eskiden rekabetçi satranç oynardım, ancak şimdi tamamen resim yapmaya odaklanıyorum."
       },
       {
         "en": "When we were prototyping the embedded defense project, my cousin and I would test the stepper motors every weekend.",
@@ -6051,16 +6051,16 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The client said that the payment gateway endpoint was returning a 500 internal server error.",
-        "tr": "Müşteri, ödeme ağ geçidi uç noktasının 500 dahili sunucu hatası döndürdüğünü söyledi."
+        "en": "The tourist said that the museum ticket office was closed for renovation.",
+        "tr": "Turist, müze bilet gişesinin tadilat nedeniyle kapalı olduğunu söyledi."
       },
       {
-        "en": "She told me that she would deploy the updated mobile application the following morning.",
-        "tr": "Bana, ertesi sabah güncellenmiş mobil uygulamayı yayına alacağını söyledi."
+        "en": "She told me that she would send the wedding invitations the following morning.",
+        "tr": "Bana, ertesi sabah düğün davetiyelerini göndereceğini söyledi."
       },
       {
-        "en": "The lead architect asked me whether the PostgreSQL database connection was properly encrypted.",
-        "tr": "Baş mimar bana PostgreSQL veritabanı bağlantısının düzgün şekilde şifrelenip şifrelenmediğini sordu."
+        "en": "The building inspector asked me whether the electrical wiring was properly installed.",
+        "tr": "Bina müfettişi bana elektrik tesisatının düzgün şekilde kurulup kurulmadığını sordu."
       },
       {
         "en": "He asked where we stored the automated backup archives.",
@@ -6083,8 +6083,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bize, sunucularını Google Cloud Platform'a taşımakta olduklarını söylediler."
       },
       {
-        "en": "He explained that the sudden latency spike was caused by unindexed database queries.",
-        "tr": "Ani gecikme artışının indekslenmemiş veritabanı sorgularından kaynaklandığını açıkladı."
+        "en": "He explained that the sudden traffic jam was caused by roadworks on the highway.",
+        "tr": "Ani trafik sıkışıklığının otoyoldaki yol çalışmasından kaynaklandığını açıkladı."
       },
       {
         "en": "The product manager asked what time the maintenance window would finish that evening.",
@@ -6249,32 +6249,32 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Günlük trafiğimiz katlanarak arttığı için paylaşımlı barındırma sunucularını kullanmayı bıraktık (Eylemi sonlandırma)."
       },
       {
-        "en": "During the long debugging session, we stopped to drink some coffee and discuss the architecture.",
-        "tr": "Uzun hata ayıklama oturumu sırasında biraz kahve içmek ve mimariyi tartışmak için durakladık (Mola verip başka amaca geçme)."
+        "en": "During the long hiking trip, we stopped to drink some water and admire the view.",
+        "tr": "Uzun yürüyüş gezisi sırasında biraz su içmek ve manzarayı seyretmek için durakladık (Mola verip başka amaca geçme)."
       },
       {
-        "en": "I forgot to push my local commits to the remote repository before leaving the office.",
-        "tr": "Ofisten ayrılmadan önce yerel commit'lerimi uzak depoya göndermeyi unuttum (Görevi unutma)."
+        "en": "I forgot to water the plants before leaving for my holiday.",
+        "tr": "Tatile çıkmadan önce bitkileri sulamayı unuttum (Görevi unutma)."
       },
       {
-        "en": "I will never forget deploying my first commercial full-stack web application.",
-        "tr": "İlk ticari tam yığın web uygulamamı yayına aldığım anı asla unutmayacağım (Geçmiş anı)."
+        "en": "I will never forget baking my first successful wedding cake.",
+        "tr": "İlk başarılı düğün pastamı pişirdiğim anı asla unutmayacağım (Geçmiş anı)."
       },
       {
         "en": "If the authentication token is rejected, try clearing your browser cookies and local storage.",
         "tr": "Kimlik doğrulama belirteci reddedilirse, tarayıcı çerezlerinizi ve yerel depolamanızı temizlemeyi deneyin (Yöntem deneme)."
       },
       {
-        "en": "The junior developer tried to resolve the merge conflict, but he needed senior assistance.",
-        "tr": "Kıdemsiz geliştirici birleştirme çakışmasını çözmeye çalıştı (çabaladı), ancak kıdemli desteğine ihtiyaç duydu."
+        "en": "The young chef tried to fix the broken sauce, but he needed the head chef's help.",
+        "tr": "Genç aşçı bozulan sosu düzeltmeye çalıştı (çabaladı), ancak şefin yardımına ihtiyaç duydu."
       },
       {
         "en": "We regret to inform you that your application for the senior architect position was unsuccessful.",
         "tr": "Kıdemli mimar pozisyonu başvurunuzun başarısız olduğunu üzülerek bildiririz (Resmi kötü haber)."
       },
       {
-        "en": "I deeply regret committing hardcoded API credentials to the public GitHub repository.",
-        "tr": "Herkese açık GitHub deposuna sabit kodlanmış API kimlik bilgilerini gönderdiğime (commit ettiğime) derinden pişmanım (Geçmiş pişmanlığı)."
+        "en": "I deeply regret forgetting my best friend's birthday last year.",
+        "tr": "Geçen yıl en iyi arkadaşımın doğum gününü unuttuğuma derinden pişmanım (Geçmiş pişmanlığı)."
       }
     ],
     "quiz": [
@@ -6459,8 +6459,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Mühendislik ekibimizin bellek sızıntısının kök nedenini çözmesi üç saat sürdü."
       },
       {
-        "en": "Please remember to back up the production database before executing the migration script.",
-        "tr": "Taşıma betiğini çalıştırmadan önce lütfen canlı veritabanını yedeklemeyi unutmayın."
+        "en": "Please remember to lock up the shop before leaving for the night.",
+        "tr": "Gece için ayrılmadan önce lütfen dükkanı kilitlemeyi unutmayın."
       },
       {
         "en": "We need to set up a dedicated virtual machine for continuous integration testing.",
@@ -6479,16 +6479,16 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Müşteri destek ekibimiz her gün yüzlerce teknik soruyla ilgilenmektedir."
       },
       {
-        "en": "While reviewing the open-source repository, I came across an ingenious sorting algorithm.",
-        "tr": "Açık kaynaklı depoyu incelerken dahiyane bir sıralama algoritmasına rastladım."
+        "en": "While cleaning out the attic, I came across an old family recipe book.",
+        "tr": "Tavan arasını temizlerken eski bir aile yemek tarifi kitabına rastladım."
       },
       {
         "en": "The developer forgot to turn off the expensive GPU cloud instances after testing.",
         "tr": "Geliştirici, testten sonra pahalı GPU bulut örneklerini kapatmayı unuttu."
       },
       {
-        "en": "We have to roll back the latest deployment because users are experiencing login failures.",
-        "tr": "Kullanıcılar giriş hataları yaşadığı için en son dağıtımı geri almak (rollback yapmak) zorundayız."
+        "en": "We have to call off the outdoor concert because of the heavy storm warning.",
+        "tr": "Şiddetli fırtına uyarısı nedeniyle açık hava konserini iptal etmek zorundayız."
       },
       {
         "en": "Can you help me point out the syntax error in this complex SQL query?",
@@ -6644,20 +6644,20 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Modern Android geliştirme ve Jetpack Compose konularına aşinasınız, değil mi?"
       },
       {
-        "en": "Could you please tell me where the server configuration files are located?",
-        "tr": "Sunucu yapılandırma dosyalarının nerede bulunduğunu bana söyleyebilir misiniz?"
+        "en": "Could you please tell me where the nearest pharmacy is located?",
+        "tr": "En yakın eczanenin nerede bulunduğunu bana söyleyebilir misiniz?"
       },
       {
-        "en": "The automated deployment script finished without any errors, didn't it?",
-        "tr": "Otomatik dağıtım betiği herhangi bir hata olmadan tamamlandı, değil mi?"
+        "en": "The flight landed on time this morning, didn't it?",
+        "tr": "Uçak bu sabah zamanında indi, değil mi?"
       },
       {
         "en": "Do you happen to know if the client has approved the updated budget proposal?",
         "tr": "Müşterinin güncellenmiş bütçe teklifini onaylayıp onaylamadığını biliyor musunuz?"
       },
       {
-        "en": "We don't need to restart the entire database cluster for this minor change, do we?",
-        "tr": "Bu küçük değişiklik için tüm veritabanı kümesini yeniden başlatmamız gerekmiyor, değil mi?"
+        "en": "We don't need to repaint the entire house for this minor repair, do we?",
+        "tr": "Bu küçük tamirat için tüm evi yeniden boyamamız gerekmiyor, değil mi?"
       },
       {
         "en": "I was wondering whether you could review my open pull request before noon.",
@@ -6668,12 +6668,12 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "O daha önce tam yığın mühendisi olarak çalışmıştı, değil mi?"
       },
       {
-        "en": "Can you explain how this machine learning model processes real-time video streams?",
-        "tr": "Bu makine öğrenmesi modelinin gerçek zamanlı video akışlarını nasıl işlediğini açıklayabilir misiniz?"
+        "en": "Can you explain how this old windmill still generates electricity today?",
+        "tr": "Bu eski yel değirmeninin bugün hâlâ nasıl elektrik ürettiğini açıklayabilir misiniz?"
       },
       {
-        "en": "You will send me the updated API documentation by tomorrow morning, won't you?",
-        "tr": "Güncellenmiş API dokümantasyonunu yarın sabaha kadar bana göndereceksiniz, değil mi?"
+        "en": "You will send me the updated guest list by tomorrow morning, won't you?",
+        "tr": "Güncellenmiş misafir listesini yarın sabaha kadar bana göndereceksiniz, değil mi?"
       },
       {
         "en": "Could you let me know what time the technical interview session begins?",
@@ -6840,20 +6840,20 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Keşke geliştirme ekibimiz aynı fiziksel ofis alanında bulunuyor olsaydı."
       },
       {
-        "en": "If only we had comprehensive documentation for this legacy backend codebase\\!",
-        "tr": "Ah keşke bu eski arka uç kod tabanı için kapsamlı dokümantasyonumuz olsaydı\\!"
+        "en": "If only we had a detailed map of this old castle's hidden passages!",
+        "tr": "Ah keşke bu eski kalenin gizli geçitlerinin ayrıntılı bir haritası olsaydı!"
       },
       {
         "en": "I wish the client would stop changing the product requirements during the sprint.",
         "tr": "Keşke müşteri sprint sırasında ürün gereksinimlerini değiştirmeyi bıraksa."
       },
       {
-        "en": "She wishes she could attend the upcoming international software conference in San Francisco.",
-        "tr": "San Francisco'daki yaklaşan uluslararası yazılım konferansına katılabilmeyi diliyor (keşke katılabilse)."
+        "en": "She wishes she could attend the upcoming international film festival in Cannes.",
+        "tr": "Cannes'daki yaklaşan uluslararası film festivaline katılabilmeyi diliyor (keşke katılabilse)."
       },
       {
-        "en": "I wish our database queries didn't take so long to execute under heavy load.",
-        "tr": "Keşke veritabanı sorgularımızın yoğun yük altında çalışması bu kadar uzun sürmese."
+        "en": "I wish the morning traffic didn't take so long to clear near the bridge.",
+        "tr": "Keşke köprü yakınındaki sabah trafiği açılması bu kadar uzun sürmese."
       },
       {
         "en": "If only we were aware of the security vulnerability before the public release\\!",
@@ -6864,8 +6864,8 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Geliştiriciler, yönetimin otomatik entegrasyon testi araçlarına yatırım yapmasını diliyor."
       },
       {
-        "en": "I wish I didn't have to debug legacy PHP code on the weekend.",
-        "tr": "Keşke hafta sonu eski PHP kodundaki hataları ayıklamak zorunda kalmasaydım."
+        "en": "I wish I didn't have to do paperwork on the weekend.",
+        "tr": "Keşke hafta sonu evrak işleri yapmak zorunda kalmasaydım."
       },
       {
         "en": "Do you wish you lived in a different time zone for easier remote work with international clients?",
@@ -7014,8 +7014,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "If we had implemented database sharding before the marketing campaign, the servers wouldn't have crashed under peak load.",
-        "tr": "Pazarlama kampanyasından önce veritabanı parçalamayı (sharding) uygulamış olsaydık, sunucular yoğun yük altında çökmezdi (Type 3)."
+        "en": "If we had booked a bigger venue before the festival, the hall wouldn't have become so overcrowded.",
+        "tr": "Festivalden önce daha büyük bir mekan ayırtmış olsaydık, salon bu kadar aşırı kalabalık olmazdı (Type 3)."
       },
       {
         "en": "If I had accepted the foreign job offer last year, I would be living in Berlin today.",
@@ -7034,8 +7034,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Çekme isteğini kapsamlı şekilde incelemiş olsaydınız, kimlik doğrulama açığını yakalayabilirdiniz (Type 3)."
       },
       {
-        "en": "If she were not so proficient in system architecture, she couldn't have redesigned our entire backend infrastructure last month.",
-        "tr": "Sistem mimarisi konusunda bu kadar yetkin olmasaydı, geçen ay tüm arka uç altyapımızı yeniden tasarlayamazdı (Mixed: Genel yetenek → Geçmiş başarı)."
+        "en": "If she were not so skilled in interior design, she couldn't have redesigned our entire restaurant last month.",
+        "tr": "İç mimarlık konusunda bu kadar yetenekli olmasaydı, geçen ay tüm restoranımızı yeniden tasarlayamazdı (Mixed: Genel yetenek → Geçmiş başarı)."
       },
       {
         "en": "Had we validated the schema before running the migration script, we wouldn't have corrupted the user records.",
@@ -7199,12 +7199,12 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Gelecek hafta bu saatlerde mühendislik ekibimiz uluslararası teknoloji zirvesinde DeepFake tespit araştırmamızı sunuyor olacak."
       },
       {
-        "en": "By the end of the current fiscal quarter, we will have migrated all monolithic backend services to Kubernetes clusters.",
-        "tr": "Mevcut mali çeyreğin sonuna kadar tüm monolitik arka uç servislerini Kubernetes kümelerine taşımış olacağız."
+        "en": "By the end of this school term, we will have finished renovating the entire library building.",
+        "tr": "Bu okul döneminin sonuna kadar tüm kütüphane binasının tadilatını bitirmiş olacağız."
       },
       {
-        "en": "Please do not restart the staging server at 2 PM tomorrow because the QA team will be executing automated load tests.",
-        "tr": "Yarın saat 14:00'te test sunucusunu lütfen yeniden başlatmayın çünkü test ekibi otomatik yük testleri çalıştırıyor olacak."
+        "en": "Please do not use the oven at 2 PM tomorrow because the caterers will be preparing the wedding dinner.",
+        "tr": "Yarın saat 14:00'te lütfen fırını kullanmayın çünkü catering ekibi düğün yemeğini hazırlıyor olacak."
       },
       {
         "en": "By the time the client reviews our prototype next Monday, we will have resolved all critical UI rendering discrepancies.",
@@ -7215,16 +7215,16 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "İki yıl sonra binlerce otonom araç akıllı trafik yönetimi protokollerimizi kullanıyor olacak."
       },
       {
-        "en": "By December 2026, I will have been working as a full-stack software engineer for four consecutive years.",
-        "tr": "Aralık 2026'ya gelindiğinde aralıksız dört yıldır tam yığın yazılım mühendisi olarak çalışıyor olacağım (Future Perfect Continuous)."
+        "en": "By December 2026, I will have been working as a primary school teacher for four consecutive years.",
+        "tr": "Aralık 2026'ya gelindiğinde aralıksız dört yıldır ilkokul öğretmeni olarak çalışıyor olacağım (Future Perfect Continuous)."
       },
       {
-        "en": "Will you still be debugging the payment gateway integration when the European team logs in tomorrow morning?",
-        "tr": "Yarın sabah Avrupa ekibi oturum açtığında sen hâlâ ödeme ağ geçidi entegrasyonundaki hataları ayıklıyor olacak mısın?"
+        "en": "Will you still be painting the fence when the guests arrive tomorrow morning?",
+        "tr": "Yarın sabah misafirler geldiğinde sen hâlâ çiti boyuyor olacak mısın?"
       },
       {
-        "en": "The automated machine learning pipeline will have processed over ten million data points by sunrise.",
-        "tr": "Otomatik makine öğrenmesi işlem hattı gün doğumuna kadar on milyondan fazla veri noktasını işlemiş olacak."
+        "en": "The bakery's ovens will have baked over a thousand loaves of bread by sunrise.",
+        "tr": "Fırının ocakları gün doğumuna kadar binden fazla ekmek pişirmiş olacak."
       },
       {
         "en": "At 10 AM tomorrow, our lead architect will be interviewing senior Android developer candidates.",
@@ -7393,20 +7393,20 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The attacker must have exploited an unpatched remote code execution vulnerability in the legacy web framework.",
-        "tr": "Saldırgan eski web çatısındaki yamalanmamış bir uzaktan kod yürütme açığını istismar etmiş olmalı."
+        "en": "The thief must have used an unlocked window to get into the old house.",
+        "tr": "Hırsız eski eve girmek için kilitlenmemiş bir pencereyi kullanmış olmalı."
       },
       {
-        "en": "We should have implemented automated database replication before launching the massive marketing campaign.",
-        "tr": "Büyük pazarlama kampanyasını başlatmadan önce otomatik veritabanı çoğaltmasını (replikasyonunu) uygulamış olmalıydık (ama yapmadık)."
+        "en": "We should have booked a larger venue before announcing the concert to the public.",
+        "tr": "Konseri halka duyurmadan önce daha büyük bir mekan ayırtmış olmalıydık (ama yapmadık)."
       },
       {
-        "en": "He can't have pushed that broken code to the main branch because branch protection rules require two approvals.",
-        "tr": "O bozuk kodu ana dala göndermiş olamaz çünkü dal koruma kuralları iki onay gerektirmektedir."
+        "en": "He can't have left the shop unlocked because the alarm system requires two separate codes.",
+        "tr": "Dükkanı kilitsiz bırakmış olamaz çünkü alarm sistemi iki ayrı kod gerektirmektedir."
       },
       {
-        "en": "You shouldn't have shared the production database credentials in an unencrypted Slack channel.",
-        "tr": "Canlı veritabanı kimlik bilgilerini şifrelenmemiş bir Slack kanalında paylaşmamalıydın (yaptın ve hatalıydın)."
+        "en": "You shouldn't have shared your house address with someone you just met online.",
+        "tr": "Ev adresini internette yeni tanıştığın biriyle paylaşmamalıydın (yaptın ve hatalıydın)."
       },
       {
         "en": "We could have avoided this four-hour service outage if our monitoring system had triggered SMS alerts.",
@@ -7429,8 +7429,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kıdemsiz geliştirici böylesine gelişmiş bir eşzamanlılık kilitlenmesini tamamen kendi başına çözmüş olamaz."
       },
       {
-        "en": "Why didn't you inform the team earlier? You could have saved us ten hours of manual debugging.",
-        "tr": "Neden ekibi daha önce bilgilendirmedin? Bizi on saatlik manuel hata ayıklamadan kurtarabilirdin."
+        "en": "Why didn't you inform the family earlier? You could have saved us ten hours of worried waiting.",
+        "tr": "Neden aileyi daha önce bilgilendirmedin? Bizi on saatlik endişeli bekleyişten kurtarabilirdin."
       }
     ],
     "quiz": [
@@ -7588,8 +7588,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu yeni derleyici yalnızca yürütme hızını optimize etmekle kalmaz, aynı zamanda bellek tüketimini de önemli ölçüde azaltır."
       },
       {
-        "en": "Hardly had we deployed the software update when hundreds of unexpected error alerts flooded our dashboard.",
-        "tr": "Yazılım güncellemesini henüz dağıtmıştık ki yüzlerce beklenmeyen hata uyarısı kontrol panelimizi doldurdu."
+        "en": "Hardly had we opened the new restaurant when hundreds of eager customers lined up outside.",
+        "tr": "Yeni restoranı henüz açmıştık ki yüzlerce istekli müşteri dışarıda kuyruğa girdi."
       },
       {
         "en": "Under no circumstances should developers bypass automated security scanning protocols before merging.",
@@ -7604,8 +7604,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Mühendislerimiz bellek yığını dökümlerini ancak analiz ettikten sonra sızıntının kök nedenini tespit edebildi."
       },
       {
-        "en": "Little did we know that a single unindexed database query would bring down the entire billing infrastructure.",
-        "tr": "Tek bir indekslenmemiş veritabanı sorgusunun tüm faturalandırma altyapısını çökerteceğini hiç mi hiç bilmiyorduk."
+        "en": "Little did we know that a single loose nail would bring down the entire garden fence.",
+        "tr": "Tek bir gevşek çivinin tüm bahçe çitini çökerteceğini hiç mi hiç bilmiyorduk."
       },
       {
         "en": "No sooner had the load test commenced than the web servers reached 100% CPU utilization.",
@@ -7616,8 +7616,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yetkisiz üçüncü taraflar hiçbir zaman şifrelenmemiş müşteri ödeme kayıtlarına erişemedi."
       },
       {
-        "en": "Only by refactoring the core algorithm can we achieve sub-millisecond response latency under high concurrency.",
-        "tr": "Yalnızca çekirdek algoritmayı yeniden düzenleyerek yüksek eşzamanlılık altında milisaniyenin altında yanıt gecikmesine ulaşabiliriz."
+        "en": "Only by redesigning the entire kitchen layout can we serve guests this quickly during peak hours.",
+        "tr": "Yalnızca tüm mutfak düzenini yeniden tasarlayarak yoğun saatlerde misafirlere bu kadar hızlı hizmet verebiliriz."
       }
     ],
     "quiz": [
@@ -7769,16 +7769,16 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "Having compiled the source code successfully, the automated CI pipeline triggered end-to-end integration tests.",
-        "tr": "Kaynak kodu başarıyla derledikten sonra, otomatik CI işlem hattı uçtan uca entegrasyon testlerini tetikledi."
+        "en": "Having finished the final rehearsal successfully, the director scheduled the opening night performance.",
+        "tr": "Son provayı başarıyla bitirdikten sonra, yönetmen açılış gecesi gösterisini planladı."
       },
       {
-        "en": "Stored in multi-region encrypted cloud volumes, the database backups remain resilient against physical datacenter disasters.",
-        "tr": "Çok bölgeli şifreli bulut birimlerinde saklanan veritabanı yedekleri, fiziksel veri merkezi felaketlerine karşı dirençli kalır."
+        "en": "Stored in climate-controlled underground vaults, the museum's artifacts remain protected against natural disasters.",
+        "tr": "İklim kontrollü yeraltı kasalarında saklanan müze eserleri, doğal afetlere karşı korunmuş kalır."
       },
       {
-        "en": "Realizing that the query was causing severe CPU spikes, the database administrator added a composite index.",
-        "tr": "Sorgunun ciddi işlemci artışlarına neden olduğunu fark eden veritabanı yöneticisi, birleşik bir indeks ekledi."
+        "en": "Realizing that the recipe was causing the sauce to burn, the chef lowered the stove's heat.",
+        "tr": "Tarifin sosu yakmasına neden olduğunu fark eden şef, ocağın ısısını düşürdü."
       },
       {
         "en": "Built using Kotlin Multiplatform and Jetpack Compose, the mobile application shares 85% of its business logic across platforms.",
@@ -7793,8 +7793,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Düzgün eşzamansız hata yönetimi bulunmayan arka plan çalışan işlemi, beklenmeyen ağ zaman aşımları altında çöktü."
       },
       {
-        "en": "Operating at near-capacity bandwidth, the load balancer evenly routed incoming traffic to secondary server nodes.",
-        "tr": "Neredeyse tam kapasite bant genişliğinde çalışan yük dengeleyici, gelen trafiği ikincil sunucu düğümlerine eşit şekilde yönlendirdi."
+        "en": "Operating at near-full capacity, the airport evenly redirected incoming flights to the secondary runway.",
+        "tr": "Neredeyse tam kapasitede çalışan havalimanı, gelen uçuşları ikincil piste eşit şekilde yönlendirdi."
       },
       {
         "en": "Having identified the memory leak on line 142, the developer submitted a hotfix pull request.",
@@ -7974,12 +7974,12 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yeni işletim sistemi güvenlik politikası, tüm çalışanların kimlik bilgilerini her doksan günde bir yenilemesini zorunlu kılmaktadır."
       },
       {
-        "en": "The latest framework update lets developers build modular micro-frontend components seamlessly.",
-        "tr": "En son çatı güncellemesi, geliştiricilerin modüler mikro ön yüz bileşenlerini sorunsuzca inşa etmelerine olanak tanır."
+        "en": "The new sewing machine lets tailors create custom-fitted garments seamlessly.",
+        "tr": "Yeni dikiş makinesi, terzilerin özel dikilmiş kıyafetleri sorunsuzca oluşturmasına olanak tanır."
       },
       {
-        "en": "I managed to get the senior database architect to review our complex query optimization plan.",
-        "tr": "Kıdemli veritabanı mimarını karmaşık sorgu optimizasyon planımızı incelemeye ikna etmeyi başardım (get someone to do)."
+        "en": "I managed to get the head chef to review our new menu before the grand opening.",
+        "tr": "Büyük açılıştan önce yeni menümüzü incelemesi için baş şefi ikna etmeyi başardım (get someone to do)."
       },
       {
         "en": "The team lead had the junior developer write comprehensive unit tests for the edge cases.",
@@ -7990,8 +7990,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Canlı ortam SSL sertifikalarımızın süresi gelecek hafta dolmadan önce onları yeniletmeliyiz."
       },
       {
-        "en": "Strict firewall rules do not let unauthorized external IP addresses establish database connections.",
-        "tr": "Sıkı güvenlik duvarı kuralları, yetkisiz harici IP adreslerinin veritabanı bağlantısı kurmasına izin vermez."
+        "en": "Strict airport security rules do not let unauthorized visitors enter the boarding area.",
+        "tr": "Sıkı havalimanı güvenlik kuralları, yetkisiz ziyaretçilerin biniş alanına girmesine izin vermez."
       },
       {
         "en": "The unexpected memory spike made the operating system terminate the background process abruptly.",
@@ -8002,8 +8002,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Savunma prototipi için çok katmanlı PCB kartlarınızı nerede ürettirdiniz?"
       },
       {
-        "en": "Automated CI tools let us catch syntax regressions before code reaches staging.",
-        "tr": "Otomatik CI araçları, kod test ortamına ulaşmadan önce sözdizimi gerilemelerini yakalamamıza olanak sağlar."
+        "en": "Regular health checkups let doctors catch small problems before they become serious.",
+        "tr": "Düzenli sağlık kontrolleri, doktorların küçük sorunları ciddileşmeden yakalamasına olanak sağlar."
       }
     ],
     "quiz": [
@@ -8170,8 +8170,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Sıfır gün güvenlik açığının dünya genelinde on binden fazla yamalanmamış Linux sunucusunu etkilediği bildirilmektedir."
       },
       {
-        "en": "It is believed that the unauthorized data extraction occurred through an exposed staging API endpoint.",
-        "tr": "Yetkisiz veri çıkarımının açıkta kalan bir test API uç noktası üzerinden gerçekleştiğine inanılmaktadır."
+        "en": "It is believed that the break-in occurred through an unlocked back window.",
+        "tr": "Hırsızlığın kilitsiz bir arka pencere üzerinden gerçekleştiğine inanılmaktadır."
       },
       {
         "en": "Autonomous vehicles are expected to reduce urban traffic congestion substantially by 2030\\.",
@@ -8182,20 +8182,20 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yeni hibrit derin öğrenme modelinin video dizileri üzerinde üstün sınıflandırma doğruluğu elde ettiği düşünülmektedir."
       },
       {
-        "en": "It was rumored that the technology giant was preparing to acquire the open-source database startup.",
-        "tr": "Teknoloji devinin açık kaynaklı veritabanı girişimini satın almaya hazırlandığı söylentisi dolaşıyordu."
+        "en": "It was rumored that the famous chef was preparing to open a new restaurant downtown.",
+        "tr": "Ünlü şefin şehir merkezinde yeni bir restoran açmaya hazırlandığı söylentisi dolaşıyordu."
       },
       {
-        "en": "PostgreSQL is considered to be one of the most reliable and standards-compliant relational databases available.",
-        "tr": "PostgreSQL, mevcut en güvenilir ve standartlara en uygun ilişkisel veritabanlarından biri olarak kabul edilmektedir."
+        "en": "This airline is considered to be one of the most reliable and punctual carriers available.",
+        "tr": "Bu havayolu, mevcut en güvenilir ve dakik taşıyıcılardan biri olarak kabul edilmektedir."
       },
       {
         "en": "The legacy mainframe is understood to have processed all core financial transactions for twenty years.",
         "tr": "Eski ana bilgisayarın (mainframe) yirmi yıl boyunca tüm temel finansal işlemleri işlemiş olduğu anlaşılmaktadır."
       },
       {
-        "en": "It is assumed that all API clients will migrate to OAuth2 authentication before the deprecation deadline.",
-        "tr": "Kullanımdan kaldırma tarihinden önce tüm API istemcilerinin OAuth2 kimlik doğrulamasına geçeceği varsayılmaktadır."
+        "en": "It is assumed that all residents will switch to the new recycling system before the city deadline.",
+        "tr": "Şehir son tarihinden önce tüm sakinlerin yeni geri dönüşüm sistemine geçeceği varsayılmaktadır."
       }
     ],
     "quiz": [
@@ -8350,20 +8350,20 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "We strongly recommend that the system administrator revoke all compromised API tokens immediately.",
-        "tr": "Sistem yöneticisinin ele geçirilen tüm API belirteçlerini derhal iptal etmesini şiddetle tavsiye ederiz."
+        "en": "We strongly recommend that the hotel manager replace all the broken locks immediately.",
+        "tr": "Otel müdürünün tüm bozuk kilitleri derhal değiştirmesini şiddetle tavsiye ederiz."
       },
       {
-        "en": "It is imperative that every distributed database transaction be atomic, consistent, isolated, and durable.",
-        "tr": "Her dağıtık veritabanı işleminin atomik, tutarlı, yalıtılmış ve dayanıklı olması zorunludur."
+        "en": "It is imperative that every medical prescription be accurate, clear, verified, and properly recorded.",
+        "tr": "Her tıbbi reçetenin doğru, açık, doğrulanmış ve düzgün kaydedilmiş olması zorunludur."
       },
       {
-        "en": "The company cybersecurity policy requires that each employee enable hardware-based two-factor authentication.",
-        "tr": "Şirket siber güvenlik politikası, her çalışanın donanım tabanlı iki faktörlü kimlik doğrulamayı etkinleştirmesini şart koşar (require that he enable)."
+        "en": "The school safety policy requires that each visitor sign in at the front desk.",
+        "tr": "Okul güvenlik politikası, her ziyaretçinin ön masada imza atmasını şart koşar (require that he sign)."
       },
       {
-        "en": "The lead architect insisted that the team not deploy the major release on a Friday afternoon.",
-        "tr": "Baş mimar, ekibin cuma öğleden sonra büyük sürümü yayına almaması konusunda ısrar etti (insisted that they not deploy)."
+        "en": "The wedding planner insisted that the caterers not serve the cake before the speeches.",
+        "tr": "Düğün organizatörü, catering ekibinin konuşmalardan önce pastayı servis etmemesi konusunda ısrar etti (insisted that they not serve)."
       },
       {
         "en": "It is essential that the developer write comprehensive integration test suites for all payment endpoints.",
@@ -8386,8 +8386,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Düzenleyici kurum, tüm finansal işlemlerin değiştirilemez bir defterde kaydedilmesini zorunlu kıldı."
       },
       {
-        "en": "Is it necessary that the client provide root access credentials during the software installation?",
-        "tr": "Yazılım kurulumu sırasında müşterinin root erişim kimlik bilgilerini sağlaması gerekli midir?"
+        "en": "Is it necessary that the tenant provide a deposit before moving into the apartment?",
+        "tr": "Daireye taşınmadan önce kiracının bir depozito sağlaması gerekli midir?"
       }
     ],
     "quiz": [
@@ -8541,8 +8541,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "Relational databases enforce strict table schemas, whereas document-oriented databases provide dynamic schema flexibility.",
-        "tr": "İlişkisel veritabanları katı tablo şemalarını zorunlu kılarken, doküman odaklı veritabanları dinamik şema esnekliği sağlar."
+        "en": "Formal restaurants enforce strict dress codes, whereas casual cafés provide relaxed dining flexibility.",
+        "tr": "Resmi restoranlar katı kıyafet kurallarını zorunlu kılarken, gündelik kafeler rahat yemek esnekliği sağlar."
       },
       {
         "en": "Despite experiencing severe network latency during peak hours, our load balancer maintained 99.9% uptime.",
@@ -8553,8 +8553,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Taşıma süreci olağanüstü derecede zorluydu; yine de mühendislik ekibimiz süreci planlanandan önce tamamladı."
       },
       {
-        "en": "Microservices offer immense scalability; furthermore, they allow teams to deploy independent modules autonomously.",
-        "tr": "Mikroservisler muazzam bir ölçeklenebilirlik sunar; dahası, ekiplerin bağımsız modülleri özerk şekilde yayına almalarına olanak tanır."
+        "en": "Modular furniture offers immense flexibility; furthermore, it allows families to rearrange their homes easily.",
+        "tr": "Modüler mobilyalar muazzam bir esneklik sunar; dahası, ailelerin evlerini kolayca yeniden düzenlemesine olanak tanır."
       },
       {
         "en": "In spite of having limited financial resources, the startup built a groundbreaking AI-assisted recipe application.",
@@ -8732,8 +8732,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The secure server cluster on which our core banking API runs is hosted in Frankfurt.",
-        "tr": "Çekirdek bankacılık API'mizin üzerinde çalıştığı güvenli sunucu kümesi Frankfurt'ta barındırılmaktadır."
+        "en": "The historic building in which our city's oldest library operates is located downtown.",
+        "tr": "Şehrimizin en eski kütüphanesinin içinde faaliyet gösterdiği tarihi bina şehir merkezinde yer almaktadır."
       },
       {
         "en": "The background thread processing incoming video frames operates independently from the UI thread.",
@@ -8756,8 +8756,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yetkisiz üçüncü taraf kaynaklardan indirilen herhangi bir uygulama paketi işletim sistemi tarafından karantinaya alınacaktır."
       },
       {
-        "en": "This is the exact configuration file in which environment variables and database connection strings are defined.",
-        "tr": "Ortam değişkenlerinin ve veritabanı bağlantı dizelerinin içinde tanımlandığı yapılandırma dosyasının tam kendisi budur."
+        "en": "This is the exact notebook in which my grandmother wrote down all her recipes.",
+        "tr": "Büyükannemin tüm tariflerini yazdığı defterin tam kendisi budur."
       },
       {
         "en": "The algorithms developed by our research team achieved a 99.2% accuracy rate in traffic sign classification.",
@@ -8768,8 +8768,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Başarısız olan veri yüklerinin güvenli bir şekilde yeniden oynatılabileceği sağlam bir mesaj kuyruğu sistemine ihtiyacımız var."
       },
       {
-        "en": "The developer leading the backend refactoring effort scheduled a technical synchronization meeting for tomorrow.",
-        "tr": "Arka uç yeniden düzenleme çalışmasını yöneten geliştirici, yarın için teknik bir senkronizasyon toplantısı planladı."
+        "en": "The architect leading the renovation project scheduled a planning meeting for tomorrow.",
+        "tr": "Tadilat projesini yöneten mimar, yarın için bir planlama toplantısı ayarladı."
       }
     ],
     "quiz": [
@@ -8919,16 +8919,16 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I wish I had backed up the production database before executing the irreversible drop table command.",
-        "tr": "Geri alınamaz tablo silme komutunu çalıştırmadan önce keşke canlı veritabanını yedeklemiş olsaydım."
+        "en": "I wish I had saved a copy of my photos before accidentally deleting the entire album.",
+        "tr": "Tüm albümü yanlışlıkla silmeden önce keşke fotoğraflarımın bir kopyasını kaydetmiş olsaydım."
       },
       {
         "en": "If only our engineering team had conducted a full load test before the nationwide product launch\\!",
         "tr": "Ah keşke mühendislik ekibimiz ülke çapındaki ürün lansmanından önce tam bir yük testi gerçekleştirmiş olsaydı\\!"
       },
       {
-        "en": "She wishes she hadn't hardcoded the third-party API credentials directly into the client application.",
-        "tr": "Üçüncü taraf API kimlik bilgilerini doğrudan istemci uygulamasına sabit olarak kodlamamış olmayı diliyor (keşke kodlamasaydı)."
+        "en": "She wishes she hadn't shared her diary password directly with her younger sister.",
+        "tr": "Günlük şifresini doğrudan küçük kardeşiyle paylaşmamış olmayı diliyor (keşke paylaşmasaydı)."
       },
       {
         "en": "I wish I had taken the advanced cloud architecture certification course when I was in university.",
@@ -8939,16 +8939,16 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kötü niyetli aktörler istismar etmeden önce ah keşke kritik sıfır gün açığından haberdar olmuş olsaydık\\!"
       },
       {
-        "en": "The developers wish they had chosen PostgreSQL instead of MongoDB when they designed the initial data model.",
-        "tr": "Geliştiriciler, ilk veri modelini tasarlarken keşke MongoDB yerine PostgreSQL'i seçmiş olmayı diliyorlar."
+        "en": "The couple wish they had chosen a smaller venue instead of a huge hall when they planned the wedding.",
+        "tr": "Çift, düğünü planlarken keşke devasa bir salon yerine daha küçük bir mekan seçmiş olmayı diliyor."
       },
       {
-        "en": "I wish I could have attended the international machine learning workshop in Berlin last month.",
-        "tr": "Geçen ay Berlin'deki uluslararası makine öğrenmesi atölyesine keşke katılabilmiş olsaydım (katılamadım)."
+        "en": "I wish I could have attended my cousin's graduation ceremony in Berlin last month.",
+        "tr": "Geçen ay Berlin'deki kuzenimin mezuniyet törenine keşke katılabilmiş olsaydım (katılamadım)."
       },
       {
-        "en": "If only the server monitoring system had sent an automated SMS alert when the CPU load spiked\\!",
-        "tr": "İşlemci yükü tavan yaptığında ah keşke sunucu izleme sistemi otomatik bir SMS uyarısı göndermiş olsaydı\\!"
+        "en": "If only the home security system had sent an automated SMS alert when the back door opened!",
+        "tr": "Arka kapı açıldığında ah keşke ev güvenlik sistemi otomatik bir SMS uyarısı göndermiş olsaydı!"
       },
       {
         "en": "We wish we hadn't signed the long-term contract with that unreliable hosting provider.",
@@ -9104,24 +9104,24 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "I was going to refactor the authentication module yesterday, but an urgent production bug took priority.",
-        "tr": "Dün kimlik doğrulama modülünü yeniden düzenleyecektim, ancak acil bir canlı ortam hatası öncelik aldı (niyet vardı ama yapılamadı)."
+        "en": "I was going to repaint the fence yesterday, but an urgent family matter took priority.",
+        "tr": "Dün çiti yeniden boyayacaktım, ancak acil bir aile meselesi öncelik aldı (niyet vardı ama yapılamadı)."
       },
       {
-        "en": "The engineering team was about to deploy the release when the monitoring dashboard signaled a memory anomaly.",
-        "tr": "İzleme paneli bir bellek anomalisi bildirdiğinde mühendislik ekibi tam sürümü dağıtmak üzereydi."
+        "en": "The film crew was about to start filming the final scene when the weather suddenly turned stormy.",
+        "tr": "Hava aniden fırtınalı hale geldiğinde film ekibi son sahneyi çekmeye başlamak üzereydi."
       },
       {
-        "en": "We knew back in 2024 that artificial intelligence would transform software development workflows permanently.",
-        "tr": "2024 yılında yapay zekanın yazılım geliştirme iş akışlarını kalıcı olarak dönüştüreceğini biliyorduk."
+        "en": "We knew back in 2024 that remote work would transform office culture permanently.",
+        "tr": "2024 yılında uzaktan çalışmanın ofis kültürünü kalıcı olarak dönüştüreceğini biliyorduk."
       },
       {
         "en": "She was going to accept the remote job offer, but she received an even better counteroffer from her current company.",
         "tr": "Uzaktan iş teklifini kabul edecekti, ancak mevcut şirketinden daha da iyi bir karşı teklif aldı."
       },
       {
-        "en": "The database server was about to run out of disk space when the automated cleanup script executed.",
-        "tr": "Otomatik temizleme betiği çalıştığında veritabanı sunucusunun disk alanı tam tükenmek üzereydi."
+        "en": "The water tank was about to run dry when the automatic refill system activated.",
+        "tr": "Otomatik doldurma sistemi devreye girdiğinde su deposu tam kurumak üzereydi."
       },
       {
         "en": "I thought you were going to present the quarterly technical roadmap during today's standup.",
@@ -9140,8 +9140,8 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Daha ucuz bir açık kaynaklı alternatif ortaya çıktığında CTO tam kurumsal tedarikçi sözleşmesini imzalamak üzereydi."
       },
       {
-        "en": "I was going to write the script in Bash, but I realized Python would be much easier to maintain.",
-        "tr": "Betiği Bash dilinde yazacaktım, ancak Python'ın bakımının çok daha kolay olacağını fark ettim."
+        "en": "I was going to write the invitation in French, but I realized English would be easier for most guests.",
+        "tr": "Davetiyeyi Fransızca yazacaktım, ancak çoğu misafir için İngilizcenin daha kolay olacağını fark ettim."
       }
     ],
     "quiz": [
@@ -9315,8 +9315,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Mühendislik ekibimizin müşteriden talep ettiği tek şey, iyi tanımlanmış bir OpenAPI uç nokta spesifikasyonudur."
       },
       {
-        "en": "It was by leveraging distributed Redis caching that we managed to reduce database CPU utilization by 70%.",
-        "tr": "Veritabanı işlemci kullanımını %70 oranında azaltmayı başarmamız, dağıtık Redis önbelleğinden yararlanarak oldu."
+        "en": "It was by rearranging the kitchen workflow that the restaurant managed to reduce waiting times by 70%.",
+        "tr": "Restoranın bekleme sürelerini %70 oranında azaltmayı başarması, mutfak iş akışını yeniden düzenleyerek oldu."
       },
       {
         "en": "The person who spearheaded the migration to Kotlin Multiplatform was our lead mobile architect.",
@@ -9327,8 +9327,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Altyapı ekibini şaşırtan şey, konteynerleştirilmiş kümenin benzeri görülmemiş dayanıklılığıydı."
       },
       {
-        "en": "It is our unwavering commitment to automated test-driven development that ensures zero-regression deployments.",
-        "tr": "Sıfır gerilemeli dağıtımlar sağlayan şey, otomatik test güdümlü geliştirmeye olan sarsılmaz bağlılığımızdır."
+        "en": "It is our unwavering commitment to quality ingredients that ensures a consistently excellent meal.",
+        "tr": "Her zaman mükemmel bir yemek sağlayan şey, kaliteli malzemelere olan sarsılmaz bağlılığımızdır."
       },
       {
         "en": "The reason why we deprecated the v1 REST endpoints was their inability to handle real-time streaming.",
@@ -9496,8 +9496,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Tam gerileme (regression) test paketini çalıştırmış olsaydık, bu kritik bellek bozulması asla test ortamına ulaşmazdı."
       },
       {
-        "en": "Should the primary database cluster experience unexpected failover, the replica assumes immediate master status.",
-        "tr": "Ana veritabanı kümesi beklenmeyen bir arıza devri (failover) yaşarsa, kopya sunucu derhal ana sunucu durumunu üstlenir."
+        "en": "Should the main water supply experience an unexpected shortage, the reserve tank takes over immediately.",
+        "tr": "Ana su kaynağı beklenmeyen bir kesinti yaşarsa, yedek depo derhal devreye girer."
       },
       {
         "en": "Were our engineering department to adopt event-driven microservices, our horizontal scalability would increase substantially.",
@@ -9508,8 +9508,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Güvenlik ekibi yetkisiz veri yükünü zamanında tespit etmemiş olsaydı, gizli finansal kayıtlar dışarı sızdırılmış olabilirdi."
       },
       {
-        "en": "Were I in a position to influence the technology stack selection, I would unequivocally choose PostgreSQL over proprietary alternatives.",
-        "tr": "Teknoloji yığını seçimini etkileyecek bir konumda olsaydım, tescilli alternatifler yerine şüpheye yer bırakmaksızın PostgreSQL'i seçerdim."
+        "en": "Were I in a position to influence the city's transport planning, I would unequivocally choose public trams over private cars.",
+        "tr": "Şehrin ulaşım planlamasını etkileyecek bir konumda olsaydım, özel arabalar yerine şüpheye yer bırakmaksızın toplu tramvayları seçerdim."
       },
       {
         "en": "Should you encounter any SSL handshake anomalies during client integration, please refer to section 4 of the security documentation.",
@@ -9528,8 +9528,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Herhangi bir arka plan çalışan işlemi kendisine ayrılan bellek kotasını aşarsa, orkestra edici onu sorunsuzca sonlandırır."
       },
       {
-        "en": "Had we been informed of the impending API deprecation sooner, we would have refactored our legacy endpoints last quarter.",
-        "tr": "Yaklaşan API kullanımdan kaldırılmasından daha önce haberdar edilmiş olsaydık, eski uç noktalarımızı geçen çeyrekte yeniden düzenlemiş olurduk."
+        "en": "Had we been informed of the impending road closure sooner, we would have rerouted our delivery trucks last quarter.",
+        "tr": "Yaklaşan yol kapanmasından daha önce haberdar edilmiş olsaydık, teslimat kamyonlarımızı geçen çeyrekte yeniden yönlendirmiş olurduk."
       }
     ],
     "quiz": [
@@ -9683,8 +9683,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "All external software dependencies having been validated, the runtime environment initialized the microkernel safely.",
-        "tr": "Tüm harici yazılım bağımlılıkları doğrulandıktan sonra, çalışma zamanı ortamı mikro çekirdeği güvenli şekilde başlattı."
+        "en": "All safety equipment having been checked, the mountain guide led the climbers up the steep trail.",
+        "tr": "Tüm güvenlik ekipmanı kontrol edildikten sonra, dağ rehberi tırmanıcıları dik patikadan yukarı götürdü."
       },
       {
         "en": "Some background threads process payment gateway transactions, others real-time telemetry events.",
@@ -9699,8 +9699,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Milyonlarca eşzamanlı isteğin dağıtık uç düğümlerimize ulaştığı bir ortamda, önbellekleme katmanının vazgeçilmez olduğu kanıtlandı (With Absolute)."
       },
       {
-        "en": "Relational databases prioritize strict consistency; document stores, dynamic horizontal scalability.",
-        "tr": "İlişkisel veritabanları katı tutarlılığı önceler; doküman depoları ise dinamik yatay ölçeklenebilirliği (Gapping Ellipsis)."
+        "en": "Formal restaurants prioritize strict etiquette; street food stalls, quick and casual service.",
+        "tr": "Resmi restoranlar katı görgü kurallarını önceler; sokak lezzeti tezgahları ise hızlı ve gündelik servisi (Gapping Ellipsis)."
       },
       {
         "en": "The cloud migration contract having been formally signed, technical onboarding commenced the following morning.",
@@ -9711,12 +9711,12 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Zaman elverirse, baş araştırmacımız gerçek zamanlı duruş tahmini prototipini sergileyecektir."
       },
       {
-        "en": "The primary server cluster offline, automated DNS routing immediately shifted traffic to the secondary availability zone.",
-        "tr": "Ana sunucu kümesi çevrimdışı kalmışken, otomatik DNS yönlendirmesi trafiği derhal ikincil kullanılabilirlik bölgesine kaydırdı."
+        "en": "The main highway closed, automated traffic signs immediately redirected drivers to the secondary route.",
+        "tr": "Ana otoyol kapanmışken, otomatik trafik tabelaları sürücüleri derhal ikincil güzergaha yönlendirdi."
       },
       {
-        "en": "One engineer authored the core machine learning algorithm, another the REST API wrapper.",
-        "tr": "Bir mühendis çekirdek makine öğrenmesi algoritmasını yazdı, bir diğeri ise REST API sarmalayıcısını (Ellipsis)."
+        "en": "One architect designed the building's main structure, another the interior layout.",
+        "tr": "Bir mimar binanın ana yapısını tasarladı, bir diğeri ise iç mekan düzenini (Ellipsis)."
       },
       {
         "en": "With the cryptographic ledger immutable and tamper-proof, transaction authenticity was unequivocally guaranteed.",
@@ -9880,16 +9880,16 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Tek hata noktalarının sistematik olarak ortadan kaldırılması, genel altyapı dayanıklılığını doğrudan artırır."
       },
       {
-        "en": "Our empirical evaluation revealed significant performance advantages vis-à-vis legacy monolithic frameworks.",
-        "tr": "Ampirik değerlendirmemiz, eski monolitik çatılara kıyasla önemli performans avantajları ortaya koydu."
+        "en": "Our empirical evaluation revealed significant health advantages vis-à-vis traditional sedentary lifestyles.",
+        "tr": "Ampirik değerlendirmemiz, geleneksel hareketsiz yaşam tarzlarına kıyasla önemli sağlık avantajları ortaya koydu."
       },
       {
         "en": "The transition from synchronous polling to asynchronous event-driven messaging resulted in a 40% reduction in network overhead.",
         "tr": "Eşzamansız olay güdümlü mesajlaşmaya geçiş, ağ ek yükünde %40'lık bir azalmayla sonuçlandı."
       },
       {
-        "en": "Deployment was executed in strict accordance with international cybersecurity and cryptographic regulatory mandates.",
-        "tr": "Dağıtım, uluslararası siber güvenlik ve kriptografik düzenleyici şartnamelere tam uygunluk içinde gerçekleştirildi."
+        "en": "Construction was executed in strict accordance with international building safety and fire regulatory mandates.",
+        "tr": "İnşaat, uluslararası bina güvenliği ve yangın düzenleyici şartnamelerine tam uygunluk içinde gerçekleştirildi."
       },
       {
         "en": "The unprecedented scalability of distributed ledger technology notwithstanding, transaction finality latency remains a challenge.",
@@ -10048,12 +10048,12 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Donanım güvenlik modülünün derinliklerine gömülü olarak, değiştirilemez kriptografik kök anahtar yer almaktadır."
       },
       {
-        "en": "Particularly noteworthy was the distributed database's ability to maintain ACID guarantees during network partitions.",
-        "tr": "Ağ bölünmeleri sırasında dağıtık veritabanının ACID garantilerini koruma yeteneği özellikle dikkate değerdi."
+        "en": "Particularly noteworthy was the old bridge's ability to withstand severe storms for over a century.",
+        "tr": "Eski köprünün bir yüzyılı aşkın süredir şiddetli fırtınalara dayanma yeteneği özellikle dikkate değerdi."
       },
       {
-        "en": "Adjacent to the primary database rack stands the high-density backup battery infrastructure.",
-        "tr": "Birincil veritabanı kabinine bitişik olarak, yüksek yoğunluklu yedek batarya altyapısı durmaktadır."
+        "en": "Adjacent to the main library hall stands the newly renovated reading room.",
+        "tr": "Ana kütüphane salonuna bitişik olarak, yeni tadilattan geçmiş okuma odası durmaktadır."
       },
       {
         "en": "Technical debt we can systematically eliminate, but compromised architectural integrity we cannot.",
@@ -10072,8 +10072,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "İlk bulut taşıma giderleri her ne kadar önemli olsa da, uzun vadeli operasyonel tasarrufların kayda değer olduğu kanıtlandı."
       },
       {
-        "en": "Directly beneath the application layer sits the database abstraction interface.",
-        "tr": "Uygulama katmanının doğrudan altında, veritabanı soyutlama arayüzü yer alır."
+        "en": "Directly beneath the city's main square sits an ancient Roman water cistern.",
+        "tr": "Şehrin ana meydanının doğrudan altında, antik bir Roma su sarnıcı yer alır."
       },
       {
         "en": "Unprecedented was the volume of network telemetry dispatched during the worldwide product release.",
@@ -10230,20 +10230,20 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "You needn't have manually migrated those database tables; our automated script had already scheduled the migration.",
-        "tr": "O veritabanı tablolarını manuel olarak taşımanıza hiç gerek yoktu (boşuna zahmet ettiniz); otomatik betiğimiz taşımayı çoktan planlamıştı."
+        "en": "You needn't have manually watered the entire garden; the automatic sprinkler system had already scheduled it.",
+        "tr": "Tüm bahçeyi elle sulamanıza hiç gerek yoktu (boşuna zahmet ettiniz); otomatik sulama sistemi bunu çoktan planlamıştı."
       },
       {
-        "en": "We didn't need to purchase additional physical server racks because the cloud auto-scaler managed the traffic surge.",
-        "tr": "Ek fiziksel sunucu kabinleri satın almamıza gerek kalmadı (ve almadık) çünkü bulut otomatik ölçekleyicisi trafik artışını yönetti."
+        "en": "We didn't need to purchase additional chairs because the venue's storage room already had enough.",
+        "tr": "Ek sandalye satın almamıza gerek kalmadı (ve almadık) çünkü mekanın depo odasında zaten yeterince vardı."
       },
       {
         "en": "Without automated unit test coverage, a large refactoring project is bound to introduce severe regressions.",
         "tr": "Otomatik birim testi kapsamı olmadan, büyük bir yeniden düzenleme projesinin vahim gerilemelere yol açması kaçınılmazdır (bound to)."
       },
       {
-        "en": "The major security infrastructure update is due to be deployed tonight at 02:00 UTC.",
-        "tr": "Büyük güvenlik altyapısı güncellemesinin bu gece 02:00 UTC'de dağıtılması planlanmaktadır (due to be deployed)."
+        "en": "The new train timetable is due to be launched tonight at midnight.",
+        "tr": "Yeni tren tarifesinin bu gece yarısı başlatılması planlanmaktadır (due to be launched)."
       },
       {
         "en": "No junior developer dared to modify the undocumented cryptographic algorithms in the core engine.",
@@ -10258,16 +10258,16 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Tek iş parçacıklı eşzamanlı G/Ç'ye dayanan herhangi bir sistemin yüksek eşzamanlılık altında darboğazlarla karşılaşması kaçınılmazdır."
       },
       {
-        "en": "I didn't need to configure the SSL certificates manually because Kubernetes cert-manager handled the renewals.",
-        "tr": "SSL sertifikalarını manuel olarak yapılandırmama gerek kalmadı çünkü Kubernetes cert-manager yenilemeleri halletti."
+        "en": "I didn't need to renew my passport manually because the online government portal handled it automatically.",
+        "tr": "Pasaportumu manuel olarak yenilememe gerek kalmadı çünkü çevrimiçi devlet portalı bunu otomatik olarak halletti."
       },
       {
         "en": "The prototype is supposed to interface directly with the CAN bus telemetry hardware.",
         "tr": "Prototipin doğrudan CAN veri yolu telemetri donanımıyla arayüz oluşturması gerekmektedir (is supposed to)."
       },
       {
-        "en": "How dare you bypass the pull request approval protocols to push untested code directly to production?",
-        "tr": "Test edilmemiş kodu doğrudan canlı ortama göndermek için çekme isteği onay protokollerini atlamaya nasıl cüret edersin?"
+        "en": "How dare you bypass the safety inspection protocols to open the ride to the public?",
+        "tr": "Oyuncağı halka açmak için güvenlik denetim protokollerini atlamaya nasıl cüret edersin?"
       }
     ],
     "quiz": [
@@ -10432,12 +10432,12 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yeni mikroservis mimarisinin olağanüstü bir öngörüyle tasarlanmış olduğu kabul edildi."
       },
       {
-        "en": "Our cloud environment requires all outgoing API payloads to be validated against predefined JSON schemas.",
-        "tr": "Bulut ortamımız, giden tüm API yüklerinin önceden tanımlanmış JSON şemalarına göre doğrulanmasını (to be validated) gerektirir."
+        "en": "Our quality control department requires all outgoing shipments to be inspected against predefined safety standards.",
+        "tr": "Kalite kontrol departmanımız, giden tüm sevkiyatların önceden tanımlanmış güvenlik standartlarına göre denetlenmesini (to be inspected) gerektirir."
       },
       {
-        "en": "Having been notified of the zero-day vulnerability, the security response team deployed an emergency hotfix.",
-        "tr": "Sıfır gün açığından haberdar edilmiş olan güvenlik müdahale ekibi, acil bir yama dağıttı."
+        "en": "Having been notified of the gas leak, the emergency response team evacuated the building immediately.",
+        "tr": "Gaz kaçağından haberdar edilmiş olan acil müdahale ekibi, binayı derhal tahliye etti."
       },
       {
         "en": "The continuous delivery pipeline broke when an unexpected syntax error manifested in the build script.",
@@ -10448,8 +10448,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kullanıcı profil verilerinin, hesap devre dışı bırakıldıktan otuz gün sonra kalıcı olarak silinmesi (to be purged) planlanmıştır."
       },
       {
-        "en": "The system architect appreciated having been consulted before the database migration commenced.",
-        "tr": "Sistem mimarı, veritabanı taşıması başlamadan önce kendisine danışılmış olunmasından (having been consulted) memnuniyet duydu."
+        "en": "The head chef appreciated having been consulted before the menu changes were finalized.",
+        "tr": "Baş şef, menü değişiklikleri kesinleşmeden önce kendisine danışılmış olunmasından (having been consulted) memnuniyet duydu."
       },
       {
         "en": "These cryptographic tokens cannot be tampered with without invalidating the digital signature.",
@@ -10607,8 +10607,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "The engineering team proposed a viable, albeit technically demanding, resolution to the database deadlock.",
-        "tr": "Mühendislik ekibi, veritabanı kilitlenmesine uygulanabilir, her ne kadar teknik olarak zahmetli olsa da, bir çözüm önerdi (Albeit)."
+        "en": "The committee proposed a viable, albeit financially demanding, solution to the town's flooding problem.",
+        "tr": "Komite, kasabanın sel sorununa uygulanabilir, her ne kadar maddi olarak zahmetli olsa da, bir çözüm önerdi (Albeit)."
       },
       {
         "en": "Much as I admire the simplicity of the proposed user interface, it fails to meet accessibility compliance standards.",
@@ -10619,8 +10619,8 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kod tabanını ne kadar kapsamlı denetlerseniz denetleyin, benzeri görülmemiş trafik artışları altında beklenmeyen sınır durumların ortaya çıkması kaçınılmazdır (However \\+ adverb)."
       },
       {
-        "en": "You may deploy the experimental feature to the staging environment provided that all end-to-end integration tests pass.",
-        "tr": "Tüm uçtan uca entegrasyon testlerinin geçmesi şartıyla (provided that), deneysel özelliği test ortamına dağıtabilirsiniz."
+        "en": "You may open the new restaurant branch provided that all health and safety inspections pass.",
+        "tr": "Tüm sağlık ve güvenlik denetimlerinin geçmesi şartıyla (provided that), yeni restoran şubesini açabilirsiniz."
       },
       {
         "en": "Granted that distributed microservices introduce network latency, their horizontal scalability benefits remain unmatched.",
@@ -10631,16 +10631,16 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Algoritmik yeniden düzenleme, performans testi sırasında etkileyici, her ne kadar geçici olsa da, performans iyileştirmeleri sağladı."
       },
       {
-        "en": "As long as database transactions maintain ACID compliance, data integrity will be preserved during unexpected crashes.",
-        "tr": "Veritabanı işlemleri ACID uyumluluğunu koruduğu sürece (as long as), beklenmeyen çökmeler sırasında veri bütünlüğü korunacaktır."
+        "en": "As long as the bridge undergoes regular structural inspections, public safety will be preserved during severe weather.",
+        "tr": "Köprü düzenli yapısal denetimlerden geçtiği sürece (as long as), şiddetli hava koşullarında halk güvenliği korunacaktır."
       },
       {
         "en": "Much as we wanted to launch version 2.0 this month, unresolved security vulnerabilities necessitated a brief delay.",
         "tr": "Bu ay 2.0 sürümünü yayına almayı her ne kadar çok istemiş olsak da, çözülmemiş güvenlik açıkları kısa bir ertelemeyi zorunlu kıldı."
       },
       {
-        "en": "However sophisticated an anomaly detection algorithm may be, human oversight remains indispensable in critical scenarios.",
-        "tr": "Bir anomali tespit algoritması ne kadar gelişmiş olursa olsun, kritik senaryolarda insan denetimi vazgeçilmez olmaya devam eder."
+        "en": "However sophisticated an alarm system may be, human vigilance remains indispensable in critical situations.",
+        "tr": "Bir alarm sistemi ne kadar gelişmiş olursa olsun, kritik durumlarda insan tetikte olması vazgeçilmez olmaya devam eder."
       },
       {
         "en": "The third-party vendor agreed to the SLA on condition that our queries not exceed five thousand requests per second.",
@@ -10807,8 +10807,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kriptografik güvenlik zarfının derinliklerine gömülü olarak, dağıtık işlemlerin değiştirilemez defteri yer almaktadır."
       },
       {
-        "en": "Our machine learning model performed exceptionally well on unstructured datasets, as did the automated benchmark pipeline.",
-        "tr": "Makine öğrenmesi modelimiz yapılandırılmamış veri setlerinde olağanüstü iyi performans gösterdi; tıpkı otomatik kıyaslama işlem hattının da gösterdiği gibi."
+        "en": "Our youth orchestra performed exceptionally well at the regional competition, as did the visiting choir.",
+        "tr": "Gençlik orkestramız bölgesel yarışmada olağanüstü iyi performans gösterdi; tıpkı misafir korosunun da gösterdiği gibi."
       },
       {
         "en": "On the rigorous mathematical validation of this zero-knowledge proof depends the cryptographic integrity of the entire network.",
@@ -10835,8 +10835,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Bu mimari kararın dengesinde, kod tabanımızın uzun vadeli sürdürülebilirliği asılı durmaktadır."
       },
       {
-        "en": "Directly above the database abstraction layer sits the asynchronous event-driven mediation engine.",
-        "tr": "Veritabanı soyutlama katmanının doğrudan üzerinde, eşzamansız olay güdümlü arabuluculuk motoru yer alır."
+        "en": "Directly above the old town's cobblestone square sits the city's famous clock tower.",
+        "tr": "Eski şehrin arnavut kaldırımlı meydanının doğrudan üzerinde, şehrin ünlü saat kulesi yer alır."
       }
     ],
     "quiz": [
@@ -11026,12 +11026,12 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yönetim acil bir sürüm için her ne kadar baskı yapsa da, baş mühendis titiz kalite güvencesi konusunda tavizsiz durdu."
       },
       {
-        "en": "Truth be told, our legacy database was never engineered to accommodate such unprecedented multi-region concurrency.",
-        "tr": "Doğrusunu söylemek gerekirse (truth be told), eski veritabanımız böylesine benzeri görülmemiş çok bölgeli eşzamanlılığı barındırmak için asla tasarlanmamıştı."
+        "en": "Truth be told, our small family inn was never designed to accommodate such an unprecedented number of guests.",
+        "tr": "Doğrusunu söylemek gerekirse (truth be told), küçük aile hanımız böylesine benzeri görülmemiş sayıda misafiri ağırlamak için asla tasarlanmamıştı."
       },
       {
-        "en": "Be it an edge device, an embedded microcontroller, or a cloud server, the cryptographic handshake protocol executes identically.",
-        "tr": "İster bir uç cihaz, ister gömülü bir mikrodenetleyici, isterse bir bulut sunucusu olsun; kriptografik el sıkışma protokolü aynı şekilde yürütülür."
+        "en": "Be it a mountain village, a coastal town, or a bustling city, the region's traditional hospitality remains identical.",
+        "tr": "İster bir dağ köyü, ister bir sahil kasabası, isterse hareketli bir şehir olsun; bölgenin geleneksel misafirperverliği aynı kalır."
       },
       {
         "en": "Notwithstanding the executive consensus, the empirical benchmarks unequivocally refute the viability of the proposed migration.",
@@ -11174,20 +11174,20 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "FastAPI — a cutting-edge asynchronous web framework engineered on Starlette and Pydantic — provides native OpenAPI specifications.",
-        "tr": "Starlette ve Pydantic üzerinde tasarlanmış modern bir eşzamansız web çatısı olan FastAPI, yerel OpenAPI spesifikasyonları sağlar (Em-dash Apposition)."
+        "en": "The Orient Express — a legendary luxury train once connecting Paris and Istanbul — remains a symbol of golden-age travel.",
+        "tr": "Bir zamanlar Paris ve İstanbul'u birbirine bağlayan efsanevi bir lüks tren olan Orient Express, altın çağ seyahatinin bir simgesi olmaya devam ediyor (Em-dash Apposition)."
       },
       {
-        "en": "We monitored, diagnosed, patched, verified, deployed — all within forty-five minutes of the initial incident.",
-        "tr": "İzledik, teşhis ettik, yamaladık, doğruladık, dağıttık — hepsi ilk olayın ardından kırk beş dakika içinde gerçekleşti (Asyndeton)."
+        "en": "We assessed, treated, stabilized, monitored, discharged — all within forty-five minutes of the patient's arrival.",
+        "tr": "Değerlendirdik, tedavi ettik, dengeye kavuşturduk, izledik, taburcu ettik — hepsi hastanın gelişinden kırk beş dakika içinde gerçekleşti (Asyndeton)."
       },
       {
         "en": "The cryptographic ledger, an immutable chain of cryptographically linked blocks, guarantees non-repudiation of transactions.",
         "tr": "Kriptografik olarak birbirine bağlanmış bloklardan oluşan değiştirilemez bir zincir olan kriptografik defter, işlemlerin inkar edilemezliğini garanti eder."
       },
       {
-        "en": "The monolithic architecture — once the cornerstone of enterprise software engineering — has gradually yielded to decoupled microservices.",
-        "tr": "Bir zamanlar kurumsal yazılım mühendisliğinin temel taşı olan monolitik mimari, yerini kademeli olarak ayrık mikroservislere bıraktı."
+        "en": "The department store — once the cornerstone of downtown shopping — has gradually yielded to small specialty boutiques.",
+        "tr": "Bir zamanlar şehir merkezi alışverişinin temel taşı olan büyük mağaza, yerini kademeli olarak küçük butiklere bıraktı."
       },
       {
         "en": "Our security protocol mandates biometric scanning and cryptographic smartcards and physical hardware tokens.",
@@ -11198,16 +11198,16 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Kompakt ancak olağanüstü derecede dayanıklı olan mikro çekirdek, tüm donanım sürücülerini iki yüz milisaniyenin altında başlattı."
       },
       {
-        "en": "Legacy code, outdated documentation, undocumented dependencies, unmanaged technical debt — these are the hallmarks of neglected software.",
-        "tr": "Eski kod, güncelliğini yitirmiş dokümantasyon, belgelenmemiş bağımlılıklar, yönetilmeyen teknik borç — bunlar ihmal edilmiş yazılımın alametifarikalarıdır."
+        "en": "Peeling paint, broken windows, an overgrown garden, unpaid taxes — these are the hallmarks of a neglected old house.",
+        "tr": "Dökülen boya, kırık pencereler, bakımsız bir bahçe, ödenmemiş vergiler — bunlar ihmal edilmiş eski bir evin alametifarikalarıdır."
       },
       {
         "en": "PayTR, a licensed payment gateway provider, ensures seamless regulatory compliance for all Turkish e-commerce transactions.",
         "tr": "Lisanslı bir ödeme ağ geçidi sağlayıcısı olan PayTR, tüm Türk e-ticaret işlemleri için sorunsuz yasal uyumluluk sağlar."
       },
       {
-        "en": "The database optimizer evaluated indexes, partitioned tables, re-routed queries, resolved deadlocks.",
-        "tr": "Veritabanı optimize edicisi indeksleri değerlendirdi, tabloları bölümledi, sorguları yeniden yönlendirdi, kilitlenmeleri çözdü (Asyndeton)."
+        "en": "The event planner evaluated venues, arranged seating, rerouted deliveries, resolved last-minute conflicts.",
+        "tr": "Etkinlik planlayıcısı mekanları değerlendirdi, oturma düzenini ayarladı, teslimatları yeniden yönlendirdi, son dakika anlaşmazlıklarını çözdü (Asyndeton)."
       },
       {
         "en": "Deep learning — particularly convolutional and recurrent architectures — has permanently redefined computer vision benchmarks.",
@@ -11380,16 +11380,16 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Şu kadarını söylemek yeterlidir ki, eşzamanlı REST'ten eşzamansız olay akışına geçişimiz gecikmeyi %85 oranında azalttı."
       },
       {
-        "en": "Come what may, our cybersecurity infrastructure will enforce end-to-end cryptographic encryption across all internal services.",
-        "tr": "Ne olursa olsun, siber güvenlik altyapımız tüm dahili servislerde uçtan uca kriptografik şifrelemeyi uygulayacaktır."
+        "en": "Come what may, our family will maintain our annual tradition of gathering for the holidays.",
+        "tr": "Ne olursa olsun, ailemiz bayramlarda bir araya gelme geleneğini sürdürecektir."
       },
       {
         "en": "If the executive board mandates a complete rewrite of the legacy billing system in Rust, so be it.",
         "tr": "Yönetim kurulu eski faturalandırma sisteminin Rust dilinde tamamen baştan yazılmasını zorunlu kılarsa, öyle olsun (kabulümüzdür)."
       },
       {
-        "en": "Heaven forbid that an unpatched zero-day vulnerability compromise our production user database during the holiday season.",
-        "tr": "Umarız ki (Allah korusun) tatil sezonunda yamalanmamış bir sıfır gün açığı canlı kullanıcı veritabanımızı tehlikeye atmasın."
+        "en": "Heaven forbid that a sudden storm compromise the village's harvest festival this weekend.",
+        "tr": "Umarız ki (Allah korusun) bu hafta sonu ani bir fırtına köyün hasat festivalini tehlikeye atmasın."
       },
       {
         "en": "The distributed consensus protocol serves as the central nervous system of the cluster, as it were.",
@@ -11400,12 +11400,12 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "İster donanım bozulması, ister ağ bölünmesi, isterse güç kaybı yoluyla olsun; felaket kurtarma protokolü otomatik olarak başlar."
       },
       {
-        "en": "Suffice it to say, the machine learning model achieved state-of-the-art accuracy in detecting temporal DeepFake manipulations.",
-        "tr": "Şu kadarını söylemek yeterlidir ki, makine öğrenmesi modeli zamansal DeepFake manipülasyonlarını tespit etmede son teknoloji doğruluğa ulaştı."
+        "en": "Suffice it to say, the young violinist achieved a remarkable level of mastery for her age.",
+        "tr": "Şu kadarını söylemek yeterlidir ki, genç kemancı yaşına göre dikkat çekici bir ustalık seviyesine ulaştı."
       },
       {
-        "en": "Far be it from any engineer to compromise on database consistency for the sake of premature optimization.",
-        "tr": "Erken optimizasyon uğruna veritabanı tutarlılığından ödün vermek hiçbir mühendisin haddi değildir."
+        "en": "Far be it from any true craftsman to compromise on quality for the sake of a faster deadline.",
+        "tr": "Daha hızlı bir teslim tarihi uğruna kaliteden ödün vermek hiçbir gerçek ustanın haddi değildir."
       },
       {
         "en": "If we must operate under strict regulatory audit constraints for the foreseeable future, so be it.",
@@ -11544,8 +11544,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
     ],
     "examples": [
       {
-        "en": "Our research paper proposes a hybrid convolutional-recurrent temporal sequence anomaly detection framework for video forgery identification.",
-        "tr": "Araştırma makalemiz, video sahteciliği tespiti için hibrit bir evrişimli-tekrarlayan zamansal dizi anomali tespit çatısı önermektedir."
+        "en": "Our research paper proposes a comprehensive community-based early intervention model for adolescent mental health support.",
+        "tr": "Araştırma makalemiz, ergen ruh sağlığı desteği için kapsamlı, toplum temelli bir erken müdahale modeli önermektedir."
       },
       {
         "en": "Sub-millisecond MQTT-mediated inter-service message orchestration guarantees deterministic emergency vehicle preemption.",
@@ -11568,8 +11568,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Senkronize edilmemiş yüksek frekanslı eşzamanlı bellek yazma işlemleri, kaçınılmaz olarak vahim çekirdek çökmelerini (kernel panic) tetikler."
       },
       {
-        "en": "The team engineered an automated multi-region database replication and disaster recovery failover mechanism.",
-        "tr": "Ekip, otomatik bir çok bölgeli veritabanı çoğaltma ve felaket kurtarma arıza devri mekanizması tasarladı."
+        "en": "The city engineered a comprehensive multi-district flood prevention and emergency evacuation plan.",
+        "tr": "Şehir, kapsamlı bir çok bölgeli sel önleme ve acil tahliye planı tasarladı."
       },
       {
         "en": "High-throughput asynchronous event-driven microservices decouple transactional order processing from analytics ingestion.",
@@ -11580,8 +11580,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Önerilen derin yapay sinir ağı mimarisi, duruş sınıflandırmasında veri setleri arası benzeri görülmemiş bir genellenebilirlik elde etmektedir."
       },
       {
-        "en": "Rigorous automated regression testing suites minimize production deployment failure probabilities.",
-        "tr": "Titiz otomatik gerileme testi paketleri, canlı ortam dağıtım başarısızlığı olasılıklarını en aza indirir."
+        "en": "Rigorous standardized quality inspection protocols minimize manufacturing defect probabilities.",
+        "tr": "Titiz, standartlaştırılmış kalite denetim protokolleri, üretim kusur olasılıklarını en aza indirir."
       }
     ],
     "quiz": [
@@ -11728,8 +11728,8 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Yirmi milyon canlı kullanıcı kaydını sıfır kesintiyle üç bulut bölgesine taşımak hiç de küçük bir başarı değildi (Litotes \\- muazzam bir başarıydı)."
       },
       {
-        "en": "We should not write code merely to satisfy machines; rather, we should teach machines to empower human creativity.",
-        "tr": "Kodu yalnızca makineleri tatmin etmek için yazmamalıyız; bilakis, makinelere insan yaratıcılığını güçlendirmeyi öğretmeliyiz (Antithesis)."
+        "en": "We should not raise children merely to meet expectations; rather, we should nurture children to discover their own potential.",
+        "tr": "Çocukları yalnızca beklentileri karşılamaları için yetiştirmemeliyiz; bilakis, çocukları kendi potansiyellerini keşfetmeleri için beslemeliyiz (Antithesis)."
       },
       {
         "en": "The impact of the new neural network architecture on video frame interpolation was by no means negligible.",
@@ -11740,24 +11740,24 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
         "tr": "Araçlarımız bize hükmetmesin diye araçlarımıza biz hükmetmeliyiz (Chiasmus / Antithesis)."
       },
       {
-        "en": "The proposed algorithm is elegant in its simplicity, yet formidable in its computational throughput.",
-        "tr": "Önerilen algoritma sadeliği bakımından zarif, ancak hesaplama işlem hacmi bakımından heybetlidir (Balanced Parallelism)."
+        "en": "The proposed design is elegant in its simplicity, yet formidable in its structural strength.",
+        "tr": "Önerilen tasarım sadeliği bakımından zarif, ancak yapısal dayanıklılığı bakımından heybetlidir (Balanced Parallelism)."
       },
       {
         "en": "Achieving sub-millisecond distributed consensus across global availability zones is no easy task.",
         "tr": "Küresel kullanılabilirlik bölgelerinde milisaniye altı dağıtık fikir birliğine ulaşmak hiç de kolay bir iş değildir (Litotes)."
       },
       {
-        "en": "Our engineering organization designed meticulously, tested relentlessly, deployed fearlessly.",
-        "tr": "Mühendislik organizasyonumuz titizlikle tasarladı, durmaksızın test etti, korkusuzca dağıttı (Tricolon Parallelism)."
+        "en": "Our rescue team planned meticulously, trained relentlessly, acted fearlessly.",
+        "tr": "Kurtarma ekibimiz titizlikle planladı, durmaksızın eğitim aldı, korkusuzca harekete geçti (Tricolon Parallelism)."
       },
       {
         "en": "The performance discrepancies observed during the multi-tenant stress test were not without precedent.",
         "tr": "Çok kiracılı stres testi sırasında gözlemlenen performans tutarsızlıkları emsalsiz değildi (Litotes \\- daha önce de görülmüştü)."
       },
       {
-        "en": "Simplicity is the ultimate sophistication in software engineering, as clarity is the ultimate virtue in code.",
-        "tr": "Kodda netliğin nihai erdem olması gibi, yazılım mühendisliğinde de sadelik nihai gelişmişliktir."
+        "en": "Simplicity is the ultimate sophistication in design, as honesty is the ultimate virtue in friendship.",
+        "tr": "Dostlukta dürüstlüğün nihai erdem olması gibi, tasarımda da sadelik nihai gelişmişliktir."
       },
       {
         "en": "To optimize without measurement is folly; to measure without optimization is futility.",

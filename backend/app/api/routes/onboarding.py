@@ -78,6 +78,7 @@ async def calibrate_level(
     return CalibrationResult(
         cefr_level=assessment.cefr_level,
         summary_tr=assessment.summary_tr,
+        reasons=assessment.reasons,
         answers=results,
     )
 

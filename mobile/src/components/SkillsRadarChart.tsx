@@ -68,7 +68,11 @@ export function SkillsRadarChart({
   );
 
   return (
-    <View style={[styles.container, { width: size, height: size }]}>
+    <View style={styles.container}>
+      {/* Fixed-size SVG stage (badge is absolutely positioned within it) —
+          kept separate from the legend below so the legend can add its own
+          height instead of being squeezed into/overflowing a size×size box. */}
+      <View style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
         {/* Background Concentric Polygon Web */}
         {gridPolygons.map((points, idx) => (
@@ -120,10 +124,13 @@ export function SkillsRadarChart({
           />
         ))}
 
-        {/* Labels at outer rim */}
+        {/* Labels at outer rim — emoji + percentage are deliberately bigger
+            than the old 9px to actually be readable without squinting; the
+            emoji→full-name mapping lives in the legend below instead of
+            being crammed into this tiny label too. */}
         {showLabels &&
           AXIS_CONFIG.map((axis, idx) => {
-            const labelRadius = maxRadius + 22;
+            const labelRadius = maxRadius + 24;
             const { x, y } = getCoordinates(axis.angle, labelRadius);
             const score = metrics[axis.key] ?? 0;
 
@@ -131,8 +138,8 @@ export function SkillsRadarChart({
               <SvgText
                 key={`label_${idx}`}
                 x={x}
-                y={y + 3}
-                fontSize={9}
+                y={y + 4}
+                fontSize={12}
                 fontWeight="700"
                 fontFamily={fonts.mono}
                 fill={colors.textHeading}
@@ -145,9 +152,24 @@ export function SkillsRadarChart({
       </Svg>
 
       {/* Center Overall Score Badge */}
-      <View style={[styles.centerScoreBadge, { top: center - 16, left: center - 16 }]}>
+      <View style={[styles.centerScoreBadge, { top: center - 22, left: center - 22 }]}>
         <Text style={styles.centerScoreText}>%{avgScore}</Text>
+        <Text style={styles.centerScoreLabel}>Ort.</Text>
       </View>
+      </View>
+
+      {/* Legend — spells out what each emoji means, since the in-chart
+          labels only have room for emoji + percentage. */}
+      {showLabels && (
+        <View style={styles.legend}>
+          {AXIS_CONFIG.map((axis) => (
+            <View key={axis.key} style={styles.legendItem}>
+              <Text style={styles.legendEmoji}>{axis.emoji}</Text>
+              <Text style={styles.legendLabel}>{axis.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -161,8 +183,8 @@ const styles = StyleSheet.create({
   },
   centerScoreBadge: {
     position: 'absolute',
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     borderRadius: radii.pill,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
@@ -177,8 +199,41 @@ const styles = StyleSheet.create({
   },
   centerScoreText: {
     fontFamily: fonts.mono,
-    fontSize: 9,
+    fontSize: 13,
     fontWeight: 'bold',
     color: colors.brand,
+    lineHeight: 15,
+  },
+  centerScoreLabel: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 8,
+    color: colors.textMuted,
+  },
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingHorizontal: 8,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: radii.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  legendEmoji: {
+    fontSize: 11,
+  },
+  legendLabel: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 10.5,
+    color: colors.textHeading,
   },
 });

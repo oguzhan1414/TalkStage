@@ -1,8 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { yankiMagicImage } from '../../assets/images';
-import { BouncyPressable } from '../../components/BouncyPressable';
+import { yankiGreetingImage } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
@@ -49,7 +48,7 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
           koçunla dilediğin gibi konuş.
         </Text>
 
-        <Image source={yankiMagicImage} style={styles.hero} resizeMode="contain" />
+        <Image source={yankiGreetingImage} style={styles.hero} resizeMode="contain" />
 
         <View style={styles.pillars}>
           {PILLARS.map((p) => (
@@ -67,14 +66,7 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
       </ScrollView>
 
       <View style={styles.footer}>
-        <BouncyPressable
-          onPress={() => navigation.navigate('Name')}
-          style={[styles.startBtn, shadow.card]}
-          hapticType="medium"
-          scaleTo={0.96}
-        >
-          <Text style={styles.startBtnText}>Hadi Başlayalım ➔</Text>
-        </BouncyPressable>
+        <Button label="Hadi Başlayalım ➔" variant="chunky" onPress={() => navigation.navigate('Name')} />
       </View>
     </SafeAreaView>
   );
@@ -168,17 +160,5 @@ const styles = StyleSheet.create({
   footer: {
     padding: spacing.lg,
     paddingTop: spacing.sm,
-  },
-  startBtn: {
-    height: 52,
-    backgroundColor: colors.brand,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#FFFFFF',
   },
 });

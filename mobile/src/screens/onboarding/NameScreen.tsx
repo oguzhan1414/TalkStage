@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { yankiMagicImage } from '../../assets/images';
+import { yankiListeningImage } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { OnboardingProgressHeader } from '../../components/OnboardingProgressHeader';
 import { useOnboarding } from '../../context/OnboardingContext';
@@ -21,7 +21,7 @@ export function NameScreen({ navigation }: OnboardingStackScreenProps<'Name'>) {
       <View style={styles.content}>
         {/* Yankı Friendly Speech Box - Crisp White Card with Soft Indigo Accent */}
         <View style={styles.speechBox}>
-          <Image source={yankiMagicImage} style={styles.speechAvatar} resizeMode="contain" />
+          <Image source={yankiListeningImage} style={styles.speechAvatar} resizeMode="contain" />
           <View style={styles.speechTextCol}>
             <Text style={styles.speechLabel}>Yankı • Kişisel Konuşma Koçun</Text>
             <Text style={styles.speechText}>
@@ -61,6 +61,7 @@ export function NameScreen({ navigation }: OnboardingStackScreenProps<'Name'>) {
       <View style={styles.footer}>
         <Button
           label="Devam Et ➔"
+          variant="chunky"
           onPress={() => navigation.navigate('Persona')}
           disabled={!trimmedName}
         />

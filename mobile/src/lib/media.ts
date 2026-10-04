@@ -30,3 +30,16 @@ export function resolveVideoUrl(videoPath?: string, videoFile?: string): string 
   if (!videoPath || !videoFile) return '';
   return resolveMediaUrl(`${videoPath}/${videoFile}`);
 }
+
+/** Resolves an on-demand podcast file served by FastAPI/CDN.
+ * Returning an expo-audio URI source keeps MP3 files out of the app bundle. */
+export function resolvePodcastAudio(filename: string): { uri: string } {
+  const baseUrl = process.env.EXPO_PUBLIC_MEDIA_BASE_URL
+    || process.env.EXPO_PUBLIC_API_BASE_URL
+    || 'http://localhost:8000';
+  const resolvedBase =
+    Platform.OS === 'android' && baseUrl.includes('localhost')
+      ? baseUrl.replace('localhost', '10.0.2.2')
+      : baseUrl;
+  return { uri: `${resolvedBase.replace(/\/$/, '')}/podcasts/${encodeURIComponent(filename)}` };
+}

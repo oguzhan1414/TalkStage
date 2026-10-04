@@ -16,19 +16,31 @@ import { resolveScenarioCategoryFallback } from '../assets/images';
 import { Toast } from '../components/Toast';
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
+import { CEFR_LEVELS } from '../constants/cefr';
+import { SCENARIO_CATEGORIES, type ScenarioCategory } from '../constants/categories';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { resolveMediaUrl } from '../lib/media';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type { ProfileOut } from '../types/api';
+import type { ProfileOut, ScenarioOut, SessionOut } from '../types/api';
 
 export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>) {
+  // "3D Sahne" only ever shows the ~11 video-ready scenarios (filtered from
+  // the static shared-data set below) — the real backend catalog (`GET
+  // /scenarios`, ~19 scenes) has no browsing UI at all since this screen was
+  // redesigned around video. `catalogMode` restores that access as a second
+  // mode on the same screen instead of a new nav route.
+  const [catalogMode, setCatalogMode] = useState<'video' | 'all'>('video');
   const [videoCharacterFilter, setVideoCharacterFilter] = useState<string>('all');
   const [videoLevelFilter, setVideoLevelFilter] = useState<string>('all');
   const [videoSearch, setVideoSearch] = useState<string>('');
   const [selectedVideoScenario, setSelectedVideoScenario] = useState<ScenarioEntry | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [catalogCategory, setCatalogCategory] = useState<ScenarioCategory | 'all'>('all');
+  const [catalogLevel, setCatalogLevel] = useState<string>('all');
+  const [catalogCoverErrorIds, setCatalogCoverErrorIds] = useState<Set<string>>(new Set());
   // Per-card real load-failure tracking — the cover `source` used to be
   // decided purely by whether `coverImage` was a non-empty string, so a real
   // network/server failure at runtime (not just a missing field) rendered a
@@ -43,6 +55,30 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
   const { data: profile } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
+  });
+
+  const { data: allScenarios } = useQuery({
+    queryKey: ['scenarios'],
+    queryFn: () => api.get<ScenarioOut[]>('/scenarios'),
+    enabled: catalogMode === 'all',
+  });
+
+  const { data: pastSessions } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => api.get<SessionOut[]>('/sessions'),
+    enabled: catalogMode === 'all',
+  });
+  const triedScenarioIds = new Set((pastSessions ?? []).map((s) => s.scenario_id));
+
+  const catalogSearchLower = catalogSearch.trim().toLowerCase();
+  const filteredCatalogScenarios = (allScenarios ?? []).filter((sc) => {
+    if (catalogCategory !== 'all' && sc.category !== catalogCategory) return false;
+    if (catalogLevel !== 'all' && sc.cefr_level !== catalogLevel) return false;
+    if (!catalogSearchLower) return true;
+    return (
+      sc.title.toLowerCase().includes(catalogSearchLower) ||
+      (sc.description ?? '').toLowerCase().includes(catalogSearchLower)
+    );
   });
 
   // 3D Pixar video scenarios (only those with videoReady: true and actual videoSteps)
@@ -84,11 +120,11 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           <View style={styles.headerTitleCol}>
             <View style={styles.headerBadgeRow}>
               <View style={styles.livePulseDot} />
-              <Text style={styles.headerBadgeText}>CANLI SİNEMA & DİYALOG</Text>
+              <Text style={styles.headerBadgeText}>SERBEST PRATİK & 3D SAHNELER</Text>
             </View>
-            <Text style={styles.title}>3D Sinema Stüdyosu 🎬</Text>
+            <Text style={styles.title}>Pratik Merkezi 🎯</Text>
             <Text style={styles.subtitle}>
-              Pixar Karakterleriyle Yüz Yüze Canlı Pratik
+              Özgürce konuş, 3D sahnelerde rol yap ve kendini geliştir
             </Text>
           </View>
           <View style={styles.headerStatsCol}>
@@ -100,6 +136,276 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
         </View>
       </View>
 
+      {/* Quick Sandbox Navigation Row */}
+      <View style={{ paddingHorizontal: 16, marginBottom: 10, marginTop: 4 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <Pressable
+            onPress={() => {
+              haptics.impact();
+              (navigation as any).navigate('BurgerOrderLive');
+            }}
+            style={{
+              backgroundColor: '#FFF7ED',
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              borderWidth: 1,
+              borderColor: '#FED7AA',
+            }}
+          >
+            <Text style={{ fontSize: 13 }}>🍔</Text>
+            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#C2410C' }}>
+              Maya's Burgers
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              haptics.impact();
+              (navigation as any).navigate('TextChat', {
+                focusTopic: { title: 'Maya ile Serbest Sohbet' },
+              });
+            }}
+            style={{
+              backgroundColor: '#EEF2FF',
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              borderWidth: 1,
+              borderColor: '#C7D2FE',
+            }}
+          >
+            <Ionicons name="chatbubbles-outline" size={14} color="#4F46E5" />
+            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#4338CA' }}>
+              Serbest Sohbet
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              haptics.impact();
+              (navigation as any).navigate('PodcastList');
+            }}
+            style={{
+              backgroundColor: '#FDF4FF',
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              borderWidth: 1,
+              borderColor: '#F5D0FE',
+            }}
+          >
+            <Ionicons name="mic-outline" size={14} color="#A21CAF" />
+            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#86198F' }}>
+              Podcastler
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              haptics.impact();
+              (navigation as any).navigate('ReadingList');
+            }}
+            style={{
+              backgroundColor: '#F0FDF4',
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              borderWidth: 1,
+              borderColor: '#BBF7D0',
+            }}
+          >
+            <Ionicons name="book-outline" size={14} color="#15803D" />
+            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#166534' }}>
+              Okuma Parçaları
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </View>
+
+      {/* Mode toggle — "3D Sahne" (video-ready subset) vs "Tüm Sahneler"
+          (the full real backend catalog, otherwise unreachable anywhere). */}
+      <View style={styles.modeToggleRow}>
+        <Pressable
+          onPress={() => {
+            haptics.selection();
+            setCatalogMode('video');
+          }}
+          style={[styles.modeToggleBtn, catalogMode === 'video' && styles.modeToggleBtnActive]}
+        >
+          <Text style={[styles.modeToggleText, catalogMode === 'video' && styles.modeToggleTextActive]}>
+            🎬 3D Sahneler
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            haptics.selection();
+            setCatalogMode('all');
+          }}
+          style={[styles.modeToggleBtn, catalogMode === 'all' && styles.modeToggleBtnActive]}
+        >
+          <Text style={[styles.modeToggleText, catalogMode === 'all' && styles.modeToggleTextActive]}>
+            📋 Tüm Sahneler
+          </Text>
+        </Pressable>
+      </View>
+
+      {catalogMode === 'all' ? (
+        <ScrollView
+          contentContainerStyle={styles.cinemaScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.videoSearchBox}>
+            <Ionicons name="search" size={16} color={colors.textMuted} />
+            <TextInput
+              value={catalogSearch}
+              onChangeText={setCatalogSearch}
+              placeholder="Sahne ara (başlık veya açıklama)"
+              placeholderTextColor={colors.textMuted}
+              style={styles.videoSearchInput}
+            />
+            {catalogSearch.length > 0 && (
+              <Pressable onPress={() => setCatalogSearch('')} hitSlop={8}>
+                <Ionicons name="close-circle" size={16} color={colors.textMuted} />
+              </Pressable>
+            )}
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.catalogChipScroll}
+          >
+            {(
+              [{ id: 'all' as const, label: 'Tümü' }, ...SCENARIO_CATEGORIES] as {
+                id: ScenarioCategory | 'all';
+                label: string;
+              }[]
+            ).map((cat) => {
+              const isActive = catalogCategory === cat.id;
+              const count =
+                cat.id === 'all'
+                  ? (allScenarios ?? []).length
+                  : (allScenarios ?? []).filter((s) => s.category === cat.id).length;
+              return (
+                <Pressable
+                  key={cat.id}
+                  onPress={() => {
+                    haptics.selection();
+                    setCatalogCategory(cat.id);
+                  }}
+                  style={[styles.catalogChip, isActive && styles.catalogChipActive]}
+                >
+                  <Text style={[styles.catalogChipText, isActive && styles.catalogChipTextActive]}>
+                    {cat.label} ({count})
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          <View style={styles.videoLevelFilterRow}>
+            {(['all', ...CEFR_LEVELS] as const).map((lvl) => {
+              const isActive = catalogLevel === lvl;
+              return (
+                <Pressable
+                  key={lvl}
+                  onPress={() => {
+                    haptics.selection();
+                    setCatalogLevel(lvl);
+                  }}
+                  style={[styles.videoLevelBtn, isActive && styles.videoLevelBtnActive]}
+                >
+                  <Text style={[styles.videoLevelText, isActive && styles.videoLevelTextActive]}>
+                    {lvl === 'all' ? '✨ Tüm Seviyeler' : lvl}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {filteredCatalogScenarios.length === 0 ? (
+            <View style={styles.cinemaEmptyState}>
+              <Ionicons name="albums-outline" size={40} color={colors.textMuted} />
+              <Text style={styles.cinemaEmptyTitle}>
+                {(allScenarios ?? []).length === 0 ? 'Henüz sahne yok' : 'Aramanıza uygun sahne bulunamadı'}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.catalogCardsList}>
+              {filteredCatalogScenarios.map((sc) => {
+                const tried = triedScenarioIds.has(sc.id);
+                const coverFailed = catalogCoverErrorIds.has(sc.id);
+                return (
+                  <Pressable
+                    key={sc.id}
+                    onPress={() => {
+                      haptics.success();
+                      navigation.navigate('LiveConversationRoom', {
+                        scenarioId: sc.id,
+                        scenarioSlug: sc.slug,
+                        scenarioTitle: sc.title,
+                      });
+                    }}
+                    style={[styles.catalogCard, shadow.card]}
+                  >
+                    <Image
+                      source={
+                        sc.cover_image_url && !coverFailed
+                          ? { uri: sc.cover_image_url }
+                          : resolveScenarioCategoryFallback(sc.category)
+                      }
+                      onError={() => setCatalogCoverErrorIds((prev) => new Set(prev).add(sc.id))}
+                      style={styles.catalogCardCover}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.catalogCardBody}>
+                      <View style={styles.catalogCardTopRow}>
+                        <Text style={styles.catalogCardTitle} numberOfLines={1}>
+                          {sc.title}
+                        </Text>
+                        {sc.cefr_level ? (
+                          <View style={styles.catalogLevelBadge}>
+                            <Text style={styles.catalogLevelBadgeText}>{sc.cefr_level}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      {sc.description ? (
+                        <Text style={styles.catalogCardDesc} numberOfLines={2}>
+                          {sc.description}
+                        </Text>
+                      ) : null}
+                      <View style={styles.catalogCardFooterRow}>
+                        <Text style={styles.catalogCardDuration}>
+                          <Ionicons name="time-outline" size={11} color={colors.textMuted} /> {sc.estimated_minutes} dk
+                        </Text>
+                        {tried ? (
+                          <View style={styles.catalogTriedBadge}>
+                            <Ionicons name="checkmark-circle" size={11} color="#10B981" />
+                            <Text style={styles.catalogTriedText}>Daha önce denedin</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </ScrollView>
+      ) : (
       <ScrollView
         contentContainerStyle={styles.cinemaScrollContent}
         showsVerticalScrollIndicator={false}
@@ -339,6 +645,7 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           </View>
         )}
       </ScrollView>
+      )}
 
       {toast ? <Toast message={toast} /> : null}
 
@@ -832,5 +1139,127 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingBold,
     fontSize: 12.5,
     color: '#FFFFFF',
+  },
+  modeToggleRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
+    backgroundColor: '#FFFFFF',
+  },
+  modeToggleBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 9,
+    borderRadius: radii.pill,
+    backgroundColor: '#F1F5F9',
+  },
+  modeToggleBtnActive: {
+    backgroundColor: colors.brand,
+  },
+  modeToggleText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 12.5,
+    color: colors.textMuted,
+  },
+  modeToggleTextActive: {
+    color: '#FFFFFF',
+  },
+  catalogChipScroll: {
+    gap: 8,
+    paddingBottom: 2,
+  },
+  catalogChip: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: radii.pill,
+  },
+  catalogChipActive: {
+    backgroundColor: colors.brand,
+    borderColor: colors.brand,
+  },
+  catalogChipText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 11.5,
+    color: colors.textBody,
+  },
+  catalogChipTextActive: {
+    color: '#FFFFFF',
+  },
+  catalogCardsList: {
+    gap: spacing.sm,
+  },
+  catalogCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  catalogCardCover: {
+    width: 88,
+    height: '100%',
+    minHeight: 96,
+  },
+  catalogCardBody: {
+    flex: 1,
+    padding: spacing.sm,
+    gap: 4,
+  },
+  catalogCardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
+  },
+  catalogCardTitle: {
+    flex: 1,
+    fontFamily: fonts.headingBold,
+    fontSize: 13.5,
+    color: colors.textHeading,
+  },
+  catalogLevelBadge: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: radii.sm,
+  },
+  catalogLevelBadgeText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: colors.brand,
+  },
+  catalogCardDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: colors.textMuted,
+    lineHeight: 16,
+  },
+  catalogCardFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  catalogCardDuration: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10.5,
+    color: colors.textMuted,
+  },
+  catalogTriedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  catalogTriedText: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 10,
+    color: '#047857',
   },
 });

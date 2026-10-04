@@ -1034,7 +1034,10 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
               &ldquo;{passage.title}&rdquo; parçasını başarıyla dinledin, sıraladın ve seslendirdin!
             </Text>
 
-            {/* Reward Badges Row */}
+            {/* Reward Badge Row — no hardcoded number (backend's real
+                READING_COMPLETION_XP doesn't match what used to be printed
+                here), and no "Elmas" badge (that currency was removed app-
+                wide — it was never actually awarded anyway). */}
             <View style={styles.rewardBadgesRow}>
               <View style={styles.rewardBadge}>
                 <Image
@@ -1042,18 +1045,8 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                   style={styles.rewardBadgeIcon}
                   resizeMode="contain"
                 />
-                <Text style={styles.rewardBadgeNumber}>+30 XP</Text>
-                <Text style={styles.rewardBadgeLabel}>Deneyim</Text>
-              </View>
-
-              <View style={styles.rewardBadge}>
-                <Image
-                  source={stateImages.gemDiamond}
-                  style={styles.rewardBadgeIcon}
-                  resizeMode="contain"
-                />
-                <Text style={[styles.rewardBadgeNumber, { color: '#0284C7' }]}>+10 💎</Text>
-                <Text style={styles.rewardBadgeLabel}>Elmas</Text>
+                <Text style={styles.rewardBadgeNumber}>Gerçek XP ⚡</Text>
+                <Text style={styles.rewardBadgeLabel}>Kazandın</Text>
               </View>
             </View>
 

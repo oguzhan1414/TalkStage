@@ -1,0 +1,30 @@
+{
+  "name": "talkstage-video-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkStage Video Studio - Clean, watermark-free motion graphics & social media video generator powered by Remotion",
+  "scripts": {
+    "dev": "remotion preview src/index.ts",
+    "preview": "remotion preview src/index.ts",
+    "build:newspaper": "remotion render src/index.ts TalkStageVintageNewspaper ../videos/talkstage_vintage_newspaper.mp4",
+    "build:google": "remotion render src/index.ts TalkStageGoogleSearch ../videos/talkstage_google_search.mp4",
+    "build:notion": "remotion render src/index.ts TalkStageNotionMinimal ../videos/talkstage_notion_minimal.mp4",
+    "build:cinematic": "remotion render src/index.ts TalkStageCinematicNavy ../videos/talkstage_cinematic_navy.mp4",
+    "build:reels": "remotion render src/index.ts TalkStageReels ../videos/talkstage_viral_reels_clean.mp4",
+    "build:notifications": "remotion render src/index.ts TalkStageNotifications ../videos/talkstage_notifications_hook.mp4",
+    "build:comparison": "remotion render src/index.ts TalkStageComparison ../videos/talkstage_comparison.mp4",
+    "build:apple": "remotion render src/index.ts TalkStageAppleStyle ../videos/talkstage_apple_style.mp4",
+    "build:progress": "remotion render src/index.ts TalkStageProgressSteps ../videos/talkstage_progress_steps.mp4",
+    "build:question": "remotion render src/index.ts TalkStageQuestionHook ../videos/talkstage_question_hook.mp4"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.240"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.240",
+    "@types/react": "^18.3.1",
+    "typescript": "^5.4.5"
+  }
+}

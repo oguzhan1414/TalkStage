@@ -1,6 +1,6 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { supabase } from '../lib/supabase';
@@ -19,6 +19,7 @@ type Props = {
  * as a disabled button rather than crashing.
  */
 export function GoogleSignInButton({ onError }: Props) {
+  const [loading, setLoading] = useState(false);
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
@@ -31,30 +32,54 @@ export function GoogleSignInButton({ onError }: Props) {
   });
 
   useEffect(() => {
-    if (response?.type !== 'success') return;
+    if (!response) return;
+    if (response.type !== 'success') {
+      setLoading(false);
+      return;
+    }
 
     const idToken = response.authentication?.idToken ?? response.params?.id_token;
     if (!idToken) {
       onError('Google oturum açma bir kimlik jetonu döndürmedi.');
+      setLoading(false);
       return;
     }
 
-    supabase.auth.signInWithIdToken({ provider: 'google', token: idToken }).then(({ error }) => {
-      if (error) onError(error.message);
-    });
+    const finishSignIn = async () => {
+      try {
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+        if (error) onError(error.message);
+      } catch {
+        onError('Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void finishSignIn();
   }, [response, onError]);
 
   return (
     <Button
       label="Google ile devam et"
       variant="secondary"
-      disabled={!request}
-      onPress={() => {
+      loading={loading}
+      disabled={configured && !request}
+      onPress={async () => {
         if (!configured) {
           Alert.alert('Google girişi henüz yapılandırılmadı', 'EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik.');
           return;
         }
-        promptAsync();
+        setLoading(true);
+        try {
+          await promptAsync();
+        } catch {
+          setLoading(false);
+          onError('Google giriş ekranı açılamadı. Lütfen tekrar dene.');
+        }
       }}
     />
   );

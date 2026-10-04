@@ -1,7 +1,9 @@
 import type { Session } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { configureRevenueCat } from '../lib/revenuecat';
+import { api } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useAnalytics } from '../lib/analytics';
 
@@ -10,6 +12,7 @@ type AuthContextValue = {
   /** True until the initial `getSession()` call resolves. */
   initializing: boolean;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -18,18 +21,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [initializing, setInitializing] = useState(true);
   const analytics = useAnalytics();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setInitializing(false);
-    });
+    let active = true;
+
+    const initializeSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (active) setSession(data.session);
+      } catch {
+        // A corrupt/expired local session or a temporary storage failure must
+        // not leave the app on an infinite blank loading screen. The auth
+        // listener can still recover if Supabase emits a later valid session.
+        if (active) setSession(null);
+      } finally {
+        if (active) setInitializing(false);
+      }
+    };
+
+    void initializeSession();
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
     });
 
-    return () => subscription.subscription.unsubscribe();
+    return () => {
+      active = false;
+      subscription.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -48,10 +69,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       initializing,
       signOut: async () => {
-        await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        queryClient.clear();
+      },
+      deleteAccount: async () => {
+        await api.delete<void>('/me/account');
+        // The server has removed the Auth user and refresh sessions. Remove
+        // the now-obsolete access token from this device without another
+        // network request, then clear all user-scoped cached data.
+        const { error } = await supabase.auth.signOut({ scope: 'local' });
+        if (error) throw error;
+        queryClient.clear();
       },
     }),
-    [session, initializing],
+    [session, initializing, queryClient],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

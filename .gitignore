@@ -48,3 +48,12 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Local Claude Code tooling (not app code)
+/.agents/
+/skills-lock.json
+
+# Stray/draft video captures — not referenced by any app code
+/Burger*.mp4
+/videos/*.mp4
+/videos/*.jpg
