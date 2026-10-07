@@ -3,10 +3,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { useOnboarding } from '../context/OnboardingContext';
 import { useDeepLinking } from '../hooks/useDeepLinking';
+import { AccountSettingsScreen } from '../screens/AccountSettingsScreen';
 import { BadgesScreen } from '../screens/BadgesScreen';
-import { BurgerOrderLiveScreen } from '../screens/BurgerOrderLiveScreen';
+import { FreeChatRoomScreen } from '../screens/FreeChatRoomScreen';
 import { GrammarLessonScreen } from '../screens/GrammarLessonScreen';
 import { LiveConversationRoomScreen } from '../screens/LiveConversationRoomScreen';
+import { MispronouncedWordsScreen } from '../screens/MispronouncedWordsScreen';
+import { MivoMemoryScreen } from '../screens/MivoMemoryScreen';
 import { MistakesNotebookScreen } from '../screens/MistakesNotebookScreen';
 import { PaywallScreen } from '../screens/PaywallScreen';
 import { ProfileLoadErrorScreen } from '../screens/ProfileLoadErrorScreen';
@@ -16,6 +19,7 @@ import { ReadingListScreen } from '../screens/ReadingListScreen';
 import { ReadingPassageScreen } from '../screens/ReadingPassageScreen';
 import { ScorecardScreen } from '../screens/ScorecardScreen';
 import { TextChatScreen } from '../screens/TextChatScreen';
+import { VocabDecksScreen } from '../screens/VocabDecksScreen';
 import { VocabLibraryScreen } from '../screens/VocabLibraryScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
@@ -60,8 +64,8 @@ export function RootNavigator() {
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen
-            name="BurgerOrderLive"
-            component={BurgerOrderLiveScreen}
+            name="FreeChatRoom"
+            component={FreeChatRoomScreen}
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen name="Scorecard" component={ScorecardScreen} />
@@ -70,9 +74,13 @@ export function RootNavigator() {
           <Stack.Screen name="ReadingList" component={ReadingListScreen} />
           <Stack.Screen name="ReadingPassage" component={ReadingPassageScreen} />
           <Stack.Screen name="Badges" component={BadgesScreen} />
+          <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
           <Stack.Screen name="GrammarLesson" component={GrammarLessonScreen} />
           <Stack.Screen name="MistakesNotebook" component={MistakesNotebookScreen} />
+          <Stack.Screen name="MivoMemory" component={MivoMemoryScreen} />
           <Stack.Screen name="VocabLibrary" component={VocabLibraryScreen} />
+          <Stack.Screen name="VocabDecks" component={VocabDecksScreen} />
+          <Stack.Screen name="MispronouncedWords" component={MispronouncedWordsScreen} />
           <Stack.Screen
             name="TextChat"
             component={TextChatScreen}

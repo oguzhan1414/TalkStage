@@ -10,6 +10,7 @@ import { OnboardingProgressHeader } from '../../components/OnboardingProgressHea
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useAnalytics, useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 /** Explains the upcoming voice demo before the system permission prompt
  * appears — same transparency-first principle already applied to the Live
@@ -46,19 +47,16 @@ export function MicPermissionScreen({ navigation }: OnboardingStackScreenProps<'
 
       <View style={styles.content}>
         {denied ? (
-          <MicPermissionPrompt onRequestPermission={handleAllow} buttonLabel="Tekrar Dene" />
+          <MicPermissionPrompt onRequestPermission={handleAllow} buttonLabel={t("Tekrar Dene")} />
         ) : (
           <>
             <Image source={stateImages.micPermission} style={styles.image} resizeMode="contain" />
-            <Text style={styles.title}>Seni Dinlemek İstiyoruz 🎙️</Text>
-            <Text style={styles.subtitle}>
-              Sana gerçek bir seviye vermek için iki kısa soru soracağız — cevapların sadece bu
-              değerlendirme için işlenir, asla senin onayın olmadan paylaşılmaz.
-            </Text>
+            <Text style={styles.title}>{t("Seni Dinlemek İstiyoruz 🎙️")}</Text>
+            <Text style={styles.subtitle}>{t("Sana gerçek bir seviye vermek için iki kısa soru soracağız — cevapların sadece bu değerlendirme için işlenir, asla senin onayın olmadan paylaşılmaz.")}</Text>
             <View style={[styles.infoCard, shadow.card]}>
-              <Text style={styles.infoLine}>🔒 Ses kaydın sadece seviye tahmini için kullanılır.</Text>
-              <Text style={styles.infoLine}>⏱️ Toplam 60-90 saniye sürer, hiç zorlayıcı değil.</Text>
-              <Text style={styles.infoLine}>🇹🇷 İstersen konuşmadan, kendi seviyeni de seçebilirsin.</Text>
+              <Text style={styles.infoLine}>{t("🔒 Ses kaydın sadece seviye tahmini için kullanılır.")}</Text>
+              <Text style={styles.infoLine}>{t("⏱️ Toplam 60-90 saniye sürer, hiç zorlayıcı değil.")}</Text>
+              <Text style={styles.infoLine}>{t("🇹🇷 İstersen konuşmadan, kendi seviyeni de seçebilirsin.")}</Text>
             </View>
           </>
         )}
@@ -67,14 +65,14 @@ export function MicPermissionScreen({ navigation }: OnboardingStackScreenProps<'
       <View style={styles.footer}>
         {!denied ? (
           <Button
-            label="Mikrofona İzin Ver"
+            label={t("Mikrofona İzin Ver")}
             variant="chunky"
             onPress={handleAllow}
             loading={requesting}
           />
         ) : null}
         <Button
-          label="Şimdilik Atla, Seviyemi Kendim Seçeceğim"
+          label={t("Şimdilik Atla, Seviyemi Kendim Seçeceğim")}
           variant="ghost"
           onPress={handleSkip}
         />

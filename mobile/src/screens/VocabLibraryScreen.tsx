@@ -22,6 +22,8 @@ import { api, ApiError } from '../lib/api';
 import type { VocabLibraryScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { VocabCardCreate, VocabCardOut, VocabLibraryProgressCreate } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t, nativeFlag } from '../i18n';
 
 type LibraryCategory = 'nouns' | 'verbs' | 'adjectives';
 
@@ -36,7 +38,7 @@ const PACKS: Record<
 > = {
   nouns: {
     id: 'nouns',
-    label: 'İsimler',
+    label: t("İsimler"),
     icon: '📦',
     sets: [
       { id: 'nouns_1', name: '1. Paket', range: '1 – 100', words: NOUNS_100 },
@@ -46,7 +48,7 @@ const PACKS: Record<
   },
   verbs: {
     id: 'verbs',
-    label: 'Fiiller',
+    label: t("Fiiller"),
     icon: '🏃',
     sets: [
       { id: 'verbs_1', name: '1. Paket', range: '1 – 100', words: VERBS_100 },
@@ -56,7 +58,7 @@ const PACKS: Record<
   },
   adjectives: {
     id: 'adjectives',
-    label: 'Sıfatlar',
+    label: t("Sıfatlar"),
     icon: '🎯',
     sets: [
       { id: 'adjectives_1', name: '1. Paket', range: '1 – 100', words: ADJECTIVES_100 },
@@ -170,9 +172,9 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(`“${entry.word}” Kelime Sandığına eklendi 📚`);
+      showToast(t("“{{word}}” Kelime Sandığına eklendi 📚", { word: entry.word }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Kelime eklenemedi');
+      showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi"));
     }
   };
 
@@ -183,9 +185,9 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
         word_id: entry.id,
       } satisfies VocabLibraryProgressCreate);
       await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
-      showToast(`“${entry.word}” biliniyor olarak işaretlendi ✓`);
+      showToast(t("“{{word}}” biliniyor olarak işaretlendi ✓", { word: entry.word }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'İşaretlenemedi');
+      showToast(err instanceof ApiError ? err.message : t("İşaretlenemedi"));
     }
   };
 
@@ -194,7 +196,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
       await api.delete(`/vocab-library/progress/${entry.id}`);
       await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Geri alınamadı');
+      showToast(err instanceof ApiError ? err.message : t("Geri alınamadı"));
     }
   };
 
@@ -212,15 +214,15 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
           <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerTitleCol}>
-          <Text style={styles.headerTitle}>Kelime Kütüphanesi</Text>
-          <Text style={styles.headerSub}>En Sık Kullanılan 900 Çekirdek Kelime</Text>
+          <Text style={styles.headerTitle}>{t("Kelime Kütüphanesi")}</Text>
+          <Text style={styles.headerSub}>{t("En Sık Kullanılan 900 Çekirdek Kelime")}</Text>
         </View>
         <Pressable
           onPress={() => navigation.navigate('Main', { screen: 'Vocab' })}
           style={styles.goToChestBtn}
         >
           <Ionicons name="archive" size={15} color={colors.brand} />
-          <Text style={styles.goToChestBtnText}>Sandığım</Text>
+          <Text style={styles.goToChestBtnText}>{t("Sandığım")}</Text>
         </Pressable>
       </View>
 
@@ -295,12 +297,8 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
             <View style={styles.progressCard}>
               <View style={styles.progressHeaderRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.progressTitle}>
-                    {activeCategoryObj.icon} {activeCategoryObj.label} • {activeSet.name} İlerlemesi
-                  </Text>
-                  <Text style={styles.progressSub}>
-                    100 kelimeden {reviewedInActiveSetCount} tanesi incelendi (sandıkta veya atlanmış)
-                  </Text>
+                  <Text style={styles.progressTitle}>{t("{{icon}} {{label}} • {{name}} İlerlemesi", { icon: activeCategoryObj.icon, label: activeCategoryObj.label, name: activeSet.name })}</Text>
+                  <Text style={styles.progressSub}>{t("100 kelimeden {{reviewedInActiveSetCount}} tanesi incelendi (sandıkta veya atlanmış)", { reviewedInActiveSetCount })}</Text>
                 </View>
                 <View style={styles.progressPercentBadge}>
                   <Text style={styles.progressPercentText}>%{packProgressPercent}</Text>
@@ -317,7 +315,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
               <Ionicons name="search" size={17} color={colors.textMuted} />
               <TextInput
                 style={styles.searchBarInput}
-                placeholder={`${activeSet.name} (${activeSet.range}) içinde ara...`}
+                placeholder={t("{{name}} ({{range}}) içinde ara...", { name: activeSet.name, range: activeSet.range })}
                 placeholderTextColor={colors.textMuted}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -332,12 +330,12 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator style={{ paddingVertical: 40 }} color={colors.brand} />
+            <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
           ) : (
             <View style={styles.emptyBox}>
               <Ionicons name="search-outline" size={32} color={colors.textMuted} />
-              <Text style={styles.emptyTitle}>Aradığın kelime bulunamadı</Text>
-              <Text style={styles.emptySub}>Farklı bir arama terimi yazmayı dene.</Text>
+              <Text style={styles.emptyTitle}>{t("Aradığın kelime bulunamadı")}</Text>
+              <Text style={styles.emptySub}>{t("Farklı bir arama terimi yazmayı dene.")}</Text>
             </View>
           )
         }
@@ -371,7 +369,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
               {/* Turkish Meaning */}
               <View style={styles.meaningRow}>
-                <Text style={styles.meaningText}>🇹🇷 {item.translation}</Text>
+                <Text style={styles.meaningText}>{nativeFlag()} {item.translation}</Text>
               </View>
 
               {/* Compact Grammar Forms Breakdown */}
@@ -381,7 +379,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                   <View style={styles.formItemRow}>
                     {item.comparative ? (
                       <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>Karşılaştırma:</Text>
+                        <Text style={styles.formLabelText}>{t("Karşılaştırma:")}</Text>
                         <Text style={styles.formValueText}>
                           {item.comparative.form}{' '}
                           <Text style={styles.formSubText}>({item.comparative.translation})</Text>
@@ -391,7 +389,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                     {item.superlative ? (
                       <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>Üstünlük:</Text>
+                        <Text style={styles.formLabelText}>{t("Üstünlük:")}</Text>
                         <Text style={styles.formValueText}>
                           {item.superlative.form}{' '}
                           <Text style={styles.formSubText}>({item.superlative.translation})</Text>
@@ -403,8 +401,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                   {item.antonym ? (
                     <View style={styles.antonymPill}>
                       <Ionicons name="swap-horizontal" size={13} color="#7C3AED" />
-                      <Text style={styles.antonymText}>
-                        Zıt Anlam: <Text style={styles.antonymBold}>{item.antonym.word}</Text>{' '}
+                      <Text style={styles.antonymText}>{t("Zıt Anlam:")}{" "}<Text style={styles.antonymBold}>{item.antonym.word}</Text>{' '}
                         <Text style={styles.antonymTr}>({item.antonym.translation})</Text>
                       </Text>
                     </View>
@@ -418,7 +415,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                   <View style={styles.formItemRow}>
                     {item.singular ? (
                       <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>Tekil:</Text>
+                        <Text style={styles.formLabelText}>{t("Tekil:")}</Text>
                         <Text style={styles.formValueText}>
                           {item.singular.form}{' '}
                           <Text style={styles.formSubText}>({item.singular.translation})</Text>
@@ -428,7 +425,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                     {item.plural ? (
                       <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>Çoğul:</Text>
+                        <Text style={styles.formLabelText}>{t("Çoğul:")}</Text>
                         <Text style={styles.formValueText}>
                           {item.plural.form}{' '}
                           <Text style={styles.formSubText}>({item.plural.translation})</Text>
@@ -436,7 +433,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                       </View>
                     ) : item.partitiveUnit ? (
                       <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>Miktar / Birim:</Text>
+                        <Text style={styles.formLabelText}>{t("Miktar / Birim:")}</Text>
                         <Text style={styles.formValueText}>
                           {item.partitiveUnit.form}{' '}
                           <Text style={styles.formSubText}>({item.partitiveUnit.translation})</Text>
@@ -447,7 +444,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                   {item.possessivePhrase ? (
                     <View style={styles.compactSinglePill}>
-                      <Text style={styles.formLabelText}>İyelik / Tamlama:</Text>
+                      <Text style={styles.formLabelText}>{t("İyelik / Tamlama:")}</Text>
                       <Text style={styles.formValueText}>
                         {item.possessivePhrase.form}{' '}
                         <Text style={styles.formSubText}>({item.possessivePhrase.translation})</Text>
@@ -463,7 +460,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                   <View style={styles.tensesGrid}>
                     {item.presentSimple ? (
                       <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>Geniş Zaman:</Text>
+                        <Text style={styles.tenseLabel}>{t("Geniş Zaman:")}</Text>
                         <Text style={styles.tenseValue}>{item.presentSimple.form}</Text>
                         <Text style={styles.tenseTr}>{item.presentSimple.translation}</Text>
                       </View>
@@ -471,7 +468,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                     {item.presentContinuous ? (
                       <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>Şimdiki Zaman:</Text>
+                        <Text style={styles.tenseLabel}>{t("Şimdiki Zaman:")}</Text>
                         <Text style={styles.tenseValue}>{item.presentContinuous.form}</Text>
                         <Text style={styles.tenseTr}>{item.presentContinuous.translation}</Text>
                       </View>
@@ -479,7 +476,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                     {item.future ? (
                       <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>Gelecek Zaman:</Text>
+                        <Text style={styles.tenseLabel}>{t("Gelecek Zaman:")}</Text>
                         <Text style={styles.tenseValue}>{item.future.form}</Text>
                         <Text style={styles.tenseTr}>{item.future.translation}</Text>
                       </View>
@@ -487,7 +484,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
                     {item.pastSimple ? (
                       <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>Geçmiş Zaman:</Text>
+                        <Text style={styles.tenseLabel}>{t("Geçmiş Zaman:")}</Text>
                         <Text style={styles.tenseValue}>
                           {item.pastSimple.form}
                           {item.pastSimple.phonetic ? (
@@ -511,7 +508,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                     </View>
                   ) : null}
                   <Text style={styles.exampleEn}>&ldquo;{item.exampleEn}&rdquo;</Text>
-                  {item.exampleTr ? <Text style={styles.exampleTr}>{item.exampleTr}</Text> : null}
+                  {item.exampleTr && item.exampleTr !== item.exampleEn ? <Text style={styles.exampleTr}>{item.exampleTr}</Text> : null}
                 </View>
               ) : null}
 
@@ -520,16 +517,16 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                 {isSaved ? (
                   <View style={styles.savedStatusBadge}>
                     <Ionicons name="checkmark-circle" size={14} color={colors.success} />
-                    <Text style={styles.savedStatusText}>Sandığında Kayıtlı ✓</Text>
+                    <Text style={styles.savedStatusText}>{t("Sandığında Kayıtlı ✓")}</Text>
                   </View>
                 ) : isDismissed ? (
                   <View style={styles.knownStatusRow}>
                     <View style={styles.knownStatusBadge}>
                       <Ionicons name="eye-off-outline" size={13} color={colors.textMuted} />
-                      <Text style={styles.knownStatusText}>Biliniyor, Atlandı</Text>
+                      <Text style={styles.knownStatusText}>{t("Biliniyor, Atlandı")}</Text>
                     </View>
                     <Pressable onPress={() => handleUndoKnown(item)} hitSlop={8}>
-                      <Text style={styles.undoKnownText}>Geri Al</Text>
+                      <Text style={styles.undoKnownText}>{t("Geri Al")}</Text>
                     </Pressable>
                   </View>
                 ) : (
@@ -542,7 +539,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                       ]}
                     >
                       <Ionicons name="checkmark-outline" size={15} color={colors.textMuted} />
-                      <Text style={styles.knownBtnText}>Biliyorum, Atla</Text>
+                      <Text style={styles.knownBtnText}>{t("Biliyorum, Atla")}</Text>
                     </Pressable>
                     <Pressable
                       onPress={() => handleAddWord(item)}
@@ -552,7 +549,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                       ]}
                     >
                       <Ionicons name="add-circle" size={15} color="#FFFFFF" />
-                      <Text style={styles.addBtnText}>Sandığıma Ekle</Text>
+                      <Text style={styles.addBtnText}>{t("Sandığıma Ekle")}</Text>
                     </Pressable>
                   </View>
                 )}

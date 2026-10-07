@@ -8,6 +8,7 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function NameScreen({ navigation }: OnboardingStackScreenProps<'Name'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'name' });
@@ -19,48 +20,41 @@ export function NameScreen({ navigation }: OnboardingStackScreenProps<'Name'>) {
       <OnboardingProgressHeader step={1} onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        {/* Yankı Friendly Speech Box - Crisp White Card with Soft Indigo Accent */}
+        {/* Mivo Friendly Speech Box - Crisp White Card with Soft Indigo Accent */}
         <View style={styles.speechBox}>
           <Image source={yankiListeningImage} style={styles.speechAvatar} resizeMode="contain" />
           <View style={styles.speechTextCol}>
-            <Text style={styles.speechLabel}>Yankı • Kişisel Konuşma Koçun</Text>
-            <Text style={styles.speechText}>
-              &ldquo;Selam! Ben Yankı. Birlikte hiç çekinmeden, en baştan başlayarak konuşacağız. Sana
-              nasıl hitap edeyim?&rdquo;
-            </Text>
+            <Text style={styles.speechLabel}>{t("Mivo • Kişisel Konuşma Koçun")}</Text>
+            <Text style={styles.speechText}>{t("“Selam! Ben Mivo. Birlikte hiç çekinmeden, en baştan başlayarak konuşacağız. Sana nasıl hitap edeyim?”")}</Text>
           </View>
         </View>
 
         {/* Input Card */}
         <View style={styles.inputCard}>
-          <Text style={styles.label}>Adın veya Sana Hitap Şeklimiz</Text>
+          <Text style={styles.label}>{t("Adın veya Sana Hitap Şeklimiz")}</Text>
           <TextInput
             value={draft.displayName}
             onChangeText={(text) => updateDraft({ displayName: text })}
-            placeholder="Örn: Ahmet, Zeynep, Can..."
+            placeholder={t("Örn: Ahmet, Zeynep, Can...")}
             placeholderTextColor={colors.textMuted}
             style={styles.input}
             autoFocus
             maxLength={40}
           />
-          <Text style={styles.hint}>
-            Yapay zeka sesli sohbetlerde sana bu isimle samimi bir şekilde hitap edecek.
-          </Text>
+          <Text style={styles.hint}>{t("Yapay zeka sesli sohbetlerde sana bu isimle samimi bir şekilde hitap edecek.")}</Text>
         </View>
 
         {trimmedName ? (
           <View style={styles.successBox}>
             <Text style={styles.successEmoji}>🎉</Text>
-            <Text style={styles.successText}>
-              Harika, {trimmedName}! Şimdi sana en uygun pratik ortamını seçelim.
-            </Text>
+            <Text style={styles.successText}>{t("Harika, {{trimmedName}}! Şimdi sana en uygun pratik ortamını seçelim.", { trimmedName })}</Text>
           </View>
         ) : null}
       </View>
 
       <View style={styles.footer}>
         <Button
-          label="Devam Et ➔"
+          label={t("Devam Et ➔")}
           variant="chunky"
           onPress={() => navigation.navigate('Persona')}
           disabled={!trimmedName}

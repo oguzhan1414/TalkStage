@@ -4,44 +4,65 @@
  */
 import type { ScenarioCategory } from '../constants/categories';
 
-export const companionImage = require('../../assets/images/companion/yanki.png');
-export const onboardingHero = require('../../assets/images/companion/yanki.png');
-/** Yankı with a wand + sparkles — used by the onboarding "AI Plan Hazırlığı" (Magic Moment) screen. */
-export const yankiMagicImage = require('../../assets/images/companion/yanki_magic.png');
-/** Same character/pose as `yankiMagicImage`, mouth closed — alternated with
- * it while AiOrb's `state === 'speaking'` for a simple "talking" effect.
- * Placeholder (identical copy of yankiMagicImage) until the real
- * closed-mouth variant is generated and dropped in at this same path. */
-export const yankiMagicMouthClosedImage = require('../../assets/images/companion/yanki_magic_mouth_closed.png');
-/** Onboarding-only emotional-beat poses (Faz 2) — replace the single `yankiMagicImage`
- * that used to be reused across every screen regardless of mood. */
-export const yankiGreetingImage = require('../../assets/images/companion/yanki_greeting.png');
-export const yankiListeningImage = require('../../assets/images/companion/yanki_listening.png');
-export const yankiCelebrateImage = require('../../assets/images/companion/yanki_celebrate.png');
+/** Mivo — the app's language-explorer companion and AI conversation guide. */
+export const mivoImages = {
+  idle: require('../../assets/images/companion/mivo/mivo_idle.png'),
+  listening: require('../../assets/images/companion/mivo/mivo_listening.png'),
+  thinking: require('../../assets/images/companion/mivo/mivo_thinking.png'),
+  speaking: require('../../assets/images/companion/mivo/mivo_speaking.png'),
+  loading: require('../../assets/images/companion/mivo/mivo_loading_flip.png'),
+  success: require('../../assets/images/companion/mivo/mivo_success.png'),
+} as const;
 
-/** Dynamic Time-of-Day Yankı Companions (Morning Coffee, Afternoon Headphone, Evening Lantern) */
-export const dynamicCompanion = {
-  morning: require('../../assets/images/companion/yanki_morning.png'),
-  afternoon: require('../../assets/images/companion/yanki_afternoon.png'),
-  evening: require('../../assets/images/companion/yanki_evening.png'),
+/** Context-specific Mivo artwork for the Home experience. */
+export const mivoHomeImages = {
+  lessonGuide: require('../../assets/images/companion/mivo/mivo_lesson_guide.png'),
+  chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.png'),
+} as const;
+
+/**
+ * Eski "Yankı" (fincan karakteri) görsellerinin yerine Mivo pozları. Eski dışa aktarım adları, onları
+ * kullanan ekranlar değişmesin diye korunuyor; hepsi artık Mivo görsellerine işaret ediyor.
+ */
+export const companionImage = mivoImages.idle;
+/** Büyülü/konuşma pozu (eski `yankiMagicImage`). */
+export const yankiMagicImage = mivoImages.speaking;
+/** Konuşma animasyonunda "ağız kapalı" yedeği: konuşan poz ile dinlenme pozu dönüşümlü gösterilir. */
+export const yankiMagicMouthClosedImage = mivoImages.idle;
+export const yankiGreetingImage = mivoHomeImages.chatInvite;
+export const yankiListeningImage = mivoImages.listening;
+export const yankiCelebrateImage = mivoImages.success;
+
+/** TalkStage premium module icons — mature satin-metal/frosted-glass family. */
+export const premiumModuleIcons = {
+  mistakeAnalysis: require('../../assets/images/premium/mistake-analysis.png'),
+  wordSets: require('../../assets/images/premium/word-sets.png'),
+  achievements: require('../../assets/images/premium/achievements.png'),
+  freePractice: require('../../assets/images/premium/free-practice.png'),
 };
 
-/** 3D Home Quick Access Micro-Icons (Vibrant Pixar 3D Game Assets) */
-export const quickIcons = {
-  roadmap: require('../../assets/images/home/quick_roadmap.png'),
-  vocab: require('../../assets/images/home/quick_vocab.png'),
-  podcast: require('../../assets/images/home/quick_podcast.png'),
-  dictionary: require('../../assets/images/home/quick_dictionary.png'),
-  mistakes: require('../../assets/images/home/quick_mistakes.png'),
-};
+/** Light premium icon family for the Özellikler tab feature cards. */
+export const premiumFeatureIcons = {
+  mistakesNotebook: require('../../assets/images/premium/mistakes-premium.png'),
+  vocabLibrary: require('../../assets/images/premium/vocab-library-premium.png'),
+  vocabFolders: require('../../assets/images/premium/vocab-folders-premium.png'),
+  badges: require('../../assets/images/premium/badges-premium.png'),
+  podcasts: require('../../assets/images/premium/podcasts-premium.png'),
+  pronunciation: require('../../assets/images/premium/pronunciation-premium.png'),
+} as const;
 
-export const aiOrb = require('../../assets/images/ai-orb.jpg');
-export const learningPathLandscape = require('../../assets/images/learning_path_landscape.jpg');
-export const levelsRoadmapIslandBg = require('../../assets/images/levels_roadmap_island_bg.jpg');
-export const verticalIslandPathBg = require('../../assets/images/vertical_island_path_bg.jpg');
-export const studyStudioLounge = require('../../assets/images/study_studio_lounge.jpg');
+/** Minimal, colorful feature-card icon family aligned with the main tab icons. */
+export const minimalFeatureIcons = {
+  mistakesNotebook: require('../../assets/images/premium/mistakes-minimal.png'),
+  mivoMemory: require('../../assets/images/premium/mivo-memory-minimal.png'),
+  vocabLibrary: require('../../assets/images/premium/vocab-library-minimal.png'),
+  vocabFolders: require('../../assets/images/premium/vocab-folders-minimal.png'),
+  reading: require('../../assets/images/premium/reading-minimal.png'),
+  podcasts: require('../../assets/images/premium/podcasts-minimal.png'),
+  pronunciation: require('../../assets/images/premium/pronunciation-minimal.png'),
+} as const;
+
 export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.jpg');
-export const podcastHubIcon = require('../../assets/images/podcast_hub_3d_icon.jpg');
 
 export const podcastCovers = {
   a1Cafe: require('../../assets/images/podcast_cover_a1_cafe.jpg'),
@@ -65,23 +86,22 @@ export const podcastCovers = {
   techB2: require('../../assets/images/podcast_cover_b2_tech.jpg'),
 };
 
-/** 3D Frosted Glass Bottom Navigation Icons (42 - 46) */
+/** Chunky 3D Bottom Navigation Icons */
 export const navIcons = {
-  home: require('../../assets/images/nav/home.png'),
-  decks: require('../../assets/images/nav/decks.png'),
-  voice: require('../../assets/images/nav/voice.png'),
-  trophy: require('../../assets/images/nav/trophy.png'),
-  profile: require('../../assets/images/nav/profile.png'),
+  today: require('../../assets/images/nav/today.png'),
+  scenes: require('../../assets/images/nav/scenes.png'),
+  words: require('../../assets/images/nav/words.png'),
+  features: require('../../assets/images/nav/features.png'),
 };
 
 /** Bento Scenario Categories (05 - 10) */
 export const scenarioCategoryImages: Record<ScenarioCategory, ReturnType<typeof require>> = {
-  tech: require('../../assets/images/scenarios/tech.jpg'),
-  career: require('../../assets/images/scenarios/career.jpg'),
-  visa: require('../../assets/images/scenarios/visa.jpg'),
-  b2b: require('../../assets/images/scenarios/b2b.jpg'),
-  travel: require('../../assets/images/scenarios/travel.jpg'),
-  daily: require('../../assets/images/scenarios/daily.jpg'),
+  tech: require('../../assets/images/premium/scenarios/tech-editorial.jpg'),
+  career: require('../../assets/images/premium/scenarios/career-editorial.jpg'),
+  visa: require('../../assets/images/premium/scenarios/visa-editorial.jpg'),
+  b2b: require('../../assets/images/premium/scenarios/b2b-editorial.jpg'),
+  travel: require('../../assets/images/premium/scenarios/travel-editorial.jpg'),
+  daily: require('../../assets/images/premium/scenarios/daily-editorial.jpg'),
 };
 
 /**
@@ -98,6 +118,44 @@ export const scenarioCategoryImages: Record<ScenarioCategory, ReturnType<typeof 
 export function resolveScenarioCategoryFallback(category: string): ReturnType<typeof require> {
   const mapped = category === 'business' ? 'b2b' : category === 'interview' ? 'career' : category;
   return scenarioCategoryImages[mapped as ScenarioCategory] ?? companionImage;
+}
+
+/** Dedicated custom cover images for 3D Video Scenarios */
+export const scenarioCustomCovers: Record<string, ReturnType<typeof require>> = {
+  // A1 Scenarios
+  'fastfood-burger': require('../../assets/images/scenarios/fastfood-burger.jpg'),
+  'supermarket-checkout': require('../../assets/images/scenarios/supermarket-checkout.jpg'),
+  'street-directions': require('../../assets/images/scenarios/street-directions.jpg'),
+  'train-ticket': require('../../assets/images/scenarios/train-ticket.jpg'),
+  'cafe-meetup': require('../../assets/images/scenarios/cafe-meetup.jpg'),
+  'airport-travel': require('../../assets/images/scenarios/airport-travel.jpg'),
+  'hotel-checkin': require('../../assets/images/scenarios/hotel-checkin.jpg'),
+  'neighbor-meetup': require('../../assets/images/scenarios/neighbor-meetup.jpg'),
+  // A2 & B1 Scenarios
+  'flea-market': require('../../assets/images/scenarios/flea-market.jpg'),
+  'local-sim-card': require('../../assets/images/scenarios/local-sim-card.jpg'),
+  'rooftop-social': require('../../assets/images/scenarios/rooftop-social.jpg'),
+  'apartment-viewing': require('../../assets/images/scenarios/apartment-viewing.jpg'),
+  'colleague-break': require('../../assets/images/scenarios/colleague-break.jpg'),
+  'car-rental': require('../../assets/images/scenarios/car-rental.jpg'),
+  'clothing-boutique': require('../../assets/images/scenarios/clothing-boutique.jpg'),
+  'doctor-visit': require('../../assets/images/scenarios/doctor-visit.jpg'),
+  'fitness-gym': require('../../assets/images/scenarios/fitness-gym.jpg'),
+  'istanbul-tour': require('../../assets/images/scenarios/istanbul-tour.jpg'),
+  'restaurant-dinner': require('../../assets/images/scenarios/restaurant-dinner.jpg'),
+  'taxi-ride': require('../../assets/images/scenarios/taxi-ride.jpg'),
+  'job-interview': require('../../assets/images/scenarios/job-interview.jpg'),
+};
+
+/**
+ * Resolves the primary visual cover for a scenario:
+ * Prefers the dedicated 3D/Pixel Art cover image, with fallback to category art.
+ */
+export function resolveScenarioCoverSource(scenario: { id: string; category: string; coverImage?: string }): any {
+  if (scenarioCustomCovers[scenario.id]) {
+    return scenarioCustomCovers[scenario.id];
+  }
+  return resolveScenarioCategoryFallback(scenario.category);
 }
 
 /** 3D Glass CEFR Progression Shields (47 - 52) */
@@ -142,27 +200,6 @@ export const stateImages = {
   streakFlame3d: require('../../assets/images/states/streak_flame_3d.png'),
 };
 
-/** 3D Onboarding Goal Icons */
-export const onboardingGoals = {
-  freezeBarrier: require('../../assets/images/onboarding/goal_freeze_barrier.png'),
-  examsSchool: require('../../assets/images/onboarding/goal_exams_school.png'),
-  workCareer: require('../../assets/images/onboarding/goal_work_career.png'),
-  travelLife: require('../../assets/images/onboarding/goal_travel_life.png'),
-  noPartner: require('../../assets/images/onboarding/goal_no_partner.png'),
-};
-
-/** 3D Module Feature Cards (24 - 27) */
-export const homeImages = {
-  vocabDeck: require('../../assets/images/cards/vocab_deck.png'),
-  readingModule: require('../../assets/images/cards/reading_module.png'),
-  levelAssessment: require('../../assets/images/cards/level_assessment.png'),
-  streakCalendar: require('../../assets/images/cards/streak_calendar.png'),
-};
-
-export const vocabImages = {
-  emptyChest: require('../../assets/images/states/empty_chest.png'),
-};
-
 export const calibrationImages = {
   micOrb: require('../../assets/images/nav/voice.png'),
   micPermission: require('../../assets/images/states/mic_permission.png'),
@@ -174,7 +211,12 @@ export const calibrationImages = {
  * data, not code). Reuses the existing category/avatar/state art instead of
  * generating bespoke per-story illustrations.
  */
+import { readingA1Images, readingA2Images } from './readingImages';
+export { readingA1Images, readingA2Images };
+
 export const readingSceneImages: Record<string, ReturnType<typeof require>> = {
+  ...readingA1Images,
+  ...readingA2Images,
   daily: scenarioCategoryImages.daily,
   travel: scenarioCategoryImages.travel,
   visa: scenarioCategoryImages.visa,
@@ -190,6 +232,13 @@ export const readingSceneImages: Record<string, ReturnType<typeof require>> = {
   avatar_engineer: require('../../assets/images/avatars/male_engineer.png'),
   avatar_entrepreneur: require('../../assets/images/avatars/female_entrepreneur.png'),
 };
+
+/**
+ * Hikaye kapak görselleri. Anahtar: hikayenin `slug`'ı (öncelikli) veya `theme` etiketi
+ * (aile, yemek, seyahat…). Yeni görsel eklenince buraya bir satır ekle; kayıt yoksa
+ * ilk sahnenin görseli kullanılır.
+ */
+export const readingCoverImages: Record<string, ReturnType<typeof require>> = {};
 
 /** 3D Gamification Badges (14 - 23) */
 export const badgeImages = {
@@ -207,5 +256,4 @@ export const badgeImages = {
 
 /** Auth & Welcome 3D Hero Artwork */
 export const authWelcomeHeroBg = require('../../assets/images/auth_welcome_hero_bg.jpg');
-export const yankiAuthWelcomeHero = require('../../assets/images/yanki_auth_welcome_hero.jpg');
 export const appLogoIcon = require('../../assets/icon.png');

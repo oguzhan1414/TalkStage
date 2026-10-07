@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
 import { supabase } from '../lib/supabase';
+import { t } from '../i18n';
 
 type Props = {
   onError: (message: string) => void;
@@ -37,7 +38,7 @@ export function AppleSignInButton({ onError }: Props) {
           });
 
           if (!credential.identityToken) {
-            onError('Apple oturum açma bir kimlik jetonu döndürmedi.');
+            onError(t("Apple oturum açma bir kimlik jetonu döndürmedi."));
             return;
           }
 
@@ -50,7 +51,7 @@ export function AppleSignInButton({ onError }: Props) {
         } catch (err) {
           const code = (err as { code?: string }).code;
           if (code === 'ERR_REQUEST_CANCELED') return;
-          onError('Apple ile giriş yapılamadı. Lütfen tekrar dene.');
+          onError(t("Apple ile giriş yapılamadı. Lütfen tekrar dene."));
         }
       }}
     />

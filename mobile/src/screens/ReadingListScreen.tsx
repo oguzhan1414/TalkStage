@@ -1,23 +1,44 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { cefrLevelImages, companionImage, readingSceneImages } from '../assets/images';
+import { cefrLevelImages, companionImage, readingCoverImages, readingSceneImages } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { api } from '../lib/api';
 import type { ReadingListScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type { ReadingPassageOut } from '../types/api';
+import type { ProfileOut, ReadingPassageOut } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t } from '../i18n';
 
-type PassageStatus = 'completed' | 'current' | 'locked';
+// 'open': kullanıcının seviyesinin altındaki, henüz bitmemiş (serbest) hikaye.
+type PassageStatus = 'completed' | 'current' | 'open' | 'locked';
 
 export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
+  const { finishTransition } = useMivoTransition();
   const [toast, setToast] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string>('A1');
+  const levelPickedRef = useRef(false);
+
+  const { data: profile } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => api.get<ProfileOut>('/me'),
+  });
+  const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
+  const userLevelIdx = Math.max(0, CEFR_LEVELS.indexOf(userLevel));
+
+  // Liste, kullanıcının kendi seviyesinde açılsın (A2 kullanıcı A1 sekmesine düşmesin).
+  useEffect(() => {
+    if (profile && !levelPickedRef.current) {
+      levelPickedRef.current = true;
+      setSelectedLevel(userLevel);
+    }
+  }, [profile, userLevel]);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['reading'],
@@ -29,25 +50,51 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
     queryFn: () => api.get<string[]>('/reading/completed-slugs'),
   });
 
+  useEffect(() => {
+    if (!isLoading) finishTransition();
+  }, [finishTransition, isLoading]);
+
   const passages = data ?? [];
   const completedSet = useMemo(() => new Set(completedSlugs ?? []), [completedSlugs]);
 
-  const firstIncompleteIdx = passages.findIndex((p) => !completedSet.has(p.slug));
+  // Kilit kuralı seviyeye göre:
+  //  - kullanıcının seviyesinin ALTI: hepsi serbest (tamamlanmışsa ✓),
+  //  - kullanıcının KENDİ seviyesi: sırayla (bir önceki bitmeden sıradaki açılmaz),
+  //  - kullanıcının seviyesinin ÜSTÜ: kilitli (seviye atlayınca açılır).
+  const statusBySlug = useMemo(() => {
+    const result = new Map<string, PassageStatus>();
+    const levelOf = (p: ReadingPassageOut) => Math.max(0, CEFR_LEVELS.indexOf((p.cefr_level ?? 'A1').toUpperCase()));
+    const ownLevel = passages.filter((p) => levelOf(p) === userLevelIdx);
+    const firstOwnIncomplete = ownLevel.findIndex((p) => !completedSet.has(p.slug));
+    for (const p of passages) {
+      const lvl = levelOf(p);
+      if (completedSet.has(p.slug)) result.set(p.slug, 'completed');
+      else if (lvl < userLevelIdx) result.set(p.slug, 'open');
+      else if (lvl > userLevelIdx) result.set(p.slug, 'locked');
+      else {
+        const pos = ownLevel.findIndex((q) => q.slug === p.slug);
+        result.set(p.slug, pos === firstOwnIncomplete ? 'current' : 'locked');
+      }
+    }
+    return result;
+  }, [passages, completedSet, userLevelIdx]);
 
-  const statusOf = (idx: number): PassageStatus => {
-    if (firstIncompleteIdx === -1) return 'completed';
-    if (idx < firstIncompleteIdx) return 'completed';
-    if (idx === firstIncompleteIdx) return 'current';
-    return 'locked';
-  };
+  const statusOf = (slug: string): PassageStatus => statusBySlug.get(slug) ?? 'locked';
 
-  const currentPassage = firstIncompleteIdx !== -1 ? passages[firstIncompleteIdx] : passages[0];
+  const currentPassage = passages.find((p) => statusBySlug.get(p.slug) === 'current');
 
   const visiblePassages = useMemo(() => {
     return passages
       .map((item, idx) => ({ item, idx }))
       .filter(({ item }) => (item.cefr_level ?? 'A1').toUpperCase() === selectedLevel);
   }, [passages, selectedLevel]);
+
+  const levelPassages = useMemo(
+    () => passages.filter((p) => (p.cefr_level ?? 'A1').toUpperCase() === selectedLevel),
+    [passages, selectedLevel]
+  );
+  const levelTotal = levelPassages.length;
+  const levelDone = levelPassages.filter((p) => completedSet.has(p.slug)).length;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -62,8 +109,8 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
           <Ionicons name="chevron-back" size={24} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Text style={styles.title}>Smart Reading & Dinleme</Text>
-          <Text style={styles.subTitle}>Adım Adım Kilit Açan Hikaye & Ses Sahnesi</Text>
+          <Text style={styles.title}>{t("Smart Reading & Dinleme")}</Text>
+          <Text style={styles.subTitle}>{t("Adım Adım Kilit Açan Hikaye & Ses Sahnesi")}</Text>
         </View>
       </View>
 
@@ -92,18 +139,34 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
         </ScrollView>
       </View>
 
+      {!isLoading && !isError && levelTotal > 0 ? (
+        <View style={styles.levelSummary}>
+          <View style={styles.levelSummaryTextRow}>
+            <Text style={styles.levelSummaryTitle}>
+              {t("{{level}} ilerlemen", { level: selectedLevel })}
+            </Text>
+            <Text style={styles.levelSummaryCount}>
+              {t("{{done}}/{{total}} hikaye", { done: levelDone, total: levelTotal })}
+            </Text>
+          </View>
+          <View style={styles.levelSummaryTrack}>
+            <View style={[styles.levelSummaryFill, { width: `${Math.round((levelDone / levelTotal) * 100)}%` }]} />
+          </View>
+        </View>
+      ) : null}
+
       {isLoading ? (
-        <ActivityIndicator style={styles.stateBlock} color={colors.brand} />
+        <MivoLoader size={100} label={t("Hikayeler yükleniyor…")} style={styles.stateBlock} />
       ) : isError ? (
         <View style={styles.stateBlock}>
-          <Text style={styles.stateText}>Okuma parçaları yüklenemedi.</Text>
+          <Text style={styles.stateText}>{t("Okuma parçaları yüklenemedi.")}</Text>
           <Pressable onPress={() => refetch()}>
-            <Text style={styles.retryText}>Tekrar dene</Text>
+            <Text style={styles.retryText}>{t("Tekrar dene")}</Text>
           </Pressable>
         </View>
       ) : !passages.length ? (
         <View style={styles.stateBlock}>
-          <Text style={styles.stateText}>Henüz okuma parçası eklenmedi.</Text>
+          <Text style={styles.stateText}>{t("Henüz okuma parçası eklenmedi.")}</Text>
         </View>
       ) : (
         <FlatList
@@ -116,9 +179,9 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
               <View style={[styles.heroCard, shadow.card]}>
                 <View style={styles.heroBadgeRow}>
                   <View style={styles.heroCurrentBadge}>
-                    <Text style={styles.heroCurrentBadgeText}>🎯 SIRADAKİ HİKAYEN</Text>
+                    <Text style={styles.heroCurrentBadgeText}>{t("🎯 SIRADAKİ HİKAYEN")}</Text>
                   </View>
-                  <Text style={styles.heroRewardText}>Gerçek XP kazandırır ⚡</Text>
+                  <Text style={styles.heroRewardText}>{t("Gerçek XP kazandırır ⚡")}</Text>
                 </View>
 
                 <View style={styles.heroContentRow}>
@@ -131,9 +194,7 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
                   />
                   <View style={styles.heroTextCol}>
                     <Text style={styles.heroTitle}>{currentPassage.title}</Text>
-                    <Text style={styles.heroSub}>
-                      {currentPassage.scenes.length} Sahne • ⏱️ {currentPassage.estimated_minutes} Dk Dinleme & Sıralama
-                    </Text>
+                    <Text style={styles.heroSub}>{t("{{length}} Sahne • ⏱️ {{estimated_minutes}} Dk Dinleme & Sıralama", { length: currentPassage.scenes.length, estimated_minutes: currentPassage.estimated_minutes })}</Text>
                     <Pressable
                       style={styles.heroStartButton}
                       onPress={() =>
@@ -141,7 +202,7 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
                       }
                     >
                       <Ionicons name="play" size={16} color="#FFFFFF" />
-                      <Text style={styles.heroStartButtonText}>Hemen Başla</Text>
+                      <Text style={styles.heroStartButtonText}>{t("Hemen Başla")}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -149,78 +210,92 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
             ) : null
           }
           renderItem={({ item: { item, idx: index } }) => {
-            const status = statusOf(index);
+            const status = statusOf(item.slug);
             const isLocked = status === 'locked';
             const levelKey = (item.cefr_level ?? 'A1') as keyof typeof cefrLevelImages;
             const shieldIcon = cefrLevelImages[levelKey] ?? cefrLevelImages.A1;
-            const storyImg = readingSceneImages[item.scenes[0]?.image_key] ?? companionImage;
+            const perStoryKey = `${item.slug}_1`;
+            const storyImg =
+              readingCoverImages[item.slug] ??
+              readingSceneImages[perStoryKey] ??
+              (item.theme ? readingCoverImages[item.theme] : undefined) ??
+              readingSceneImages[item.scenes[0]?.image_key] ??
+              companionImage;
+            const wordCount = item.body_text.split(/\s+/).filter(Boolean).length;
 
             return (
               <BouncyPressable
                 style={[
                   styles.card,
                   shadow.card,
-                  status === 'current' && styles.cardCurrent,
+                  (status === 'current' || status === 'open') && styles.cardCurrent,
                   isLocked && styles.cardLocked,
                 ]}
                 hapticType={isLocked ? 'warning' : 'medium'}
                 scaleTo={0.97}
                 onPress={() => {
                   if (isLocked) {
-                    showToast('Önce bir önceki hikayeyi tamamla 🔒');
+                    const itemLevelIdx = CEFR_LEVELS.indexOf((item.cefr_level ?? 'A1').toUpperCase());
+                    showToast(
+                      itemLevelIdx > userLevelIdx
+                        ? t("Bu hikaye {{level}} seviyesinde. Önce {{current}} hikayelerini tamamla 🔒", {
+                            level: item.cefr_level ?? 'A1',
+                            current: userLevel,
+                          })
+                        : t("Önce bir önceki hikayeyi tamamla 🔒")
+                    );
                     return;
                   }
                   navigation.navigate('ReadingPassage', { slug: item.slug });
                 }}
               >
-                {/* 3D Cover Thumbnail */}
-                <View style={styles.thumbnailWrap}>
+                <View style={styles.coverWrap}>
                   <Image
                     source={storyImg}
-                    style={[styles.storyThumbnail, isLocked && styles.storyThumbnailLocked]}
-                    resizeMode="cover"
+                    style={[styles.coverImage, isLocked && styles.storyThumbnailLocked]}
+                    resizeMode={storyImg === companionImage ? 'contain' : 'cover'}
                   />
+                  <View style={styles.coverLevelPill}>
+                    <Image source={shieldIcon} style={styles.shieldMini} resizeMode="contain" />
+                    <Text style={styles.levelText}>{item.cefr_level ?? 'A1'}</Text>
+                  </View>
                   {status === 'completed' ? (
-                    <View style={styles.completedBadge}>
-                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                    <View style={styles.coverStatusBadge}>
+                      <Ionicons name="checkmark" size={14} color="#FFFFFF" />
                     </View>
                   ) : isLocked ? (
-                    <View style={styles.lockOverlay}>
-                      <Ionicons name="lock-closed" size={18} color="#FFFFFF" />
+                    <View style={[styles.coverStatusBadge, styles.coverStatusLocked]}>
+                      <Ionicons name="lock-closed" size={14} color="#FFFFFF" />
                     </View>
                   ) : null}
                 </View>
 
-                {/* Card Content */}
                 <View style={styles.cardBody}>
-                  <View style={styles.metaRow}>
-                    <View style={styles.levelBadge}>
-                      <Image source={shieldIcon} style={styles.shieldMini} resizeMode="contain" />
-                      <Text style={styles.levelText}>{item.cefr_level ?? 'A1'}</Text>
-                    </View>
-                    <Text style={styles.metaTag}>⏱️ {item.estimated_minutes} Dk</Text>
-                    <Text style={styles.metaTag}>🎬 {item.scenes.length} Sahne</Text>
-                  </View>
-
-                  <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>
+                  <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]} numberOfLines={2}>
                     {item.title}
                   </Text>
+                  <View style={styles.metaRow}>
+                    <Text style={styles.metaTag}>{t("⏱️ {{estimated_minutes}} Dk", { estimated_minutes: item.estimated_minutes })}</Text>
+                    <Text style={styles.metaTag}>{t("🎬 {{length}} Sahne", { length: item.scenes.length })}</Text>
+                    <Text style={styles.metaTag}>{t("📝 {{words}} kelime", { words: wordCount })}</Text>
+                  </View>
 
                   <View style={styles.cardFooterRow}>
                     <Text
                       style={[
                         styles.statusLabel,
                         status === 'completed' && styles.statusCompleted,
-                        status === 'current' && styles.statusCurrent,
+                        (status === 'current' || status === 'open') && styles.statusCurrent,
                       ]}
                     >
                       {status === 'completed'
-                        ? '✓ Tamamlandı'
+                        ? t("✓ Tamamlandı")
                         : status === 'current'
-                          ? '🎯 Sıradaki Görev'
-                          : '🔒 Kilitli'}
+                          ? t("🎯 Sıradaki Görev")
+                          : status === 'open'
+                            ? t("▶ Açık")
+                            : t("🔒 Kilitli")}
                     </Text>
-
                     {!isLocked && (
                       <View style={styles.playIconButton}>
                         <Ionicons name="play" size={14} color={colors.brand} />
@@ -234,10 +309,8 @@ export function ReadingListScreen({ navigation }: ReadingListScreenProps) {
           ListEmptyComponent={
             <View style={styles.emptyLevelBlock}>
               <Ionicons name="book-outline" size={38} color={colors.textMuted} />
-              <Text style={styles.emptyLevelTitle}>{selectedLevel} Seviyesi Hikayeleri</Text>
-              <Text style={styles.emptyLevelSub}>
-                Bu seviye için yeni hikayeler ve ses sahneleri çok yakında eklenecek!
-              </Text>
+              <Text style={styles.emptyLevelTitle}>{t("{{selectedLevel}} Seviyesi Hikayeleri", { selectedLevel })}</Text>
+              <Text style={styles.emptyLevelSub}>{t("Bu seviye için yeni hikayeler ve ses sahneleri çok yakında eklenecek!")}</Text>
             </View>
           }
         />
@@ -415,12 +488,59 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: radii.lg,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(226, 232, 240, 0.8)',
   },
+  coverWrap: {
+    height: 140,
+    backgroundColor: '#EEF2FF',
+    position: 'relative',
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
+  },
+  coverLevelPill: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  coverStatusBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#10B981',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverStatusLocked: {
+    backgroundColor: 'rgba(15,23,42,0.7)',
+  },
+  levelSummary: {
+    paddingHorizontal: spacing.md,
+    paddingTop: 10,
+    paddingBottom: 4,
+    gap: 6,
+  },
+  levelSummaryTextRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  levelSummaryTitle: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
+  levelSummaryCount: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
+  levelSummaryTrack: { height: 8, borderRadius: 4, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  levelSummaryFill: { height: '100%', borderRadius: 4, backgroundColor: '#10B981' },
   cardCurrent: {
     borderColor: colors.brand,
     borderWidth: 1.5,
@@ -466,7 +586,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardBody: {
-    flex: 1,
+    padding: 12,
   },
   metaRow: {
     flexDirection: 'row',

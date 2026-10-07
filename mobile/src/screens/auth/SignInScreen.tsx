@@ -14,13 +14,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { appLogoIcon, yankiAuthWelcomeHero } from '../../assets/images';
+import { appLogoIcon, authWelcomeHeroBg } from '../../assets/images';
+import { AuthMivoHero } from '../../components/AuthMivoHero';
 import { AppleSignInButton } from '../../components/AppleSignInButton';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { supabase } from '../../lib/supabase';
 import type { AuthStackScreenProps } from '../../navigation/types';
 import { colors, fonts, radii, shadow } from '../../theme/tokens';
+import { t } from '../../i18n';
 
 export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
   const [email, setEmail] = useState('');
@@ -41,12 +43,12 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
       if (signInError) {
         setError(
           signInError.message.includes('Invalid login credentials')
-            ? 'E-posta veya şifre hatalı. Lütfen kontrol edin.'
+            ? t("E-posta veya şifre hatalı. Lütfen kontrol edin.")
             : signInError.message
         );
       }
     } catch {
-      setError('Giriş yapılamadı. İnternet bağlantını kontrol edip tekrar dene.');
+      setError(t("Giriş yapılamadı. İnternet bağlantını kontrol edip tekrar dene."));
     } finally {
       setLoading(false);
     }
@@ -54,12 +56,13 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
 
   return (
     <View style={styles.root}>
-      {/* 1. Full-Height 3D Yankı Mascot Hero Backdrop */}
+      {/* 1. Full-Height 3D Mivo Mascot Hero Backdrop */}
       <ImageBackground
-        source={yankiAuthWelcomeHero}
+        source={authWelcomeHeroBg}
         style={styles.heroBackground}
         resizeMode="cover"
       >
+        <AuthMivoHero />
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
@@ -75,18 +78,18 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
               <View style={styles.topSection}>
                 <View style={[styles.brandCapsule, shadow.card]}>
                   <Image source={appLogoIcon} style={styles.brandLogoImg} resizeMode="contain" />
-                  <Text style={styles.brandName}>TalkStage</Text>
+                  <Text style={styles.brandName}>{t("TalkStage")}</Text>
                 </View>
               </View>
 
-              {/* 3. Spacious Gap so Yankı is 100% Unobstructed in Middle Viewport */}
+              {/* 3. Spacious Gap so Mivo is 100% Unobstructed in Middle Viewport */}
               <View style={styles.heroSpacer} />
 
               {/* 4. Sleek Bottom Porcelain Sheet Form */}
               <View style={[styles.bottomSheet, shadow.porcelain]}>
                 <View style={styles.sheetHeader}>
-                  <Text style={styles.sheetTitle}>Sahneye Giriş Yap</Text>
-                  <Text style={styles.sheetSub}>Kaldığın yerden akıcı pratiğe devam et</Text>
+                  <Text style={styles.sheetTitle}>{t("Sahneye Giriş Yap")}</Text>
+                  <Text style={styles.sheetSub}>{t("Kaldığın yerden akıcı pratiğe devam et")}</Text>
                 </View>
 
                 {/* Email Input */}
@@ -95,7 +98,7 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
                     <Ionicons name="mail-outline" size={19} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
-                      placeholder="E-posta adresin"
+                      placeholder={t("E-posta adresin")}
                       placeholderTextColor="#94A3B8"
                       autoCapitalize="none"
                       keyboardType="email-address"
@@ -116,7 +119,7 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
                     <Ionicons name="lock-closed-outline" size={19} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={[styles.textInput, { paddingRight: 38 }]}
-                      placeholder="Şifren"
+                      placeholder={t("Şifren")}
                       placeholderTextColor="#94A3B8"
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
@@ -166,7 +169,7 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <>
-                      <Text style={styles.primaryLoginBtnText}>Sahneye Giriş Yap</Text>
+                      <Text style={styles.primaryLoginBtnText}>{t("Sahneye Giriş Yap")}</Text>
                       <Ionicons name="arrow-forward" size={17} color="#FFFFFF" style={{ marginLeft: 6 }} />
                     </>
                   )}
@@ -185,8 +188,8 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
                   hapticType="light"
                   scaleTo={0.96}
                 >
-                  <Text style={styles.switchTextNormal}>Hesabın yok mu? </Text>
-                  <Text style={styles.switchTextBold}>Hemen Kayıt Ol ➔</Text>
+                  <Text style={styles.switchTextNormal}>{t("Hesabın yok mu?")}{" "}</Text>
+                  <Text style={styles.switchTextBold}>{t("Hemen Kayıt Ol ➔")}</Text>
                 </BouncyPressable>
               </View>
             </ScrollView>
@@ -247,7 +250,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  /* Spacer so Yankı is fully visible */
+  /* Spacer so Mivo is fully visible */
   heroSpacer: {
     height: 180,
   },

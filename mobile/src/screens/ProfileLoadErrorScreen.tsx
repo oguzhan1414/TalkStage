@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BouncyPressable } from '../components/BouncyPressable';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
+import { t } from '../i18n';
 
 type Props = {
   retrying: boolean;
@@ -17,10 +18,8 @@ export function ProfileLoadErrorScreen({ retrying, onRetry }: Props) {
         <View style={styles.iconCircle}>
           <Ionicons name="cloud-offline-outline" size={38} color={colors.brand} />
         </View>
-        <Text style={styles.title}>Profilin yüklenemedi</Text>
-        <Text style={styles.description}>
-          Bağlantını kontrol edip tekrar dene. Öğrenme ilerlemen güvende.
-        </Text>
+        <Text style={styles.title}>{t("Profilin yüklenemedi")}</Text>
+        <Text style={styles.description}>{t("Bağlantını kontrol edip tekrar dene. Öğrenme ilerlemen güvende.")}</Text>
         <BouncyPressable
           onPress={onRetry}
           disabled={retrying}
@@ -28,14 +27,14 @@ export function ProfileLoadErrorScreen({ retrying, onRetry }: Props) {
           hapticType="medium"
           scaleTo={0.97}
           accessibilityRole="button"
-          accessibilityLabel="Profili yeniden yükle"
+          accessibilityLabel={t("Profili yeniden yükle")}
         >
           {retrying ? (
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <>
               <Ionicons name="refresh" size={18} color="#FFFFFF" />
-              <Text style={styles.buttonText}>Tekrar Dene</Text>
+              <Text style={styles.buttonText}>{t("Tekrar Dene")}</Text>
             </>
           )}
         </BouncyPressable>

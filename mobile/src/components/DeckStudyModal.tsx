@@ -19,16 +19,17 @@ import {
 import { usePronunciation } from '../hooks/usePronunciation';
 import { colors, fonts, radii, shadow } from '../theme/tokens';
 import { BouncyPressable } from './BouncyPressable';
+import { t, nativeFlag } from '../i18n';
 
 const SWIPE_THRESHOLD = 80;
 const OFFSCREEN_DISTANCE = 420;
 
 const POS_LABELS: Record<string, { label: string; bg: string; text: string }> = {
-  noun: { label: 'İsim (Noun)', bg: '#EFF6FF', text: '#2563EB' },
-  verb: { label: 'Fiil (Verb)', bg: '#ECFDF5', text: '#059669' },
-  adjective: { label: 'Sıfat (Adj)', bg: '#FFFBEB', text: '#D97706' },
-  adverb: { label: 'Zarf (Adv)', bg: '#F5F3FF', text: '#7C3AED' },
-  phrase: { label: 'Deyim / Kalıp', bg: '#FDF2F8', text: '#DB2777' },
+  noun: { label: t("İsim (Noun)"), bg: '#EFF6FF', text: '#2563EB' },
+  verb: { label: t("Fiil (Verb)"), bg: '#ECFDF5', text: '#059669' },
+  adjective: { label: t("Sıfat (Adj)"), bg: '#FFFBEB', text: '#D97706' },
+  adverb: { label: t("Zarf (Adv)"), bg: '#F5F3FF', text: '#7C3AED' },
+  phrase: { label: t("Deyim / Kalıp"), bg: '#FDF2F8', text: '#DB2777' },
 };
 
 type Props = {
@@ -178,11 +179,11 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
             <Text style={styles.deckProgressSubtitle}>
               {isCompleted
                 ? initialCount <= 1
-                  ? 'Pratik Tamamlandı ✨'
-                  : 'Deste Tamamlandı! 🎉'
+                  ? t("Pratik Tamamlandı ✨")
+                  : t("Deste Tamamlandı! 🎉")
                 : initialCount > 0
-                  ? `Kalan: ${remainingCount} • Öğrenilen: ${masteredCount}`
-                  : 'Boş Deste'}
+                  ? t("Kalan: {{remainingCount}} • Öğrenilen: {{masteredCount}}", { remainingCount, masteredCount })
+                  : t("Boş Deste")}
             </Text>
           </View>
 
@@ -209,12 +210,10 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
           <View style={styles.completedContainer}>
             <View style={[styles.celebrationCard, shadow.porcelain]}>
               <Text style={styles.celebrationEmoji}>📦</Text>
-              <Text style={styles.celebrationTitle}>Bu Klasör Henüz Boş</Text>
-              <Text style={styles.celebrationDesc}>
-                "{deck.title}" klasöründe henüz kelime bulunmuyor. Kelime ekleyerek desteni zenginleştirebilirsin.
-              </Text>
+              <Text style={styles.celebrationTitle}>{t("Bu Klasör Henüz Boş")}</Text>
+              <Text style={styles.celebrationDesc}>{t("\"{{title}}\" klasöründe henüz kelime bulunmuyor. Kelime ekleyerek desteni zenginleştirebilirsin.", { title: deck.title })}</Text>
               <BouncyPressable onPress={onClose} style={[styles.restartBtn, shadow.card]} hapticType="light" scaleTo={0.96}>
-                <Text style={styles.restartBtnText}>Klasörlere Dön</Text>
+                <Text style={styles.restartBtnText}>{t("Klasörlere Dön")}</Text>
               </BouncyPressable>
             </View>
           </View>
@@ -224,24 +223,23 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
             <View style={[styles.celebrationCard, shadow.porcelain]}>
               <Text style={styles.celebrationEmoji}>{initialCount <= 1 ? '✨' : '🏆'}</Text>
               <Text style={styles.celebrationTitle}>
-                {initialCount <= 1 ? 'Kelime Gözden Geçirildi' : 'Deste Tamamlandı!'}
+                {initialCount <= 1 ? t("Kelime Gözden Geçirildi") : t("Deste Tamamlandı!")}
               </Text>
               <Text style={styles.celebrationDesc}>
                 {initialCount <= 1
-                  ? `"${deck.title}" klasöründeki kelimeyi başarıyla pekiştirdin.`
-                  : `"${deck.title}" klasöründeki ${masteredCount} kelimeyi başarıyla tamamladın. Hafıza gücün pekişti! ⚡`}
+                  ? t("\"{{title}}\" klasöründeki kelimeyi başarıyla pekiştirdin.", { title: deck.title })
+                  : t("\"{{title}}\" klasöründeki {{masteredCount}} kelimeyi başarıyla tamamladın. Hafıza gücün pekişti! ⚡", { title: deck.title, masteredCount })}
               </Text>
 
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
                   <Text style={styles.statVal}>{masteredCount}</Text>
-                  <Text style={styles.statLabel}>Pekiştirilen</Text>
+                  <Text style={styles.statLabel}>{t("Pekiştirilen")}</Text>
                 </View>
                 <View style={styles.statBox}>
                   <Text style={[styles.statVal, { color: '#10B981' }]}>
-                    +{initialCount <= 1 ? '5' : '25'} XP
-                  </Text>
-                  <Text style={styles.statLabel}>Kazanılan</Text>
+                    +{initialCount <= 1 ? '5' : '25'}{" "}{t("XP")}</Text>
+                  <Text style={styles.statLabel}>{t("Kazanılan")}</Text>
                 </View>
               </View>
 
@@ -257,11 +255,11 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                 scaleTo={0.96}
               >
                 <Ionicons name="refresh" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-                <Text style={styles.restartBtnText}>Tekrar Pratik Yap</Text>
+                <Text style={styles.restartBtnText}>{t("Tekrar Pratik Yap")}</Text>
               </BouncyPressable>
 
               <BouncyPressable onPress={onClose} style={styles.backBtn} hapticType="light" scaleTo={0.96}>
-                <Text style={styles.backBtnText}>Klasörlere Dön</Text>
+                <Text style={styles.backBtnText}>{t("Klasörlere Dön")}</Text>
               </BouncyPressable>
             </View>
           </View>
@@ -280,11 +278,11 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
             >
               {/* Swipe Overlays */}
               <Animated.View style={[styles.swipeStamp, styles.knownStamp, { opacity: knownOpacity }]}>
-                <Text style={styles.knownStampText}>BİLİYORUM 👍</Text>
+                <Text style={styles.knownStampText}>{t("BİLİYORUM 👍")}</Text>
               </Animated.View>
 
               <Animated.View style={[styles.swipeStamp, styles.againStamp, { opacity: againOpacity }]}>
-                <Text style={styles.againStampText}>TEKRAR ET 👎</Text>
+                <Text style={styles.againStampText}>{t("TEKRAR ET 👎")}</Text>
               </Animated.View>
 
               <Pressable style={styles.cardInner} onPress={() => setIsFlipped(!isFlipped)}>
@@ -310,7 +308,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                           color={isCurrentWordSaved ? '#059669' : '#4F46E5'}
                         />
                         <Text style={[styles.addToChestBtnText, isCurrentWordSaved && styles.addToChestBtnTextSaved]}>
-                          {isCurrentWordSaved ? 'Sandığında' : 'Sandığa Ekle'}
+                          {isCurrentWordSaved ? t("Sandığında") : t("Sandığa Ekle")}
                         </Text>
                       </BouncyPressable>
                     )}
@@ -337,7 +335,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
 
                     <View style={styles.tapToFlipPill}>
                       <Ionicons name="sync" size={14} color="#6366F1" style={{ marginRight: 6 }} />
-                      <Text style={styles.tapToFlipText}>Türkçe Anlamı İçin Dokun</Text>
+                      <Text style={styles.tapToFlipText}>{t("Türkçe Anlamı İçin Dokun")}</Text>
                     </View>
                   </View>
                 ) : (
@@ -347,7 +345,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                     {currentWord.exampleEn ? (
                       <View style={styles.exampleCard}>
                         <View style={styles.exampleHeaderRow}>
-                          <Text style={styles.exampleHeaderBadge}>ÖRNEK CÜMLE</Text>
+                          <Text style={styles.exampleHeaderBadge}>{t("ÖRNEK CÜMLE")}</Text>
                           <BouncyPressable
                             onPress={() => pronounce(currentWord.exampleEn)}
                             style={styles.audioBtnMini}
@@ -358,20 +356,20 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                           </BouncyPressable>
                         </View>
                         <Text style={styles.exampleEnText}>🇬🇧 {currentWord.exampleEn}</Text>
-                        <Text style={styles.exampleTrText}>🇹🇷 {currentWord.exampleTr}</Text>
+                        <Text style={styles.exampleTrText}>{nativeFlag()} {currentWord.exampleTr}</Text>
                       </View>
                     ) : null}
 
                     <View style={styles.tapToFlipPill}>
                       <Ionicons name="sync" size={14} color="#6366F1" style={{ marginRight: 6 }} />
-                      <Text style={styles.tapToFlipText}>İngilizce Kartına Dön</Text>
+                      <Text style={styles.tapToFlipText}>{t("İngilizce Kartına Dön")}</Text>
                     </View>
                   </View>
                 )}
 
                 {/* Bottom Gesture Guide */}
                 <View style={styles.cardBottomGuide}>
-                  <Text style={styles.cardBottomGuideText}>👈 Sola: Zor / Tekrar • Sağa: Biliyorum 👉</Text>
+                  <Text style={styles.cardBottomGuideText}>{t("👈 Sola: Zor / Tekrar • Sağa: Biliyorum 👉")}</Text>
                 </View>
               </Pressable>
             </Animated.View>
@@ -385,7 +383,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                 scaleTo={0.92}
               >
                 <Ionicons name="close" size={24} color="#EF4444" />
-                <Text style={styles.actionBtnAgainText}>Zor / Tekrar</Text>
+                <Text style={styles.actionBtnAgainText}>{t("Zor / Tekrar")}</Text>
               </BouncyPressable>
 
               <BouncyPressable
@@ -395,7 +393,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                 scaleTo={0.92}
               >
                 <Ionicons name="sync" size={22} color="#4F46E5" />
-                <Text style={styles.actionBtnFlipText}>Çevir</Text>
+                <Text style={styles.actionBtnFlipText}>{t("Çevir")}</Text>
               </BouncyPressable>
 
               <BouncyPressable
@@ -405,7 +403,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                 scaleTo={0.92}
               >
                 <Ionicons name="checkmark" size={24} color="#10B981" />
-                <Text style={styles.actionBtnKnowText}>Biliyorum</Text>
+                <Text style={styles.actionBtnKnowText}>{t("Biliyorum")}</Text>
               </BouncyPressable>
             </View>
           </View>

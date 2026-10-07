@@ -14,11 +14,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { appLogoIcon, yankiAuthWelcomeHero } from '../../assets/images';
+import { appLogoIcon, authWelcomeHeroBg } from '../../assets/images';
+import { AuthMivoHero } from '../../components/AuthMivoHero';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { supabase } from '../../lib/supabase';
 import type { AuthStackScreenProps } from '../../navigation/types';
 import { colors, fonts, radii, shadow } from '../../theme/tokens';
+import { t } from '../../i18n';
 
 export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
   const [email, setEmail] = useState('');
@@ -47,7 +49,7 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
         setConfirmationSent(true);
       }
     } catch {
-      setError('Hesap oluşturulamadı. İnternet bağlantını kontrol edip tekrar dene.');
+      setError(t("Hesap oluşturulamadı. İnternet bağlantını kontrol edip tekrar dene."));
     } finally {
       setLoading(false);
     }
@@ -58,20 +60,20 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
     return (
       <View style={styles.root}>
         <ImageBackground
-          source={yankiAuthWelcomeHero}
+          source={authWelcomeHeroBg}
           style={styles.heroBackground}
           resizeMode="cover"
         >
+          <AuthMivoHero />
           <SafeAreaView style={styles.safeArea}>
             <View style={styles.confirmationContainer}>
               <View style={[styles.confirmCard, shadow.porcelain]}>
                 <View style={styles.confirmIconCircle}>
                   <Ionicons name="mail-unread" size={34} color={colors.brand} />
                 </View>
-                <Text style={styles.confirmTitle}>E-Postanı Kontrol Et ✉️</Text>
+                <Text style={styles.confirmTitle}>{t("E-Postanı Kontrol Et ✉️")}</Text>
                 <Text style={styles.confirmDesc}>
-                  <Text style={{ fontFamily: fonts.headingSemiBold, color: '#0F172A' }}>{email}</Text>
-                  {'\n'}adresine bir onay bağlantısı gönderdik. Bağlantıya tıklayarak Yankı ile sahneye adım atabilirsin.
+                  {t("{{email}} adresine bir onay bağlantısı gönderdik. Bağlantıya tıklayarak Mivo ile sahneye adım atabilirsin.", { email })}
                 </Text>
 
                 <BouncyPressable
@@ -81,7 +83,7 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                   scaleTo={0.97}
                 >
                   <Ionicons name="arrow-back" size={17} color="#FFFFFF" style={{ marginRight: 6 }} />
-                  <Text style={styles.primaryLoginBtnText}>Giriş Ekranına Dön</Text>
+                  <Text style={styles.primaryLoginBtnText}>{t("Giriş Ekranına Dön")}</Text>
                 </BouncyPressable>
               </View>
             </View>
@@ -93,12 +95,13 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
 
   return (
     <View style={styles.root}>
-      {/* 1. Full-Height 3D Yankı Mascot Hero Backdrop */}
+      {/* 1. Full-Height 3D Mivo Mascot Hero Backdrop */}
       <ImageBackground
-        source={yankiAuthWelcomeHero}
+        source={authWelcomeHeroBg}
         style={styles.heroBackground}
         resizeMode="cover"
       >
+        <AuthMivoHero />
         <SafeAreaView style={styles.safeArea}>
           <KeyboardAvoidingView
             style={styles.keyboardView}
@@ -114,18 +117,18 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
               <View style={styles.topSection}>
                 <View style={[styles.brandCapsule, shadow.card]}>
                   <Image source={appLogoIcon} style={styles.brandLogoImg} resizeMode="contain" />
-                  <Text style={styles.brandName}>TalkStage</Text>
+                  <Text style={styles.brandName}>{t("TalkStage")}</Text>
                 </View>
               </View>
 
-              {/* 3. Spacious Gap so Yankı is 100% Unobstructed in Middle Viewport */}
+              {/* 3. Spacious Gap so Mivo is 100% Unobstructed in Middle Viewport */}
               <View style={styles.heroSpacer} />
 
               {/* 4. Sleek Bottom Porcelain Sheet Form */}
               <View style={[styles.bottomSheet, shadow.porcelain]}>
                 <View style={styles.sheetHeader}>
-                  <Text style={styles.sheetTitle}>Sahneni Oluştur</Text>
-                  <Text style={styles.sheetSub}>Birkaç saniyede ücretsiz hesabını aç</Text>
+                  <Text style={styles.sheetTitle}>{t("Sahneni Oluştur")}</Text>
+                  <Text style={styles.sheetSub}>{t("Birkaç saniyede ücretsiz hesabını aç")}</Text>
                 </View>
 
                 {/* Email Input */}
@@ -134,7 +137,7 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                     <Ionicons name="mail-outline" size={19} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
-                      placeholder="E-posta adresin"
+                      placeholder={t("E-posta adresin")}
                       placeholderTextColor="#94A3B8"
                       autoCapitalize="none"
                       keyboardType="email-address"
@@ -155,7 +158,7 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                     <Ionicons name="lock-closed-outline" size={19} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={[styles.textInput, { paddingRight: 38 }]}
-                      placeholder="Şifren (en az 6 karakter)"
+                      placeholder={t("Şifren (en az 6 karakter)")}
                       placeholderTextColor="#94A3B8"
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
@@ -184,13 +187,13 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                 {/* Feature Highlight Mini Chips */}
                 <View style={styles.featureChipsRow}>
                   <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>🛡️ Gizli &amp; Güvenli</Text>
+                    <Text style={styles.featureChipText}>{t("🛡️ Gizli & Güvenli")}</Text>
                   </View>
                   <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>⚡ Anında Başla</Text>
+                    <Text style={styles.featureChipText}>{t("⚡ Anında Başla")}</Text>
                   </View>
                   <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>🎁 Ücretsiz Seviye</Text>
+                    <Text style={styles.featureChipText}>{t("🎁 Ücretsiz Seviye")}</Text>
                   </View>
                 </View>
 
@@ -218,7 +221,7 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <>
-                      <Text style={styles.primaryLoginBtnText}>Hesabımı Oluştur</Text>
+                      <Text style={styles.primaryLoginBtnText}>{t("Hesabımı Oluştur")}</Text>
                       <Ionicons name="arrow-forward" size={17} color="#FFFFFF" style={{ marginLeft: 6 }} />
                     </>
                   )}
@@ -231,8 +234,8 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                   hapticType="light"
                   scaleTo={0.96}
                 >
-                  <Text style={styles.switchTextNormal}>Zaten bir hesabın var mı? </Text>
-                  <Text style={styles.switchTextBold}>Giriş Yap ➔</Text>
+                  <Text style={styles.switchTextNormal}>{t("Zaten bir hesabın var mı?")}{" "}</Text>
+                  <Text style={styles.switchTextBold}>{t("Giriş Yap ➔")}</Text>
                 </BouncyPressable>
               </View>
             </ScrollView>
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  /* Spacer so Yankı is fully visible */
+  /* Spacer so Mivo is fully visible */
   heroSpacer: {
     height: 180,
   },

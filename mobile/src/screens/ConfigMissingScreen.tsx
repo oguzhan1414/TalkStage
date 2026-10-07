@@ -2,18 +2,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing, typography } from '../theme/tokens';
+import { t } from '../i18n';
 
 /** Shown instead of the app while `mobile/.env` has no real Supabase project values. */
 export function ConfigMissingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Supabase yapılandırması eksik</Text>
-        <Text style={styles.body}>
-          `mobile/.env` dosyası yok veya EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY
-          değerleri boş. `mobile/.env.example`'ı kopyalayıp gerçek Supabase proje değerleriyle
-          doldur, sonra Expo'yu yeniden başlat.
-        </Text>
+        <Text style={styles.title}>{t("Supabase yapılandırması eksik")}</Text>
+        <Text style={styles.body}>{t("`mobile/.env` dosyası yok veya EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY değerleri boş. `mobile/.env.example`'ı kopyalayıp gerçek Supabase proje değerleriyle doldur, sonra Expo'yu yeniden başlat.")}</Text>
       </View>
     </SafeAreaView>
   );

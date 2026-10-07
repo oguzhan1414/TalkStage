@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Button } from './Button';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
+import { t } from '../i18n';
 
 const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://talkstage.app/gizlilik';
 
@@ -12,22 +13,17 @@ export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
       <View style={styles.iconCircle}>
         <Ionicons name="mic-outline" size={34} color={colors.brand} />
       </View>
-      <Text style={styles.title}>Sesin nasıl işleniyor?</Text>
-      <Text style={styles.body}>
-        Mikrofon yalnızca canlı konuşma sırasında kullanılır. Ses akışı konuşmayı yazıya
-        çevirmek ve geri bildirim üretmek için hizmet sağlayıcılarımıza güvenli bağlantıyla
-        iletilir. Ham ses TalkStage öğrenme geçmişinde saklanmaz; konuşma metni ve performans
-        sonuçları hesabına kaydedilebilir.
-      </Text>
-      <Button label="Anladım, Devam Et" onPress={onContinue} style={styles.button} />
+      <Text style={styles.title}>{t("Sesin nasıl işleniyor?")}</Text>
+      <Text style={styles.body}>{t("Mikrofon yalnızca canlı konuşma sırasında kullanılır. Ses akışı konuşmayı yazıya çevirmek ve geri bildirim üretmek için hizmet sağlayıcılarımıza güvenli bağlantıyla iletilir. Ham ses TalkStage öğrenme geçmişinde saklanmaz; konuşma metni ve performans sonuçları hesabına kaydedilebilir.")}</Text>
+      <Button label={t("Anladım, Devam Et")} onPress={onContinue} style={styles.button} />
       <Pressable
         onPress={() => {
           void Linking.openURL(PRIVACY_URL);
         }}
         accessibilityRole="link"
-        accessibilityLabel="Gizlilik politikasını aç"
+        accessibilityLabel={t("Gizlilik politikasını aç")}
       >
-        <Text style={styles.link}>Gizlilik politikasını incele</Text>
+        <Text style={styles.link}>{t("Gizlilik politikasını incele")}</Text>
       </Pressable>
     </View>
   );

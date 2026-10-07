@@ -1,3 +1,4 @@
+import { getLocale, t } from '../i18n';
 import { supabase } from './supabase';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -13,8 +14,9 @@ export class ApiError extends Error {
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
-  if (!token) throw new ApiError(401, 'Oturum bulunamadı');
-  return { Authorization: `Bearer ${token}` };
+  if (!token) throw new ApiError(401, t("Oturum bulunamadı"));
+  // Backend overlays translated content (scenarios, reading) by this header.
+  return { Authorization: `Bearer ${token}`, 'X-App-Locale': getLocale() };
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {

@@ -1,52 +1,61 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { yankiGreetingImage } from '../../assets/images';
 import { Button } from '../../components/Button';
+import { LanguagePickerModal } from '../../components/LanguagePickerModal';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { getLocale, LOCALE_META, t } from '../../i18n';
 
 const PILLARS = [
   {
     icon: '🎙️',
     bg: 'rgba(79, 70, 229, 0.08)',
-    title: 'Canlı Sesli Fısıltı Koçu (Yankı)',
-    desc: 'Takıldığında Türkçe fısıldar, konuşmanı asla bölmez.',
+    title: t("Canlı Sesli Fısıltı Koçu (Mivo)"),
+    desc: t("Takıldığında Türkçe fısıldar, konuşmanı asla bölmez."),
   },
   {
     icon: '🎯',
     bg: 'rgba(14, 165, 233, 0.08)',
-    title: 'Sana Özel Gerçek Hayat Sahneleri',
-    desc: 'Okul, iş, sınav, gezi veya günlük sohbet senaryoları.',
+    title: t("Sana Özel Gerçek Hayat Sahneleri"),
+    desc: t("Okul, iş, sınav, gezi veya günlük sohbet senaryoları."),
   },
   {
     icon: '📓',
     bg: 'rgba(16, 185, 129, 0.08)',
-    title: 'Akıllı Hata & Telaffuz Defteri',
-    desc: 'Yanlışlarını anında yakalar, seni adım adım geliştirir.',
+    title: t("Akıllı Hata & Telaffuz Defteri"),
+    desc: t("Yanlışlarını anında yakalar, seni adım adım geliştirir."),
   },
 ];
 
 export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcome'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'welcome' });
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Pressable
+          onPress={() => setLanguageModalVisible(true)}
+          style={styles.languageChip}
+          accessibilityRole="button"
+          accessibilityLabel={t("Dil Seç")}
+        >
+          <Text style={styles.languageChipText}>
+            {LOCALE_META[getLocale()].flag} {LOCALE_META[getLocale()].nativeName}
+          </Text>
+        </Pressable>
+        <LanguagePickerModal visible={languageModalVisible} onClose={() => setLanguageModalVisible(false)} />
+
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>✨ Öğrenci, Çalışan & Her Yaş İçin</Text>
+          <Text style={styles.badgeText}>{t("✨ Öğrenci, Çalışan & Her Yaş İçin")}</Text>
         </View>
 
-        <Text style={styles.title}>
-          "İngilizceyi Anlıyorum{'\n'}
-          <Text style={styles.titleAccent}>Ama Konuşamıyorum"</Text>
-          {'\n'}Diyenlere Özel.
-        </Text>
+        <Text style={styles.title}>{t("\"İngilizceyi Anlıyorum")}{'\n'}<Text style={styles.titleAccent}>{t("Ama Konuşamıyorum\"")}</Text>{'\n'}{t("Diyenlere Özel.")}</Text>
 
-        <Text style={styles.subtitle}>
-          Sıfır stres, sıfır yargılanma korkusu. Takıldığın anda Türkçe fısıldayan yapay zeka
-          koçunla dilediğin gibi konuş.
-        </Text>
+        <Text style={styles.subtitle}>{t("Sıfır stres, sıfır yargılanma korkusu. Takıldığın anda Türkçe fısıldayan yapay zeka koçunla dilediğin gibi konuş.")}</Text>
 
         <Image source={yankiGreetingImage} style={styles.hero} resizeMode="contain" />
 
@@ -66,7 +75,7 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Hadi Başlayalım ➔" variant="chunky" onPress={() => navigation.navigate('Name')} />
+        <Button label={t("Hadi Başlayalım ➔")} variant="chunky" onPress={() => navigation.navigate('Name')} />
       </View>
     </SafeAreaView>
   );
@@ -80,6 +89,19 @@ const styles = StyleSheet.create({
   scroll: {
     padding: spacing.lg,
     alignItems: 'center',
+  },
+  languageChip: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    marginBottom: spacing.sm,
+  },
+  languageChipText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 12,
+    color: colors.textHeading,
   },
   badge: {
     backgroundColor: 'rgba(79, 70, 229, 0.08)',

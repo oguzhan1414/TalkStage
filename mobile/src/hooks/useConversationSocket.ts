@@ -1,6 +1,8 @@
+import type { ScenePlayPayload } from '../lib/sceneTwists';
 import { createAudioPlayer, requestRecordingPermissionsAsync, type AudioPlayer } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, Platform } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
 import { arrayBufferToBase64 } from '../lib/base64';
@@ -12,6 +14,14 @@ import type {
   WsWordMetric,
   WsTurnMetrics,
 } from '../types/ws';
+import { t } from '../i18n';
+
+// Server error frames carry Turkish text; map the known codes to the app language instead.
+const WS_ERROR_TEXT: Record<string, string> = {
+  transcription_failed: t("Ses çözümlenemedi. Tekrar söyleyebilir veya yazabilirsin."),
+  voice_reply_failed: t("Yanıt hazırlanamadı. Tekrar deneyebilir veya yazabilirsin."),
+  invalid_request: t("İstek sınırı aşıldı. Odayı yeniden açabilirsin."),
+};
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
 
@@ -21,7 +31,7 @@ export type OrbState = 'idle' | 'listening' | 'thinking' | 'speaking';
  * Push-to-talk turn state machine (replaces automatic silence-based turn
  * detection). Mic is only ever actually forwarded to the server during
  * 'recording' — every other phase is mic-off.
- *   ai_speaking  — Yankı's reply audio is playing.
+ *   ai_speaking  — Mivo's reply audio is playing.
  *   thinking_time — mic off, waiting for the user to tap "Konuşmaya Başla".
  *   recording    — mic on, user is speaking, waiting for "Konuşmayı Bitir".
  *   reviewing    — mic off, showing the transcript confirmation card.
@@ -54,11 +64,13 @@ const AUTO_CONFIRM_CONFIDENCE_THRESHOLD = 0.8;
 // Deepgram has nothing to Finalize into a result.
 const REVIEW_TIMEOUT_MS = 6000;
 
-function buildWsUrl(scenarioSlug: string): string | null {
+function buildWsUrl(scenarioSlug?: string, scenePlay?: boolean): string | null {
   const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (!apiBaseUrl) return null;
-  const wsBase = apiBaseUrl.replace(/^http/, 'ws');
-  return `${wsBase}/ws/session/${encodeURIComponent(scenarioSlug)}`;
+  if (!__DEV__ && !apiBaseUrl.startsWith('https://')) return null;
+  const wsBase = apiBaseUrl.replace(/\/$/, '').replace(/^http/, 'ws');
+  if (scenePlay) return `${wsBase}/ws/scene-play`;
+  return scenarioSlug ? `${wsBase}/ws/session/${encodeURIComponent(scenarioSlug)}` : `${wsBase}/ws/free-chat`;
 }
 
 /** RMS-based dBFS approximation from a raw int16 PCM buffer — drives the live waveform. */
@@ -79,9 +91,14 @@ function levelFromPcm16(buffer: ArrayBuffer): number {
  * parses server events down, and plays each `reply.sentence`'s TTS audio
  * (the binary frame that immediately follows it) in order.
  */
-export function useConversationSocket(scenarioSlug: string) {
+export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload) {
+  const sceneRef = useRef(scene);
+  sceneRef.current = scene;
   const { session } = useAuth();
   const accessToken = session?.access_token;
+  const tokenRef = useRef(accessToken);
+  tokenRef.current = accessToken;
+  const userId = session?.user.id;
 
   const [status, setStatus] = useState<ConnectionStatus>('connecting');
   const [closeInfo, setCloseInfo] = useState<CloseInfo | null>(null);
@@ -116,6 +133,16 @@ export function useConversationSocket(scenarioSlug: string) {
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [coachTipTr, setCoachTipTr] = useState<string | null>(null);
 
+  const [inputLanguage, setInputLanguage] = useState<string>('en');
+  const inputLanguageRef = useRef(inputLanguage);
+  inputLanguageRef.current = inputLanguage;
+  const [audioNotice, setAudioNotice] = useState<string | null>(null);
+  const awaitingTranscriptRef = useRef(false);
+  const mutedReplyRef = useRef(false);
+  const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const replyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastMeterAtRef = useRef(0);
   const wsRef = useRef<WebSocket | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const currentPlayerRef = useRef<AudioPlayer | null>(null);
@@ -179,8 +206,9 @@ export function useConversationSocket(scenarioSlug: string) {
   const enqueueAudio = useCallback(
     (buffer: ArrayBuffer) => {
       const uri = `data:audio/wav;base64,${arrayBufferToBase64(buffer)}`;
-      audioQueueRef.current.push(uri);
       lastReplyAudioUrisRef.current.push(uri);
+      if (mutedReplyRef.current) return;
+      audioQueueRef.current.push(uri);
       setHasReplayableAudio(true);
       if (!currentPlayerRef.current) {
         playNextInQueue();
@@ -189,8 +217,9 @@ export function useConversationSocket(scenarioSlug: string) {
     [playNextInQueue],
   );
 
-  // "Sesi Durdur" — cuts Yankı's reply short, mid-sentence if needed.
+  // "Sesi Durdur" — cuts Mivo's reply short, mid-sentence if needed.
   const stopAiAudio = useCallback(() => {
+    mutedReplyRef.current = true;
     currentSubscriptionRef.current?.remove();
     currentSubscriptionRef.current = null;
     currentPlayerRef.current?.remove();
@@ -203,7 +232,8 @@ export function useConversationSocket(scenarioSlug: string) {
   // "Tekrar Dinle" — replays the reply that just finished, while the user
   // is still deciding what to say next (thinking_time/recording/reviewing).
   const replayAiAudio = useCallback(() => {
-    if (lastReplyAudioUrisRef.current.length === 0 || currentPlayerRef.current) return;
+    if (isRecordingActiveRef.current || turnProcessingRef.current || lastReplyAudioUrisRef.current.length === 0 || currentPlayerRef.current) return;
+    mutedReplyRef.current = false;
     audioQueueRef.current = [...lastReplyAudioUrisRef.current];
     playNextInQueue();
   }, [playNextInQueue]);
@@ -219,7 +249,8 @@ export function useConversationSocket(scenarioSlug: string) {
     // animation frame — this structurally caps setState frequency
     // regardless of how bursty the native buffer delivery actually is.
     micLevelRef.current = levelFromPcm16(buffer.data);
-    if (micLevelFrameRef.current == null) {
+    if (micLevelFrameRef.current == null && Date.now() - lastMeterAtRef.current > 80) {
+      lastMeterAtRef.current = Date.now();
       micLevelFrameRef.current = requestAnimationFrame(() => {
         micLevelFrameRef.current = null;
         setMicLevelDb(micLevelRef.current);
@@ -227,7 +258,7 @@ export function useConversationSocket(scenarioSlug: string) {
     }
     // Push-to-talk: only ever forward audio while the user has explicitly
     // started a turn. The other guards are defense-in-depth (the UI
-    // shouldn't let startTurn() fire during these phases anyway) so Yankı's
+    // shouldn't let startTurn() fire during these phases anyway) so Mivo's
     // own playback can never be mistaken for a second user turn.
     if (
       isRecordingActiveRef.current &&
@@ -236,6 +267,11 @@ export function useConversationSocket(scenarioSlug: string) {
       !endRequestedRef.current &&
       wsRef.current?.readyState === WebSocket.OPEN
     ) {
+      if (wsRef.current.bufferedAmount > 256000) {
+        isRecordingActiveRef.current = false;
+        wsRef.current.close(1000, 'slow_connection');
+        return;
+      }
       wsRef.current.send(buffer.data);
     }
   }, []);
@@ -257,8 +293,13 @@ export function useConversationSocket(scenarioSlug: string) {
   }, []);
 
   useEffect(() => {
-    if (!accessToken || voicePrivacyAcknowledged !== true) return;
-    const wsUrl = buildWsUrl(scenarioSlug);
+    if (voicePrivacyAcknowledged !== true) return;
+    if (!tokenRef.current) {
+      setStatus('closed');
+      setCloseInfo({ code: 1008, reason: 'auth_required' });
+      return;
+    }
+    const wsUrl = buildWsUrl(scenarioSlug, !!sceneRef.current);
     if (!wsUrl) {
       setStatus('closed');
       setCloseInfo({ code: 0, reason: 'missing_api_base_url' });
@@ -273,9 +314,21 @@ export function useConversationSocket(scenarioSlug: string) {
     setLiveError(null);
     setPermissionDenied(false);
     endRequestedRef.current = false;
+    mutedReplyRef.current = false;
+    awaitingTranscriptRef.current = false;
+    setAiReplyText('');
+    setTurns([]);
+    setIsAiSpeaking(false);
+    setIsAiReplyStreaming(false);
+    setWaitingForReply(false);
+    setIsReviewing(false);
+    setIsRecording(false);
+    setAudioNotice(null);
+    lastReplyAudioUrisRef.current = [];
+    setHasReplayableAudio(false);
 
     async function connect() {
-      const { granted } = await requestRecordingPermissionsAsync();
+      const granted = Platform.OS === 'web' ? true : (await requestRecordingPermissionsAsync()).granted;
       if (cancelled) return;
       if (!granted) {
         setPermissionDenied(true);
@@ -289,11 +342,19 @@ export function useConversationSocket(scenarioSlug: string) {
 
       socket.onopen = () => {
         if (cancelled) return;
-        socket?.send(JSON.stringify({ type: 'auth', access_token: accessToken }));
+        socket?.send(
+          JSON.stringify({
+            type: 'auth',
+            access_token: tokenRef.current,
+            ...(sceneRef.current ? { scene: sceneRef.current } : {}),
+          })
+        );
         // `stream` is null on web — expo-audio's useAudioStream is a no-op stub there.
       };
 
+      connectionTimerRef.current = setTimeout(() => socket?.close(1000, 'connection_timeout'), 25000);
       socket.onmessage = (event) => {
+        if (cancelled || endRequestedRef.current) return;
         if (typeof event.data !== 'string') {
           enqueueAudio(event.data as ArrayBuffer);
           return;
@@ -306,6 +367,11 @@ export function useConversationSocket(scenarioSlug: string) {
         }
         switch (message.type) {
           case 'session.ready':
+            if (connectionTimerRef.current) clearTimeout(connectionTimerRef.current);
+            setAiReplyText((opening) => {
+              if (opening) setTurns([{ role: 'assistant', text: opening }]);
+              return '';
+            });
             setLiveError(null);
             setStatus('open');
             setStartedAt(new Date().toISOString());
@@ -315,13 +381,21 @@ export function useConversationSocket(scenarioSlug: string) {
             setIsAiReplyStreaming(false);
             break;
           case 'transcript.interim':
+            if (!isRecordingActiveRef.current && !awaitingTranscriptRef.current) break;
             setInterimText(message.text);
             if (message.words) setInterimWords(message.words);
             break;
           case 'transcript.final': {
+            if (!awaitingTranscriptRef.current) break;
+            awaitingTranscriptRef.current = false;
             if (reviewTimeoutRef.current) {
               clearTimeout(reviewTimeoutRef.current);
               reviewTimeoutRef.current = null;
+            }
+            if (!message.text.trim()) {
+              setIsReviewing(false);
+              setLiveError(t("Ses algılanmadı. Tekrar söyleyebilir veya yazabilirsin."));
+              break;
             }
             setLiveError(null);
             setInterimText(message.text);
@@ -374,7 +448,7 @@ export function useConversationSocket(scenarioSlug: string) {
             // let turnPhase fall through to 'thinking_time' (mic-ready) for
             // that gap, since isAiSpeaking only flips true once audio
             // actually starts PLAYING. A user who tapped "Konuşmaya Başla"
-            // during that window started streaming mic audio while Yankı's
+            // during that window started streaming mic audio while Mivo's
             // reply was literally about to start/was playing over the
             // speaker — the mic picked up her own voice, which Deepgram
             // then transcribed as the user's turn. waitingForReply now
@@ -384,7 +458,11 @@ export function useConversationSocket(scenarioSlug: string) {
             setIsAiReplyStreaming(true);
             setAiReplyText((prev) => (prev ? `${prev} ${message.text}` : message.text));
             break;
+          case 'audio.unavailable':
+            setAudioNotice(t("Ses çalınamadı; yanıtı okuyarak devam edebilirsin."));
+            break;
           case 'turn.complete':
+            if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
             turnProcessingRef.current = false;
             setTurns((prev) => [
               ...prev,
@@ -406,21 +484,29 @@ export function useConversationSocket(scenarioSlug: string) {
             // objectives meaningfully covered (see backend Ek 32). The user
             // can keep talking; this just makes "you can wrap up now" visible.
             setSceneCompleteSummary(
-              message.summary_tr ?? 'Sahnenin hedeflerini tamamladın gibi görünüyor!'
+              message.summary_tr ?? t("Sahnenin hedeflerini tamamladın gibi görünüyor!")
             );
             break;
           case 'session.time_limit_reached':
             setCloseInfo({ code: 0, reason: 'time_limit_reached' });
             break;
           case 'error':
+            if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
+            if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current);
+            awaitingTranscriptRef.current = false;
+            isRecordingActiveRef.current = false;
+            setIsRecording(false);
+            stream?.stop();
+            stopAiAudio();
             turnProcessingRef.current = false;
             setWaitingForReply(false);
             setIsAiReplyStreaming(false);
             setIsReviewing(false);
             if (!message.retryable) {
+              socket?.close();
               setCloseInfo({ code: 0, reason: message.code });
             }
-            setLiveError(message.message);
+            setLiveError(WS_ERROR_TEXT[message.code] ?? message.message);
             break;
           case 'fluency_score':
             // Not shown live — accumulated here so /sessions/end (Görev 11) can average them server-side.
@@ -434,6 +520,13 @@ export function useConversationSocket(scenarioSlug: string) {
         if (wsRef.current === socket) wsRef.current = null;
         turnProcessingRef.current = false;
         setStatus('closed');
+        isRecordingActiveRef.current = false;
+        awaitingTranscriptRef.current = false;
+        setIsRecording(false);
+        setIsReviewing(false);
+        setWaitingForReply(false);
+        setIsAiReplyStreaming(false);
+        stopAiAudio();
         setCloseInfo((prev) => prev ?? { code: event.code, reason: event.reason });
         stream?.stop();
       };
@@ -445,10 +538,20 @@ export function useConversationSocket(scenarioSlug: string) {
       };
     }
 
-    connect();
+    connect().catch(() => {
+      if (cancelled) return;
+      setStatus('closed');
+      setCloseInfo({ code: 0, reason: 'connection_error' });
+      socket?.close();
+    });
 
     return () => {
       cancelled = true;
+      for (const timer of [recordingTimerRef, connectionTimerRef, replyTimerRef]) {
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = null;
+      }
+      isRecordingActiveRef.current = false;
       if (wsRef.current === socket) wsRef.current = null;
       socket?.close();
       // Deliberately NOT calling stream?.stop() here: `useVoiceStream`
@@ -458,6 +561,8 @@ export function useConversationSocket(scenarioSlug: string) {
       // crashed on Android ("shared object was already released"). The
       // still-mounted "connection dropped" case is covered by onclose's
       // stopStream() call above.
+      currentSubscriptionRef.current?.remove();
+      currentSubscriptionRef.current = null;
       currentPlayerRef.current?.remove();
       currentPlayerRef.current = null;
       audioQueueRef.current = [];
@@ -477,7 +582,7 @@ export function useConversationSocket(scenarioSlug: string) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioSlug, accessToken, connectionAttempt, voicePrivacyAcknowledged]);
+  }, [scenarioSlug, userId, connectionAttempt, voicePrivacyAcknowledged]);
 
   const acknowledgeVoicePrivacy = useCallback(() => {
     void AsyncStorage.setItem(VOICE_PRIVACY_ACK_KEY, 'true');
@@ -485,7 +590,7 @@ export function useConversationSocket(scenarioSlug: string) {
   }, []);
 
   const reconnect = useCallback(() => {
-    if (turns.length > 0) return;
+    if (turns.some((turn) => turn.role === 'user')) return;
     setConnectionAttempt((attempt) => attempt + 1);
   }, [turns.length]);
 
@@ -495,7 +600,11 @@ export function useConversationSocket(scenarioSlug: string) {
   const lastConfirmedTextRef = useRef<string | null>(null);
 
   const startTurn = useCallback(() => {
-    if (status !== 'open') return;
+    if (status !== 'open' || endRequestedRef.current || turnProcessingRef.current) return;
+    if (Platform.OS === 'web') {
+      setLiveError(t("Bu tarayıcıda canlı mikrofon desteklenmiyor. Mesaj yazarak devam edebilirsin."));
+      return;
+    }
     if (
       isRecordingActiveRef.current ||
       isReviewing ||
@@ -509,6 +618,8 @@ export function useConversationSocket(scenarioSlug: string) {
     setPendingTranscript(null);
     setPendingWords([]);
     setPendingConfidence(null);
+    awaitingTranscriptRef.current = false;
+    wsRef.current?.send(JSON.stringify({ type: 'start_turn', language: inputLanguageRef.current }));
     recordStartTimeRef.current = Date.now();
     isRecordingActiveRef.current = true;
     setIsRecording(true);
@@ -516,10 +627,14 @@ export function useConversationSocket(scenarioSlug: string) {
     // previous implementation started it at session.ready and merely
     // discarded buffers outside recording, which left the OS microphone
     // active while the tutor was speaking.
-    stream?.start()?.catch(() => {
+    recordingTimerRef.current = setTimeout(() => stopTurn(), 59000);
+    stream?.start()?.then(() => {
+      // A quick release can happen while native start() is still pending.
+      if (!isRecordingActiveRef.current) stream?.stop();
+    }).catch(() => {
       isRecordingActiveRef.current = false;
       setIsRecording(false);
-      setLiveError('Mikrofon başlatılamadı. Uygulama izinlerini kontrol et.');
+      setLiveError(t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."));
     });
   }, [status, isReviewing, waitingForReply, isAiSpeaking, isAiReplyStreaming, stream]);
 
@@ -531,7 +646,8 @@ export function useConversationSocket(scenarioSlug: string) {
     // Press-and-hold means an accidental brief tap is a real possibility —
     // silently return to thinking_time instead of bothering the backend
     // and flashing a "couldn't hear you" error for a non-attempt.
-    if (Date.now() - recordStartTimeRef.current < 200) return;
+    if (recordingTimerRef.current) clearTimeout(recordingTimerRef.current);
+    awaitingTranscriptRef.current = true;
     setIsReviewing(true);
     const socket = wsRef.current;
     if (socket?.readyState === WebSocket.OPEN) {
@@ -540,11 +656,12 @@ export function useConversationSocket(scenarioSlug: string) {
     if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current);
     reviewTimeoutRef.current = setTimeout(() => {
       reviewTimeoutRef.current = null;
+      awaitingTranscriptRef.current = false;
       setIsReviewing(false);
       setPendingTranscript(null);
       setPendingWords([]);
       setPendingConfidence(null);
-      setLiveError('Seni duyamadım, tekrar dener misin?');
+      setLiveError(t("Seni duyamadım, tekrar dener misin?"));
     }, REVIEW_TIMEOUT_MS);
   }, [stream]);
 
@@ -556,6 +673,8 @@ export function useConversationSocket(scenarioSlug: string) {
   // would stay stuck on 'error' (that check takes priority) even after the
   // user picked a recovery action.
   const redoTurn = useCallback(() => {
+    awaitingTranscriptRef.current = false;
+    if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current);
     setIsReviewing(false);
     setPendingTranscript(null);
     setPendingWords([]);
@@ -568,9 +687,17 @@ export function useConversationSocket(scenarioSlug: string) {
   const confirmTranscript = useCallback(
     (text: string) => {
       const confirmedText = text.trim();
-      if (!confirmedText) return;
+      if (!confirmedText || confirmedText.length > 2000 || turnProcessingRef.current || isRecordingActiveRef.current || endRequestedRef.current) return;
       const socket = wsRef.current;
       if (socket?.readyState !== WebSocket.OPEN) return;
+      if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current);
+      awaitingTranscriptRef.current = false;
+      stopAiAudio();
+      mutedReplyRef.current = false;
+      setAiReplyText('');
+      setInterimText(confirmedText);
+      setInterimWords([]);
+      setAudioNotice(null);
       lastConfirmedTextRef.current = confirmedText;
       setLiveError(null);
       setIsReviewing(false);
@@ -580,10 +707,11 @@ export function useConversationSocket(scenarioSlug: string) {
       turnProcessingRef.current = true;
       setWaitingForReply(true);
       // A new reply is about to be generated — the just-finished one is no
-      // longer "the last thing Yankı said", so stop offering to replay it.
+      // longer "the last thing Mivo said", so stop offering to replay it.
       lastReplyAudioUrisRef.current = [];
       setHasReplayableAudio(false);
       socket.send(JSON.stringify({ type: 'confirm_turn', text: confirmedText }));
+      replyTimerRef.current = setTimeout(() => socket.close(1000, 'reply_timeout'), 45000);
     },
     []
   );
@@ -599,6 +727,11 @@ export function useConversationSocket(scenarioSlug: string) {
   const endSession = useCallback(() => {
     if (endRequestedRef.current) return;
     endRequestedRef.current = true;
+    isRecordingActiveRef.current = false;
+    awaitingTranscriptRef.current = false;
+    stream?.stop();
+    stopAiAudio();
+    setIsRecording(false);
     turnProcessingRef.current = true;
     const socket = wsRef.current;
     if (socket?.readyState === WebSocket.OPEN) {
@@ -614,6 +747,15 @@ export function useConversationSocket(scenarioSlug: string) {
     }
     socket?.close();
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active' && wsRef.current?.readyState === WebSocket.OPEN) {
+        endSession();
+      }
+    });
+    return () => subscription.remove();
+  }, [endSession]);
 
   const orbState: OrbState =
     status !== 'open'
@@ -641,6 +783,9 @@ export function useConversationSocket(scenarioSlug: string) {
 
   return {
     status,
+    inputLanguage,
+    setInputLanguage,
+    audioNotice,
     closeInfo,
     permissionDenied,
     voicePrivacyLoading: voicePrivacyAcknowledged === null,

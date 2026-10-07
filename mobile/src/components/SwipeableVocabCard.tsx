@@ -9,18 +9,19 @@ import {
   View,
 } from 'react-native';
 
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
+import { colors, fonts, radii, shadow } from '../theme/tokens';
 import type { VocabCardOut, VocabGrade } from '../types/api';
+import { t } from '../i18n';
 
 const SWIPE_THRESHOLD = 90;
 const OFFSCREEN_DISTANCE = 450;
 
 const POS_LABELS: Record<string, { label: string; bg: string; text: string }> = {
-  noun: { label: 'İsim (Noun)', bg: '#EFF6FF', text: '#2563EB' },
-  verb: { label: 'Fiil (Verb)', bg: '#ECFDF5', text: '#059669' },
-  adjective: { label: 'Sıfat (Adj)', bg: '#FFFBEB', text: '#D97706' },
-  adverb: { label: 'Zarf (Adv)', bg: '#F5F3FF', text: '#7C3AED' },
-  phrase: { label: 'Deyim / Kalıp', bg: '#FDF2F8', text: '#DB2777' },
+  noun: { label: t("İsim"), bg: '#EFF6FF', text: '#2563EB' },
+  verb: { label: t("Fiil"), bg: '#ECFDF5', text: '#059669' },
+  adjective: { label: t("Sıfat"), bg: '#FFFBEB', text: '#D97706' },
+  adverb: { label: t("Zarf"), bg: '#F5F3FF', text: '#7C3AED' },
+  phrase: { label: t("Deyim"), bg: '#FDF2F8', text: '#DB2777' },
 };
 
 type Props = {
@@ -30,14 +31,17 @@ type Props = {
   pronouncing: boolean;
 };
 
-export function SwipeableVocabCard({
-  card,
-  onGrade,
-  onPronounce,
-  pronouncing,
-}: Props) {
+/**
+ * Sürükle-bırak flashcard. Sağa kaydır = "İyi" (bildim), sola = "Tekrar".
+ * "Kolay" bilinçli olarak sadece alttaki butonla seçilir — yanlışlıkla
+ * kaydırınca aralığı gereğinden uzun açmasın.
+ */
+export function SwipeableVocabCard({ card, onGrade, onPronounce, pronouncing }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
   const pan = useRef(new Animated.ValueXY()).current;
+  // PanResponder bir kez kurulduğu için en güncel onGrade'e ref üzerinden ulaşır.
+  const onGradeRef = useRef(onGrade);
+  onGradeRef.current = onGrade;
 
   const animateOffAndGrade = (direction: 1 | -1, grade: VocabGrade) => {
     Animated.timing(pan, {
@@ -47,7 +51,7 @@ export function SwipeableVocabCard({
     }).start(() => {
       pan.setValue({ x: 0, y: 0 });
       setIsFlipped(false);
-      onGrade(grade);
+      onGradeRef.current(grade);
     });
   };
 
@@ -60,7 +64,7 @@ export function SwipeableVocabCard({
       }),
       onPanResponderRelease: (_, gesture) => {
         if (gesture.dx > SWIPE_THRESHOLD) {
-          animateOffAndGrade(1, 'easy');
+          animateOffAndGrade(1, 'good');
         } else if (gesture.dx < -SWIPE_THRESHOLD) {
           animateOffAndGrade(-1, 'again');
         } else {
@@ -78,22 +82,18 @@ export function SwipeableVocabCard({
     inputRange: [-200, 0, 200],
     outputRange: ['-12deg', '0deg', '12deg'],
   });
-
   const likeOpacity = pan.x.interpolate({
     inputRange: [20, 100],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
-
   const nopeOpacity = pan.x.interpolate({
     inputRange: [-100, -20],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
-  const posInfo = card.part_of_speech
-    ? POS_LABELS[card.part_of_speech.toLowerCase()]
-    : null;
+  const posInfo = card.part_of_speech ? POS_LABELS[card.part_of_speech.toLowerCase()] : null;
 
   return (
     <View style={styles.cardWrapper}>
@@ -102,132 +102,109 @@ export function SwipeableVocabCard({
         style={[
           styles.card,
           shadow.card,
-          {
-            transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }],
-          },
+          { transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }] },
         ]}
       >
-        {/* Swipe Right Visual Stamp (KOLAY / BİLİYORUM) */}
         <Animated.View
           style={[styles.stampBox, styles.stampEasy, { opacity: likeOpacity }]}
           pointerEvents="none"
         >
-          <Text style={styles.stampEasyText}>KOLAY ✓</Text>
+          <Text style={styles.stampEasyText}>{t("BİLDİM ✓")}</Text>
         </Animated.View>
-
-        {/* Swipe Left Visual Stamp (TEKRAR / UNUTTUM) */}
         <Animated.View
           style={[styles.stampBox, styles.stampAgain, { opacity: nopeOpacity }]}
           pointerEvents="none"
         >
-          <Text style={styles.stampAgainText}>TEKRAR ↺</Text>
+          <Text style={styles.stampAgainText}>{t("TEKRAR ↺")}</Text>
         </Animated.View>
 
-        <Pressable
-          style={styles.flipTouchArea}
-          onPress={() => setIsFlipped((f) => !f)}
-        >
-          {/* Top Badges: Level & Part of Speech & Sound Button */}
+        <Pressable style={styles.flipTouchArea} onPress={() => setIsFlipped((f) => !f)}>
+          {/* Üst şerit: seviye + tür + (varsa) kaynak */}
           <View style={styles.cardHeaderRow}>
-            <View style={styles.badgeLeftGroup}>
-              {card.cefr_level ? (
-                <View style={styles.levelPill}>
-                  <Text style={styles.levelPillText}>{card.cefr_level}</Text>
-                </View>
-              ) : null}
-
-              {posInfo ? (
-                <View style={[styles.posPill, { backgroundColor: posInfo.bg }]}>
-                  <Text style={[styles.posPillText, { color: posInfo.text }]}>
-                    {posInfo.label}
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.sourceTag}>
-                  <Text style={styles.sourceTagText}>
-                    📍 {card.source_label || 'Kelime Sandığı'}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            <Pressable
-              style={styles.soundButton}
-              onPress={(e) => {
-                e.stopPropagation();
-                onPronounce();
-              }}
-              hitSlop={12}
-            >
-              <Ionicons
-                name={pronouncing ? 'stop-circle' : 'volume-medium-outline'}
-                size={18}
-                color={colors.brand}
-              />
-              <Text style={styles.soundButtonText}>
-                {pronouncing ? 'Durdur' : 'Dinle'}
+            {card.cefr_level ? (
+              <View style={styles.levelPill}>
+                <Text style={styles.levelPillText}>{card.cefr_level}</Text>
+              </View>
+            ) : null}
+            {posInfo ? (
+              <View style={[styles.posPill, { backgroundColor: posInfo.bg }]}>
+                <Text style={[styles.posPillText, { color: posInfo.text }]}>{posInfo.label}</Text>
+              </View>
+            ) : null}
+            {card.source_label ? (
+              <Text style={styles.sourceText} numberOfLines={1}>
+                📍 {card.source_label}
               </Text>
-            </Pressable>
+            ) : null}
           </View>
 
           {!isFlipped ? (
-            /* ================= ÖN YÜZ (FRONT) ================= */
             <View style={styles.frontBody}>
-              <Text style={styles.termBig}>{card.term}</Text>
+              <Text style={styles.termBig} adjustsFontSizeToFit numberOfLines={2}>
+                {card.term}
+              </Text>
 
-              {card.source_label && posInfo ? (
-                <Text style={styles.sourceSubText}>📍 Kaynak: {card.source_label}</Text>
-              ) : null}
+              <Pressable
+                style={[styles.soundButton, pronouncing && styles.soundButtonActive]}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onPronounce();
+                }}
+                hitSlop={10}
+              >
+                <Ionicons
+                  name={pronouncing ? 'stop' : 'volume-high'}
+                  size={22}
+                  color={pronouncing ? '#FFFFFF' : colors.brand}
+                />
+              </Pressable>
 
               <View style={styles.flipPromptPill}>
-                <Ionicons name="swap-horizontal" size={14} color={colors.brand} />
-                <Text style={styles.flipPromptText}>
-                  Anlam ve cümle örneği için dokun 🔄
-                </Text>
+                <Ionicons name="sync-outline" size={14} color={colors.brand} />
+                <Text style={styles.flipPromptText}>{t("Anlamı görmek için dokun")}</Text>
               </View>
             </View>
           ) : (
-            /* ================= ARKA YÜZ (BACK) ================= */
             <View style={styles.backBody}>
-              {/* Türkçe Karşılık */}
+              <View style={styles.backTermRow}>
+                <Text style={styles.backTerm} numberOfLines={1}>
+                  {card.term}
+                </Text>
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    onPronounce();
+                  }}
+                  hitSlop={10}
+                  style={styles.soundButtonSmall}
+                >
+                  <Ionicons
+                    name={pronouncing ? 'stop' : 'volume-high'}
+                    size={16}
+                    color={colors.brand}
+                  />
+                </Pressable>
+              </View>
+
               <View style={styles.translationBox}>
-                <Text style={styles.translationLabel}>🇹🇷 TÜRKÇE KARŞILIĞI:</Text>
+                <Text style={styles.translationLabel}>{t("TÜRKÇE")}</Text>
                 <Text style={styles.translationText}>
-                  {card.translation || 'Özel kelime'}
+                  {card.translation || t("Anlam eklenmemiş")}
                 </Text>
               </View>
 
-              {/* Cümle İçi Kullanım */}
               {card.example_sentence ? (
                 <View style={styles.exampleBox}>
-                  <Text style={styles.exampleLabel}>💬 CÜMLE İÇİ KULLANIMI:</Text>
-                  <Text style={styles.exampleSentence}>
-                    &ldquo;{card.example_sentence}&rdquo;
-                  </Text>
+                  <Text style={styles.exampleLabel}>{t("ÖRNEK CÜMLE")}</Text>
+                  <Text style={styles.exampleSentence}>&ldquo;{card.example_sentence}&rdquo;</Text>
                 </View>
               ) : null}
-
-              {/* Yankı Akıllı Kullanım İpucu */}
-              <View style={styles.yankiTipBox}>
-                <Text style={styles.yankiTipLabel}>☕ Yankı&apos;nın İpucu:</Text>
-                <Text style={styles.yankiTipText}>
-                  {card.part_of_speech === 'verb'
-                    ? 'Fiil yapısını farklı zaman kipleriyle (Past / Future) kullanmayı dene.'
-                    : card.part_of_speech === 'adjective'
-                      ? 'Sıfatı isimlerin önüne getirerek zengin tanımlamalar yapabilirsin.'
-                      : 'Konuşurken bu ifadeyi duraksamadan kullanırsan akıcılık puanın artar!'}
-                </Text>
-              </View>
-
-              <Text style={styles.flipBackHint}>Ön yüze dönmek için dokun ↩️</Text>
             </View>
           )}
 
-          {/* Swipe Action Guidance Bar */}
           <View style={styles.swipeHintRow}>
-            <Text style={styles.swipeHintText}>👈 Sola: Tekrar</Text>
-            <Text style={styles.swipeHintDivider}>•</Text>
-            <Text style={styles.swipeHintText}>Sağa: Kolay 👉</Text>
+            <Text style={styles.swipeHintText}>{t("← Tekrar")}</Text>
+            <Text style={styles.swipeHintText}>{t("Bildim →")}</Text>
           </View>
         </Pressable>
       </Animated.View>
@@ -244,18 +221,19 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 14,
+    borderRadius: 24,
+    padding: 16,
     width: '100%',
-    minHeight: 280,
-    maxHeight: 400,
+    flex: 1,
+    minHeight: 230,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    borderBottomWidth: 5,
+    borderColor: '#E0E7FF',
     position: 'relative',
   },
   stampBox: {
     position: 'absolute',
-    top: 20,
+    top: 44,
     zIndex: 999,
     paddingHorizontal: 14,
     paddingVertical: 5,
@@ -291,20 +269,12 @@ const styles = StyleSheet.create({
   cardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    paddingBottom: 8,
-    marginBottom: 6,
-  },
-  badgeLeftGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 6,
+    minHeight: 24,
   },
   levelPill: {
     backgroundColor: colors.brand,
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
@@ -323,53 +293,51 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingBold,
     fontSize: 10,
   },
-  sourceTag: {
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  sourceTagText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.brand,
-  },
-  soundButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    gap: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-  },
-  soundButtonText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.brand,
+  sourceText: {
+    flex: 1,
+    textAlign: 'right',
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10.5,
+    color: colors.textMuted,
   },
 
-  /* Front */
+  /* Ön yüz */
   frontBody: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.sm,
+    gap: 18,
   },
   termBig: {
     fontFamily: fonts.headingBold,
-    fontSize: 28,
+    fontSize: 36,
+    letterSpacing: -0.5,
     color: colors.textHeading,
     textAlign: 'center',
-    marginBottom: 4,
+    paddingHorizontal: 8,
   },
-  sourceSubText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: spacing.xs,
+  soundButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    borderColor: '#C7D2FE',
+  },
+  soundButtonActive: {
+    backgroundColor: colors.brand,
+    borderColor: '#4338CA',
+  },
+  soundButtonSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EEF2FF',
   },
   flipPromptPill: {
     flexDirection: 'row',
@@ -379,7 +347,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: radii.pill,
     gap: 6,
-    marginTop: spacing.xs,
   },
   flipPromptText: {
     fontFamily: fonts.headingSemiBold,
@@ -387,18 +354,29 @@ const styles = StyleSheet.create({
     color: colors.brand,
   },
 
-  /* Back */
+  /* Arka yüz */
   backBody: {
     flex: 1,
     justifyContent: 'center',
+    gap: 10,
+  },
+  backTermRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 8,
-    paddingVertical: 4,
+  },
+  backTerm: {
+    flex: 1,
+    fontFamily: fonts.headingBold,
+    fontSize: 22,
+    color: colors.textHeading,
   },
   translationBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 10,
-    borderLeftWidth: 3,
+    backgroundColor: '#ECFDF5',
+    borderRadius: 14,
+    padding: 12,
+    borderLeftWidth: 4,
     borderLeftColor: '#10B981',
   },
   translationLabel: {
@@ -410,14 +388,14 @@ const styles = StyleSheet.create({
   },
   translationText: {
     fontFamily: fonts.headingBold,
-    fontSize: 15,
+    fontSize: 18,
     color: colors.textHeading,
   },
   exampleBox: {
     backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 10,
-    borderLeftWidth: 3,
+    borderRadius: 14,
+    padding: 12,
+    borderLeftWidth: 4,
     borderLeftColor: colors.brand,
   },
   exampleLabel: {
@@ -429,56 +407,24 @@ const styles = StyleSheet.create({
   },
   exampleSentence: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textHeading,
     fontStyle: 'italic',
-    lineHeight: 16,
-  },
-  yankiTipBox: {
-    backgroundColor: '#FFFBEB',
-    borderRadius: 10,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#FEF3C7',
-  },
-  yankiTipLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: '#B45309',
-    marginBottom: 2,
-  },
-  yankiTipText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: '#92400E',
-    lineHeight: 14,
-  },
-  flipBackHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: 2,
+    lineHeight: 19,
   },
 
-  /* Bottom Swipe Hint */
+  /* Alt ipucu */
   swipeHintRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
     paddingTop: 8,
-    marginTop: 6,
   },
   swipeHintText: {
     fontFamily: fonts.bodyRegular,
     fontSize: 10.5,
     color: colors.textMuted,
-  },
-  swipeHintDivider: {
-    color: '#CBD5E1',
-    fontSize: 10,
   },
 });

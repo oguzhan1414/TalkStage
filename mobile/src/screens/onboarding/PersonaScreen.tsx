@@ -9,6 +9,7 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function PersonaScreen({ navigation }: OnboardingStackScreenProps<'Persona'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'persona' });
@@ -19,10 +20,8 @@ export function PersonaScreen({ navigation }: OnboardingStackScreenProps<'Person
       <OnboardingProgressHeader step={2} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Şu anki durumunu en iyi hangisi anlatıyor? 🌟</Text>
-        <Text style={styles.subtitle}>
-          Konuşacağımız konular ve kelimeler bu seçimine göre özelleşecek.
-        </Text>
+        <Text style={styles.title}>{t("Şu anki durumunu en iyi hangisi anlatıyor? 🌟")}</Text>
+        <Text style={styles.subtitle}>{t("Konuşacağımız konular ve kelimeler bu seçimine göre özelleşecek.")}</Text>
 
         <View style={styles.list}>
           {PERSONA_OPTIONS.map((p) => {
@@ -60,7 +59,7 @@ export function PersonaScreen({ navigation }: OnboardingStackScreenProps<'Person
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('Goal')} />
+        <Button label={t("Devam Et ➔")} variant="chunky" onPress={() => navigation.navigate('Goal')} />
       </View>
     </SafeAreaView>
   );

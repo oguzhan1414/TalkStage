@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 
 import { colors, fonts, radii } from '../theme/tokens';
+import { t } from '../i18n';
 
 export type RadarMetrics = {
   fluency: number; // 0 - 100
@@ -19,11 +20,11 @@ interface SkillsRadarChartProps {
 }
 
 const AXIS_CONFIG = [
-  { key: 'fluency' as const, label: 'Akıcılık', emoji: '⚡', angle: -90 },
-  { key: 'pronunciation' as const, label: 'Telaffuz', emoji: '🎯', angle: -18 },
-  { key: 'grammar' as const, label: 'Gramer', emoji: '📐', angle: 54 },
-  { key: 'vocabulary' as const, label: 'Kelime', emoji: '📚', angle: 126 },
-  { key: 'speed' as const, label: 'WPM Hızı', emoji: '🚀', angle: 198 },
+  { key: 'fluency' as const, label: t("Akıcılık"), emoji: '⚡', angle: -90 },
+  { key: 'pronunciation' as const, label: t("Telaffuz"), emoji: '🎯', angle: -18 },
+  { key: 'grammar' as const, label: t("Gramer"), emoji: '📐', angle: 54 },
+  { key: 'vocabulary' as const, label: t("Kelime"), emoji: '📚', angle: 126 },
+  { key: 'speed' as const, label: t("WPM Hızı"), emoji: '🚀', angle: 198 },
 ];
 
 export function SkillsRadarChart({
@@ -154,7 +155,7 @@ export function SkillsRadarChart({
       {/* Center Overall Score Badge */}
       <View style={[styles.centerScoreBadge, { top: center - 22, left: center - 22 }]}>
         <Text style={styles.centerScoreText}>%{avgScore}</Text>
-        <Text style={styles.centerScoreLabel}>Ort.</Text>
+        <Text style={styles.centerScoreLabel}>{t("Ort.")}</Text>
       </View>
       </View>
 

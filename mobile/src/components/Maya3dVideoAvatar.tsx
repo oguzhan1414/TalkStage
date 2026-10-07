@@ -14,6 +14,7 @@ import { mayaSpeakingVideo, mayaIdleVideo } from '../assets/videos';
 import { yankiMagicMouthClosedImage } from '../assets/images';
 import type { OrbState } from '../hooks/useConversationSocket';
 import { shadow } from '../theme/tokens';
+import { t } from '../i18n';
 
 const PULSE_CONFIG_BY_STATE: Record<OrbState, { duration: number; maxScale: number }> = {
   idle: { duration: 2800, maxScale: 1.025 },
@@ -342,7 +343,7 @@ export function Maya3dVideoAvatar({
 
       {/* Floating Audio Equalizer Wave Indicator when speaking */}
       {showEqualizer && !isCompact && isSpeaking && (
-        <View style={styles.equalizerBadge} accessibilityLabel="Maya konuşuyor">
+        <View style={styles.equalizerBadge} accessibilityLabel={t("Maya konuşuyor")}>
           <Animated.View
             style={[
               styles.equalizerBar,

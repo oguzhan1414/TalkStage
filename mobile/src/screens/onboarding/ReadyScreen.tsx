@@ -8,6 +8,7 @@ import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, ONBOARDING_LEVEL_OPTIONS, PERSONA_OPT
 import { colors, fonts, radii, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenProps<'Ready'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'ready' });
@@ -16,7 +17,7 @@ export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenPr
   // `completedProfile` is set the instant `Preparing` succeeds — normal flow
   // always has it by the time this screen mounts. Falling back to the local
   // draft just avoids ever crashing this celebratory screen on an edge case.
-  const displayName = completedProfile?.display_name ?? draft.displayName.trim() ?? 'Konuşmacı';
+  const displayName = completedProfile?.display_name ?? draft.displayName.trim() ?? t("Konuşmacı");
   const level = completedProfile?.cefr_level ?? draft.cefrLevel ?? 'A1';
   const dailyMinutes = completedProfile?.daily_target_minutes ?? draft.dailyTargetMinutes;
 
@@ -31,46 +32,44 @@ export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenPr
         <Image source={yankiCelebrateImage} style={styles.avatar} resizeMode="contain" />
 
         <View style={styles.doneBadge}>
-          <Text style={styles.doneBadgeText}>🎉 KİŞİSEL PLANIN TAMAMLANDI</Text>
+          <Text style={styles.doneBadgeText}>{t("🎉 KİŞİSEL PLANIN TAMAMLANDI")}</Text>
         </View>
 
-        <Text style={styles.title}>Sahne Senin, {displayName}!</Text>
-        <Text style={styles.subtitle}>
-          {personaObj?.title} hedeflerin için {level} seviyesinde özel sahne kuruldu.
-        </Text>
+        <Text style={styles.title}>{t("Sahne Senin, {{displayName}}!", { displayName })}</Text>
+        <Text style={styles.subtitle}>{t("{{title}} hedeflerin için {{level}} seviyesinde özel sahne kuruldu.", { title: personaObj?.title, level })}</Text>
 
         <View style={styles.passCard}>
           <View style={styles.passRow}>
-            <Text style={styles.passLabel}>Başlangıç Seviyen</Text>
+            <Text style={styles.passLabel}>{t("Başlangıç Seviyen")}</Text>
             <Text style={styles.passValueBrand}>
               {level} • {levelObj?.title}
             </Text>
           </View>
           <View style={styles.passRow}>
-            <Text style={styles.passLabel}>Öncelikli Odak</Text>
+            <Text style={styles.passLabel}>{t("Öncelikli Odak")}</Text>
             <Text style={styles.passValue} numberOfLines={1}>
               {goalObj?.title}
             </Text>
           </View>
           <View style={styles.passRow}>
-            <Text style={styles.passLabel}>Günlük Pratik</Text>
-            <Text style={styles.passValueSuccess}>{dailyObj?.minutes ?? dailyMinutes} Dakika / Gün</Text>
+            <Text style={styles.passLabel}>{t("Günlük Pratik")}</Text>
+            <Text style={styles.passValueSuccess}>{dailyObj?.minutes ?? dailyMinutes}{" "}{t("Dakika / Gün")}</Text>
           </View>
           <View style={styles.passRow}>
-            <Text style={styles.passLabel}>AI Koç Desteği</Text>
-            <Text style={styles.passValueAccent}>Canlı Türkçe Fısıltı Aktif 🎙️</Text>
+            <Text style={styles.passLabel}>{t("AI Koç Desteği")}</Text>
+            <Text style={styles.passValueAccent}>{t("Canlı Türkçe Fısıltı Aktif 🎙️")}</Text>
           </View>
           <View style={[styles.passRow, styles.passRowLast]}>
-            <Text style={styles.passLabel}>İlk Sahnen</Text>
+            <Text style={styles.passLabel}>{t("İlk Sahnen")}</Text>
             <Text style={styles.passValue} numberOfLines={1}>
-              {personaObj?.category ?? 'Senin İçin Seçildi'}
+              {personaObj?.category ?? t("Senin İçin Seçildi")}
             </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Button label="Sahneye Çık & Başla 🚀" variant="chunky" onPress={finishOnboarding} />
+        <Button label={t("Sahneye Çık & Başla 🚀")} variant="chunky" onPress={finishOnboarding} />
       </View>
     </SafeAreaView>
   );

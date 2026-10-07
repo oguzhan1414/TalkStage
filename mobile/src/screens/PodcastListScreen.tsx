@@ -1,14 +1,20 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo, useState } from 'react';
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { companionImage, podcastStudioWallpaper } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { api } from '../lib/api';
+import { pullLearningFlags } from '../lib/learningFlags';
+import type { ProfileOut } from '../types/api';
 import { PODCAST_EPISODES, type PodcastEpisode } from '../data/podcastData';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
+import { t } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PodcastList'>;
 
@@ -17,6 +23,41 @@ const LEVEL_FILTERS: Array<'ALL' | 'A1' | 'A2' | 'B1' | 'B2'> = ['ALL', 'A1', 'A
 export function PodcastListScreen({ navigation }: Props) {
   const [selectedLevel, setSelectedLevel] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const levelPickedRef = useRef(false);
+
+  const { data: profile } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => api.get<ProfileOut>('/me'),
+  });
+  const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
+
+  // Liste, kullanıcının kendi seviyesinde açılsın (B2 üstü seviyeler için "Tümü")
+  useEffect(() => {
+    if (!profile || levelPickedRef.current) return;
+    levelPickedRef.current = true;
+    if (userLevel === 'A1' || userLevel === 'A2' || userLevel === 'B1' || userLevel === 'B2') {
+      setSelectedLevel(userLevel);
+    }
+  }, [profile, userLevel]);
+
+  // Tamamlanan bölümler (oynatıcı `podcast_completed_<id>` bayrağını yazar; cihazlar arası senkron)
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      pullLearningFlags().finally(() => {
+        AsyncStorage.multiGet(PODCAST_EPISODES.map((ep) => `podcast_completed_${ep.id}`)).then((pairs) => {
+          if (cancelled) return;
+          setCompletedIds(
+            new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('podcast_completed_', '')))
+          );
+        });
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
 
   const filteredEpisodes = useMemo(() => {
     let list = PODCAST_EPISODES;
@@ -42,13 +83,15 @@ export function PodcastListScreen({ navigation }: Props) {
     return list;
   }, [selectedLevel, searchQuery]);
 
-  const featuredEpisode = PODCAST_EPISODES[0]; // A1 Cafe episode
+  // Sıradaki bölüm: kullanıcının seviyesindeki ilk dinlenmemiş; yoksa genel ilk dinlenmemiş; hepsi bittiyse ilk bölüm
+  const featuredEpisode =
+    PODCAST_EPISODES.find((ep) => ep.level === userLevel && !completedIds.has(ep.id)) ??
+    PODCAST_EPISODES.find((ep) => !completedIds.has(ep.id)) ??
+    PODCAST_EPISODES[0];
+  const completedCount = PODCAST_EPISODES.filter((ep) => completedIds.has(ep.id)).length;
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={podcastStudioWallpaper} style={styles.backgroundImage} resizeMode="cover">
-        <View style={styles.backdropOverlay} />
-
         <SafeAreaView style={styles.safeArea}>
           {/* Header */}
           <View style={styles.topHeader}>
@@ -57,17 +100,19 @@ export function PodcastListScreen({ navigation }: Props) {
               hitSlop={12}
               style={[styles.circularBackBtn, shadow.card]}
             >
-              <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
+              <Ionicons name="chevron-back" size={20} color={colors.textHeading} />
             </Pressable>
 
             <View style={styles.headerTitleCol}>
-              <Text style={styles.headerTitle}>TalkStage Podcasts</Text>
-              <Text style={styles.headerSub}>Doğal Hızda Dinle • A1-B2 Masterclass</Text>
+              <Text style={styles.headerTitle}>{t("Dinleme stüdyosu")}</Text>
+              <Text style={styles.headerSub}>
+                {t("{{done}}/{{total}} bölüm tamamlandı", { done: completedCount, total: PODCAST_EPISODES.length })}
+              </Text>
             </View>
 
             <View style={styles.headerRightBadge}>
-              <Text style={styles.headerRightEmoji}>🎧</Text>
-              <Text style={styles.headerRightText}>{PODCAST_EPISODES.length} Bölüm</Text>
+              <Ionicons name="headset-outline" size={13} color={colors.brand} />
+              <Text style={styles.headerRightText}>{t("{{length}} Bölüm", { length: PODCAST_EPISODES.length })}</Text>
             </View>
           </View>
 
@@ -78,7 +123,7 @@ export function PodcastListScreen({ navigation }: Props) {
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Bölüm veya konu ara (örn: cafe, hotel, interview)..."
+                placeholder={t("Bölüm veya konu ara (örn: cafe, hotel, interview)...")}
                 placeholderTextColor="#94A3B8"
                 style={styles.searchInput}
                 autoCorrect={false}
@@ -101,7 +146,9 @@ export function PodcastListScreen({ navigation }: Props) {
                 <View style={styles.featuredOverlay}>
                   <View style={styles.featuredTopRow}>
                     <View style={styles.featuredTag}>
-                      <Text style={styles.featuredTagText}>⭐ ÖNE ÇIKAN DERS</Text>
+                      <Text style={styles.featuredTagText}>
+                        {completedIds.has(featuredEpisode.id) ? t("TEKRAR DİNLE") : t("SIRADAKİ BÖLÜM")}
+                      </Text>
                     </View>
                     <View style={styles.levelBadgeMini}>
                       <Text style={styles.levelBadgeMiniText}>{featuredEpisode.levelLabel}</Text>
@@ -127,13 +174,13 @@ export function PodcastListScreen({ navigation }: Props) {
                         />
                       ))}
                       <Text style={styles.speakerNamesText} numberOfLines={1}>
-                        {featuredEpisode.speakers.filter(s => !s.name.includes('Sunucu')).map((s) => s.name).join(' & ')}
+                        {featuredEpisode.speakers.filter(s => !s.name.startsWith('🎙️')).map((s) => s.name).join(' & ')}
                       </Text>
                     </View>
 
                     <View style={styles.playBtnMini}>
                       <Ionicons name="play" size={13} color="#FFFFFF" />
-                      <Text style={styles.playBtnMiniText}>Dinle ({featuredEpisode.durationLabel})</Text>
+                      <Text style={styles.playBtnMiniText}>{t("Dinle ({{durationLabel}})", { durationLabel: featuredEpisode.durationLabel })}</Text>
                     </View>
                   </View>
                 </View>
@@ -142,21 +189,21 @@ export function PodcastListScreen({ navigation }: Props) {
 
             {/* 3. CEFR Level Filter Pills */}
             <View style={styles.filterSection}>
-              <Text style={styles.sectionHeading}>Seviyeye Göre Filtrele:</Text>
+              <Text style={styles.sectionHeading}>{t("Seviyeye göre filtrele")}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterPillsRow}>
                 {LEVEL_FILTERS.map((lvl) => {
                   const isActive = selectedLevel === lvl;
                   const count = lvl === 'ALL' ? PODCAST_EPISODES.length : PODCAST_EPISODES.filter(ep => ep.level === lvl).length;
                   const label =
                     lvl === 'ALL'
-                      ? `🌐 Tümü (${count})`
+                      ? t("Tümü ({{count}})", { count })
                       : lvl === 'A1'
-                      ? `🌱 A1 Başlangıç (${count})`
+                      ? t("A1 Başlangıç ({{count}})", { count })
                       : lvl === 'A2'
-                      ? `🧭 A2 Temel (${count})`
+                      ? t("A2 Temel ({{count}})", { count })
                       : lvl === 'B1'
-                      ? `🎙️ B1 Orta (${count})`
-                      : `🚀 B2 İleri (${count})`;
+                      ? t("B1 Orta ({{count}})", { count })
+                      : t("B2 İleri ({{count}})", { count });
 
                   return (
                     <BouncyPressable
@@ -178,7 +225,7 @@ export function PodcastListScreen({ navigation }: Props) {
             {/* 3. Episodes List */}
             <View style={styles.episodesList}>
               {filteredEpisodes.map((ep, idx) => {
-                const dialogueSpeakers = ep.speakers.filter(s => !s.name.includes('Sunucu'));
+                const dialogueSpeakers = ep.speakers.filter(s => !s.name.startsWith('🎙️'));
 
                 return (
                   <BouncyPressable
@@ -189,14 +236,26 @@ export function PodcastListScreen({ navigation }: Props) {
                     scaleTo={0.97}
                   >
                     <View style={styles.episodeTopRow}>
-                      <Image source={ep.coverImage} style={styles.episodeThumb} resizeMode="cover" />
+                      <View>
+                        <Image source={ep.coverImage} style={styles.episodeThumb} resizeMode="cover" />
+                        {completedIds.has(ep.id) ? (
+                          <View style={styles.doneBadge}>
+                            <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                          </View>
+                        ) : ep.id === featuredEpisode.id ? (
+                          <View style={[styles.doneBadge, styles.nextBadge]}>
+                            <Ionicons name="play" size={10} color="#FFFFFF" />
+                          </View>
+                        ) : null}
+                      </View>
 
                       <View style={styles.episodeMetaCol}>
                         <View style={styles.episodeLevelRow}>
                           <View style={styles.levelCapsule}>
                             <Text style={styles.levelCapsuleText}>{ep.level}</Text>
                           </View>
-                          <Text style={styles.durationText}>⏱️ {ep.durationLabel}</Text>
+                          <Ionicons name="time-outline" size={11} color={colors.textMuted} />
+                          <Text style={styles.durationText}>{ep.durationLabel}</Text>
                         </View>
 
                         <Text style={styles.episodeTitle} numberOfLines={1}>
@@ -227,7 +286,10 @@ export function PodcastListScreen({ navigation }: Props) {
 
                       <View style={styles.listenBtn}>
                         <Ionicons name="headset" size={13} color="#FFFFFF" />
-                        <Text style={styles.listenBtnText}>Ders ➔</Text>
+                        <Text style={styles.listenBtnText}>
+                          {completedIds.has(ep.id) ? t("Tekrar") : t("Aç")}
+                        </Text>
+                        <Ionicons name="arrow-forward" size={12} color="#FFFFFF" />
                       </View>
                     </View>
                   </BouncyPressable>
@@ -236,28 +298,28 @@ export function PodcastListScreen({ navigation }: Props) {
             </View>
           </ScrollView>
         </SafeAreaView>
-      </ImageBackground>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  doneBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#10B981',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextBadge: { backgroundColor: colors.brand },
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
-  },
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  backdropOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.82)',
+    backgroundColor: '#F8FAFC',
   },
   safeArea: {
     flex: 1,
@@ -274,7 +336,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -284,30 +348,27 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: colors.textHeading,
   },
   headerSub: {
     fontFamily: fonts.bodyRegular,
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 1,
   },
   headerRightBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#EEF2FF',
     paddingHorizontal: 8,
     paddingVertical: 5,
     borderRadius: radii.pill,
     gap: 4,
   },
-  headerRightEmoji: {
-    fontSize: 12,
-  },
   headerRightText: {
     fontFamily: fonts.headingBold,
     fontSize: 11,
-    color: '#FFFFFF',
+    color: colors.brand,
   },
   scrollContent: {
     paddingHorizontal: spacing.md,
@@ -319,19 +380,19 @@ const styles = StyleSheet.create({
   searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    backgroundColor: '#FFFFFF',
     borderRadius: radii.md,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: '#E2E8F0',
   },
   searchInput: {
     flex: 1,
     fontFamily: fonts.bodyRegular,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: colors.textHeading,
     padding: 0,
   },
 
@@ -457,19 +518,19 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontFamily: fonts.headingBold,
     fontSize: 12,
-    color: '#CBD5E1',
+    color: colors.textHeading,
     marginBottom: 8,
   },
   filterPillsRow: {
     gap: 8,
   },
   filterPill: {
-    backgroundColor: 'rgba(30, 41, 59, 0.8)',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: '#E2E8F0',
   },
   filterPillActive: {
     backgroundColor: colors.brand,

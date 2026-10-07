@@ -34,7 +34,7 @@ export type WsServerMessage =
       type: 'reply.sentence';
       text: string;
       speaker?: 'teacher' | 'character';
-      language?: 'tr' | 'en';
+      language?: string;
     }
   | {
       type: 'turn.complete';
@@ -49,6 +49,7 @@ export type WsServerMessage =
   | { type: 'scene.complete'; summary_tr: string | null }
   | { type: 'session.ready'; teacher_mode?: boolean; cefr_level?: string | null }
   | { type: 'session.time_limit_reached' }
+  | { type: 'audio.unavailable' }
   | { type: 'error'; code: string; message: string; retryable: boolean };
 
 export type WsClientMessage =
@@ -58,6 +59,7 @@ export type WsClientMessage =
   // Deepgram to finalize the current utterance immediately instead of
   // waiting on silence-based endpointing.
   | { type: 'end_turn' }
+  | { type: 'start_turn'; language: string }
   // Sent only after the user reviews (and optionally edits) the transcript
   // confirmation card — this is what actually triggers the AI turn now,
   // not the raw speech_final transcript event.

@@ -8,6 +8,7 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'DailyTime'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'daily_time' });
@@ -19,10 +20,8 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
       <OnboardingProgressHeader step={6} onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        <Text style={styles.title}>Günde ne kadar vakit ayırabilirsin? ⏱️</Text>
-        <Text style={styles.subtitle}>
-          Sırrımız saatlerce çalışmak değil; her gün küçük bir seansla süreklilik kazanmak.
-        </Text>
+        <Text style={styles.title}>{t("Günde ne kadar vakit ayırabilirsin? ⏱️")}</Text>
+        <Text style={styles.subtitle}>{t("Sırrımız saatlerce çalışmak değil; her gün küçük bir seansla süreklilik kazanmak.")}</Text>
 
         <View style={styles.list}>
           {DAILY_GOAL_OPTIONS.map((dg) => {
@@ -40,9 +39,7 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
                     ) : (
                       <Text style={styles.cardIcon}>{dg.flameEmoji}</Text>
                     )}
-                    <Text style={styles.cardTitle}>
-                      {dg.minutes} Dakika / Gün ({dg.title})
-                    </Text>
+                    <Text style={styles.cardTitle}>{t("{{minutes}} Dakika / Gün ({{title}})", { minutes: dg.minutes, title: dg.title })}</Text>
                   </View>
                   <View style={[styles.badgePill, isSelected && { backgroundColor: colors.brand }]}>
                     <Text style={[styles.badgeText, isSelected && styles.badgeTextSelected]}>
@@ -59,7 +56,7 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
 
       <View style={styles.footer}>
         <Button
-          label="Kişisel Konuşma Planımı Oluştur ✨"
+          label={t("Kişisel Konuşma Planımı Oluştur ✨")}
           variant="chunky"
           onPress={() => navigation.navigate('Preparing')}
         />

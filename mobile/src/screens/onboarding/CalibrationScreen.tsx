@@ -18,6 +18,7 @@ import { api, ApiError } from '../../lib/api';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import type { CalibrationResult } from '../../types/api';
+import { t } from '../../i18n';
 
 /**
  * The revived voice demo (`POST /onboarding/calibrate` — still fully working,
@@ -68,7 +69,7 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
       // is diagnosable from the Metro terminal instead of a dead end.
       console.error('CalibrationScreen submit failed:', err);
       analytics.track('onboarding_calibration_result', { outcome: 'failed' });
-      setError(err instanceof ApiError ? err.message : 'Kalibrasyon şu an tamamlanamadı.');
+      setError(err instanceof ApiError ? err.message : t("Kalibrasyon şu an tamamlanamadı."));
     } finally {
       setSubmitting(false);
     }
@@ -119,7 +120,7 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
 
           {result.reasons.length > 0 ? (
             <View style={[styles.reasonsCard, shadow.card]}>
-              <Text style={styles.reasonsTitle}>Neden Bu Seviye?</Text>
+              <Text style={styles.reasonsTitle}>{t("Neden Bu Seviye?")}</Text>
               {result.reasons.map((reason, i) => (
                 <View key={i} style={styles.reasonRow}>
                   <Text style={styles.reasonBullet}>•</Text>
@@ -130,7 +131,7 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
           ) : null}
         </View>
         <View style={styles.footer}>
-          <Button label="Harika, Devam Et ➔" variant="chunky" onPress={handleUseResult} />
+          <Button label={t("Harika, Devam Et ➔")} variant="chunky" onPress={handleUseResult} />
         </View>
       </SafeAreaView>
     );
@@ -141,10 +142,8 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
       <OnboardingProgressHeader step={5} onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        <Text style={styles.title}>Hadi Tanışalım 👋</Text>
-        <Text style={styles.subtitle}>
-          İngilizce cevapla, elinden geldiğince — mükemmel olması hiç gerekmiyor.
-        </Text>
+        <Text style={styles.title}>{t("Hadi Tanışalım 👋")}</Text>
+        <Text style={styles.subtitle}>{t("İngilizce cevapla, elinden geldiğince — mükemmel olması hiç gerekmiyor.")}</Text>
 
         {permissionDenied ? (
           <MicPermissionPrompt onRequestPermission={start} />
@@ -157,8 +156,7 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
             {isRecording ? <Waveform meteringDb={meteringDb} active={isRecording} /> : null}
 
             <View style={[styles.questionCard, shadow.card]}>
-              <Text style={styles.questionMeta}>
-                SORU {questionIndex + 1}/{CALIBRATION_QUESTIONS.length}
+              <Text style={styles.questionMeta}>{t("SORU")}{" "}{questionIndex + 1}/{CALIBRATION_QUESTIONS.length}
               </Text>
               <Text style={styles.questionText}>{CALIBRATION_QUESTIONS[questionIndex].en}</Text>
               <Text style={styles.questionHint}>{CALIBRATION_QUESTIONS[questionIndex].hintTr}</Text>
@@ -171,17 +169,17 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
 
       <View style={styles.footer}>
         {error ? (
-          <Button label="Seviyemi Seç" variant="chunky" onPress={handleFallback} />
+          <Button label={t("Seviyemi Seç")} variant="chunky" onPress={handleFallback} />
         ) : !permissionDenied ? (
           <Button
             label={
               submitting
-                ? 'Değerlendiriliyor…'
+                ? t("Değerlendiriliyor…")
                 : isRecording
-                  ? 'Kaydı Bitir'
+                  ? t("Kaydı Bitir")
                   : questionIndex === 0
-                    ? 'Kayda Başla'
-                    : 'Sıradaki Soruyu Kaydet'
+                    ? t("Kayda Başla")
+                    : t("Sıradaki Soruyu Kaydet")
             }
             variant="chunky"
             onPress={handleToggleRecording}
@@ -190,7 +188,7 @@ export function CalibrationScreen({ navigation }: OnboardingStackScreenProps<'Ca
           />
         ) : null}
         <Button
-          label="Bunun yerine seviyemi kendim seçeceğim"
+          label={t("Bunun yerine seviyemi kendim seçeceğim")}
           variant="ghost"
           onPress={handleFallback}
           disabled={submitting}

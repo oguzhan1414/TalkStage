@@ -15,23 +15,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Maya3dVideoAvatar } from './Maya3dVideoAvatar';
+import { MivoAvatar, type MivoPose } from './MivoAvatar';
 import type { DailyLesson } from '../data/unifiedCurriculum';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { TutorTurnResponse } from '../types/api';
+import { t } from '../i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type Step = 'warmup' | 'concept' | 'writing' | 'speaking' | 'completed';
 
 const STEP_LABELS: Record<Step, string> = {
-  warmup: '1. Isınma',
-  concept: '2. Mini Ders',
-  writing: '3. Yazarak Dene',
-  speaking: '4. Sesli Tekrar',
-  completed: '5. Başarı',
+  warmup: t("1. Isınma"),
+  concept: t("2. Mini Ders"),
+  writing: t("3. Yazarak Dene"),
+  speaking: t("4. Sesli Tekrar"),
+  completed: t("5. Başarı"),
 };
 
 const STEP_ORDER: Step[] = ['warmup', 'concept', 'writing', 'speaking', 'completed'];
@@ -60,8 +61,8 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
   const [isSpeakingRecording, setIsSpeakingRecording] = useState(false);
   const [speakingDone, setSpeakingDone] = useState(false);
 
-  // Maya avatar state
-  const [mayaState, setMayaState] = useState<'idle' | 'listening' | 'speaking' | 'thinking'>('idle');
+  // Mivo companion state
+  const [mivoState, setMivoState] = useState<MivoPose>('idle');
 
   // Reset state when lesson changes or modal opens
   useEffect(() => {
@@ -75,11 +76,11 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
       setIsCheckingWriting(false);
       setIsSpeakingRecording(false);
       setSpeakingDone(false);
-      setMayaState('speaking');
+      setMivoState('speaking');
 
-      // Return Maya to attentive listening after 3s
+      // Return Mivo to attentive listening after 3s
       const timer = setTimeout(() => {
-        setMayaState('idle');
+        setMivoState('idle');
       }, 3200);
       return () => clearTimeout(timer);
     }
@@ -95,7 +96,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
     haptics.impact();
     setWarmupSubmitted(true);
     setCurrentStep('concept');
-    setMayaState('idle');
+    setMivoState('idle');
   };
 
   const handleConceptNext = () => {
@@ -107,7 +108,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
     if (!writingInput.trim() || isCheckingWriting) return;
     haptics.impact();
     setIsCheckingWriting(true);
-    setMayaState('thinking');
+    setMivoState('thinking');
 
     try {
       const response = await api.post<TutorTurnResponse>('/tutor/turn', {
@@ -120,21 +121,21 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
         max_turns: 4,
       });
       setWritingFeedback(response);
-      setMayaState(response.correction.has_error ? 'idle' : 'speaking');
+      setMivoState(response.correction.has_error ? 'idle' : 'speaking');
       haptics.success();
     } catch {
       // Offline fallback
       setWritingFeedback({
         spoken_reply_en: "Great job practicing! You're making solid progress.",
-        reply_tr_hint: "Pratik yaptığın için tebrikler! Güzel ilerliyorsun.",
+        reply_tr_hint: t("Pratik yaptığın için tebrikler! Güzel ilerliyorsun."),
         correction: { has_error: false },
-        coach_tip_tr: "Cümle yapın gayet anlaşılır.",
+        coach_tip_tr: t("Cümle yapın gayet anlaşılır."),
         fluency_score: 90,
         suggested_replies: [],
         is_task_complete: true,
-        summary_tr: "Yazma görevini tamamladın!",
+        summary_tr: t("Yazma görevini tamamladın!"),
       });
-      setMayaState('idle');
+      setMivoState('idle');
     } finally {
       setIsCheckingWriting(false);
     }
@@ -143,33 +144,33 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
   const handleWritingNext = () => {
     haptics.impact();
     setCurrentStep('speaking');
-    setMayaState('idle');
+    setMivoState('idle');
   };
 
   const handleToggleSpeaking = () => {
     haptics.impact();
     if (!isSpeakingRecording) {
       setIsSpeakingRecording(true);
-      setMayaState('listening');
+      setMivoState('listening');
       // Simulate speech capture
       setTimeout(() => {
         setIsSpeakingRecording(false);
         setSpeakingDone(true);
-        setMayaState('speaking');
+        setMivoState('speaking');
         haptics.success();
-        setTimeout(() => setMayaState('idle'), 3000);
+        setTimeout(() => setMivoState('idle'), 3000);
       }, 3500);
     } else {
       setIsSpeakingRecording(false);
       setSpeakingDone(true);
-      setMayaState('idle');
+      setMivoState('idle');
     }
   };
 
   const handleSpeakingNext = async () => {
     haptics.success();
     setCurrentStep('completed');
-    setMayaState('idle');
+    setMivoState('success');
 
     // Save lesson completion in AsyncStorage
     try {
@@ -197,14 +198,12 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         {/* HEADER */}
         <View style={styles.header}>
-          <Pressable onPress={onClose} style={styles.closeBtn} accessibilityLabel="Kapat">
+          <Pressable onPress={onClose} style={styles.closeBtn} accessibilityLabel={t("Kapat")}>
             <Ionicons name="close" size={24} color={colors.textHeading} />
           </Pressable>
 
           <View style={styles.headerCenter}>
-            <Text style={styles.headerSubtitle}>
-              {lesson.level} · ÜNİTE {lesson.unitNumber} · GÜN {lesson.dayNumber}
-            </Text>
+            <Text style={styles.headerSubtitle}>{t("{{level}} · ÜNİTE {{unitNumber}} · GÜN {{dayNumber}}", { level: lesson.level, unitNumber: lesson.unitNumber, dayNumber: lesson.dayNumber })}</Text>
             <Text style={styles.headerTitle} numberOfLines={1}>
               {lesson.titleTr}
             </Text>
@@ -212,7 +211,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
 
           <View style={styles.xpBadge}>
             <Ionicons name="sparkles" size={14} color="#F59E0B" />
-            <Text style={styles.xpBadgeText}>+{lesson.xpReward} XP</Text>
+            <Text style={styles.xpBadgeText}>{t("+{{xpReward}} XP", { xpReward: lesson.xpReward })}</Text>
           </View>
         </View>
 
@@ -257,9 +256,9 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* CENTERPIECE: 3D MAYA VIDEO AVATAR */}
+          {/* CENTERPIECE: MIVO COMPANION */}
           <View style={styles.avatarWrap}>
-            <Maya3dVideoAvatar state={mayaState} size={150} />
+            <MivoAvatar state={mivoState} size={150} />
           </View>
 
           {/* STEP 1: WARMUP */}
@@ -268,7 +267,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               <View style={styles.badgeRow}>
                 <View style={styles.stepPill}>
                   <Ionicons name="chatbubbles-outline" size={14} color={colors.brand} />
-                  <Text style={styles.stepPillText}>ADIM 1 · KONUŞMA ISINMASI</Text>
+                  <Text style={styles.stepPillText}>{t("ADIM 1 · KONUŞMA ISINMASI")}</Text>
                 </View>
               </View>
 
@@ -279,7 +278,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               ) : (
                 <Pressable onPress={() => setShowTrHint(true)} style={styles.hintToggleBtn}>
                   <Ionicons name="help-circle-outline" size={14} color={colors.textMuted} />
-                  <Text style={styles.hintToggleText}>Türkçe ipucunu gör</Text>
+                  <Text style={styles.hintToggleText}>{t("Türkçe ipucunu gör")}</Text>
                 </Pressable>
               )}
 
@@ -290,7 +289,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
 
               <TextInput
                 style={styles.textInput}
-                placeholder="Örn: Hi Maya! I am Mehmet..."
+                placeholder={t("Örn: Hi Mivo! I am Mehmet...")}
                 placeholderTextColor={colors.textMuted}
                 value={warmupAnswer}
                 onChangeText={setWarmupAnswer}
@@ -305,9 +304,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               <View style={styles.badgeRow}>
                 <View style={[styles.stepPill, { backgroundColor: '#FEF3C7' }]}>
                   <Ionicons name="bulb" size={14} color="#D97706" />
-                  <Text style={[styles.stepPillText, { color: '#B45309' }]}>
-                    ADIM 2 · BUGÜNÜN KONUSU
-                  </Text>
+                  <Text style={[styles.stepPillText, { color: '#B45309' }]}>{t("ADIM 2 · BUGÜNÜN KONUSU")}</Text>
                 </View>
               </View>
 
@@ -315,11 +312,11 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               <Text style={styles.conceptTakeaway}>{lesson.concept.keyTakeawayTr}</Text>
 
               <View style={styles.formulaCard}>
-                <Text style={styles.formulaLabel}>KURAL FORMÜLÜ</Text>
+                <Text style={styles.formulaLabel}>{t("KURAL FORMÜLÜ")}</Text>
                 <Text style={styles.formulaText}>{lesson.concept.formula}</Text>
               </View>
 
-              <Text style={styles.examplesHeader}>Canlı Örnekler</Text>
+              <Text style={styles.examplesHeader}>{t("Canlı Örnekler")}</Text>
               {lesson.concept.examples.map((ex, idx) => (
                 <View key={idx} style={styles.exampleRow}>
                   <View style={styles.exampleBullet} />
@@ -338,9 +335,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               <View style={styles.badgeRow}>
                 <View style={[styles.stepPill, { backgroundColor: '#ECFDF5' }]}>
                   <Ionicons name="pencil" size={14} color="#059669" />
-                  <Text style={[styles.stepPillText, { color: '#065F46' }]}>
-                    ADIM 3 · YAZARAK DENE
-                  </Text>
+                  <Text style={[styles.stepPillText, { color: '#065F46' }]}>{t("ADIM 3 · YAZARAK DENE")}</Text>
                 </View>
               </View>
 
@@ -383,7 +378,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
                   ) : (
                     <>
                       <Ionicons name="sparkles" size={16} color="#FFFFFF" />
-                      <Text style={styles.checkBtnText}>Maya'ya Kontrol Ettir</Text>
+                      <Text style={styles.checkBtnText}>{t("Mivo'ya Kontrol Ettir")}</Text>
                     </>
                   )}
                 </Pressable>
@@ -420,15 +415,13 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
                       ]}
                     >
                       {writingFeedback.correction.has_error
-                        ? 'Maya’nın İpucu & Düzeltmesi'
-                        : 'Harika Cümle!'}
+                        ? t("Mivo’nun İpucu & Düzeltmesi")
+                        : t("Harika Cümle!")}
                     </Text>
                   </View>
 
                   {writingFeedback.correction.corrected && (
-                    <Text style={styles.feedbackCorrected}>
-                      Öneri: "{writingFeedback.correction.corrected}"
-                    </Text>
+                    <Text style={styles.feedbackCorrected}>{t("Öneri: \"{{corrected}}\"", { corrected: writingFeedback.correction.corrected })}</Text>
                   )}
 
                   {writingFeedback.correction.explanation_tr && (
@@ -437,9 +430,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
                     </Text>
                   )}
 
-                  <Text style={styles.feedbackSpokenEn}>
-                    Maya: "{writingFeedback.spoken_reply_en}"
-                  </Text>
+                  <Text style={styles.feedbackSpokenEn}>{t("Mivo: \"{{spoken_reply_en}}\"", { spoken_reply_en: writingFeedback.spoken_reply_en })}</Text>
                 </View>
               )}
             </View>
@@ -451,16 +442,14 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               <View style={styles.badgeRow}>
                 <View style={[styles.stepPill, { backgroundColor: '#F0F9FF' }]}>
                   <Ionicons name="mic" size={14} color="#0284C7" />
-                  <Text style={[styles.stepPillText, { color: '#0369A1' }]}>
-                    ADIM 4 · SESLİ TEKRAR
-                  </Text>
+                  <Text style={[styles.stepPillText, { color: '#0369A1' }]}>{t("ADIM 4 · SESLİ TEKRAR")}</Text>
                 </View>
               </View>
 
               <Text style={styles.taskPrompt}>{lesson.speaking.taskPromptTr}</Text>
 
               <View style={styles.speechTargetCard}>
-                <Text style={styles.speechTargetLabel}>HEDEF CÜMLE ŞABLONU</Text>
+                <Text style={styles.speechTargetLabel}>{t("HEDEF CÜMLE ŞABLONU")}</Text>
                 <Text style={styles.speechTargetEn}>{lesson.speaking.speechHintEn}</Text>
                 <Text style={styles.speechTargetTr}>{lesson.speaking.speechHintTr}</Text>
               </View>
@@ -489,10 +478,10 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
                 </Pressable>
                 <Text style={styles.micHintText}>
                   {isSpeakingRecording
-                    ? 'Dinliyorum... Cümleni bitirince tekrar bas'
+                    ? t("Dinliyorum... Cümleni bitirince tekrar bas")
                     : speakingDone
-                    ? 'Tebrikler! Cümlen başarıyla algılandı.'
-                    : 'Bas ve İngilizce seslendir'}
+                    ? t("Tebrikler! Cümlen başarıyla algılandı.")
+                    : t("Bas ve İngilizce seslendir")}
                 </Text>
               </View>
             </View>
@@ -505,16 +494,14 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
                 <Ionicons name="trophy" size={44} color="#F59E0B" />
               </View>
 
-              <Text style={styles.completedTitle}>Günün Görevi Tamamlandı! 🎉</Text>
-              <Text style={styles.completedSub}>
-                Bugün {lesson.grammarFocus} konusunu konuştun, yazdın ve sesli olarak pratik yaptın.
-              </Text>
+              <Text style={styles.completedTitle}>{t("Günün Görevi Tamamlandı! 🎉")}</Text>
+              <Text style={styles.completedSub}>{t("Bugün {{grammarFocus}} konusunu konuştun, yazdın ve sesli olarak pratik yaptın.", { grammarFocus: lesson.grammarFocus })}</Text>
 
               <View style={styles.rewardBox}>
                 <Ionicons name="sparkles" size={24} color="#F59E0B" />
                 <View>
-                  <Text style={styles.rewardXpText}>+{lesson.xpReward} Başarı Puanı</Text>
-                  <Text style={styles.rewardSubText}>Günlük serin (streak) korundu!</Text>
+                  <Text style={styles.rewardXpText}>{t("+{{xpReward}} Başarı Puanı", { xpReward: lesson.xpReward })}</Text>
+                  <Text style={styles.rewardSubText}>{t("Günlük serin (streak) korundu!")}</Text>
                 </View>
               </View>
             </View>
@@ -525,14 +512,14 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
         <View style={styles.bottomBar}>
           {currentStep === 'warmup' && (
             <Pressable onPress={handleWarmupNext} style={styles.primaryActionBtn}>
-              <Text style={styles.primaryActionText}>Devam Et: Mini Derse Geç</Text>
+              <Text style={styles.primaryActionText}>{t("Devam Et: Mini Derse Geç")}</Text>
               <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
             </Pressable>
           )}
 
           {currentStep === 'concept' && (
             <Pressable onPress={handleConceptNext} style={styles.primaryActionBtn}>
-              <Text style={styles.primaryActionText}>Devam Et: Yazarak Dene</Text>
+              <Text style={styles.primaryActionText}>{t("Devam Et: Yazarak Dene")}</Text>
               <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
             </Pressable>
           )}
@@ -543,7 +530,7 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               disabled={!writingFeedback}
               style={[styles.primaryActionBtn, !writingFeedback && styles.btnDisabled]}
             >
-              <Text style={styles.primaryActionText}>Devam Et: Sesli Pratiğe Geç</Text>
+              <Text style={styles.primaryActionText}>{t("Devam Et: Sesli Pratiğe Geç")}</Text>
               <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
             </Pressable>
           )}
@@ -554,14 +541,14 @@ export function DailyLessonModal({ visible, lesson, onClose, onComplete }: Props
               disabled={!speakingDone}
               style={[styles.primaryActionBtn, !speakingDone && styles.btnDisabled]}
             >
-              <Text style={styles.primaryActionText}>Devam Et: Günü Tamamla</Text>
+              <Text style={styles.primaryActionText}>{t("Devam Et: Günü Tamamla")}</Text>
               <Ionicons name="checkmark-circle" size={18} color="#FFFFFF" />
             </Pressable>
           )}
 
           {currentStep === 'completed' && (
             <Pressable onPress={handleFinish} style={styles.primaryActionBtn}>
-              <Text style={styles.primaryActionText}>Haritaya Dön</Text>
+              <Text style={styles.primaryActionText}>{t("Haritaya Dön")}</Text>
               <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
             </Pressable>
           )}

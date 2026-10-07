@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { yankiMagicImage } from '../assets/images';
+import { mivoImages } from '../assets/images';
 import { Button } from '../components/Button';
 import { CircularProgress } from '../components/CircularProgress';
 import { SkillsRadarChart, type RadarMetrics } from '../components/SkillsRadarChart';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ScorecardScreenProps } from '../navigation/types';
+import { t } from '../i18n';
 
 function formatDuration(seconds: number | null): string {
   if (!seconds) return '00:00';
@@ -67,8 +68,8 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
     try {
       await Share.share({
         message: radarAvailable
-          ? `TalkStage'de "${scenarioTitle}" sahnesini %${fluency} akıcılık ve 360° yetkinlik radarıyla tamamladım! 🎉`
-          : `TalkStage'de "${scenarioTitle}" sahnesini %${fluency} akıcılıkla tamamladım! 🎉`,
+          ? t("TalkStage'de \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılık ve 360° yetkinlik radarıyla tamamladım! 🎉", { scenarioTitle, fluency })
+          : t("TalkStage'de \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılıkla tamamladım! 🎉", { scenarioTitle, fluency }),
       });
     } catch {
       // Cancelled or unsupported
@@ -78,10 +79,10 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* 3D Magic Yankı Coach Celebration Avatar */}
-        <Image source={yankiMagicImage} style={styles.yankiCoachAvatar} resizeMode="contain" />
+        {/* 3D Magic Mivo Coach Celebration Avatar */}
+        <Image source={mivoImages.success} style={styles.yankiCoachAvatar} resizeMode="contain" />
 
-        <Text style={styles.title}>Oturum Tamamlandı 🎉</Text>
+        <Text style={styles.title}>{t("Oturum Tamamlandı 🎉")}</Text>
         <Text style={styles.subtitle} numberOfLines={1}>
           {scenarioTitle}
         </Text>
@@ -102,9 +103,7 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
                 size={13}
                 color={activeView === 'radar' ? colors.brand : colors.textMuted}
               />
-              <Text style={[styles.switchBtnText, activeView === 'radar' && styles.switchBtnTextActive]}>
-                360° Yetkinlik Radarı
-              </Text>
+              <Text style={[styles.switchBtnText, activeView === 'radar' && styles.switchBtnTextActive]}>{t("360° Yetkinlik Radarı")}</Text>
             </Pressable>
 
             <Pressable
@@ -118,9 +117,7 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
               />
               <Text
                 style={[styles.switchBtnText, activeView === 'circular' && styles.switchBtnTextActive]}
-              >
-                Akıcılık Çemberi
-              </Text>
+              >{t("Akıcılık Çemberi")}</Text>
             </Pressable>
           </View>
         )}
@@ -132,27 +129,24 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
           ) : (
             <CircularProgress progress={fluency} size={160} strokeWidth={13}>
               <Text style={styles.scoreValue}>%{fluency}</Text>
-              <Text style={styles.scoreLabel}>Genel Akıcılık</Text>
+              <Text style={styles.scoreLabel}>{t("Genel Akıcılık")}</Text>
             </CircularProgress>
           )}
           {!radarAvailable && (
-            <Text style={styles.radarUnavailableNote}>
-              Bu oturum, detaylı yetkinlik radarı eklenmeden önce kaydedildi — yeni oturumlarda 360°
-              radar da görünecek.
-            </Text>
+            <Text style={styles.radarUnavailableNote}>{t("Bu oturum, detaylı yetkinlik radarı eklenmeden önce kaydedildi — yeni oturumlarda 360° radar da görünecek.")}</Text>
           )}
         </View>
 
         {/* Metrics Grid */}
         <View style={[styles.metricsRow, shadow.card]}>
-          <Metric icon="time-outline" label={`${formatDuration(session.duration_seconds)} Dk`} />
+          <Metric icon="time-outline" label={t("{{duration_seconds}} Dk", { duration_seconds: formatDuration(session.duration_seconds) })} />
           <Metric
             icon="chatbubble-ellipses-outline"
-            label={`${session.unique_words_count} Kelime`}
+            label={t("{{unique_words_count}} Kelime", { unique_words_count: session.unique_words_count })}
           />
           <Metric
             icon="checkmark-circle-outline"
-            label={`${session.corrections_count} Düzeltme`}
+            label={t("{{corrections_count}} Düzeltme", { corrections_count: session.corrections_count })}
           />
         </View>
 
@@ -161,14 +155,14 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
           <Button
             label={
               wordsAddedCount > 0
-                ? `Kelime Sandığına Git (${wordsAddedCount} Yeni)`
-                : 'Kelime Destesine Git'
+                ? t("Kelime Sandığına Git ({{wordsAddedCount}} Yeni)", { wordsAddedCount })
+                : t("Kelime Destesine Git")
             }
             onPress={() => navigation.navigate('Main', { screen: 'Vocab' })}
           />
-          <Button label="Başarını Paylaş 🚀" variant="secondary" onPress={handleShare} />
+          <Button label={t("Başarını Paylaş 🚀")} variant="secondary" onPress={handleShare} />
           <Button
-            label="Müfredata & Sahnelere Dön"
+            label={t("Müfredata & Sahnelere Dön")}
             variant="ghost"
             onPress={() => navigation.navigate('Main', { screen: 'Scenarios' })}
           />

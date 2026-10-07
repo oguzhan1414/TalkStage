@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isRunningInExpoGo } from 'expo';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+import { t } from '../i18n';
 
 const STORAGE_KEY = 'talkstage.daily_reminder.v1';
 const REMINDER_HOUR = 19;
@@ -76,8 +77,8 @@ export function useDailyReminder(displayName: string) {
       await Notifications.cancelAllScheduledNotificationsAsync();
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Sahneye çıkma vaktin geldi 🎭',
-          body: `${displayName}, bugün henüz pratik yapmadın — 5 dakikan var mı?`,
+          title: t("Sahneye çıkma vaktin geldi 🎭"),
+          body: t("{{displayName}}, bugün henüz pratik yapmadın — 5 dakikan var mı?", { displayName }),
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,

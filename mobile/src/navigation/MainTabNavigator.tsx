@@ -3,30 +3,28 @@ import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { navIcons } from '../assets/images';
-import { CurriculumScreen } from '../screens/CurriculumScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ScenariosScreen } from '../screens/ScenariosScreen';
 import { VocabScreen } from '../screens/VocabScreen';
 import { colors, fonts, shadow } from '../theme/tokens';
 import type { MainTabParamList } from './types';
+import { t } from '../i18n';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const TAB_CONFIG: Record<
   keyof MainTabParamList,
-  { label: string; icon: ReturnType<typeof require> }
+  { label: string; image: ReturnType<typeof require> }
 > = {
-  Home: { label: 'Bugün', icon: navIcons.home },
-  Roadmap: { label: 'Öğrenme Yolu', icon: navIcons.trophy },
-  Scenarios: { label: 'Pratik', icon: navIcons.voice },
-  Vocab: { label: 'Kelimeler', icon: navIcons.decks },
-  Profile: { label: 'Profil', icon: navIcons.profile },
+  Home: { label: t("Bugün"), image: navIcons.today },
+  Scenarios: { label: t("Sahneler"), image: navIcons.scenes },
+  Vocab: { label: t("Kelimeler"), image: navIcons.words },
+  Profile: { label: t("Özellikler"), image: navIcons.features },
 };
 
 /**
- * Custom Floating Island Capsule Bottom Navigation Bar (Apple Pro / Glassmorphic)
- * 5-tab structure: Ana Sayfa, Harita (CEFR Roadmap), 3D Sahne (Cinema Studio), Kelimeler, Profil
+ * Calm, tool-like navigation with one chunky 3D icon family across all tabs.
  */
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
@@ -83,8 +81,8 @@ export function MainTabNavigator() {
               >
                 <View style={[styles.iconContainer, isFocused && styles.iconContainerActive]}>
                   <Image
-                    source={config.icon}
-                    style={[styles.iconImage, !isFocused && styles.iconImageInactive]}
+                    source={config.image}
+                    style={[styles.tabIcon, !isFocused && styles.tabIconInactive]}
                     resizeMode="contain"
                   />
                 </View>
@@ -104,7 +102,6 @@ export function MainTabNavigator() {
       )}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Roadmap" component={CurriculumScreen} />
       <Tab.Screen name="Scenarios" component={ScenariosScreen} />
       <Tab.Screen name="Vocab" component={VocabScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -117,11 +114,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 12,
     right: 12,
-    height: 68,
-    backgroundColor: 'rgba(255, 255, 255, 0.96)',
-    borderRadius: 34,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.95)',
+    height: 64,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -130,8 +127,8 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#0F172A',
         shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.15,
-        shadowRadius: 24,
+        shadowOpacity: 0.1,
+        shadowRadius: 18,
       },
       android: {
         elevation: 12,
@@ -142,34 +139,33 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
-    borderRadius: 20,
+    paddingVertical: 7,
+    borderRadius: 14,
   },
   tabItemActive: {},
   iconContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 34,
+    height: 30,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: 'transparent',
   },
   iconContainerActive: {
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    borderColor: 'rgba(79, 70, 229, 0.25)',
-    transform: [{ scale: 1.08 }],
+    backgroundColor: '#EEF2FF',
+    borderColor: '#C7D2FE',
   },
-  iconImage: {
+  tabIcon: {
     width: 28,
     height: 28,
   },
-  iconImageInactive: {
-    opacity: 0.6,
+  tabIconInactive: {
+    opacity: 0.36,
   },
   tabLabel: {
-    fontSize: 9.5,
+    fontSize: 10,
     fontFamily: fonts.bodyMedium,
     marginTop: 1.5,
   },

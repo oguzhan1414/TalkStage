@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 /**
  * TalkStage design tokens — Light Edition.
  * Source: `../../CLAUDE.md` (Design Tokens) / repo-root
@@ -39,45 +40,45 @@ export const cefrThemes: Record<
   { title: string; subtitle: string; icon: string; islandName: string; accentColor: string }
 > = {
   A1: {
-    title: 'Kahve Limanı',
-    subtitle: 'Temel Günlük Diyaloglar & Tanışma',
+    title: t("Kahve Limanı"),
+    subtitle: t("Temel Günlük Diyaloglar & Tanışma"),
     icon: '☕',
-    islandName: 'Başlangıç Takımadası',
+    islandName: t("Başlangıç Takımadası"),
     accentColor: '#10B981',
   },
   A2: {
-    title: 'Seyahat Koyu',
-    subtitle: 'Havalimanı, Otel & Şehir İçi Ulaşım',
+    title: t("Seyahat Koyu"),
+    subtitle: t("Havalimanı, Otel & Şehir İçi Ulaşım"),
     icon: '✈️',
-    islandName: 'Keşif Körfezi',
+    islandName: t("Keşif Körfezi"),
     accentColor: '#0EA5E9',
   },
   B1: {
-    title: 'Kariyer Platosu',
-    subtitle: 'İş Mülakatları, Vize & Profesyonel Sohbet',
+    title: t("Kariyer Platosu"),
+    subtitle: t("İş Mülakatları, Vize & Profesyonel Sohbet"),
     icon: '💼',
-    islandName: 'İş Dünyası Vadisi',
+    islandName: t("İş Dünyası Vadisi"),
     accentColor: '#6366F1',
   },
   B2: {
-    title: 'Liderlik Zirvesi',
-    subtitle: 'Mimari Kararlar, B2B Sunum & Spontane Tartışma',
+    title: t("Liderlik Zirvesi"),
+    subtitle: t("Mimari Kararlar, B2B Sunum & Spontane Tartışma"),
     icon: '🚀',
-    islandName: 'Global Zirve',
+    islandName: t("Global Zirve"),
     accentColor: '#8B5CF6',
   },
   C1: {
-    title: 'Ustalık Kalesi',
-    subtitle: 'Soyut Fikirler, Hızlı Müzakere & Kriz Yönetimi',
+    title: t("Ustalık Kalesi"),
+    subtitle: t("Soyut Fikirler, Hızlı Müzakere & Kriz Yönetimi"),
     icon: '🏛️',
-    islandName: 'Akıcı Diplomasi Arenası',
+    islandName: t("Akıcı Diplomasi Arenası"),
     accentColor: '#F59E0B',
   },
   C2: {
-    title: 'Elmas Taç',
-    subtitle: 'Ana Dil Yetkinliğinde Edebi & Teknik İfade',
+    title: t("Elmas Taç"),
+    subtitle: t("Ana Dil Yetkinliğinde Edebi & Teknik İfade"),
     icon: '👑',
-    islandName: 'Kusursuz Dil Sarayı',
+    islandName: t("Kusursuz Dil Sarayı"),
     accentColor: '#EC4899',
   },
 };

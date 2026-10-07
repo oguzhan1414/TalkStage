@@ -1,10 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { api } from '../lib/api';
 import type { OnboardingCompleteRequest, ProfileOut } from '../types/api';
 import { useAuth } from './AuthContext';
 import { useAnalytics } from '../lib/analytics';
+import { getLocale, t } from '../i18n';
 
 export type OnboardingDraft = {
   displayName: string;
@@ -23,7 +24,7 @@ export type OnboardingDraft = {
 const DEFAULT_DRAFT: OnboardingDraft = {
   displayName: '',
   personaId: 'student',
-  learningGoal: 'freeze_barrier',
+  learningGoal: t("freeze_barrier"),
   cefrLevel: 'A2',
   cefrSource: null,
   dailyTargetMinutes: 10,
@@ -81,13 +82,27 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     enabled: Boolean(session),
   });
 
+  // The device-chosen app language is the source of truth: keep the profile's
+  // `native_language` (used by the backend for AI explanations) in step with it.
+  const profileLanguage = profile?.native_language;
+  useEffect(() => {
+    if (!profile || profileLanguage === getLocale()) return;
+    api
+      .patch<ProfileOut>('/me', { native_language: getLocale() })
+      .then((updated) => queryClient.setQueryData(['me'], updated))
+      .catch(() => {
+        // Best-effort: the X-App-Locale header still carries the language per request.
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id, profileLanguage]);
+
   const updateDraft = (patch: Partial<OnboardingDraft>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
   };
 
   const completeOnboarding = async (): Promise<ProfileOut> => {
     if (!draft.personaId || !draft.learningGoal || !draft.cefrLevel) {
-      throw new Error('Onboarding tamamlanmadan önce persona, hedef ve seviye seçilmeli.');
+      throw new Error(t("Onboarding tamamlanmadan önce persona, hedef ve seviye seçilmeli."));
     }
 
     // React development remounts or a quick retry must not create concurrent
@@ -96,11 +111,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
     const request = api
       .post<ProfileOut>('/onboarding/complete', {
-        display_name: draft.displayName.trim() || 'Konuşmacı',
+        display_name: draft.displayName.trim() || t("Konuşmacı"),
         persona_id: draft.personaId,
         learning_goal: draft.learningGoal,
         cefr_level: draft.cefrLevel,
         daily_target_minutes: draft.dailyTargetMinutes,
+        native_language: getLocale(),
       } satisfies OnboardingCompleteRequest)
       .then((updated) => {
         setCompletedProfile(updated);

@@ -7,6 +7,8 @@
  * screen look up the full entry for a target word by name.
  */
 
+import { applyPaths, getDataLocale, type Overlay } from '@talkstage/shared-data/i18nOverlay';
+
 export type CurriculumVocabWord = {
   word: string;
   phonetic: string;
@@ -23,7 +25,7 @@ export type CefrVocabPool = {
   phrases: CurriculumVocabWord[];
 };
 
-export const CURRICULUM_VOCABULARY: Record<string, CefrVocabPool> = {
+const CURRICULUM_VOCABULARY_RAW: Record<string, CefrVocabPool> = {
   A1: {
     nouns: [
       { word: 'computer', phonetic: '/kəmˈpjuː.tər/', tr: 'bilgisayar', exampleEn: 'My computer is fast.', exampleTr: 'Bilgisayarım hızlıdır.' },
@@ -309,6 +311,32 @@ export const CURRICULUM_VOCABULARY: Record<string, CefrVocabPool> = {
     ],
   },
 };
+
+// ---- Çok dilli içerik: kelime anlamı/örnek çevirisi (bkz. shared-data/i18nOverlay.ts) ----
+const OVERLAYS: Record<string, Overlay | undefined> = {
+  en: require('@talkstage/shared-data/i18n/curriculumVocabulary.en.json'),
+  es: require('@talkstage/shared-data/i18n/curriculumVocabulary.es.json'),
+  pt: require('@talkstage/shared-data/i18n/curriculumVocabulary.pt.json'),
+  de: require('@talkstage/shared-data/i18n/curriculumVocabulary.de.json'),
+};
+const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
+
+function localizePool(pool: CefrVocabPool): CefrVocabPool {
+  if (!ACTIVE_OVERLAY) return pool;
+  const mapList = (list: CurriculumVocabWord[]) =>
+    list.map((w) => applyPaths(w, ACTIVE_OVERLAY[w.word.toLowerCase()]));
+  return {
+    nouns: mapList(pool.nouns),
+    verbs: mapList(pool.verbs),
+    adjectives: mapList(pool.adjectives),
+    adverbs: mapList(pool.adverbs),
+    phrases: mapList(pool.phrases),
+  };
+}
+
+export const CURRICULUM_VOCABULARY: Record<string, CefrVocabPool> = Object.fromEntries(
+  Object.entries(CURRICULUM_VOCABULARY_RAW).map(([level, pool]) => [level, localizePool(pool)])
+);
 
 export const CURRICULUM_VOCAB_LEVELS = Object.keys(CURRICULUM_VOCABULARY);
 

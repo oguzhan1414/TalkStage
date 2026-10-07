@@ -1,15 +1,17 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 
-import { yankiMagicImage } from '../../assets/images';
 import { Button } from '../../components/Button';
+import { MivoAvatar } from '../../components/MivoAvatar';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { GOAL_OPTIONS, ONBOARDING_LEVEL_OPTIONS, PERSONA_OPTIONS } from '../../constants/onboarding';
 import { ApiError } from '../../lib/api';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { MivoLoader } from '../../components/MivoLoader';
+import { t } from '../../i18n';
 
 /** "Magic Moment" — this is where the real `POST /onboarding/complete` call
  * fires (see `useOnboarding().completeOnboarding`). The progress bar animates
@@ -42,7 +44,7 @@ export function PreparingScreen({ navigation }: OnboardingStackScreenProps<'Prep
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err instanceof ApiError ? err.message : 'Planın hazırlanamadı, tekrar dene.');
+        setError(err instanceof ApiError ? err.message : t("Planın hazırlanamadı, tekrar dene."));
       });
 
     return () => {
@@ -55,17 +57,19 @@ export function PreparingScreen({ navigation }: OnboardingStackScreenProps<'Prep
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={[styles.avatarGlow, shadow.glow]}>
-          <Image source={yankiMagicImage} style={styles.avatar} resizeMode="contain" />
+          <MivoLoader size={132} />
         </View>
 
         <Text style={styles.title}>
-          {error ? 'Bir Şeyler Ters Gitti' : 'Sana Özel Sahne Hazırlanıyor...'}
+          {error ? t("Bir Şeyler Ters Gitti") : t("Sana Özel Sahne Hazırlanıyor...")}
         </Text>
         {!error ? (
           <Text style={styles.subtitle}>
-            Yapay zeka <Text style={styles.subtitleStrong}>{draft.displayName.trim() || 'senin'}</Text> için{' '}
-            <Text style={styles.subtitleAccent}>{personaObj?.title}</Text> profiline özel{' '}
-            <Text style={styles.subtitleAccent2}>{levelObj?.code}</Text> müfredatını oluşturuyor.
+            {t("Yapay zeka {{name}} için {{persona}} profiline özel {{level}} müfredatını oluşturuyor.", {
+              name: draft.displayName.trim() || t("sana"),
+              persona: personaObj?.title ?? '',
+              level: levelObj?.code ?? '',
+            })}
           </Text>
         ) : (
           <Text style={styles.subtitle}>{error}</Text>
@@ -88,22 +92,20 @@ export function PreparingScreen({ navigation }: OnboardingStackScreenProps<'Prep
             </View>
 
             <View style={styles.checklist}>
-              <Text style={styles.checkItem}>✓ Kullanıcı Profili: {personaObj?.title}</Text>
-              <Text style={styles.checkItem}>✓ Öncelikli Odak: {goalObj?.title}</Text>
-              <Text style={styles.checkItem}>
-                ✓ CEFR Seviyesi: {levelObj?.code} • {levelObj?.title}
-                {draft.cefrSource === 'calibrated'
-                  ? ' (sesli mini-değerlendirmeyle belirlendi)'
+              <Text style={styles.checkItem}>{t("✓ Kullanıcı Profili: {{title}}", { title: personaObj?.title })}</Text>
+              <Text style={styles.checkItem}>{t("✓ Öncelikli Odak: {{title}}", { title: goalObj?.title })}</Text>
+              <Text style={styles.checkItem}>{t("✓ CEFR Seviyesi: {{code}} • {{title}}", { code: levelObj?.code, title: levelObj?.title })}{draft.cefrSource === 'calibrated'
+                  ? t(" (sesli mini-değerlendirmeyle belirlendi)")
                   : draft.cefrSource === 'self_selected'
-                    ? ' (kendi seçimin)'
+                    ? t(" (kendi seçimin)")
                     : ''}
               </Text>
-              <Text style={styles.checkItem}>✓ Yankı fısıltı ve hata yakalama motoru kalibre edildi</Text>
+              <Text style={styles.checkItem}>{t("✓ Mivo konuşma ve hata yakalama motoru kalibre edildi")}</Text>
             </View>
           </>
         ) : (
           <Button
-            label="Tekrar Dene"
+            label={t("Tekrar Dene")}
             variant="chunky"
             onPress={() => setAttempt((a) => a + 1)}
             style={{ marginTop: spacing.lg }}
@@ -127,10 +129,6 @@ const styles = StyleSheet.create({
   },
   avatarGlow: {
     marginBottom: spacing.lg,
-  },
-  avatar: {
-    width: 96,
-    height: 96,
   },
   title: {
     fontFamily: fonts.headingBold,

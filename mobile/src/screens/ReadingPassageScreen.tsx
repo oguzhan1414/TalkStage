@@ -1,11 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { companionImage, readingSceneImages, stateImages } from '../assets/images';
 import { Button } from '../components/Button';
+import { SceneAudioHero } from '../components/reading/SceneAudioHero';
+import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { MicPermissionPrompt } from '../components/MicPermissionPrompt';
 import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
@@ -16,238 +19,85 @@ import { useAnalytics } from '../lib/analytics';
 import type { ReadingPassageScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type {
+  ReadingScene,
+  ReadingSceneExercise,
+  SpeakingCheckOut,
+  TranscribeResponse,
   GrammarMistakeCreate,
   GrammarMistakeOut,
   ReadingPassageOut,
   VocabCardCreate,
   VocabLookupOut,
 } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t, nativeFlag } from '../i18n';
 
 type StepMode = 'scene' | 'speaking';
 type OrderStatus = 'pending' | 'correct' | 'wrong';
 
-type Tile = { id: number; word: string };
+
+/** Sahnenin alıştırması: yeni `exercise` varsa o, yoksa eski `question` (anlama sorusu), yoksa null (cümle sıralama). */
+function sceneExerciseOf(scene: ReadingScene | undefined): ReadingSceneExercise | null {
+  if (!scene) return null;
+  if (scene.exercise) return scene.exercise;
+  if (scene.question) {
+    return {
+      type: 'question',
+      prompt: scene.question.question,
+      options: scene.question.options,
+      correct_index: scene.question.correct_index,
+      explanation_tr: scene.question.explanation_tr,
+    };
+  }
+  return null;
+}
 
 function cleanWord(raw: string): string {
   return raw.replace(/[.,"“”!?:;]/g, '');
 }
 
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function tilesFromSentence(sentence: string): Tile[] {
-  return shuffle(sentence.split(' ').map((word, id) => ({ id, word })));
-}
-
 // In-context dictionary for instant translation tooltip
 const QUICK_GLOSSARY: Record<string, string> = {
-  hello: 'merhaba',
-  name: 'isim / ad',
-  fine: 'iyi',
-  thank: 'teşekkür etmek',
-  sky: 'gökyüzü',
-  blue: 'mavi',
-  apple: 'elma',
-  red: 'kırmızı',
-  coffee: 'kahve',
-  magic: 'büyülü / sihirli',
-  morning: 'sabah',
-  monday: 'Pazartesi',
-  tuesday: 'Salı',
-  wednesday: 'Çarşamba',
-  thursday: 'Perşembe',
-  friday: 'Cuma',
-  saturday: 'Cumartesi',
-  sunday: 'Pazar',
-  today: 'bugün',
-  week: 'hafta',
-  days: 'günler',
-  standup: 'ayaküstü toplantı',
-  bug: 'yazılım hatası',
-  meeting: 'toplantı',
-  team: 'ekip / takım',
-  passport: 'pasaport',
-  lost: 'kayıp / kaybolmuş',
-  visa: 'vize',
-  interview: 'mülakat',
-  approved: 'onaylandı',
-  startup: 'girişim',
-  pitch: 'sunum / yatırım konuşması',
-  revenue: 'gelir / ciro',
-  ambassador: 'büyükelçi',
-  treaty: 'anlaşma / mutabakat',
-  unanimously: 'oybirliğiyle',
-  wifi: 'kablosuz internet',
-  tea: 'çay',
-  breakfast: 'kahvaltı',
+  hello: t("merhaba"),
+  name: t("isim / ad"),
+  fine: t("iyi"),
+  thank: t("teşekkür etmek"),
+  sky: t("gökyüzü"),
+  blue: t("mavi"),
+  apple: t("elma"),
+  red: t("kırmızı"),
+  coffee: t("kahve"),
+  magic: t("büyülü / sihirli"),
+  morning: t("sabah"),
+  monday: t("Pazartesi"),
+  tuesday: t("Salı"),
+  wednesday: t("Çarşamba"),
+  thursday: t("Perşembe"),
+  friday: t("Cuma"),
+  saturday: t("Cumartesi"),
+  sunday: t("Pazar"),
+  today: t("bugün"),
+  week: t("hafta"),
+  days: t("günler"),
+  standup: t("ayaküstü toplantı"),
+  bug: t("yazılım hatası"),
+  meeting: t("toplantı"),
+  team: t("ekip / takım"),
+  passport: t("pasaport"),
+  lost: t("kayıp / kaybolmuş"),
+  visa: t("vize"),
+  interview: t("mülakat"),
+  approved: t("onaylandı"),
+  startup: t("girişim"),
+  pitch: t("sunum / yatırım konuşması"),
+  revenue: t("gelir / ciro"),
+  ambassador: t("büyükelçi"),
+  treaty: t("anlaşma / mutabakat"),
+  unanimously: t("oybirliğiyle"),
+  wifi: t("kablosuz internet"),
+  tea: t("çay"),
+  breakfast: t("kahvaltı"),
 };
-
-/**
- * Draggable Placed Tile (Inside the sentence arena)
- */
-function DraggableSentenceTile({
-  tile,
-  isCorrect,
-  onLayout,
-  onDragStart,
-  onDragMove,
-  onDragEnd,
-  onTap,
-}: {
-  tile: Tile;
-  isCorrect: boolean;
-  onLayout: (id: number, x: number, width: number) => void;
-  onDragStart: (id: number) => void;
-  onDragMove: (id: number, dx: number) => void;
-  onDragEnd: (id: number, dx: number) => void;
-  onTap: (tile: Tile) => void;
-}) {
-  const pan = useRef(new Animated.ValueXY()).current;
-  const [isDragging, setIsDragging] = useState(false);
-
-  const callbacksRef = useRef({
-    tile,
-    isCorrect,
-    onDragStart,
-    onDragMove,
-    onDragEnd,
-    onTap,
-  });
-  callbacksRef.current = { tile, isCorrect, onDragStart, onDragMove, onDragEnd, onTap };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gesture) =>
-        !callbacksRef.current.isCorrect &&
-        (Math.abs(gesture.dx) > 4 || Math.abs(gesture.dy) > 4),
-      onPanResponderGrant: () => {
-        if (callbacksRef.current.isCorrect) return;
-        setIsDragging(true);
-        pan.setValue({ x: 0, y: 0 });
-        callbacksRef.current.onDragStart(callbacksRef.current.tile.id);
-      },
-      onPanResponderMove: (_, gesture) => {
-        if (callbacksRef.current.isCorrect) return;
-        pan.setValue({ x: gesture.dx, y: gesture.dy });
-        callbacksRef.current.onDragMove(callbacksRef.current.tile.id, gesture.dx);
-      },
-      onPanResponderRelease: (_, gesture) => {
-        setIsDragging(false);
-        const moved = Math.abs(gesture.dx) > 10 || Math.abs(gesture.dy) > 10;
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-
-        if (!moved || callbacksRef.current.isCorrect) {
-          callbacksRef.current.onTap(callbacksRef.current.tile);
-        } else {
-          callbacksRef.current.onDragEnd(callbacksRef.current.tile.id, gesture.dx);
-        }
-      },
-      onPanResponderTerminate: () => {
-        setIsDragging(false);
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-      },
-    })
-  ).current;
-
-  return (
-    <Animated.View
-      {...panResponder.panHandlers}
-      onLayout={(e) =>
-        onLayout(tile.id, e.nativeEvent.layout.x, e.nativeEvent.layout.width)
-      }
-      style={[
-        styles.placedChip,
-        isCorrect && styles.placedChipCorrect,
-        isDragging && styles.draggingPlacedChip,
-        { transform: [{ translateX: pan.x }, { translateY: pan.y }] },
-      ]}
-    >
-      <Text style={[styles.placedChipText, isCorrect && styles.placedChipTextCorrect]}>
-        {tile.word}
-      </Text>
-    </Animated.View>
-  );
-}
-
-/**
- * Draggable Bank Tile (In the pool below, can be dragged directly into the sentence arena)
- */
-function DraggableBankTile({
-  tile,
-  onDragMoveUp,
-  onDragEndUp,
-  onTap,
-}: {
-  tile: Tile;
-  onDragMoveUp: (tileId: number, moveX: number, moveY: number) => void;
-  onDragEndUp: (tile: Tile, moveX: number, moveY: number) => void;
-  onTap: (tile: Tile) => void;
-}) {
-  const pan = useRef(new Animated.ValueXY()).current;
-  const [isDragging, setIsDragging] = useState(false);
-
-  const callbacksRef = useRef({ tile, onDragMoveUp, onDragEndUp, onTap });
-  callbacksRef.current = { tile, onDragMoveUp, onDragEndUp, onTap };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gesture) =>
-        Math.abs(gesture.dx) > 4 || Math.abs(gesture.dy) > 4,
-      onPanResponderGrant: () => {
-        setIsDragging(true);
-        pan.setValue({ x: 0, y: 0 });
-      },
-      onPanResponderMove: (_, gesture) => {
-        pan.setValue({ x: gesture.dx, y: gesture.dy });
-        callbacksRef.current.onDragMoveUp(
-          callbacksRef.current.tile.id,
-          gesture.moveX,
-          gesture.moveY
-        );
-      },
-      onPanResponderRelease: (_, gesture) => {
-        setIsDragging(false);
-        const moved = Math.abs(gesture.dx) > 10 || Math.abs(gesture.dy) > 10;
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-
-        if (moved) {
-          callbacksRef.current.onDragEndUp(
-            callbacksRef.current.tile,
-            gesture.moveX,
-            gesture.moveY
-          );
-        } else {
-          callbacksRef.current.onTap(callbacksRef.current.tile);
-        }
-      },
-      onPanResponderTerminate: () => {
-        setIsDragging(false);
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-      },
-    })
-  ).current;
-
-  return (
-    <Animated.View
-      {...panResponder.panHandlers}
-      style={[
-        styles.bankChip,
-        isDragging && styles.draggingBankChip,
-        { transform: [{ translateX: pan.x }, { translateY: pan.y }] },
-      ]}
-    >
-      <Text style={styles.bankChipText}>{tile.word}</Text>
-    </Animated.View>
-  );
-}
 
 export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreenProps) {
   const { slug } = route.params;
@@ -272,29 +122,14 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
   const [audioSpeed, setAudioSpeed] = useState<number>(1.0);
 
   // Per-scene sentence-ordering exercise
-  const [bank, setBank] = useState<Tile[]>([]);
-  const [placed, setPlaced] = useState<Tile[]>([]);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>('pending');
   const [showHint, setShowHint] = useState(false);
+  // Anlama sorusu modu (B1+ sahneleri)
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [answerStatus, setAnswerStatus] = useState<OrderStatus>('pending');
+  // Harf harf yazma modu: seçilen harf çiplerinin sırası (options dizisindeki indeksler)
+  const [spellPicked, setSpellPicked] = useState<number[]>([]);
   const initializedRef = useRef(false);
-
-  // Precise Screen Coordinates & Measurements for Drag & Drop
-  const arenaRef = useRef<View>(null);
-  const arenaLayoutRef = useRef<{
-    pageX: number;
-    pageY: number;
-    width: number;
-    height: number;
-  }>({
-    pageX: 20,
-    pageY: 280,
-    width: 340,
-    height: 80,
-  });
-  const [dragHoverIndex, setDragHoverIndex] = useState<number | null>(null);
-  const tilePositionsRef = useRef<
-    Record<number, { x: number; width: number; centerX: number }>
-  >({});
 
   // Tooltip Popover for Tapped Words (Dynamic Word Lookup)
   const [tooltipWord, setTooltipWord] = useState<{
@@ -308,6 +143,12 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
 
   // Celebration Modal on Finish
   const [celebrationVisible, setCelebrationVisible] = useState(false);
+
+  // Konuşma adımı kontrolü: kayıt -> yazıya çevir -> kalıp + anlam kontrolü
+  const [speakState, setSpeakState] = useState<'idle' | 'checking' | 'failed'>('idle');
+  const [heardText, setHeardText] = useState('');
+  const [speakResult, setSpeakResult] = useState<SpeakingCheckOut | null>(null);
+  const [speakFails, setSpeakFails] = useState(0);
   const recordedMistakeScenesRef = useRef<Set<number>>(new Set());
 
   const { data: passage, isLoading, isError, refetch } = useQuery({
@@ -318,13 +159,17 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
   const scenes = passage?.scenes ?? [];
   const activeScene = scenes[sceneIdx];
 
-  const measureArena = () => {
-    arenaRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
-      if (width > 0 && height > 0) {
-        arenaLayoutRef.current = { pageX, pageY, width, height };
-      }
-    });
-  };
+  // Sahne açılınca cümle otomatik okunur (boşluk doldur / harf yazma hariç: cevabı sızdırır).
+  useEffect(() => {
+    if (currentStep !== 'scene' || !activeScene) return;
+    const exType = sceneExerciseOf(activeScene)?.type;
+    if (exType === 'spell' || exType === 'fill') return;
+    const id = setTimeout(() => {
+      pronounce(activeScene.sentence_en, { rate: audioSpeed === 0.75 ? 0.68 : 0.95 })?.catch?.(() => {});
+    }, 500);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sceneIdx, currentStep, activeScene?.sentence_en]);
 
   const showToast = (msg: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -336,12 +181,11 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     const target = scenes[idx];
     if (!target) return;
     setSceneIdx(idx);
-    setBank(tilesFromSentence(target.sentence_en));
-    setPlaced([]);
     setOrderStatus('pending');
+    setSelectedOption(null);
+    setAnswerStatus('pending');
+    setSpellPicked([]);
     setShowHint(false);
-    setDragHoverIndex(null);
-    tilePositionsRef.current = {};
     setTooltipWord(null);
     stopAudio();
   };
@@ -353,186 +197,48 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     }
   }, [scenes.length]);
 
-  const checkOrder = (newPlaced: Tile[]) => {
-    if (activeScene && newPlaced.length === activeScene.sentence_en.split(' ').length) {
-      const correct = newPlaced.every((t, i) => t.id === i);
-      if (correct) {
-        setOrderStatus('correct');
-        setShowHint(true);
-      } else {
-        setOrderStatus('wrong');
-        // Record sentence ordering mistake into Hata Defterim (deduped per scene)
-        if (!recordedMistakeScenesRef.current.has(sceneIdx)) {
-          recordedMistakeScenesRef.current.add(sceneIdx);
-          const wrongSentence = newPlaced.map((t) => t.word).join(' ');
-          api
-            .post<GrammarMistakeOut>('/progress/mistakes', {
-              topic_code: passage?.cefr_level ? `${passage.cefr_level}_Reading` : 'Reading',
-              wrong_text: `${wrongSentence} (Yanlış Cümle Sıralaması)`,
-              corrected_text: activeScene.sentence_en,
-              explanation_tr: `"${activeScene.sentence_tr}" — Doğru kelime dizilimi: "${activeScene.sentence_en}"`,
-              source: 'sentence_order',
-            } satisfies GrammarMistakeCreate)
-            .then(() => {
-              queryClient.invalidateQueries({ queryKey: ['grammar-mistakes'] });
-            })
-            .catch(() => {
-              // Request failed (network/server) — un-mark this scene so the
-              // next wrong attempt can retry instead of being silently lost forever.
-              recordedMistakeScenesRef.current.delete(sceneIdx);
-            });
-        }
-      }
-    } else {
-      setOrderStatus('pending');
-    }
-  };
-
-  // Add word from bank into placed (appends to end on tap)
-  const handleBankTileTap = (tile: Tile) => {
-    setBank((prevBank) => prevBank.filter((t) => t.id !== tile.id));
-    setPlaced((prevPlaced) => {
-      const nextPlaced = [...prevPlaced, tile];
-      checkOrder(nextPlaced);
-      return nextPlaced;
-    });
-  };
-
-  // Dragging bank tile: calculates target index using exact finger screen coordinates!
-  const handleBankTileDragMoveUp = (_tileId: number, moveX: number, moveY: number) => {
-    measureArena();
-    const arena = arenaLayoutRef.current;
-    // Check if finger is hovering in or near the sentence arena vertically
-    if (moveY < arena.pageY + arena.height + 40) {
-      const fingerRelativeX = moveX - arena.pageX;
-      let targetIdx = 0;
-      for (const t of placed) {
-        const pos = tilePositionsRef.current[t.id];
-        if (pos && fingerRelativeX > pos.centerX) {
-          targetIdx++;
-        }
-      }
-      setDragHoverIndex(Math.min(targetIdx, placed.length));
-    } else {
-      setDragHoverIndex(null);
-    }
-  };
-
-  // Dropping bank tile into sentence arena at target index
-  const handleBankTileDragEndUp = (tile: Tile, moveX: number, moveY: number) => {
-    setDragHoverIndex(null);
-    measureArena();
-    const arena = arenaLayoutRef.current;
-
-    if (moveY < arena.pageY + arena.height + 60) {
-      const fingerRelativeX = moveX - arena.pageX;
-      let targetIdx = 0;
-      for (const t of placed) {
-        const pos = tilePositionsRef.current[t.id];
-        if (pos && fingerRelativeX > pos.centerX) {
-          targetIdx++;
-        }
-      }
-      const clampedIdx = Math.max(0, Math.min(targetIdx, placed.length));
-
-      setBank((prevBank) => prevBank.filter((t) => t.id !== tile.id));
-      setPlaced((prevPlaced) => {
-        const nextPlaced = [
-          ...prevPlaced.slice(0, clampedIdx),
-          tile,
-          ...prevPlaced.slice(clampedIdx),
-        ];
-        checkOrder(nextPlaced);
-        return nextPlaced;
+  /** Cümle sıralamada tüm yuvalar dolu ve sıra yanlışsa Hata Defterim'e (sahne başına bir kez) kaydeder. */
+  const handleOrderWrong = (wrongSentence: string) => {
+    setOrderStatus('wrong');
+    if (!activeScene || recordedMistakeScenesRef.current.has(sceneIdx)) return;
+    recordedMistakeScenesRef.current.add(sceneIdx);
+    api
+      .post<GrammarMistakeOut>('/progress/mistakes', {
+        topic_code: passage?.cefr_level ? `${passage.cefr_level}_Reading` : 'Reading',
+        wrong_text: t("{{wrongSentence}} (Yanlış Cümle Sıralaması)", { wrongSentence }),
+        corrected_text: activeScene.sentence_en,
+        explanation_tr: t("\"{{sentence_tr}}\" — Doğru kelime dizilimi: \"{{sentence_en}}\"", {
+          sentence_tr: activeScene.sentence_tr,
+          sentence_en: activeScene.sentence_en,
+        }),
+        source: 'sentence_order',
+      } satisfies GrammarMistakeCreate)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['grammar-mistakes'] });
+      })
+      .catch(() => {
+        // İstek başarısız (ağ/sunucu): bir sonraki yanlış deneme tekrar kaydedebilsin diye işareti geri al.
+        recordedMistakeScenesRef.current.delete(sceneIdx);
       });
-    } else {
-      handleBankTileTap(tile);
-    }
   };
 
-  // Tap on placed tile:
-  // - If correct: opens instant dictionary tooltip
-  // - If pending/wrong: returns tile back to bank
-  const handlePlacedTileTap = (tile: Tile) => {
-    if (orderStatus === 'correct') {
-      handleWordTap(tile.word);
-      return;
-    }
-    setPlaced((prevPlaced) => {
-      const nextPlaced = prevPlaced.filter((t) => t.id !== tile.id);
-      checkOrder(nextPlaced);
-      return nextPlaced;
-    });
-    setBank((prevBank) => (prevBank.some((t) => t.id === tile.id) ? prevBank : [...prevBank, tile]));
-  };
-
-  // Record layout coordinate of each placed tile
-  const handleTileLayout = (id: number, x: number, width: number) => {
-    tilePositionsRef.current[id] = { x, width, centerX: x + width / 2 };
-  };
-
-  const handleTileDragStart = () => {
-    measureArena();
-  };
-
-  // As finger moves inside sentence arena, calculate target gap index
-  const handleTileDragMove = (tileId: number, dx: number) => {
-    const ownPos = tilePositionsRef.current[tileId];
-    if (!ownPos) return;
-
-    const currentCenterX = ownPos.centerX + dx;
-    const otherTiles = placed.filter((t) => t.id !== tileId);
-
-    let targetIdx = 0;
-    for (const other of otherTiles) {
-      const pos = tilePositionsRef.current[other.id];
-      if (pos && currentCenterX > pos.centerX) {
-        targetIdx++;
+  const pickSpellLetter = (chipIdx: number, exercise: ReadingSceneExercise) => {
+    const answer = exercise.answer ?? '';
+    if (answerStatus === 'correct' || spellPicked.includes(chipIdx) || spellPicked.length >= answer.length) return;
+    const next = [...spellPicked, chipIdx];
+    setSpellPicked(next);
+    setAnswerStatus('pending');
+    if (next.length === answer.length) {
+      const typed = next.map((i) => exercise.options[i]).join('');
+      if (typed === answer) {
+        setAnswerStatus('correct');
+      } else {
+        setAnswerStatus('wrong');
+        setTimeout(() => {
+          setSpellPicked([]);
+          setAnswerStatus((cur) => (cur === 'wrong' ? 'pending' : cur));
+        }, 900);
       }
-    }
-    setDragHoverIndex(targetIdx);
-  };
-
-  // On release, insert dragged placed tile exactly at targetIdx!
-  const handleTileDragEnd = (tileId: number, dx: number) => {
-    const ownPos = tilePositionsRef.current[tileId];
-    setDragHoverIndex(null);
-
-    setPlaced((prevPlaced) => {
-      const draggedTile = prevPlaced.find((t) => t.id === tileId);
-      if (!draggedTile) return prevPlaced;
-
-      const otherTiles = prevPlaced.filter((t) => t.id !== tileId);
-      if (ownPos) {
-        const currentCenterX = ownPos.centerX + dx;
-        let targetIdx = 0;
-        for (const other of otherTiles) {
-          const pos = tilePositionsRef.current[other.id];
-          if (pos && currentCenterX > pos.centerX) {
-            targetIdx++;
-          }
-        }
-        const clampedIdx = Math.max(0, Math.min(targetIdx, otherTiles.length));
-        const nextPlaced = [
-          ...otherTiles.slice(0, clampedIdx),
-          draggedTile,
-          ...otherTiles.slice(clampedIdx),
-        ];
-        checkOrder(nextPlaced);
-        return nextPlaced;
-      }
-
-      return prevPlaced;
-    });
-  };
-
-  const handleResetOrder = () => {
-    if (activeScene) {
-      setBank(tilesFromSentence(activeScene.sentence_en));
-      setPlaced([]);
-      setOrderStatus('pending');
-      setDragHoverIndex(null);
-      tilePositionsRef.current = {};
     }
   };
 
@@ -555,7 +261,7 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     setTooltipWord({
       raw: rawWord,
       clean,
-      meaning: localMeaning || 'Çeviri getiriliyor…',
+      meaning: localMeaning || t("Çeviri getiriliyor…"),
       loading: !localMeaning,
     });
 
@@ -603,9 +309,9 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(`“${term}” Kelime Sandığına eklendi! 📦✨`);
+      showToast(t("“{{term}}” Kelime Sandığına eklendi! 📦✨", { term }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Kelime kaydedilemedi');
+      showToast(err instanceof ApiError ? err.message : t("Kelime kaydedilemedi"));
     } finally {
       setTooltipWord(null);
     }
@@ -623,18 +329,44 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
   };
 
   const handleMicPress = async () => {
-    if (isRecording) {
-      await stopRecording();
-      handleFinishReading();
-    } else {
+    if (speakState === 'checking') return;
+    if (!isRecording) {
+      setSpeakResult(null);
+      setSpeakState('idle');
       await start();
+      return;
+    }
+    const uri = await stopRecording();
+    if (!uri) return;
+    setSpeakState('checking');
+    try {
+      const form = new FormData();
+      form.append('audio', new File(uri));
+      const { transcript } = await api.postForm<TranscribeResponse>('/chat/transcribe', form);
+      setHeardText(transcript.trim());
+      const result = await api.post<SpeakingCheckOut>(`/reading/${slug}/check-speaking`, {
+        transcript: transcript.trim(),
+      });
+      if (result.passed) {
+        setSpeakResult(result);
+        setSpeakState('idle');
+        // Kısa bir "bravo" geri bildirimi sonrası kutlama
+        handleFinishReading();
+      } else {
+        setSpeakResult(result);
+        setSpeakFails((n) => n + 1);
+        setSpeakState('failed');
+      }
+    } catch (err) {
+      setSpeakState('idle');
+      showToast(err instanceof ApiError ? err.message : t("Ses kontrol edilemedi. Tekrar dene."));
     }
   };
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator style={styles.stateBlock} color={colors.brand} />
+        <MivoLoader size={100} label={t("Hikaye hazırlanıyor…")} style={styles.stateBlock} />
       </SafeAreaView>
     );
   }
@@ -648,226 +380,25 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
           </Pressable>
         </View>
         <View style={styles.stateBlock}>
-          <Text style={styles.stateText}>Okuma parçası yüklenemedi.</Text>
+          <Text style={styles.stateText}>{t("Okuma parçası yüklenemedi.")}</Text>
           <Pressable onPress={() => refetch()}>
-            <Text style={styles.retryText}>Tekrar dene</Text>
+            <Text style={styles.retryText}>{t("Tekrar dene")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
     );
   }
 
-  const sceneImage = readingSceneImages[activeScene.image_key] ?? companionImage;
+  const perSceneKey = `${passage.slug}_${sceneIdx + 1}`;
+  const sceneImage =
+    readingSceneImages[perSceneKey] ??
+    readingSceneImages[activeScene.image_key] ??
+    companionImage;
+  const sceneQuestion = sceneExerciseOf(activeScene);
+  const isQuestionScene = Boolean(sceneQuestion);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.headerBackBtn}>
-          <Ionicons name="chevron-back" size={24} color={colors.textHeading} />
-        </Pressable>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {passage.title}
-          </Text>
-          <Text style={styles.headerLevel}>
-            {passage.cefr_level ? `${passage.cefr_level} • ` : ''}⏱️ {passage.estimated_minutes} Dk
-          </Text>
-        </View>
-        <View style={styles.stepIndicatorPill}>
-          <Text style={styles.stepIndicatorText}>
-            {currentStep === 'scene' ? `Sahne ${sceneIdx + 1}/${scenes.length}` : 'Yankı Ses'}
-          </Text>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* ======================================================== */}
-        {/* SAHNE: DİNLE + CÜMLEYİ SIRALA (Unified Single Card)      */}
-        {/* ======================================================== */}
-        {currentStep === 'scene' && (
-          <View style={styles.stepContainer}>
-            {/* 1. Scene 3D Illustration Card */}
-            <View style={[styles.sceneImageCard, shadow.card]}>
-              <Image
-                source={sceneImage}
-                style={styles.sceneImage}
-                resizeMode={sceneImage === companionImage ? 'contain' : 'cover'}
-              />
-              <View style={styles.sceneBadge}>
-                <Text style={styles.sceneBadgeText}>{activeScene.title}</Text>
-              </View>
-            </View>
-
-            {/* 2. Voice Audio Bar */}
-            <View style={styles.audioControlsRow}>
-              <Pressable
-                onPress={() =>
-                  toggle(activeScene.sentence_en, {
-                    rate: audioSpeed === 0.75 ? 0.68 : 0.95,
-                  })
-                }
-                style={[
-                  styles.playAudioButton,
-                  isPlaying && !isPaused && styles.playAudioButtonActive,
-                ]}
-              >
-                <Ionicons
-                  name={
-                    isPlaying && !isPaused
-                      ? 'pause-circle'
-                      : isPaused
-                        ? 'play-circle'
-                        : 'volume-medium-outline'
-                  }
-                  size={20}
-                  color="#FFFFFF"
-                />
-                <Text style={styles.playAudioText}>
-                  {isPlaying && !isPaused
-                    ? '⏸️ Duraklat'
-                    : isPaused
-                      ? '▶️ Devam Et'
-                      : '🔊 Sahneyi Dinle'}
-                </Text>
-              </Pressable>
-
-              {/* Stop & Reset Audio Button */}
-              {isPlaying || isPaused ? (
-                <Pressable onPress={stopAudio} style={styles.stopAudioButton} hitSlop={8}>
-                  <Ionicons name="stop-circle" size={18} color="#EF4444" />
-                </Pressable>
-              ) : null}
-
-              {/* Speed Selector (1.0x vs 0.75x) */}
-              <Pressable
-                onPress={() => {
-                  const newSpeed = audioSpeed === 1.0 ? 0.75 : 1.0;
-                  setAudioSpeed(newSpeed);
-                  if (isPlaying) {
-                    stopAudio();
-                    pronounce(activeScene.sentence_en, {
-                      rate: newSpeed === 0.75 ? 0.68 : 0.95,
-                    });
-                  }
-                }}
-                style={[
-                  styles.speedToggleButton,
-                  audioSpeed === 0.75 && styles.speedToggleButtonSlow,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.speedToggleText,
-                    audioSpeed === 0.75 && styles.speedToggleTextSlow,
-                  ]}
-                >
-                  {audioSpeed === 0.75 ? '🐢 0.75x' : '⚡ 1.0x'}
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* 3. UNIFIED EXERCISE CARD (Clean, single card for puzzle & solution) */}
-            <View
-              style={[
-                styles.unifiedCard,
-                shadow.card,
-                orderStatus === 'correct' && styles.unifiedCardCorrect,
-                orderStatus === 'wrong' && styles.unifiedCardWrong,
-              ]}
-            >
-              {/* Header inside card */}
-              <View style={styles.cardHeaderRow}>
-                <View style={styles.cardHeaderLeft}>
-                  <Text
-                    style={[
-                      styles.cardHeaderTitle,
-                      orderStatus === 'correct' && styles.cardHeaderTitleCorrect,
-                    ]}
-                  >
-                    {orderStatus === 'correct'
-                      ? '💡 Kelimelere Dokun & Öğren:'
-                      : '🧩 Sürükle ve Sıraya Diz:'}
-                  </Text>
-                  {orderStatus === 'pending' && (
-                    <Text style={styles.cardHeaderSub}>
-                      Kelimeleri havuzdan çekip istediğin araya bırakabilirsin.
-                    </Text>
-                  )}
-                </View>
-
-                {orderStatus === 'correct' ? (
-                  <View style={styles.successBadge}>
-                    <Ionicons name="checkmark-circle" size={16} color="#059669" />
-                    <Text style={styles.successBadgeText}>Harika, Doğru! 🎉</Text>
-                  </View>
-                ) : placed.length > 0 ? (
-                  <Pressable onPress={handleResetOrder} hitSlop={8}>
-                    <Text style={styles.resetOrderLink}>↺ Sıfırla</Text>
-                  </Pressable>
-                ) : null}
-              </View>
-
-              {/* Sentence Arena with Fluid Drag & Drop */}
-              <View
-                ref={arenaRef}
-                onLayout={measureArena}
-                style={[
-                  styles.sentenceArena,
-                  orderStatus === 'correct' && styles.sentenceArenaCorrect,
-                ]}
-              >
-                {placed.length === 0 ? (
-                  <Text style={styles.arenaPlaceholder}>
-                    Aşağıdaki kelimelerden dokun veya buraya sürükle…
-                  </Text>
-                ) : (
-                  <View style={styles.placedRow}>
-                    {placed.map((tile, idx) => (
-                      <View key={tile.id} style={styles.tileSlotWrapper}>
-                        {/* Glowing Drop Indicator Bar before tile if hovering here */}
-                        {dragHoverIndex === idx && orderStatus !== 'correct' && (
-                          <View style={styles.dropIndicatorBar} />
-                        )}
-
-                        <DraggableSentenceTile
-                          tile={tile}
-                          isCorrect={orderStatus === 'correct'}
-                          onLayout={handleTileLayout}
-                          onDragStart={handleTileDragStart}
-                          onDragMove={handleTileDragMove}
-                          onDragEnd={handleTileDragEnd}
-                          onTap={handlePlacedTileTap}
-                        />
-                      </View>
-                    ))}
-
-                    {/* Glowing Drop Indicator at the end */}
-                    {dragHoverIndex === placed.length && orderStatus !== 'correct' && (
-                      <View style={styles.dropIndicatorBar} />
-                    )}
-                  </View>
-                )}
-
-                {/* Subtitle Turkish Translation inside the SAME card once solved */}
-                {orderStatus === 'correct' && (
-                  <View style={styles.unifiedTrSubtitle}>
-                    <Text style={styles.unifiedTrText}>🇹🇷 {activeScene.sentence_tr}</Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Status Notice if Wrong */}
-              {orderStatus === 'wrong' && (
-                <View style={styles.wrongFeedbackRow}>
-                  <Ionicons name="close-circle" size={16} color={colors.error} />
-                  <Text style={styles.wrongFeedbackText}>
-                    Sıra yanlış — kelimeleri sürükleyerek istediğin araya taşıyabilirsin!
-                  </Text>
-                </View>
-              )}
-
-              {/* Instant Dynamic Dictionary Tooltip Popover */}
+  const tooltipBox = (
+    <>
               {tooltipWord && (
                 <View style={[styles.wordTooltipBox, shadow.card]}>
                   <View style={styles.tooltipHeaderRow}>
@@ -884,7 +415,7 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                         ) : null}
                       </View>
                       <Text style={styles.tooltipMeaningText}>
-                        {tooltipWord.loading ? '⏳ Sözlükten sorgulanıyor…' : `🇹🇷 ${tooltipWord.meaning}`}
+                        {tooltipWord.loading ? t("⏳ Sözlükten sorgulanıyor…") : `${nativeFlag()} ${tooltipWord.meaning}`}
                       </Text>
                     </View>
                     <Pressable
@@ -902,55 +433,86 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                   <View style={styles.tooltipActionsRow}>
                     <Pressable onPress={handleSaveTooltipWord} style={styles.tooltipSaveBtn}>
                       <Ionicons name="add-circle" size={15} color="#FFFFFF" />
-                      <Text style={styles.tooltipSaveBtnText}>Sandığıma Ekle</Text>
+                      <Text style={styles.tooltipSaveBtnText}>{t("Sandığıma Ekle")}</Text>
                     </Pressable>
                     <Pressable
                       onPress={() => setTooltipWord(null)}
                       style={styles.tooltipDismissBtn}
                     >
-                      <Text style={styles.tooltipDismissText}>Kapat</Text>
+                      <Text style={styles.tooltipDismissText}>{t("Kapat")}</Text>
                     </Pressable>
                   </View>
                 </View>
               )}
+    </>
+  );
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Top Header */}
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.headerBackBtn}>
+          <Ionicons name="chevron-back" size={24} color={colors.textHeading} />
+        </Pressable>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {passage.title}
+          </Text>
+          <Text style={styles.headerLevel}>
+            {passage.cefr_level ? `${passage.cefr_level} • ` : ''}{t("⏱️ {{estimated_minutes}} Dk", { estimated_minutes: passage.estimated_minutes })}</Text>
+        </View>
+        <View style={styles.stepIndicatorPill}>
+          <Text style={styles.stepIndicatorText}>
+            {currentStep === 'scene' ? t("Sahne {{p0}}/{{length}}", { p0: sceneIdx + 1, length: scenes.length }) : t("Mivo Ses")}
+          </Text>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* ======================================================== */}
+        {/* SAHNE: DİNLE + CÜMLEYİ SIRALA (Unified Single Card)      */}
+        {/* ======================================================== */}
+        {currentStep === 'scene' && !isQuestionScene && (
+          <View style={styles.stepContainer}>
+            {/* 1. Scene 3D Illustration Card */}
+            <View style={[styles.sceneImageCard, shadow.card]}>
+              <Image
+                source={sceneImage}
+                style={styles.sceneImage}
+                resizeMode={sceneImage === companionImage ? 'contain' : 'cover'}
+              />
+              <View style={styles.sceneBadge}>
+                <Text style={styles.sceneBadgeText}>{activeScene.title}</Text>
+              </View>
             </View>
 
-            {/* 4. WORD BANK (Only shown during puzzle mode) */}
-            {orderStatus !== 'correct' && (
-              <View style={styles.bankContainer}>
-                <Text style={styles.bankSectionTitle}>
-                  Kelimeler (Dokun veya Yukarı Sürükle):
-                </Text>
-                <View style={styles.bankRow}>
-                  {bank.map((tile) => (
-                    <DraggableBankTile
-                      key={tile.id}
-                      tile={tile}
-                      onDragMoveUp={handleBankTileDragMoveUp}
-                      onDragEndUp={handleBankTileDragEndUp}
-                      onTap={handleBankTileTap}
-                    />
-                  ))}
-                </View>
+            {/* 2. Voice Audio Bar */}
+            <SceneAudioHero
+              playing={isPlaying && !isPaused}
+              paused={isPaused}
+              onPress={() => toggle(activeScene.sentence_en, { rate: audioSpeed === 0.75 ? 0.68 : 0.95 })}
+              slow={audioSpeed === 0.75}
+              onToggleSlow={() => {
+                const newSpeed = audioSpeed === 1.0 ? 0.75 : 1.0;
+                setAudioSpeed(newSpeed);
+                if (isPlaying) {
+                  stopAudio();
+                  pronounce(activeScene.sentence_en, { rate: newSpeed === 0.75 ? 0.68 : 0.95 });
+                }
+              }}
+            />
 
-                {/* Hint Button */}
-                <View style={styles.hintRow}>
-                  <Pressable onPress={() => setShowHint((h) => !h)} style={styles.hintButton}>
-                    <Ionicons name="bulb-outline" size={16} color={colors.brand} />
-                    <Text style={styles.hintButtonText}>
-                      {showHint ? 'İpucunu Gizle' : 'Türkçe İpucu'}
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {showHint && (
-                  <View style={styles.trHintBox}>
-                    <Text style={styles.trHintLabel}>🇹🇷 İPUCU:</Text>
-                    <Text style={styles.trHintText}>{activeScene.sentence_tr}</Text>
-                  </View>
-                )}
-              </View>
-            )}
+            {/* Cümle sıralama: yalnızca dokunarak (kelime bankası -> yuvalar), ipucu/çeviri ayrı düğmeler */}
+            <TapSentenceOrder
+              sentence={activeScene.sentence_en}
+              translation={activeScene.sentence_tr}
+              resetKey={`${slug}-${sceneIdx}`}
+              onWrongAttempt={handleOrderWrong}
+              onSolved={() => setOrderStatus('correct')}
+              onWordPress={handleWordTap}
+            />
+            {tooltipBox}
 
             {/* 5. NEXT SCENE BUTTON */}
             {orderStatus === 'correct' && (
@@ -958,8 +520,8 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 <Button
                   label={
                     sceneIdx < scenes.length - 1
-                      ? 'Sonraki Sahneye Geç ➔'
-                      : '🎙️ Yankı ile Konuşma Köprüsü'
+                      ? t("Sonraki Sahneye Geç ➔")
+                      : t("🎙️ Mivo ile Konuşma Köprüsü")
                   }
                   onPress={handleNextScene}
                   style={{ width: '100%' }}
@@ -970,21 +532,212 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
         )}
 
         {/* ======================================================== */}
-        {/* YANKI SES VE SHADOWING KÖPRÜSÜ                           */}
+        {/* SAHNE (B1+): PARAGRAF OKU + ANLAMA SORUSU                 */}
+        {/* ======================================================== */}
+        {currentStep === 'scene' && isQuestionScene && sceneQuestion && (
+          <View style={styles.stepContainer}>
+            <View style={[styles.sceneImageCard, shadow.card]}>
+              <Image
+                source={sceneImage}
+                style={styles.sceneImage}
+                resizeMode={sceneImage === companionImage ? 'contain' : 'cover'}
+              />
+              <View style={styles.sceneBadge}>
+                <Text style={styles.sceneBadgeText}>{activeScene.title}</Text>
+              </View>
+            </View>
+
+            <SceneAudioHero
+              playing={isPlaying && !isPaused}
+              paused={isPaused}
+              onPress={() => toggle(activeScene.sentence_en, { rate: audioSpeed === 0.75 ? 0.68 : 0.95 })}
+              slow={audioSpeed === 0.75}
+              onToggleSlow={() => {
+                const newSpeed = audioSpeed === 1.0 ? 0.75 : 1.0;
+                setAudioSpeed(newSpeed);
+                if (isPlaying) {
+                  stopAudio();
+                  pronounce(activeScene.sentence_en, { rate: newSpeed === 0.75 ? 0.68 : 0.95 });
+                }
+              }}
+            />
+
+            <View style={[styles.readCard, shadow.card]}>
+              {sceneQuestion.type === 'listen' && answerStatus !== 'correct' ? (
+                <Text style={[styles.readParagraph, styles.readHidden]}>
+                  {t("🎧 Önce dinle, sonra duyduğun cümleyi seç.")}
+                </Text>
+              ) : (sceneQuestion.type === 'fill' || sceneQuestion.type === 'spell') && answerStatus !== 'correct' ? (
+                <Text style={styles.readParagraph}>{sceneQuestion.prompt}</Text>
+              ) : (
+                <Text style={styles.readParagraph}>
+                  {activeScene.sentence_en.split(' ').map((word, i) => (
+                    <Text key={`${i}-${word}`} onPress={() => handleWordTap(word)}>
+                      {word}{' '}
+                    </Text>
+                  ))}
+                </Text>
+              )}
+              {!(sceneQuestion.type === 'listen' && answerStatus !== 'correct') ? (
+                <Pressable onPress={() => setShowHint((h) => !h)} style={styles.hintButton}>
+                  <Ionicons name="language-outline" size={16} color={colors.brand} />
+                  <Text style={styles.hintButtonText}>{showHint ? t("Çeviriyi Gizle") : t("Çeviriyi Göster")}</Text>
+                </Pressable>
+              ) : null}
+              {showHint && !(sceneQuestion.type === 'listen' && answerStatus !== 'correct') && (
+                <View style={styles.trHintBox}>
+                  <Text style={styles.trHintText}>{nativeFlag()} {activeScene.sentence_tr}</Text>
+                </View>
+              )}
+              {tooltipBox}
+            </View>
+
+            <View style={[styles.questionCard, shadow.card]}>
+              <Text style={styles.questionLabel}>
+                {sceneQuestion.type === 'listen'
+                  ? t("Dinle ve Seç")
+                  : sceneQuestion.type === 'fill'
+                    ? t("Boşluğu Doldur")
+                    : sceneQuestion.type === 'spell'
+                      ? t("Kelimeyi Kur")
+                      : sceneQuestion.type === 'tf'
+                      ? t("Doğru mu, Yanlış mı?")
+                      : t("Anlama Sorusu")}
+              </Text>
+              <Text style={styles.questionText}>
+                {sceneQuestion.type === 'listen'
+                  ? t("Hangi cümleyi duydun?")
+                  : sceneQuestion.type === 'fill'
+                    ? t("Boşluğa hangi kelime gelir?")
+                    : sceneQuestion.type === 'spell'
+                      ? t("Harflere dokunarak boşluğa gelen kelimeyi yaz")
+                      : sceneQuestion.prompt}
+              </Text>
+              {sceneQuestion.type === 'spell' ? (
+                <View style={styles.spellWrap}>
+                  <View style={styles.spellBoxes}>
+                    {Array.from({ length: (sceneQuestion.answer ?? '').length }).map((_, i) => {
+                      const chipIdx = spellPicked[i];
+                      const letter = chipIdx != null ? sceneQuestion.options[chipIdx] : '';
+                      return (
+                        <Pressable
+                          key={i}
+                          disabled={answerStatus === 'correct' || i !== spellPicked.length - 1}
+                          onPress={() => setSpellPicked((cur) => cur.slice(0, -1))}
+                          style={[
+                            styles.spellBox,
+                            letter ? styles.spellBoxFilled : null,
+                            answerStatus === 'correct' && styles.spellBoxCorrect,
+                            answerStatus === 'wrong' && styles.spellBoxWrong,
+                          ]}
+                        >
+                          <Text style={styles.spellBoxText}>{letter}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {answerStatus !== 'correct' ? (
+                    <>
+                      <View style={styles.spellChips}>
+                        {sceneQuestion.options.map((letter, idx) => {
+                          const used = spellPicked.includes(idx);
+                          return (
+                            <Pressable
+                              key={`${idx}-${letter}`}
+                              disabled={used}
+                              onPress={() => pickSpellLetter(idx, sceneQuestion)}
+                              style={[styles.spellChip, used && styles.spellChipUsed]}
+                            >
+                              <Text style={[styles.spellChipText, used && styles.spellChipTextUsed]}>{letter}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                      {spellPicked.length > 0 ? (
+                        <Pressable onPress={() => { setSpellPicked([]); setAnswerStatus('pending'); }} hitSlop={8}>
+                          <Text style={styles.spellClear}>{t("Temizle")}</Text>
+                        </Pressable>
+                      ) : null}
+                    </>
+                  ) : null}
+                </View>
+              ) : sceneQuestion.options.map((option, idx) => {
+                const isSelected = selectedOption === idx;
+                const isRight = answerStatus === 'correct' && idx === sceneQuestion.correct_index;
+                const isWrong = answerStatus === 'wrong' && isSelected;
+                return (
+                  <Pressable
+                    key={`${idx}-${option}`}
+                    disabled={answerStatus === 'correct'}
+                    onPress={() => {
+                      setSelectedOption(idx);
+                      setAnswerStatus(idx === sceneQuestion.correct_index ? 'correct' : 'wrong');
+                    }}
+                    style={[
+                      styles.optionBtn,
+                      isRight && styles.optionBtnCorrect,
+                      isWrong && styles.optionBtnWrong,
+                    ]}
+                  >
+                    <Text style={[styles.optionText, isRight && styles.optionTextCorrect, isWrong && styles.optionTextWrong]}>
+                      {option}
+                    </Text>
+                    {isRight ? <Ionicons name="checkmark-circle" size={20} color="#059669" /> : null}
+                    {isWrong ? <Ionicons name="close-circle" size={20} color={colors.error} /> : null}
+                  </Pressable>
+                );
+              })}
+              {answerStatus === 'wrong' ? (
+                <Text style={styles.wrongFeedbackText}>
+                  {sceneQuestion.type === 'spell'
+                    ? t("Harflerin sırası yanlış — tekrar dene.")
+                    : t("Tam değil — metne bir daha bak ve tekrar dene.")}
+                </Text>
+              ) : null}
+              {answerStatus === 'correct' && (sceneQuestion.type === 'listen' || sceneQuestion.type === 'fill' || sceneQuestion.type === 'spell') ? (
+                <View style={styles.trHintBox}>
+                  <Text style={styles.trHintText}>{nativeFlag()} {activeScene.sentence_tr}</Text>
+                </View>
+              ) : null}
+              {answerStatus === 'correct' && sceneQuestion.explanation_tr ? (
+                <View style={styles.trHintBox}>
+                  <Text style={styles.trHintText}>{nativeFlag()} {sceneQuestion.explanation_tr}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            {answerStatus === 'correct' && (
+              <View style={styles.nextSceneContainer}>
+                <Button
+                  label={
+                    sceneIdx < scenes.length - 1
+                      ? t("Sonraki Sahneye Geç ➔")
+                      : t("🎙️ Mivo ile Konuşma Köprüsü")
+                  }
+                  onPress={handleNextScene}
+                  style={{ width: '100%' }}
+                />
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* ======================================================== */}
+        {/* MIVO SES VE SHADOWING KÖPRÜSÜ                           */}
         {/* ======================================================== */}
         {currentStep === 'speaking' && (
           <View style={styles.stepContainer}>
             <View style={[styles.speakingCard, shadow.card]}>
               <Image source={companionImage} style={styles.yankiAvatar} resizeMode="contain" />
-              <Text style={styles.yankiAskTitle}>Yankı Seni Dinliyor 🎙️</Text>
+              <Text style={styles.yankiAskTitle}>{t("Mivo Seni Dinliyor 🎙️")}</Text>
               <Text style={styles.yankiAskQuestion}>
                 &ldquo;
-                {passage.speaking_prompt?.yanki_ask || 'Can you summarize what happened?'}
+                {passage.speaking_prompt?.yanki_ask || t("Can you summarize what happened?")}
                 &rdquo;
               </Text>
 
               <View style={styles.expectedBox}>
-                <Text style={styles.expectedLabel}>ÖRNEK CEVAP VEYA SHADOWING:</Text>
+                <Text style={styles.expectedLabel}>{t("ÖRNEK CEVAP VEYA SHADOWING:")}</Text>
                 <Text style={styles.expectedText}>
                   {passage.speaking_prompt?.expected_answer || scenes[0]?.sentence_en}
                 </Text>
@@ -994,7 +747,26 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 <Waveform active={isRecording} meteringDb={meteringDb} />
               </View>
 
-              {permissionDenied ? (
+              {speakState === 'failed' && speakResult ? (
+                <View style={styles.speakFeedbackBox}>
+                  {heardText ? (
+                    <Text style={styles.speakHeard}>{t("Seni şöyle duydum:")} “{heardText}”</Text>
+                  ) : null}
+                  <Text style={styles.speakFeedbackText}>{speakResult.feedback}</Text>
+                  {speakResult.suggestion_en ? (
+                    <Text style={styles.speakSuggestion}>
+                      {t("Örnek:")} {speakResult.suggestion_en}
+                    </Text>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {speakState === 'checking' ? (
+                <View style={styles.speakChecking}>
+                  <ActivityIndicator color={colors.brand} />
+                  <Text style={styles.speakCheckingText}>{t("Cevabın kontrol ediliyor…")}</Text>
+                </View>
+              ) : permissionDenied ? (
                 <MicPermissionPrompt onRequestPermission={() => {}} />
               ) : (
                 <Pressable
@@ -1003,10 +775,20 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 >
                   <Ionicons name={isRecording ? 'stop' : 'mic'} size={28} color="#FFFFFF" />
                   <Text style={styles.micBigButtonText}>
-                    {isRecording ? 'Konuşmayı Bitir' : 'Mikrofona Bas & Konuş'}
+                    {isRecording
+                      ? t("Konuşmayı Bitir")
+                      : speakState === 'failed'
+                        ? t("Tekrar Dene")
+                        : t("Mikrofona Bas & Konuş")}
                   </Text>
                 </Pressable>
               )}
+
+              {speakState === 'failed' && speakFails >= 3 && !isRecording ? (
+                <Pressable onPress={handleFinishReading} hitSlop={8}>
+                  <Text style={styles.speakSkip}>{t("Yine de geç")}</Text>
+                </Pressable>
+              ) : null}
             </View>
           </View>
         )}
@@ -1029,10 +811,8 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
               resizeMode="contain"
             />
 
-            <Text style={styles.celebrationTitle}>Tebrikler! Hikaye Bitti 🎉</Text>
-            <Text style={styles.celebrationSub}>
-              &ldquo;{passage.title}&rdquo; parçasını başarıyla dinledin, sıraladın ve seslendirdin!
-            </Text>
+            <Text style={styles.celebrationTitle}>{t("Tebrikler! Hikaye Bitti 🎉")}</Text>
+            <Text style={styles.celebrationSub}>{t("“{{title}}” parçasını başarıyla dinledin, sıraladın ve seslendirdin!", { title: passage.title })}</Text>
 
             {/* Reward Badge Row — no hardcoded number (backend's real
                 READING_COMPLETION_XP doesn't match what used to be printed
@@ -1045,13 +825,13 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                   style={styles.rewardBadgeIcon}
                   resizeMode="contain"
                 />
-                <Text style={styles.rewardBadgeNumber}>Gerçek XP ⚡</Text>
-                <Text style={styles.rewardBadgeLabel}>Kazandın</Text>
+                <Text style={styles.rewardBadgeNumber}>{t("Gerçek XP ⚡")}</Text>
+                <Text style={styles.rewardBadgeLabel}>{t("Kazandın")}</Text>
               </View>
             </View>
 
             <Button
-              label="Harika! Hikaye Listesine Dön ➔"
+              label={t("Harika! Hikaye Listesine Dön ➔")}
               onPress={() => {
                 setCelebrationVisible(false);
                 navigation.goBack();
@@ -1068,6 +848,95 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
 }
 
 const styles = StyleSheet.create({
+  spellWrap: { gap: 12, alignItems: 'center' },
+  spellBoxes: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 },
+  spellBox: {
+    width: 38,
+    height: 46,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#C7D2FE',
+    borderStyle: 'dashed',
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spellBoxFilled: { borderStyle: 'solid', borderColor: colors.brand, backgroundColor: '#EEF2FF' },
+  spellBoxCorrect: { borderStyle: 'solid', borderColor: '#10B981', backgroundColor: '#ECFDF5' },
+  spellBoxWrong: { borderStyle: 'solid', borderColor: colors.error, backgroundColor: '#FEF2F2' },
+  spellBoxText: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  spellChips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  spellChip: {
+    width: 46,
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderBottomWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spellChipUsed: { opacity: 0.25 },
+  spellChipText: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  spellChipTextUsed: { color: colors.textMuted },
+  spellClear: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted, textDecorationLine: 'underline' },
+  speakFeedbackBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1.5,
+    borderColor: '#FECACA',
+    borderRadius: radii.lg,
+    padding: 12,
+    gap: 6,
+  },
+  speakHeard: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted },
+  speakFeedbackText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: '#9F1239' },
+  speakSuggestion: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading },
+  speakChecking: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
+  speakCheckingText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textBody },
+  speakSkip: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted, textAlign: 'center', textDecorationLine: 'underline' },
+  readCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.8)',
+    padding: spacing.md,
+    gap: 10,
+  },
+  readHidden: { color: colors.textMuted, fontFamily: fonts.bodyRegular, fontSize: 15 },
+  readParagraph: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 17,
+    lineHeight: 28,
+    color: colors.textHeading,
+  },
+  questionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    padding: spacing.md,
+    gap: 8,
+  },
+  questionLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.brand },
+  questionText: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading, marginBottom: 2 },
+  optionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+  },
+  optionBtnCorrect: { borderColor: '#10B981', backgroundColor: '#ECFDF5' },
+  optionBtnWrong: { borderColor: colors.error, backgroundColor: '#FEF2F2' },
+  optionText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textHeading },
+  optionTextCorrect: { color: '#047857' },
+  optionTextWrong: { color: '#BE123C' },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',

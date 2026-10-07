@@ -1,3 +1,4 @@
+import { VoiceRoomBanner, VoiceRoomControls, VoiceRoomThread, voiceRoomStyles, type DisplayBubble } from '../components/VoiceRoomUI';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
@@ -14,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AiOrb } from '../components/AiOrb';
+import { MivoAvatar } from '../components/MivoAvatar';
 import { Button } from '../components/Button';
 import { MicPermissionPrompt } from '../components/MicPermissionPrompt';
 import { VoicePrivacyPrompt } from '../components/VoicePrivacyPrompt';
@@ -29,13 +31,15 @@ import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import type { LiveConversationRoomScreenProps } from '../navigation/types';
 import { useAnalytics, useTrackScreenView } from '../lib/analytics';
 import { usePronunciation } from '../hooks/usePronunciation';
+import { MivoLoader } from '../components/MivoLoader';
+import { t, nativeFlag } from '../i18n';
 
 const ADVANCED_PATTERNS = [
-  { regex: /\b(in my opinion|from my perspective|in my experience)\b/i, label: 'STAR İfade Metodu ✨', color: '#10B981' },
-  { regex: /\b(furthermore|moreover|in addition|subsequently)\b/i, label: 'C1 İleri Seviye Bağlaç 🚀', color: '#6366F1' },
-  { regex: /\b(however|nevertheless|on the other hand|in retrospect)\b/i, label: 'B2 Profesyonel Karşıtlık 🎯', color: '#8B5CF6' },
-  { regex: /\b(specifically|for instance|to illustrate|for example)\b/i, label: 'Somutlaştırma Başarısı 💡', color: '#F59E0B' },
-  { regex: /\b(as a result|consequently|therefore|thus)\b/i, label: 'Sonuç Çıkarımı +5XP ⚡', color: '#EC4899' },
+  { regex: /\b(in my opinion|from my perspective|in my experience)\b/i, label: t("STAR İfade Metodu ✨"), color: '#10B981' },
+  { regex: /\b(furthermore|moreover|in addition|subsequently)\b/i, label: t("C1 İleri Seviye Bağlaç 🚀"), color: '#6366F1' },
+  { regex: /\b(however|nevertheless|on the other hand|in retrospect)\b/i, label: t("B2 Profesyonel Karşıtlık 🎯"), color: '#8B5CF6' },
+  { regex: /\b(specifically|for instance|to illustrate|for example)\b/i, label: t("Somutlaştırma Başarısı 💡"), color: '#F59E0B' },
+  { regex: /\b(as a result|consequently|therefore|thus)\b/i, label: t("Sonuç Çıkarımı +5XP ⚡"), color: '#EC4899' },
 ];
 
 // Below this, Deepgram likely misheard rather than just transcribed
@@ -44,24 +48,20 @@ const ADVANCED_PATTERNS = [
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
-  quota_exceeded: 'Bugünkü ücretsiz sahne hakkın doldu. Pro’ya geçerek sınırsız pratik yapabilirsin.',
-  time_limit_reached: '5 dakikalık ücretsiz süre doldu.',
-  missing_api_base_url: 'Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL).',
-  connection_error: 'Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et.',
+  quota_exceeded: t("Bugünkü ücretsiz sahne hakkın doldu. Pro’ya geçerek sınırsız pratik yapabilirsin."),
+  time_limit_reached: t("5 dakikalık ücretsiz süre doldu."),
+  missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
+  connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
 };
 
 Object.assign(CLOSE_REASON_MESSAGES, {
-  auth_required: 'Oturum doğrulanamadı. Lütfen yeniden giriş yap.',
-  auth_invalid: 'Oturumunun süresi dolmuş. Lütfen yeniden giriş yap.',
-  scenario_not_found: 'Bu konuşma sahnesi artık bulunamıyor.',
-  voice_reply_failed: 'AI yanıtı oluşturulamadı. Birkaç saniye sonra tekrar konuşabilirsin.',
-  session_error: 'Canlı konuşma bağlantısında beklenmeyen bir hata oluştu.',
-  microphone_start_failed: 'Mikrofon başlatılamadı. Uygulama izinlerini kontrol et.',
+  auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
+  auth_invalid: t("Oturumunun süresi dolmuş. Lütfen yeniden giriş yap."),
+  scenario_not_found: t("Bu konuşma sahnesi artık bulunamıyor."),
+  voice_reply_failed: t("AI yanıtı oluşturulamadı. Birkaç saniye sonra tekrar konuşabilirsin."),
+  session_error: t("Canlı konuşma bağlantısında beklenmeyen bir hata oluştu."),
+  microphone_start_failed: t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."),
 });
-
-type DisplayBubble =
-  | { key: string; kind: 'user'; text: string; words?: WsWordMetric[]; correction?: WsCorrectionData | null }
-  | { key: string; kind: 'assistant'; text: string };
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60)
@@ -94,14 +94,15 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
   const scenarioId = paramScenarioId ?? resolvedScenario?.id;
   const scenarioTitle = paramScenarioTitle ?? resolvedScenario?.title ?? '';
   const beginnerTeacherMode = ['A1', 'A2'].includes((resolvedScenario?.cefr_level ?? '').toUpperCase());
-  const aiName = beginnerTeacherMode ? 'Maya' : resolvedScenario?.ai_name ?? 'Yankı';
+  const aiName = beginnerTeacherMode ? 'Mivo' : resolvedScenario?.ai_name ?? 'Mivo';
   const aiRole = beginnerTeacherMode
-    ? 'Türkçe İngilizce Öğretmeni'
-    : resolvedScenario?.ai_role ?? 'Sohbet Partneri';
+    ? t("Türkçe İngilizce Öğretmeni")
+    : resolvedScenario?.ai_role ?? t("Sohbet Partneri");
   const situation = resolvedScenario?.situation ?? resolvedScenario?.description ?? '';
   const keyPhrases = resolvedScenario?.key_phrases ?? [];
   const suggestedVocab = resolvedScenario?.suggested_vocab ?? [];
 
+  const voice = useConversationSocket(scenarioSlug);
   const {
     status,
     closeInfo,
@@ -141,7 +142,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
     startedAt,
     correctionsCount,
     fluencyScores,
-  } = useConversationSocket(scenarioSlug);
+  } = voice;
 
   const queryClient = useQueryClient();
   const { pronounce } = usePronunciation();
@@ -246,9 +247,9 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       setWordsAddedCount((c) => c + 1);
-      showToast(`“${word}” kelime defterine eklendi`);
+      showToast(t("“{{word}}” kelime defterine eklendi", { word }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Kelime kaydedilemedi');
+      showToast(err instanceof ApiError ? err.message : t("Kelime kaydedilemedi"));
     }
   };
 
@@ -282,7 +283,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
       });
       navigation.replace('Scorecard', { session: result, scenarioTitle, wordsAddedCount });
     } catch {
-      setSaveError('Oturum kaydedilemedi. Bağlantını kontrol edip tekrar dene.');
+      setSaveError(t("Oturum kaydedilemedi. Bağlantını kontrol edip tekrar dene."));
     } finally {
       savingSessionRef.current = false;
       setSavingSession(false);
@@ -302,12 +303,12 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
   // green the instant it's genuinely the user's turn, with an explicit
   // "no rush" message instead of implying any time pressure.
   const TURN_PHASE_BANNER: Record<TurnPhase, { label: string; sub: string; color: string }> = {
-    ai_speaking: { label: `${aiName} Konuşuyor… Mikrofon Kapalı`, sub: `${aiName} • ${aiRole}`, color: '#6366F1' },
-    ai_thinking: { label: `${aiName} Düşünüyor… Mikrofon Kapalı`, sub: `${aiName} • ${aiRole}`, color: '#F59E0B' },
-    thinking_time: { label: 'SIRA SENDE', sub: 'Düşünmek için acele etme 🙂', color: '#10B981' },
-    recording: { label: 'Konuşuyorsun…', sub: 'Bitirince "Konuşmayı Bitir"e dokun', color: '#10B981' },
-    reviewing: { label: 'Transkripti Kontrol Et', sub: 'Göndermeden önce gözden geçir', color: '#6366F1' },
-    error: { label: 'Bir Sorun Oluştu', sub: 'Tekrar dene ya da yazarak devam et', color: colors.error },
+    ai_speaking: { label: t("{{aiName}} Konuşuyor… Mikrofon Kapalı", { aiName }), sub: `${aiName} • ${aiRole}`, color: '#6366F1' },
+    ai_thinking: { label: t("{{aiName}} Düşünüyor… Mikrofon Kapalı", { aiName }), sub: `${aiName} • ${aiRole}`, color: '#F59E0B' },
+    thinking_time: { label: t("SIRA SENDE"), sub: t("Düşünmek için acele etme 🙂"), color: '#10B981' },
+    recording: { label: t("Konuşuyorsun…"), sub: t("Bitirince \"Konuşmayı Bitir\"e dokun"), color: '#10B981' },
+    reviewing: { label: t("Transkripti Kontrol Et"), sub: t("Göndermeden önce gözden geçir"), color: '#6366F1' },
+    error: { label: t("Bir Sorun Oluştu"), sub: t("Tekrar dene ya da yazarak devam et"), color: colors.error },
   };
   const turnBannerConfig = TURN_PHASE_BANNER[turnPhase];
 
@@ -335,7 +336,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           hitSlop={12}
           style={styles.headerIconButton}
           accessibilityRole="button"
-          accessibilityLabel="Sahneden çık"
+          accessibilityLabel={t("Sahneden çık")}
         >
           <Ionicons name="close" size={22} color={colors.textHeading} />
         </Pressable>
@@ -352,7 +353,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
 
         {turns.length > 0 ? (
           <Pressable onPress={handleExit} style={styles.finishHeaderBtn} hitSlop={8}>
-            <Text style={styles.finishHeaderBtnText}>Bitir ➔</Text>
+            <Text style={styles.finishHeaderBtnText}>{t("Bitir ➔")}</Text>
           </Pressable>
         ) : (
           <View style={styles.headerRightSpacer} />
@@ -361,7 +362,8 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
 
       {voicePrivacyLoading ? (
         <View style={styles.centerBlock}>
-          <ActivityIndicator color={colors.brand} size="large" />
+          <MivoLoader size={130} />
+          <Text style={[styles.statusText, { marginTop: 14 }]}>{t("Gizlilik tercihleri yükleniyor…")}</Text>
         </View>
       ) : needsVoicePrivacyAcknowledgement ? (
         <View style={styles.centerBlock}>
@@ -373,38 +375,39 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
         </View>
       ) : status === 'connecting' ? (
         <View style={styles.centerBlock}>
-          <ActivityIndicator color={colors.brand} size="large" />
-          <Text style={styles.statusText}>Sesli odaya bağlanılıyor (Deepgram Canlı)…</Text>
+          <MivoLoader size={150} />
+          <Text style={[styles.statusText, { marginTop: 16, fontFamily: fonts.headingBold, color: colors.textHeading, fontSize: 16 }]}>{t("Sesli odaya bağlanılıyor…")}</Text>
+          <Text style={{ fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t("Mivo konuşma sahnesini hazırlıyor 🎙️")}</Text>
         </View>
       ) : status === 'closed' ? (
         <View style={styles.centerBlock}>
           <Text style={styles.statusText}>
-            {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? 'Bağlantı tamamlandı.'}
+            {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
           </Text>
           {saveError ? <Text style={styles.saveErrorText}>{saveError}</Text> : null}
           {savingSession ? (
-            <ActivityIndicator color={colors.brand} />
+            <MivoLoader size={64} label={t("Karnen hazırlanıyor…")} />
           ) : closeInfo?.reason === 'quota_exceeded' ? (
             <>
               <Button
-                label="Pro’ya Geç"
+                label={t("Pro’ya Geç")}
                 onPress={() => navigation.navigate('Paywall')}
                 style={styles.upsellButton}
               />
               <Pressable onPress={finishSession}>
-                <Text style={styles.backLink}>{turns.length > 0 ? 'Karneni Gör' : 'Sahnelere dön'}</Text>
+                <Text style={styles.backLink}>{turns.length > 0 ? t("Karneni Gör") : t("Sahnelere dön")}</Text>
               </Pressable>
             </>
           ) : turns.length === 0 && closeInfo?.reason !== 'time_limit_reached' ? (
             <>
-              <Button label="Tekrar Bağlan" onPress={reconnect} style={styles.upsellButton} />
+              <Button label={t("Tekrar Bağlan")} onPress={reconnect} style={styles.upsellButton} />
               <Pressable onPress={finishSession}>
-                <Text style={styles.backLink}>Sahnelere dön</Text>
+                <Text style={styles.backLink}>{t("Sahnelere dön")}</Text>
               </Pressable>
             </>
           ) : (
             <Pressable onPress={finishSession}>
-              <Text style={styles.backLink}>{turns.length > 0 ? 'Karneni Gör' : 'Sahnelere dön'}</Text>
+              <Text style={styles.backLink}>{turns.length > 0 ? t("Karneni Gör") : t("Sahnelere dön")}</Text>
             </Pressable>
           )}
         </View>
@@ -413,22 +416,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {/* Turn-state banner — always visible, impossible to miss. The mic
               genuinely isn't transmitted outside "listening" (see
               useConversationSocket's handleBuffer), this just finally says so. */}
-          <View
-            style={[
-              styles.turnBanner,
-              { backgroundColor: `${turnBannerConfig.color}14`, borderColor: `${turnBannerConfig.color}40` },
-            ]}
-          >
-            <AiOrb state={orbState} size={56} />
-            <View style={styles.turnBannerTextCol}>
-              <Text style={[styles.turnBannerLabel, { color: turnBannerConfig.color }]}>
-                {turnBannerConfig.label}
-              </Text>
-              <Text style={styles.turnBannerSub} numberOfLines={1}>
-                {turnBannerConfig.sub}
-              </Text>
-            </View>
-          </View>
+          <VoiceRoomBanner phase={turnPhase} aiName={aiName} aiRole={aiRole} />
 
           {/* Soft "you can wrap up now" nudge — the model judged the
               scenario's objectives meaningfully covered (backend Ek 32).
@@ -443,15 +431,15 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {sceneCompleteSummary && !completionBannerDismissed && (
             <View style={styles.completionBanner}>
               <View style={styles.completionBannerTextCol}>
-                <Text style={styles.completionBannerTitle}>🎉 Hedeflere Ulaştın!</Text>
+                <Text style={styles.completionBannerTitle}>{t("🎉 Hedeflere Ulaştın!")}</Text>
                 <Text style={styles.completionBannerText}>{sceneCompleteSummary}</Text>
               </View>
               <View style={styles.completionBannerActions}>
                 <Pressable onPress={handleExit} style={styles.completionBannerCta}>
-                  <Text style={styles.completionBannerCtaText}>Karneni Gör</Text>
+                  <Text style={styles.completionBannerCtaText}>{t("Karneni Gör")}</Text>
                 </Pressable>
                 <Pressable onPress={() => setCompletionBannerDismissed(true)} hitSlop={8}>
-                  <Text style={styles.completionBannerDismiss}>Devam Et</Text>
+                  <Text style={styles.completionBannerDismiss}>{t("Devam Et")}</Text>
                 </Pressable>
               </View>
             </View>
@@ -460,23 +448,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {/* Chat Transcript — real chat-bubble thread instead of two
               separate "latest AI text" / "latest your text" boxes, so the
               conversation reads like a messaging app. */}
-          <ScrollView
-            ref={chatScrollRef}
-            style={styles.chatScrollView}
-            contentContainerStyle={styles.chatScrollContent}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => chatScrollRef.current?.scrollToEnd({ animated: true })}
-          >
-            {displayBubbles.length === 0 ? (
-              <Text style={styles.chatEmptyPlaceholder}>
-                {aiName} seni dinliyor. İlk cümleni söyleyebilirsin…
-              </Text>
-            ) : (
-              displayBubbles.map((bubble) => (
-                <ChatBubble key={bubble.key} bubble={bubble} aiName={aiName} onWordPress={handleSaveWord} />
-              ))
-            )}
-          </ScrollView>
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} />
 
           {/* Collapsible secondary info — situation, starter phrases, target
               vocab, live telemetry. All real and useful, but shown on demand
@@ -484,7 +456,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {(situation || keyPhrases.length > 0 || suggestedVocab.length > 0) && (
             <View style={styles.tipsWrap}>
               <Pressable onPress={() => setTipsExpanded((v) => !v)} style={styles.tipsToggle}>
-                <Text style={styles.tipsToggleText}>💡 İpuçları ve Kelimeler</Text>
+                <Text style={styles.tipsToggleText}>{t("💡 İpuçları ve Kelimeler")}</Text>
                 <Ionicons
                   name={tipsExpanded ? 'chevron-up' : 'chevron-down'}
                   size={16}
@@ -496,7 +468,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                 <ScrollView style={styles.tipsPanel} nestedScrollEnabled showsVerticalScrollIndicator={false}>
                   {situation ? (
                     <View style={styles.missionCard}>
-                      <Text style={styles.missionTag}>🎯 GÖREV & DURUM</Text>
+                      <Text style={styles.missionTag}>{t("🎯 GÖREV & DURUM")}</Text>
                       <Text style={styles.missionText}>{situation}</Text>
                     </View>
                   ) : null}
@@ -505,21 +477,21 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                     <View style={styles.dockBadge}>
                       <Ionicons name="speedometer-outline" size={12} color={colors.brand} />
                       <Text style={styles.dockBadgeText}>
-                        {currentWpm > 0 ? `${currentWpm} WPM` : '— WPM'}
+                        {currentWpm > 0 ? t("{{currentWpm}} WPM", { currentWpm }) : t("— WPM")}
                       </Text>
                     </View>
                     <View style={styles.dockBadge}>
                       <Ionicons name="sparkles" size={11} color={colors.success} />
                       <Text style={styles.dockBadgeText}>
                         {currentConfidence == null
-                          ? '— Telaffuz'
-                          : `%${Math.round(currentConfidence * 100)} Telaffuz`}
+                          ? t("— Telaffuz")
+                          : t("%{{p0}} Tan?ma g?veni", { p0: Math.round(currentConfidence * 100) })}
                       </Text>
                     </View>
                     <View style={styles.dockBadge}>
                       <Ionicons name="chatbubbles-outline" size={12} color="#EA580C" />
                       <Text style={styles.dockBadgeText}>
-                        {totalFillersCount === 0 ? '0 Umm ✨' : `${totalFillersCount} Dolgu`}
+                        {totalFillersCount === 0 ? t("0 Umm ✨") : t("{{totalFillersCount}} Dolgu", { totalFillersCount })}
                       </Text>
                     </View>
                   </View>
@@ -527,8 +499,8 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                   {keyPhrases.length > 0 && (
                     <View style={styles.promptsSection}>
                       <View style={styles.promptsHeaderRow}>
-                        <Text style={styles.promptsSectionTitle}>💬 ŞİMDİ NE SÖYLEYEBİLİRSİN?</Text>
-                        <Text style={styles.promptsHint}>Aşağıdaki kalıplardan birini doğrudan oku</Text>
+                        <Text style={styles.promptsSectionTitle}>{t("💬 ŞİMDİ NE SÖYLEYEBİLİRSİN?")}</Text>
+                        <Text style={styles.promptsHint}>{t("Aşağıdaki kalıplardan birini doğrudan oku")}</Text>
                       </View>
                       <View style={styles.promptsList}>
                         {keyPhrases.map((phrase, idx) => {
@@ -547,7 +519,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                                   color={isSelected ? colors.brand : colors.textMuted}
                                 />
                               </View>
-                              <Text style={styles.promptTrText}>🇹🇷 {phrase.tr}</Text>
+                              <Text style={styles.promptTrText}>{nativeFlag()} {phrase.tr}</Text>
                             </Pressable>
                           );
                         })}
@@ -557,7 +529,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
 
                   {suggestedVocab.length > 0 && (
                     <View style={styles.vocabSection}>
-                      <Text style={styles.vocabSectionTitle}>📌 KULLANABİLECEĞİN KELİMELER:</Text>
+                      <Text style={styles.vocabSectionTitle}>{t("📌 KULLANABİLECEĞİN KELİMELER:")}</Text>
                       <View style={styles.vocabRow}>
                         {suggestedVocab.map((v, i) => (
                           <Pressable
@@ -617,121 +589,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                 (onPressOut) land on the SAME component instance instead of
                 racing a remount between two separate buttons. Mic is only
                 ever actually on while held (turnPhase === 'recording'). */}
-            {(turnPhase === 'thinking_time' || turnPhase === 'recording') && (
-              <View style={styles.turnControlBlock}>
-                {turnPhase === 'thinking_time' && coachTipTr ? (
-                  <View style={styles.coachTipCard}>
-                    <Text style={styles.coachTipIcon}>🧑‍🏫</Text>
-                    <View style={styles.coachTipTextCol}>
-                      <Text style={styles.coachTipLabel}>KOÇ İPUCU</Text>
-                      <Text style={styles.coachTipText}>{coachTipTr}</Text>
-                    </View>
-                  </View>
-                ) : null}
-
-                {turnPhase === 'thinking_time' && hasReplayableAudio ? (
-                  <Pressable
-                    onPress={replayAiAudio}
-                    style={styles.replayBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${aiName} ne dedi, tekrar dinle`}
-                  >
-                    <Ionicons name="play-circle-outline" size={15} color={colors.brand} />
-                    <Text style={styles.replayBtnText}>{aiName} ne dedi? Tekrar Dinle</Text>
-                  </Pressable>
-                ) : null}
-
-                {turnPhase === 'thinking_time' && suggestedReplies.length > 0 && (
-                  <View style={styles.suggestionsRow}>
-                    {suggestedReplies.map((reply, idx) => (
-                      <Pressable
-                        key={idx}
-                        onPress={() => pronounce(reply)}
-                        style={styles.suggestionChip}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Öneriyi dinle: ${reply}`}
-                      >
-                        <Ionicons name="volume-medium-outline" size={12} color={colors.brand} />
-                        <Text style={styles.suggestionChipText}>{reply}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                )}
-
-                {turnPhase === 'recording' && (
-                  <View style={styles.waveformContainer}>
-                    <Waveform meteringDb={micLevelDb} active={true} />
-                  </View>
-                )}
-
-                <Pressable
-                  onPressIn={startTurn}
-                  onPressOut={stopTurn}
-                  style={[styles.holdTurnBtn, turnPhase === 'recording' && styles.holdTurnBtnActive]}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    turnPhase === 'recording' ? 'Kayıt ediyor, bırakınca gönderilecek' : 'Basılı tut ve konuş'
-                  }
-                >
-                  <Ionicons name={turnPhase === 'recording' ? 'radio' : 'mic'} size={19} color="#FFFFFF" />
-                  <Text style={styles.holdTurnBtnText}>
-                    {turnPhase === 'recording' ? 'Bırakınca Gönderilir…' : 'Basılı Tut ve Konuş'}
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-
-            {turnPhase === 'reviewing' && (
-              <TranscriptReviewCard
-                pendingTranscript={pendingTranscript}
-                pendingWords={pendingWords}
-                pendingConfidence={pendingConfidence}
-                editedTranscript={editedTranscript}
-                isEditing={isEditingTranscript}
-                onChangeText={setEditedTranscript}
-                onStartEditing={() => setIsEditingTranscript(true)}
-                onConfirm={() => confirmTranscript(editedTranscript)}
-                onRedo={redoTurn}
-              />
-            )}
-
-            {turnPhase === 'ai_thinking' && (
-              <View style={styles.aiThinkingRow}>
-                <ActivityIndicator color={colors.brand} size="small" />
-                <Text style={styles.aiThinkingText}>{aiName} cevabını hazırlıyor…</Text>
-              </View>
-            )}
-
-            {turnPhase === 'ai_speaking' && (
-              <View style={styles.aiSpeakingRow}>
-                <Pressable
-                  onPress={stopAiAudio}
-                  style={styles.aiAudioControlBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel="Sesi durdur"
-                >
-                  <Ionicons name="stop-circle-outline" size={18} color={colors.textHeading} />
-                  <Text style={styles.aiAudioControlText}>Sesi Durdur</Text>
-                </Pressable>
-                <Text style={styles.aiSpeakingHint}>{aiName} konuşuyor — mikrofon kapalı</Text>
-              </View>
-            )}
-
-            {turnPhase === 'error' && (
-              // The message itself is already shown by the liveErrorBanner
-              // above — this block is just the actionable "now what" step,
-              // mic off until the user picks one.
-              <View style={styles.turnErrorBlock}>
-                <View style={styles.turnErrorActions}>
-                  <Pressable onPress={retryLastTurn} style={styles.turnErrorRetryBtn}>
-                    <Text style={styles.turnErrorRetryText}>Tekrar Dene</Text>
-                  </Pressable>
-                  <Pressable onPress={redoTurn} hitSlop={8}>
-                    <Text style={styles.turnErrorFallbackText}>Tekrar Söyle</Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
+            <VoiceRoomControls voice={voice} aiName={aiName} pronounce={pronounce} />
           </View>
         </View>
       )}
@@ -741,285 +599,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
   );
 }
 
-/** Renders words with real-time confidence coloring from Deepgram. */
-function ConfidenceWords({
-  words,
-  onWordPress,
-}: {
-  words: WsWordMetric[];
-  onWordPress: (word: string) => void;
-}) {
-  return (
-    <View style={styles.wordsContainer}>
-      {words.map((item, idx) => {
-        const conf = item.confidence;
-        return (
-          <Pressable key={idx} onPress={() => onWordPress(item.word)} hitSlop={4}>
-            <Text
-              style={[
-                styles.wordText,
-                conf < 0.75 ? styles.wordLow : conf < 0.90 ? styles.wordMedium : styles.wordHigh,
-              ]}
-            >
-              {item.punctuated_word ?? item.word}{' '}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
-/** The "reviewing" phase's confirmation card — nothing reaches the AI until
- * the user explicitly taps Gönder here. Low-confidence transcripts get a
- * softer framing ("I couldn't quite catch that") instead of implying
- * certainty, but sending anyway is always available either way. */
-function TranscriptReviewCard({
-  pendingTranscript,
-  pendingWords,
-  pendingConfidence,
-  editedTranscript,
-  isEditing,
-  onChangeText,
-  onStartEditing,
-  onConfirm,
-  onRedo,
-}: {
-  pendingTranscript: string | null;
-  pendingWords: WsWordMetric[];
-  pendingConfidence: number | null;
-  editedTranscript: string;
-  isEditing: boolean;
-  onChangeText: (text: string) => void;
-  onStartEditing: () => void;
-  onConfirm: () => void;
-  onRedo: () => void;
-}) {
-  if (pendingTranscript == null) {
-    return (
-      <View style={styles.reviewCard}>
-        <ActivityIndicator color={colors.brand} size="small" />
-        <Text style={styles.reviewLoadingText}>Transkript hazırlanıyor…</Text>
-      </View>
-    );
-  }
-
-  const isLowConfidence = pendingConfidence != null && pendingConfidence < LOW_CONFIDENCE_THRESHOLD;
-
-  return (
-    <View style={styles.reviewCard}>
-      <Text style={styles.reviewCardTitle}>
-        {isLowConfidence ? 'Seni tam anlayamadım 🤔' : 'Seni şöyle duydum:'}
-      </Text>
-
-      {isEditing ? (
-        <TextInput
-          value={editedTranscript}
-          onChangeText={onChangeText}
-          style={styles.reviewTextInput}
-          multiline
-          autoFocus
-          placeholder="Söylediğini buraya yaz…"
-          placeholderTextColor={colors.textMuted}
-        />
-      ) : (
-        <View style={styles.reviewStaticTextWrap}>
-          {pendingWords.length > 0 ? (
-            <ConfidenceWords words={pendingWords} onWordPress={() => {}} />
-          ) : (
-            <Text style={styles.reviewPlainText}>{editedTranscript}</Text>
-          )}
-        </View>
-      )}
-
-      <View style={styles.reviewActionsRow}>
-        <Pressable onPress={onRedo} style={styles.reviewSecondaryBtn} accessibilityRole="button">
-          <Ionicons name="refresh" size={14} color={colors.textBody} />
-          <Text style={styles.reviewSecondaryBtnText}>Tekrar Söyle</Text>
-        </Pressable>
-        {!isEditing && (
-          <Pressable onPress={onStartEditing} style={styles.reviewSecondaryBtn} accessibilityRole="button">
-            <Ionicons name="create-outline" size={14} color={colors.textBody} />
-            <Text style={styles.reviewSecondaryBtnText}>Metni Düzelt</Text>
-          </Pressable>
-        )}
-        <Pressable
-          onPress={onConfirm}
-          style={[styles.reviewConfirmBtn, !editedTranscript.trim() && styles.reviewConfirmBtnDisabled]}
-          disabled={!editedTranscript.trim()}
-          accessibilityRole="button"
-        >
-          <Ionicons name="send" size={14} color="#FFFFFF" />
-          <Text style={styles.reviewConfirmBtnText}>{isLowConfidence ? 'Yine de Gönder' : 'Gönder'}</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
-/** One chat-thread bubble — user turns carry their correction (if any)
- * inline, right under the bubble it applies to, instead of a separate
- * floating card elsewhere on the page. */
-function ChatBubble({
-  bubble,
-  aiName,
-  onWordPress,
-}: {
-  bubble: DisplayBubble;
-  aiName: string;
-  onWordPress: (word: string, sentence: string) => void;
-}) {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(anim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
-    // Re-running this for every text update (as the live bubble streams in)
-    // is fine — the same instance just keeps animating toward 1, no restart.
-  }, [anim]);
-
-  const animatedStyle = {
-    opacity: anim,
-    transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
-  };
-
-  if (bubble.kind === 'assistant') {
-    return (
-      <Animated.View style={[styles.bubbleWrap, styles.bubbleWrapAssistant, animatedStyle]}>
-        <Text style={styles.bubbleSenderLabel}>{aiName}</Text>
-        <View style={[styles.bubble, styles.bubbleAssistant]}>
-          <TappableWords
-            text={bubble.text}
-            onWordPress={(w) => onWordPress(w, bubble.text)}
-            textStyle={styles.bubbleTextAssistant}
-          />
-        </View>
-      </Animated.View>
-    );
-  }
-
-  return (
-    <Animated.View style={[styles.bubbleWrap, styles.bubbleWrapUser, animatedStyle]}>
-      <View style={[styles.bubble, styles.bubbleUser]}>
-        {bubble.words && bubble.words.length > 0 ? (
-          <ConfidenceWords words={bubble.words} onWordPress={(w) => onWordPress(w, bubble.text)} />
-        ) : (
-          <TappableWords
-            text={bubble.text}
-            onWordPress={(w) => onWordPress(w, bubble.text)}
-            textStyle={styles.bubbleTextUser}
-          />
-        )}
-      </View>
-      {bubble.correction?.has_error ? (
-        <View style={styles.inlineCorrection}>
-          <Ionicons name="sparkles" size={12} color="#6366F1" />
-          <View style={styles.inlineCorrectionTextCol}>
-            <Text style={styles.inlineCorrectionMain}>{bubble.correction.corrected}</Text>
-            <Text style={styles.inlineCorrectionExplain}>🇹🇷 {bubble.correction.explanation_tr}</Text>
-          </View>
-        </View>
-      ) : null}
-    </Animated.View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  headerIconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F1F5F9',
-  },
-  headerTitleCol: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
-  },
-  headerTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-  },
-  headerSubRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 2,
-  },
-  liveIndicatorDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
-  },
-  headerTimer: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  finishHeaderBtn: {
-    backgroundColor: colors.brand,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-  },
-  finishHeaderBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
-  headerRightSpacer: {
-    width: 36,
-  },
-  centerBlock: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  statusText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
-    color: colors.textBody,
-    textAlign: 'center',
-  },
-  liveErrorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    backgroundColor: '#FEF2F2',
-  },
-  liveErrorBannerText: {
-    flex: 1,
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    lineHeight: 17,
-    color: colors.error,
-  },
   saveErrorText: {
     fontFamily: fonts.bodyRegular,
     fontSize: 12,
@@ -1027,124 +607,9 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: 'center',
   },
-  backLink: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 13,
-    color: colors.brand,
-  },
   upsellButton: {
     marginBottom: spacing.md,
     minWidth: 200,
-  },
-  mainLayout: {
-    flex: 1,
-  },
-  turnBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    margin: spacing.md,
-    marginBottom: 0,
-    padding: 10,
-    borderRadius: radii.xl,
-    borderWidth: 1.5,
-  },
-  turnBannerTextCol: {
-    flex: 1,
-  },
-  turnBannerLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-  },
-  turnBannerSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  chatScrollView: {
-    flex: 1,
-  },
-  chatScrollContent: {
-    padding: spacing.md,
-    gap: spacing.sm,
-    paddingBottom: 24,
-  },
-  chatEmptyPlaceholder: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 13,
-    color: colors.textMuted,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginTop: spacing.xl,
-  },
-  bubbleWrap: {
-    maxWidth: '86%',
-    gap: 4,
-  },
-  bubbleWrapUser: {
-    alignSelf: 'flex-end',
-    alignItems: 'flex-end',
-  },
-  bubbleWrapAssistant: {
-    alignSelf: 'flex-start',
-    alignItems: 'flex-start',
-  },
-  bubbleSenderLabel: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginLeft: 4,
-  },
-  bubble: {
-    borderRadius: radii.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-  },
-  bubbleUser: {
-    backgroundColor: '#EEF2FF',
-    borderBottomRightRadius: 4,
-  },
-  bubbleAssistant: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderBottomLeftRadius: 4,
-  },
-  bubbleTextUser: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 14.5,
-    color: colors.textHeading,
-    lineHeight: 20,
-  },
-  bubbleTextAssistant: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 14.5,
-    color: colors.textHeading,
-    lineHeight: 20,
-  },
-  inlineCorrection: {
-    flexDirection: 'row',
-    gap: 6,
-    backgroundColor: '#F5F3FF',
-    borderRadius: radii.md,
-    padding: 8,
-    maxWidth: '100%',
-  },
-  inlineCorrectionTextCol: {
-    flex: 1,
-    gap: 2,
-  },
-  inlineCorrectionMain: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
-  inlineCorrectionExplain: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: '#475569',
-    lineHeight: 14,
   },
   tipsWrap: {
     marginHorizontal: spacing.md,
@@ -1173,235 +638,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
     padding: spacing.md,
     gap: spacing.md,
-  },
-  turnControlBlock: {
-    gap: 10,
-  },
-  replayBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    alignSelf: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    backgroundColor: '#EEF2FF',
-  },
-  replayBtnText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 11.5,
-    color: colors.brand,
-  },
-  coachTipCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1.5,
-    borderColor: '#FB923C',
-    borderRadius: radii.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  coachTipIcon: {
-    fontSize: 20,
-  },
-  coachTipTextCol: {
-    flex: 1,
-    gap: 2,
-  },
-  coachTipLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    color: '#C2410C',
-    letterSpacing: 0.5,
-  },
-  coachTipText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
-    lineHeight: 18,
-    color: '#9A3412',
-  },
-  suggestionsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    justifyContent: 'center',
-  },
-  suggestionChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: radii.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  suggestionChipText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
-  holdTurnBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#10B981',
-    paddingVertical: 15,
-    borderRadius: radii.pill,
-  },
-  holdTurnBtnActive: {
-    backgroundColor: colors.brand,
-  },
-  holdTurnBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14.5,
-    color: '#FFFFFF',
-  },
-  reviewCard: {
-    gap: 10,
-  },
-  reviewLoadingText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12.5,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-  reviewCardTitle: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12.5,
-    color: colors.textHeading,
-  },
-  reviewStaticTextWrap: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 10,
-  },
-  reviewPlainText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textHeading,
-  },
-  reviewTextInput: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: colors.brand,
-    padding: 10,
-    fontFamily: fonts.bodyMedium,
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textHeading,
-    minHeight: 44,
-    maxHeight: 110,
-  },
-  reviewActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  reviewSecondaryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-  },
-  reviewSecondaryBtnText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    color: colors.textBody,
-  },
-  reviewConfirmBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
-    borderRadius: radii.pill,
-    backgroundColor: colors.brand,
-  },
-  reviewConfirmBtnDisabled: {
-    opacity: 0.5,
-  },
-  reviewConfirmBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: '#FFFFFF',
-  },
-  aiThinkingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 10,
-  },
-  aiThinkingText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12.5,
-    color: colors.textMuted,
-  },
-  aiSpeakingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 6,
-  },
-  aiAudioControlBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-  },
-  aiAudioControlText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
-  aiSpeakingHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textMuted,
-  },
-  turnErrorBlock: {
-    gap: 10,
-  },
-  turnErrorActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  turnErrorRetryBtn: {
-    backgroundColor: colors.brand,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: radii.pill,
-  },
-  turnErrorRetryText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: '#FFFFFF',
-  },
-  turnErrorFallbackText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12.5,
-    color: colors.textBody,
   },
   completionBanner: {
     backgroundColor: '#ECFDF5',
@@ -1561,20 +797,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.textMuted,
   },
-  bottomDock: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
-    padding: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    gap: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 6,
-  },
   floatingAccoladePill: {
     alignSelf: 'center',
     paddingHorizontal: 12,
@@ -1612,27 +834,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textHeading,
   },
-  wordsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  wordText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  wordHigh: {
-    color: colors.textHeading,
-  },
-  wordMedium: {
-    color: '#D97706',
-  },
-  wordLow: {
-    color: '#EF4444',
-    textDecorationLine: 'underline',
-  },
-  waveformContainer: {
-    marginTop: 2,
-  },
+  ...voiceRoomStyles,
 });

@@ -8,6 +8,7 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'level' });
@@ -18,11 +19,8 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
       <OnboardingProgressHeader step={5} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Şu anki İngilizce seviyeni seç 🎓</Text>
-        <Text style={styles.subtitle}>
-          Sorun değil, kendi seviyeni seçmen de harika bir başlangıç — yapay zeka konuşma hızını
-          ve kelime zorluğunu buna göre ayarlayacak.
-        </Text>
+        <Text style={styles.title}>{t("Şu anki İngilizce seviyeni seç 🎓")}</Text>
+        <Text style={styles.subtitle}>{t("Sorun değil, kendi seviyeni seçmen de harika bir başlangıç — yapay zeka konuşma hızını ve kelime zorluğunu buna göre ayarlayacak.")}</Text>
 
         <View style={styles.grid}>
           {ONBOARDING_LEVEL_OPTIONS.map((lvl) => {
@@ -42,7 +40,7 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
                 <Text style={styles.cardTitle}>{lvl.title}</Text>
                 <Text style={styles.cardEnTitle}>{lvl.enTitle}</Text>
                 <View style={styles.realLifeBox}>
-                  <Text style={styles.realLifeLabel}>GERÇEK HAYATTA:</Text>
+                  <Text style={styles.realLifeLabel}>{t("GERÇEK HAYATTA:")}</Text>
                   <Text style={styles.realLifeText} numberOfLines={3}>
                     {lvl.realLife}
                   </Text>
@@ -54,7 +52,7 @@ export function LevelScreen({ navigation }: OnboardingStackScreenProps<'Level'>)
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('DailyTime')} />
+        <Button label={t("Devam Et ➔")} variant="chunky" onPress={() => navigation.navigate('DailyTime')} />
       </View>
     </SafeAreaView>
   );

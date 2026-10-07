@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, radii } from '../theme/tokens';
 import type { ProgressOut } from '../types/api';
+import { t } from '../i18n';
 
 type Props = {
   progress: ProgressOut[];
@@ -15,7 +16,7 @@ const TOTAL_WEEKS = 53;
 const CELL_SIZE = 11;
 const CELL_GAP = 3;
 const TR_MONTHS_SHORT = [
-  'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara',
+  'Oca', t("Şub"), 'Mar', 'Nis', 'May', 'Haz', 'Tem', t("Ağu"), 'Eyl', 'Eki', 'Kas', 'Ara',
 ];
 
 function toDateKey(date: Date) {
@@ -89,19 +90,17 @@ export function ContributionHeatmap({ progress, dailyTargetMinutes }: Props) {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.headline}>
-        Son 1 yılda <Text style={styles.headlineStrong}>{activeDays} gün</Text> pratik yaptın
-      </Text>
+      <Text style={styles.headline}>{t("Son 1 yılda")}{" "}<Text style={styles.headlineStrong}>{t("{{activeDays}} gün", { activeDays })}</Text>{" "}{t("pratik yaptın")}</Text>
 
       <View style={styles.gridRow}>
         <View style={styles.weekdayCol}>
           <View style={styles.monthLabelSpacer} />
           <Text style={styles.weekdayLabel}> </Text>
-          <Text style={styles.weekdayLabel}>Pzt</Text>
+          <Text style={styles.weekdayLabel}>{t("Pzt")}</Text>
           <Text style={styles.weekdayLabel}> </Text>
-          <Text style={styles.weekdayLabel}>Çar</Text>
+          <Text style={styles.weekdayLabel}>{t("Çar")}</Text>
           <Text style={styles.weekdayLabel}> </Text>
-          <Text style={styles.weekdayLabel}>Cum</Text>
+          <Text style={styles.weekdayLabel}>{t("Cum")}</Text>
           <Text style={styles.weekdayLabel}> </Text>
         </View>
 
@@ -152,7 +151,7 @@ export function ContributionHeatmap({ progress, dailyTargetMinutes }: Props) {
       </View>
 
       <View style={styles.legendRow}>
-        <Text style={styles.legendLabel}>Az</Text>
+        <Text style={styles.legendLabel}>{t("Az")}</Text>
         {([0, 1, 2, 3, 4] as const).map((lvl) => (
           <View
             key={lvl}
@@ -163,7 +162,7 @@ export function ContributionHeatmap({ progress, dailyTargetMinutes }: Props) {
             ]}
           />
         ))}
-        <Text style={styles.legendLabel}>Çok</Text>
+        <Text style={styles.legendLabel}>{t("Çok")}</Text>
       </View>
     </View>
   );

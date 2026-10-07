@@ -3,6 +3,7 @@ import { Image, Linking, StyleSheet, Text, View } from 'react-native';
 import { calibrationImages } from '../assets/images';
 import { colors, radii, spacing, typography } from '../theme/tokens';
 import { Button } from './Button';
+import { t } from '../i18n';
 
 type Props = {
   onRequestPermission?: () => void;
@@ -19,10 +20,8 @@ export function MicPermissionPrompt({
   return (
     <View style={styles.container}>
       <Image source={calibrationImages.micPermission} style={styles.image} resizeMode="contain" />
-      <Text style={styles.title}>Mikrofon izni gerekiyor</Text>
-      <Text style={styles.body}>
-        Konuşma pratiği yapabilmen için mikrofon iznini cihaz ayarlarından açmalısın.
-      </Text>
+      <Text style={styles.title}>{t("Mikrofon izni gerekiyor")}</Text>
+      <Text style={styles.body}>{t("Konuşma pratiği yapabilmen için mikrofon iznini cihaz ayarlarından açmalısın.")}</Text>
       <Button label={buttonLabel} onPress={onRequestPermission} />
     </View>
   );

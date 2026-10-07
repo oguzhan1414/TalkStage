@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,20 +16,25 @@ import {
 
 import { stateImages } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { Toast } from '../components/Toast';
 import { api } from '../lib/api';
 import type { MistakesNotebookScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t } from '../i18n';
 
 type SourceFilter = 'ALL' | 'mini_quiz' | 'text_chat' | 'voice_session' | 'sentence_order';
 
 function sourceLabel(source: string | null | undefined): string {
   if (source === 'mini_quiz') return '✍️ Mini Quiz';
-  if (source === 'text_chat') return '💬 AI Sohbet';
-  if (source === 'voice_session') return '🎙️ Canlı Konuşma';
-  if (source === 'sentence_order') return '📖 Cümle Sıralama';
-  return '📝 Alıştırma';
+  if (source === 'text_chat') return t("💬 AI Sohbet");
+  // Free-chat voice room (`/ws/free-chat`) shares the same live-voice label
+  // as scenario rooms — both are spoken practice, just topic-less vs. not.
+  if (source === 'voice_session' || source === 'voice_free_chat') return t("🎙️ Canlı Konuşma");
+  if (source === 'sentence_order') return t("📖 Cümle Sıralama");
+  return t("📝 Alıştırma");
 }
 
 function isGrammarLessonCode(code: string): boolean {
@@ -37,6 +42,7 @@ function isGrammarLessonCode(code: string): boolean {
 }
 
 export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenProps) {
+  const { finishTransition } = useMivoTransition();
   const queryClient = useQueryClient();
   const [selectedFilter, setSelectedFilter] = useState<SourceFilter>('ALL');
   const [toast, setToast] = useState<string | null>(null);
@@ -57,13 +63,17 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
     queryFn: () => api.get<GrammarMistakeOut[]>('/progress/mistakes'),
   });
 
+  useEffect(() => {
+    if (!isLoading) finishTransition();
+  }, [finishTransition, isLoading]);
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/progress/mistakes/${id}`),
     onSuccess: (_, id) => {
       queryClient.setQueryData<GrammarMistakeOut[]>(['grammar-mistakes'], (prev) =>
         (prev ?? []).filter((m) => m.id !== id)
       );
-      showToast('🎉 Harika! Kuralı pekiştirdin ve defterden temizlendi.');
+      showToast(t("🎉 Harika! Kuralı pekiştirdin ve defterden temizlendi."));
       if (activeQuizItem?.id === id) {
         setQuizModalOpen(false);
         setActiveQuizItem(null);
@@ -76,6 +86,9 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
   // Filtered mistakes by source tab
   const filteredMistakes = useMemo(() => {
     if (selectedFilter === 'ALL') return allMistakes;
+    if (selectedFilter === 'voice_session') {
+      return allMistakes.filter((m) => m.source === 'voice_session' || m.source === 'voice_free_chat');
+    }
     return allMistakes.filter((m) => m.source === selectedFilter);
   }, [allMistakes, selectedFilter]);
 
@@ -94,7 +107,9 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
 
   const quizCount = allMistakes.filter((m) => m.source === 'mini_quiz').length;
   const chatCount = allMistakes.filter((m) => m.source === 'text_chat').length;
-  const voiceCount = allMistakes.filter((m) => m.source === 'voice_session').length;
+  const voiceCount = allMistakes.filter(
+    (m) => m.source === 'voice_session' || m.source === 'voice_free_chat'
+  ).length;
   const readingCount = allMistakes.filter((m) => m.source === 'sentence_order').length;
 
   // Start single quiz for a mistake
@@ -126,11 +141,11 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
           <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerTitleCol}>
-          <Text style={styles.headerTitle}>Hata Defterim</Text>
-          <Text style={styles.headerSub}>Kişisel Zayıf Noktalar & Düzeltmeler</Text>
+          <Text style={styles.headerTitle}>{t("Hata Defterim")}</Text>
+          <Text style={styles.headerSub}>{t("Kişisel Zayıf Noktalar & Düzeltmeler")}</Text>
         </View>
         <View style={styles.countBadge}>
-          <Text style={styles.countBadgeText}>{allMistakes.length} Kayıt</Text>
+          <Text style={styles.countBadgeText}>{t("{{length}} Kayıt", { length: allMistakes.length })}</Text>
         </View>
       </View>
 
@@ -146,26 +161,24 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               <View style={styles.heroLeftCol}>
                 <View style={styles.heroBadgeRow}>
                   <Ionicons name="shield-checkmark" size={12} color={colors.brand} />
-                  <Text style={styles.heroBadgeText}>ÖZEL GELİŞİM KASASI</Text>
+                  <Text style={styles.heroBadgeText}>{t("ÖZEL GELİŞİM KASASI")}</Text>
                 </View>
-                <Text style={styles.heroTitle}>Zayıf Noktalarını Kalıcı Reflekse Dönüştür</Text>
-                <Text style={styles.heroDesc}>
-                  Konuşmalarda ve sınavlarda yaptığın hatalar burada toplanır. Kendini sına, kuralı kavra ve defterden temizle!
-                </Text>
+                <Text style={styles.heroTitle}>{t("Zayıf Noktalarını Kalıcı Reflekse Dönüştür")}</Text>
+                <Text style={styles.heroDesc}>{t("Konuşmalarda ve sınavlarda yaptığın hatalar burada toplanır. Kendini sına, kuralı kavra ve defterden temizle!")}</Text>
 
                 {/* 3-Pill Micro Stats */}
                 <View style={styles.microStatsRow}>
                   <View style={styles.microStatPill}>
                     <Text style={styles.microStatVal}>{allMistakes.length}</Text>
-                    <Text style={styles.microStatLbl}>Bekleyen</Text>
+                    <Text style={styles.microStatLbl}>{t("Bekleyen")}</Text>
                   </View>
                   <View style={styles.microStatPill}>
                     <Text style={styles.microStatVal}>{topicSummary.length}</Text>
-                    <Text style={styles.microStatLbl}>Kural Konusu</Text>
+                    <Text style={styles.microStatLbl}>{t("Kural Konusu")}</Text>
                   </View>
                   <View style={styles.microStatPillEmerald}>
                     <Text style={styles.microStatValEmerald}>%100</Text>
-                    <Text style={styles.microStatLblEmerald}>Özel Analiz</Text>
+                    <Text style={styles.microStatLblEmerald}>{t("Özel Analiz")}</Text>
                   </View>
                 </View>
 
@@ -178,7 +191,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                     scaleTo={0.96}
                   >
                     <Ionicons name="flash" size={15} color="#FFFFFF" />
-                    <Text style={styles.quickQuizBtnText}>Hızlı Pekiştirme Sınavı Başlat</Text>
+                    <Text style={styles.quickQuizBtnText}>{t("Hızlı Pekiştirme Sınavı Başlat")}</Text>
                     <Ionicons name="arrow-forward" size={13} color="#FFFFFF" />
                   </BouncyPressable>
                 )}
@@ -197,8 +210,8 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
             {topicSummary.length > 0 ? (
               <View style={styles.summarySection}>
                 <View style={styles.sectionHeaderRow}>
-                  <Text style={styles.summaryTitle}>🎯 En Çok Tekrarlanan Kurallar</Text>
-                  <Text style={styles.summarySub}>Dersi incele ve pekiştir</Text>
+                  <Text style={styles.summaryTitle}>{t("🎯 En Çok Tekrarlanan Kurallar")}</Text>
+                  <Text style={styles.summarySub}>{t("Dersi incele ve pekiştir")}</Text>
                 </View>
                 <ScrollView
                   horizontal
@@ -216,10 +229,10 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       </View>
                       <View>
                         <Text style={styles.summaryChipCode}>{code}</Text>
-                        <Text style={styles.summaryChipAction}>Dersi Çalış ➔</Text>
+                        <Text style={styles.summaryChipAction}>{t("Dersi Çalış ➔")}</Text>
                       </View>
                       <View style={styles.summaryChipCountPill}>
-                        <Text style={styles.summaryChipCountText}>{count}x</Text>
+                        <Text style={styles.summaryChipCountText}>{t("{{count}}x", { count })}</Text>
                       </View>
                     </Pressable>
                   ))}
@@ -243,9 +256,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       styles.filterTabText,
                       selectedFilter === 'ALL' && styles.filterTabTextActive,
                     ]}
-                  >
-                    🌐 Tümü ({allMistakes.length})
-                  </Text>
+                  >{t("🌐 Tümü ({{length}})", { length: allMistakes.length })}</Text>
                 </Pressable>
 
                 <Pressable
@@ -260,9 +271,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       styles.filterTabText,
                       selectedFilter === 'mini_quiz' && styles.filterTabTextActive,
                     ]}
-                  >
-                    ✍️ Mini Quiz ({quizCount})
-                  </Text>
+                  >{t("✍️ Mini Quiz ({{quizCount}})", { quizCount })}</Text>
                 </Pressable>
 
                 <Pressable
@@ -277,9 +286,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       styles.filterTabText,
                       selectedFilter === 'text_chat' && styles.filterTabTextActive,
                     ]}
-                  >
-                    💬 AI Sohbet ({chatCount})
-                  </Text>
+                  >{t("💬 AI Sohbet ({{chatCount}})", { chatCount })}</Text>
                 </Pressable>
 
                 <Pressable
@@ -294,9 +301,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       styles.filterTabText,
                       selectedFilter === 'voice_session' && styles.filterTabTextActive,
                     ]}
-                  >
-                    🎙️ Canlı Konuşma ({voiceCount})
-                  </Text>
+                  >{t("🎙️ Canlı Konuşma ({{voiceCount}})", { voiceCount })}</Text>
                 </Pressable>
 
                 <Pressable
@@ -311,9 +316,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                       styles.filterTabText,
                       selectedFilter === 'sentence_order' && styles.filterTabTextActive,
                     ]}
-                  >
-                    📖 Okuma ({readingCount})
-                  </Text>
+                  >{t("📖 Okuma ({{readingCount}})", { readingCount })}</Text>
                 </Pressable>
               </ScrollView>
             </View>
@@ -322,7 +325,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
         ListEmptyComponent={
           isLoading ? (
             <View style={styles.centerLoading}>
-              <ActivityIndicator size="large" color={colors.brand} />
+              <MivoLoader size={100} label={t("Hata defterin açılıyor…")} />
             </View>
           ) : (
             <View style={styles.emptyCard}>
@@ -336,11 +339,11 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                   <Ionicons name="checkmark" size={16} color="#FFFFFF" />
                 </View>
               </View>
-              <Text style={styles.emptyTitle}>Tertemiz Bir Sayfa! 🎯</Text>
+              <Text style={styles.emptyTitle}>{t("Tertemiz Bir Sayfa! 🎯")}</Text>
               <Text style={styles.emptyText}>
                 {selectedFilter === 'ALL'
-                  ? 'Henüz kayıtlı bir hatan bulunmuyor. Yapay zeka sohbetlerinde ve testlerde pratik yaptıkça takıldığın noktalar burada toplanacak.'
-                  : 'Bu kategoride kayıtlı bir hatan bulunmuyor. Harika gidiyorsun!'}
+                  ? t("Henüz kayıtlı bir hatan bulunmuyor. Yapay zeka sohbetlerinde ve testlerde pratik yaptıkça takıldığın noktalar burada toplanacak.")
+                  : t("Bu kategoride kayıtlı bir hatan bulunmuyor. Harika gidiyorsun!")}
               </Text>
 
               <BouncyPressable
@@ -350,7 +353,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                 scaleTo={0.96}
               >
                 <Ionicons name="mic" size={15} color="#FFFFFF" />
-                <Text style={styles.emptyActionBtnText}>Yeni Bir Sahneye Başla ➔</Text>
+                <Text style={styles.emptyActionBtnText}>{t("Yeni Bir Sahneye Başla ➔")}</Text>
               </BouncyPressable>
             </View>
           )
@@ -383,7 +386,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                 style={styles.deleteBtn}
               >
                 <Ionicons name="checkmark-circle" size={15} color={colors.success} />
-                <Text style={styles.deleteBtnText}>Öğrendim</Text>
+                <Text style={styles.deleteBtnText}>{t("Öğrendim")}</Text>
               </Pressable>
             </View>
 
@@ -391,7 +394,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
             <View style={styles.wrongBox}>
               <View style={styles.boxTagRed}>
                 <Ionicons name="close-circle" size={12} color="#DC2626" />
-                <Text style={styles.boxTagRedText}>HATALI İFADE</Text>
+                <Text style={styles.boxTagRedText}>{t("HATALI İFADE")}</Text>
               </View>
               <Text style={styles.wrongText}>{item.wrong_text}</Text>
             </View>
@@ -400,7 +403,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
             <View style={styles.rightBox}>
               <View style={styles.boxTagGreen}>
                 <Ionicons name="checkmark-circle" size={12} color="#059669" />
-                <Text style={styles.boxTagGreenText}>DOĞRU KULLANIM</Text>
+                <Text style={styles.boxTagGreenText}>{t("DOĞRU KULLANIM")}</Text>
               </View>
               <Text style={styles.rightText}>{item.corrected_text}</Text>
             </View>
@@ -410,7 +413,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               <View style={styles.explBox}>
                 <View style={styles.explHeaderRow}>
                   <Ionicons name="bulb" size={13} color="#D97706" />
-                  <Text style={styles.explLabel}>KURAL VE AÇIKLAMA:</Text>
+                  <Text style={styles.explLabel}>{t("KURAL VE AÇIKLAMA:")}</Text>
                 </View>
                 <Text style={styles.explText}>{item.explanation_tr}</Text>
               </View>
@@ -423,7 +426,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                 style={styles.testSelfBtn}
               >
                 <Ionicons name="flash-outline" size={13} color={colors.brand} />
-                <Text style={styles.testSelfBtnText}>Kendini Sına 🎯</Text>
+                <Text style={styles.testSelfBtnText}>{t("Kendini Sına 🎯")}</Text>
               </Pressable>
 
               {item.topic_code && isGrammarLessonCode(item.topic_code) && (
@@ -431,7 +434,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                   onPress={() => navigation.navigate('GrammarLesson', { code: item.topic_code! })}
                   style={styles.readLessonBtn}
                 >
-                  <Text style={styles.readLessonBtnText}>Kural Dersini İncele ➔</Text>
+                  <Text style={styles.readLessonBtnText}>{t("Kural Dersini İncele ➔")}</Text>
                 </Pressable>
               )}
             </View>
@@ -454,16 +457,14 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               <View style={styles.modalHeader}>
                 <View style={styles.modalHeaderTitleRow}>
                   <Ionicons name="flash" size={16} color={colors.brand} />
-                  <Text style={styles.modalTitle}>Hata Pekiştirme Sınavı</Text>
+                  <Text style={styles.modalTitle}>{t("Hata Pekiştirme Sınavı")}</Text>
                 </View>
                 <Pressable onPress={() => setQuizModalOpen(false)} hitSlop={10}>
                   <Ionicons name="close" size={20} color={colors.textMuted} />
                 </Pressable>
               </View>
 
-              <Text style={styles.modalPrompt}>
-                Aşağıdaki seçeneklerden hangisi dilbilgisi kurallarına uygundur?
-              </Text>
+              <Text style={styles.modalPrompt}>{t("Aşağıdaki seçeneklerden hangisi dilbilgisi kurallarına uygundur?")}</Text>
 
               {/* Option Choices */}
               <View style={styles.modalChoicesCol}>
@@ -541,14 +542,14 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
               {/* Feedback Alert */}
               {quizFeedback === 'correct' && (
                 <View style={styles.feedbackSuccessBox}>
-                  <Text style={styles.feedbackSuccessTitle}>🎉 Mükemmel! Doğru Cevap.</Text>
+                  <Text style={styles.feedbackSuccessTitle}>{t("🎉 Mükemmel! Doğru Cevap.")}</Text>
                   <Text style={styles.feedbackSuccessSub}>{activeQuizItem.explanation_tr}</Text>
                 </View>
               )}
 
               {quizFeedback === 'wrong' && (
                 <View style={styles.feedbackErrorBox}>
-                  <Text style={styles.feedbackErrorTitle}>❌ Yanlış Seçenek</Text>
+                  <Text style={styles.feedbackErrorTitle}>{t("❌ Yanlış Seçenek")}</Text>
                   <Text style={styles.feedbackErrorSub}>{activeQuizItem.explanation_tr}</Text>
                 </View>
               )}
@@ -563,14 +564,14 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
                     scaleTo={0.96}
                   >
                     <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
-                    <Text style={styles.modalMasteredBtnText}>Pekiştirdim, Defterden Temizle</Text>
+                    <Text style={styles.modalMasteredBtnText}>{t("Pekiştirdim, Defterden Temizle")}</Text>
                   </BouncyPressable>
                 ) : (
                   <Pressable
                     onPress={() => setQuizModalOpen(false)}
                     style={styles.modalCloseBtn}
                   >
-                    <Text style={styles.modalCloseBtnText}>Kapat</Text>
+                    <Text style={styles.modalCloseBtnText}>{t("Kapat")}</Text>
                   </Pressable>
                 )}
               </View>

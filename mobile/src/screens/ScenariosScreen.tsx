@@ -1,7 +1,8 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -12,40 +13,46 @@ import {
   View,
 } from 'react-native';
 
-import { resolveScenarioCategoryFallback } from '../assets/images';
+import { resolveScenarioCoverSource } from '../assets/images';
+import { AppHeader } from '../components/AppHeader';
 import { Toast } from '../components/Toast';
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
 import { CEFR_LEVELS } from '../constants/cefr';
-import { SCENARIO_CATEGORIES, type ScenarioCategory } from '../constants/categories';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
-import { resolveMediaUrl } from '../lib/media';
+import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
+import { buildScenePayload, pickTwist } from '../lib/sceneTwists';
+import {
+  SCENE_FLAG_PREFIX,
+  levelToFinishFor,
+  loadSceneStars,
+  pickSceneOfTheDay,
+  type SceneStars,
+  sceneAccess,
+} from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut, ScenarioOut, SessionOut } from '../types/api';
+import { t } from '../i18n';
 
-export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>) {
+export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scenarios'>) {
   // "3D Sahne" only ever shows the ~11 video-ready scenarios (filtered from
   // the static shared-data set below) — the real backend catalog (`GET
   // /scenarios`, ~19 scenes) has no browsing UI at all since this screen was
   // redesigned around video. `catalogMode` restores that access as a second
   // mode on the same screen instead of a new nav route.
   const [catalogMode, setCatalogMode] = useState<'video' | 'all'>('video');
-  const [videoCharacterFilter, setVideoCharacterFilter] = useState<string>('all');
   const [videoLevelFilter, setVideoLevelFilter] = useState<string>('all');
   const [videoSearch, setVideoSearch] = useState<string>('');
   const [selectedVideoScenario, setSelectedVideoScenario] = useState<ScenarioEntry | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogCategory, setCatalogCategory] = useState<ScenarioCategory | 'all'>('all');
   const [catalogLevel, setCatalogLevel] = useState<string>('all');
-  const [catalogCoverErrorIds, setCatalogCoverErrorIds] = useState<Set<string>>(new Set());
   // Per-card real load-failure tracking — the cover `source` used to be
   // decided purely by whether `coverImage` was a non-empty string, so a real
   // network/server failure at runtime (not just a missing field) rendered a
   // permanently broken image instead of falling back to a category photo.
-  const [coverLoadErrorIds, setCoverLoadErrorIds] = useState<Set<string>>(new Set());
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -56,6 +63,83 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
   });
+
+  const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
+  const [sceneStars, setSceneStars] = useState<SceneStars>({});
+  const starsOf = (id: string) => sceneStars[id] ?? 0;
+
+  // 3D Pixar video scenarios (only those with videoReady: true and actual videoSteps)
+  const readyVideoScenarios = useMemo(
+    () => SCENARIOS.filter((s) => s.videoSteps && s.videoSteps.length > 0 && s.videoReady),
+    []
+  );
+
+  // Tamamlanan sahneler (modal `scene_completed_<id>` bayrağını yazar; cihazlar arası senkron)
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      pullLearningFlags().finally(() => {
+        loadSceneStars(readyVideoScenarios.map((s) => s.id)).then((stars) => {
+          if (!cancelled) setSceneStars(stars);
+        });
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [readyVideoScenarios])
+  );
+
+  const nextScene = useMemo(
+    () => pickSceneOfTheDay(readyVideoScenarios, userLevel, sceneStars),
+    [readyVideoScenarios, userLevel, sceneStars]
+  );
+
+  // Soft level lock: tapping a scene two+ levels above the user's level only
+  // explains how to unlock it; one level above stays playable ("zor" label).
+  const openVideoScene = (sc: ScenarioEntry) => {
+    if (sceneAccess(sc.level, userLevel) === 'locked') {
+      haptics.selection();
+      showToast(t("🔒 {{lvl}} seviyesini bitirince açılır", { lvl: levelToFinishFor(sc.level) }));
+      return;
+    }
+    haptics.success();
+    setSelectedVideoScenario(sc);
+  };
+
+  // Live variation: Mivo plays the scene's character with a fresh "twist" each
+  // time (video = intro, live = the replayable core; stars reward repeating).
+  const startLive = async (sc: ScenarioEntry) => {
+    if (sceneAccess(sc.level, userLevel) === 'locked') {
+      haptics.selection();
+      showToast(t("🔒 {{lvl}} seviyesini bitirince açılır", { lvl: levelToFinishFor(sc.level) }));
+      return;
+    }
+    haptics.success();
+    const twist = await pickTwist(sc);
+    setSelectedVideoScenario(null);
+    navigation.navigate('FreeChatRoom', {
+      scene: buildScenePayload(sc, twist),
+      twistTitle: twist.title,
+      twistEmoji: twist.emoji,
+      twistHint: twist.hint,
+    });
+  };
+
+  // Home's "Günün Sahnesi" card deep-links here with the scene to start.
+  const openSceneId = route.params?.openSceneId;
+  useEffect(() => {
+    if (!openSceneId) return;
+    const sc = readyVideoScenarios.find((s) => s.id === openSceneId);
+    navigation.setParams({ openSceneId: undefined });
+    if (sc && sceneAccess(sc.level, userLevel) !== 'locked') {
+      setCatalogMode('video');
+      // Zaten oynanmış sahne: doğrudan canlı versiyona (yıldız toplamak için); değilse önce video.
+      loadSceneStars([sc.id]).then((st) => {
+        if ((st[sc.id] ?? 0) > 0) void startLive(sc);
+        else setSelectedVideoScenario(sc);
+      });
+    }
+  }, [openSceneId, readyVideoScenarios, userLevel, navigation]);
 
   const { data: allScenarios } = useQuery({
     queryKey: ['scenarios'],
@@ -72,7 +156,6 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
 
   const catalogSearchLower = catalogSearch.trim().toLowerCase();
   const filteredCatalogScenarios = (allScenarios ?? []).filter((sc) => {
-    if (catalogCategory !== 'all' && sc.category !== catalogCategory) return false;
     if (catalogLevel !== 'all' && sc.cefr_level !== catalogLevel) return false;
     if (!catalogSearchLower) return true;
     return (
@@ -81,14 +164,8 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
     );
   });
 
-  // 3D Pixar video scenarios (only those with videoReady: true and actual videoSteps)
-  const readyVideoScenarios = SCENARIOS.filter(
-    (s) => s.videoSteps && s.videoSteps.length > 0 && s.videoReady
-  );
-
   const videoSearchLower = videoSearch.trim().toLowerCase();
   const filteredVideoScenarios = readyVideoScenarios.filter((sc) => {
-    if (videoCharacterFilter !== 'all' && sc.aiName !== videoCharacterFilter) return false;
     if (videoLevelFilter !== 'all' && sc.level !== videoLevelFilter) return false;
     if (!videoSearchLower) return true;
     return (
@@ -99,140 +176,15 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
     );
   });
 
-  const videoCharacterList = [
-    { id: 'all', name: 'Tümü', emoji: '✨', role: 'Tüm Karakterler', count: readyVideoScenarios.length },
-    { id: 'Yankı', name: 'Yankı', emoji: '☕', role: 'Konuşma Partnerin', count: readyVideoScenarios.filter((s) => s.aiName === 'Yankı').length },
-    { id: 'Oliver', name: 'Oliver', emoji: '🛎️', role: 'Otel Resepsiyonisti', count: readyVideoScenarios.filter((s) => s.aiName === 'Oliver').length },
-    { id: 'Sam', name: 'Sam', emoji: '🚕', role: 'Londra Taksi Şoförü', count: readyVideoScenarios.filter((s) => s.aiName === 'Sam').length },
-    { id: 'Marco', name: 'Marco', emoji: '🍝', role: 'İtalyan Şef & Garson', count: readyVideoScenarios.filter((s) => s.aiName === 'Marco').length },
-    { id: 'Dr. Emma', name: 'Dr. Emma', emoji: '🩺', role: 'Aile Hekimi & Doktor', count: readyVideoScenarios.filter((s) => s.aiName === 'Dr. Emma').length },
-    { id: 'Sarah', name: 'Sarah', emoji: '💼', role: 'İK Yöneticisi & Mülakatçı', count: readyVideoScenarios.filter((s) => s.aiName === 'Sarah').length },
-    { id: 'Coach Leo', name: 'Leo', emoji: '🏋️‍♂️', role: 'Fitness Antrenörü', count: readyVideoScenarios.filter((s) => s.aiName === 'Coach Leo').length },
-    { id: 'Mia', name: 'Mia', emoji: '🛍️', role: 'Moda Danışmanı & Butik', count: readyVideoScenarios.filter((s) => s.aiName === 'Mia').length },
-    { id: 'Ela', name: 'Ela', emoji: '🕌', role: 'İstanbul Rehberi', count: readyVideoScenarios.filter((s) => s.aiName === 'Ela').length },
-  ];
-
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top Header */}
+      <AppHeader />
+
+      {/* Top Header — deliberately minimal (AppHeader above already carries
+          identity/streak/XP; this just names the screen). */}
       <View style={styles.header}>
-        <View style={styles.headerTopRow}>
-          <View style={styles.headerTitleCol}>
-            <View style={styles.headerBadgeRow}>
-              <View style={styles.livePulseDot} />
-              <Text style={styles.headerBadgeText}>SERBEST PRATİK & 3D SAHNELER</Text>
-            </View>
-            <Text style={styles.title}>Pratik Merkezi 🎯</Text>
-            <Text style={styles.subtitle}>
-              Özgürce konuş, 3D sahnelerde rol yap ve kendini geliştir
-            </Text>
-          </View>
-          <View style={styles.headerStatsCol}>
-            <View style={styles.headerStatPill}>
-              <Ionicons name="sparkles" size={12} color="#F59E0B" />
-              <Text style={styles.headerStatText}>{readyVideoScenarios.length} Canlı Sahne</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Quick Sandbox Navigation Row */}
-      <View style={{ paddingHorizontal: 16, marginBottom: 10, marginTop: 4 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-          <Pressable
-            onPress={() => {
-              haptics.impact();
-              (navigation as any).navigate('BurgerOrderLive');
-            }}
-            style={{
-              backgroundColor: '#FFF7ED',
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              borderWidth: 1,
-              borderColor: '#FED7AA',
-            }}
-          >
-            <Text style={{ fontSize: 13 }}>🍔</Text>
-            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#C2410C' }}>
-              Maya's Burgers
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              haptics.impact();
-              (navigation as any).navigate('TextChat', {
-                focusTopic: { title: 'Maya ile Serbest Sohbet' },
-              });
-            }}
-            style={{
-              backgroundColor: '#EEF2FF',
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              borderWidth: 1,
-              borderColor: '#C7D2FE',
-            }}
-          >
-            <Ionicons name="chatbubbles-outline" size={14} color="#4F46E5" />
-            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#4338CA' }}>
-              Serbest Sohbet
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              haptics.impact();
-              (navigation as any).navigate('PodcastList');
-            }}
-            style={{
-              backgroundColor: '#FDF4FF',
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              borderWidth: 1,
-              borderColor: '#F5D0FE',
-            }}
-          >
-            <Ionicons name="mic-outline" size={14} color="#A21CAF" />
-            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#86198F' }}>
-              Podcastler
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              haptics.impact();
-              (navigation as any).navigate('ReadingList');
-            }}
-            style={{
-              backgroundColor: '#F0FDF4',
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              borderWidth: 1,
-              borderColor: '#BBF7D0',
-            }}
-          >
-            <Ionicons name="book-outline" size={14} color="#15803D" />
-            <Text style={{ fontSize: 12, fontFamily: fonts.headingBold, color: '#166534' }}>
-              Okuma Parçaları
-            </Text>
-          </Pressable>
-        </ScrollView>
+        <Text style={styles.title}>{t("Sahneler")}</Text>
+        <Text style={styles.subtitle}>{t("Gerçek hayat senaryolarında pratik yap")}</Text>
       </View>
 
       {/* Mode toggle — "3D Sahne" (video-ready subset) vs "Tüm Sahneler"
@@ -245,9 +197,7 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           }}
           style={[styles.modeToggleBtn, catalogMode === 'video' && styles.modeToggleBtnActive]}
         >
-          <Text style={[styles.modeToggleText, catalogMode === 'video' && styles.modeToggleTextActive]}>
-            🎬 3D Sahneler
-          </Text>
+          <Text style={[styles.modeToggleText, catalogMode === 'video' && styles.modeToggleTextActive]}>{t("Video senaryoları")}</Text>
         </Pressable>
         <Pressable
           onPress={() => {
@@ -256,9 +206,7 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           }}
           style={[styles.modeToggleBtn, catalogMode === 'all' && styles.modeToggleBtnActive]}
         >
-          <Text style={[styles.modeToggleText, catalogMode === 'all' && styles.modeToggleTextActive]}>
-            📋 Tüm Sahneler
-          </Text>
+          <Text style={[styles.modeToggleText, catalogMode === 'all' && styles.modeToggleTextActive]}>{t("Tüm senaryolar")}</Text>
         </Pressable>
       </View>
 
@@ -272,7 +220,7 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
             <TextInput
               value={catalogSearch}
               onChangeText={setCatalogSearch}
-              placeholder="Sahne ara (başlık veya açıklama)"
+              placeholder={t("Sahne ara (başlık veya açıklama)")}
               placeholderTextColor={colors.textMuted}
               style={styles.videoSearchInput}
             />
@@ -283,42 +231,10 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
             )}
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.catalogChipScroll}
-          >
-            {(
-              [{ id: 'all' as const, label: 'Tümü' }, ...SCENARIO_CATEGORIES] as {
-                id: ScenarioCategory | 'all';
-                label: string;
-              }[]
-            ).map((cat) => {
-              const isActive = catalogCategory === cat.id;
-              const count =
-                cat.id === 'all'
-                  ? (allScenarios ?? []).length
-                  : (allScenarios ?? []).filter((s) => s.category === cat.id).length;
-              return (
-                <Pressable
-                  key={cat.id}
-                  onPress={() => {
-                    haptics.selection();
-                    setCatalogCategory(cat.id);
-                  }}
-                  style={[styles.catalogChip, isActive && styles.catalogChipActive]}
-                >
-                  <Text style={[styles.catalogChipText, isActive && styles.catalogChipTextActive]}>
-                    {cat.label} ({count})
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-
           <View style={styles.videoLevelFilterRow}>
             {(['all', ...CEFR_LEVELS] as const).map((lvl) => {
               const isActive = catalogLevel === lvl;
+              const isAll = lvl === 'all';
               return (
                 <Pressable
                   key={lvl}
@@ -326,11 +242,25 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                     haptics.selection();
                     setCatalogLevel(lvl);
                   }}
-                  style={[styles.videoLevelBtn, isActive && styles.videoLevelBtnActive]}
+                  style={[
+                    styles.videoLevelBtn,
+                    isAll && styles.videoLevelBtnAll,
+                    isActive && styles.videoLevelBtnActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={isAll ? t("Tüm seviyeler") : t("{{lvl}} seviyesi", { lvl })}
                 >
-                  <Text style={[styles.videoLevelText, isActive && styles.videoLevelTextActive]}>
-                    {lvl === 'all' ? '✨ Tüm Seviyeler' : lvl}
-                  </Text>
+                  {isAll ? (
+                    <Ionicons
+                      name="apps-outline"
+                      size={15}
+                      color={isActive ? '#FFFFFF' : colors.textMuted}
+                    />
+                  ) : (
+                    <Text style={[styles.videoLevelText, isActive && styles.videoLevelTextActive]}>
+                      {lvl}
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}
@@ -340,18 +270,23 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
             <View style={styles.cinemaEmptyState}>
               <Ionicons name="albums-outline" size={40} color={colors.textMuted} />
               <Text style={styles.cinemaEmptyTitle}>
-                {(allScenarios ?? []).length === 0 ? 'Henüz sahne yok' : 'Aramanıza uygun sahne bulunamadı'}
+                {(allScenarios ?? []).length === 0 ? t("Henüz sahne yok") : t("Aramanıza uygun sahne bulunamadı")}
               </Text>
             </View>
           ) : (
             <View style={styles.catalogCardsList}>
               {filteredCatalogScenarios.map((sc) => {
                 const tried = triedScenarioIds.has(sc.id);
-                const coverFailed = catalogCoverErrorIds.has(sc.id);
+                const access = sceneAccess(sc.cefr_level, userLevel);
                 return (
                   <Pressable
                     key={sc.id}
                     onPress={() => {
+                      if (access === 'locked') {
+                        haptics.selection();
+                        showToast(t("🔒 {{lvl}} seviyesini bitirince açılır", { lvl: levelToFinishFor(sc.cefr_level) }));
+                        return;
+                      }
                       haptics.success();
                       navigation.navigate('LiveConversationRoom', {
                         scenarioId: sc.id,
@@ -359,15 +294,10 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                         scenarioTitle: sc.title,
                       });
                     }}
-                    style={[styles.catalogCard, shadow.card]}
+                    style={[styles.catalogCard, shadow.card, access === 'locked' && styles.lockedCard]}
                   >
                     <Image
-                      source={
-                        sc.cover_image_url && !coverFailed
-                          ? { uri: sc.cover_image_url }
-                          : resolveScenarioCategoryFallback(sc.category)
-                      }
-                      onError={() => setCatalogCoverErrorIds((prev) => new Set(prev).add(sc.id))}
+                      source={resolveScenarioCoverSource(sc)}
                       style={styles.catalogCardCover}
                       resizeMode="cover"
                     />
@@ -376,6 +306,14 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                         <Text style={styles.catalogCardTitle} numberOfLines={1}>
                           {sc.title}
                         </Text>
+                        {access === 'locked' ? (
+                          <Ionicons name="lock-closed" size={14} color="#94A3B8" />
+                        ) : null}
+                        {access === 'hard' ? (
+                          <View style={styles.hardBadge}>
+                            <Text style={styles.hardBadgeText}>{t("zor")}</Text>
+                          </View>
+                        ) : null}
                         {sc.cefr_level ? (
                           <View style={styles.catalogLevelBadge}>
                             <Text style={styles.catalogLevelBadgeText}>{sc.cefr_level}</Text>
@@ -389,12 +327,11 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                       ) : null}
                       <View style={styles.catalogCardFooterRow}>
                         <Text style={styles.catalogCardDuration}>
-                          <Ionicons name="time-outline" size={11} color={colors.textMuted} /> {sc.estimated_minutes} dk
-                        </Text>
+                          <Ionicons name="time-outline" size={11} color={colors.textMuted} />{" "}{t("{{estimated_minutes}} dk", { estimated_minutes: sc.estimated_minutes })}</Text>
                         {tried ? (
                           <View style={styles.catalogTriedBadge}>
                             <Ionicons name="checkmark-circle" size={11} color="#10B981" />
-                            <Text style={styles.catalogTriedText}>Daha önce denedin</Text>
+                            <Text style={styles.catalogTriedText}>{t("Daha önce denedin")}</Text>
                           </View>
                         ) : null}
                       </View>
@@ -410,13 +347,43 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
         contentContainerStyle={styles.cinemaScrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* 0. SENİN İÇİN SIRADAKİ — bir sonraki sahne tek dokunuşla */}
+        {nextScene && !videoSearchLower && videoLevelFilter === 'all' ? (
+          <Pressable
+            onPress={() => (starsOf(nextScene.id) > 0 ? startLive(nextScene) : openVideoScene(nextScene))}
+            style={[styles.nextUpCard, shadow.card]}
+            accessibilityRole="button"
+          >
+            <Image
+              source={resolveScenarioCoverSource(nextScene)}
+              style={styles.nextUpCover}
+              resizeMode="cover"
+            />
+            <View style={styles.nextUpBody}>
+              <Text style={styles.nextUpEyebrow}>
+                {starsOf(nextScene.id) > 0 ? t("YILDIZ TOPLAMAYA DEVAM") : t("SENİN İÇİN SIRADAKİ")}
+              </Text>
+              <Text style={styles.nextUpTitle} numberOfLines={1}>
+                {nextScene.titleTr}
+              </Text>
+              <Text style={styles.nextUpMeta} numberOfLines={1}>
+                {nextScene.level} · {nextScene.aiName} · {t("{{durationMin}} dk", { durationMin: nextScene.durationMin })}
+                {starsOf(nextScene.id) > 0 ? `  ${'⭐'.repeat(starsOf(nextScene.id))}` : ''}
+              </Text>
+            </View>
+            <View style={styles.nextUpPlay}>
+              <Ionicons name="play" size={18} color="#FFFFFF" style={{ marginLeft: 2 }} />
+            </View>
+          </Pressable>
+        ) : null}
+
         {/* 1. SEARCH BAR FOR 3D SCENES */}
         <View style={styles.videoSearchBox}>
           <Ionicons name="search" size={16} color={colors.textMuted} />
           <TextInput
             value={videoSearch}
             onChangeText={setVideoSearch}
-            placeholder="3D sahne veya karakter ara (otel, taksi, kahve...)"
+            placeholder={t("Senaryo veya karakter ara (otel, taksi, kahve...)")}
             placeholderTextColor={colors.textMuted}
             style={styles.videoSearchInput}
           />
@@ -427,61 +394,12 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
           )}
         </View>
 
-        {/* 2. CHARACTER AVATAR FILTER ROW */}
-        <View style={styles.characterSectionHeaderRow}>
-          <View style={styles.characterSectionHeaderLeft}>
-            <Text style={styles.characterSectionTitle}>👥 Karakter Seçimi</Text>
-            <Text style={styles.characterSectionHint}>Filtrelemek istediğin karaktere dokun</Text>
-          </View>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.characterFilterScroll}
-        >
-          {videoCharacterList.map((char) => {
-            const isActive = videoCharacterFilter === char.id;
-            return (
-              <Pressable
-                key={char.id}
-                onPress={() => {
-                  haptics.selection();
-                  setVideoCharacterFilter(char.id);
-                }}
-                style={[
-                  styles.characterFilterChip,
-                  isActive && styles.characterFilterChipActive,
-                  shadow.card,
-                ]}
-              >
-                <View style={[styles.characterEmojiBox, isActive && styles.characterEmojiBoxActive]}>
-                  <Text style={styles.characterEmojiText}>{char.emoji}</Text>
-                </View>
-                <View style={styles.characterTextCol}>
-                  <View style={styles.characterNameRow}>
-                    <Text style={[styles.characterNameText, isActive && styles.characterNameTextActive]}>
-                      {char.name}
-                    </Text>
-                    <View style={[styles.characterCountBadge, isActive && styles.characterCountBadgeActive]}>
-                      <Text style={[styles.characterCountText, isActive && styles.characterCountTextActive]}>
-                        {char.count}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={styles.characterRoleSubtext} numberOfLines={1}>
-                    {char.role}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        {/* 3. LEVEL QUICK FILTER PILLS */}
+        {/* LEVEL QUICK FILTER PILLS — the only filter here now; character
+            chips were removed to keep this screen from feeling cluttered. */}
         <View style={styles.videoLevelFilterRow}>
-          {(['all', 'A1', 'A2', 'B1'] as const).map((lvl) => {
+          {(['all', ...CEFR_LEVELS] as const).map((lvl) => {
             const isActive = videoLevelFilter === lvl;
+            const isAll = lvl === 'all';
             return (
               <Pressable
                 key={lvl}
@@ -491,17 +409,28 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                 }}
                 style={[
                   styles.videoLevelBtn,
+                  isAll && styles.videoLevelBtnAll,
                   isActive && styles.videoLevelBtnActive,
                 ]}
+                accessibilityRole="button"
+                accessibilityLabel={isAll ? t("Tüm seviyeler") : t("{{lvl}} seviyesi", { lvl })}
               >
-                <Text
-                  style={[
-                    styles.videoLevelText,
-                    isActive && styles.videoLevelTextActive,
-                  ]}
-                >
-                  {lvl === 'all' ? '✨ Tüm Seviyeler' : `${lvl} Seviyesi`}
-                </Text>
+                {isAll ? (
+                  <Ionicons
+                    name="apps-outline"
+                    size={15}
+                    color={isActive ? '#FFFFFF' : colors.textMuted}
+                  />
+                ) : (
+                  <Text
+                    style={[
+                      styles.videoLevelText,
+                      isActive && styles.videoLevelTextActive,
+                    ]}
+                  >
+                    {lvl}
+                  </Text>
+                )}
               </Pressable>
             );
           })}
@@ -511,48 +440,36 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
         {filteredVideoScenarios.length === 0 ? (
           <View style={styles.cinemaEmptyState}>
             <Ionicons name="film-outline" size={40} color={colors.textMuted} />
-            <Text style={styles.cinemaEmptyTitle}>Aramanıza uygun 3D sahne bulunamadı</Text>
-            <Text style={styles.cinemaEmptyDesc}>
-              Filtreleri sıfırlayarak tüm 3D video senaryolarını görüntüleyebilirsiniz.
-            </Text>
+            <Text style={styles.cinemaEmptyTitle}>{t("Aramanıza uygun senaryo bulunamadı")}</Text>
+            <Text style={styles.cinemaEmptyDesc}>{t("Filtreleri sıfırlayarak tüm video senaryolarını görüntüleyebilirsiniz.")}</Text>
             <Pressable
               onPress={() => {
-                setVideoCharacterFilter('all');
                 setVideoLevelFilter('all');
                 setVideoSearch('');
               }}
               style={styles.cinemaResetBtn}
             >
-              <Text style={styles.cinemaResetBtnText}>Filtreleri Sıfırla</Text>
+              <Text style={styles.cinemaResetBtnText}>{t("Filtreleri Sıfırla")}</Text>
             </Pressable>
           </View>
         ) : (
           <View style={styles.cinemaCardsList}>
             {filteredVideoScenarios.map((sc) => {
-              const coverUrl = sc.coverImage ? resolveMediaUrl(sc.coverImage) : null;
-              const coverFailed = coverLoadErrorIds.has(sc.id);
               const stepCount = sc.videoSteps?.length ?? 6;
+              const access = sceneAccess(sc.level, userLevel);
+              const stars = starsOf(sc.id);
+              const done = stars > 0;
 
               return (
                 <Pressable
                   key={sc.id}
-                  onPress={() => {
-                    haptics.success();
-                    setSelectedVideoScenario(sc);
-                  }}
-                  style={[styles.cinemaCard, shadow.card]}
+                  onPress={() => (done ? startLive(sc) : openVideoScene(sc))}
+                  style={[styles.cinemaCard, shadow.card, access === 'locked' && styles.lockedCard]}
                 >
                   {/* Media Cover Box */}
                   <View style={styles.cinemaCoverBox}>
                     <Image
-                      source={
-                        coverUrl && !coverFailed
-                          ? { uri: coverUrl }
-                          : resolveScenarioCategoryFallback(sc.category)
-                      }
-                      onError={() =>
-                        setCoverLoadErrorIds((prev) => new Set(prev).add(sc.id))
-                      }
+                      source={resolveScenarioCoverSource(sc)}
                       style={styles.cinemaCoverImage}
                       resizeMode="cover"
                     />
@@ -567,35 +484,54 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
                       </View>
 
                       <View style={styles.cinemaRightBadges}>
+                        {access === 'hard' ? (
+                          <View style={styles.hardBadge}>
+                            <Text style={styles.hardBadgeText}>{t("zor")}</Text>
+                          </View>
+                        ) : null}
                         <View style={styles.cinemaLevelBadge}>
                           <Text style={styles.cinemaLevelText}>{sc.level}</Text>
                         </View>
                         <View style={styles.cinemaDurationBadge}>
                           <Ionicons name="time-outline" size={11} color="#E2E8F0" />
-                          <Text style={styles.cinemaDurationText}>{sc.durationMin} dk</Text>
+                          <Text style={styles.cinemaDurationText}>{t("{{durationMin}} dk", { durationMin: sc.durationMin })}</Text>
                         </View>
                       </View>
                     </View>
 
-                    {/* Centered Glowing Play Button */}
+                    {/* Centered Glowing Play Button (lock overlay for sahneler 2+ seviye üstte) */}
                     <View style={styles.cinemaPlayCenter}>
-                      <View style={styles.cinemaPlayCircleGlow}>
-                        <View style={styles.cinemaPlayCircle}>
-                          <Ionicons name="play" size={24} color="#FFFFFF" style={{ marginLeft: 3 }} />
+                      {access === 'locked' ? (
+                        <View style={styles.lockOverlay}>
+                          <Ionicons name="lock-closed" size={26} color="#FFFFFF" />
+                          <Text style={styles.lockOverlayText}>
+                            {t("{{lvl}} bitince açılır", { lvl: levelToFinishFor(sc.level) })}
+                          </Text>
                         </View>
-                      </View>
+                      ) : (
+                        <View style={styles.cinemaPlayCircleGlow}>
+                          <View style={styles.cinemaPlayCircle}>
+                            <Ionicons name="play" size={24} color="#FFFFFF" style={{ marginLeft: 3 }} />
+                          </View>
+                        </View>
+                      )}
                     </View>
+                    {done ? (
+                      <View style={styles.starsBadge}>
+                        <Text style={styles.starsBadgeText}>
+                          {'⭐'.repeat(stars)}{'☆'.repeat(3 - stars)}
+                        </Text>
+                      </View>
+                    ) : null}
 
                     {/* Bottom Features Strip */}
                     <View style={styles.cinemaCoverBottomStrip}>
                       <View style={styles.cinemaStepPill}>
                         <Ionicons name="checkmark-circle" size={13} color="#10B981" />
-                        <Text style={styles.cinemaStepPillText}>
-                          {stepCount} Adımlı 3D Pixar Diyaloğu
-                        </Text>
+                        <Text style={styles.cinemaStepPillText}>{t("{{stepCount}} adımlı interaktif diyalog", { stepCount })}</Text>
                       </View>
                       <View style={styles.cinemaXpMiniTag}>
-                        <Text style={styles.cinemaXpMiniText}>+{stepCount * 10} XP</Text>
+                        <Text style={styles.cinemaXpMiniText}>+{stepCount * 10}{" "}{t("XP")}</Text>
                       </View>
                     </View>
                   </View>
@@ -630,13 +566,33 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
 
                     {/* Launch Action Button */}
                     <View style={styles.cinemaCardFooter}>
-                      <View style={styles.cinemaLaunchButton}>
-                        <Ionicons name="play-circle" size={18} color="#FFFFFF" />
-                        <Text style={styles.cinemaLaunchButtonText}>
-                          Canlı Sahneyi Oyna (+{stepCount * 10} XP)
-                        </Text>
-                        <Ionicons name="arrow-forward" size={15} color="#FFFFFF" />
-                      </View>
+                      {done ? (
+                        <View style={styles.liveRow}>
+                          <View style={[styles.cinemaLaunchButton, { flex: 1 }]}>
+                            <Text style={styles.cinemaLaunchButtonText}>
+                              {stars >= 3 ? t("🎭 Yeni sürprizle oyna") : t("🎭 Mivo ile canlı oyna")}
+                            </Text>
+                            <Ionicons name="arrow-forward" size={15} color="#FFFFFF" />
+                          </View>
+                          <Pressable
+                            onPress={() => openVideoScene(sc)}
+                            style={styles.watchAgainBtn}
+                            hitSlop={6}
+                            accessibilityRole="button"
+                            accessibilityLabel={t("Videoyu tekrar izle")}
+                          >
+                            <Ionicons name="play" size={16} color={colors.brand} />
+                          </Pressable>
+                        </View>
+                      ) : (
+                        <View style={styles.cinemaLaunchButton}>
+                          <Ionicons name="play-circle" size={18} color="#FFFFFF" />
+                          <Text style={styles.cinemaLaunchButtonText}>
+                            {t("Canlı Sahneyi Oyna (+{{xp}} XP)", { xp: stepCount * 10 })}
+                          </Text>
+                          <Ionicons name="arrow-forward" size={15} color="#FFFFFF" />
+                        </View>
+                      )}
                     </View>
                   </View>
                 </Pressable>
@@ -655,15 +611,91 @@ export function ScenariosScreen({ navigation }: MainTabScreenProps<'Scenarios'>)
         scenario={selectedVideoScenario}
         onClose={() => setSelectedVideoScenario(null)}
         onComplete={(earnedXp) => {
-          showToast(`🏆 Harika! 3D senaryoyu tamamladın (+${earnedXp} XP)`);
-          setSelectedVideoScenario(null);
+          if (selectedVideoScenario) {
+            const id = selectedVideoScenario.id;
+            setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
+            setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, 1) as 1 | 2 | 3 }));
+          }
+          showToast(t("🏆 Harika! 3D senaryoyu tamamladın (+{{earnedXp}} XP)", { earnedXp }));
+          // Modal stays open on its "completed" screen: "Şimdi sen oyna" continues into the live scene.
         }}
+        onPlayLive={selectedVideoScenario ? () => startLive(selectedVideoScenario) : undefined}
       />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  /* Senin için sıradaki */
+  nextUpCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    padding: 10,
+    marginBottom: spacing.md,
+  },
+  nextUpCover: { width: 64, height: 64, borderRadius: 14 },
+  nextUpBody: { flex: 1 },
+  nextUpEyebrow: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    letterSpacing: 0.6,
+    color: colors.brand,
+    marginBottom: 2,
+  },
+  nextUpTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
+  nextUpMeta: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 2 },
+  nextUpPlay: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Yumuşak seviye kilidi / tamamlandı / zor */
+  lockedCard: { opacity: 0.6 },
+  lockOverlay: {
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.72)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  lockOverlayText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#FFFFFF' },
+  starsBadge: {
+    position: 'absolute',
+    top: 46,
+    right: 12,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    borderRadius: radii.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  starsBadgeText: { fontSize: 12, letterSpacing: 1 },
+  liveRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  watchAgainBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.lg,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hardBadge: {
+    backgroundColor: '#FEF3C7',
+    borderRadius: radii.pill,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  hardBadgeText: { fontFamily: fonts.headingBold, fontSize: 10, color: '#B45309' },
+
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -859,16 +891,23 @@ const styles = StyleSheet.create({
   /* Level Quick Filter */
   videoLevelFilterRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 6,
     marginBottom: spacing.md,
   },
   videoLevelBtn: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radii.pill,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    minWidth: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  videoLevelBtnAll: {
+    paddingHorizontal: 8,
   },
   videoLevelBtnActive: {
     backgroundColor: colors.brand,

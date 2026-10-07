@@ -8,13 +8,14 @@ import { Button } from '../components/Button';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import type { PaywallScreenProps } from '../navigation/types';
+import { t } from '../i18n';
 
 const PRO_FEATURES = [
-  'Sınırsız canlı sesli konuşma pratiği',
-  'Tüm niş sahneler (Mülakat, Vize, B2B)',
-  'Anlık Türkçe açıklamalı gramer & fonetik koçu',
-  'Detaylı telaffuz ve hece analizi raporları',
-  'Kişiselleştirilmiş SM-2 kelime tekrar motoru',
+  t("Sınırsız canlı sesli konuşma pratiği"),
+  t("Tüm niş sahneler (Mülakat, Vize, B2B)"),
+  t("Anlık Türkçe açıklamalı gramer & fonetik koçu"),
+  t("Detaylı telaffuz ve hece analizi raporları"),
+  t("Kişiselleştirilmiş SM-2 kelime tekrar motoru"),
 ];
 
 type Plan = {
@@ -26,8 +27,8 @@ type Plan = {
 };
 
 const STATIC_PLANS: Plan[] = [
-  { key: 'monthly', label: 'Aylık', price: '199 TL', period: '/ ay' },
-  { key: 'annual', label: 'Yıllık', price: '1.490 TL', period: '/ yıl', badge: '%40 Tasarruf' },
+  { key: 'monthly', label: t("Aylık"), price: '199 TL', period: '/ ay' },
+  { key: 'annual', label: t("Yıllık"), price: '1.490 TL', period: t("/ yıl"), badge: t("%40 Tasarruf") },
 ];
 
 export function PaywallScreen({ navigation }: PaywallScreenProps) {
@@ -48,17 +49,17 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
   const handlePurchase = async () => {
     const pkg = packageFor(selected);
     if (!pkg) {
-      Alert.alert('Yakında', 'Pro üyelik mağaza başvurusu tamamlanınca burada aktif olacak.');
+      Alert.alert(t("Yakında"), t("Pro üyelik mağaza başvurusu tamamlanınca burada aktif olacak."));
       return;
     }
     setPurchasing(true);
     try {
       await Purchases.purchasePackage(pkg);
-      Alert.alert('Teşekkürler!', 'Pro üyeliğin aktif.');
+      Alert.alert(t("Teşekkürler!"), t("Pro üyeliğin aktif."));
       navigation.goBack();
     } catch (err) {
       const cancelled = (err as { userCancelled?: boolean } | null)?.userCancelled;
-      if (!cancelled) Alert.alert('Satın alma tamamlanamadı', String(err));
+      if (!cancelled) Alert.alert(t("Satın alma tamamlanamadı"), String(err));
     } finally {
       setPurchasing(false);
     }
@@ -74,8 +75,8 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.eyebrow}>STAGE PASS PRO</Text>
-        <Text style={styles.title}>Sınırsız pratik yap, hızla ilerle</Text>
+        <Text style={styles.eyebrow}>{t("STAGE PASS PRO")}</Text>
+        <Text style={styles.title}>{t("Sınırsız pratik yap, hızla ilerle")}</Text>
 
         <View style={styles.featureList}>
           {PRO_FEATURES.map((feature) => (
@@ -109,12 +110,12 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
         </View>
 
         <Button
-          label={purchasing ? 'İşleniyor…' : 'Pro’ya Geç'}
+          label={purchasing ? t("İşleniyor…") : t("Pro’ya Geç")}
           onPress={handlePurchase}
           loading={purchasing}
           style={styles.ctaButton}
         />
-        <Text style={styles.disclaimer}>İstediğin zaman tek tıkla iptal et.</Text>
+        <Text style={styles.disclaimer}>{t("İstediğin zaman tek tıkla iptal et.")}</Text>
       </ScrollView>
     </SafeAreaView>
   );

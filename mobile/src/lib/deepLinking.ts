@@ -8,17 +8,32 @@ import * as Linking from 'expo-linking';
  */
 export type DeepLinkTarget = { type: 'scenario'; slug: string } | { type: 'reading'; slug: string };
 
+const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,80}$/i;
+
 export function parseDeepLink(url: string): DeepLinkTarget | null {
-  let path: string | null;
+  let parsed: ReturnType<typeof Linking.parse>;
   try {
-    path = Linking.parse(url).path;
+    parsed = Linking.parse(url);
   } catch {
     return null;
   }
-  if (!path) return null;
+  // `talkstage://scenario/cafe` parses `scenario` as the *hostname* (only the
+  // three-slash form `talkstage:///scenario/cafe` puts it in the path), so
+  // both are joined. For http(s) links the hostname is a real domain and is
+  // ignored — only the path counts there.
+  const isCustomScheme = !parsed.scheme || (parsed.scheme !== 'http' && parsed.scheme !== 'https');
+  const joined = [isCustomScheme ? parsed.hostname : null, parsed.path].filter(Boolean).join('/');
+  const [resource, rawSlug] = joined.split('/').filter(Boolean);
+  if (!resource || !rawSlug) return null;
 
-  const [resource, slug] = path.split('/').filter(Boolean);
-  if (resource === 'scenario' && slug) return { type: 'scenario', slug };
-  if (resource === 'reading' && slug) return { type: 'reading', slug };
+  let slug: string;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch {
+    return null;
+  }
+  if (!SLUG_RE.test(slug)) return null;
+  if (resource === 'scenario') return { type: 'scenario', slug };
+  if (resource === 'reading') return { type: 'reading', slug };
   return null;
 }

@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 
 import { supabase } from '../lib/supabase';
 import { Button } from './Button';
+import { t } from '../i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -40,7 +41,7 @@ export function GoogleSignInButton({ onError }: Props) {
 
     const idToken = response.authentication?.idToken ?? response.params?.id_token;
     if (!idToken) {
-      onError('Google oturum açma bir kimlik jetonu döndürmedi.');
+      onError(t("Google oturum açma bir kimlik jetonu döndürmedi."));
       setLoading(false);
       return;
     }
@@ -53,7 +54,7 @@ export function GoogleSignInButton({ onError }: Props) {
         });
         if (error) onError(error.message);
       } catch {
-        onError('Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene.');
+        onError(t("Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene."));
       } finally {
         setLoading(false);
       }
@@ -64,13 +65,13 @@ export function GoogleSignInButton({ onError }: Props) {
 
   return (
     <Button
-      label="Google ile devam et"
+      label={t("Google ile devam et")}
       variant="secondary"
       loading={loading}
       disabled={configured && !request}
       onPress={async () => {
         if (!configured) {
-          Alert.alert('Google girişi henüz yapılandırılmadı', 'EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik.');
+          Alert.alert(t("Google girişi henüz yapılandırılmadı"), t("EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik."));
           return;
         }
         setLoading(true);
@@ -78,7 +79,7 @@ export function GoogleSignInButton({ onError }: Props) {
           await promptAsync();
         } catch {
           setLoading(false);
-          onError('Google giriş ekranı açılamadı. Lütfen tekrar dene.');
+          onError(t("Google giriş ekranı açılamadı. Lütfen tekrar dene."));
         }
       }}
     />

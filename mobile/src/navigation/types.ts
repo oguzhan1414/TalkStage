@@ -1,3 +1,4 @@
+import type { ScenePlayPayload } from '../lib/sceneTwists';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -45,8 +46,7 @@ export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList>
 
 export type MainTabParamList = {
   Home: undefined;
-  Roadmap: undefined;
-  Scenarios: undefined;
+  Scenarios: { openSceneId?: string } | undefined;
   Vocab: undefined;
   Profile: undefined;
 };
@@ -64,23 +64,34 @@ export type RootStackParamList = {
   // (`talkstage://scenario/:slug` only ever carries the slug) — the screen
   // resolves them itself via `GET /scenarios/{slug}` when missing.
   LiveConversationRoom: { scenarioSlug: string; scenarioId?: string; scenarioTitle?: string };
-  BurgerOrderLive: undefined;
+  // Topic-less live voice room (+ optional `scene`: live variation of a video scene via `WS /ws/scene-play`) — Home's FAB and Profile's "Serbest Yazma"
+  // card. Backed by `WS /ws/free-chat` (no `scenarios` row, see
+  // `backend/app/api/routes/freechat_session.py`), so unlike
+  // `LiveConversationRoom` it takes no params at all.
+  FreeChatRoom: { scene?: ScenePlayPayload; twistTitle?: string; twistEmoji?: string; twistHint?: string } | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   ReadingList: undefined;
   ReadingPassage: { slug: string };
   Paywall: undefined;
   Badges: undefined;
+  // Account/settings screen reached by tapping the avatar in the shared
+  // `AppHeader` (top of every main tab) — distinct from the `Profile` TAB,
+  // which now shows the "Özellikler" feature list instead of account info.
+  AccountSettings: undefined;
   // Full teaching content for one A1_G0X grammar topic (table, dialogue,
   // mistakes, examples) — see `data/grammarLessons.ts`. Free for the topic's
   // `isFree` lesson, Pro-gated for the rest (screen checks `isProUser()`
   // itself, no need to pass a flag here).
   GrammarLesson: { code: string };
   MistakesNotebook: undefined;
+  MivoMemory: undefined;
   VocabLibrary: undefined;
+  VocabDecks: undefined;
+  MispronouncedWords: undefined;
   PodcastList: undefined;
   PodcastPlayer: { episodeId: string };
-  // `focusTopic` is set when opened from the Seviye Yol Haritası (a grammar
-  // topic or the level's boss challenge) so the opening message can steer the
+  // `focusTopic` is set when opened from Bugün's "Öğrenme Yolun" chapter path
+  // (a grammar topic or the level's boss challenge) so the opening message can steer the
   // conversation toward practicing that specific structure. `dailyTask` is a
   // richer role/scenario/goals variant (its first user message logs
   // `POST /progress/log-practice`, see TextChatScreen) — its only producer
@@ -121,6 +132,8 @@ export type LiveConversationRoomScreenProps = NativeStackScreenProps<
   'LiveConversationRoom'
 >;
 
+export type FreeChatRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'FreeChatRoom'>;
+
 export type ScorecardScreenProps = NativeStackScreenProps<RootStackParamList, 'Scorecard'>;
 
 export type ReadingListScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingList'>;
@@ -131,9 +144,15 @@ export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Pay
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
 
+export type AccountSettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'AccountSettings'>;
+
+export type MivoMemoryScreenProps = NativeStackScreenProps<RootStackParamList, 'MivoMemory'>;
 export type MistakesNotebookScreenProps = NativeStackScreenProps<RootStackParamList, 'MistakesNotebook'>;
 
+export type VocabDecksScreenProps = NativeStackScreenProps<RootStackParamList, 'VocabDecks'>;
 export type VocabLibraryScreenProps = NativeStackScreenProps<RootStackParamList, 'VocabLibrary'>;
+
+export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackParamList, 'MispronouncedWords'>;
 
 export type TextChatScreenProps = NativeStackScreenProps<RootStackParamList, 'TextChat'>;
 

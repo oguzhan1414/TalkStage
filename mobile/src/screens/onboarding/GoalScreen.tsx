@@ -8,6 +8,7 @@ import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
+import { t } from '../../i18n';
 
 export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'goal' });
@@ -18,10 +19,8 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
       <OnboardingProgressHeader step={3} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>İngilizce konuşurken en büyük hedefin ne? 🎯</Text>
-        <Text style={styles.subtitle}>
-          Sana ilk önereceğimiz pratik modüllerini bu ihtiyaca göre seçeceğiz.
-        </Text>
+        <Text style={styles.title}>{t("İngilizce konuşurken en büyük hedefin ne? 🎯")}</Text>
+        <Text style={styles.subtitle}>{t("Sana ilk önereceğimiz pratik modüllerini bu ihtiyaca göre seçeceğiz.")}</Text>
 
         <View style={styles.list}>
           {GOAL_OPTIONS.map((g) => {
@@ -60,7 +59,7 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Devam Et ➔" variant="chunky" onPress={() => navigation.navigate('MicPermission')} />
+        <Button label={t("Devam Et ➔")} variant="chunky" onPress={() => navigation.navigate('MicPermission')} />
       </View>
     </SafeAreaView>
   );

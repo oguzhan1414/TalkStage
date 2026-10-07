@@ -1,4 +1,5 @@
 import { badgeImages } from '../assets/images';
+import { t } from '../i18n';
 
 /** Mirrors the 10-badge spec in the design doc, Bölüm 3.5 ("10 Adet 3D Başarı Rozeti"). */
 export type BadgeId =
@@ -19,67 +20,78 @@ export type Badge = {
   /** Earn condition, shown as-is on locked badges. */
   criteriaText: string;
   image: ReturnType<typeof require>;
+  icon: string;
 };
 
 export const BADGES: Badge[] = [
   {
     id: 'first_mic',
-    title: 'İlk Sahne',
-    criteriaText: 'İlk konuşma senaryosunu bitir',
+    title: t("İlk Sahne"),
+    criteriaText: t("İlk konuşma senaryosunu bitir"),
     image: badgeImages.firstMic,
+    icon: 'mic-outline',
   },
   {
     id: 'standup_hero',
-    title: 'Standup Hero',
-    criteriaText: '5 Tech senaryosu tamamla',
+    title: t("Standup Hero"),
+    criteriaText: t("5 Tech senaryosu tamamla"),
     image: badgeImages.standupHero,
+    icon: 'people-outline',
   },
   {
     id: 'visa_approved',
-    title: 'Visa Approved',
-    criteriaText: 'Vize senaryosundan 90+ al',
+    title: t("Visa Approved"),
+    criteriaText: t("Vize senaryosundan 90+ al"),
     image: badgeImages.visaApproved,
+    icon: 'airplane-outline',
   },
   {
     id: '7day_flame',
-    title: '7-Day Flame',
-    criteriaText: '7 gün aralıksız pratik yap',
+    title: t("7-Day Flame"),
+    criteriaText: t("7 gün aralıksız pratik yap"),
     image: badgeImages.sevenDayFlame,
+    icon: 'flame-outline',
   },
   {
     id: '30day_master',
-    title: '30-Day Master',
-    criteriaText: '30 gün streak yap',
+    title: t("30-Day Master"),
+    criteriaText: t("30 gün streak yap"),
     image: badgeImages.thirtyDayMaster,
+    icon: 'calendar-outline',
   },
   {
     id: 'zero_freeze',
-    title: 'Zero Freeze',
-    criteriaText: '3 dakika duraksamadan konuş',
+    title: t("Zero Freeze"),
+    criteriaText: t("3 dakika duraksamadan konuş"),
     image: badgeImages.zeroFreeze,
+    icon: 'timer-outline',
   },
   {
     id: 'vocab_hunter',
-    title: 'Vocab Hunter',
-    criteriaText: '100 kelimeyi tamamla',
+    title: t("Vocab Hunter"),
+    criteriaText: t("100 kelimeyi tamamla"),
     image: badgeImages.vocabHunter,
+    icon: 'book-outline',
   },
   {
     id: 'negotiator',
-    title: 'Negotiator',
-    criteriaText: 'B2B satış senaryosunu kazan',
+    title: t("Negotiator"),
+    criteriaText: t("B2B satış senaryosunu kazan"),
     image: badgeImages.negotiator,
+    icon: 'briefcase-outline',
   },
   {
     id: 'pronunciation_prodigy',
-    title: 'Pronunciation Prodigy',
-    criteriaText: '%95+ telaffuz skoru al',
+    title: t("Pronunciation Prodigy"),
+    criteriaText: t("%95+ telaffuz skoru al"),
     image: badgeImages.pronunciationProdigy,
+    icon: 'volume-high-outline',
   },
   {
     id: 'early_bird',
-    title: 'Early Bird',
-    criteriaText: 'Sabah 09:00’dan önce pratik yap',
+    title: t("Early Bird"),
+    criteriaText: t("Sabah 09:00’dan önce pratik yap"),
     image: badgeImages.earlyBird,
+    icon: 'sunny-outline',
   },
 ];

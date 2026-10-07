@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { saveCustomDeck, type VocabDeck } from '../data/vocabDecks';
 import { colors, fonts, radii, shadow } from '../theme/tokens';
 import { BouncyPressable } from './BouncyPressable';
+import { t } from '../i18n';
 
 const EMOJI_OPTIONS = ['📁', '💼', '🚀', '🎨', '🍕', '✈️', '💡', '⭐', '🎯', '🔥', '💻', '☕'];
 const COLOR_OPTIONS = ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#EF4444', '#14B8A6'];
@@ -34,14 +35,14 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
   const handleCreate = async () => {
     if (!title.trim()) {
-      setError('Lütfen klasör adını girin');
+      setError(t("Lütfen klasör adını girin"));
       return;
     }
 
     const newDeck: VocabDeck = {
       id: `deck_custom_${Date.now()}`,
       title: title.trim(),
-      subtitle: subtitle.trim() || 'Özel oluşturulmuş kelime destesi',
+      subtitle: subtitle.trim() || t("Özel oluşturulmuş kelime destesi"),
       emoji: selectedEmoji,
       color: selectedColor,
       level: selectedLevel,
@@ -62,7 +63,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
     <Modal visible={visible} animationType="slide" presentationStyle="formSheet" onRequestClose={onClose}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>➕ Yeni Klasör / Deste Oluştur</Text>
+          <Text style={styles.headerTitle}>{t("➕ Yeni Klasör / Deste Oluştur")}</Text>
           <BouncyPressable onPress={onClose} style={styles.closeBtn} hapticType="light" scaleTo={0.9}>
             <Ionicons name="close" size={22} color="#64748B" />
           </BouncyPressable>
@@ -73,8 +74,8 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
           <View style={[styles.previewCard, shadow.card, { borderColor: selectedColor }]}>
             <Text style={styles.previewEmoji}>{selectedEmoji}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.previewTitle}>{title.trim() || 'Klasör Adı...'}</Text>
-              <Text style={styles.previewSub}>{subtitle.trim() || 'Özel açıklama...'}</Text>
+              <Text style={styles.previewTitle}>{title.trim() || t("Klasör Adı...")}</Text>
+              <Text style={styles.previewSub}>{subtitle.trim() || t("Özel açıklama...")}</Text>
             </View>
             <View style={[styles.previewLevelBadge, { backgroundColor: selectedColor }]}>
               <Text style={styles.previewLevelText}>{selectedLevel}</Text>
@@ -83,10 +84,10 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
           {/* Form */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Klasör Adı *</Text>
+            <Text style={styles.label}>{t("Klasör Adı *")}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Örn: Mülakat Terimlerim, Renkler & Sayılar"
+              placeholder={t("Örn: Mülakat Terimlerim, Renkler & Sayılar")}
               placeholderTextColor="#94A3B8"
               value={title}
               onChangeText={(t) => {
@@ -97,10 +98,10 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Kısa Açıklama (İsteğe Bağlı)</Text>
+            <Text style={styles.label}>{t("Kısa Açıklama (İsteğe Bağlı)")}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Örn: Haftalık çalışma hedefim"
+              placeholder={t("Örn: Haftalık çalışma hedefim")}
               placeholderTextColor="#94A3B8"
               value={subtitle}
               onChangeText={setSubtitle}
@@ -109,7 +110,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
           {/* Emoji Selection */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>İkon / Emoji Seç</Text>
+            <Text style={styles.label}>{t("İkon / Emoji Seç")}</Text>
             <View style={styles.chipsRow}>
               {EMOJI_OPTIONS.map((em) => (
                 <BouncyPressable
@@ -127,7 +128,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
           {/* Color Selection */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Tema Rengi</Text>
+            <Text style={styles.label}>{t("Tema Rengi")}</Text>
             <View style={styles.chipsRow}>
               {COLOR_OPTIONS.map((c) => (
                 <BouncyPressable
@@ -145,7 +146,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
           {/* Level Selection */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Hedef Seviye</Text>
+            <Text style={styles.label}>{t("Hedef Seviye")}</Text>
             <View style={styles.chipsRow}>
               {LEVEL_OPTIONS.map((lvl) => (
                 <BouncyPressable
@@ -167,7 +168,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
 
           <BouncyPressable onPress={handleCreate} style={[styles.submitBtn, shadow.card]} hapticType="success" scaleTo={0.96}>
             <Ionicons name="folder-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.submitBtnText}>Klasörü Oluştur</Text>
+            <Text style={styles.submitBtnText}>{t("Klasörü Oluştur")}</Text>
           </BouncyPressable>
         </ScrollView>
       </SafeAreaView>

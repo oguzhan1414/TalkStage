@@ -20,7 +20,8 @@ import { haptics } from '../lib/haptics';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api } from '../lib/api';
 import { resolveMediaUrl, resolveVideoUrl } from '../lib/media';
-import { companionImage, resolveScenarioCategoryFallback } from '../assets/images';
+import { companionImage, resolveScenarioCategoryFallback, scenarioCustomCovers } from '../assets/images';
+import { t, nativeFlag } from '../i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -29,11 +30,13 @@ type Props = {
   scenario: ScenarioEntry | null;
   onClose: () => void;
   onComplete?: (earnedXp: number) => void;
+  /** Shown on the finished screen: continue straight into the live Mivo version of this scene. */
+  onPlayLive?: () => void;
 };
 
 type InteractionPhase = 'preview' | 'playing' | 'waiting_user' | 'success' | 'completed';
 
-export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onComplete }: Props) {
+export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onComplete, onPlayLive }: Props) {
   // NOTE: this component must call the exact same Hooks on every render,
   // regardless of whether `scenario` is null — the parent always keeps this
   // component mounted and just flips `scenario`/`visible` as props (it's
@@ -58,7 +61,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 
   const coverUri = scenario?.coverImage ? resolveMediaUrl(scenario.coverImage) : null;
   const fallbackCover = scenario ? resolveScenarioCategoryFallback(scenario.category) : companionImage;
-  const coverSource = imgError || !coverUri ? fallbackCover : { uri: coverUri };
+  const bundledCover = scenario ? scenarioCustomCovers[scenario.id] : null;
+  const coverSource = bundledCover ?? (!imgError && coverUri ? { uri: coverUri } : fallbackCover);
 
   // Initialize expo-video player — `null` (not '') is the documented
   // "no source yet" value for VideoSource, used while scenario/currentStep
@@ -218,8 +222,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               </Text>
               <Text style={styles.headerSubtitle} numberOfLines={1}>
                 {phase === 'preview'
-                  ? '3D Canlı Önizleme & Hazırlık'
-                  : `${currentStep.title} • Adım ${currentStepIndex + 1} / ${steps.length}`}
+                  ? t("3D Canlı Önizleme & Hazırlık")
+                  : t("{{title}} • Adım {{p1}} / {{length}}", { title: currentStep.title, p1: currentStepIndex + 1, length: steps.length })}
               </Text>
             </View>
           </View>
@@ -227,7 +231,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
           <View style={styles.headerRightRow}>
             <View style={styles.xpTag}>
               <Ionicons name="sparkles" size={13} color="#F59E0B" />
-              <Text style={styles.xpTagText}>+{earnedTotalXp} XP</Text>
+              <Text style={styles.xpTagText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
             </View>
 
             <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
@@ -267,7 +271,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <View style={styles.previewBadgeRow}>
                   <View style={styles.threeDTag}>
                     <Ionicons name="sparkles" size={11} color="#F59E0B" />
-                    <Text style={styles.threeDTagText}>3D PİXAR CANLI ETKİLEŞİM</Text>
+                    <Text style={styles.threeDTagText}>{t("3D PİXAR CANLI ETKİLEŞİM")}</Text>
                   </View>
                   <View style={styles.levelTag}>
                     <Text style={styles.levelTagText}>{scenario.level || 'A1'}</Text>
@@ -280,24 +284,24 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <View style={styles.personaBanner}>
                   <Text style={styles.personaBannerEmoji}>🤖</Text>
                   <Text style={styles.personaBannerText}>
-                    {scenario.aiName || 'Yankı'} • {scenario.aiRole || '3D Konuşma Partnerin'}
+                    {scenario.aiName || t("Mivo")} • {scenario.aiRole || t("3D Konuşma Partnerin")}
                   </Text>
                 </View>
 
                 <View style={styles.previewMetaRow}>
                   <View style={styles.previewMetaItem}>
                     <Ionicons name="videocam-outline" size={14} color="#818CF8" />
-                    <Text style={styles.previewMetaText}>{steps.length} Video Sahnesi</Text>
+                    <Text style={styles.previewMetaText}>{t("{{length}} Video Sahnesi", { length: steps.length })}</Text>
                   </View>
                   <View style={styles.previewMetaItem}>
                     <Ionicons name="sparkles-outline" size={14} color="#F59E0B" />
-                    <Text style={styles.previewMetaText}>+{steps.length * 10} XP Başarı Puanı</Text>
+                    <Text style={styles.previewMetaText}>+{steps.length * 10}{" "}{t("XP Başarı Puanı")}</Text>
                   </View>
                 </View>
 
                 <Pressable onPress={handleStartPlayback} style={styles.previewStartBtn}>
                   <Ionicons name="play" size={18} color="#FFFFFF" />
-                  <Text style={styles.previewStartBtnText}>3D Canlı Sahneyi Başlat</Text>
+                  <Text style={styles.previewStartBtnText}>{t("3D Canlı Sahneyi Başlat")}</Text>
                   <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
                 </Pressable>
               </View>
@@ -321,9 +325,9 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               {videoStatus === 'error' && (
                 <View style={styles.videoErrorOverlay}>
                   <Ionicons name="cloud-offline-outline" size={28} color="#F87171" />
-                  <Text style={styles.videoErrorText}>Video şu an yüklenemedi.</Text>
+                  <Text style={styles.videoErrorText}>{t("Video şu an yüklenemedi.")}</Text>
                   <Pressable onPress={handleVideoEnded} style={styles.videoErrorBtn}>
-                    <Text style={styles.videoErrorBtnText}>Devam Et</Text>
+                    <Text style={styles.videoErrorBtnText}>{t("Devam Et")}</Text>
                     <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
                   </Pressable>
                 </View>
@@ -333,9 +337,9 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               <View style={styles.subtitleCard}>
                 <View style={styles.subtitleTopRow}>
                   <View style={styles.speakerBadge}>
-                    <Text style={styles.speakerName}>{scenario.aiName || 'Yankı'}</Text>
+                    <Text style={styles.speakerName}>{scenario.aiName || t("Mivo")}</Text>
                     <View style={styles.speakerRoleTag}>
-                      <Text style={styles.speakerRoleText}>3D Partner</Text>
+                      <Text style={styles.speakerRoleText}>{t("3D Partner")}</Text>
                     </View>
                   </View>
 
@@ -363,7 +367,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                         color="#CBD5E1"
                       />
                       <Text style={styles.actionIconLabel}>
-                        {showTranslation ? 'Gizle' : 'Türkçe'}
+                        {showTranslation ? t("Gizle") : t("Türkçe")}
                       </Text>
                     </Pressable>
 
@@ -377,7 +381,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <Text style={styles.speechText}>&ldquo;{currentStep.aiSpeech}&rdquo;</Text>
 
                 {showTranslation && (
-                  <Text style={styles.translationText}>🇹🇷 {currentStep.aiSpeechTr}</Text>
+                  <Text style={styles.translationText}>{nativeFlag()} {currentStep.aiSpeechTr}</Text>
                 )}
               </View>
             </View>
@@ -388,22 +392,30 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <Text style={styles.trophyEmoji}>🏆</Text>
               </View>
 
-              <Text style={styles.celebrationTitle}>Harika Bir Konuşma Yaptın!</Text>
-              <Text style={styles.celebrationDesc}>
-                &ldquo;{scenario.titleTr}&rdquo; senaryosunda {scenario.aiName || 'AI partnerin'} ile {steps.length} adımlık canlı 3D
-                diyaloğu başarıyla tamamladın.
-              </Text>
+              <Text style={styles.celebrationTitle}>{t("Harika Bir Konuşma Yaptın!")}</Text>
+              <Text style={styles.celebrationDesc}>{t("“{{titleTr}}” senaryosunda", { titleTr: scenario.titleTr })}{" "}{scenario.aiName || t("AI partnerin")}{" "}{t("ile {{length}} adımlık canlı 3D diyaloğu başarıyla tamamladın.", { length: steps.length })}</Text>
 
               <View style={styles.statsCardRow}>
                 <View style={styles.statBox}>
-                  <Text style={styles.statBoxVal}>+{earnedTotalXp} XP</Text>
-                  <Text style={styles.statBoxLbl}>Kazanılan Puan</Text>
+                  <Text style={styles.statBoxVal}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
+                  <Text style={styles.statBoxLbl}>{t("Kazanılan Puan")}</Text>
                 </View>
                 <View style={styles.statBox}>
                   <Text style={styles.statBoxVal}>{steps.length} / {steps.length}</Text>
-                  <Text style={styles.statBoxLbl}>Diyalog Başarısı</Text>
+                  <Text style={styles.statBoxLbl}>{t("Diyalog Başarısı")}</Text>
                 </View>
               </View>
+
+              {onPlayLive ? (
+                <Pressable onPress={onPlayLive} style={styles.playLiveBtn}>
+                  <Text style={styles.playLiveEmoji}>🎭</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.playLiveTitle}>{t("Şimdi sen oyna!")}</Text>
+                    <Text style={styles.playLiveSub}>{t("Mivo bu sahnede karakteri oynar, her seferinde farklı bir sürprizle")}</Text>
+                  </View>
+                  <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+                </Pressable>
+              ) : null}
 
               <View style={styles.celebrationButtons}>
                 <Pressable
@@ -415,11 +427,11 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   style={styles.replayAllBtn}
                 >
                   <Ionicons name="reload" size={16} color="#E2E8F0" />
-                  <Text style={styles.replayAllText}>Tekrar Oyna</Text>
+                  <Text style={styles.replayAllText}>{t("Tekrar Oyna")}</Text>
                 </Pressable>
 
                 <Pressable onPress={onClose} style={styles.finishCatalogBtn}>
-                  <Text style={styles.finishCatalogText}>Kataloğa Dön</Text>
+                  <Text style={styles.finishCatalogText}>{t("Kataloğa Dön")}</Text>
                   <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
                 </Pressable>
               </View>
@@ -433,9 +445,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
             {phase === 'preview' ? (
               <View style={styles.previewBottomBar}>
                 <Ionicons name="headset-outline" size={18} color="#818CF8" />
-                <Text style={styles.previewBottomText}>
-                  Hazır olduğunda yukarıdaki butona bas. Yankı konuşunca dinle, sonra yüksek sesle tekrar edip devam et.
-                </Text>
+                <Text style={styles.previewBottomText}>{t("Hazır olduğunda yukarıdaki butona bas. Mivo konuşunca dinle, sonra yüksek sesle tekrar edip devam et.")}</Text>
               </View>
             ) : phase === 'waiting_user' ? (
               <View style={styles.waitingContainer}>
@@ -443,7 +453,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <View style={styles.userPromptCard}>
                   <View style={styles.promptHeader}>
                     <View style={styles.pulsingDot} />
-                    <Text style={styles.promptHeaderTitle}>SIRA SENDE</Text>
+                    <Text style={styles.promptHeaderTitle}>{t("SIRA SENDE")}</Text>
                   </View>
 
                   <Text style={styles.userHintText}>💡 {currentStep.userHint}</Text>
@@ -457,7 +467,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                     style={styles.pronounceGuideBtn}
                   >
                     <Ionicons name="volume-high" size={14} color={colors.brand} />
-                    <Text style={styles.pronounceGuideText}>Örnek Telaffuzu Dinle</Text>
+                    <Text style={styles.pronounceGuideText}>{t("Örnek Telaffuzu Dinle")}</Text>
                   </Pressable>
                 </View>
 
@@ -472,27 +482,27 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                     out loud, taps when done, moves on. */}
                 <Pressable onPress={handlePassStep} style={styles.saidItBtn}>
                   <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                  <Text style={styles.saidItBtnText}>Yüksek Sesle Söyledim, Devam Et</Text>
+                  <Text style={styles.saidItBtnText}>{t("Yüksek Sesle Söyledim, Devam Et")}</Text>
                 </Pressable>
               </View>
             ) : phase === 'success' ? (
               <View style={styles.successBanner}>
                 <View style={styles.successRow}>
                   <Ionicons name="checkmark-circle" size={22} color="#10B981" />
-                  <Text style={styles.successTitle}>Harika! Diyaloğu Tamamladın ✨</Text>
+                  <Text style={styles.successTitle}>{t("Harika! Diyaloğu Tamamladın ✨")}</Text>
                 </View>
-                <Text style={styles.successSub}>Karnen hazırlanıyor...</Text>
+                <Text style={styles.successSub}>{t("Karnen hazırlanıyor...")}</Text>
               </View>
             ) : (
               /* Phase is 'playing' */
               <View style={styles.playingIndicatorRow}>
                 <View style={styles.playingLeft}>
                   <View style={styles.audioWaveDot} />
-                  <Text style={styles.playingText}>Yankı konuşuyor, dikkatle dinle...</Text>
+                  <Text style={styles.playingText}>{t("Mivo konuşuyor, dikkatle dinle...")}</Text>
                 </View>
 
                 <Pressable onPress={handleVideoEnded} hitSlop={10}>
-                  <Text style={styles.skipToSpeakText}>Konuşma Adımına Geç ➔</Text>
+                  <Text style={styles.skipToSpeakText}>{t("Konuşma Adımına Geç ➔")}</Text>
                 </Pressable>
               </View>
             )}
@@ -504,6 +514,19 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 }
 
 const styles = StyleSheet.create({
+  playLiveBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#6366F1',
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 12,
+  },
+  playLiveEmoji: { fontSize: 26 },
+  playLiveTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
+  playLiveSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: '#E0E7FF', marginTop: 2 },
   safeArea: {
     flex: 1,
     backgroundColor: '#090D16',

@@ -1,141 +1,179 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import {
   ALL_SPEAKING_TOPIC_CODES,
   ALL_TOPIC_CODES,
   CEFR_CURRICULUM,
-  computeFullCompletion,
-  isTopicCompleted,
   type CurriculumTopic,
 } from '@talkstage/shared-data/curriculumData';
-import {
-  avatarImages,
-  companionImage,
-  dynamicCompanion,
-  homeImages,
-  quickIcons,
-  resolveScenarioCategoryFallback,
-  scenarioCategoryImages,
-  stateImages,
-} from '../assets/images';
+import { ALL_GRAMMAR_LESSONS } from '@talkstage/shared-data/grammarLessons';
+import { SCENARIOS } from '@talkstage/shared-data/scenariosData';
+import { mivoHomeImages, resolveScenarioCoverSource, stateImages } from '../assets/images';
+import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
-import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
+import { MivoAvatar } from '../components/MivoAvatar';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { Toast } from '../components/Toast';
-import { TopicTaskSteps } from '../components/TopicTaskSteps';
-import { useAuth } from '../context/AuthContext';
-import { PERSONA_OPTIONS } from '../constants/onboarding';
+import { CEFR_LEVELS } from '../constants/cefr';
 import { findCurriculumWord } from '../data/curriculumVocabulary';
-import { api } from '../lib/api';
-import { haptics } from '../lib/haptics';
+import { PODCAST_EPISODES } from '../data/podcastData';
+import { api, ApiError } from '../lib/api';
+import {
+  buildTaskQueueForLevel,
+  isTopicFullyDone,
+  isTopicLocked,
+  type CurriculumTask,
+} from '../lib/curriculumTasks';
 import { pullLearningFlags } from '../lib/learningFlags';
-import { resolveMediaUrl } from '../lib/media';
+import { loadSceneStars, pickSceneOfTheDay, type SceneStars } from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, gradients, radii, shadow, spacing } from '../theme/tokens';
-import type {
-  GrammarMistakeOut,
-  ProfileOut,
-  ProgressOut,
-  ReadingPassageOut,
-  ScenarioOut,
-  VocabCardOut,
-} from '../types/api';
+import { cefrThemes, colors, fonts, gradients, radii, shadow, spacing } from '../theme/tokens';
+import type { ProfileOut, ProgressOut, ReadingPassageOut, VocabCardOut } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t } from '../i18n';
 
-const AVATAR_MAP: Record<string, ReturnType<typeof require>> = {
-  dev: avatarImages.maleDev,
-  lead: avatarImages.femaleLead,
-  traveler: avatarImages.travelerExplorer,
-  designer: avatarImages.femaleDesigner,
-  engineer: avatarImages.maleEngineer,
-  entrepreneur: avatarImages.femaleEntrepreneur,
-  student: avatarImages.studentYouth,
-  corporate: avatarImages.proDeveloper,
-  tech: avatarImages.maleDev,
-  adult_hobby: avatarImages.matureSenior,
-  service: avatarImages.femaleEntrepreneur,
+const TASK_TYPE_ICON: Record<CurriculumTask['type'], keyof typeof Ionicons.glyphMap> = {
+  lesson: 'school-outline',
+  vocab: 'bookmark-outline',
+  listening: 'headset-outline',
+  reading: 'book-outline',
+  practice: 'chatbubbles-outline',
 };
 
-/** Quick-link chip themes with pastel gradients and tactile borders */
-const QUICK_LINK_THEME = {
-  indigo: { gradient: ['#EEF2FF', '#E0E7FF'] as const, border: '#C7D2FE', text: '#4338CA' },
-  emerald: { gradient: ['#ECFDF5', '#D1FAE5'] as const, border: '#A7F3D0', text: '#047857' },
-  violet: { gradient: ['#F5F3FF', '#EDE9FE'] as const, border: '#DDD6FE', text: '#6D28D9' },
-  amber: { gradient: ['#FFFBEB', '#FEF3C7'] as const, border: '#FDE68A', text: '#B45309' },
-  rose: { gradient: ['#FDF2F8', '#FCE7F3'] as const, border: '#FBCFE8', text: '#BE185D' },
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const BANNER_WIDTH = SCREEN_WIDTH - spacing.md * 2;
+
+const NODE = 68;
+const ROW_H = 112;
+const PATH_W = SCREEN_WIDTH - spacing.md * 2;
+// Düğümlerin yatay sapması (px) — yol sağa-sola kıvrılarak ilerler.
+const X_OFFSETS = [0, 62, 88, 62, 0, -62, -88, -62];
+
+const UNIT_GRADIENTS: readonly (readonly [string, string])[] = [
+  ['#4F46E5', '#7C3AED'],
+  ['#0EA5E9', '#2563EB'],
+  ['#10B981', '#0D9488'],
+  ['#F59E0B', '#EA580C'],
+  ['#EC4899', '#E11D48'],
+];
+
+const TASK_COLORS: Record<
+  CurriculumTask['type'],
+  { main: string; dark: string; soft: string; label: string }
+> = {
+  lesson: { main: '#6366F1', dark: '#4338CA', soft: '#EEF2FF', label: t("Konu Anlatımı") },
+  vocab: { main: '#F59E0B', dark: '#B45309', soft: '#FEF3C7', label: t("Kelime") },
+  listening: { main: '#0EA5E9', dark: '#0369A1', soft: '#E0F2FE', label: t("Dinleme") },
+  reading: { main: '#10B981', dark: '#047857', soft: '#D1FAE5', label: t("Okuma") },
+  practice: { main: '#F43F5E', dark: '#BE123C', soft: '#FFE4E6', label: t("Konuşma") },
 };
+
+type PathNodeProps = {
+  left: number;
+  top: number;
+  palette: { main: string; dark: string; soft: string };
+  icon: keyof typeof Ionicons.glyphMap;
+  done: boolean;
+  current: boolean;
+  locked: boolean;
+  onPress: () => void;
+};
+
+/** Yoldaki tek bir ders düğümü — "chunky 3D" yuvarlak buton; sıradaki ders
+ * nabız atan bir halka ve "BAŞLA" balonuyla öne çıkar. */
+const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
+  { left, top, palette, icon, done, current, locked, onPress },
+  ref
+) {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!current) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 900, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [current, pulse]);
+
+  const haloScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.28] });
+  const haloOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0] });
+
+  const bg = locked ? '#E2E8F0' : done ? '#10B981' : current ? palette.main : '#FFFFFF';
+  const edge = locked ? '#CBD5E1' : done ? '#059669' : palette.dark;
+  const iconColor = locked ? '#94A3B8' : done || current ? '#FFFFFF' : palette.main;
+
+  return (
+    <View ref={ref} collapsable={false} style={{ position: 'absolute', left, top, width: NODE, height: NODE }}>
+      {current && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.nodeHalo,
+            { backgroundColor: palette.main, opacity: haloOpacity, transform: [{ scale: haloScale }] },
+          ]}
+        />
+      )}
+      {current && (
+        <View style={styles.startBubble} pointerEvents="none">
+          <Text style={styles.startBubbleText}>{t("BAŞLA")}</Text>
+          <View style={styles.startBubbleArrow} />
+        </View>
+      )}
+      <BouncyPressable
+        onPress={onPress}
+        hapticType={locked ? 'light' : 'medium'}
+        scaleTo={0.92}
+        style={[
+          styles.node,
+          {
+            backgroundColor: bg,
+            borderColor: edge,
+            borderWidth: !done && !locked && !current ? 3 : 0,
+            borderBottomWidth: 6,
+          },
+        ]}
+      >
+        <Ionicons
+          name={locked ? 'lock-closed' : done ? 'checkmark' : icon}
+          size={done ? 34 : 28}
+          color={iconColor}
+        />
+      </BouncyPressable>
+    </View>
+  );
+});
 
 function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function getTimeGreeting(): {
-  greeting: string;
-  subtitle: string;
-  timeOfDay: 'morning' | 'afternoon' | 'evening';
-} {
+function getTimeGreeting(): { greeting: string; subtitle: string } {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
-    return {
-      greeting: 'GÜNAYDIN ☀️',
-      subtitle: 'Sabah kahvesiyle 5 dk Standup provası yapalım mı?',
-      timeOfDay: 'morning',
-    };
+    return { greeting: t("GÜNAYDIN"), subtitle: t("Sabah kahvesiyle hızlı bir ders yapalım mı?") };
   } else if (hour >= 12 && hour < 17) {
-    return {
-      greeting: 'TÜNAYDIN ☕',
-      subtitle: 'Öğle molasında hızlı bir mülakat simülasyonu yapalım!',
-      timeOfDay: 'afternoon',
-    };
+    return { greeting: t("TÜNAYDIN"), subtitle: t("Öğle molasında hızlı bir pratik yapalım!") };
   } else if (hour >= 17 && hour < 22) {
-    return {
-      greeting: 'İYİ AKŞAMLAR 🌆',
-      subtitle: 'Günü kapatmadan önce akıcı bir diyalogla serini koru!',
-      timeOfDay: 'evening',
-    };
-  } else {
-    return {
-      greeting: 'İYİ GECELER 🌙',
-      subtitle: 'Uyumadan önce 3 dakikalık hızlı telaffuz pratiği yapalım.',
-      timeOfDay: 'evening',
-    };
+    return { greeting: t("İYİ AKŞAMLAR"), subtitle: t("Günü kapatmadan önce serini koru!") };
   }
-}
-
-/** Just enough per-day signal for the 7 mini streak dots — no labels/numbers
- * (those live in the full Calendar screen this card links to). */
-function getWeekCompletionDots(progressList: ProgressOut[], currentStreak: number) {
-  const now = new Date();
-  const currentDayOfWeek = (now.getDay() + 6) % 7; // Monday = 0, Sunday = 6
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - currentDayOfWeek);
-
-  const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const dateKey = toDateKey(d);
-    const isPast = i < currentDayOfWeek;
-    const prog = (progressList ?? []).find((p) => p.practice_date === dateKey);
-    const hasPracticed = (prog?.minutes_practiced ?? 0) > 0;
-    days.push({
-      isToday: i === currentDayOfWeek,
-      isCompleted: hasPracticed || (isPast && currentDayOfWeek - i < currentStreak),
-    });
-  }
-  return days;
+  return { greeting: t("İYİ GECELER"), subtitle: t("Uyumadan önce hızlı bir ders yapalım.") };
 }
 
 export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
-  const { session } = useAuth();
+  const { transitionTo } = useMivoTransition();
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
   });
@@ -145,14 +183,6 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   });
   const queryClient = useQueryClient();
 
-  const { data: recommended } = useQuery({
-    queryKey: ['scenarios', 'recommended'],
-    queryFn: () => api.get<ScenarioOut>('/scenarios/recommended'),
-  });
-  const { data: dueVocabCards } = useQuery({
-    queryKey: ['vocab-cards'],
-    queryFn: () => api.get<VocabCardOut[]>('/vocab-cards'),
-  });
   const { data: allVocabCards } = useQuery({
     queryKey: ['vocab-cards', 'all'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
@@ -165,28 +195,9 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     queryKey: ['reading', 'completed'],
     queryFn: () => api.get<string[]>('/reading/completed-slugs'),
   });
-  const { data: mistakes } = useQuery({
-    queryKey: ['grammar-mistakes'],
-    queryFn: () => api.get<GrammarMistakeOut[]>('/progress/mistakes'),
-  });
-
-  const displayName =
-    profile?.display_name ??
-    (session?.user.user_metadata?.full_name as string | undefined)?.split(' ')[0] ??
-    session?.user.email?.split('@')[0] ??
-    'Konuşmacı';
-
-  const userAvatar =
-    (profile?.avatar_id && AVATAR_MAP[profile.avatar_id]) ||
-    (profile?.persona_id && AVATAR_MAP[profile.persona_id]) ||
-    avatarImages.studentYouth;
 
   const currentLevel = profile?.cefr_level ?? 'A1';
   const streak = profile?.streak_count ?? 1;
-
-  const personaObj = PERSONA_OPTIONS.find((p) => p.id === profile?.persona_id);
-  const mistakesCount = mistakes?.length ?? 0;
-  const dueVocabCount = dueVocabCards?.length ?? 0;
 
   // Daily practice calculation
   const todayKey = toDateKey(new Date());
@@ -198,13 +209,48 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     Math.round((todayMinutes / Math.max(1, dailyTargetMinutes)) * 100)
   );
 
-  const [selectedVideoScenario, setSelectedVideoScenario] = useState<ScenarioEntry | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [videoCoverErrorIds, setVideoCoverErrorIds] = useState<Set<string>>(new Set());
+  const [activeBanner, setActiveBanner] = useState(0);
 
-  // Systematic learning roadmap flags
+  // Systematic learning roadmap flags — same signals Profil reads, see
+  // curriculumTasks.ts for why this is the single shared calculation.
   const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
   const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
+  const [completedPodcastEpisodeIds, setCompletedPodcastEpisodeIds] = useState<Set<string>>(new Set());
+  const [sceneStars, setSceneStars] = useState<SceneStars>({});
+  const readySceneList = useMemo(
+    () => SCENARIOS.filter((sc) => sc.videoSteps && sc.videoSteps.length > 0 && sc.videoReady),
+    []
+  );
+  // "Günün Sahnesi": Sahneler sekmesindeki "Senin için sıradaki" ile aynı seçim.
+  const sceneOfTheDay = useMemo(
+    () => pickSceneOfTheDay(readySceneList, currentLevel, sceneStars),
+    [readySceneList, currentLevel, sceneStars]
+  );
+
+  // Which level's chapters the full path below is showing — independent from
+  // `currentLevel` (the user's real placement, used for the "next task"
+  // banner above) so the user can browse/review other levels without that
+  // changing what the banner spotlights. Defaults to the real placement once
+  // the profile loads (see the effect below), same pattern the old separate
+  // Roadmap screen used before its content moved onto this page.
+  const [selectedLevel, setSelectedLevel] = useState<string>('A1');
+  const [selectedTopicModal, setSelectedTopicModal] = useState<CurriculumTopic | null>(null);
+
+  // Auto-scroll to the current stepping stone so a level with many topics
+  // doesn't force the user to hunt for where they left off every time they
+  // open the app — ported from the old Roadmap screen's own version.
+  const scrollViewRef = useRef<ScrollView>(null);
+  const currentStoneRef = useRef<View>(null);
+  const pathSectionRef = useRef<View>(null);
+  const hasAutoScrolledRef = useRef(false);
+
+  const didInitLevelRef = useRef(false);
+  useEffect(() => {
+    if (didInitLevelRef.current || !profile) return;
+    didInitLevelRef.current = true;
+    setSelectedLevel(profile.cefr_level ?? 'A1');
+  }, [profile]);
 
   const reloadStationFlags = useCallback(() => {
     pullLearningFlags().then(() => {
@@ -224,8 +270,14 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
         );
       });
+      loadSceneStars(readySceneList.map((sc) => sc.id)).then(setSceneStars);
+      AsyncStorage.multiGet(PODCAST_EPISODES.map((ep) => `podcast_completed_${ep.id}`)).then((pairs) => {
+        setCompletedPodcastEpisodeIds(
+          new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('podcast_completed_', '')))
+        );
+      });
     });
-  }, []);
+  }, [readySceneList]);
 
   useFocusEffect(
     useCallback(() => {
@@ -241,61 +293,179 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     () => new Set(completedReadingSlugs ?? []),
     [completedReadingSlugs]
   );
-  const completedReadingCountForLevel = useMemo(
-    () =>
-      (readingPassages ?? []).filter(
-        (p) => (p.cefr_level ?? 'A1') === currentLevel && completedReadingSlugSet.has(p.slug)
-      ).length,
-    [readingPassages, currentLevel, completedReadingSlugSet]
+  // Function form (not a single memoized array) because the chapter path
+  // below needs this for whichever level is selected, and the lock helpers
+  // need it for arbitrary other levels too — same shape the old Roadmap
+  // screen used.
+  const readingPassagesForLevel = useCallback(
+    (lvl: string) =>
+      (readingPassages ?? [])
+        .filter((p) => (p.cefr_level ?? 'A1') === lvl)
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((p) => ({ slug: p.slug, title: p.title })),
+    [readingPassages]
   );
 
   const currentCurriculum = CEFR_CURRICULUM[currentLevel] ?? CEFR_CURRICULUM.A1;
-  const fullCompletion = useMemo(
+
+  // The one shared task-queue calculation Profil also uses — Home's banner
+  // spotlights the next actionable task regardless of which level the chapter
+  // path below happens to be browsing (see curriculumTasks.ts).
+  const taskQueue = useMemo(
     () =>
-      computeFullCompletion(
-        currentCurriculum.topics,
-        savedWordsSet,
-        chatCompletedCodes,
-        completedReadingCountForLevel,
-        lessonQuizDoneCodes
-      ),
+      buildTaskQueueForLevel(currentCurriculum.topics, {
+        savedWordsLower: savedWordsSet,
+        lessonQuizDoneCodes,
+        chatCompletedTopicCodes: chatCompletedCodes,
+        completedPodcastEpisodeIds,
+        readingPassagesForLevel: readingPassagesForLevel(currentLevel),
+        completedReadingSlugs: completedReadingSlugSet,
+      }),
     [
       currentCurriculum.topics,
+      currentLevel,
       savedWordsSet,
       chatCompletedCodes,
-      completedReadingCountForLevel,
+      readingPassagesForLevel,
+      completedReadingSlugSet,
       lessonQuizDoneCodes,
+      completedPodcastEpisodeIds,
+    ]
+  );
+  const firstIncompleteIdx = useMemo(() => taskQueue.findIndex((t) => !t.done), [taskQueue]);
+  const nextTask: CurriculumTask | undefined =
+    firstIncompleteIdx === -1 ? undefined : taskQueue[firstIncompleteIdx];
+  const isLevelFullyDone = taskQueue.length > 0 && !nextTask;
+
+  // ---- Full chapter path (browsable, independent of currentLevel above) ----
+  const selectedCurriculum = CEFR_CURRICULUM[selectedLevel] ?? CEFR_CURRICULUM.A1;
+
+  const selectedTaskQueue = useMemo(
+    () =>
+      buildTaskQueueForLevel(selectedCurriculum.topics, {
+        savedWordsLower: savedWordsSet,
+        lessonQuizDoneCodes,
+        chatCompletedTopicCodes: chatCompletedCodes,
+        completedPodcastEpisodeIds,
+        readingPassagesForLevel: readingPassagesForLevel(selectedLevel),
+        completedReadingSlugs: completedReadingSlugSet,
+      }),
+    [
+      selectedCurriculum.topics,
+      selectedLevel,
+      savedWordsSet,
+      chatCompletedCodes,
+      readingPassagesForLevel,
+      completedReadingSlugSet,
+      lessonQuizDoneCodes,
+      completedPodcastEpisodeIds,
+    ]
+  );
+  const practicedTopicsCount = useMemo(
+    () => selectedCurriculum.topics.filter((t) => isTopicFullyDone(selectedTaskQueue, t.code)).length,
+    [selectedCurriculum.topics, selectedTaskQueue]
+  );
+
+  const isLevelFullyComplete = useCallback(
+    (lvl: string): boolean => {
+      const topics = CEFR_CURRICULUM[lvl]?.topics ?? [];
+      if (topics.length === 0) return false;
+      const queue = buildTaskQueueForLevel(topics, {
+        savedWordsLower: savedWordsSet,
+        lessonQuizDoneCodes,
+        chatCompletedTopicCodes: chatCompletedCodes,
+        completedPodcastEpisodeIds,
+        readingPassagesForLevel: readingPassagesForLevel(lvl),
+        completedReadingSlugs: completedReadingSlugSet,
+      });
+      return queue.every((t) => t.done);
+    },
+    [
+      savedWordsSet,
+      lessonQuizDoneCodes,
+      chatCompletedCodes,
+      completedPodcastEpisodeIds,
+      readingPassagesForLevel,
+      completedReadingSlugSet,
     ]
   );
 
-  // Active current topic on roadmap
-  const currentTopic = useMemo(
-    () => currentCurriculum.topics.find((t) => !fullCompletion[t.code]) ?? currentCurriculum.topics[0],
-    [currentCurriculum.topics, fullCompletion]
+  const userLevelIdx = Math.max(0, CEFR_LEVELS.indexOf(currentLevel));
+  const isLevelLocked = useCallback(
+    (lvl: string): boolean => {
+      const idx = CEFR_LEVELS.indexOf(lvl);
+      if (idx <= userLevelIdx) return false;
+      return !isLevelFullyComplete(CEFR_LEVELS[idx - 1]);
+    },
+    [userLevelIdx, isLevelFullyComplete]
   );
 
-  const isQuizDone = currentTopic ? lessonQuizDoneCodes.has(currentTopic.code) : false;
-  const isVocabDone = currentTopic ? isTopicCompleted(currentTopic, savedWordsSet) : false;
-  const isPracticeDone = !currentTopic
-    ? false
-    : currentTopic.moduleType === 'vocab'
-      ? true
-      : currentTopic.moduleType === 'speaking'
-        ? chatCompletedCodes.has(currentTopic.code)
-        : completedReadingCountForLevel > 0;
+  const bonusLessons = useMemo(
+    () =>
+      ALL_GRAMMAR_LESSONS.filter(
+        (l) => l.code.startsWith(`${selectedLevel}_`) && !selectedCurriculum.topics.some((t) => t.code === l.code)
+      ),
+    [selectedLevel, selectedCurriculum.topics]
+  );
 
-  const completedStepsCount = (isQuizDone ? 1 : 0) + (isVocabDone ? 1 : 0) + (isPracticeDone ? 1 : 0);
-  const isStationMastered = currentTopic ? (fullCompletion[currentTopic.code] ?? false) : false;
+  // Shared scroll-to-node helper, used both for the one-time auto-scroll to
+  // the current stone on load and for the "level complete" banner's tap.
+  const scrollToNode = useCallback((node: View | null) => {
+    const scroll = scrollViewRef.current;
+    if (!node || !scroll) return;
+    const targetNative = (scroll as any).getNativeScrollRef?.() || (scroll as any).getInnerViewRef?.();
+    if (targetNative && typeof node.measureLayout === 'function') {
+      try {
+        node.measureLayout(
+          targetNative,
+          (_x: number, y: number) => {
+            scroll.scrollTo({ y: Math.max(0, y - 140), animated: true });
+          },
+          () => {}
+        );
+        return;
+      } catch {
+        // Fall through to measureInWindow
+      }
+    }
+    const scrollAny = scroll as any;
+    if (typeof node.measureInWindow === 'function' && typeof scrollAny.measureInWindow === 'function') {
+      node.measureInWindow((_sx: number, sy: number) => {
+        scrollAny.measureInWindow((_rx: number, ry: number) => {
+          const relY = sy - ry;
+          if (relY > 0) scroll.scrollTo({ y: Math.max(0, relY - 140), animated: true });
+        });
+      });
+    }
+  }, []);
+
+  // Reset the auto-scroll guard whenever the browsed level changes so
+  // switching levels scrolls to THAT level's current stone next time.
+  useEffect(() => {
+    hasAutoScrolledRef.current = false;
+  }, [selectedLevel]);
+
+  useEffect(() => {
+    if (hasAutoScrolledRef.current) return;
+    if (!profile || !allVocabCards) return;
+    const timer = setTimeout(() => {
+      if (currentStoneRef.current) {
+        scrollToNode(currentStoneRef.current);
+        hasAutoScrolledRef.current = true;
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [selectedLevel, practicedTopicsCount, profile, allVocabCards, scrollToNode]);
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 1800);
   };
 
-  const handleAddTopicWords = async (topic: CurriculumTopic) => {
+  const handleAddTopicWords = async (topic: CurriculumTopic, levelLabel: string) => {
     const missing = topic.targetWords.filter((w) => !savedWordsSet.has(w.trim().toLowerCase()));
     if (missing.length === 0) {
-      showToast('Kelimeler zaten sandığında ✓');
+      showToast(t("Kelimeler zaten sandığında ✓"));
       return;
     }
     try {
@@ -306,641 +476,620 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             term: word,
             translation: found?.tr,
             example_sentence: found?.exampleEn,
-            source_label: `${topic.code} · ${currentLevel} Müfredatı`,
+            source_label: t("{{code}} · {{levelLabel}} Müfredatı", { code: topic.code, levelLabel }),
           });
         })
       );
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(`${missing.length} kelime sandığına eklendi! 📚`);
-    } catch {
-      showToast('Kelimeler eklenirken hata oluştu.');
+      showToast(t("{{length}} kelime sandığına eklendi! 📚", { length: missing.length }));
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : t("Kelimeler eklenirken hata oluştu."));
     }
   };
 
-  const readyVideoScenarios = useMemo(
-    () => SCENARIOS.filter((s) => s.videoSteps && s.videoSteps.length > 0 && s.videoReady),
-    []
-  );
+  /** `levelLabel` defaults to `currentLevel` for the banner's "next task"
+   * call site; the chapter path below (which can browse any level) passes
+   * `selectedLevel` explicitly so a vocab task's source label always matches
+   * the level it actually belongs to. */
+  const handleStartTask = (task: CurriculumTask, levelLabel: string = currentLevel) => {
+    const doNav = () => {
+      if (task.type === 'lesson') {
+        navigation.navigate('GrammarLesson', { code: task.topic.code });
+      } else if (task.type === 'vocab') {
+        handleAddTopicWords(task.topic, levelLabel);
+      } else if (task.type === 'listening' && task.podcastEpisode) {
+        navigation.navigate('PodcastPlayer', { episodeId: task.podcastEpisode.id });
+      } else if (task.type === 'reading') {
+        if (task.readingSlug) navigation.navigate('ReadingPassage', { slug: task.readingSlug });
+        else navigation.navigate('ReadingList');
+      } else {
+        navigation.navigate('TextChat', {
+          focusTopic: {
+            title: task.topic.title,
+            formula: task.topic.formula,
+            targetWords: task.topic.targetWords,
+            topicCode: task.topic.code,
+          },
+        });
+      }
+    };
+
+    if (task.type === 'vocab') {
+      doNav();
+    } else {
+      const msg =
+        task.type === 'lesson'
+          ? t("Gramer Dersi Hazırlanıyor…")
+          : task.type === 'listening'
+          ? t("Podcast Sahnesi Açılıyor…")
+          : task.type === 'reading'
+          ? t("Okuma Parçaları Açılıyor…")
+          : t("Mivo ile Konuşma Başlıyor…");
+      transitionTo(doNav, msg);
+    }
+  };
+
+  const handleStartBossChallenge = () => {
+    transitionTo(() => {
+      navigation.navigate('TextChat', {
+        focusTopic: { title: selectedCurriculum.bossChallenge.title },
+      });
+    }, t("Bölüm Sonu Değerlendirmesi Başlıyor…"));
+  };
 
   const timeGreeting = useMemo(() => getTimeGreeting(), []);
-  const yankiMascot = dynamicCompanion[timeGreeting.timeOfDay] || companionImage;
-  const weekDots = useMemo(() => getWeekCompletionDots(progress ?? [], streak), [progress, streak]);
+
+  const onBannerScrollEnd = (e: { nativeEvent: { contentOffset: { x: number } } }) => {
+    setActiveBanner(Math.round(e.nativeEvent.contentOffset.x / BANNER_WIDTH));
+  };
+
+  // Matches MainTabNavigator's own floating tab bar math (bottomMargin +
+  // height 68) so the FAB sits just above it, never overlapping.
+  const insets = useSafeAreaInsets();
+  const fabBottom = Math.max(insets.bottom, 16) + 68 + 14;
+
+  if (isProfileLoading && !profile) {
+    return (
+      <SafeAreaView style={[styles.container, styles.appLoadingContainer]}>
+        <MivoLoader size={160} />
+        <Text style={styles.appLoadingTitle}>{t("TalkStage Açılıyor ✨")}</Text>
+        <Text style={styles.appLoadingSub}>{t("Mivo senin için öğrenme yolunu hazırlıyor…")}</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppHeader />
+
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* ======================================================== */}
-        {/* 1. TOP APP BAR (Avatar, Greeting + XP & CEFR Pill)      */}
-        {/* ======================================================== */}
-        <View style={styles.header}>
-          <View style={styles.headerLeftCol}>
-            <BouncyPressable
-              onPress={() => navigation.navigate('Profile')}
-              style={styles.avatarWrapper}
-              hitSlop={8}
-              hapticType="light"
-              scaleTo={0.93}
-            >
-              <Image source={userAvatar} style={styles.avatarImage} resizeMode="cover" />
-              <View style={styles.avatarLevelBadge}>
-                <Text style={styles.avatarLevelText}>{currentLevel}</Text>
-              </View>
-            </BouncyPressable>
-
-            <View style={styles.greetingContainer}>
-              <Text style={styles.greetingSub}>{timeGreeting.greeting}</Text>
-              <Text style={styles.greetingName} numberOfLines={1}>
-                {displayName}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.headerStatsRow}>
-            <BouncyPressable
-              onPress={() => navigation.navigate('Badges')}
-              style={[styles.headerStatPill, styles.headerXpPill]}
-              hitSlop={6}
-              hapticType="light"
-              scaleTo={0.93}
-            >
-              <Image
-                source={stateImages.xpBolt}
-                style={styles.headerXpBoltIcon}
-                resizeMode="contain"
-              />
-              <Text style={styles.headerXpText}>{profile?.xp ?? 140} XP</Text>
-            </BouncyPressable>
-
-            <BouncyPressable
-              onPress={() => navigation.navigate('Roadmap')}
-              style={[styles.headerStatPill, styles.headerLevelPill]}
-              hitSlop={6}
-              hapticType="light"
-              scaleTo={0.93}
-            >
-              <Text style={styles.headerLevelEmoji}>🏆</Text>
-              <Text style={styles.headerLevelText}>{currentLevel}</Text>
-            </BouncyPressable>
-          </View>
-        </View>
-
-        {/* ======================================================== */}
-        {/* 2. BUGÜN HERO — seri rozeti ve dinamik maskot             */}
-        {/* ======================================================== */}
-        <View style={[styles.heroCard, shadow.porcelain]}>
-          <View style={styles.heroGlowBlob} />
-
-          <View style={styles.heroTopRow}>
-            <View style={styles.streakPill}>
-              <Ionicons name="checkmark-done-circle" size={18} color={colors.brand} />
-              <Text style={styles.streakPillText}>{streak} Gün</Text>
-            </View>
-
-            <View style={styles.weekDotsRow}>
-              {weekDots.map((day, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.weekDot,
-                    day.isCompleted && styles.weekDotCompleted,
-                    day.isToday && !day.isCompleted && styles.weekDotToday,
-                  ]}
-                >
-                  {day.isCompleted && <View style={styles.weekDotInnerGlow} />}
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Daily Goal Progress Bar */}
-          <BouncyPressable
-            onPress={() => navigation.navigate('Profile')}
-            style={styles.dailyGoalBarWrap}
-            hitSlop={4}
-            hapticType="light"
-            scaleTo={0.98}
-          >
-            <View style={styles.dailyGoalBarTop}>
-              <View style={styles.dailyGoalLabelRow}>
-                <Ionicons name="flag" size={12} color={colors.brand} />
-                <Text style={styles.dailyGoalBarLabel}>
-                  Günün Hedefi:{' '}
-                  <Text style={styles.dailyGoalBarPercent}>%{dailyProgressPct}</Text>
-                </Text>
-              </View>
-              <Text style={styles.dailyGoalBarMinutes}>
-                {todayMinutes}/{dailyTargetMinutes} dk →
-              </Text>
-            </View>
-            <View style={styles.dailyGoalTrack}>
-              <View
-                style={[
-                  styles.dailyGoalFill,
-                  { width: `${Math.max(5, dailyProgressPct)}%` },
-                  dailyProgressPct >= 100 && styles.dailyGoalFillComplete,
-                ]}
-              />
-            </View>
-          </BouncyPressable>
-
-          {/* ======================================================== */}
-          {/* SİSTEMATİK İSTASYON GÖREVLERİ (TUR ATLAMA ŞARTLARI)      */}
-          {/* ======================================================== */}
-          {currentTopic && (
-            <View style={styles.stationMissionCard}>
-              <View style={styles.heroMissionRow}>
-                <View style={styles.heroMissionTextCol}>
-                  <View style={styles.dailyPlanBadge}>
-                    <Ionicons name="sparkles" size={12} color={colors.brand} />
-                    <Text style={styles.dailyPlanBadgeText}>
-                      {currentLevel} · {currentTopic.code} İSTASYONU
-                    </Text>
-                  </View>
-                  <Text style={styles.heroMissionTitle} numberOfLines={2}>
-                    {currentTopic.title}
-                  </Text>
-                </View>
-                <View style={styles.mascotWithAuraWrapper}>
-                  <View style={styles.mascotAuraGlow} />
-                  <Image source={yankiMascot} style={styles.heroMascotImg} resizeMode="contain" />
-                </View>
-              </View>
-
-              {/* Progress counter badge */}
-              <View style={styles.stationProgressRow}>
-                <Text style={styles.stationProgressLabel}>Tur Atlama Görevleri:</Text>
-                <View style={[styles.stationProgressPill, isStationMastered && styles.stationProgressPillMastered]}>
-                  <Text style={[styles.stationProgressPillText, isStationMastered && styles.stationProgressPillTextMastered]}>
-                    {completedStepsCount}/3 Görev {isStationMastered ? '⭐⭐⭐' : ''}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Same 3-task list CurriculumScreen's topic modal shows — see
-                  TopicTaskSteps.tsx for why this used to be two separate,
-                  drifting copies of the same logic. */}
-              <TopicTaskSteps
-                topic={currentTopic}
-                isQuizDone={isQuizDone}
-                isVocabDone={isVocabDone}
-                isPracticeDone={isPracticeDone}
-                onOpenLesson={() => navigation.navigate('GrammarLesson', { code: currentTopic.code })}
-                onAddWords={() => handleAddTopicWords(currentTopic)}
-                onStartPractice={() => {
-                  // vocab-type topics have no separate "practice" destination
-                  // (isPracticeDone is always true for them) — matches
-                  // CurriculumScreen's handleStartTopicAction, which this used
-                  // to NOT match: this button would have tried to open
-                  // TextChat for a vocab topic too before this fix.
-                  if (currentTopic.moduleType === 'vocab') {
-                    handleAddTopicWords(currentTopic);
-                  } else if (currentTopic.moduleType === 'reading') {
-                    navigation.navigate('ReadingList');
-                  } else {
-                    navigation.navigate('TextChat', {
-                      focusTopic: {
-                        title: currentTopic.title,
-                        formula: currentTopic.formula,
-                        targetWords: currentTopic.targetWords,
-                        topicCode: currentTopic.code,
-                      },
-                    });
-                  }
-                }}
-              />
-
-              {/* Optional reinforcement chat — speaking topics already have
-                  this as their required practice step above; for reading/
-                  vocab topics (which have no chat-based practice at all) this
-                  is a bonus, not a requirement, so it only appears once the
-                  lesson is actually done ("öğrendikten sonra pekiştirme",
-                  not before). Reuses the exact same focusTopic chat speaking
-                  topics use — no new backend/per-topic work needed, every
-                  topic already carries its own formula/targetWords. */}
-              {currentTopic.moduleType !== 'speaking' && isQuizDone && (
-                <Pressable
-                  onPress={() =>
-                    navigation.navigate('TextChat', {
-                      focusTopic: {
-                        title: currentTopic.title,
-                        formula: currentTopic.formula,
-                        targetWords: currentTopic.targetWords,
-                        topicCode: currentTopic.code,
-                      },
-                    })
-                  }
-                  style={styles.reinforceChatLink}
-                  hitSlop={6}
-                >
-                  <Ionicons name="chatbubbles-outline" size={13} color={colors.brand} />
-                  <Text style={styles.reinforceChatLinkText}>
-                    Konuyu Sohbetle Pekiştir (opsiyonel)
-                  </Text>
-                </Pressable>
-              )}
-
-              {/* Station completion or roadmap link */}
-              {isStationMastered ? (
-                <View style={styles.masteredBanner}>
-                  <Text style={styles.masteredBannerText}>
-                    🎉 Tebrikler! {currentTopic.code} durağını tamamladın. Sıradaki durak açıldı!
-                  </Text>
-                  <BouncyPressable
-                    onPress={() => navigation.navigate('Roadmap')}
-                    style={styles.masteredBtn}
-                    hapticType="success"
-                  >
-                    <Text style={styles.masteredBtnText}>Öğrenme Yolunu Gör 🗺️</Text>
-                  </BouncyPressable>
-                </View>
-              ) : (
-                <BouncyPressable
-                  onPress={() => navigation.navigate('Roadmap')}
-                  style={styles.roadmapInlineLink}
-                  hitSlop={6}
-                >
-                  <Text style={styles.roadmapInlineLinkText}>
-                    Tüm Aday Adası Yol Haritasını Gör ➔
-                  </Text>
-                </BouncyPressable>
-              )}
-            </View>
-          )}
-        </View>
-
-        {/* ======================================================== */}
-        {/* İSTEĞE BAĞLI SERBEST PRATİK & KEŞFET                      */}
-        {/* ======================================================== */}
-        <View style={styles.sandboxSection}>
-          <View style={styles.sandboxHeader}>
-            <Text style={styles.sandboxTitle}>İsteğe Bağlı Serbest Pratik 🎯</Text>
-            <Text style={styles.sandboxSub}>Ana ilerlemeni bozmadan istediğin zaman girip pratik yap</Text>
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sandboxScroll}>
-            {/* 1. Maya's Burgers */}
-            <BouncyPressable
-              onPress={() => (navigation as any).navigate('BurgerOrderLive')}
-              style={styles.sandboxCard}
-              hapticType="medium"
-            >
-              <LinearGradient colors={['#FFF7ED', '#FFEDD5']} style={styles.sandboxCardGradient}>
-                <Text style={styles.sandboxCardEmoji}>🍔</Text>
-                <Text style={styles.sandboxCardTitle}>Maya's Burgers</Text>
-                <Text style={styles.sandboxCardDesc}>Canlı Sipariş & Gramer</Text>
-              </LinearGradient>
-            </BouncyPressable>
-
-            {/* 2. 3D Sahne Pratiği */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('Scenarios')}
-              style={styles.sandboxCard}
-              hapticType="medium"
-            >
-              <LinearGradient colors={['#EEF2FF', '#E0E7FF']} style={styles.sandboxCardGradient}>
-                <Text style={styles.sandboxCardEmoji}>🎬</Text>
-                <Text style={styles.sandboxCardTitle}>3D Sahneler</Text>
-                <Text style={styles.sandboxCardDesc}>Kafede & Havalimanında</Text>
-              </LinearGradient>
-            </BouncyPressable>
-
-            {/* 3. Serbest Yazma */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('TextChat')}
-              style={styles.sandboxCard}
-              hapticType="medium"
-            >
-              <LinearGradient colors={['#F0FDF4', '#DCFCE7']} style={styles.sandboxCardGradient}>
-                <Text style={styles.sandboxCardEmoji}>✍️</Text>
-                <Text style={styles.sandboxCardTitle}>Serbest Yazma</Text>
-                <Text style={styles.sandboxCardDesc}>Maya ile Chat</Text>
-              </LinearGradient>
-            </BouncyPressable>
-
-            {/* 4. Podcast Kulübü */}
-            <BouncyPressable
-              onPress={() => navigation.navigate('PodcastList')}
-              style={styles.sandboxCard}
-              hapticType="medium"
-            >
-              <LinearGradient colors={['#FAF5FF', '#F3E8FF']} style={styles.sandboxCardGradient}>
-                <Text style={styles.sandboxCardEmoji}>🎧</Text>
-                <Text style={styles.sandboxCardTitle}>Podcastler</Text>
-                <Text style={styles.sandboxCardDesc}>Dinleme & Telaffuz</Text>
-              </LinearGradient>
-            </BouncyPressable>
-          </ScrollView>
-        </View>
-
-        {/* ======================================================== */}
-        {/* 3. HIZLI ERİŞİM ŞERİDİ — 3D Micro-Art İkonlarla           */}
+        {/* 2. BANNER CAROUSEL — Bugünün görevi + günlük hedef       */}
         {/* ======================================================== */}
         <ScrollView
           horizontal
+          pagingEnabled
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quickLinksScroll}
+          onMomentumScrollEnd={onBannerScrollEnd}
+          style={styles.bannerScroll}
+          contentContainerStyle={{ width: BANNER_WIDTH * 2 }}
         >
-          {/* 1. Yol Haritası */}
-          <BouncyPressable
-            onPress={() => navigation.navigate('Roadmap')}
-            hapticType="light"
-            scaleTo={0.95}
-          >
-            <LinearGradient
-              colors={QUICK_LINK_THEME.indigo.gradient}
-              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.indigo.border }]}
-            >
-              <View style={styles.quickLinkIconWrap}>
-                <Image
-                  source={quickIcons.roadmap}
-                  style={styles.quickLinkIconImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.indigo.text }]} numberOfLines={1}>
-                Yol Haritası
-              </Text>
-            </LinearGradient>
-          </BouncyPressable>
+          <View style={{ width: BANNER_WIDTH }}>
+            {isLevelFullyDone ? (
+              <BouncyPressable
+                onPress={() => {
+                  const nextLvl = CEFR_LEVELS[CEFR_LEVELS.indexOf(currentLevel) + 1];
+                  if (nextLvl) setSelectedLevel(nextLvl);
+                  scrollToNode(pathSectionRef.current);
+                }}
+                style={styles.bannerTouchable}
+                hapticType="success"
+              >
+                <LinearGradient colors={['#059669', '#10B981']} style={styles.bannerCard}>
+                  <Image source={stateImages.goalCelebration} style={styles.bannerMascot} resizeMode="contain" />
+                  <View style={styles.bannerTextCol}>
+                    <Text style={styles.bannerEyebrow}>{t("{{currentLevel}} TAMAMLANDI 🏆", { currentLevel })}</Text>
+                    <Text style={styles.bannerTitle}>{t("Seviyeni Bitirdin!")}</Text>
+                    <Text style={styles.bannerSub}>{t("Öğrenme yolunu görmek için dokun")}</Text>
+                  </View>
+                </LinearGradient>
+              </BouncyPressable>
+            ) : nextTask ? (
+              <BouncyPressable
+                onPress={() => handleStartTask(nextTask)}
+                style={styles.bannerTouchable}
+                hapticType="medium"
+              >
+                <LinearGradient
+                  colors={gradients.airyIndigo}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.bannerCard}
+                >
+                  <View style={styles.bannerDecoA} />
+                  <View style={styles.bannerDecoB} />
+                  <MivoAvatar state="idle" size={92} showGlow={false} style={{ marginRight: 4 }} />
+                  <View style={styles.bannerTextCol}>
+                    <Text style={styles.bannerEyebrow}>
+                      {currentLevel} · {nextTask.topic.code}
+                    </Text>
+                    <Text style={styles.bannerTitle} numberOfLines={2}>
+                      {nextTask.title}
+                    </Text>
+                    <Text style={styles.bannerSub} numberOfLines={1}>
+                      {timeGreeting.subtitle}
+                    </Text>
+                    <View style={styles.bannerCtaRow}>
+                      <View style={styles.bannerCta}>
+                        <Text style={styles.bannerCtaText}>{t("HEMEN BAŞLA")}</Text>
+                        <Ionicons name="arrow-forward" size={13} color={colors.brand} />
+                      </View>
+                      <View style={styles.bannerGoalChip}>
+                        <Ionicons name="time-outline" size={12} color="#FFFFFF" />
+                        <Text style={styles.bannerGoalChipText}>%{dailyProgressPct}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </BouncyPressable>
+            ) : null}
+          </View>
 
-          {/* 2. Kelimeler & Sandık */}
-          <BouncyPressable onPress={() => navigation.navigate('Vocab')} hapticType="light" scaleTo={0.95}>
-            <LinearGradient
-              colors={QUICK_LINK_THEME.emerald.gradient}
-              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.emerald.border }]}
+          <View style={{ width: BANNER_WIDTH }}>
+            <BouncyPressable
+              onPress={() => navigation.navigate('Profile')}
+              style={styles.bannerTouchable}
+              hapticType="light"
             >
-              {dueVocabCount > 0 && (
-                <View style={styles.quickLinkBadge}>
-                  <Text style={styles.quickLinkBadgeText}>{dueVocabCount}</Text>
+              <LinearGradient colors={['#D97706', '#F59E0B']} style={styles.bannerCard}>
+                <View style={styles.bannerGoalRing}>
+                  <Text style={styles.bannerGoalRingText}>%{dailyProgressPct}</Text>
                 </View>
-              )}
-              <View style={styles.quickLinkIconWrap}>
-                <Image
-                  source={quickIcons.vocab}
-                  style={styles.quickLinkIconImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.emerald.text }]} numberOfLines={1}>
-                Kelimeler
-              </Text>
-            </LinearGradient>
-          </BouncyPressable>
-
-          {/* 3. 900 Kelime Sözlüğü */}
-          <BouncyPressable onPress={() => navigation.navigate('VocabLibrary')} hapticType="light" scaleTo={0.95}>
-            <LinearGradient
-              colors={QUICK_LINK_THEME.violet.gradient}
-              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.violet.border }]}
-            >
-              <View style={styles.quickLinkIconWrap}>
-                <Image
-                  source={quickIcons.dictionary}
-                  style={styles.quickLinkIconImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.violet.text }]} numberOfLines={1}>
-                900 Kelime
-              </Text>
-            </LinearGradient>
-          </BouncyPressable>
-
-          {/* 4. Podcast Stüdyosu */}
-          <BouncyPressable onPress={() => navigation.navigate('PodcastList')} hapticType="light" scaleTo={0.95}>
-            <LinearGradient
-              colors={QUICK_LINK_THEME.amber.gradient}
-              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.amber.border }]}
-            >
-              <View style={styles.quickLinkIconWrap}>
-                <Image
-                  source={quickIcons.podcast}
-                  style={styles.quickLinkIconImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.amber.text }]} numberOfLines={1}>
-                Podcasts
-              </Text>
-            </LinearGradient>
-          </BouncyPressable>
-
-          {/* 5. Hata Defteri */}
-          <BouncyPressable onPress={() => navigation.navigate('MistakesNotebook')} hapticType="light" scaleTo={0.95}>
-            <LinearGradient
-              colors={QUICK_LINK_THEME.rose.gradient}
-              style={[styles.quickLinkChip, { borderBottomColor: QUICK_LINK_THEME.rose.border }]}
-            >
-              {mistakesCount > 0 && (
-                <View style={styles.quickLinkBadge}>
-                  <Text style={styles.quickLinkBadgeText}>{mistakesCount}</Text>
+                <View style={styles.bannerTextCol}>
+                  <Text style={styles.bannerEyebrow}>{t("GÜNÜN HEDEFİ")}</Text>
+                  <Text style={styles.bannerTitle}>{t("{{todayMinutes}}/{{dailyTargetMinutes}} dakika", { todayMinutes, dailyTargetMinutes })}</Text>
+                  <Text style={styles.bannerSub}>{t("İlerlemeni görmek için dokun")}</Text>
                 </View>
-              )}
-              <View style={styles.quickLinkIconWrap}>
-                <Image
-                  source={quickIcons.mistakes}
-                  style={styles.quickLinkIconImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.quickLinkLabel, { color: QUICK_LINK_THEME.rose.text }]} numberOfLines={1}>
-                Hata Defteri
-              </Text>
-            </LinearGradient>
-          </BouncyPressable>
+              </LinearGradient>
+            </BouncyPressable>
+          </View>
         </ScrollView>
 
-        {/* ======================================================== */}
-        {/* 4. 3D CANLI SİNEMA SPOTLIGHT — Pixar Kalitesinde Sahneler*/}
-        {/* ======================================================== */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <View>
-              <View style={styles.cinemaLiveBadgeRow}>
-                <View style={styles.livePulseDot} />
-                <Text style={styles.sectionSubTitle}>3D CANLI SİNEMA STÜDYOSU</Text>
-              </View>
-              <Text style={styles.sectionMainTitle}>Karakterlerle Yüz Yüze Konuş</Text>
-            </View>
-            <Pressable onPress={() => navigation.navigate('Scenarios')}>
-              <Text style={styles.seeAllText}>Tümünü Gör →</Text>
-            </Pressable>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.cinemaSpotlightScroll}
-          >
-            {readyVideoScenarios.map((sc) => {
-              const coverUrl = sc.coverImage ? resolveMediaUrl(sc.coverImage) : null;
-              const coverFailed = videoCoverErrorIds.has(sc.id);
-              const stepCount = sc.videoSteps?.length ?? 6;
-
-              return (
-                <BouncyPressable
-                  key={sc.id}
-                  onPress={() => {
-                    haptics.success();
-                    setSelectedVideoScenario(sc);
-                  }}
-                  style={[styles.cinemaSpotlightCard, shadow.card]}
-                  hapticType="medium"
-                  scaleTo={0.96}
-                >
-                  <View style={styles.cinemaSpotlightCoverBox}>
-                    <Image
-                      source={
-                        coverUrl && !coverFailed
-                          ? { uri: coverUrl }
-                          : resolveScenarioCategoryFallback(sc.category)
-                      }
-                      onError={() =>
-                        setVideoCoverErrorIds((prev) => new Set(prev).add(sc.id))
-                      }
-                      style={styles.cinemaSpotlightCoverImage}
-                      resizeMode="cover"
-                    />
-                    <LinearGradient
-                      colors={['rgba(15,23,42,0.1)', 'rgba(15,23,42,0.85)']}
-                      style={styles.cinemaSpotlightCoverOverlay}
-                    />
-
-                    {/* Top badges */}
-                    <View style={styles.cinemaSpotlightTopBadges}>
-                      <View style={styles.cinemaSpotlightLivePill}>
-                        <View style={styles.cinemaSpotlightLiveDot} />
-                        <Text style={styles.cinemaSpotlightLiveText}>3D VİDEO</Text>
-                      </View>
-                      <View style={styles.cinemaSpotlightLevelPill}>
-                        <Text style={styles.cinemaSpotlightLevelText}>{sc.level}</Text>
-                      </View>
-                    </View>
-
-                    {/* Bottom info on cover */}
-                    <View style={styles.cinemaSpotlightBottomInfo}>
-                      <View style={styles.cinemaSpotlightCharRow}>
-                        <Text style={styles.cinemaSpotlightCharEmoji}>{sc.emoji}</Text>
-                        <Text style={styles.cinemaSpotlightCharName}>
-                          {sc.aiName} • {sc.aiRole}
-                        </Text>
-                      </View>
-                      <Text style={styles.cinemaSpotlightTitle} numberOfLines={1}>
-                        {sc.title}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Bottom Action Row */}
-                  <View style={styles.cinemaSpotlightCtaRow}>
-                    <View style={styles.cinemaSpotlightStepChip}>
-                      <Ionicons name="film-outline" size={13} color={colors.textMuted} />
-                      <Text style={styles.cinemaSpotlightStepText}>{stepCount} Sahne</Text>
-                    </View>
-
-                    <View style={styles.cinemaSpotlightStartBtn}>
-                      <Text style={styles.cinemaSpotlightStartBtnText}>Sahneye Gir</Text>
-                      <Ionicons name="arrow-forward" size={12} color="#FFFFFF" />
-                    </View>
-                  </View>
-                </BouncyPressable>
-              );
-            })}
-          </ScrollView>
+        <View style={styles.bannerDotsRow}>
+          {[0, 1].map((i) => (
+            <View key={i} style={[styles.bannerDot, activeBanner === i && styles.bannerDotActive]} />
+          ))}
         </View>
 
-        {/* 5. GÜNÜN SESLİ ROL ÖNERİSİ (Recommended AI Voice Roleplay) */}
-        {recommended && (
-          <View style={[styles.section, { marginTop: spacing.md }]}>
-            <View style={styles.sectionHeaderRow}>
-              <View>
-                <Text style={styles.sectionSubTitle}>SESLİ DİYALOG KOÇU</Text>
-                <Text style={styles.sectionMainTitle}>
-                  {personaObj ? `${personaObj.title} İçin Önerilen` : 'Sesli Pratik Önerisi'}
-                </Text>
-              </View>
+        {/* Günün Sahnesi — Bugün'ün omurgası: sahne tamamlamak günlük hedefe sayılır */}
+        {sceneOfTheDay ? (
+          <BouncyPressable
+            onPress={() => navigation.navigate('Scenarios', { openSceneId: sceneOfTheDay.id })}
+            style={[styles.sceneDayCard, shadow.card]}
+            hapticType="light"
+          >
+            <Image source={resolveScenarioCoverSource(sceneOfTheDay)} style={styles.sceneDayCover} resizeMode="cover" />
+            <View style={styles.sceneDayBody}>
+              <Text style={styles.sceneDayEyebrow}>{t("GÜNÜN SAHNESİ")}</Text>
+              <Text style={styles.sceneDayTitle} numberOfLines={1}>
+                {sceneOfTheDay.titleTr}
+              </Text>
+              <Text style={styles.sceneDayMeta} numberOfLines={1}>
+                {sceneOfTheDay.level} · {sceneOfTheDay.aiName} · {t("{{durationMin}} dk", { durationMin: sceneOfTheDay.durationMin })}
+              </Text>
             </View>
+            <View style={styles.sceneDayPlay}>
+              <Ionicons name="play" size={16} color="#FFFFFF" style={{ marginLeft: 2 }} />
+            </View>
+          </BouncyPressable>
+        ) : null}
 
-            <View style={[styles.recommendedCard, shadow.card]}>
-              <View style={styles.recommendedCoverWrapper}>
-                <Image
-                  source={scenarioCategoryImages[recommended.category] ?? companionImage}
-                  style={styles.recommendedCoverImage}
-                  resizeMode="cover"
-                />
-                <LinearGradient
-                  colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.65)']}
-                  style={styles.recommendedCoverOverlay}
-                />
-                <View style={styles.recommendedTopBadgeRow}>
-                  <View style={styles.cefrLevelTag}>
-                    <Text style={styles.cefrLevelTagText}>{recommended.cefr_level ?? 'A2'}</Text>
-                  </View>
-                  <View style={styles.durationTag}>
-                    <Ionicons name="time-outline" size={11} color="#FFFFFF" />
-                    <Text style={styles.durationTagText}>{recommended.estimated_minutes} Dk</Text>
-                  </View>
-                </View>
-                <Text style={styles.recommendedCoverTitle} numberOfLines={1}>
-                  {recommended.title}
-                </Text>
-              </View>
+        {/* ======================================================== */}
+        {/* 3. ÖĞRENME YOLUN — tüm bölümler, kaydırarak keşfedilir   */}
+        {/* ======================================================== */}
+        <View style={styles.pathSection} ref={pathSectionRef}>
+          <Text style={styles.pathSectionTitle}>{t("Ders Yolun")}</Text>
 
-              <View style={styles.recommendedBody}>
-                <Text style={styles.recommendedDesc} numberOfLines={2}>
-                  {recommended.description}
-                </Text>
+          {/* Compact level pill row — switch which level's chapters show
+              below without leaving the page. */}
+          <View style={styles.levelPillRow}>
+            {CEFR_LEVELS.map((lvl) => {
+              const isSelected = selectedLevel === lvl;
+              const isUserCurrent = currentLevel === lvl;
+              const locked = isLevelLocked(lvl);
 
-                <BouncyPressable
-                  onPress={() =>
-                    navigation.navigate('LiveConversationRoom', {
-                      scenarioId: recommended.id,
-                      scenarioSlug: recommended.slug,
-                      scenarioTitle: recommended.title,
-                    })
-                  }
-                  style={styles.chunkyBtnWrapper}
-                  hapticType="medium"
-                  scaleTo={0.96}
+              return (
+                <Pressable
+                  key={lvl}
+                  onPress={() => {
+                    if (locked) {
+                      const prevLvl = CEFR_LEVELS[CEFR_LEVELS.indexOf(lvl) - 1];
+                      showToast(t("🔒 {{lvl}}, {{prevLvl}} seviyesini tamamlayınca açılır", { lvl, prevLvl }));
+                      return;
+                    }
+                    setSelectedLevel(lvl);
+                  }}
+                  style={[
+                    styles.levelPill,
+                    isSelected && styles.levelPillActive,
+                    locked && styles.levelPillLocked,
+                  ]}
                 >
+                  {locked && (
+                    <Ionicons name="lock-closed" size={9} color="#94A3B8" style={styles.levelPillLockIcon} />
+                  )}
+                  <Text
+                    style={[
+                      styles.levelPillText,
+                      isSelected && styles.levelPillTextActive,
+                      locked && styles.levelPillTextLocked,
+                    ]}
+                  >
+                    {lvl}
+                  </Text>
+                  {isUserCurrent && <View style={styles.levelPillCurrentDot} />}
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {/* Slim level header — title + one-line objective + progress bar. */}
+          {(() => {
+            const currentTheme = cefrThemes[selectedLevel] ?? cefrThemes.A1;
+            const progressPct = Math.round(
+              (practicedTopicsCount / Math.max(1, selectedCurriculum.topics.length)) * 100
+            );
+
+            return (
+              <View style={styles.levelHeaderCard}>
+                <View style={styles.levelHeaderTopRow}>
+                  <Text style={styles.levelHeaderTitle} numberOfLines={1}>
+                    {selectedLevel} · {selectedCurriculum.title}
+                  </Text>
+                  <Text style={[styles.levelHeaderPercent, { color: currentTheme.accentColor }]}>
+                    %{progressPct}
+                  </Text>
+                </View>
+                <Text style={styles.levelHeaderDesc} numberOfLines={1}>
+                  {currentTheme.subtitle}
+                </Text>
+                <View style={styles.progressBarTrack}>
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      { width: `${progressPct}%`, backgroundColor: currentTheme.accentColor },
+                    ]}
+                  />
+                </View>
+              </View>
+            );
+          })()}
+
+          {/* Bölümler — her bölüm renkli bir başlık + kıvrımlı bir ders yolu.
+              Tüm seviye tek seferde render edilir, aşağı kaydırdıkça sıradaki
+              dersler görünür. */}
+          {(() => {
+            const isReviewLevel = CEFR_LEVELS.indexOf(selectedLevel) < userLevelIdx;
+            const firstIncompleteSelectedIdx = selectedTaskQueue.findIndex((t) => !t.done);
+
+            return selectedCurriculum.units.map((unit, unitIdx) => {
+              const unitTaskEntries = selectedTaskQueue
+                .map((task, idx) => ({ task, idx }))
+                .filter(({ task }) => unit.topicCodes.includes(task.topic.code));
+              const unitDoneCount = unitTaskEntries.filter(({ task }) => task.done).length;
+              const unitPct = Math.round((unitDoneCount / Math.max(1, unitTaskEntries.length)) * 100);
+              const unitComplete = unitTaskEntries.length > 0 && unitDoneCount === unitTaskEntries.length;
+              const unitGradient = UNIT_GRADIENTS[unitIdx % UNIT_GRADIENTS.length];
+              const pathHeight = (unitTaskEntries.length + 1) * ROW_H;
+
+              return (
+                <View key={unit.title} style={styles.unitBlock}>
                   <LinearGradient
-                    colors={gradients.airyIndigo}
+                    colors={unitGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                    style={styles.recommendedCtaBtn}
+                    style={[styles.unitBanner, shadow.card]}
                   >
-                    <Ionicons name="mic" size={15} color="#FFFFFF" />
-                    <Text style={styles.recommendedCtaBtnText}>Sesli Başlat</Text>
+                    <View style={styles.unitBannerDecoA} />
+                    <View style={styles.unitBannerDecoB} />
+                    <View style={styles.unitBannerTopRow}>
+                      <Text style={styles.unitBannerPretitle}>{t("BÖLÜM")}{" "}{unitIdx + 1}</Text>
+                      <View style={styles.unitBannerCountPill}>
+                        <Text style={styles.unitBannerCountText}>
+                          {unitDoneCount}/{unitTaskEntries.length}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.unitBannerTitle} numberOfLines={2}>
+                      {unit.title}
+                    </Text>
+                    <View style={styles.unitBannerTrack}>
+                      <View style={[styles.unitBannerFill, { width: `${unitPct}%` }]} />
+                    </View>
                   </LinearGradient>
-                </BouncyPressable>
+
+                  <View style={{ height: pathHeight, width: PATH_W }}>
+                    {unitTaskEntries.map(({ task, idx }, i) => {
+                      const isLocked = isTopicLocked(
+                        selectedTaskQueue,
+                        selectedCurriculum.topics,
+                        task.topic.code,
+                        isReviewLevel
+                      );
+                      const isCurrent = idx === firstIncompleteSelectedIdx && !isLocked;
+                      const isFirstOfTopic = i === 0 || unitTaskEntries[i - 1].task.topic.code !== task.topic.code;
+                      const offset = X_OFFSETS[i % X_OFFSETS.length];
+                      const nextOffset = X_OFFSETS[(i + 1) % X_OFFSETS.length];
+                      const centerX = PATH_W / 2 + offset;
+                      const centerY = i * ROW_H + ROW_H / 2;
+                      const palette = TASK_COLORS[task.type];
+                      const labelOnLeft = offset > 20;
+                      const nodeLeft = centerX - NODE / 2;
+                      const labelStyle = labelOnLeft
+                        ? { left: 0, width: Math.max(80, nodeLeft - 12), alignItems: 'flex-end' as const }
+                        : {
+                            left: nodeLeft + NODE + 12,
+                            width: Math.max(80, PATH_W - (nodeLeft + NODE + 12)),
+                            alignItems: 'flex-start' as const,
+                          };
+                      const onPressTask = () => {
+                        if (isLocked) {
+                          showToast(t("🔒 Önceki konuyu tamamlayınca açılır"));
+                          return;
+                        }
+                        handleStartTask(task, selectedLevel);
+                      };
+
+                      return (
+                        <View key={task.id} style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                          {/* Bir sonraki ders düğümüne giden noktalı bağlantı */}
+                          {[0.34, 0.5, 0.66].map((t) => (
+                            <View
+                              key={t}
+                              style={[
+                                styles.pathDot,
+                                {
+                                  left: centerX + (PATH_W / 2 + nextOffset - centerX) * t - 4,
+                                  top: centerY + ROW_H * t - 4,
+                                  backgroundColor: task.done ? '#34D399' : '#CBD5E1',
+                                },
+                              ]}
+                            />
+                          ))}
+
+                          <PathNode
+                            ref={isCurrent ? currentStoneRef : undefined}
+                            left={nodeLeft}
+                            top={centerY - NODE / 2}
+                            palette={palette}
+                            icon={TASK_TYPE_ICON[task.type]}
+                            done={task.done}
+                            current={isCurrent}
+                            locked={isLocked}
+                            onPress={onPressTask}
+                          />
+
+                          <Pressable
+                            onPress={onPressTask}
+                            style={[styles.pathLabel, { top: centerY - 30 }, labelStyle]}
+                          >
+                            {isFirstOfTopic && (
+                              <Pressable
+                                onPress={() => setSelectedTopicModal(task.topic)}
+                                hitSlop={8}
+                                style={[styles.pathTopicTag, { backgroundColor: palette.soft }]}
+                              >
+                                <Text style={[styles.pathTopicTagText, { color: palette.dark }]} numberOfLines={1}>
+                                  {task.topic.code}
+                                </Text>
+                                <Ionicons name="information-circle" size={12} color={palette.dark} />
+                              </Pressable>
+                            )}
+                            <Text
+                              style={[
+                                styles.pathLabelKind,
+                                { color: isLocked ? '#94A3B8' : palette.dark },
+                              ]}
+                            >
+                              {palette.label.toUpperCase()}
+                            </Text>
+                            <Text
+                              style={[styles.pathLabelTitle, isLocked && styles.pathLabelTitleLocked]}
+                              numberOfLines={2}
+                            >
+                              {task.title}
+                            </Text>
+                          </Pressable>
+                        </View>
+                      );
+                    })}
+
+                    {/* Bölüm sonu kupası */}
+                    {(() => {
+                      const i = unitTaskEntries.length;
+                      const centerX = PATH_W / 2 + X_OFFSETS[i % X_OFFSETS.length];
+                      const centerY = i * ROW_H + ROW_H / 2;
+                      return (
+                        <View
+                          style={[
+                            styles.pathTrophy,
+                            unitComplete && styles.pathTrophyDone,
+                            { left: centerX - 30, top: centerY - 30 },
+                          ]}
+                        >
+                          <Ionicons
+                            name={unitComplete ? 'trophy' : 'trophy-outline'}
+                            size={28}
+                            color={unitComplete ? '#FFFFFF' : '#CBD5E1'}
+                          />
+                        </View>
+                      );
+                    })()}
+                  </View>
+                </View>
+              );
+            });
+          })()}
+
+          {/* Ek konu anlatımları */}
+          {bonusLessons.length > 0 && (
+            <View style={styles.bonusLessonsSection}>
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="library-outline" size={17} color={colors.brand} />
+                <Text style={styles.bonusSectionTitle}>{t("Ek konu anlatımları")}</Text>
+              </View>
+              <View style={styles.bonusLessonsRow}>
+                {bonusLessons.map((lesson) => (
+                  <Pressable
+                    key={lesson.code}
+                    onPress={() => navigation.navigate('GrammarLesson', { code: lesson.code })}
+                    style={[styles.bonusLessonCard, shadow.card]}
+                  >
+                    <Text style={styles.bonusLessonCode}>{lesson.code}</Text>
+                    <Text style={styles.bonusLessonTitle} numberOfLines={2}>
+                      {lesson.title}
+                    </Text>
+                  </Pressable>
+                ))}
               </View>
             </View>
+          )}
+
+          {/* 👑 BOSS CHALLENGE: Seviye Atlama Sohbeti */}
+          <View style={[styles.bossChallengeCard, shadow.card]}>
+            <View style={styles.bossCardHeaderRow}>
+              <View style={styles.assessmentIcon}>
+                <Ionicons name="ribbon-outline" size={20} color={colors.brand} />
+              </View>
+              <View style={styles.bossCardHeaderCol}>
+                <Text style={styles.bossCardPretitle}>{t("SEVİYE DEĞERLENDİRMESİ")}</Text>
+                <Text style={styles.bossCardTitle}>{selectedCurriculum.bossChallenge.title}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.bossCardDescription}>{selectedCurriculum.bossChallenge.description}</Text>
+
+            <Pressable onPress={handleStartBossChallenge} style={styles.bossStartButton}>
+              <Ionicons name="trophy" size={18} color="#FFFFFF" />
+              <Text style={styles.bossStartButtonText}>{t("Değerlendirme sohbetine başla")}</Text>
+              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+            </Pressable>
           </View>
-        )}
+        </View>
       </ScrollView>
 
-      {toast ? <Toast message={toast} /> : null}
-
-      {/* 3D Interactive Video Scenario Modal */}
-      <InteractiveVideoScenarioModal
-        visible={!!selectedVideoScenario}
-        scenario={selectedVideoScenario}
-        onClose={() => setSelectedVideoScenario(null)}
-        onComplete={(earnedXp) => {
-          showToast(`🏆 Harika! 3D senaryoyu tamamladın (+${earnedXp} XP)`);
-          setSelectedVideoScenario(null);
+      {/* Serbest Sohbet FAB — herhangi bir konuda canlı (WS/Cartesia) sesli
+          sohbet, bkz. FreeChatRoomScreen.tsx + backend's /ws/free-chat. */}
+      <BouncyPressable
+        onPress={() => {
+          transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"));
         }}
-      />
+        style={[styles.chatFab, { bottom: fabBottom }]}
+        hitSlop={12}
+        hapticType="medium"
+        scaleTo={0.92}
+      >
+        <MivoAvatar state="idle" size={54} showGlow={false} interactive={false} />
+      </BouncyPressable>
 
-      </SafeAreaView>
+      {/* Konu detay modalı — "Öğrenme Yolun" içindeki bilgi ikonundan açılır. */}
+      <Modal
+        visible={!!selectedTopicModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedTopicModal(null)}
+      >
+        <Pressable style={styles.duoModalOverlay} onPress={() => setSelectedTopicModal(null)}>
+          <Pressable style={styles.duoModalCard} onPress={(e) => e.stopPropagation()}>
+            {selectedTopicModal && (
+              <>
+                <View style={styles.duoModalHandle} />
+
+                <View style={styles.duoModalHeader}>
+                  <View style={styles.duoModalLevelTag}>
+                    <Text style={styles.duoModalLevelText}>
+                      {selectedLevel} • {selectedTopicModal.code}
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => setSelectedTopicModal(null)}
+                    hitSlop={12}
+                    style={styles.duoModalCloseBtn}
+                  >
+                    <Ionicons name="close" size={18} color={colors.textHeading} />
+                  </Pressable>
+                </View>
+
+                <Text style={styles.duoModalTitle}>{selectedTopicModal.title}</Text>
+                <Text style={styles.duoModalDesc}>{selectedTopicModal.description}</Text>
+
+                <View style={styles.duoFormulaBox}>
+                  <View style={styles.duoFormulaHeader}>
+                    <Ionicons name="sparkles" size={13} color={colors.brand} />
+                    <Text style={styles.duoFormulaLabel}>{t("FORMÜL / KURAL")}</Text>
+                  </View>
+                  <Text style={styles.duoFormulaText}>{selectedTopicModal.formula}</Text>
+                </View>
+
+                <View style={styles.duoVocabBox}>
+                  <Text style={styles.duoVocabLabel}>{t("KULLANILACAK KELİMELER:")}</Text>
+                  <View style={styles.duoVocabRow}>
+                    {selectedTopicModal.targetWords.map((w) => (
+                      <View key={w} style={styles.duoVocabChip}>
+                        <Text style={styles.duoVocabChipText}>+ {w}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                <Text style={styles.duoModalFooterHint}>{t("Bu konunun görevlerini yukarıdaki yol üzerinden tek tek başlatabilirsin.")}</Text>
+              </>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {toast ? <Toast message={toast} /> : null}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  sceneDayCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.lg,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    padding: 10,
+    marginBottom: spacing.lg,
+  },
+  sceneDayCover: { width: 56, height: 56, borderRadius: 14 },
+  sceneDayBody: { flex: 1 },
+  sceneDayEyebrow: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    letterSpacing: 0.6,
+    color: colors.brand,
+    marginBottom: 2,
+  },
+  sceneDayTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
+  sceneDayMeta: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 2 },
+  sceneDayPlay: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -956,7 +1105,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   headerLeftCol: {
     flexDirection: 'row',
@@ -977,6 +1126,17 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     borderWidth: 1.5,
   },
+  headerStreakPill: {
+    backgroundColor: '#FFF7ED',
+    borderColor: '#FED7AA',
+    gap: 4,
+  },
+  headerStreakText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#C2410C',
+  },
   headerXpPill: {
     backgroundColor: '#FFFBEB',
     borderColor: '#FDE68A',
@@ -991,20 +1151,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#B45309',
-  },
-  headerLevelPill: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
-    gap: 4,
-  },
-  headerLevelEmoji: {
-    fontSize: 11,
-  },
-  headerLevelText: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#4338CA',
   },
   avatarWrapper: {
     width: 50,
@@ -1052,778 +1198,672 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* 2. Bugün Hero */
-  heroCard: {
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 26,
-    padding: 20,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    marginBottom: spacing.lg,
+  /* 2. Banner Carousel */
+  bannerScroll: {
+    marginHorizontal: -spacing.md,
   },
-  heroGlowBlob: {
-    position: 'absolute',
-    top: -60,
-    right: -60,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(79, 70, 229, 0.10)',
-  },
-  heroTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  streakPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    gap: 6,
+  bannerTouchable: {
+    marginHorizontal: spacing.md,
+    borderRadius: 22,
     shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  streakPillText: {
+  bannerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 22,
+    padding: 16,
+    minHeight: 150,
+    gap: 14,
+    overflow: 'hidden',
+  },
+  bannerDecoA: {
+    position: 'absolute',
+    right: -30,
+    top: -40,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  bannerDecoB: {
+    position: 'absolute',
+    left: -24,
+    bottom: -48,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.09)',
+  },
+  bannerCtaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  bannerCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    borderBottomWidth: 3,
+    borderBottomColor: '#C7D2FE',
+  },
+  bannerCtaText: {
     fontFamily: fonts.headingBold,
-    fontSize: 12.5,
+    fontSize: 11,
+    letterSpacing: 0.6,
     color: colors.brand,
   },
-  weekDotsRow: {
+  bannerGoalChip: {
     flexDirection: 'row',
-    gap: 5,
-    marginHorizontal: 10,
     alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
   },
-  weekDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E2E8F0',
+  bannerGoalChipText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  bannerMascot: {
+    width: 64,
+    height: 64,
+  },
+  bannerGoalRing: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  weekDotCompleted: {
-    backgroundColor: colors.brand,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.35,
-    shadowRadius: 2,
-    elevation: 1,
+  bannerGoalRingText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    color: '#FFFFFF',
   },
-  weekDotToday: {
+  bannerTextCol: {
+    flex: 1,
+  },
+  bannerEyebrow: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.85)',
+    letterSpacing: 0.6,
+    marginBottom: 2,
+  },
+  bannerTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 20,
+  },
+  bannerSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 3,
+  },
+  bannerDotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 10,
+    marginBottom: spacing.lg,
+  },
+  bannerDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E2E8F0',
+  },
+  bannerDotActive: {
     backgroundColor: colors.brand,
-    transform: [{ scale: 1.25 }],
+    width: 16,
+  },
+
+  /* 3. Öğrenme Yolun (full chapter path, ported from the old Roadmap screen) */
+  pathSection: {
+    marginBottom: spacing.lg,
+  },
+  pathSectionTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 22,
+    color: colors.textHeading,
+    marginBottom: spacing.sm,
+  },
+
+  /* Level pill row — compact, text-only selector. */
+  levelPillRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  levelPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexBasis: '15%',
+    paddingVertical: 8,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
+    borderColor: 'rgba(226, 232, 240, 0.9)',
+    gap: 3,
   },
-  weekDotInnerGlow: {
-    width: 2.5,
-    height: 2.5,
-    borderRadius: 1.25,
-    backgroundColor: '#EEF2FF',
+  levelPillActive: {
+    borderColor: colors.brand,
+    backgroundColor: colors.brand,
   },
-  /* Daily Goal Progress inside Hero */
-  dailyGoalBarWrap: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    marginBottom: 16,
+  levelPillLocked: {
+    backgroundColor: '#F8FAFC',
   },
-  dailyGoalBarTop: {
+  levelPillLockIcon: {
+    marginRight: 1,
+  },
+  levelPillText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: colors.textHeading,
+  },
+  levelPillTextActive: {
+    color: '#FFFFFF',
+  },
+  levelPillTextLocked: {
+    color: '#94A3B8',
+  },
+  levelPillCurrentDot: {
+    position: 'absolute',
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.brand,
+  },
+
+  /* Slim level header — title + objective + progress bar. */
+  levelHeaderCard: {
+    marginBottom: spacing.sm,
+  },
+  levelHeaderTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
+  },
+  levelHeaderTitle: {
+    flex: 1,
+    fontFamily: fonts.headingBold,
+    fontSize: 14,
+    color: colors.textHeading,
+  },
+  levelHeaderPercent: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+  },
+  levelHeaderDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 1,
     marginBottom: 6,
   },
-  dailyGoalLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  dailyGoalBarLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#3730A3',
-  },
-  dailyGoalBarPercent: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.brand,
-  },
-  dailyGoalBarMinutes: {
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    fontWeight: '700',
-    color: '#4338CA',
-  },
-  dailyGoalTrack: {
-    height: 7,
-    borderRadius: radii.pill,
-    backgroundColor: '#E0E7FF',
+  progressBarTrack: {
+    height: 6,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 3,
     overflow: 'hidden',
   },
-  dailyGoalFill: {
+  progressBarFill: {
     height: '100%',
-    borderRadius: radii.pill,
-    backgroundColor: colors.brand,
-  },
-  dailyGoalFillComplete: {
-    backgroundColor: '#10B981',
+    borderRadius: 3,
   },
 
-  mascotWithAuraWrapper: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+  /* Bölüm başlığı + kıvrımlı ders yolu */
+  unitBlock: {
+    marginBottom: spacing.lg,
   },
-  mascotAuraGlow: {
+  unitBanner: {
+    borderRadius: 22,
+    padding: spacing.md,
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
+  },
+  unitBannerDecoA: {
     position: 'absolute',
+    right: -28,
+    top: -34,
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(99, 102, 241, 0.18)',
-    bottom: -4,
+    backgroundColor: 'rgba(255,255,255,0.14)',
   },
-  heroMissionRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: 18,
+  unitBannerDecoB: {
+    position: 'absolute',
+    right: 54,
+    bottom: -44,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: 'rgba(255,255,255,0.10)',
   },
-  heroMissionTextCol: {
-    flex: 1,
-    paddingRight: 8,
-  },
-  heroMissionTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
-    color: colors.textHeading,
-    lineHeight: 21,
-    marginBottom: 5,
-  },
-  heroMascotImg: {
-    width: 106,
-    height: 124,
-    marginBottom: -6,
-  },
-
-  /* Shared "chunky 3D" CTA language — gradient fill + darker bottom border +
-     colored glow, same depth recipe as Scenarios' stepping-stone path. */
-  chunkyBtnWrapper: {
-    borderRadius: radii.lg,
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  chunkyPrimaryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: 4,
-    borderBottomColor: '#3730A3',
-    borderRadius: radii.lg,
-    paddingVertical: 15,
-    gap: 8,
-  },
-  chunkyPrimaryBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#FFFFFF',
-  },
-  dailyPlanBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    alignSelf: 'flex-start',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  dailyPlanBadgeText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10.5,
-    color: colors.brand,
-    letterSpacing: 0.4,
-  },
-  stationMissionCard: {
-    marginTop: 4,
-  },
-  stationProgressRow: {
+  unitBannerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
-    marginTop: 2,
   },
-  stationProgressLabel: {
+  unitBannerPretitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.textHeading,
+    fontSize: 11,
+    letterSpacing: 1,
+    color: 'rgba(255,255,255,0.85)',
   },
-  stationProgressPill: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
+  unitBannerCountPill: {
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
   },
-  stationProgressPillMastered: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
-  },
-  stationProgressPillText: {
+  unitBannerCountText: {
     fontFamily: fonts.mono,
-    fontSize: 11,
+    fontSize: 11.5,
     fontWeight: '700',
-    color: colors.textMuted,
-  },
-  stationProgressPillTextMastered: {
-    color: '#059669',
-  },
-  masteredBanner: {
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    gap: 8,
-  },
-  masteredBannerText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: '#065F46',
-    textAlign: 'center',
-  },
-  masteredBtn: {
-    backgroundColor: '#059669',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  masteredBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
     color: '#FFFFFF',
   },
-  reinforceChatLink: {
-    flexDirection: 'row',
+  unitBannerTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 19,
+    lineHeight: 24,
+    color: '#FFFFFF',
+    marginTop: 4,
+    marginBottom: 12,
+    maxWidth: '85%',
+  },
+  unitBannerTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+    overflow: 'hidden',
+  },
+  unitBannerFill: {
+    height: '100%',
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  pathDot: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  node: {
+    width: NODE,
+    height: NODE,
+    borderRadius: NODE / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  nodeHalo: {
+    position: 'absolute',
+    left: -2,
+    top: -2,
+    width: NODE + 4,
+    height: NODE + 4,
+    borderRadius: (NODE + 4) / 2,
+  },
+  startBubble: {
+    position: 'absolute',
+    top: -34,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 5,
+  },
+  startBubbleText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 11,
+    letterSpacing: 0.8,
+    color: colors.brand,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    borderWidth: 2,
+    borderColor: '#E0E7FF',
+    overflow: 'hidden',
+  },
+  startBubbleArrow: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#FFFFFF',
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#E0E7FF',
+    transform: [{ rotate: '45deg' }],
+    marginTop: -6,
+  },
+  pathLabel: {
+    position: 'absolute',
+    justifyContent: 'center',
+  },
+  pathTopicTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radii.pill,
     marginBottom: 4,
   },
-  reinforceChatLinkText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12,
-    color: colors.brand,
-  },
-  roadmapInlineLink: {
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  roadmapInlineLinkText: {
+  pathTopicTagText: {
     fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.brand,
+    fontSize: 10,
+    letterSpacing: 0.3,
   },
-  sandboxSection: {
-    marginBottom: spacing.lg,
-  },
-  sandboxHeader: {
-    marginBottom: 10,
-  },
-  sandboxTitle: {
+  pathLabelKind: {
     fontFamily: fonts.headingBold,
-    fontSize: 15,
+    fontSize: 10,
+    letterSpacing: 0.8,
+  },
+  pathLabelTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 14.5,
+    lineHeight: 19,
     color: colors.textHeading,
-  },
-  sandboxSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textMuted,
     marginTop: 1,
   },
-  sandboxScroll: {
-    gap: 10,
-    paddingVertical: 4,
+  pathLabelTitleLocked: {
+    color: '#94A3B8',
   },
-  sandboxCard: {
-    width: 140,
-    borderRadius: radii.lg,
-    overflow: 'hidden',
-    ...shadow.sm,
+  pathTrophy: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F1F5F9',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
   },
-  sandboxCardGradient: {
-    padding: spacing.md,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    alignItems: 'flex-start',
-    gap: 4,
+  pathTrophyDone: {
+    backgroundColor: '#F59E0B',
+    borderColor: '#B45309',
+    borderStyle: 'solid',
   },
-  sandboxCardEmoji: {
-    fontSize: 24,
-    marginBottom: 4,
+
+  /* Ek konu anlatımları */
+  bonusLessonsSection: {
+    marginBottom: spacing.md,
   },
-  sandboxCardTitle: {
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginBottom: 8,
+  },
+  bonusSectionTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 13,
     color: colors.textHeading,
   },
-  sandboxCardDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-  },
-
-  /* 3. Quick Links Strip */
-  quickLinksScroll: {
-    gap: 12,
-    paddingVertical: 2,
-    marginBottom: spacing.lg,
-  },
-  quickLinkChip: {
-    position: 'relative',
-    width: 94,
-    alignItems: 'center',
-    borderRadius: 20,
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-    borderBottomWidth: 3,
+  bonusLessonsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
-  quickLinkIconWrap: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.95)',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+  bonusLessonCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radii.md,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    width: '48%',
   },
-  quickLinkIconImage: {
-    width: 44,
-    height: 44,
-  },
-  quickLinkLabel: {
+  bonusLessonCode: {
     fontFamily: fonts.headingBold,
-    fontSize: 10.5,
-    textAlign: 'center',
+    fontSize: 10,
+    color: colors.brand,
+    marginBottom: 2,
   },
-  quickLinkBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 8,
-    zIndex: 2,
-    backgroundColor: '#EF4444',
-    borderRadius: radii.pill,
-    minWidth: 18,
-    height: 18,
+  bonusLessonTitle: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textHeading,
+  },
+
+  /* Boss Challenge */
+  bossChallengeCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: spacing.md,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  bossCardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 6,
+  },
+  assessmentIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
   },
-  quickLinkBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 8.5,
-    fontWeight: 'bold',
+  bossCardHeaderCol: {
+    flex: 1,
+  },
+  bossCardPretitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    color: '#D97706',
+    letterSpacing: 0.5,
+  },
+  bossCardTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 14,
+    color: colors.textHeading,
+  },
+  bossCardDescription: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: colors.textMuted,
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  bossStartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.brand,
+    paddingVertical: 13,
+    borderRadius: 14,
+    gap: 6,
+  },
+  bossStartButtonText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
     color: '#FFFFFF',
   },
 
-  /* 4. 3D Canlı Sinema Spotlight & Sahneler */
-  cinemaLiveBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  /* Konu detay modalı */
+  duoModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    justifyContent: 'flex-end',
   },
-  livePulseDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: '#EF4444',
-  },
-  cinemaSpotlightScroll: {
-    gap: 14,
-    paddingVertical: 4,
-    paddingRight: 10,
-    marginBottom: spacing.md,
-  },
-  cinemaSpotlightCard: {
-    width: 270,
+  duoModalCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    overflow: 'hidden',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: spacing.md,
+    paddingBottom: 36,
   },
-  cinemaSpotlightCoverBox: {
-    position: 'relative',
-    height: 155,
-    width: '100%',
-    justifyContent: 'space-between',
-    padding: 12,
-    backgroundColor: '#0F172A',
+  duoModalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: spacing.sm,
   },
-  cinemaSpotlightCoverImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  cinemaSpotlightCoverOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  cinemaSpotlightTopBadges: {
+  duoModalHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    zIndex: 2,
-  },
-  cinemaSpotlightLivePill: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(239, 68, 68, 0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 3.5,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 6,
   },
-  cinemaSpotlightLiveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FFFFFF',
-  },
-  cinemaSpotlightLiveText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 9.5,
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  cinemaSpotlightLevelPill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+  duoModalLevelTag: {
+    backgroundColor: '#EEF2FF',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radii.pill,
   },
-  cinemaSpotlightLevelText: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    fontWeight: '800',
-    color: '#4338CA',
-  },
-  cinemaSpotlightBottomInfo: {
-    zIndex: 2,
-  },
-  cinemaSpotlightCharRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 2,
-  },
-  cinemaSpotlightCharEmoji: {
-    fontSize: 12,
-  },
-  cinemaSpotlightCharName: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: '#E2E8F0',
-    textShadowColor: 'rgba(0, 0, 0, 0.6)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  cinemaSpotlightTitle: {
+  duoModalLevelText: {
     fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.7)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  cinemaSpotlightCtaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
-  },
-  cinemaSpotlightStepChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  cinemaSpotlightStepText: {
-    fontFamily: fonts.mono,
     fontSize: 10.5,
-    color: colors.textMuted,
-    fontWeight: '600',
+    color: colors.brand,
   },
-  cinemaSpotlightStartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#4F46E5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radii.sm,
-    borderBottomWidth: 2,
-    borderBottomColor: '#3730A3',
+  duoModalCloseBtn: {
+    padding: 4,
   },
-  cinemaSpotlightStartBtnText: {
+  duoModalTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
-  section: {
-    marginBottom: 0,
-  },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  sectionSubTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.textMuted,
-    letterSpacing: 0.8,
-  },
-  sectionMainTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
+    fontSize: 17,
     color: colors.textHeading,
-    marginTop: 1,
+    marginBottom: 4,
   },
-  seeAllText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.brand,
-  },
-  recommendedCard: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-  },
-  recommendedCoverWrapper: {
-    position: 'relative',
-    height: 150,
-    justifyContent: 'flex-end',
-    padding: 14,
-  },
-  recommendedCoverImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  recommendedCoverOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  recommendedTopBadgeRow: {
-    position: 'absolute',
-    top: 14,
-    left: 14,
-    right: 14,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cefrLevelTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-  },
-  cefrLevelTagText: {
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    fontWeight: 'bold',
-    color: colors.brand,
-  },
-  durationTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    gap: 3,
-  },
-  durationTagText: {
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  recommendedCoverTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 19,
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  recommendedBody: {
-    padding: 16,
-  },
-  recommendedDesc: {
+  duoModalDesc: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
+    fontSize: 12,
     color: colors.textMuted,
-    lineHeight: 18,
-    marginBottom: 14,
+    lineHeight: 17,
+    marginBottom: 12,
   },
-  recommendedCtaBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: 3,
-    borderBottomColor: '#3730A3',
-    borderRadius: radii.md,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  recommendedCtaBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-    color: '#FFFFFF',
-  },
-  recommendedEmptyCard: {
+  duoFormulaBox: {
     backgroundColor: '#F8FAFC',
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderStyle: 'dashed',
-    padding: 18,
-  },
-  recommendedEmptyText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  burgerPromoCard: {
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-    borderRadius: radii.xl,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#FED7AA',
-    ...shadow.card,
-  },
-  burgerPromoGradient: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  burgerPromoLeft: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  burgerPromoBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFEDD5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: '#FDBA74',
-    marginBottom: 6,
-  },
-  burgerPromoBadgeText: {
-    fontSize: 10,
-    fontFamily: fonts.headingBold,
-    color: '#C2410C',
-  },
-  burgerPromoTitle: {
-    fontSize: 15,
-    fontFamily: fonts.headingBold,
-    color: '#7C2D12',
-    marginBottom: 2,
-  },
-  burgerPromoSub: {
-    fontSize: 12,
-    fontFamily: fonts.bodyMedium,
-    color: '#9A3412',
-    lineHeight: 16,
+    borderColor: '#E2E8F0',
+    borderRadius: radii.md,
+    padding: 10,
     marginBottom: 10,
   },
-  burgerPromoBtn: {
+  duoFormulaHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#FED7AA',
+    gap: 5,
+    marginBottom: 3,
   },
-  burgerPromoBtnText: {
-    fontSize: 12,
+  duoFormulaLabel: {
     fontFamily: fonts.headingBold,
-    color: '#C2410C',
+    fontSize: 9.5,
+    color: colors.brand,
+    letterSpacing: 0.5,
   },
-  burgerPromoRight: {
+  duoFormulaText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: colors.textHeading,
+  },
+  duoVocabBox: {
+    marginBottom: 14,
+  },
+  duoVocabLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    color: colors.textMuted,
+    marginBottom: 6,
+  },
+  duoVocabRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 5,
+  },
+  duoVocabChip: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.sm,
+  },
+  duoVocabChipText: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textHeading,
+  },
+  duoModalFooterHint: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+
+  /* Serbest Sohbet FAB */
+  chatFab: {
+    position: 'absolute',
+    right: spacing.md,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: 6,
+    borderWidth: 2,
+    borderColor: '#EEF2FF',
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 12,
+    zIndex: 99,
   },
-  burgerPromoEmoji: {
-    fontSize: 48,
+  chatFabImage: {
+    width: 42,
+    height: 42,
+  },
+  appLoadingContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  appLoadingTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 20,
+    color: colors.textHeading,
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  appLoadingSub: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 6,
+    textAlign: 'center',
   },
 });

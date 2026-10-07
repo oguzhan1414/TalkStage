@@ -19,6 +19,7 @@ export type ProfileOut = {
   persona_id: string | null;
   learning_goal: string | null;
   daily_target_minutes: number;
+  native_language?: string;
   onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -32,6 +33,7 @@ export type ProfileUpdate = Partial<{
   persona_id: string;
   learning_goal: string;
   daily_target_minutes: number;
+  native_language: string;
 }>;
 
 /** Body for `POST /onboarding/complete` — see backend `schemas/onboarding.py`. */
@@ -41,6 +43,7 @@ export type OnboardingCompleteRequest = {
   learning_goal: string;
   cefr_level: string;
   daily_target_minutes: number;
+  native_language?: string;
 };
 
 export type ScenarioObjective = {
@@ -165,11 +168,33 @@ export type SessionOut = {
   created_at: string;
 };
 
+export type ReadingSceneQuestion = {
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation_tr?: string | null;
+};
+
+export type ReadingSceneExercise = {
+  /** listen: duyduğun cümleyi seç | fill: boşluk doldur | tf: doğru/yanlış | question: anlama sorusu */
+  type: 'listen' | 'fill' | 'spell' | 'tf' | 'question';
+  prompt?: string | null;
+  options: string[];
+  correct_index: number;
+  explanation_tr?: string | null;
+  /** spell: yazılacak kelime (options = karışık harfler). */
+  answer?: string | null;
+};
+
 export type ReadingScene = {
   title: string;
   image_key: string;
   sentence_en: string;
   sentence_tr: string;
+  /** Varsa sahne paragraf okuma + anlama sorusu olarak işlenir (B1+). */
+  question?: ReadingSceneQuestion | null;
+  /** Alıştırma (yoksa cümle sıralama). */
+  exercise?: ReadingSceneExercise | null;
 };
 
 export type ReadingQuizQuestion = {
@@ -190,6 +215,8 @@ export type ReadingPassageOut = {
   title: string;
   body_text: string;
   cefr_level: string | null;
+  /** Konu etiketi (aile, yemek, seyahat…). */
+  theme?: string | null;
   estimated_minutes: number;
   sort_order: number;
   scenes: ReadingScene[];
@@ -223,6 +250,12 @@ export type ChatMessageResponse = {
   is_completed?: boolean;
   completion_summary_tr?: string | null;
   suggested_replies?: string[];
+  suggested_replies_tr?: string[];
+};
+
+/** `POST /chat/transcribe` — empty string means "no speech detected", not an error. */
+export type TranscribeResponse = {
+  transcript: string;
 };
 
 /** `GET /progress` — added alongside mobile Görev 15, the `progress` table existed but was never exposed for reading. */
@@ -295,3 +328,19 @@ export type TutorTurnRequest = {
   history?: Array<{ role: string; content: string }>;
 };
 
+
+/** GET /memory — Mivo'nun serbest sohbetlerden hatırladıkları. */
+export type ChatMemory = {
+  summary: string;
+  topics: { topic: string; at?: string | null }[];
+  facts: string[];
+  session_count: number;
+  last_session_at?: string | null;
+};
+
+/** POST /reading/{slug}/check-speaking */
+export type SpeakingCheckOut = {
+  passed: boolean;
+  feedback: string;
+  suggestion_en?: string | null;
+};

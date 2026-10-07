@@ -2,26 +2,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { stateImages } from '../assets/images';
+import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
-import { CreateDeckModal } from '../components/CreateDeckModal';
-import { DeckStudyModal } from '../components/DeckStudyModal';
+import { MivoAvatar } from '../components/MivoAvatar';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { SwipeableVocabCard } from '../components/SwipeableVocabCard';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import {
   addWordToAnyDeck,
-  deleteCustomDeck,
-  getDeckMasteredWordIds,
   loadAllDecks,
   type VocabDeck,
   type VocabDeckWord,
 } from '../data/vocabDecks';
-import { usePronunciation } from '../hooks/usePronunciation';
+import { prefetchPronunciation, usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
 import { useAnalytics } from '../lib/analytics';
 import { formatIntervalLabel, predictNextIntervalDays } from '../lib/sm2Preview';
@@ -33,6 +32,8 @@ import type {
   VocabCardUpdate,
   VocabGrade,
 } from '../types/api';
+import { MivoLoader } from '../components/MivoLoader';
+import { t } from '../i18n';
 
 const GRADE_BUTTONS: {
   grade: VocabGrade;
@@ -44,7 +45,7 @@ const GRADE_BUTTONS: {
 }[] = [
   {
     grade: 'again',
-    label: 'Tekrar',
+    label: t("Tekrar"),
     iconName: 'refresh-outline',
     color: '#DC2626',
     bgColor: '#FEF2F2',
@@ -52,7 +53,7 @@ const GRADE_BUTTONS: {
   },
   {
     grade: 'good',
-    label: 'İyi',
+    label: t("İyi"),
     iconName: 'thumbs-up-outline',
     color: '#4F46E5',
     bgColor: '#EEF2FF',
@@ -60,7 +61,7 @@ const GRADE_BUTTONS: {
   },
   {
     grade: 'easy',
-    label: 'Kolay',
+    label: t("Kolay"),
     iconName: 'flash-outline',
     color: '#059669',
     bgColor: '#ECFDF5',
@@ -70,18 +71,24 @@ const GRADE_BUTTONS: {
 
 const CHEST_MILESTONES = [10, 25, 50, 100, 200, 500];
 
-// Custom klasör sayısına makul bir tavan — sınırsız klasör açılabilmesi
-// "Klasörler" ızgarasını hızla anlamsız bir yığına çeviriyordu (bkz. mobile
-// CLAUDE.md). 6 hazır tema + 12 özel klasör hâlâ tek ekranda taranabilir.
-const MAX_CUSTOM_DECKS = 12;
-
 const POS_OPTIONS = [
-  { id: 'noun', label: 'İsim', color: '#2563EB' },
-  { id: 'verb', label: 'Fiil', color: '#059669' },
-  { id: 'adjective', label: 'Sıfat', color: '#D97706' },
-  { id: 'adverb', label: 'Zarf', color: '#7C3AED' },
-  { id: 'phrase', label: 'Deyim', color: '#DB2777' },
+  { id: 'noun', label: t("İsim"), color: '#2563EB' },
+  { id: 'verb', label: t("Fiil"), color: '#059669' },
+  { id: 'adjective', label: t("Sıfat"), color: '#D97706' },
+  { id: 'adverb', label: t("Zarf"), color: '#7C3AED' },
+  { id: 'phrase', label: t("Deyim"), color: '#DB2777' },
 ];
+
+/** next_review_date (YYYY-MM-DD) -> "Bugün tekrar" / "Yarın" / "5 gün sonra". */
+function formatDueLabel(nextReviewDate: string): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(`${nextReviewDate.slice(0, 10)}T00:00:00`);
+  const diff = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+  if (Number.isNaN(diff) || diff <= 0) return t("⏰ Bugün tekrar");
+  if (diff === 1) return t("🗓 Yarın");
+  return t("🗓 {{diff}} gün sonra", { diff });
+}
 
 function getChestProgress(total: number) {
   const nextMilestone =
@@ -94,9 +101,10 @@ function getChestProgress(total: number) {
   return { nextMilestone, progressInTier: Math.min(1, Math.max(0, progressInTier)) };
 }
 
-type TabViewMode = 'decks' | 'flashcards' | 'dictionary';
+type TabViewMode = 'flashcards' | 'dictionary';
 
 export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
+  const { finishTransition } = useMivoTransition();
   const queryClient = useQueryClient();
   const { track } = useAnalytics();
 
@@ -116,6 +124,12 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!dueLoading && !allLoading) finishTransition();
+    }, [allLoading, dueLoading, finishTransition])
+  );
+
   // Defaults to the SM-2 review queue (Akıllı Pratik) — "what should I
   // actually do today" is the one job most visits to this tab have, so it's
   // the implicit home view now instead of one of 3 equal-weight tabs (see
@@ -124,119 +138,29 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const [queue, setQueue] = useState<VocabCardOut[]>([]);
   const [reviewedCount, setReviewedCount] = useState(0);
   const [reviewError, setReviewError] = useState<string | null>(null);
-  const { pronounce, toggle, isPlaying } = usePronunciation();
+  // 'Tekrar' denen kartlar oturum sonuna geri eklenir (aynı gün yeniden görülür);
+  // bu kartların ikinci gösterimi backend'e tekrar yazılmaz (XP/aralık şişmesin).
+  const relearnIdsRef = useRef<Set<string>>(new Set());
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const { pronounce, isPlaying } = usePronunciation();
 
-  // Decks & Folders State — "Hazır Temalar" (pre-made decks) was removed
-  // (see 2026-10 simplification note), so this is now purely the user's own
-  // custom folders; no more default/combined deck bookkeeping needed.
+  // Klasörler artık Özellikler > "Kelime Klasörlerim" ekranında (VocabDecksScreen).
+  // Burada sadece kelimeyi bir klasöre atamak için klasör listesi gerekiyor;
+  // ekran her fokus aldığında (klasör başka ekranda oluşturulmuş/silinmiş
+  // olabilir) yeniden okunuyor.
   const [customDecks, setCustomDecks] = useState<VocabDeck[]>([]);
-  const [selectedStudyDeck, setSelectedStudyDeck] = useState<VocabDeck | null>(null);
-  const [createDeckVisible, setCreateDeckVisible] = useState(false);
-  const [deckMasteryMap, setDeckMasteryMap] = useState<Record<string, number>>({});
   const [formSelectedDeckId, setFormSelectedDeckId] = useState<string | null>(null);
   const [assignDeckModalVisible, setAssignDeckModalVisible] = useState(false);
 
-  const loadDecksAndMastery = async () => {
-    const decks = await loadAllDecks();
-    setCustomDecks(decks);
-
-    const map: Record<string, number> = {};
-    for (const d of decks) {
-      const masteredIds = await getDeckMasteredWordIds(d.id);
-      map[d.id] = masteredIds.length;
-    }
-    setDeckMasteryMap(map);
-  };
-
-  useEffect(() => {
-    loadDecksAndMastery();
+  const loadDecks = useCallback(async () => {
+    setCustomDecks(await loadAllDecks());
   }, []);
 
-  const isCustomDeckCapReached = customDecks.length >= MAX_CUSTOM_DECKS;
-
-  const handleOpenCreateDeck = () => {
-    if (isCustomDeckCapReached) {
-      showToast(`En fazla ${MAX_CUSTOM_DECKS} özel klasör oluşturabilirsin — önce birini silip yer aç 📁`);
-      return;
-    }
-    setCreateDeckVisible(true);
-  };
-
-  const handleDeleteCustomDeck = (deckId: string) => {
-    Alert.alert('Klasörü Sil', 'Bu özel klasörü silmek istediğine emin misin?', [
-      { text: 'İptal', style: 'cancel' },
-      {
-        text: 'Sil',
-        style: 'destructive',
-        onPress: async () => {
-          const updated = await deleteCustomDeck(deckId);
-          setCustomDecks(updated);
-          showToast('Klasör silindi 🗑️');
-        },
-      },
-    ]);
-  };
-
-  const renderDeckCard = (deck: VocabDeck) => {
-    const total = deck.words.length;
-    const mastered = deckMasteryMap[deck.id] || 0;
-    const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
-
-    return (
-      <View key={deck.id} style={[styles.deckBentoCard, shadow.card, { borderColor: deck.color }]}>
-        <View style={styles.deckCardTop}>
-          <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
-            <Text style={styles.deckEmojiBig}>{deck.emoji}</Text>
-          </View>
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.deckCardTitle} numberOfLines={1}>{deck.title}</Text>
-            <Text style={styles.deckCardSub} numberOfLines={1}>{deck.subtitle}</Text>
-          </View>
-          <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
-            <Text style={styles.deckPillLevelText}>{deck.level}</Text>
-          </View>
-          {deck.isCustom && (
-            <BouncyPressable
-              onPress={() => handleDeleteCustomDeck(deck.id)}
-              style={styles.deckDeleteBtn}
-              hapticType="warning"
-              scaleTo={0.88}
-            >
-              <Ionicons name="trash-outline" size={15} color="#EF4444" />
-            </BouncyPressable>
-          )}
-        </View>
-
-        {/* Progress Bar & Word Count */}
-        <View style={styles.deckCardProgressArea}>
-          <View style={styles.deckProgressLabelRow}>
-            <Text style={styles.deckWordCountText}>{total} Kelime</Text>
-            <Text style={styles.deckPercentText}>
-              {mastered}/{total} Öğrenildi • %{percent}
-            </Text>
-          </View>
-          <View style={styles.deckBarTrack}>
-            <View
-              style={[
-                styles.deckBarFill,
-                { width: `${Math.max(6, percent)}%`, backgroundColor: deck.color },
-              ]}
-            />
-          </View>
-        </View>
-
-        {/* Action CTA */}
-        <BouncyPressable
-          onPress={() => setSelectedStudyDeck(deck)}
-          style={[styles.deckStartBtn, { backgroundColor: deck.color }, shadow.card]}
-          hapticType="medium"
-          scaleTo={0.96}
-        >
-          <Text style={styles.deckStartBtnText}>Pratiğe Başla ➔</Text>
-        </BouncyPressable>
-      </View>
-    );
-  };
+  useFocusEffect(
+    useCallback(() => {
+      loadDecks();
+    }, [loadDecks])
+  );
 
   // Search & Filters in Dictionary
   const [searchQuery, setSearchQuery] = useState('');
@@ -276,7 +200,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   useFocusEffect(
     useCallback(() => {
       refetchDueCards().then((result) => {
-        if (result.data) setQueue(result.data);
+        if (result.data) {
+          relearnIdsRef.current.clear();
+          setQueue(result.data);
+        }
       });
     }, [refetchDueCards])
   );
@@ -291,6 +218,15 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   );
 
   const currentCard = queue[0];
+
+  // Sıradaki iki kartın sesini önceden indir — "Dinle"ye basınca bekleme olmasın.
+  const nextTermsKey = `${queue[0]?.term ?? ''}|${queue[1]?.term ?? ''}`;
+  useEffect(() => {
+    if (activeTab !== 'flashcards') return;
+    prefetchPronunciation(queue[0]?.term);
+    prefetchPronunciation(queue[1]?.term);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextTermsKey, activeTab]);
 
   // Real forecast per grade for the card on top of the queue — classic SM-2
   // only tells "good" and "easy" apart from the 3rd successful review
@@ -307,25 +243,42 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     };
   }, [currentCard]);
 
+  const isRelearning = currentCard ? relearnIdsRef.current.has(currentCard.id) : false;
+  const sessionTotal = reviewedCount + queue.length;
+  const sessionPct = sessionTotal > 0 ? Math.round((reviewedCount / sessionTotal) * 100) : 0;
+  const dueCount = dueCards?.length ?? 0;
+
   const handleGrade = async (grade: VocabGrade) => {
     if (!currentCard) return;
+    const card = currentCard;
+    const wasRelearn = relearnIdsRef.current.has(card.id);
     setReviewError(null);
-    setQueue((prev) => prev.slice(1));
-    setReviewedCount((c) => c + 1);
+
+    if (grade === 'again') {
+      // Unutulan kart bu oturumda sona eklenir — aynı gün tekrar görülsün.
+      relearnIdsRef.current.add(card.id);
+      setQueue((prev) => [...prev.slice(1), card]);
+    } else {
+      relearnIdsRef.current.delete(card.id);
+      setQueue((prev) => prev.slice(1));
+      setReviewedCount((c) => c + 1);
+    }
+
+    if (wasRelearn) return; // ikinci tur sadece oturum içi, backend'e yazılmaz
 
     try {
-      await api.post(`/vocab-cards/${currentCard.id}/review`, { grade });
+      await api.post(`/vocab-cards/${card.id}/review`, { grade });
       track('vocab_card_reviewed', { grade });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
     } catch (err) {
-      setReviewError(err instanceof ApiError ? err.message : 'Kart güncellenemedi');
+      setReviewError(err instanceof ApiError ? err.message : t("Kart güncellenemedi"));
     }
   };
 
   const handlePronounce = () => {
     if (!currentCard) return;
-    toggle(currentCard.term);
+    pronounce(currentCard.term);
   };
 
   // Restart / Continuous Practice (SM-2 Free Practice)
@@ -333,7 +286,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     if (cardsList.length > 0) {
       setQueue(cardsList);
       setReviewedCount(0);
-      showToast('Tüm kelimelerle serbest pratik başlatıldı! 🔄');
+      showToast(t("Tüm kelimelerle serbest pratik başlatıldı! 🔄"));
     }
   };
 
@@ -365,15 +318,15 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   // Save (Create or Update) Word in Supabase & Selected Deck
   const handleSaveWord = async () => {
     if (!formTerm.trim()) {
-      showToast('Lütfen bir İngilizce kelime girin!');
+      showToast(t("Lütfen bir İngilizce kelime girin!"));
       return;
     }
 
     setIsSaving(true);
     const termClean = formTerm.trim();
-    const transClean = formTranslation.trim() || 'Özel kelime karşılığı';
-    const exampleClean =
-      formExample.trim() || `I am practicing using "${termClean}" in my conversation.`;
+    // Boş bırakılan alanlar uydurma metinle doldurulmuyor.
+    const transClean = formTranslation.trim() || undefined;
+    const exampleClean = formExample.trim() || undefined;
 
     try {
       if (editingCardId) {
@@ -386,7 +339,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           cefr_level: formLevel,
         };
         await api.patch(`/vocab-cards/${editingCardId}`, updatePayload);
-        showToast(`“${termClean}” başarıyla güncellendi! ✏️✨`);
+        showToast(t("“{{termClean}}” başarıyla güncellendi! ✏️✨", { termClean }));
       } else {
         // CREATE (POST)
         const createPayload: VocabCardCreate = {
@@ -395,7 +348,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           example_sentence: exampleClean,
           part_of_speech: formPos,
           cefr_level: formLevel,
-          source_label: 'Özel Giriş ✍️',
+          source_label: t("Özel Giriş ✍️"),
         };
         const created = await api.post<VocabCardOut>('/vocab-cards', createPayload);
         setQueue((prev) => [created, ...prev]);
@@ -406,23 +359,23 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             id: created.id || `w_${Date.now()}`,
             term: termClean,
             phonetic: '',
-            translation: transClean,
+            translation: transClean ?? '',
             pos: formPos as any,
-            exampleEn: exampleClean,
+            exampleEn: exampleClean ?? '',
             exampleTr: '',
             level: formLevel as any,
           };
           await addWordToAnyDeck(formSelectedDeckId, deckWordObj);
-          await loadDecksAndMastery();
+          await loadDecks();
         }
 
-        showToast(`“${termClean}” (${formLevel} • ${formPos}) kaydedildi! 📦✨`);
+        showToast(t("“{{termClean}}” ({{formLevel}} • {{formPos}}) kaydedildi! 📦✨", { termClean, formLevel, formPos }));
       }
 
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'İşlem gerçekleştirilemedi.');
+      showToast(err instanceof ApiError ? err.message : t("İşlem gerçekleştirilemedi."));
     } finally {
       setIsSaving(false);
       setModalVisible(false);
@@ -437,43 +390,18 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
       id: actionCard.id,
       term: actionCard.term,
       phonetic: '',
-      translation: actionCard.translation || 'Özel kelime',
+      translation: actionCard.translation || t("Özel kelime"),
       pos: (actionCard.part_of_speech || 'noun').toLowerCase() as any,
       exampleEn: actionCard.example_sentence || '',
       exampleTr: '',
       level: (actionCard.cefr_level || 'A2').toUpperCase() as any,
     };
     await addWordToAnyDeck(deck.id, deckWordObj);
-    await loadDecksAndMastery();
+    await loadDecks();
     setAssignDeckModalVisible(false);
     const wordName = actionCard.term;
     setActionCard(null);
-    showToast(`"${wordName}" kelimesi "${deck.title}" klasörüne eklendi! 📁✨`);
-  };
-
-  // The reverse bridge: Klasörler'deki bir kelimeyi gerçek SM-2 kuyruğuna
-  // (Sandık) taşır. Klasör pratiği ile Akıllı Pratik/Sözlüğüm bugüne kadar
-  // tamamen ayrı iki sistemdi (deste kelimeleri hiç Sandığa girmiyordu) —
-  // kullanıcı seçtiği kelimeleri bilinçli olarak buraya taşıyabiliyor artık.
-  const handleAddDeckWordToChest = async (word: VocabDeckWord): Promise<boolean> => {
-    try {
-      const createPayload: VocabCardCreate = {
-        term: word.term,
-        translation: word.translation,
-        example_sentence: word.exampleEn || undefined,
-        part_of_speech: word.pos,
-        cefr_level: word.level,
-        source_label: 'Klasör Pratiği 📁',
-      };
-      const created = await api.post<VocabCardOut>('/vocab-cards', createPayload);
-      setQueue((prev) => (prev.some((c) => c.id === created.id) ? prev : [created, ...prev]));
-      await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(`"${word.term}" Sandığına eklendi! 📦✨`);
-      return true;
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Kelime eklenemedi.');
-      return false;
-    }
+    showToast(t("\"{{wordName}}\" kelimesi \"{{title}}\" klasörüne eklendi! 📁✨", { wordName, title: deck.title }));
   };
 
   // Delete Word from Supabase
@@ -483,9 +411,9 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
       setQueue((prev) => prev.filter((c) => c.id !== cardId));
-      showToast(`“${term}” sandığından silindi. 🗑️`);
+      showToast(t("“{{term}}” sandığından silindi. 🗑️", { term }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Kelime silinemedi.');
+      showToast(err instanceof ApiError ? err.message : t("Kelime silinemedi."));
     } finally {
       setActionCard(null);
       setDeleteConfirmVisible(false);
@@ -522,97 +450,24 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppHeader />
       <View style={styles.innerContainer}>
-        {/* Header Row with "+ Yeni Kelime" Button */}
         <View style={styles.headerRow}>
-          <Text style={styles.title}>Kelime Sandığı</Text>
+          <Text style={styles.title}>{t("Kelime Sandığı")}</Text>
           <Pressable onPress={openCreateModal} style={styles.addWordHeaderButton}>
             <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.addWordHeaderButtonText}>Kelime Ekle</Text>
+            <Text style={styles.addWordHeaderButtonText}>{t("Kelime Ekle")}</Text>
           </Pressable>
         </View>
 
-        {/* Bu ekran eskiden 3 eşit ağırlıklı, büyük sekme (Klasörler / Akıllı
-            Pratik / Sözlüğüm) + ayrıca 2 yerde tekrarlanan bir "900 Kelime
-            Kütüphanesi" banner'ı olarak 4 farklı amacı eşit önemde gösteriyordu
-            — ilk bakışta "hangisi benim asıl işim" sorusu yaratıyordu (bkz.
-            mobile CLAUDE.md 2026-10 sadeleştirme notu). Artık Akıllı Pratik
-            (bugün ne yapmalıyım) varsayılan/örtük ana görünüm, diğer 3'ü ise
-            küçük, sayı rozetsiz ikincil bağlantılar. */}
-        <View style={styles.quickLinksRow}>
-          <Pressable
-            onPress={() => setActiveTab('flashcards')}
-            style={[styles.quickLinkChip, activeTab === 'flashcards' && styles.quickLinkChipActive]}
-          >
-            <Ionicons
-              name="flash"
-              size={13}
-              color={activeTab === 'flashcards' ? '#FFFFFF' : colors.textMuted}
-            />
-            <Text
-              style={[
-                styles.quickLinkChipText,
-                activeTab === 'flashcards' && styles.quickLinkChipTextActive,
-              ]}
-            >
-              Akıllı Pratik
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTab('decks')}
-            style={[styles.quickLinkChip, activeTab === 'decks' && styles.quickLinkChipActive]}
-          >
-            <Ionicons
-              name="folder-open-outline"
-              size={13}
-              color={activeTab === 'decks' ? '#FFFFFF' : colors.textMuted}
-            />
-            <Text
-              style={[
-                styles.quickLinkChipText,
-                activeTab === 'decks' && styles.quickLinkChipTextActive,
-              ]}
-            >
-              Klasörler
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTab('dictionary')}
-            style={[styles.quickLinkChip, activeTab === 'dictionary' && styles.quickLinkChipActive]}
-          >
-            <Ionicons
-              name="book-outline"
-              size={13}
-              color={activeTab === 'dictionary' ? '#FFFFFF' : colors.textMuted}
-            />
-            <Text
-              style={[
-                styles.quickLinkChipText,
-                activeTab === 'dictionary' && styles.quickLinkChipTextActive,
-              ]}
-            >
-              Sözlüğüm
-            </Text>
-          </Pressable>
-          <View style={styles.quickLinksDivider} />
-          <Pressable onPress={() => navigation.navigate('VocabLibrary')} style={styles.quickLinkChip}>
-            <Ionicons name="sparkles-outline" size={13} color={colors.brand} />
-            <Text style={[styles.quickLinkChipText, { color: colors.brand }]}>Kütüphane</Text>
-          </Pressable>
-        </View>
-
-        {/* 3D Chest Milestone Progress */}
+        {/* Sandık ilerlemesi + bugünün tekrar sayısı */}
         <View style={[styles.chestHeader, shadow.card]}>
-          <Image
-            source={stateImages.emptyChest}
-            style={styles.chestIcon}
-            resizeMode="contain"
-          />
+          <Image source={stateImages.emptyChest} style={styles.chestIcon} resizeMode="contain" />
           <View style={styles.chestTextCol}>
             <View style={styles.chestLabelRow}>
-              <Text style={styles.chestLabel}>Kişisel Kelime Sandığı</Text>
+              <Text style={styles.chestLabel}>{t("Sandık Hedefi")}</Text>
               <Text style={styles.chestCountText}>
-                {totalCardsInChest} / {chestProgress.nextMilestone} Kelime
+                {totalCardsInChest} / {chestProgress.nextMilestone}
               </Text>
             </View>
             <View style={styles.chestBarTrack}>
@@ -624,55 +479,46 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               />
             </View>
           </View>
+          <View style={[styles.duePill, dueCount === 0 && styles.duePillDone]}>
+            <Text style={[styles.duePillNum, dueCount === 0 && styles.duePillNumDone]}>
+              {dueCount}
+            </Text>
+            <Text style={[styles.duePillLabel, dueCount === 0 && styles.duePillNumDone]}>{t("bugün")}</Text>
+          </View>
         </View>
 
-        {/* ======================================================== */}
-        {/* SEKMELER: 0. KLASÖRLER & DESTELER (SMART DECKS HUB)     */}
-        {/* ======================================================== */}
-        {activeTab === 'decks' && (
-          <ScrollView contentContainerStyle={styles.decksContainer} showsVerticalScrollIndicator={false}>
-            {/* Hazır (önceden hazırlanmış) temalar kaldırıldı — içerik olarak
-                Kütüphane'nin 900 kelimesiyle ve müfredat konularının kendi
-                kelime havuzlarıyla çakışıyordu, SM-2 Sandığına da bağlı
-                değildi (bkz. 2026-10 sadeleştirme notu). Klasörler artık
-                sadece kullanıcının kendi oluşturduklarını gösteriyor. */}
-            <View style={styles.decksHeaderRow}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={styles.decksSectionTitle}>
-                  📁 Kendi Klasörlerim ({customDecks.length}/{MAX_CUSTOM_DECKS})
-                </Text>
-                <Text style={styles.decksSectionSub}>
-                  Kendi başlıklarınla grupladığın kelimeler.
-                </Text>
-              </View>
-              <BouncyPressable
-                onPress={handleOpenCreateDeck}
-                style={[
-                  styles.createDeckHeaderBtn,
-                  shadow.card,
-                  isCustomDeckCapReached && styles.createDeckHeaderBtnDisabled,
-                ]}
-                hapticType="medium"
-                scaleTo={0.94}
+        {/* İki görünüm: bugün ne tekrar edeceğim / tüm kelimelerim */}
+        <View style={styles.segmentWrap}>
+          {(
+            [
+              { id: 'flashcards', label: t("Akıllı Pratik"), on: 'flash', off: 'flash-outline' },
+              { id: 'dictionary', label: t("Sözlüğüm"), on: 'book', off: 'book-outline' },
+            ] as const
+          ).map((seg) => {
+            const active = activeTab === seg.id;
+            return (
+              <Pressable
+                key={seg.id}
+                onPress={() => setActiveTab(seg.id)}
+                style={[styles.segment, active && styles.segmentActive]}
               >
-                <Ionicons name="add" size={15} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text style={styles.createDeckHeaderBtnText}>Yeni Klasör</Text>
-              </BouncyPressable>
-            </View>
-
-            {customDecks.length > 0 ? (
-              <View style={styles.decksGrid}>
-                {customDecks.map((deck) => renderDeckCard(deck))}
-              </View>
-            ) : (
-              <View style={styles.emptyCustomDecksBox}>
-                <Text style={styles.emptyCustomDecksText}>
-                  Henüz özel klasörün yok. Ör. "Mülakat Terimlerim" gibi kendi temanı oluşturup istediğin kelimeleri içine topla.
+                <Ionicons
+                  name={active ? seg.on : seg.off}
+                  size={15}
+                  color={active ? '#FFFFFF' : colors.textMuted}
+                />
+                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
+                  {seg.label}
                 </Text>
-              </View>
-            )}
-          </ScrollView>
-        )}
+                {seg.id === 'flashcards' && dueCount > 0 && !active ? (
+                  <View style={styles.segmentBadge}>
+                    <Text style={styles.segmentBadgeText}>{dueCount}</Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            );
+          })}
+        </View>
 
         {/* ======================================================== */}
         {/* SEKMELER: 1. AKILLI FLASHCARD PRATİĞİ (SM-2)             */}
@@ -683,25 +529,26 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             showsVerticalScrollIndicator={false}
           >
             {dueLoading && !dueCards ? (
-              <View style={[styles.emptyBox, shadow.card]}>
-                <ActivityIndicator color={colors.brand} />
+              <View style={[styles.emptyBox, shadow.card, { paddingVertical: 36, alignItems: 'center' }]}>
+                <MivoLoader size={130} />
+                <Text style={{ fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading, marginTop: 14 }}>{t("Kelimelerin Hazırlanıyor…")}</Text>
               </View>
             ) : currentCard ? (
               <View style={styles.contentWrap}>
-                <View style={styles.cardHeaderInfoRow}>
-                  <Text style={styles.progressText}>
-                    Kalan Kart: {queue.length} • Tamamlanan: {reviewedCount}
-                  </Text>
+                <View style={styles.sessionRow}>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.sessionTrack}>
+                      <View style={[styles.sessionFill, { width: `${Math.max(4, sessionPct)}%` }]} />
+                    </View>
+                    <Text style={styles.progressText}>{t("{{reviewedCount}} / {{sessionTotal}} kart", { reviewedCount, sessionTotal })}{isRelearning ? t("  ·  🔁 tekrar turu") : ''}
+                    </Text>
+                  </View>
                   <Pressable
                     onPress={() => setActionCard(currentCard)}
                     hitSlop={10}
                     style={styles.cardMenuDotsButton}
                   >
-                    <Ionicons
-                      name="ellipsis-horizontal"
-                      size={18}
-                      color={colors.textMuted}
-                    />
+                    <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
                   </Pressable>
                 </View>
 
@@ -715,35 +562,38 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                   />
                 </View>
 
-                {reviewError ? (
-                  <Text style={styles.errorText}>{reviewError}</Text>
-                ) : null}
+                {reviewError ? <Text style={styles.errorText}>{reviewError}</Text> : null}
 
-                {/* Bottom 3 Grade Action Buttons */}
                 <View style={styles.gradeContainer}>
                   <View style={styles.gradeRow}>
-                    {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => (
-                      <Pressable
-                        key={grade}
-                        style={[
-                          styles.gradeButton,
-                          { borderColor, backgroundColor: bgColor },
-                        ]}
-                        onPress={() => handleGrade(grade)}
-                      >
-                        <View style={styles.gradeButtonHeaderRow}>
-                          <Ionicons name={iconName} size={15} color={color} />
-                          <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
-                        </View>
-                        <Text style={[styles.gradeButtonSub, { color }]}>
-                          {gradeForecastDays ? formatIntervalLabel(gradeForecastDays[grade]) : ''}
-                        </Text>
-                      </Pressable>
-                    ))}
+                    {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => {
+                      const sub =
+                        grade === 'again'
+                          ? 'Birazdan'
+                          : isRelearning
+                            ? formatIntervalLabel(1)
+                            : gradeForecastDays
+                              ? formatIntervalLabel(gradeForecastDays[grade])
+                              : '';
+                      return (
+                        <Pressable
+                          key={grade}
+                          style={({ pressed }) => [
+                            styles.gradeButton,
+                            { borderColor, backgroundColor: bgColor },
+                            pressed && styles.gradeButtonPressed,
+                          ]}
+                          onPress={() => handleGrade(grade)}
+                        >
+                          <View style={styles.gradeButtonHeaderRow}>
+                            <Ionicons name={iconName} size={16} color={color} />
+                            <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
+                          </View>
+                          <Text style={[styles.gradeButtonSub, { color }]}>{sub}</Text>
+                        </Pressable>
+                      );
+                    })}
                   </View>
-                  <Text style={styles.sm2ExplainerText}>
-                    💡 SM-2 Algoritması: Kelimeleri unutmaya yaklaştığın an hatırlatır.
-                  </Text>
                 </View>
               </View>
             ) : (
@@ -756,61 +606,37 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 />
                 <Text style={styles.emptyTitle}>
                   {reviewedCount === 1
-                    ? '1 Kelime Gözden Geçirildi ✨'
+                    ? t("1 Kelime Gözden Geçirildi ✨")
                     : reviewedCount > 1
-                      ? 'Günlük Tekrar Tamamlandı 🎉'
+                      ? t("Günlük Tekrar Tamamlandı 🎉")
                       : totalCardsInChest > 0
-                        ? 'Bugün İçin Planlı Kart Yok ✅'
-                        : 'Kelime Sandığın Henüz Boş 📦'}
+                        ? t("Bugün İçin Planlı Kart Yok ✅")
+                        : t("Kelime Sandığın Henüz Boş 📦")}
                 </Text>
                 <Text style={styles.emptySub}>
                   {reviewedCount > 0
-                    ? `${reviewedCount} kelimeyi başarıyla hafızana aldın. SM-2 aralıklı tekrar algoritmasıyla kalıcı hafızan güçleniyor!`
+                    ? t("{{reviewedCount}} kelimeyi başarıyla hafızana aldın. SM-2 aralıklı tekrar algoritmasıyla kalıcı hafızan güçleniyor!", { reviewedCount })
                     : totalCardsInChest > 0
-                      ? 'SM-2 algoritmasına göre bugün tekrarı gelen kart yok — harika gidiyorsun! Dilersen tüm kelimelerinle serbest pratik yapabilir veya klasörlerinden pratik seçebilirsin.'
-                      : 'Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.'}
+                      ? t("SM-2 algoritmasına göre bugün tekrarı gelen kart yok — harika gidiyorsun! Dilersen tüm kelimelerinle serbest pratik yapabilirsin.")
+                      : t("Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.")}
                 </Text>
 
                 <View style={styles.emptyActionRow}>
                   {totalCardsInChest > 0 ? (
                     <Button
-                      label="🔄 Tüm Kelimelerle Serbest Pratik Yap"
+                      label={t("🔄 Tüm Kelimelerle Serbest Pratik Yap")}
                       onPress={handleRestartPractice}
                       style={styles.emptyButton}
                     />
                   ) : (
                     <Button
-                      label="✍️ Hemen Yeni Kelime Ekle"
+                      label={t("✍️ Hemen Yeni Kelime Ekle")}
                       onPress={openCreateModal}
                       style={styles.emptyButton}
                     />
                   )}
-                  <Button
-                    label="🎴 Kelime Klasörlerinden Pratik Yap"
-                    variant="ghost"
-                    onPress={() => setActiveTab('decks')}
-                    style={styles.emptyButtonGhost}
-                  />
                 </View>
 
-                {/* 900 Words Library Discovery Banner */}
-                <Pressable
-                  onPress={() => navigation.navigate('VocabLibrary')}
-                  style={[styles.libraryQuickLinkBanner, shadow.card, { marginTop: 14, width: '100%' }]}
-                >
-                  <View style={styles.libraryQuickLinkLeft}>
-                    <View style={styles.libraryQuickLinkIconBox}>
-                      <Ionicons name="sparkles" size={14} color={colors.brand} />
-                    </View>
-                    <View style={styles.libraryQuickLinkTextCol}>
-                      <Text style={styles.libraryQuickLinkTitle}>900 Çekirdek Kelime Kütüphanesi 📚</Text>
-                      <Text style={styles.libraryQuickLinkSub}>
-                        İsim, Fiil ve Sıfat paketlerini incele &amp; sandığına ekle
-                      </Text>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={colors.brand} />
-                </Pressable>
               </View>
             )}
           </ScrollView>
@@ -821,163 +647,112 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         {/* ======================================================== */}
         {activeTab === 'dictionary' && (
           <View style={styles.dictionaryContainer}>
-            {/* Search Input */}
-            <View style={styles.searchBarBox}>
-              <Ionicons name="search" size={18} color={colors.textMuted} />
-              <TextInput
-                style={styles.searchBarInput}
-                placeholder="Kelime, anlam veya cümle ara..."
-                placeholderTextColor={colors.textMuted}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery ? (
-                <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
-                  <Ionicons name="close-circle" size={18} color={colors.textMuted} />
-                </Pressable>
-              ) : null}
+            <View style={styles.searchRow}>
+              <View style={[styles.searchBarBox, { flex: 1, marginBottom: 0 }]}>
+                <Ionicons name="search" size={18} color={colors.textMuted} />
+                <TextInput
+                  style={styles.searchBarInput}
+                  placeholder={t("Kelime, anlam veya cümle ara...")}
+                  placeholderTextColor={colors.textMuted}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery ? (
+                  <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
+                    <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+                  </Pressable>
+                ) : null}
+              </View>
+              <Pressable
+                onPress={() => setFiltersOpen((o) => !o)}
+                style={[
+                  styles.filterToggleBtn,
+                  (filtersOpen || Boolean(levelFilter || posFilter)) && styles.filterToggleBtnActive,
+                ]}
+              >
+                <Ionicons
+                  name="options-outline"
+                  size={20}
+                  color={filtersOpen || levelFilter || posFilter ? '#FFFFFF' : colors.textMuted}
+                />
+                {levelFilter || posFilter ? (
+                  <View style={styles.filterToggleDot} />
+                ) : null}
+              </Pressable>
             </View>
 
-            {/* Filter Section 1: CEFR Level Pills */}
-            <View style={styles.filterSection}>
-              <View style={styles.filterTitleRow}>
-                <Text style={styles.filterSectionTitle}>📊 SEVİYE FİLTRESİ</Text>
-                {levelFilter && (
-                  <Pressable onPress={() => setLevelFilter(null)}>
-                    <Text style={styles.filterResetText}>Sıfırla ✕</Text>
-                  </Pressable>
-                )}
-              </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterRow}
-              >
-                <Pressable
-                  onPress={() => setLevelFilter(null)}
-                  style={[
-                    styles.levelFilterChip,
-                    levelFilter === null && styles.levelFilterChipActive,
-                  ]}
+            {filtersOpen && (
+              <View style={styles.filterPanel}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterRow}
                 >
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      levelFilter === null && styles.filterChipTextActive,
-                    ]}
-                  >
-                    Tümü
-                  </Text>
-                </Pressable>
-
-                {CEFR_LEVELS.map((lvl) => {
-                  const count = cardsList.filter(
-                    (w) => (w.cefr_level || 'A1').toUpperCase() === lvl
-                  ).length;
-                  return (
-                    <Pressable
-                      key={lvl}
-                      onPress={() =>
-                        setLevelFilter(levelFilter === lvl ? null : lvl)
-                      }
-                      style={[
-                        styles.levelFilterChip,
-                        levelFilter === lvl && styles.levelFilterChipActive,
-                      ]}
-                    >
-                      <Text
+                  {CEFR_LEVELS.map((lvl) => {
+                    const count = cardsList.filter(
+                      (w) => (w.cefr_level || 'A1').toUpperCase() === lvl
+                    ).length;
+                    const active = levelFilter === lvl;
+                    return (
+                      <Pressable
+                        key={lvl}
+                        onPress={() => setLevelFilter(active ? null : lvl)}
+                        style={[styles.levelFilterChip, active && styles.levelFilterChipActive]}
+                      >
+                        <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
+                          {lvl}
+                          {count > 0 ? ` (${count})` : ''}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterRow}
+                >
+                  {POS_OPTIONS.map((pos) => {
+                    const count = cardsList.filter(
+                      (w) => (w.part_of_speech || 'noun').toLowerCase() === pos.id
+                    ).length;
+                    const active = posFilter === pos.id;
+                    return (
+                      <Pressable
+                        key={pos.id}
+                        onPress={() => setPosFilter(active ? null : pos.id)}
                         style={[
-                          styles.filterChipText,
-                          levelFilter === lvl && styles.filterChipTextActive,
+                          styles.posFilterChip,
+                          active && { backgroundColor: pos.color, borderColor: pos.color },
                         ]}
                       >
-                        {lvl} {count > 0 ? `(${count})` : ''}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-
-            {/* Filter Section 2: Part of Speech Pills */}
-            <View style={styles.filterSection}>
-              <View style={styles.filterTitleRow}>
-                <Text style={styles.filterSectionTitle}>🏷️ GRAMER TÜRÜ</Text>
-                {posFilter && (
-                  <Pressable onPress={() => setPosFilter(null)}>
-                    <Text style={styles.filterResetText}>Sıfırla ✕</Text>
-                  </Pressable>
-                )}
-              </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterRow}
-              >
-                <Pressable
-                  onPress={() => setPosFilter(null)}
-                  style={[
-                    styles.posFilterChip,
-                    posFilter === null && styles.posFilterChipActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      posFilter === null && styles.filterChipTextActive,
-                    ]}
-                  >
-                    Tüm Türler
-                  </Text>
-                </Pressable>
-
-                {POS_OPTIONS.map((pos) => {
-                  const count = cardsList.filter(
-                    (w) => (w.part_of_speech || 'noun').toLowerCase() === pos.id
-                  ).length;
-                  return (
-                    <Pressable
-                      key={pos.id}
-                      onPress={() =>
-                        setPosFilter(posFilter === pos.id ? null : pos.id)
-                      }
-                      style={[
-                        styles.posFilterChip,
-                        posFilter === pos.id && {
-                          backgroundColor: pos.color,
-                          borderColor: pos.color,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          posFilter === pos.id && styles.filterChipTextActive,
-                        ]}
-                      >
-                        {pos.label} {count > 0 ? `(${count})` : ''}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-
-            {/* Active Filter Clear Bar if filtered */}
-            {hasActiveFilters && (
-              <View style={styles.activeFilterSummaryBar}>
-                <Text style={styles.activeFilterSummaryText}>
-                  Filtrelenen Sonuç: {filteredWords.length} / {cardsList.length} Kelime
-                </Text>
-                <Pressable onPress={clearAllFilters}>
-                  <Text style={styles.clearAllFiltersLink}>Filtreleri Temizle ✕</Text>
-                </Pressable>
+                        <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
+                          {pos.label}
+                          {count > 0 ? ` (${count})` : ''}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
               </View>
             )}
 
+            <View style={styles.activeFilterSummaryBar}>
+              <Text style={styles.activeFilterSummaryText}>
+                {hasActiveFilters
+                  ? t("{{length}} / {{length2}} kelime gösteriliyor", { length: filteredWords.length, length2: cardsList.length })
+                  : t("{{length}} kelime · dokun: düzenle, sil, klasöre ekle", { length: cardsList.length })}
+              </Text>
+              {hasActiveFilters && (
+                <Pressable onPress={clearAllFilters}>
+                  <Text style={styles.clearAllFiltersLink}>{t("Temizle ✕")}</Text>
+                </Pressable>
+              )}
+            </View>
+
             {/* Words List with Long Press & Option Menu */}
             {allLoading && !allCards ? (
-              <ActivityIndicator style={styles.dictEmptyBlock} color={colors.brand} />
+              <MivoLoader size={90} label={t("Kelimelerin yükleniyor…")} style={styles.dictEmptyBlock} />
             ) : filteredWords.length > 0 ? (
               <FlatList
                 data={filteredWords}
@@ -991,86 +766,62 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
                   return (
                     <Pressable
-                      onLongPress={() => setActionCard(item)}
-                      delayLongPress={280}
+                      onPress={() => setActionCard(item)}
                       style={({ pressed }) => [
                         styles.dictWordCard,
                         shadow.card,
                         pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
                       ]}
                     >
-                      <View style={styles.dictCardHeader}>
-                        <View style={styles.dictBadgesRow}>
-                          <View style={styles.dictLevelPill}>
-                            <Text style={styles.dictLevelPillText}>
-                              {item.cefr_level || 'A1'}
-                            </Text>
-                          </View>
-
-                          <View
-                            style={[
-                              styles.dictPosPill,
-                              {
-                                backgroundColor: posItem
-                                  ? `${posItem.color}15`
-                                  : 'rgba(79, 70, 229, 0.08)',
-                              },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.dictPosPillText,
-                                { color: posItem ? posItem.color : colors.brand },
-                              ]}
-                            >
-                              {posItem ? posItem.label : 'İsim'}
-                            </Text>
-                          </View>
-                        </View>
-
-                        <View style={styles.dictActionsRow}>
-                          <Pressable
-                            onPress={() => pronounce(item.term)}
-                            hitSlop={8}
-                            style={styles.dictSoundButton}
-                          >
-                            <Ionicons
-                              name="volume-high"
-                              size={18}
-                              color={colors.brand}
-                            />
-                          </Pressable>
-
-                          <Pressable
-                            onPress={() => setActionCard(item)}
-                            hitSlop={8}
-                            style={styles.dictOptionsButton}
-                          >
-                            <Ionicons
-                              name="ellipsis-vertical"
-                              size={16}
-                              color={colors.textMuted}
-                            />
-                          </Pressable>
-                        </View>
-                      </View>
-
-                      <Text style={styles.dictTerm}>{item.term}</Text>
-                      <Text style={styles.dictTranslation}>
-                        🇹🇷 {item.translation || 'Özel kelime'}
-                      </Text>
-
-                      {item.example_sentence ? (
-                        <View style={styles.dictExampleBox}>
-                          <Text style={styles.dictExample}>
-                            &ldquo;{item.example_sentence}&rdquo;
+                      <View style={styles.dictTopRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.dictTerm} numberOfLines={1}>
+                            {item.term}
+                          </Text>
+                          <Text style={styles.dictTranslation} numberOfLines={1}>
+                            {item.translation || t("Anlam eklenmemiş")}
                           </Text>
                         </View>
+                        <Pressable
+                          onPress={() => pronounce(item.term)}
+                          hitSlop={8}
+                          style={styles.dictSoundButton}
+                        >
+                          <Ionicons name="volume-high" size={18} color={colors.brand} />
+                        </Pressable>
+                      </View>
+
+                      {item.example_sentence ? (
+                        <Text style={styles.dictExample} numberOfLines={2}>
+                          &ldquo;{item.example_sentence}&rdquo;
+                        </Text>
                       ) : null}
 
-                      <Text style={styles.dictLongPressHint}>
-                        💡 Düzenlemek veya silmek için üzerine uzun bas
-                      </Text>
+                      <View style={styles.dictBadgesRow}>
+                        <View style={styles.dictLevelPill}>
+                          <Text style={styles.dictLevelPillText}>{item.cefr_level || 'A1'}</Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.dictPosPill,
+                            {
+                              backgroundColor: posItem
+                                ? `${posItem.color}15`
+                                : 'rgba(79, 70, 229, 0.08)',
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.dictPosPillText,
+                              { color: posItem ? posItem.color : colors.brand },
+                            ]}
+                          >
+                            {posItem ? posItem.label : t("İsim")}
+                          </Text>
+                        </View>
+                        <Text style={styles.dictDueText}>{formatDueLabel(item.next_review_date)}</Text>
+                      </View>
                     </Pressable>
                   );
                 }}
@@ -1080,12 +831,12 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 <Ionicons name="search-outline" size={32} color={colors.textMuted} />
                 <Text style={styles.dictEmptyText}>
                   {hasActiveFilters
-                    ? 'Seçtiğin filtrelere uygun kelime bulunamadı.'
-                    : 'Henüz kelime eklemedin.'}
+                    ? t("Seçtiğin filtrelere uygun kelime bulunamadı.")
+                    : t("Henüz kelime eklemedin.")}
                 </Text>
                 {hasActiveFilters && (
                   <Button
-                    label="Tüm Filtreleri Temizle"
+                    label={t("Tüm Filtreleri Temizle")}
                     variant="ghost"
                     onPress={clearAllFilters}
                     style={{ marginTop: 8 }}
@@ -1112,12 +863,12 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             <View style={styles.modalHeaderRow}>
               <View>
                 <Text style={styles.modalTitle}>
-                  {editingCardId ? 'Kelimeyi Düzenle ✏️' : 'Yeni Kelime Ekle ✍️'}
+                  {editingCardId ? t("Kelimeyi Düzenle ✏️") : t("Yeni Kelime Ekle ✍️")}
                 </Text>
                 <Text style={styles.modalSub}>
                   {editingCardId
-                    ? 'Kelimenin seviye, tür ve anlamını güncelle'
-                    : 'Tür ve seviye belirleyerek sandığına kaydet'}
+                    ? t("Kelimenin seviye, tür ve anlamını güncelle")
+                    : t("Tür ve seviye belirleyerek sandığına kaydet")}
                 </Text>
               </View>
               <Pressable
@@ -1132,10 +883,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
             <ScrollView showsVerticalScrollIndicator={false}>
               {/* 1. English Word */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>İNGİLİZCE KELİME VEYA DEYİM *</Text>
+                <Text style={styles.inputLabel}>{t("İNGİLİZCE KELİME VEYA DEYİM *")}</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Örn: resilient, nail down, breakthrough"
+                  placeholder={t("Örn: resilient, nail down, breakthrough")}
                   placeholderTextColor={colors.textMuted}
                   value={formTerm}
                   onChangeText={setFormTerm}
@@ -1146,7 +897,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* 2. CEFR Level Selector (A1 - C2) */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>CEFR SEVİYESİ</Text>
+                <Text style={styles.inputLabel}>{t("CEFR SEVİYESİ")}</Text>
                 <View style={styles.levelSelectorRow}>
                   {CEFR_LEVELS.map((lvl) => (
                     <Pressable
@@ -1172,7 +923,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* 3. Part of Speech Selector (İsim, Fiil, Sıfat, Zarf, Deyim) */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>GRAMER TÜRÜ (PART OF SPEECH)</Text>
+                <Text style={styles.inputLabel}>{t("GRAMER TÜRÜ (PART OF SPEECH)")}</Text>
                 <View style={styles.posSelectorGrid}>
                   {POS_OPTIONS.map((pos) => (
                     <Pressable
@@ -1201,10 +952,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* 4. Turkish Meaning */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>TÜRKÇE ANLAMI</Text>
+                <Text style={styles.inputLabel}>{t("TÜRKÇE ANLAMI")}</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Örn: Dayanıklı, toparlanabilen"
+                  placeholder={t("Örn: Dayanıklı, toparlanabilen")}
                   placeholderTextColor={colors.textMuted}
                   value={formTranslation}
                   onChangeText={setFormTranslation}
@@ -1213,10 +964,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* 5. Example Sentence */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>CÜMLE İÇİNDE KULLANIMI</Text>
+                <Text style={styles.inputLabel}>{t("CÜMLE İÇİNDE KULLANIMI")}</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea]}
-                  placeholder="Örn: The engineering team built a highly resilient backend."
+                  placeholder={t("Örn: The engineering team built a highly resilient backend.")}
                   placeholderTextColor={colors.textMuted}
                   value={formExample}
                   onChangeText={setFormExample}
@@ -1227,7 +978,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* 6. Target Folder / Deck Selection (Optional) */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>📁 EKLENECEK KLASÖR / DESTE (İSTEĞE BAĞLI)</Text>
+                <Text style={styles.inputLabel}>{t("📁 EKLENECEK KLASÖR / DESTE (İSTEĞE BAĞLI)")}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.deckSelectScroll}>
                   <Pressable
                     onPress={() => setFormSelectedDeckId(null)}
@@ -1236,9 +987,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                       formSelectedDeckId === null && styles.deckSelectChipActive,
                     ]}
                   >
-                    <Text style={[styles.deckSelectChipText, formSelectedDeckId === null && styles.deckSelectChipTextActive]}>
-                      🌟 Genel Sandık
-                    </Text>
+                    <Text style={[styles.deckSelectChipText, formSelectedDeckId === null && styles.deckSelectChipTextActive]}>{t("🌟 Genel Sandık")}</Text>
                   </Pressable>
                   {customDecks.map((deck) => (
                     <Pressable
@@ -1270,10 +1019,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 <Button
                   label={
                     isSaving
-                      ? 'Kaydediliyor...'
+                      ? t("Kaydediliyor...")
                       : editingCardId
-                        ? '💾 Değişiklikleri Güncelle'
-                        : '💾 Sandığıma Kaydet'
+                        ? t("💾 Değişiklikleri Güncelle")
+                        : t("💾 Sandığıma Kaydet")
                   }
                   onPress={handleSaveWord}
                   disabled={isSaving}
@@ -1305,7 +1054,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 {actionCard?.term}
               </Text>
               <Text style={styles.actionSheetWordSub}>
-                {actionCard?.cefr_level || 'A2'} • {actionCard?.part_of_speech || 'İsim'} • {actionCard?.translation}
+                {actionCard?.cefr_level || 'A2'} • {actionCard?.part_of_speech || t("İsim")} • {actionCard?.translation}
               </Text>
             </View>
 
@@ -1322,8 +1071,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 />
               </View>
               <View style={styles.actionTextCol}>
-                <Text style={styles.actionRowTitle}>Kelimeyi Düzenle</Text>
-                <Text style={styles.actionRowSub}>Seviye, tür, anlam veya cümleyi değiştir</Text>
+                <Text style={styles.actionRowTitle}>{t("Kelimeyi Düzenle")}</Text>
+                <Text style={styles.actionRowSub}>{t("Seviye, tür, anlam veya cümleyi değiştir")}</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </Pressable>
@@ -1339,8 +1088,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 <Ionicons name="folder-open" size={22} color="#4F46E5" />
               </View>
               <View style={styles.actionTextCol}>
-                <Text style={styles.actionRowTitle}>Bir Klasöre / Desteye Ekle</Text>
-                <Text style={styles.actionRowSub}>Renkler, Sayılar veya özel destelerine dahil et</Text>
+                <Text style={styles.actionRowTitle}>{t("Bir Klasöre / Desteye Ekle")}</Text>
+                <Text style={styles.actionRowSub}>{t("Renkler, Sayılar veya özel destelerine dahil et")}</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </Pressable>
@@ -1360,10 +1109,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                 />
               </View>
               <View style={styles.actionTextCol}>
-                <Text style={[styles.actionRowTitle, { color: '#EF4444' }]}>
-                  Kelimeyi Sil
-                </Text>
-                <Text style={styles.actionRowSub}>Bu kelimeyi sandığından tamamen kaldır</Text>
+                <Text style={[styles.actionRowTitle, { color: '#EF4444' }]}>{t("Kelimeyi Sil")}</Text>
+                <Text style={styles.actionRowSub}>{t("Bu kelimeyi sandığından tamamen kaldır")}</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </Pressable>
@@ -1373,7 +1120,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               style={styles.actionCancelButton}
               onPress={() => setActionCard(null)}
             >
-              <Text style={styles.actionCancelButtonText}>Vazgeç</Text>
+              <Text style={styles.actionCancelButtonText}>{t("Vazgeç")}</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -1391,10 +1138,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
         <SafeAreaView style={styles.assignModalContainer}>
           <View style={styles.assignModalHeader}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.assignModalTitle}>📁 Klasöre / Desteye Ekle</Text>
-              <Text style={styles.assignModalSub}>
-                "{actionCard?.term}" kelimesini eklemek istediğin klasörü seç:
-              </Text>
+              <Text style={styles.assignModalTitle}>{t("📁 Klasöre / Desteye Ekle")}</Text>
+              <Text style={styles.assignModalSub}>{t("\"{{term}}\" kelimesini eklemek istediğin klasörü seç:", { term: actionCard?.term })}</Text>
             </View>
             <BouncyPressable
               onPress={() => setAssignDeckModalVisible(false)}
@@ -1423,7 +1168,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                   <Text style={styles.assignDeckSub}>{deck.subtitle}</Text>
                 </View>
                 <View style={[styles.deckPillLevel, { backgroundColor: deck.color }]}>
-                  <Text style={styles.deckPillLevelText}>{deck.words.length} Kelime</Text>
+                  <Text style={styles.deckPillLevelText}>{t("{{length}} Kelime", { length: deck.words.length })}</Text>
                 </View>
               </BouncyPressable>
             ))}
@@ -1450,17 +1195,16 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               />
             </View>
 
-            <Text style={styles.confirmTitle}>Kelimeyi Sil?</Text>
+            <Text style={styles.confirmTitle}>{t("Kelimeyi Sil?")}</Text>
             <Text style={styles.confirmDesc}>
-              &ldquo;<Text style={{ fontWeight: 'bold' }}>{actionCard?.term}</Text>&rdquo; kelimesini kelime sandığından silmek istediğine emin misin? Bu işlem geri alınamaz.
-            </Text>
+              {t("“{{term}}” kelimesini kelime sandığından silmek istediğine emin misin? Bu işlem geri alınamaz.", { term: actionCard?.term ?? '' })}</Text>
 
             <View style={styles.confirmActionsRow}>
               <Pressable
                 style={styles.confirmCancelBtn}
                 onPress={() => setDeleteConfirmVisible(false)}
               >
-                <Text style={styles.confirmCancelText}>Vazgeç</Text>
+                <Text style={styles.confirmCancelText}>{t("Vazgeç")}</Text>
               </Pressable>
 
               <Pressable
@@ -1469,38 +1213,12 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                   actionCard && handleDeleteWord(actionCard.id, actionCard.term)
                 }
               >
-                <Text style={styles.confirmDeleteText}>Evet, Sil</Text>
+                <Text style={styles.confirmDeleteText}>{t("Evet, Sil")}</Text>
               </Pressable>
             </View>
           </View>
         </View>
       </Modal>
-
-      {/* 🎴 DECK STUDY MODAL */}
-      <DeckStudyModal
-        visible={!!selectedStudyDeck}
-        deck={selectedStudyDeck}
-        onClose={() => {
-          setSelectedStudyDeck(null);
-          loadDecksAndMastery();
-        }}
-        onDeckCompleted={() => {
-          loadDecksAndMastery();
-          showToast('🎉 Deste tamamlandı! +25 XP');
-        }}
-        savedTermsLower={savedTermsLower}
-        onAddToChest={handleAddDeckWordToChest}
-      />
-
-      {/* ➕ CREATE DECK MODAL */}
-      <CreateDeckModal
-        visible={createDeckVisible}
-        onClose={() => setCreateDeckVisible(false)}
-        onDeckCreated={(d) => {
-          loadDecksAndMastery();
-          showToast(`"${d.title}" klasörü oluşturuldu! 📁`);
-        }}
-      />
 
       {toast && <Toast message={toast} />}
     </SafeAreaView>
@@ -1515,19 +1233,25 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: 110,
+    paddingTop: 0,
+    paddingBottom: 96,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs,
+    marginBottom: 8,
   },
   title: {
     fontFamily: fonts.headingBold,
     fontSize: 22,
     color: colors.textHeading,
+  },
+  subtitle: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11.5,
+    color: colors.textMuted,
+    marginTop: 1,
   },
   addWordHeaderButton: {
     flexDirection: 'row',
@@ -1539,95 +1263,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 
-  /* 🎴 Decks Hub Styles */
-  decksContainer: {
-    paddingBottom: 40,
-  },
-  decksHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  decksSectionTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#0F172A',
-  },
-  decksSectionSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  createDeckHeaderBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.brand,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-  },
-  createDeckHeaderBtnText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
-  createDeckHeaderBtnDisabled: {
-    backgroundColor: '#CBD5E1',
-  },
-  emptyCustomDecksBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderStyle: 'dashed',
-    padding: 16,
-    marginBottom: 24,
-  },
-  emptyCustomDecksText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: '#64748B',
-    lineHeight: 18,
-    textAlign: 'center',
-  },
-  decksGrid: {
-    gap: 12,
-  },
-  deckBentoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1.5,
-  },
-  deckCardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  deckEmojiBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deckEmojiBig: {
-    fontSize: 24,
-  },
-  deckCardTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#0F172A',
-  },
-  deckCardSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: '#64748B',
-    marginTop: 2,
-  },
   deckPillLevel: {
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -1639,51 +1274,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  deckDeleteBtn: {
-    padding: 6,
-    marginLeft: 6,
-  },
-  deckCardProgressArea: {
-    marginVertical: 12,
-  },
-  deckProgressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  deckWordCountText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: '#475569',
-  },
-  deckPercentText: {
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    color: '#64748B',
-  },
-  deckBarTrack: {
-    height: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  deckBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  deckStartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 12,
-  },
-  deckStartBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: '#FFFFFF',
-  },
   addWordHeaderButtonText: {
     fontFamily: fonts.headingBold,
     fontSize: 12,
@@ -1693,55 +1283,23 @@ const styles = StyleSheet.create({
   /* Secondary quick-links row — small, auto-width pills (not equal-weight
      boxed tabs) so the 3 alternate views + the library read as "optional
      side destinations", not as 4 equally important systems. */
-  quickLinksRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: spacing.sm,
-  },
-  quickLinkChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-  },
-  quickLinkChipActive: {
-    backgroundColor: colors.brand,
-  },
-  quickLinkChipText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  quickLinkChipTextActive: {
-    color: '#FFFFFF',
-  },
-  quickLinksDivider: {
-    width: 1,
-    height: 16,
-    backgroundColor: '#E2E8F0',
-    marginHorizontal: 2,
-  },
 
   /* Chest Header */
   chestHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: radii.xl,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    borderRadius: radii.lg,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 8,
     borderWidth: 1.5,
     borderColor: '#E0E7FF',
   },
   chestIcon: {
-    width: 44,
-    height: 44,
-    marginRight: 12,
+    width: 32,
+    height: 32,
+    marginRight: 10,
   },
   chestTextCol: {
     flex: 1,
@@ -1777,12 +1335,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  cardHeaderInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
   progressText: {
     fontFamily: fonts.bodyRegular,
     fontSize: 11,
@@ -1796,11 +1348,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 2,
-    minHeight: 280,
+    minHeight: 250,
   },
   gradeContainer: {
-    marginTop: 6,
-    paddingTop: 2,
+    marginTop: 8,
   },
   gradeRow: {
     flexDirection: 'row',
@@ -1808,12 +1359,13 @@ const styles = StyleSheet.create({
   },
   gradeButton: {
     flex: 1,
-    borderRadius: 14,
-    paddingVertical: 10,
+    borderRadius: 16,
+    paddingVertical: 8,
     paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
+    borderBottomWidth: 4,
     minHeight: 54,
   },
   gradeButtonHeaderRow: {
@@ -1830,13 +1382,6 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     marginTop: 2,
     opacity: 0.9,
-  },
-  sm2ExplainerText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: 6,
   },
   errorText: {
     fontFamily: fonts.bodyRegular,
@@ -1909,27 +1454,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textHeading,
   },
-  filterSection: {
-    marginBottom: 5,
-  },
-  filterTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 3,
-  },
-  filterSectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.textMuted,
-    letterSpacing: 0.5,
-  },
-  filterResetText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.brand,
-  },
   filterRow: {
     gap: 5,
   },
@@ -1969,16 +1493,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(79, 70, 229, 0.05)',
-    paddingHorizontal: 10,
+    paddingHorizontal: 4,
     paddingVertical: 4,
-    borderRadius: 6,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   activeFilterSummaryText: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.brand,
+    fontSize: 11,
+    color: colors.textMuted,
   },
   clearAllFiltersLink: {
     fontFamily: fonts.headingBold,
@@ -1986,26 +1508,22 @@ const styles = StyleSheet.create({
     color: colors.error,
   },
   dictionaryList: {
-    gap: 6,
+    gap: 8,
     paddingBottom: 20,
     marginTop: 2,
   },
   dictWordCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: radii.md,
-    padding: 10,
+    padding: 12,
+    gap: 8,
     borderWidth: 1,
     borderColor: 'rgba(226, 232, 240, 0.8)',
   },
-  dictCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
   dictBadgesRow: {
     flexDirection: 'row',
-    gap: 5,
+    alignItems: 'center',
+    gap: 6,
   },
   dictLevelPill: {
     backgroundColor: colors.brand,
@@ -2029,50 +1547,31 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textTransform: 'uppercase',
   },
-  dictActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
   dictSoundButton: {
-    backgroundColor: 'rgba(79, 70, 229, 0.06)',
-    padding: 5,
-    borderRadius: radii.pill,
-  },
-  dictOptionsButton: {
-    padding: 4,
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dictTerm: {
     fontFamily: fonts.headingBold,
-    fontSize: 15,
+    fontSize: 16,
     color: colors.textHeading,
   },
   dictTranslation: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textBody,
     marginTop: 1,
   },
-  dictExampleBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 6,
-    padding: 6,
-    marginTop: 4,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.brand,
-  },
   dictExample: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 11,
+    fontSize: 11.5,
     color: colors.textMuted,
     fontStyle: 'italic',
-    lineHeight: 14,
-  },
-  dictLongPressHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 9,
-    color: colors.textMuted,
-    marginTop: 6,
+    lineHeight: 16,
   },
   dictEmptyBlock: {
     padding: spacing.lg,
@@ -2088,45 +1587,6 @@ const styles = StyleSheet.create({
   },
 
   /* Library Quick Link Banner */
-  libraryQuickLinkBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: 12,
-    marginBottom: spacing.sm,
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-  },
-  libraryQuickLinkLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  libraryQuickLinkIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  libraryQuickLinkTextCol: {
-    flex: 1,
-  },
-  libraryQuickLinkTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-  },
-  libraryQuickLinkSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
 
   /* Modal */
   modalOverlay: {
@@ -2500,6 +1960,153 @@ const styles = StyleSheet.create({
 
   /* Active Practice Scroll Content */
   practiceScrollContent: {
-    paddingBottom: 40,
+    flexGrow: 1,
+    paddingBottom: 8,
+  },
+
+  /* Sandık özeti */
+  duePill: {
+    marginLeft: 10,
+    minWidth: 46,
+    alignItems: 'center',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: '#FFF1F2',
+    borderWidth: 1.5,
+    borderColor: '#FECDD3',
+  },
+  duePillDone: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
+  },
+  duePillNum: {
+    fontFamily: fonts.headingBold,
+    fontSize: 15,
+    lineHeight: 17,
+    color: '#E11D48',
+  },
+  duePillNumDone: {
+    color: '#059669',
+  },
+  duePillLabel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 9.5,
+    color: '#E11D48',
+  },
+
+  /* Segmentli sekme */
+  segmentWrap: {
+    flexDirection: 'row',
+    backgroundColor: '#EEF2F7',
+    borderRadius: radii.pill,
+    padding: 3,
+    marginBottom: 8,
+  },
+  segment: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 7,
+    borderRadius: radii.pill,
+  },
+  segmentActive: {
+    backgroundColor: colors.brand,
+  },
+  segmentText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12.5,
+    color: colors.textMuted,
+  },
+  segmentTextActive: {
+    color: '#FFFFFF',
+  },
+  segmentBadge: {
+    minWidth: 18,
+    paddingHorizontal: 5,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F43F5E',
+  },
+  segmentBadgeText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    color: '#FFFFFF',
+  },
+
+  /* Pratik oturumu */
+  sessionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  sessionTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E2E8F0',
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  sessionFill: {
+    height: '100%',
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  gradeButtonPressed: {
+    transform: [{ translateY: 2 }],
+    borderBottomWidth: 2,
+  },
+
+  /* Sözlük */
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  filterToggleBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.8)',
+  },
+  filterToggleBtnActive: {
+    backgroundColor: colors.brand,
+    borderColor: colors.brand,
+  },
+  filterToggleDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F43F5E',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  filterPanel: {
+    gap: 6,
+    marginBottom: 8,
+  },
+  dictTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dictDueText: {
+    marginLeft: 'auto',
+    fontFamily: fonts.bodyRegular,
+    fontSize: 10,
+    color: colors.textMuted,
   },
 });
