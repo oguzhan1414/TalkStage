@@ -1,0 +1,72 @@
+{
+  "id": "rooftop-social",
+  "title": "Rooftop Social & Meeting a Fellow Traveler",
+  "titleTr": "Teras Barda Tanışma ve Seyahat Sohbeti",
+  "level": "B1",
+  "category": "daily",
+  "coverImage": "scenarios/rooftop-social/cover.jpg",
+  "description": "Gün batımında manzaralı bir teras lounge'unda Avustralyalı gezgin Chloe ile tanış, seyahat rotalarınızı paylaş, kültürel farkları konuş ve yarınki şehir turu için sözleş.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Teras Lounge'da Karşılaşma & Gün Batımı",
+      "aiSpeech": "Hi there! Feel free to grab that chair, nobody is sitting here. Amazing view of the sunset, isn't it?",
+      "aiSpeechTr": "Selamlar! O sandalyeyi çekebilirsin, kimse oturmuyor. Gün batımı manzarası muhteşem, değil mi?",
+      "expectedUserResponse": "Thank you so much! Yes, the sunset over the city is absolutely breathtaking.",
+      "userHint": "Thank you so much! Yes, the sunset over the city is breathtaking (Manzara nefes kesici) diyerek otur.",
+      "keywords": ["thank", "chair", "sunset", "view", "breathtaking", "amazing", "beautiful"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Tanışma & Ne Zamandır Yoldasın?",
+      "aiSpeech": "I'm Chloe, by the way! I have been backpacking across Europe for three weeks now. How long have you been in town?",
+      "aiSpeechTr": "Bu arada ben Chloe! Üç haftadır sırt çantamla Avrupa'yı geziyorum. Sen ne zamandır buradasın?",
+      "expectedUserResponse": "Nice to meet you, Chloe! I arrived three days ago, and I am planning to stay for another week.",
+      "userHint": "Nice to meet you Chloe! I arrived three days ago... (3 gün önce geldim, 1 hafta daha buradayım) de.",
+      "keywords": ["meet", "chloe", "arrived", "days", "ago", "planning", "stay", "week"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Kültür Şoku & Farklılıklar Üzerine",
+      "aiSpeech": "A week is plenty of time! Have you noticed any funny cultural differences or surprises since you arrived?",
+      "aiSpeechTr": "Bir hafta harika bir süre! Geldiğinden beri seni şaşırtan ilginç kültürel farklılıklar fark ettin mi?",
+      "expectedUserResponse": "People here eat dinner much later than in my country, and everyone is so energetic at night!",
+      "userHint": "People here eat dinner much later... (Burada akşam yemeği çok daha geç yeniyor) diyerek farkı anlat.",
+      "keywords": ["dinner", "later", "energetic", "night", "country", "culture", "people"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Gizli Mekanlar & Şehir Önerileri",
+      "aiSpeech": "Haha, that is so true! I discovered a hidden local bakery in the old town this morning. What places are you planning to see?",
+      "aiSpeechTr": "Haha, kesinlikle çok doğru! Bu sabah eski şehirde gizli bir fırın keşfettim. Sen nereleri görmeyi planlıyorsun?",
+      "expectedUserResponse": "That sounds delicious! Could you recommend the best historical spots or museums to visit tomorrow?",
+      "userHint": "Could you recommend the best historical spots or museums? (Bana tarihi yer veya müze önerir misin?) diye sor.",
+      "keywords": ["recommend", "historical", "spots", "museums", "visit", "tomorrow", "sounds"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Birlikte Kale Bölgesini Gezme Teklifi",
+      "aiSpeech": "I'm actually doing a walking tour of the historic castle district tomorrow at ten. Would you like to join me?",
+      "aiSpeechTr": "Aslında yarın saat onda tarihi kale bölgesinde yürüyüş turu yapacağım. Bana katılmak ister misin?",
+      "expectedUserResponse": "I would definitely love that! Walking around the castle district sounds like a wonderful adventure.",
+      "userHint": "I would definitely love that! (Kesinlikle çok isterim, harika bir macera olur) diyerek kabul et.",
+      "keywords": ["love", "definitely", "walking", "castle", "sounds", "wonderful", "join"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "İletişim Bilgisi Paylaşma & Sözleşme",
+      "aiSpeech": "Brilliant! Let's swap social handles so we can coordinate in the morning. Cheers to new adventures!",
+      "aiSpeechTr": "Harika! Sabah haberleşebilmek için sosyal medya hesaplarımızı takas edelim. Yeni maceraların şerefine!",
+      "expectedUserResponse": "Here is my handle! Let's meet at the lobby at nine-thirty tomorrow. Cheers, Chloe!",
+      "userHint": "Here is my handle! Let's meet at the lobby at nine-thirty. Cheers! diyerek sözleş.",
+      "keywords": ["handle", "meet", "lobby", "thirty", "tomorrow", "cheers", "chloe"]
+    }
+  ]
+}

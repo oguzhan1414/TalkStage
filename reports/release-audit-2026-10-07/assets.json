@@ -1,0 +1,67 @@
+{
+  "referenced_unique_assets": 412,
+  "source_total_mib": 136.97,
+  "missing_assets": [],
+  "largest": [
+    {
+      "path": "mobile\\assets\\images\\scenarios\\cafe-meetup.jpg",
+      "mib": 2.48
+    },
+    {
+      "path": "mobile\\assets\\images\\scenarios\\airport-travel.jpg",
+      "mib": 2.26
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_chat_invite.png",
+      "mib": 1.93
+    },
+    {
+      "path": "mobile\\assets\\images\\badges\\visa-approved.png",
+      "mib": 1.77
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_loading_flip.png",
+      "mib": 1.74
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_lesson_guide.png",
+      "mib": 1.65
+    },
+    {
+      "path": "mobile\\assets\\videos\\mivo\\mivo_navigation_flip.mp4",
+      "mib": 1.64
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_success.png",
+      "mib": 1.6
+    },
+    {
+      "path": "mobile\\assets\\images\\premium\\badges-premium.png",
+      "mib": 1.6
+    },
+    {
+      "path": "mobile\\assets\\images\\badges\\zero-freeze.png",
+      "mib": 1.57
+    },
+    {
+      "path": "mobile\\assets\\images\\badges\\negotiator.png",
+      "mib": 1.54
+    },
+    {
+      "path": "mobile\\assets\\images\\premium\\mistakes-premium.png",
+      "mib": 1.51
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_thinking.png",
+      "mib": 1.5
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_speaking.png",
+      "mib": 1.5
+    },
+    {
+      "path": "mobile\\assets\\images\\companion\\mivo\\mivo_idle.png",
+      "mib": 1.49
+    }
+  ]
+}

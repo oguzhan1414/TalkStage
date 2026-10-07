@@ -1,0 +1,72 @@
+{
+  "id": "supermarket-checkout",
+  "title": "Supermarket Shopping & Cashier Checkout",
+  "titleTr": "Süpermarket Alışverişi ve Kasa Ödemesi",
+  "level": "A1",
+  "category": "daily",
+  "coverImage": "scenarios/supermarket-checkout/cover.jpg",
+  "description": "FreshMart süpermarketinde Sam ile tanış, reyonlarda ürün bul, çikolatanın fiyatını öğren, kasada poşet iste ve kartla ödeme yap.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Reyonda Karşılama & Ürün Sorma",
+      "aiSpeech": "Hello! Welcome to FreshMart. Can I help you find something today?",
+      "aiSpeechTr": "Merhaba! FreshMart'a hoş geldiniz. Bugün bir şey bulmanıza yardımcı olabilir miyim?",
+      "expectedUserResponse": "Hello! Excuse me, where is the milk, please?",
+      "userHint": "Hello! Excuse me, where is the milk? diyerek sütün yerini sor.",
+      "keywords": ["hello", "excuse", "where", "milk", "please", "find"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Yön Gösterme & Fiyat Sorma",
+      "aiSpeech": "The milk is in aisle three, next to the bakery. Do you need anything else?",
+      "aiSpeechTr": "Süt 3. reyonda, fırın bölümünün hemen yanında. Başka bir şeye ihtiyacınız var mı?",
+      "expectedUserResponse": "Thank you! How much is this chocolate bar?",
+      "userHint": "Thank you! How much is this...? kalıbıyla çikolatanın fiyatını sor.",
+      "keywords": ["thank", "how", "much", "chocolate", "price", "this"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Fiyat Bilgisi & Kasaya Geçiş",
+      "aiSpeech": "That chocolate is two dollars and fifty cents. Are you ready to pay at the register?",
+      "aiSpeechTr": "O çikolata 2 dolar 50 sent. Kasada ödemeye hazır mısınız?",
+      "expectedUserResponse": "Yes, I am ready. Here is my basket.",
+      "userHint": "Yes, I am ready diyerek kasaya sepetini uzat.",
+      "keywords": ["yes", "ready", "basket", "pay", "register", "here"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Kasada Poşet İsteme",
+      "aiSpeech": "Great, that is four items in total. Would you like a shopping bag for these?",
+      "aiSpeechTr": "Harika, toplam dört parça ürün. Bunlar için bir alışveriş poşeti ister misiniz?",
+      "expectedUserResponse": "Yes, please. Can I have one bag?",
+      "userHint": "Yes, please. Can I have one bag? diyerek bir poşet iste.",
+      "keywords": ["yes", "please", "bag", "have", "one", "want"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Ödeme Yöntemi: Nakit mi Kart mı?",
+      "aiSpeech": "Your total is twelve dollars. Will you pay with cash or credit card today?",
+      "aiSpeechTr": "Toplam tutarınız 12 dolar. Bugün nakit mi yoksa kredi kartıyla mı ödeyeceksiniz?",
+      "expectedUserResponse": "By credit card, please. Here you go.",
+      "userHint": "By credit card, please diyerek kartla ödeyeceğini söyle.",
+      "keywords": ["card", "credit", "cash", "pay", "please", "here"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Fiş & Uğurlama",
+      "aiSpeech": "Payment approved! Here is your receipt and bag. Have a wonderful day!",
+      "aiSpeechTr": "Ödeme onaylandı! İşte fişiniz ve poşetiniz. Harika bir gün geçirin!",
+      "expectedUserResponse": "Thank you very much! Have a great day, goodbye!",
+      "userHint": "Thank you very much! Have a great day, goodbye! diyerek teşekkür et ve vedalaş.",
+      "keywords": ["thank", "day", "goodbye", "bye", "much", "great"]
+    }
+  ]
+}

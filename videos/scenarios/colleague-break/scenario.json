@@ -1,0 +1,72 @@
+{
+  "id": "colleague-break",
+  "title": "Office Coffee Break & Weekend Chat",
+  "titleTr": "Ofis Kahve Molası ve Hafta Sonu Sohbeti",
+  "level": "A2",
+  "category": "business",
+  "coverImage": "scenarios/colleague-break/cover.jpg",
+  "description": "Ofis mutfağında kahve alırken iş arkadaşın Maya ile karşılaş, hafta sonunun nasıl geçtiğini anlat, proje toplantısını konuş ve öğle yemeği için sözleş.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Kahve Makinesinde Selamlaşma & Hafta Sonu Açılışı",
+      "aiSpeech": "Hey! Good morning! Monday arrived so fast. How was your weekend?",
+      "aiSpeechTr": "Hey! Günaydın! Pazartesi ne kadar çabuk geldi. Hafta sonun nasıl geçti?",
+      "expectedUserResponse": "Good morning Maya! It was really relaxing, thank you. How was yours?",
+      "userHint": "Good morning Maya! It was really relaxing... (Çok dinlendiriciydi, seninki nasıldı?) diye sor.",
+      "keywords": ["good", "morning", "weekend", "relaxing", "great", "yours", "how"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Hafta Sonu Aktiviteleri (Geçmiş Zaman)",
+      "aiSpeech": "Mine was great! I visited an outdoor food festival with my friends. Did you do anything fun?",
+      "aiSpeechTr": "Benimki harikaydı! Arkadaşlarımla açık hava yemek festivaline gittim. Sen eğlenceli bir şeyler yaptın mı?",
+      "expectedUserResponse": "Yes, I watched a great movie and went for a long bike ride in the park.",
+      "userHint": "Yes, I watched a movie and went for a bike ride (Film izledim, bisiklete bindim) diyerek anlat.",
+      "keywords": ["yes", "watched", "movie", "went", "bike", "park", "walked", "friends"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Film Detayı & Karşılıklı İlgi",
+      "aiSpeech": "That sounds so peaceful! Which movie did you watch? Was it any good?",
+      "aiSpeechTr": "Kulağa çok huzurlu geliyor! Hangi filmi izledin? Güzel miydi?",
+      "expectedUserResponse": "It was a new sci-fi film. The visual effects were absolutely amazing!",
+      "userHint": "It was a new sci-fi film... (Yeni bir bilim kurgu filmiydi, efektler harikaydı) de.",
+      "keywords": ["movie", "film", "sci-fi", "amazing", "good", "effects", "watched"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "İş Yoğunluğu & Takım Toplantısı",
+      "aiSpeech": "I definitely need to watch that! Are you ready for our team standup meeting at eleven?",
+      "aiSpeechTr": "Onu kesinlikle izlemeliyim! Saat 11'deki ekip toplantımıza hazır mısın?",
+      "expectedUserResponse": "Almost ready! I finished my slides, but I still need to review them once.",
+      "userHint": "Almost ready! I finished my slides... (Slaytlarımı bitirdim, bir kez incelemem gerek) de.",
+      "keywords": ["almost", "ready", "finished", "slides", "meeting", "review", "team"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Öğle Yemeği Teklifi (Sosyal İletişim)",
+      "aiSpeech": "Don't stress, you will do great! Do you want to grab lunch together around one o'clock?",
+      "aiSpeechTr": "Stres yapma, harika geçecek! Saat 1 gibi birlikte öğle yemeğine çıkmak ister misin?",
+      "expectedUserResponse": "I would love to! Let's try that new Mexican taco place down the street.",
+      "userHint": "I would love to! Let's try that new taco place (Çok isterim, yeni taco yerini deneyelim) de.",
+      "keywords": ["love", "lunch", "try", "place", "taco", "food", "sounds", "great"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Sözleşme & Masalara Dönüş",
+      "aiSpeech": "Awesome idea, tacos sound delicious! I will see you in the meeting room, have a great morning!",
+      "aiSpeechTr": "Harika fikir, tacolar kulağa nefis geliyor! Toplantı odasında görüşürüz, iyi çalışmalar!",
+      "expectedUserResponse": "Sounds like a plan! See you at eleven Maya, have a good one!",
+      "userHint": "Sounds like a plan! See you at eleven (Anlaştık, 11'de görüşürüz) diyerek vedalaş.",
+      "keywords": ["sounds", "plan", "see", "eleven", "maya", "good", "bye"]
+    }
+  ]
+}

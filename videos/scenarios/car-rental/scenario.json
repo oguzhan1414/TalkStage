@@ -1,0 +1,72 @@
+{
+  "id": "car-rental",
+  "title": "Car Rental Desk & Vehicle Pick-up",
+  "titleTr": "Araç Kiralama & Araba Teslim Alma",
+  "level": "A2",
+  "category": "travel",
+  "coverImage": "scenarios/car-rental/cover.jpg",
+  "description": "Apex Car Rental ofisinde Ryan ile görüş, rezervasyonunu doğrula, otomatik vites seç, kasko sigortası detaylarını öğren ve araba anahtarını teslim al.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Kiralama Ofisinde Karşılama & Rezervasyon",
+      "aiSpeech": "Hello! Welcome to Apex Car Rental. Do you have a reservation with us today?",
+      "aiSpeechTr": "Merhaba! Apex Araç Kiralama'ya hoş geldiniz. Bugün bizde bir rezervasyonunuz var mıydı?",
+      "expectedUserResponse": "Hello! Yes, I booked a compact car under my name.",
+      "userHint": "Hello! Yes, I booked a compact car under my name diyerek rezervasyonunu söyle.",
+      "keywords": ["hello", "booked", "reservation", "compact", "car", "name", "apex"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Vites Tercihi: Otomatik mi Düz mü?",
+      "aiSpeech": "Got it! We have both manual and automatic transmission available. Which do you prefer to drive?",
+      "aiSpeechTr": "Anladım! Hem manuel hem otomatik vites araçlarımız mevcut. Hangisini sürmeyi tercih edersiniz?",
+      "expectedUserResponse": "I would definitely prefer an automatic car, please.",
+      "userHint": "I would definitely prefer an automatic car, please (Otomatik araç tercih ederim) de.",
+      "keywords": ["prefer", "automatic", "manual", "car", "please", "drive"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Ehliyet & Kredi Kartı Kontrolü",
+      "aiSpeech": "Automatic is ready for you! May I please see your driver's license and credit card for the deposit?",
+      "aiSpeechTr": "Otomatik aracınız hazır! Depozito için sürücü belgenizi ve kredi kartınızı görebilir miyim?",
+      "expectedUserResponse": "Sure! Here is my driver's license and my credit card.",
+      "userHint": "Sure! Here is my driver's license and credit card diyerek belgelerini uzat.",
+      "keywords": ["sure", "here", "driver", "license", "credit", "card", "deposit"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Kasko & Sigorta Kapsamı (Insurance)",
+      "aiSpeech": "Everything looks valid. Would you like to add comprehensive insurance with zero excess for complete peace of mind?",
+      "aiSpeechTr": "Her şey geçerli görünüyor. Tam güvence için sıfır muafiyetli tam kasko sigortası eklemek ister misiniz?",
+      "expectedUserResponse": "Yes, please. Does that insurance cover flat tires and windshield damage?",
+      "userHint": "Yes, please. Does that insurance cover flat tires and windshields? diye sor.",
+      "keywords": ["yes", "please", "insurance", "cover", "tire", "damage", "windshield"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Yakıt Politikası (Dolu Depo Teslim)",
+      "aiSpeech": "Yes, it covers everything! Just remember our fuel policy is full-to-full, so please return the tank full.",
+      "aiSpeechTr": "Evet, her şeyi kapsıyor! Sadece yakıt politikamızın doludan-doluya olduğunu unutmayın, lütfen depoyu dolu iade edin.",
+      "expectedUserResponse": "Understood. Full tank on return, no problem. Where do I drop the car off?",
+      "userHint": "Understood! Where do I drop the car off? (Arabayı nereye teslim edeceğim?) diye sor.",
+      "keywords": ["understood", "full", "tank", "where", "drop", "return", "car"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Anahtar Teslimi & Otopark Peron No",
+      "aiSpeech": "Here are the keys! Your silver sedan is parked at Bay 42 in the garage. Drive safely!",
+      "aiSpeechTr": "İşte anahtarlarınız! Gümüş renkli sedan aracınız kapalı otoparkta 42 numaralı peronda. İyi ve güvenli sürüşler!",
+      "expectedUserResponse": "Bay 42, perfect! Thank you so much for your help, have a great day!",
+      "userHint": "Bay 42, perfect! Thank you so much for your help diyerek anahtarı al ve vedalaş.",
+      "keywords": ["bay", "perfect", "thank", "much", "help", "keys", "garage", "day"]
+    }
+  ]
+}

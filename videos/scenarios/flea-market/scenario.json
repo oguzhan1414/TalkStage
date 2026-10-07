@@ -1,0 +1,112 @@
+{
+  "id": "flea-market",
+  "title": "Vintage Flea Market & Polite Bargaining",
+  "titleTr": "Bitpazarında Vintage Hazine ve Pazarlık",
+  "category": "daily",
+  "level": "B1",
+  "durationMin": 6,
+  "icon": "📻",
+  "emoji": "🕰️",
+  "badge": "3D Animasyon • B1",
+  "description": "Güneşli bir hafta sonu Avrupa bitpazarında Marco'nun vintage tezgahını incele, 1970'ler mekanik bir fotoğraf makinesinin geçmişini sor, kibarca pazarlık yap ve nakit anlaş.",
+  "role": "Vintage & Fotoğraf Meraklısı",
+  "aiRole": "Antika & Vintage Tezgah Sahibi",
+  "aiName": "Marco",
+  "situation": "Portobello / Mauerpark benzeri canlı bir açık hava bitpazarında nostaljik bir antika tezgahında eşsiz bir parça keşfeder ve satıcıyla fiyatta uzlaşırsın.",
+  "objectives": [
+    {
+      "id": "obj_1",
+      "text": "Ask if the vintage item is still functional and learn its backstory.",
+      "textTr": "Vintage ürünün çalışır durumda olup olmadığını ve hikayesini sor.",
+      "hint": "Kalıp: \"Is this camera still functional, or is it decorative?\""
+    },
+    {
+      "id": "obj_2",
+      "text": "Politely negotiate the price within your travel budget.",
+      "textTr": "Bütçene uygun şekilde satıcıyla kibarca pazarlık yap.",
+      "hint": "Kalıp: \"That is a bit above my budget. Would you be willing to do seventy?\""
+    },
+    {
+      "id": "obj_3",
+      "text": "Inquire about maintenance/film and conclude the cash purchase.",
+      "textTr": "Bakım veya film gereksinimlerini öğrenip nakit ödeme ile alışverişi tamamla.",
+      "hint": "Kalıp: \"Does it require any special film? I will take it for seventy-five.\""
+    }
+  ],
+  "starterAiMessage": "Welcome to the flea market! Take your time looking around. That vintage mechanical camera in your hands is a true classic from the nineteen-seventies.",
+  "suggestedVocab": [
+    { "term": "Flea market", "tr": "Bitpazarı / Açık hava pazarı", "phonetic": "/ˈfliː ˌmɑː.kɪt/" },
+    { "term": "Functional", "tr": "Çalışır durumda / İşlevsel", "phonetic": "/ˈfʌŋk.ʃən.əl/" },
+    { "term": "Bargain", "tr": "Pazarlık yapmak / Uygun fiyatlı alışveriş", "phonetic": "/ˈbɑː.ɡɪn/" },
+    { "term": "Souvenir", "tr": "Hatıra / Hediyelik eşya", "phonetic": "/ˌsuː.vənˈɪər/" },
+    { "term": "Fair deal", "tr": "Adil / Uygun bir anlaşma", "phonetic": "/feər diːl/" }
+  ],
+  "keyPhrases": [
+    { "en": "Is this vintage camera still fully functional or purely decorative?", "tr": "Bu vintage fotoğraf makinesi hâlâ çalışır durumda mı yoksa sadece dekoratif mi?" },
+    { "en": "That is a bit above my budget, would you consider seventy euros?", "tr": "Bu bütçemin biraz üzerinde, yetmiş euro yapabilir misiniz?" },
+    { "en": "Seventy-five euros sounds very fair, I will pay in cash.", "tr": "Yetmiş beş euro çok makul, nakit ödeyeceğim." }
+  ],
+  "videoPath": "scenarios/flea-market",
+  "videoSteps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Tezgaha İlgi & Çalışır Durumda mı?",
+      "aiSpeech": "Welcome to the flea market! Take your time looking around. That vintage mechanical camera in your hands is a true classic from the nineteen-seventies.",
+      "aiSpeechTr": "Bitpazarına hoş geldiniz! İncelemekten çekinmeyin. Elinizdeki o vintage mekanik fotoğraf makinesi 1970'lerden gerçek bir klasik.",
+      "expectedUserResponse": "Hello! It really caught my eye. Is this camera still fully functional, or is it mainly a decorative piece?",
+      "userHint": "Hello! It caught my eye. Is this camera still fully functional? (Hâlâ çalışıyor mu?) diye sor.",
+      "keywords": ["hello", "caught", "eye", "camera", "fully", "functional", "decorative", "piece"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Çalışma Durumu & İlgi Alanı",
+      "aiSpeech": "It is in working condition! The lens is clear and the shutter clicks smoothly. Are you an analog photography lover or looking for a special souvenir?",
+      "aiSpeechTr": "Çalışır durumda! Lensi berrak ve deklanşörü pürüzsüz çalışıyor. Analog fotoğraf meraklısı mısınız yoksa özel bir hatıra mı arıyorsunuz?",
+      "expectedUserResponse": "I love analog photography! I have been searching for a reliable classic camera for my travels.",
+      "userHint": "I love analog photography! I have been searching for a classic camera (Analog fotoğrafı çok severim, seyahatlerim için klasik bir makine arıyorum) de.",
+      "keywords": ["love", "analog", "photography", "searching", "reliable", "classic", "camera", "travels"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Kameranın Geçmişi & Etiket Fiyatı",
+      "aiSpeech": "I actually discovered it in Vienna last month. It comes with its genuine leather strap and lens cap. The tag price is eighty-five euros.",
+      "aiSpeechTr": "Aslında geçen ay Viyana'da keşfettim. Orijinal deri askısı ve lens kapağıyla birlikte geliyor. Etiket fiyatı seksen beş euro.",
+      "expectedUserResponse": "It has a wonderful history! That is a bit above my budget. Would you be willing to do seventy euros?",
+      "userHint": "It has a wonderful history! That is a bit above my budget. Would you do seventy euros? (70 euro olur mu?) diye pazarlık yap.",
+      "keywords": ["wonderful", "history", "above", "budget", "willing", "seventy", "euros"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Kibar Pazarlık & Karşı Teklif",
+      "aiSpeech": "You drive a hard bargain, my friend! The lowest I could do is seventy-five euros if you can pay in cash today. How does that sound?",
+      "aiSpeechTr": "Sıkı pazarlıkçısınız dostum! Bugün nakit ödeyebilirseniz inebileceğim en son fiyat yetmiş beş euro. Size uyar mı?",
+      "expectedUserResponse": "Seventy-five euros sounds very fair to me. Does it require any special film or maintenance?",
+      "userHint": "Seventy-five euros sounds very fair to me. Does it require special film? (75 euro çok makul. Özel bir film gerekir mi?) diye sor.",
+      "keywords": ["seventy-five", "fair", "require", "special", "film", "maintenance"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Film Türü & Kullanım İpuçları",
+      "aiSpeech": "It takes standard thirty-five millimeter film, easily available in any photo shop. Just keep it dry and it will last another lifetime.",
+      "aiSpeechTr": "Standart otuz beş milimetre film kullanır, herhangi bir fotoğrafçıda rahatça bulunur. Sadece kuru tutun, bir ömür daha dayanır.",
+      "expectedUserResponse": "That is great advice! I will definitely take it. Here is seventy-five euros in cash.",
+      "userHint": "That is great advice! I will definitely take it. Here is seventy-five euros in cash (Alıyorum, buyrun 75 euro nakit) diyerek parayı uzat.",
+      "keywords": ["great", "advice", "definitely", "take", "here", "cash", "seventy-five"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Paketleme & Uğurlama",
+      "aiSpeech": "Thank you very much! Here is your camera, carefully wrapped. I hope you capture unforgettable memories on your journey!",
+      "aiSpeechTr": "Çok teşekkür ederim! İşte özenle sarılmış fotoğraf makineniz. Umarım yolculuğunuzda unutulmaz anılar yakalarsınız!",
+      "expectedUserResponse": "Thank you so much for your warmth and great deal, Marco! Have a wonderful Sunday at the market!",
+      "userHint": "Thank you so much for your warmth and great deal, Marco! (Sıcaklığınız ve güzel indirim için teşekkürler Marco!) diyerek vedalaş.",
+      "keywords": ["thank", "warmth", "great", "deal", "marco", "wonderful", "sunday", "market"]
+    }
+  ]
+}

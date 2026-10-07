@@ -1,0 +1,72 @@
+{
+  "id": "street-directions",
+  "title": "Asking for Directions & Finding the Metro",
+  "titleTr": "Sokakta Adres Sorma ve Metroyu Bulma",
+  "level": "A1",
+  "category": "travel",
+  "coverImage": "scenarios/street-directions/cover.jpg",
+  "description": "Şehir merkezinde Emma ile karşılaş, en yakın metro istasyonunun yerini sor, yürüme mesafesini öğren ve bilet hakkında bilgi al.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Nezaketle Durdurma & Metro Sorma",
+      "aiSpeech": "Excuse me? Oh, hello there! Can I help you with directions?",
+      "aiSpeechTr": "Pardon? A, merhaba! Yol tarifi konusunda size yardımcı olabilir miyim?",
+      "expectedUserResponse": "Hello! Excuse me, where is the nearest metro station?",
+      "userHint": "Hello! Excuse me, where is the nearest metro station? diyerek metroyu sor.",
+      "keywords": ["hello", "excuse", "where", "metro", "station", "nearest", "help"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Yön Tarifi & Mesafe Sorma",
+      "aiSpeech": "Sure! Walk straight for two blocks, then turn right at the traffic lights.",
+      "aiSpeechTr": "Tabii ki! İki blok boyunca dümdüz yürüyün, ardından trafik ışıklarından sağa dönün.",
+      "expectedUserResponse": "Walk straight and turn right. Is it far from here?",
+      "userHint": "Walk straight and turn right. Is it far? (Uzak mı?) diyerek teyit et ve sor.",
+      "keywords": ["walk", "straight", "turn", "right", "far", "here"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Yürüme Süresi & İstasyon Adı",
+      "aiSpeech": "No, it is very close! It only takes about five minutes on foot.",
+      "aiSpeechTr": "Hayır, çok yakın! Yürüyerek sadece yaklaşık beş dakika sürer.",
+      "expectedUserResponse": "That is great! What is the name of the station?",
+      "userHint": "That is great! What is the name of the station? diyerek istasyonun adını sor.",
+      "keywords": ["great", "what", "name", "station", "thank"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Tabelayı Tanıma & İpuçları",
+      "aiSpeech": "It is called Central Station. Look for the big red and blue metro sign!",
+      "aiSpeechTr": "Adı Central Station (Merkez İstasyon). Büyük kırmızı ve mavi metro tabelasını arayın!",
+      "expectedUserResponse": "Central Station, with a red and blue sign. Thank you!",
+      "userHint": "Central Station, with a red and blue sign. Thank you! diyerek tekrarla.",
+      "keywords": ["central", "station", "red", "blue", "sign", "thank"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Bilet Alma Bilgisi",
+      "aiSpeech": "You are welcome! You can buy your ticket at the machine inside the entrance.",
+      "aiSpeechTr": "Rica ederim! Biletinizi girişin içindeki makineden satın alabilirsiniz.",
+      "expectedUserResponse": "Thanks for the tip! Can I pay with credit card there?",
+      "userHint": "Can I pay with credit card there? (Orada kartla ödeyebilir miyim?) diye sor.",
+      "keywords": ["thanks", "tip", "pay", "credit", "card", "can"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Ödeme Onayı & İyi Yolculuklar",
+      "aiSpeech": "Yes, cards and cash both work! Have a safe journey around the city!",
+      "aiSpeechTr": "Evet, hem kart hem nakit geçerli! Şehirde iyi ve güvenli yolculuklar!",
+      "expectedUserResponse": "Thank you so much for your help! Have a wonderful day!",
+      "userHint": "Thank you so much for your help! Have a wonderful day! diyerek vedalaş.",
+      "keywords": ["thank", "much", "help", "day", "goodbye", "wonderful"]
+    }
+  ]
+}

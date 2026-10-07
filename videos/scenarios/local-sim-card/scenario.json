@@ -1,0 +1,72 @@
+{
+  "id": "local-sim-card",
+  "title": "Buying a Local SIM Card & Data Roaming",
+  "titleTr": "Yerel SIM / eSIM Alma ve İnternet Paketi",
+  "level": "B1",
+  "category": "daily",
+  "coverImage": "scenarios/local-sim-card/cover.jpg",
+  "description": "TeleConnect mağazasında Leo ile görüş, seyahatin için uygun eSIM/SIM paketi seç, Avrupa genelinde roaming şartlarını ve online yüklemeyi öğren.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Mağazada Karşılama & Ön Ödemeli Hat İsteği",
+      "aiSpeech": "Welcome to TeleConnect! How can I help you stay connected today?",
+      "aiSpeechTr": "TeleConnect'e hoş geldiniz! Bugün bağlantıda kalmanıza nasıl yardımcı olabilirim?",
+      "expectedUserResponse": "Hello! I am visiting for two weeks, and I need a prepaid data SIM or eSIM for my phone.",
+      "userHint": "Hello! I need a prepaid data SIM or eSIM for my phone (Ön ödemeli internet paketi istiyorum) de.",
+      "keywords": ["hello", "visiting", "weeks", "prepaid", "data", "sim", "esim", "phone"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "eSIM Uyumluluğu & Veri Miktarı",
+      "aiSpeech": "We offer both! An eSIM activates digitally in just a few seconds. Is your device eSIM-compatible?",
+      "aiSpeechTr": "İkisini de sunuyoruz! eSIM birkaç saniye içinde dijital olarak etkinleşir. Cihazınız eSIM uyumlu mu?",
+      "expectedUserResponse": "Yes, my phone supports eSIM. How many gigabytes of high-speed data are included in your standard plan?",
+      "userHint": "Yes, my phone supports eSIM. How many gigabytes of data are included? diye sor.",
+      "keywords": ["supports", "esim", "how", "many", "gigabytes", "data", "included", "plan"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Turist Paketi & Roaming Kapsamı",
+      "aiSpeech": "Our tourist package comes with thirty gigabytes of data. Does that sound like enough for your trip?",
+      "aiSpeechTr": "Turist paketimiz otuz gigabayt internet içeriyor. Bu miktar seyahatiniz için yeterli gelir mi?",
+      "expectedUserResponse": "Thirty gigabytes is plenty! Does this plan include free roaming if I travel to neighboring countries?",
+      "userHint": "Thirty gigabytes is plenty! Does this include free roaming? (Dolaşım dahil mi?) diye sor.",
+      "keywords": ["thirty", "gigabytes", "plenty", "include", "free", "roaming", "travel", "countries"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Roaming Onayı & Online Yükleme (Top Up)",
+      "aiSpeech": "Yes, full European roaming is included at no extra cost! It also comes with two hundred local calling minutes.",
+      "aiSpeechTr": "Evet, tüm Avrupa dolaşımı ek ücret olmadan dahildir! Ayrıca iki yüz yerel arama dakikası da içerir.",
+      "expectedUserResponse": "That is perfect! Can I easily top up more data online through your mobile app if I run out?",
+      "userHint": "Can I easily top up more data online through your app? (Uygulamadan paket yükleyebilir miyim?) diye sor.",
+      "keywords": ["perfect", "easily", "top", "data", "online", "app", "run"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Pasaport Kaydı & Tutar",
+      "aiSpeech": "Yes, you can top up anytime in the app! The package is twenty-five euros. May I scan your passport for the registration?",
+      "aiSpeechTr": "Evet, uygulamadan istediğiniz an yükleyebilirsiniz! Paket yirmi beş euro. Kayıt için pasaportunuzu tarayabilir miyim?",
+      "expectedUserResponse": "Sure thing! Here is my passport and my credit card for the payment.",
+      "userHint": "Sure thing! Here is my passport and credit card diyerek belgelerini uzat.",
+      "keywords": ["sure", "here", "passport", "credit", "card", "payment"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Aktivasyon Kartı Teslimi & Bağlantı",
+      "aiSpeech": "Here is your digital activation card. Just follow the setup prompt in your settings to connect. Enjoy your stay!",
+      "aiSpeechTr": "İşte dijital aktivasyon kartınız. Bağlanmak için ayarlarınızdaki kurulumu onaylamanız yeterli. Keyifli konaklamalar!",
+      "expectedUserResponse": "It just connected to the network, fantastic! Thank you so much for your assistance, Leo!",
+      "userHint": "It just connected to the network, fantastic! Thank you Leo! diyerek teşekkür et.",
+      "keywords": ["connected", "network", "fantastic", "thank", "much", "assistance", "leo"]
+    }
+  ]
+}

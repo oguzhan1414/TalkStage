@@ -1,0 +1,72 @@
+{
+  "id": "fastfood-burger",
+  "title": "Fast Food Counter & Burger Order",
+  "titleTr": "Fast-Food Kasa & Burger Siparişi",
+  "level": "A1",
+  "category": "daily",
+  "coverImage": "scenarios/fastfood-burger/cover.jpg",
+  "description": "BurgerBite restoranında enerjik kasiyer Alex ile tanış, burger menü siparişi ver, boy seç, 'for here or to go' sorusunu cevapla ve kartla öde.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Tezgahta Karşılama & Menü Siparişi",
+      "aiSpeech": "Hi there! Welcome to BurgerBite. What can I get started for you today?",
+      "aiSpeechTr": "Selamlar! BurgerBite'a hoş geldiniz. Bugün sizin için ne hazırlayabilirim?",
+      "expectedUserResponse": "Hello! I would like a cheeseburger combo meal, please.",
+      "userHint": "Hello! I would like a cheeseburger meal, please diyerek sipariş ver.",
+      "keywords": ["hello", "burger", "cheeseburger", "combo", "meal", "like", "please"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "İçecek & Ketçap İsteği",
+      "aiSpeech": "Awesome choice! That comes with fries and a drink. What would you like to drink?",
+      "aiSpeechTr": "Harika seçim! Menü patates kızartması ve içecekle geliyor. Ne içmek istersiniz?",
+      "expectedUserResponse": "A regular cola, please. Can I also get ketchup?",
+      "userHint": "A regular cola, please. Can I get ketchup? diyerek içecek ve ketçap iste.",
+      "keywords": ["cola", "drink", "please", "ketchup", "water", "juice"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Menü Boyutu: Medium mu Large mı?",
+      "aiSpeech": "Sure thing, extra ketchup added! Would you like that meal in medium or large size?",
+      "aiSpeechTr": "Elbette, ekstra ketçap eklendi! Menünüzü orta boy mu yoksa büyük boy mu istersiniz?",
+      "expectedUserResponse": "Medium size is great, thank you.",
+      "userHint": "Medium size is great, thank you (Orta boy harika olur) diyerek boy seç.",
+      "keywords": ["medium", "large", "size", "great", "thank", "please"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Burada mı Paket mi? (For Here or To Go?)",
+      "aiSpeech": "Perfect. Will you be eating here today, or is this order to go?",
+      "aiSpeechTr": "Mükemmel. Bugün burada mı yiyeceksiniz, yoksa sipariş paket mi olacak?",
+      "expectedUserResponse": "For here, please. I will eat here.",
+      "userHint": "For here, please (Burada yiyeceğim) veya To go, please (Paket olsun) de.",
+      "keywords": ["for", "here", "to", "go", "eat", "please", "takeaway"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Toplam Tutar & Ödeme",
+      "aiSpeech": "Sounds good! Your total comes to nine dollars and fifty cents. Cash or card?",
+      "aiSpeechTr": "Anlaşıldı! Toplam tutarınız 9 dolar 50 sent. Nakit mi kart mı?",
+      "expectedUserResponse": "By credit card, please. Here is my card.",
+      "userHint": "By credit card, please (Kredi kartı ile lütfen) diyerek kartını uzat.",
+      "keywords": ["credit", "card", "pay", "please", "here", "cash"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Sipariş Fişi & Numara Teslimi",
+      "aiSpeech": "Payment approved! Here is your receipt and number twenty-four. We will call your number soon!",
+      "aiSpeechTr": "Ödeme onaylandı! İşte fişiniz ve 24 numaranız. Kısa süre içinde numaranızı anons edeceğiz!",
+      "expectedUserResponse": "Thank you very much! Have a great day!",
+      "userHint": "Thank you very much! Have a great day! diyerek teşekkür et ve bekle.",
+      "keywords": ["thank", "much", "receipt", "number", "great", "day", "bye"]
+    }
+  ]
+}

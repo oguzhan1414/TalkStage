@@ -1,0 +1,72 @@
+{
+  "id": "apartment-viewing",
+  "title": "Apartment Viewing & Lease Agreement",
+  "titleTr": "Kiralık Daire İnceleme ve Kontrat Şartları",
+  "level": "B1",
+  "category": "daily",
+  "coverImage": "scenarios/apartment-viewing/cover.jpg",
+  "description": "Avrupa'da kiralık bir daireyi gezerken ev sahibi David ile tanış, faturaları, depozitoyu, toplu taşımayı ve taşınma tarihini müzakere et.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Daire Girişinde Karşılama & İlk İzlenim",
+      "aiSpeech": "Hello! Welcome to the apartment. Come on in! As you can see, it gets plenty of natural sunlight.",
+      "aiSpeechTr": "Merhaba! Daireye hoş geldiniz. İçeri buyrun! Gördüğünüz gibi bol miktarda doğal güneş ışığı alıyor.",
+      "expectedUserResponse": "Hello David! Thank you for showing me around. The living room looks very spacious and bright.",
+      "userHint": "Hello David! The living room looks very spacious and bright diyerek daireyi öv.",
+      "keywords": ["hello", "david", "living", "room", "spacious", "bright", "thank", "apartment"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Kira & Faturalar (Utility Bills)",
+      "aiSpeech": "I am glad you like it! The monthly rent is twelve hundred euros. Were you wondering about the utility bills?",
+      "aiSpeechTr": "Beğenmenize sevindim! Aylık kira bin iki yüz euro. Faturalar hakkında bilgi almak ister misiniz?",
+      "expectedUserResponse": "Yes, exactly. Are water, electricity, and high-speed internet included in the monthly rent?",
+      "userHint": "Are water, electricity, and internet included in the rent? (Faturalar dahil mi?) diye sor.",
+      "keywords": ["bills", "water", "electricity", "internet", "included", "rent", "monthly"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Depozito & Kontrat Süresi (Deposit)",
+      "aiSpeech": "Water and heating are included, but electricity and Wi-Fi are separate. We usually ask for a one-year lease.",
+      "aiSpeechTr": "Su ve ısıtma dahil, ancak elektrik ve Wi-Fi ayrı. Genellikle bir yıllık kira sözleşmesi talep ediyoruz.",
+      "expectedUserResponse": "That works for me. How much is the security deposit, and is it refundable upon move-out?",
+      "userHint": "How much is the deposit, and is it refundable? (Depozito ne kadar ve iade ediliyor mu?) diye sor.",
+      "keywords": ["deposit", "refundable", "lease", "security", "much", "year", "work"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Toplu Taşıma & Muhit Bilgisi",
+      "aiSpeech": "The deposit is two months' rent, and you get it back when you move out. How do you like the neighborhood?",
+      "aiSpeechTr": "Depozito iki aylık kira bedelidir ve taşınırken geri alırsınız. Mahalleyi nasıl buldunuz?",
+      "expectedUserResponse": "The location is fantastic! How far is the nearest metro station or bus stop on foot?",
+      "userHint": "The location is fantastic! How far is the nearest metro station? (En yakın metro ne kadar uzakta?) diye sor.",
+      "keywords": ["location", "fantastic", "how", "far", "metro", "station", "bus", "foot"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Eşya Durumu & Taşınma Tarihi",
+      "aiSpeech": "The metro is just a three-minute walk! The flat comes fully furnished as seen. When would you like to move in?",
+      "aiSpeechTr": "Metro sadece üç dakikalık yürüme mesafesinde! Daire gördüğünüz gibi tam eşyalı. Ne zaman taşınmak istersiniz?",
+      "expectedUserResponse": "If possible, I would love to move in by the first of next month. Does that timeline suit you?",
+      "userHint": "I would love to move in by the first of next month... (Gelecek ayın başında taşınmak isterim) de.",
+      "keywords": ["move", "first", "next", "month", "timeline", "suit", "love", "possible"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Başvuru Belgeleri & Sözleşme",
+      "aiSpeech": "The first of the month is perfect! Just email me your proof of income, and I will draft the tenancy agreement.",
+      "aiSpeechTr": "Ayın biri mükemmel! Bana gelir belgenizi e-posta ile gönderin, kira sözleşmesini hazırlayayım.",
+      "expectedUserResponse": "I will send over my documents this evening. Thank you for your time and help, David!",
+      "userHint": "I will send over my documents this evening. Thank you David! diyerek anlaş ve vedalaş.",
+      "keywords": ["send", "documents", "evening", "thank", "time", "help", "david"]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "train-ticket",
+  "title": "Buying a Train Ticket & Platform Info",
+  "titleTr": "Tren Bileti Alma ve Peron Bilgisi",
+  "level": "A1",
+  "category": "travel",
+  "coverImage": "scenarios/train-ticket/cover.jpg",
+  "description": "Büyük tren garı bilet gişesinde Arthur ile görüş, gideceğin şehre gidiş-dönüş bilet iste, hareket saatini ve peronunu öğren.",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "videoFile": "step_1.mp4",
+      "title": "Gişede Karşılama & Varış Noktası",
+      "aiSpeech": "Good morning! Welcome to the station. Where would you like to travel today?",
+      "aiSpeechTr": "Günaydın! İstasyona hoş geldiniz. Bugün nereye seyahat etmek istersiniz?",
+      "expectedUserResponse": "Good morning! One ticket to Oxford, please.",
+      "userHint": "Good morning! One ticket to Oxford, please diyerek bilet iste.",
+      "keywords": ["good", "morning", "one", "ticket", "oxford", "please", "travel"]
+    },
+    {
+      "step": 2,
+      "videoFile": "step_2.mp4",
+      "title": "Tek Yön mü Gidiş-Dönüş mü?",
+      "aiSpeech": "Certainly! Would you like a single ticket or a round-trip return ticket?",
+      "aiSpeechTr": "Kesinlikle! Tek yönlü bir bilet mi yoksa gidiş-dönüş bileti mi istersiniz?",
+      "expectedUserResponse": "A round-trip return ticket, please.",
+      "userHint": "A round-trip return ticket, please (Gidiş-dönüş bileti lütfen) de.",
+      "keywords": ["round", "trip", "return", "ticket", "please", "single"]
+    },
+    {
+      "step": 3,
+      "videoFile": "step_3.mp4",
+      "title": "Kalkış Saati & Onay",
+      "aiSpeech": "Great. The next train departs at ten-thirty. Does that time work for you?",
+      "aiSpeechTr": "Harika. Sıradaki tren saat 10:30'da hareket ediyor. Bu saat sizin için uygun mu?",
+      "expectedUserResponse": "Yes, ten-thirty is perfect for me.",
+      "userHint": "Yes, ten-thirty is perfect (Evet 10:30 benim için uygun) diyerek onayla.",
+      "keywords": ["yes", "ten", "thirty", "perfect", "good", "time"]
+    },
+    {
+      "step": 4,
+      "videoFile": "step_4.mp4",
+      "title": "Ücret & Ödeme Şekli",
+      "aiSpeech": "That will be eighteen pounds, please. How would you like to pay today?",
+      "aiSpeechTr": "Toplam 18 pound tutuyor lütfen. Bugün nasıl ödemek istersiniz?",
+      "expectedUserResponse": "By credit card, please. Here is my card.",
+      "userHint": "By credit card, please (Kredi kartı ile lütfen) diyerek kartını uzat.",
+      "keywords": ["credit", "card", "pay", "please", "here"]
+    },
+    {
+      "step": 5,
+      "videoFile": "step_5.mp4",
+      "title": "Bilet Teslimi & Peron Numarası",
+      "aiSpeech": "Payment successful! Here is your ticket. Your train departs from platform four.",
+      "aiSpeechTr": "Ödeme başarılı! İşte biletiniz. Treniniz 4 numaralı perondan kalkıyor.",
+      "expectedUserResponse": "Platform four, thank you! Do I scan the ticket at the gate?",
+      "userHint": "Platform four, thank you! Do I scan it at the gate? diye sor.",
+      "keywords": ["platform", "four", "thank", "scan", "ticket", "gate"]
+    },
+    {
+      "step": 6,
+      "videoFile": "step_6.mp4",
+      "title": "Turnike Bilgisi & İyi Yolculuklar",
+      "aiSpeech": "Yes, just scan the barcode at the gate! Have a pleasant and safe journey!",
+      "aiSpeechTr": "Evet, kapıdaki barkodu okutmanız yeterli! Keyifli ve güvenli yolculuklar!",
+      "expectedUserResponse": "Thank you so much for your help! Have a great day!",
+      "userHint": "Thank you so much for your help! Have a great day! diyerek vedalaş.",
+      "keywords": ["thank", "much", "help", "day", "great", "safe", "goodbye"]
+    }
+  ]
+}
