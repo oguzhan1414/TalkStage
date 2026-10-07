@@ -1,49 +1,47 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, JetBrains_Mono, Fraunces } from "next/font/google";
+import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Analytics } from "@/lib/analytics";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+// `latin-ext` is required for Turkish (ğ, ş, ı, İ, ö, ü, ç) — without it those
+// glyphs silently fall back to the system font.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: "variable",
-  style: ["normal", "italic"],
-  axes: ["opsz", "SOFT", "WONK"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const figtree = Figtree({
+  variable: "--font-figtree",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
+  display: "swap",
 });
+
+const TITLE = "TalkStage — İngilizceyi sahnede konuş, Mivo anında düzeltsin";
+const DESCRIPTION =
+  "Havalimanı, otel, iş görüşmesi... Gerçek hayat sahnelerini Mivo ile sesli prova et. Takıldığın cümleyi anında Türkçe açıklamayla düzeltir; her oynayışta sahne farklı bir sürprizle gelir.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://talkstage.app"),
-  title: "TalkStage — Gramer Ezberlemeyi Bırak, Gerçek Sahnede Konuş",
-  description:
-    "Yazılımcı standup'ı, FAANG iş mülakatı veya vize görüşmesi... Yapay zekâ ile canlı rol yap, takıldığın anda Türkçe anlık teşhisle özgüven kazan.",
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: "TalkStage — Gramer Ezberlemeyi Bırak, Gerçek Sahnede Konuş",
-    description:
-      "Senaryo bazlı, ultra düşük gecikmeli sesli İngilizce konuşma simülatörü. Sahneni seç, canlı konuş, anında düzelt.",
-    images: ["/images/03_hero_3d_mockup.jpg"],
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "TalkStage — Mivo ile sesli İngilizce sahneleri" }],
     locale: "tr_TR",
     type: "website",
   },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.jpg"] },
   icons: {
     icon: "/brand/talkstage-app-icon.png",
     apple: "/brand/talkstage-app-icon.png",
@@ -58,10 +56,10 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
-      className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable} ${fraunces.variable} h-full overflow-x-hidden antialiased`}
+      className={`${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full overflow-x-hidden antialiased`}
       style={{ colorScheme: "light" }}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-body selection:bg-pink-pop selection:text-white">
+      <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-body selection:bg-stage selection:text-white">
         <AuthProvider>
           <Analytics />
           <ScrollToTop />

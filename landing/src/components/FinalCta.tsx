@@ -1,70 +1,89 @@
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "./Reveal";
 import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 
 export default function FinalCta() {
   return (
-    <section id="indir" className="relative scroll-mt-24 overflow-hidden px-6 py-24 sm:py-32">
-      {/* Colorful gradient background */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-pink-pop/12 blur-[120px]" />
-        <div className="absolute -bottom-32 right-1/4 w-[400px] h-[400px] rounded-full bg-blue-pop/10 blur-[100px]" />
-        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] rounded-full bg-lime-pop/15 blur-[80px]" />
-      </div>
+    <section id="indir" className="scroll-mt-24 px-5 pb-24 sm:px-8 sm:pb-32">
+      <Reveal className="grain-overlay relative mx-auto max-w-6xl overflow-hidden rounded-[36px] bg-ink px-7 py-14 text-white shadow-lifted sm:px-14 sm:py-20">
+        {/* Stage lighting: deep indigo pool, a single warm spotlight, velvet folds at the wings */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_34rem_at_76%_-8%,rgba(79,70,229,0.75),transparent_62%),radial-gradient(40rem_22rem_at_78%_108%,rgba(255,194,31,0.16),transparent_65%),radial-gradient(34rem_26rem_at_0%_100%,rgba(14,165,233,0.14),transparent_62%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70 [background-image:repeating-linear-gradient(90deg,rgba(99,102,241,0.0)_0_22px,rgba(99,102,241,0.16)_22px_44px)] [mask-image:linear-gradient(90deg,#000_0%,transparent_16%,transparent_84%,#000_100%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-4 right-[10%] hidden h-[115%] w-[38%] bg-linear-to-b from-white/25 via-white/[0.07] to-transparent blur-[3px] [clip-path:polygon(38%_0,62%_0,100%_100%,0_100%)] lg:block"
+        />
+        {/* Hairlines: gold edge on top, faint frame inside */}
+        <div aria-hidden className="absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-slate-yellow to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-2 rounded-[30px] border border-slate-yellow/15" />
 
-      <Reveal className="relative mx-auto max-w-4xl text-center">
-        {/* 3D Sunlit Stage Banner */}
-        <div className="relative mx-auto mb-10 aspect-[21/9] w-full overflow-hidden rounded-[36px] border border-slate-200/60 bg-white shadow-xl">
-          <Image
-            src="/images/13_final_cta_banner.png"
-            alt="TalkStage Sunlit Auditorium Stage and Microphone"
-            fill
-            sizes="(max-width: 1024px) 100vw, 896px"
-            className="object-cover"
-          />
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+          <div>
+            <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-slate-yellow">Sahne senin</p>
+            <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-6xl">
+              Sahne hazır. İlk cümleni söyle.
+            </h2>
+            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-white/75">
+              Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden
+              oynarsın.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <a
+                href={iosStoreUrl}
+                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-ink shadow-[0_18px_40px_-18px_rgba(255,255,255,0.45)] ring-1 ring-slate-yellow/40 transition-all hover:-translate-y-0.5 hover:bg-slate-yellow"
+              >
+                <AppleMark />
+                <span className="text-left leading-tight">
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">İndir</span>
+                  <span className="block text-[0.95rem] font-bold">App Store</span>
+                </span>
+              </a>
+              <a
+                href={androidStoreUrl}
+                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-ink shadow-[0_18px_40px_-18px_rgba(255,255,255,0.45)] ring-1 ring-slate-yellow/40 transition-all hover:-translate-y-0.5 hover:bg-slate-yellow"
+              >
+                <PlayMark />
+                <span className="text-left leading-tight">
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">İndir</span>
+                  <span className="block text-[0.95rem] font-bold">Google Play</span>
+                </span>
+              </a>
+            </div>
+
+            <p className="mt-5 text-sm text-white/60">
+              Telefonun yanında değil mi?{" "}
+              <Link href="/onboarding" className="font-semibold text-white underline decoration-slate-yellow/70 underline-offset-4">
+                Web’den başla
+              </Link>
+              .
+            </p>
+          </div>
+
+          {/* Mivo in the spotlight, standing on a lit stage disc */}
+          <div className="relative mx-auto w-full max-w-[18rem] lg:max-w-none">
+            <div
+              aria-hidden
+              className="absolute -bottom-3 left-1/2 h-12 w-[92%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(ellipse,rgba(255,194,31,0.55),rgba(255,194,31,0.12)_55%,transparent_72%)] blur-[2px]"
+            />
+            <div aria-hidden className="absolute -bottom-2 left-1/2 h-9 w-[78%] -translate-x-1/2 rounded-[50%] border border-slate-yellow/40" />
+            <Image
+              src="/mivo/success.webp"
+              alt="Sevinen Mivo"
+              width={750}
+              height={900}
+              sizes="(max-width: 1024px) 60vw, 360px"
+              className="relative h-auto w-full drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
+            />
+          </div>
         </div>
-
-        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-card-orange border border-orange-200/60 text-sm font-bold text-heading shadow-xs mb-4">
-          <span>🎤</span>
-          <span>Sahnen Seni Bekliyor!</span>
-        </div>
-
-        <h2 className="mt-2 text-balance font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
-          Sahne Hazır. <span className="text-highlight">İlk Cümleni</span> Söyle! 🚀
-        </h2>
-
-        <p className="mx-auto mt-4 max-w-lg text-balance leading-relaxed text-body sm:text-lg">
-          Günde 5 dakikalık bir canlı senaryo ile konuşma korkunu geride bırak. İlk oturumun <strong className="text-pink-pop">tamamen ücretsiz!</strong>
-        </p>
-
-        {/* Store Download Buttons */}
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a
-            href={iosStoreUrl}
-            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-4 text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
-          >
-            <AppleMark />
-            <span className="text-left leading-tight">
-              <span className="block text-[0.65rem] text-white/60 uppercase tracking-wider">İndir</span>
-              <span className="block text-[0.95rem] font-bold">App Store</span>
-            </span>
-          </a>
-
-          <a
-            href={androidStoreUrl}
-            className="inline-flex min-w-[200px] items-center justify-center gap-3 rounded-full bg-heading px-7 py-4 text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
-          >
-            <PlayMark />
-            <span className="text-left leading-tight">
-              <span className="block text-[0.65rem] text-white/60 uppercase tracking-wider">İndir</span>
-              <span className="block text-[0.95rem] font-bold">Google Play</span>
-            </span>
-          </a>
-        </div>
-
-        <p className="mt-6 text-xs text-muted">
-          Kredi kartı gerekmez • Anında kurulum • iOS & Android 📱
-        </p>
       </Reveal>
     </section>
   );

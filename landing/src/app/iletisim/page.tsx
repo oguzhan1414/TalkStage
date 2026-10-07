@@ -9,15 +9,15 @@ import Footer from "@/components/Footer";
 const faqs = [
   {
     q: "TalkStage gerçekten konuşma becerimi geliştirebilir mi?",
-    a: "Evet. TalkStage'in temel prensibi pasif öğrenme yerine aktif konuşma refleksini çalıştırmaktır. Günlük 5-10 dakikalık canlı senaryolar ile beyninizin Türkçe düşünmeden İngilizce cevap verme kasını geliştirirsiniz.",
+    a: "Evet. TalkStage pasif öğrenme yerine konuşmayı çalıştırır: 5–10 dakikalık sesli sahnelerde cümle kurar, anında düzeltme alırsın.",
   },
   {
     q: "Ücretsiz deneme için kredi kartı gerekiyor mu?",
-    a: "Hayır. Günde 1 sesli senaryo ve sınırsız kelime kartı/okuma modülü tamamen ücretsizdir. Kredi kartı bilgisi girmeden doğrudan kullanabilirsiniz.",
+    a: "Hayır. Günde 1 sesli sahne, kelime kartları ve okuma hikâyeleri ücretsizdir; kart bilgisi girmeden başlayabilirsin.",
   },
   {
     q: "Hangi cihazlarda kullanabilirim?",
-    a: "TalkStage; iOS (iPhone & iPad) ve Android işletim sistemli tüm akıllı telefonlarda çalışır. Web sitemiz üzerinden de içeriklere göz atabilirsiniz.",
+    a: "iOS ve Android için mobil uygulama ile web stüdyosu var.",
   },
   {
     q: "Aboneliğimi istediğim zaman iptal edebilir miyim?",
@@ -36,6 +36,8 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
+    window.location.href = `mailto:destek@talkstage.app?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
     setSubmitted(true);
   };
 
@@ -53,28 +55,13 @@ export default function ContactPage() {
             <span className="text-heading font-semibold">İletişim & Destek</span>
           </div>
 
-          {/* Prominent 3D Hero Header Banner (39_contact_support_lounge.png) */}
-          <div className="relative mb-12 overflow-hidden rounded-[28px] border border-line bg-porcelain p-2 shadow-[var(--shadow-lifted)] sm:p-4">
-            <Image
-              src="/images/39_contact_support_lounge.png"
-              alt="TalkStage 7/24 Destek ve İletişim İstasyonu"
-              width={1440}
-              height={810}
-              priority
-              className="h-auto w-full rounded-[22px] object-cover"
-            />
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between rounded-2xl border border-line/60 bg-white/90 px-5 py-3 shadow-md backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8">
-              <div>
-                <p className="font-display text-sm font-bold text-heading sm:text-base">
-                  Her Zaman Yanınızdayız
-                </p>
-                <p className="text-xs text-muted">
-                  Teknik destek, senaryo talepleri ve kurumsal lisanslama
-                </p>
-              </div>
-              <span className="hidden rounded-full bg-emerald/10 px-3 py-1 font-mono text-xs font-semibold text-emerald-700 sm:inline-block">
-                Ortalama Yanıt: &lt; 2 Saat
-              </span>
+          <div className="mb-12 flex items-center gap-5 rounded-[28px] border border-line bg-white p-5 shadow-layered sm:p-7">
+            <Image src="/mivo/lesson-guide.webp" alt="" width={750} height={900} className="h-24 w-auto shrink-0 sm:h-32" priority />
+            <div>
+              <p className="font-display text-xl font-extrabold tracking-tight text-heading sm:text-2xl">Bir sorunun mu var?</p>
+              <p className="mt-1 text-sm leading-relaxed text-body sm:text-base">
+                Teknik destek, öneri ya da şirket lisansı için bize yaz; mesajına e-postayla dönelim.
+              </p>
             </div>
           </div>
 
@@ -133,16 +120,16 @@ export default function ContactPage() {
                       ✓
                     </span>
                     <h3 className="mt-6 font-display text-2xl font-bold text-heading">
-                      Mesajınız Başarıyla Alındı!
+                      E-posta uygulaman açıldı
                     </h3>
                     <p className="mx-auto mt-2 max-w-sm text-sm text-body">
-                      Ekibimiz en kısa sürede <strong>{formData.email}</strong> adresinize dönüş yapacaktır.
+                      Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <strong>destek@talkstage.app</strong> adresine yazabilirsin.
                     </p>
                     <button
                       onClick={() => setSubmitted(false)}
                       className="mt-6 rounded-full border border-line px-6 py-2 text-sm font-semibold text-heading hover:bg-slate-50"
                     >
-                      Yeni Mesaj Gönder
+                      Yeni mesaj yaz
                     </button>
                   </div>
                 ) : (

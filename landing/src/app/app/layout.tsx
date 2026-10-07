@@ -37,7 +37,7 @@ type TopTabItem = {
 
 const TOP_NAV_TABS: TopTabItem[] = [
   { href: '/app', label: 'Öğren', icon: BookOpen },
-  { href: '/app/scenarios', label: 'Konuş', icon: Mic, badge: '3D' },
+  { href: '/app/scenarios', label: 'Sahneler', icon: Mic, badge: '3D' },
   { href: '/app/vocab', label: 'Tekrar', icon: Archive },
   { href: '/app/podcasts', label: 'Dinle', icon: Headphones },
   { href: '/app/library', label: 'Kütüphane', icon: Layers },
@@ -88,7 +88,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center space-y-4">
         <div className="relative w-14 h-14 animate-pulse">
-          <Image src="/images/64_companion_yanki_transparent.png" alt="" fill sizes="56px" className="object-contain" />
+          <Image src="/mivo/idle.webp" alt="" fill sizes="56px" className="object-contain" />
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
           <span className="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -114,7 +114,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link href="/app" className="flex items-center gap-2.5 group shrink-0">
               <div className="relative w-8 h-8 shrink-0 group-hover:scale-105 transition-transform">
                 <Image
-                  src="/images/64_companion_yanki_transparent.png"
+                  src="/brand/talkstage-mark.png"
                   alt="TalkStage"
                   fill
                   sizes="32px"

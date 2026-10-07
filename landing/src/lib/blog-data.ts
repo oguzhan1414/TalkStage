@@ -65,9 +65,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/26_card_level_assessment.png",
+    coverImage: "/scenes/hotel-checkin.webp",
     featured: true,
     content: {
       intro: [
@@ -227,9 +227,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/10_bento_coffee_chat.jpg",
+    coverImage: "/scenes/restaurant-dinner.webp",
     content: {
       intro: [
         "A2 seviyesi (Temel Düzey - Waystage), tek tek kesik kelimelerden çıkıp cümleleri birbirine mantıksal bağlaçlarla bağlamaya başladığınız ve geçmiş anılardan gelecek planlarına kadar geniş bir zaman çizelgesinde kendinizi ifade edebildiğiniz 'altın köprü' seviyedir.",
@@ -364,9 +364,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/04_problem_comparison.jpg",
+    coverImage: "/scenes/hotel-checkin.webp",
     featured: true,
     content: {
       intro: [
@@ -468,9 +468,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/07_bento_job_interview.jpg",
+    coverImage: "/scenes/job-interview.webp",
     featured: true,
     content: {
       intro: [
@@ -586,9 +586,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/31_ui_flawless_speaking.png",
+    coverImage: "/scenes/taxi-ride.webp",
     content: {
       intro: [
         "C1 seviyesi (İleri Düzey - Effective Operational Proficiency), dili zahmetsizce, kelime aramadan, zengin retorik yapılarla ve tüm kültürel nüanslarıyla yönetebildiğiniz ustalık basamağıdır. Bu seviyede artık 'İngilizce konuşuyorum' demezsiniz; İngilizce sizin doğal bir düşünme, ikna etme ve liderlik aracınız haline gelir.",
@@ -672,9 +672,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/18_badge_30day_master.png",
+    coverImage: "/scenes/doctor-visit.webp",
     content: {
       intro: [
         "C2 seviyesi (Ustalık - Mastery), Avrupa Ortak Dil Kriterleri (CEFR) ölçeğinin en tepesindeki zirve noktasıdır. Ancak bu seviye hakkında en çok yanlış anlaşılan kavram 'sözlükteki her kelimeyi bilmek' veya 'kusursuz gramer' mitidir.",
@@ -724,9 +724,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/05_bento_tech_standup.jpg",
+    coverImage: "/scenes/restaurant-dinner.webp",
     featured: true,
     content: {
       intro: [
@@ -824,9 +824,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/06_bento_visa_interview.jpg",
+    coverImage: "/scenes/istanbul-tour.webp",
     content: {
       intro: [
         "ABD (B1/B2, F1) ve Avrupa Schengen vize mülakatları ortalama 90 saniye ila 3 dakika arasında süren, konsolosluk memurunun sizin sadece İngilizcenizi değil; göz temasınızı, beden dilinizdeki özgüveni ve yanıtlarınızdaki tutarlılığı ölçtüğü yüksek stresli anlardır.",
@@ -904,9 +904,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/30_card_error_diagnostic.png",
+    coverImage: "/scenes/restaurant-dinner.webp",
     content: {
       intro: [
         "Türkçe ve İngilizce tamamen farklı dil ailelerine (Ural-Altay vs Hint-Avrupa) aittir. Beynimiz ana dilimizdeki dilbilgisel şablonları doğrudan İngilizceye kopyalamaya çalıştığında ortaya son derece tipik, komik ama profesyonel dünyada imaj zedeleyen 'Türkçe-İngilizce' (Turklish) hataları çıkar.",
@@ -955,9 +955,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/24_card_vocab_deck.png",
+    coverImage: "/scenes/airport-travel.webp",
     content: {
       intro: [
         "Bir kelimeyi deftere 50 kez alt alta yazmak veya rastgele kelime listeleri ezberlemek kalıcı konuşma hafızası oluşturmaz. İnsan beyni, tam bir bilgiyi unutmak üzere olduğu anda o bilgiyi geri çağırmaya zorlandığında güçlü nöron bağları kurar.",
@@ -1005,9 +1005,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/22_badge_pronunciation_prodigy.png",
+    coverImage: "/scenes/flea-market.webp",
     featured: true,
     content: {
       intro: [
@@ -1060,9 +1060,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/07_bento_job_interview.jpg",
+    coverImage: "/scenes/job-interview.webp",
     content: {
       intro: [
         "Teknoloji mülakatlarının %95'i 'Tell me about yourself' (Bize kendinizden bahsedin) sorusuyla başlar. Bu soruya doğum yerinizden başlayarak tüm CV'nizi kronolojik olarak okumak yapılan en büyük hatadır.",
@@ -1116,9 +1116,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/08_bento_b2b_sales.jpg",
+    coverImage: "/scenes/flea-market.webp",
     content: {
       intro: [
         "Global satış toplantılarında yabancı müşterinin 'Your quote is too high' (Teklifiniz çok yüksek) demesi bir ret değil, pazarlığın başlangıç davetidir. Panikleyip hemen indirim vermek yerine değeri savunmak gerekir.",
@@ -1168,9 +1168,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/25_card_reading_module.png",
+    coverImage: "/scenes/job-interview.webp",
     content: {
       intro: [
         "İngilizceyi ders kitaplarından öğrenenlerin yabancılarla konuşurken zorlanmasının 1 numaralı sebebi Phrasal Verb'lerdir (Deyimsel Fiiller). Çünkü anadili İngilizce olanlar 'cancel' yerine 'call off', 'discover' yerine 'find out' derler.",
@@ -1217,9 +1217,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/09_bento_airport_travel.jpg",
+    coverImage: "/scenes/airport-travel.webp",
     content: {
       intro: [
         "Yurt dışı seyahatlerinde her şey yolunda giderken İngilizce konuşmak kolaydır. Asıl sınav uçağınız rötar yaptığında veya valiziniz çıkmadığında başlar.",
@@ -1269,9 +1269,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/19_badge_zero_freeze.png",
+    coverImage: "/scenes/istanbul-tour.webp",
     featured: true,
     content: {
       intro: [
@@ -1314,9 +1314,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/29_ui_scorecard_celebration.png",
+    coverImage: "/scenes/hotel-checkin.webp",
     content: {
       intro: [
         "IELTS veya TOEFL Speaking sınavında yüksek puan almak sadece İngilizce bilmekle değil; sınav jürisinin puanlama rubriğine uygun konuşmakla mümkündür.",
@@ -1358,9 +1358,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/39_contact_support_lounge.png",
+    coverImage: "/scenes/doctor-visit.webp",
     content: {
       intro: [
         "İngilizce e-postalar Türkçedeki gibi uzun giriş cümleleriyle başlamaz. Anglo-Sakson iş kültüründe netlik, kısalık ve nezaket esastır.",
@@ -1402,9 +1402,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Selin Aksoy",
       role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/24_card_vocab_deck.png",
+    coverImage: "/scenes/airport-travel.webp",
     content: {
       intro: [
         "Akıcı konuşmanın en büyük sırrı doğru bağlaçları (linking words) refleks olarak kullanabilmektir. Bağlaçlar cümleler arasında mantıksal köprüler kurar.",
@@ -1450,9 +1450,9 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/images/33_avatars_user_trio.png",
+      avatar: "/brand/talkstage-app-icon.png",
     },
-    coverImage: "/images/17_badge_7day_flame.png",
+    coverImage: "/scenes/taxi-ride.webp",
     featured: true,
     content: {
       intro: [

@@ -258,7 +258,7 @@ export default function OnboardingPage() {
           <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 text-center space-y-6">
             <div className="relative w-24 h-24 mx-auto">
               <Image
-                src="/images/64_companion_yanki_transparent.png"
+                src="/mivo/chat-invite.webp"
                 alt="Mivo"
                 fill
                 sizes="96px"

@@ -3,7 +3,7 @@
 :root {
   /* ─── Core Backgrounds ─── */
   --color-white: #ffffff;
-  --color-porcelain: #faf8f4;
+  --color-porcelain: #f5f4ff;
   --color-bg-warm: #FFF9F0;
   --color-bg-pink: #FFF5F8;
   --color-bg-lime: #FAFFF0;
@@ -11,9 +11,18 @@
   --color-bg-sky: #F4F8FF;
 
   /* ─── Dark / Text ─── */
-  --color-ink: #0b0e14;
-  --color-ink-soft: #171a24;
-  --color-ink-line: #2b2e3a;
+  --color-ink: #15123a;
+  --color-ink-soft: #221e55;
+  --color-ink-line: #36317a;
+
+  /* ─── TalkStage v2 brand (logo indigo/cyan + Mivo + clapperboard yellow) ─── */
+  --color-stage: #4f46e5;
+  --color-stage-deep: #3a32c9;
+  --color-spot: #0ea5e9;
+  --color-slate-yellow: #ffc21f;
+  --color-coral-glow: #ff6b57;
+  --color-paper: #f5f4ff;
+  --color-paper-deep: #ebe9ff;
 
   /* ─── Primary Accents (Kodland-inspired vivid) ─── */
   --color-indigo: #4338ca;
@@ -42,10 +51,10 @@
   --color-card-mint: #E8FFF5;
 
   /* ─── Typography ─── */
-  --color-heading: #262626;
-  --color-body: #4b4d5a;
-  --color-muted: #6d6f80;
-  --color-line: #e7e2d8;
+  --color-heading: #15123a;
+  --color-body: #4a4768;
+  --color-muted: #6b6889;
+  --color-line: #e3e0f7;
 }
 
 @theme inline {
@@ -59,6 +68,13 @@
   --color-ink: var(--color-ink);
   --color-ink-soft: var(--color-ink-soft);
   --color-ink-line: var(--color-ink-line);
+  --color-stage: var(--color-stage);
+  --color-stage-deep: var(--color-stage-deep);
+  --color-spot: var(--color-spot);
+  --color-slate-yellow: var(--color-slate-yellow);
+  --color-coral-glow: var(--color-coral-glow);
+  --color-paper: var(--color-paper);
+  --color-paper-deep: var(--color-paper-deep);
   --color-indigo: var(--color-indigo);
   --color-indigo-dark: var(--color-indigo-dark);
   --color-pink-pop: var(--color-pink-pop);
@@ -84,13 +100,12 @@
   --color-muted: var(--color-muted);
   --color-line: var(--color-line);
 
-  --font-display: var(--font-plus-jakarta), "Plus Jakarta Sans", ui-sans-serif, sans-serif;
-  --font-serif: var(--font-fraunces), "Fraunces", ui-serif, serif;
-  --font-body: var(--font-inter), "Inter", ui-sans-serif, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, sans-serif;
+  --font-body: var(--font-figtree), "Figtree", ui-sans-serif, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
 
-  --shadow-layered: 0 10px 30px -12px rgba(20, 15, 10, 0.12), 0 4px 10px -4px rgba(20, 15, 10, 0.05);
-  --shadow-lifted: 0 30px 70px -20px rgba(20, 15, 10, 0.22), 0 10px 24px -8px rgba(20, 15, 10, 0.08);
+  --shadow-layered: 0 10px 30px -12px rgba(21, 18, 58, 0.14), 0 4px 10px -4px rgba(21, 18, 58, 0.06);
+  --shadow-lifted: 0 30px 70px -20px rgba(21, 18, 58, 0.28), 0 10px 24px -8px rgba(21, 18, 58, 0.1);
   --shadow-glow-indigo: 0 0 60px rgba(67, 56, 202, 0.25);
   --shadow-glow-gold: 0 0 70px rgba(227, 167, 63, 0.35);
   --shadow-glow-pink: 0 0 60px rgba(239, 93, 168, 0.3);
@@ -152,14 +167,14 @@ html {
 }
 
 body {
-  background: var(--color-white);
+  background: var(--color-paper);
   color: var(--color-body);
   font-family: var(--font-body);
   font-feature-settings: "ss01" 1;
 }
 
 ::selection {
-  background: var(--color-pink-pop);
+  background: var(--color-stage);
   color: var(--color-white);
 }
 
@@ -294,6 +309,48 @@ body {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TalkStage v2 — "take slate" motif
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Clapperboard stripes (ink + yellow) — the slate bar on stage frames & scene cards */
+.slate-stripes {
+  background-image: repeating-linear-gradient(
+    -55deg,
+    var(--color-slate-yellow) 0 14px,
+    var(--color-ink) 14px 28px
+  );
+}
+
+/* Typed-caret blink for the live transcript */
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+
+/* Wave bars used for the "Mivo is speaking" meter */
+@keyframes wave-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+/* Horizontal scroller without a visible bar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

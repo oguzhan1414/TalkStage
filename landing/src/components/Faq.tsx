@@ -6,11 +6,11 @@ import Reveal from "./Reveal";
 
 type FaqCategory =
   | "Tümü"
-  | "Genel & Metodoloji"
-  | "Voice AI & Geri Bildirim"
+  | "Genel"
+  | "Konuşma & Düzeltme"
   | "Sahneler & Seviyeler"
-  | "Kelime & Spaced Repetition"
-  | "Abonelik & Ödemeler"
+  | "Kelime & Çalışma"
+  | "Abonelik"
   | "Gizlilik & Cihazlar";
 
 interface FaqItem {
@@ -21,243 +21,161 @@ interface FaqItem {
 }
 
 const faqData: FaqItem[] = [
-  // 1. Genel & Metodoloji (6 soru)
   {
     id: "g1",
-    category: "Genel & Metodoloji",
-    question: "TalkStage tam olarak nedir ve geleneksel uygulamalardan nasıl ayrılır?",
+    category: "Genel",
+    question: "TalkStage nedir?",
     answer:
-      "TalkStage; kelime eşleştirme bulmacaları veya gramer testleri yerine, sizi doğrudan gerçek hayat sahnelerine (Tech Standup, FAANG mülakatı, Konsolosluk vizesi vb.) çıkaran, ultra düşük gecikmeli bir yapay zekâ sesli simülasyonudur. Konuştuğunuz anda sizi dinler, sesli yanıt verir ve takıldığınız hataları Türkçe açıklamalarla anında teşhis eder.",
+      "Gerçek hayat sahnelerini sesli prova ettiğin bir İngilizce uygulaması. Mivo karşındaki karakteri oynar, sen konuşursun; takıldığın cümleyi anında düzeltir ve nedenini kendi dilinde açıklar. Yanında kelime, okuma ve podcast çalışmaları da var.",
   },
   {
     id: "g2",
-    category: "Genel & Metodoloji",
-    question: "Sessiz Kilitlenme (The Silent Freeze) problemi nedir ve TalkStage bunu nasıl çözer?",
+    category: "Genel",
+    question: "Mivo kim?",
     answer:
-      "Gramer kurallarını ve kelimeleri bilmenize rağmen bir yabancı karşınıza çıktığında beyninizin Türkçe cümleyi İngilizceye çevirmeye çalışırken donup kalmasına 'Sessiz Kilitlenme' denir. TalkStage, safe-space (yargılanma korkusu olmayan) bir simülatörde her gün 5-10 dakika konuşma pratiği yaptırarak nörolojik konuşma refleksinizi otomatikleştirir.",
+      "Mivo, TalkStage’in yapay zekâ koçu ve maskotu. Sahnelerde karakteri oynar, serbest sohbette seninle istediğin konuda konuşur ve önceki sohbetlerden birkaç kısa not hatırlar.",
   },
   {
     id: "g3",
-    category: "Genel & Metodoloji",
-    question: "Günde ne kadar süre pratik yapmam önerilir?",
+    category: "Genel",
+    question: "Günde ne kadar çalışmalıyım?",
     answer:
-      "Pedagojik araştırmalar, haftada 1 kez 2 saat çalışmak yerine her gün 10-15 dakika aktif konuşmanın akıcılık refleksini 4 kat daha hızlı inşa ettiğini gösteriyor. TalkStage'de günde 1 veya 2 sahne tamamlamanız hızlı ilerleme için fazlasıyla yeterlidir.",
+      "Bir sahne 5–10 dakika sürer. İlk kurulumda günlük hedefini seçersin; Bugün sekmesi o gün için sıradaki işi gösterir, ne çalışacağını düşünmen gerekmez.",
   },
   {
-    id: "g4",
-    category: "Genel & Metodoloji",
-    question: "İngilizce seviyem çok düşük (A1/A2), TalkStage'i kullanabilir miyim?",
+    id: "k1",
+    category: "Konuşma & Düzeltme",
+    question: "Yanlış cümle kurarsam ne olur?",
     answer:
-      "Kesinlikle evet. TalkStage'de başlangıç seviyesindeki kullanıcılar için yavaş konuşan, basit kelimeler seçen ve sıkıştığınızda Türkçe ipucu veren rehberli senaryolar (Kahve Siparişi, Yol Tarifi vb.) mevcuttur.",
+      "Mivo konuşmanı bölmeden doğru hâlini gösterir ve nedenini kendi dilinde kısaca açıklar. Düzeltilen cümleler Hata Defterim’e düşer; istediğinde dönüp çalışırsın.",
   },
   {
-    id: "g5",
-    category: "Genel & Metodoloji",
-    question: "Yurtdışında yaşamadan akıcı İngilizce konuşmak gerçekten mümkün mü?",
+    id: "k2",
+    category: "Konuşma & Düzeltme",
+    question: "Telaffuzumu değerlendiriyor mu?",
     answer:
-      "Evet. Akıcılık coğrafi konumla değil, günlük sesli maruz kalma ve pratik yoğunluğuyla ilgilidir. TalkStage simülatörü sayesinde Londra'da bir iş mülakatındaymış ya da New York'ta bir standup toplantısındaymış gibi hissederek pratik yapabilirsiniz.",
+      "Konuşmanı yazıya çeviren sistemin kelime bazlı güven puanını gösteririz; düşük puanlı kelimeler telaffuz için bir ipucudur. Bu tam bir aksan analizi değildir. Zorlandığın kelimeleri Telaffuz çalışmasında tek tek tekrar edebilirsin.",
   },
   {
-    id: "g6",
-    category: "Genel & Metodoloji",
-    question: "Uygulamadaki hatalarımı bir insan mı dinliyor?",
+    id: "k3",
+    category: "Konuşma & Düzeltme",
+    question: "Konuşurken yazılı transkripti görebilir miyim?",
     answer:
-      "Hayır. Tüm analizler yapay zekâ fonetik ve gramer motorumuz tarafından anlık ve otomatik olarak yapılır. Hata yaparken kimsenin sizi yargılamayacağı, %100 güvenli ve rahat bir öğrenme alanına sahip olursunuz.",
+      "Evet. Söylediğin cümle önce ekranda görünür; göndermeden önce kontrol edip düzeltebilir ya da yeniden kaydedebilirsin. Karşı tarafın cümlelerini de yazılı olarak ve tekrar dinleyerek takip edersin.",
   },
-
-  // 2. Voice AI & Geri Bildirim (5 soru)
-  {
-    id: "v1",
-    category: "Voice AI & Geri Bildirim",
-    question: "Yapay zekânın sesli yanıt süresi (gecikme) ne kadar?",
-    answer:
-      "TalkStage, optimize edilmiş WebSocket mimarisi ve streaming ses motoru sayesinde cümlenizi bitirdiğiniz andan itibaren ortalama 1.2 saniye içinde doğal bir tonlama ve telaffuzla sesli yanıt verir. Bu, gerçek bir insan sohbeti kadar akıcıdır.",
-  },
-  {
-    id: "v2",
-    category: "Voice AI & Geri Bildirim",
-    question: "Türkçe karşılaştırmalı hata teşhisi nasıl çalışır?",
-    answer:
-      "Örneğin bir mülakatta 'I am agree with you' dediğinizde, sistem konuşmanın akışını bölmeden ekranınıza 'Doğrusu: I agree with you (Türkçede 'katılıyorum' fiil olduğu için İngilizcede am kullanılmaz)' şeklinde şık bir cam kart düşürür.",
-  },
-  {
-    id: "v3",
-    category: "Voice AI & Geri Bildirim",
-    question: "Telaffuzumdaki aksan ve hece hatalarını algılayabiliyor mu?",
-    answer:
-      "Evet. Fonetik analiz motorumuz, sesinizi hece hece tarar. 'Comfortable' kelimesini yanlış vurguladığınızda veya 'Th' seslerinde zorlandığınızda oturum sonu karnenizde ağız/dil pozisyonu ipuçlarıyla bunu raporlar.",
-  },
-  {
-    id: "v4",
-    category: "Voice AI & Geri Bildirim",
-    question: "Oturum sonu 360° Karne Raporunda hangi metrikler yer alır?",
-    answer:
-      "Her senaryo sonunda: Genel Akıcılık Skoru (%0-100), Konuşma Süresi, Kullanılan Eşsiz Kelime Sayısı, Düzeltilen Dilbilgisi Kalıpları ve Seviye İlerleme puanınız ayrıntılı olarak sunulur.",
-  },
-  {
-    id: "v5",
-    category: "Voice AI & Geri Bildirim",
-    question: "Yapay zekâ konuşurken araya girip (interrupt) sözünü kesebilir miyim?",
-    answer:
-      "Evet. Sistemimiz Voice Activity Detection (VAD) teknolojisine sahiptir. Karşıdaki AI rol konuşurken siz mikrofona başladığınız anda yapay zekâ sesini keser ve sizi dinlemeye başlar.",
-  },
-
-  // 3. Sahneler & Seviyeler (6 soru)
   {
     id: "s1",
     category: "Sahneler & Seviyeler",
-    question: "Uygulamada hangi senaryolar ve sahneler bulunuyor?",
+    question: "Hangi sahneler var?",
     answer:
-      "Temel olarak 6 ana kategori mevcuttur: 1) Tech & Yazılımcı Standup'ı, 2) FAANG ve Global İş Mülakatları, 3) ABD/Schengen Vize Görüşmesi, 4) B2B Satış ve Fiyat Pazarlığı, 5) Havalimanı & Seyahat, 6) Günlük Sosyal Kahve Sohbetleri. Her ay kütüphaneye yeni sahneler eklenir.",
+      "A1’den B2’ye 21 sahne: havalimanı, otel, restoran, taksi, doktor, iş mülakatı, bitpazarı, ev bakma, ofis molası ve daha fazlası. Her sahne önce kısa bir videoyla başlar, sonra Mivo karakteri canlı oynar.",
   },
   {
     id: "s2",
     category: "Sahneler & Seviyeler",
-    question: "Seviyemi nasıl belirleyeceğim? (A1 - C2)",
+    question: "Aynı sahneyi tekrar oynarsam ne değişir?",
     answer:
-      "İlk girişte yapacağınız 2 dakikalık sesli Akıcılık Pusulası testi seviyenizi anında tespit eder. Ayrıca dilediğiniz zaman profilinizden seviyenizi kendiniz manuel olarak da değiştirebilirsiniz.",
+      "Her oynayışta karşına farklı bir durum çıkar: bir karışıklık, bitmiş bir ürün, aceleci biri, meraklı biri ya da kibar bir şikâyet. Sahne hedefleri aynı kalır ama konuşma farklı gider. Her sahnede 1–3 yıldız toplarsın: videoyu bitirmek, canlı oynamak ve hedefleri en fazla iki düzeltmeyle tamamlamak.",
   },
   {
     id: "s3",
     category: "Sahneler & Seviyeler",
-    question: "Bir senaryoda konu dışına çıkarsam yapay zekâ ne yapar?",
+    question: "Seviyemi nasıl belirlerim? Sahneler kilitli mi?",
     answer:
-      "Yapay zekâ senaryodaki rolünü (örneğin Konsolosluk Görevlisi) koruyarak verdiğiniz cevaba göre dinamik yanıt üretir. Robotik kalıplarla sınırlandırılmamıştır; tamamen durumsal zekâya sahiptir.",
+      "Kısa bir seviye belirleme seni A1–C2 arasında yerleştirir. Seviyen ve altındaki sahneler açıktır, bir üst seviye “zor” etiketiyle denenebilir; daha ilerisi önceki seviyeyi bitirince açılır.",
   },
   {
     id: "s4",
     category: "Sahneler & Seviyeler",
-    question: "Yazılımcılar için özel teknik terimler ve kod konuşmaları var mı?",
+    question: "Seviyem çok düşükse kullanabilir miyim?",
     answer:
-      "Evet. Tech Standup sahnelerimizde PR review, blocker, merge conflict, microservices, latency ve sprint planning gibi gerçek dünya terimleri ve konuşma dinamikleri birebir yer alır.",
+      "Evet. A1 ve A2 sahnelerinde Mivo seni kendi dilinde yönlendirir, ne söyleyeceğini gösterir ve ilk cümleleri kurmana yardım eder.",
   },
   {
     id: "s5",
     category: "Sahneler & Seviyeler",
-    question: "Vize mülakatı senaryosu gerçekten konsolosluk ortamını yansıtıyor mu?",
+    question: "Kendi sahnemi ekleyebilir miyim?",
     answer:
-      "Evet. Konsolosluk görevlisi yapay zekâ; banka hesap dökümü, seyahat amacı, geri dönüş kanıtı ve konaklama gibi vize memurlarının gerçekte sorduğu çapraz sorularla sizi terletir ve hazırlar.",
+      "Şimdilik hazır sahneler ve Mivo ile serbest sohbet var; istediğin konuyu serbest sohbette açabilirsin. Kendi sahneni kurma özelliği henüz yok.",
   },
   {
-    id: "s6",
-    category: "Sahneler & Seviyeler",
-    question: "Kendi özel senaryomu veya mülakat sorumu ekleyebilir miyim?",
+    id: "w1",
+    category: "Kelime & Çalışma",
+    question: "Kelime tekrarı nasıl çalışıyor?",
     answer:
-      "Stage Pass Pro kullanıcıları, girecekleri gerçek bir mülakatın şirket adı ve iş tanımını girerek kendilerine özel kişiselleştirilmiş AI mülakat simülasyonu başlatabilirler.",
-  },
-
-  // 4. Kelime & Spaced Repetition (5 soru)
-  {
-    id: "k1",
-    category: "Kelime & Spaced Repetition",
-    question: "Spaced Repetition (SM-2) kelime sistemi nasıl çalışır?",
-    answer:
-      "Senaryolarda konuşurken kullandığınız veya takıldığınız kelimeler otomatik olarak Kelime Destenize eklenir. Sistem unutmamanız için kelimeyi 1 gün, 3 gün, 7 gün ve 30 gün aralıklarla hafıza eşiğinizde önünüze getirir.",
+      "900 çekirdek kelime var. Her kartı ne kadar iyi bildiğine göre bir sonraki tekrar günü hesaplanır (SM-2); kelimeler tam unutmak üzereyken karşına çıkar. Konuşmada ya da okumada gördüğün kelimeleri kendi destene de ekleyebilirsin.",
   },
   {
-    id: "k2",
-    category: "Kelime & Spaced Repetition",
-    question: "Kelimelerin telaffuzunu ve cümle içi kullanımını görebilir miyim?",
+    id: "w2",
+    category: "Kelime & Çalışma",
+    question: "Okuma modülünde ne yapıyorum?",
     answer:
-      "Evet. Her kelime kartında gerçek sesli telaffuz, fonetik alfabe (IPA), Türkçe anlamı ve o kelimenin geçtiği sahne repliği yer alır.",
+      "Kısa, resimli hikâyeleri sahne sahne okursun. Her sahnede dinle, boşluğu doldur, kelimeyi harf harf yaz ya da cümleyi sıraya diz gibi alıştırmalar vardır; hikâyenin sonunda cümleni sesli söylersin. Yeni hikâyeler şu an A1–A2 seviyesinde, üst seviyeler hazırlanıyor.",
   },
   {
-    id: "k3",
-    category: "Kelime & Spaced Repetition",
-    question: "Tematik Reading (Okuma & Dinleme) modülü nedir?",
+    id: "w3",
+    category: "Kelime & Çalışma",
+    question: "Podcastler nasıl?",
     answer:
-      "Konuşmaya başlamadan önce senaryo konusuyla ilgili kısa, akıcı makaleleri hem okuyabilir hem de profesyonel seslendirmen tonuyla dinleyerek kulak aşinalığı kazanabilirsiniz.",
+      "A1–B2 arasında 40 bölüm. İki dilli transkripti takip edebilir, bir cümleye dokunup sesi oraya atlatabilirsin. Bölümü sonuna kadar dinleyince küçük bir test açılır.",
   },
-  {
-    id: "k4",
-    category: "Kelime & Spaced Repetition",
-    question: "Kendi kelime listelerimi içe aktarabilir miyim?",
-    answer:
-      "Evet. Notlarınızdaki kelimeleri tek tıkla destenize ekleyebilir ve konuşma senaryolarınızda o kelimeleri kullanmaya teşvik edilebilirsiniz.",
-  },
-  {
-    id: "k5",
-    category: "Kelime & Spaced Repetition",
-    question: "Streak (Günlük Seri) sistemi ne işe yarar?",
-    answer:
-      "Düzenli alışkanlık kazanmanız için her gün en az 1 pratik yaptığınızda ateş seriniz artar. 7 gün, 30 gün ve 100 gün serilerinde özel 3D başarı rozetleri kazanırsınız.",
-  },
-
-  // 5. Abonelik & Ödemeler (5 soru)
   {
     id: "a1",
-    category: "Abonelik & Ödemeler",
-    question: "TalkStage tamamen ücretsiz kullanılabilir mi?",
+    category: "Abonelik",
+    question: "Ücretsiz mi?",
     answer:
-      "Evet! Free Stage planı kapsamında günde 1 sesli senaryo pratiği, sınırsız kelime kartı erişimi ve reading kütüphanesi tamamen ücretsizdir. Kredi kartı gerekmez.",
+      "Ücretsiz başlayabilirsin: günde 1 sesli sahne (5 dakikaya kadar), kelime kartları, okuma hikâyeleri ve anlık düzeltme. Sınırsız sesli pratik için Pro var.",
   },
   {
     id: "a2",
-    category: "Abonelik & Ödemeler",
-    question: "Stage Pass Pro aboneliği neleri kapsar?",
+    category: "Abonelik",
+    question: "Pro neleri kapsar, fiyatı ne?",
     answer:
-      "Sınırsız sesli konuşma süresi, tüm niş mülakat ve vize sahneleri, gelişmiş fonetik analizler, kişiselleştirilmiş senaryo oluşturucu ve öncelikli sunucu erişimi sağlar.",
+      "Sınırsız sesli sahne ve Mivo ile serbest sohbet, 30 dakikaya kadar uzun oturumlar. Fiyat uygulamada, App Store ve Google Play’in kendi fiyatıyla gösterilir.",
   },
   {
     id: "a3",
-    category: "Abonelik & Ödemeler",
-    question: "Aboneliğimi nasıl iptal edebilirim? Taahhüt var mı?",
+    category: "Abonelik",
+    question: "Aboneliğimi nasıl iptal ederim?",
     answer:
-      "Kesinlikle taahhüt yoktur. iPhone kullanıyorsanız App Store > Abonelikler, Android kullanıyorsanız Google Play > Abonelikler menüsünden dilediğiniz an tek dokunuşla iptal edebilirsiniz.",
+      "Abonelik mağaza hesabından (App Store ya da Google Play) yönetilir; istediğin zaman oradan iptal edebilirsin.",
   },
-  {
-    id: "a4",
-    category: "Abonelik & Ödemeler",
-    question: "Fiyatlar nedir ve yıllık planda indirim var mı?",
-    answer:
-      "Aylık Pro plan 199 TL/ay'dır. Yıllık planı seçtiğinizde ise %40'a yakın avantajla yıllık 1.490 TL üzerinden tek seferde faturalandırılırsınız.",
-  },
-  {
-    id: "a5",
-    category: "Abonelik & Ödemeler",
-    question: "Şirketler ve yazılım ekipleri için kurumsal fatura kesiliyor mu?",
-    answer:
-      "Evet. 5 kişi ve üzeri ekipler için toplu lisanslama ve kurumsal KDV'li fatura desteği sunuyoruz. Detaylar için b2b@talkstage.app adresine yazabilirsiniz.",
-  },
-
-  // 6. Gizlilik & Cihazlar (4 soru)
   {
     id: "c1",
     category: "Gizlilik & Cihazlar",
-    question: "TalkStage hangi telefonlarda ve tabletlerde çalışır?",
+    question: "Sesim ve konuşmalarım ne oluyor?",
     answer:
-      "iOS 15+ yüklü tüm iPhone ve iPad cihazlarda, Android 9+ yüklü tüm Android akıllı telefon ve tabletlerde sorunsuz çalışır.",
+      "Konuştuğun cümleler metne çevrilip Mivo’ya iletilir; ilk sesli odada gizlilik onayı istenir. Mivo’nun sohbetlerden sakladığı kısa notları uygulamadan görebilir, düzeltebilir veya silebilirsin. Ayrıntılar Gizlilik Politikası’nda.",
   },
   {
     id: "c2",
     category: "Gizlilik & Cihazlar",
-    question: "Ses kayıtlarım kaydedilip başkalarına dinletilir mi?",
-    answer:
-      "Asla. Ses akışınız yalnızca anlık konuşma ve metne dönüştürme esnasında şifreli (TLS 1.3) bağlantı ile işlenir. Reklam hedeflemesi veya üçüncü şahıslara satış amacıyla kalıcı kayıt tutulmaz.",
+    question: "Hesabımı ve verilerimi silebilir miyim?",
+    answer: "Evet. Hesap ayarlarından hesabını sildiğinde hesabın ve ona bağlı veriler sunucudan kaldırılır.",
   },
   {
     id: "c3",
     category: "Gizlilik & Cihazlar",
-    question: "KVKK ve GDPR düzenlemelerine uyumlu musunuz?",
+    question: "Hangi dillerde kullanabilirim?",
     answer:
-      "Evet. 6698 sayılı KVKK ve AB GDPR veri gizliliği kurallarına %100 uyumluyuz. Dilediğiniz zaman tüm geçmişinizi ve hesabınızı uygulama içerisinden silebilirsiniz.",
+      "Arayüz ve açıklamalar Türkçe, İngilizce, İspanyolca, Brezilya Portekizcesi ve Almanca olarak kullanılabilir. Çalıştığın dil her zaman İngilizce. Çevirilerin bir kısmı yapay zekâyla üretildi; hatalı bir şey görürsen bize yaz.",
   },
   {
     id: "c4",
     category: "Gizlilik & Cihazlar",
-    question: "İnternet bağlantım zayıf olduğunda konuşabilir miyim?",
+    question: "İnternet bağlantım zayıfsa ne olur?",
     answer:
-      "Sesli konuşma motoru için stabil bir 4G/5G veya Wi-Fi bağlantısı önerilir. Ancak Kelime Kartları ve Reading modülü çevrimdışı (offline) modda da çalışır.",
+      "Sesli sahneler ve Mivo sohbeti internet gerektirir; zayıf bağlantıda yanıtlar gecikebilir. Kararlı bir Wi-Fi ya da 4G/5G önerilir.",
   },
 ];
 
 const categories: FaqCategory[] = [
   "Tümü",
-  "Genel & Metodoloji",
-  "Voice AI & Geri Bildirim",
+  "Genel",
+  "Konuşma & Düzeltme",
   "Sahneler & Seviyeler",
-  "Kelime & Spaced Repetition",
-  "Abonelik & Ödemeler",
+  "Kelime & Çalışma",
+  "Abonelik",
   "Gizlilik & Cihazlar",
 ];
 
@@ -285,13 +203,13 @@ export default function Faq() {
         {/* Section Header */}
         <Reveal className="text-center">
           <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">
-            Aklınızdaki Tüm Sorular (SSS)
+            Sıkça sorulan sorular
           </span>
           <h2 className="mt-4 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-5xl">
-            Merak Ettiğiniz Her Şey Burada
+            Başlamadan önce akla gelenler
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-body sm:text-lg">
-            Metodolojimiz, yapay zekâ ses motoru, mülakat sahneleri ve abonelikler hakkında en çok sorulan 30+ sorunun yanıtı.
+            Sahneler, Mivo, düzeltmeler, kelime çalışması ve abonelik hakkında en çok sorulanlar.
           </p>
         </Reveal>
 
@@ -301,7 +219,7 @@ export default function Faq() {
           <div className="relative mx-auto max-w-xl">
             <input
               type="text"
-              placeholder="Soru veya konu ara (örn: gecikme, mülakat, iptal, telaffuz)..."
+              placeholder="Soru veya konu ara (örn: sahne, telaffuz, iptal)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-2xl border border-line bg-white px-5 py-4 pl-12 text-sm text-heading shadow-xs placeholder:text-muted focus:border-indigo focus:outline-none focus:ring-3 focus:ring-indigo/15"
@@ -424,12 +342,12 @@ export default function Faq() {
             Cevabını bulamadığınız başka bir soru mu var?
           </h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-body">
-            Destek ekibimiz tüm soru, öneri ve senaryo taleplerinize ortalama 2 saat içinde yanıt verir.
+            Bize yaz, mesajına e-postayla dönelim.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               href="/iletisim"
-              className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo to-cyan px-7 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full bg-stage px-7 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
             >
               <span>Bize Mesaj Gönder</span>
               <span>→</span>

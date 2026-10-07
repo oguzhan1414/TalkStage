@@ -1,109 +1,67 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import Reveal from "./Reveal";
 
-const featuredFaqs = [
+const FAQS = [
   {
-    id: "hf1",
-    question: "TalkStage geleneksel dil uygulamalarından nasıl ayrılır?",
-    answer:
-      "Gramer bulmacaları veya kelime eşleştirme oyunları yerine, sizi doğrudan gerçek sahnelerin (Tech Standup, FAANG Mülakatı, Konsolosluk Vizesi) içine sokar. Yapay zekâ ile sesli konuşursunuz, takıldığınız anda konuşmayı kesmeden Türkçe anlık teşhis kartıyla doğrusunu öğrenirsiniz.",
+    q: "Yanlış cümle kurarsam ne olur?",
+    a: "Mivo konuşmanı bölmeden doğru hâlini gösterir ve nedenini kendi dilinde kısaca açıklar. Düzeltilen cümleler hata defterine düşer, istediğinde dönüp çalışırsın.",
   },
   {
-    id: "hf2",
-    question: "Yapay zekâ konuşurken yaptığım hataları nasıl düzeltiyor?",
-    answer:
-      "Örneğin 'I am agree' dediğinizde, sistem konuşma akışını bölmeden ekranınıza 'Doğrusu: I agree with you (Türkçede 'katılıyorum' fiil olduğu için İngilizcede am kullanılmaz)' şeklinde anlık bir Türkçe ipucu düşürür. Oturum sonunda ise hece ve telaffuz analizlerinizi içeren 360° karne raporu sunar.",
+    q: "Başlangıç seviyesindeysem konuşabilir miyim?",
+    a: "Evet. A1 ve A2 sahnelerinde Mivo seni kendi dilinde yönlendirir, ne söyleyeceğini gösterir ve cümleyi söylemene yardım eder. Sahneler seviyene göre açılır; bir üst seviye “zor” etiketiyle denenebilir.",
   },
   {
-    id: "hf3",
-    question: "Ücretsiz olarak kullanabilir miyim? Kredi kartı gerekiyor mu?",
-    answer:
-      "Evet! Free Stage planı kapsamında günde 1 sesli senaryo pratiği, sınırsız kelime kartı (Spaced Repetition) ve tematik okuma kütüphanesi tamamen ücretsizdir. Kredi kartı bilgisi girmeniz gerekmez.",
+    q: "Mikrofon izni vermek zorunda mıyım?",
+    a: "Sesli sahneler için mikrofon gerekir; izni ilk kurulumda atlayıp sonra verebilirsin. Mikrofonu açmadan önce Mivo ile yazarak da sohbet edebilirsin.",
+  },
+  {
+    q: "Hangi dillerde kullanabilirim?",
+    a: "Arayüz ve açıklamalar Türkçe, İngilizce, İspanyolca, Brezilya Portekizcesi ve Almanca olarak kullanılabilir. Çalıştığın dil her zaman İngilizce. Çevirilerin bir kısmı yapay zekâyla üretildi, hatalı bir şey görürsen bize yaz.",
+  },
+  {
+    q: "Ücretsiz mi?",
+    a: "Evet, ücretsiz başlayabilirsin: günde 1 sesli sahne (5 dakikaya kadar), kelime kartları, okuma hikâyeleri ve anlık düzeltme. Sınırsız sesli pratik için Pro var.",
+  },
+  {
+    q: "Sesim ve konuşmalarım ne oluyor?",
+    a: "Konuştuğun cümleler metne çevrilip Mivo’ya iletilir; ilk sesli odada gizlilik onayı istenir. Mivo’nun sohbetlerden sakladığı kısa notları uygulamadan görebilir, düzeltebilir veya silebilirsin. Ayrıntılar Gizlilik Politikası’nda.",
   },
 ];
 
 export default function HomeFaq() {
-  const [openId, setOpenId] = useState<string | null>("hf1");
-
-  const toggleAccordion = (id: string) => {
-    setOpenId((prev) => (prev === id ? null : id));
-  };
-
   return (
-    <section id="sss" className="relative scroll-mt-24 bg-bg-warm px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-4xl">
-        {/* Section Header */}
-        <Reveal className="text-center">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-orange-200/60 text-sm font-bold text-heading shadow-xs mb-4">
-            <span>❓</span>
-            <span>Sıkça Sorulan Sorular</span>
-          </div>
-          <h2 className="mt-2 text-balance font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
-            Aklına Takılan Sorular 🤔
+    <section id="sss" className="scroll-mt-24 px-5 py-24 sm:px-8 sm:py-32">
+      <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+        <Reveal>
+          <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">SSS</p>
+          <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-5xl">
+            Başlamadan önce akla gelenler
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-body">
-            Merak ettiğin her şeyi özetledik! Detaylı yanıtlar için SSS merkezimizi ziyaret edebilirsin.
-          </p>
-        </Reveal>
-
-        {/* 3 Featured Accordions */}
-        <div className="mt-12 space-y-4">
-          {featuredFaqs.map((faq) => {
-            const isOpen = openId === faq.id;
-            return (
-              <Reveal key={faq.id}>
-                <div
-                  className={`overflow-hidden rounded-[24px] border transition-all duration-200 ${
-                    isOpen
-                      ? "border-pink-pop/30 bg-white shadow-md ring-1 ring-pink-pop/10"
-                      : "border-slate-200/60 bg-white/90 hover:border-pink-pop/20 hover:bg-white shadow-xs"
-                  }`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleAccordion(faq.id)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left cursor-pointer"
-                  >
-                    <span className="font-display text-[1rem] font-bold text-heading sm:text-[1.05rem]">
-                      {faq.question}
-                    </span>
-                    <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base font-bold transition-transform duration-200 ${
-                        isOpen
-                          ? "bg-pink-pop text-white rotate-45"
-                          : "bg-slate-100 text-muted"
-                      }`}
-                    >
-                      +
-                    </span>
-                  </button>
-
-                  {isOpen && (
-                    <div className="border-t border-line/60 px-6 pt-3 pb-5">
-                      <p className="text-[0.94rem] leading-relaxed text-body">
-                        {faq.answer}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-
-        {/* CTA to Full 30+ FAQ Page */}
-        <Reveal delay={200} className="mt-12 text-center">
           <Link
             href="/sss"
-            className="inline-flex items-center gap-2.5 rounded-full border border-slate-200/60 bg-white px-8 py-3.5 text-sm font-bold text-heading shadow-xs transition-all hover:-translate-y-0.5 hover:border-pink-pop/40 hover:text-pink-pop hover:shadow-md"
+            className="mt-6 inline-flex items-center gap-2 text-[0.95rem] font-semibold text-stage underline-offset-4 hover:underline"
           >
-            <span>Tüm 30+ Soruyu İncele 📖</span>
-            <span className="text-pink-pop">→</span>
+            Tüm soruları gör →
           </Link>
+        </Reveal>
+
+        <Reveal delay={100}>
+          <div className="divide-y divide-line rounded-[28px] border border-line bg-white">
+            {FAQS.map((item, i) => (
+              <details key={item.q} className="group px-6 py-1" open={i === 0}>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left font-display text-[1.05rem] font-bold text-heading [&::-webkit-details-marker]:hidden">
+                  {item.q}
+                  <span
+                    aria-hidden
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper-deep text-lg text-stage transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="pb-5 text-[0.95rem] leading-relaxed text-body">{item.a}</p>
+              </details>
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>

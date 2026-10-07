@@ -48,7 +48,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
         <div className="relative mx-auto w-20 h-20">
           <Image
-            src="/images/64_companion_yanki_transparent.png"
+            src="/mivo/chat-invite.webp"
             alt=""
             fill
             sizes="80px"

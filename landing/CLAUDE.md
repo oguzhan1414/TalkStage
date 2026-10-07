@@ -40,6 +40,22 @@ Kaynak dokümanlar (repo kökünde):
 - **Soft Light Glass:** `background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border: 1px solid rgba(226,232,240,0.8);`
 - **Subtle Layered Shadow:** `box-shadow: 0 10px 30px -10px rgba(15,23,42,0.06), 0 4px 6px -2px rgba(15,23,42,0.03);`
 
+## Landing v2 — Mivo + "take slate" yeniden tasarımı (2026-10-07)
+
+> **Bu bölüm aşağıdaki eski "Design Tokens / Asset Yerleşim / Mevcut Durum" bölümlerinin yerine geçer.** Eski bölümler tarihsel kayıt olarak duruyor; pastel "Kodland" paleti, `images/` numaralı görseller ve eski bölüm listesi artık kullanılmıyor.
+
+**Yön:** TalkStage bir *sahne*; her şey "take" metaforu etrafında. İmza öğe: ana sayfadaki canlı sahne çerçevesi (`StageTake`) — üstte klaket şeridi (SAHNE / SEVİYE / TAKE / BU SEFER), altta karakter satırı, kullanıcının yazılan cümlesi (yanlış kısım üstü çizilip yeşil düzeltmeyle), Mivo'nun Türkçe notu; 3 gerçek sahne arasında döner (`prefers-reduced-motion`'da son hâlde sabit). Diğer her şey sakin tutuldu.
+
+**Tokenlar (`globals.css`):** `ink #15123A` (koyu zemin/başlık), `stage #4F46E5` (marka/CTA), `spot #0EA5E9` (ses/AI), `slate-yellow #FFC21F` (klaket sarısı: yıldız, vurgu), `coral-glow #FF6B57` ("Bu sefer" etiketi), `paper #F5F4FF` (zemin), `paper-deep`, `line #E3E0F7`. Eski `pink-pop/lime-pop/...` tokenları dosyada duruyor ama ana sayfa kullanmıyor. **Fontlar:** Bricolage Grotesque (display), Figtree (gövde), JetBrains Mono (etiket/transkript) — hepsi `latin` + **`latin-ext`** ile yükleniyor (Türkçe ğ ş ı İ için şart; eskiden yalnızca `latin` vardı).
+
+**Ana sayfa (`app/page.tsx`):** `Hero` (+`StageTake`, `HeroCtaTracker`) → `SceneShelf` (+`TwistDemo`: aynı sahnenin 4 oynayışı, 3 yıldız açıklaması, 8 sahne kartı) → `MivoSection` (serbest sohbet + hafıza + 5 dil) → `DailyPath` (Bugün / okuma / podcast / kelime / hata defteri / telaffuz + A1–C2 kalkanları) → `Pricing` (Ücretsiz / Pro, **fiyat yazılmadı**: mağaza fiyatı uygulamada gösterilir) → `HomeFaq` (`<details>`, JS'siz) → `FinalCta` → `Footer`. Navbar/Footer/Logo tüm sayfalarda ortak. Kaldırılan eski bölümler: BentoStages, ProblemContrast, Simulator/Vocab/Podcast/Grammar showcase'leri, MobileAppShowcase, Testimonials (uydurma yorumlar), LiveCorrectionTicker, vb.; `PhoneFrame`, `lib/gsap.ts` ve ~90 eski görsel de silindi.
+
+**Görseller:** `public/{mivo,scenes,icons,levels}` mobil uygulamadan WebP'ye çevrilerek kopyalandı (Mivo pozları, 8 sahne kapağı, `nav/*`+`premium/*` 3D ikonları, seviye kalkanları). `public/og.jpg` (1200×630) PIL ile üretildi. Blog kapakları da `scenes/*`'a taşındı, yazar avatarı marka ikonu.
+
+**İlke — sadece doğru olanı yaz:** Eski sayfalardaki doğrulanamaz iddialar kaldırıldı/düzeltildi ("12.000+ kullanıcı", "%98 doğruluk", 199 TL/1.490 TL fiyatlar, "ortalama 2 saat yanıt", 7/24 destek, "çevrimdışı mod", "FAANG sahnesi", sahte sosyal medya linkleri, sahte dil seçici). `/sss` (`Faq.tsx`) ve `/hakkimizda` yeniden yazıldı; `/iletisim` formu artık hiçbir şey göndermiyordu, `mailto:` açacak şekilde düzeltildi. Rakamlar koddan doğrulandı: 21 video sahne (A1–B2), 40 podcast bölümü, 900 kelime, 5 arayüz dili, ücretsiz kullanıcı için günde 1 sahne / 5 dk, Pro için 30 dk oturum.
+
+**Bilinen eksikler / yapılacaklar:** (1) `NEXT_PUBLIC_IOS_STORE_URL` / `ANDROID_STORE_URL` tanımlı değil → store butonları `#`. (2) Gerçek sosyal hesaplar açılınca Footer'a eklenecek. (3) `blog-data.ts` (1.488 satır) içeriği ve **uydurma yazar adları** ("Selin Aksoy, Dilbilimci…") elden geçmeli; metinlerde "FAANG mülakat sahnesi" gibi uygulamada olmayan şeyler geçiyor. (4) `/app/*` web stüdyosu, `/giris`, `/kayit`, `/onboarding` yeni tasarıma geçirilmedi (yalnızca Yankı görselleri Mivo/marka logosuyla değişti, "Konuş" sekmesi "Sahneler" oldu); `/gizlilik` ve `/kullanim-sartlari` hukuki metinler olduğu için dokunulmadı ("Stage Pass Pro" adı geçiyor, uygulamadaki ürün adıyla tutarlılığı kontrol edilmeli). (5) `package.json`'da artık kullanılmayan `gsap`, `@gsap/react` bağımlılıkları var. (6) `types/api.ts`'teki `yanki_ask` backend/DB alan adı olduğu için bilerek bırakıldı. (7) Mobil `scenarios/cafe-meetup.jpg` kapağında eski "YANKI'S COZY MENU" yazısı gömülü; landing'de o kapak kullanılmadı, görsel yeniden üretilmeli.
+
 ## Asset Yerleşim Kuralı (kullanıcı görselleri üretirken)
 
 **Durum (2026-08-20):** Repo kökündeki `images/` klasöründe bazı görseller zaten üretilmiş ama henüz `landing/public/`'e kopyalanmamış/yeniden adlandırılmamış. Eşleme:
