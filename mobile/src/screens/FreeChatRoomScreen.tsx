@@ -23,6 +23,7 @@ import { TappableWords } from '../components/TappableWords';
 import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
 import { useFreeChatSocket, type TurnPhase } from '../hooks/useFreeChatSocket';
+import { confirmLeave, useConfirmBack } from '../hooks/useConfirmLeave';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { setLearningFlag } from '../lib/learningFlags';
@@ -190,6 +191,27 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     navigation.goBack();
   };
 
+  // Leaving mid-conversation asks first (X button, Android back, iOS swipe-back).
+  const hasConversation = turns.some((turn) => turn.role === 'user');
+  const sceneUserTurns = turns.filter((turn) => turn.role === 'user').length;
+  const leaveCopy = {
+    title: t("Sohbetten çıkmak istiyor musun?"),
+    message:
+      scene && sceneUserTurns < 4
+        ? t("Yıldız için en az 4 cümle konuşmalısın. Şimdi çıkarsan bu oynayış sayılmaz.")
+        : t("Konuşma burada sona erecek."),
+    confirmLabel: t("Çık"),
+  };
+  const requestExit = () => {
+    if (exitingRef.current) return;
+    if (!hasConversation || status === 'closed') {
+      handleExit();
+      return;
+    }
+    confirmLeave(leaveCopy, handleExit);
+  };
+  useConfirmBack(() => !exitingRef.current && hasConversation && status !== 'closed', handleExit, leaveCopy);
+
   // Turn banner — identical phase breakdown to LiveConversationRoomScreen,
   // just with a fixed "Mivo" persona instead of a per-scenario ai_name/ai_role.
   const TURN_PHASE_BANNER: Record<TurnPhase, { label: string; sub: string; color: string }> = {
@@ -218,7 +240,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable
-          onPress={handleExit}
+          onPress={requestExit}
           hitSlop={12}
           style={styles.headerIconButton}
           accessibilityRole="button"

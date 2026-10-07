@@ -1,5 +1,5 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { api } from '../lib/api';
@@ -87,6 +87,10 @@ export function usePronunciation() {
     setIsPlaying(false);
     setIsPaused(false);
   }, []);
+
+  // Leaving the screen must silence the voice: without this a word that was
+  // still playing (or a TTS request still in flight) kept talking after exit.
+  useEffect(() => stop, [stop]);
 
   const pause = useCallback(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {

@@ -139,6 +139,12 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
   const [audioNotice, setAudioNotice] = useState<string | null>(null);
   const awaitingTranscriptRef = useRef(false);
   const mutedReplyRef = useRef(false);
+  // True once the room is closed/unmounted: nothing may start playing after that,
+  // even if a late audio frame or a half-loaded player resolves afterwards.
+  const disposedRef = useRef(false);
+  // Every Mivo-audio player that exists right now. `stopAiAudio` and the unmount
+  // cleanup stop ALL of them (not just the "current" one), so no orphan can keep talking.
+  const livePlayersRef = useRef<Set<AudioPlayer>>(new Set());
   const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const connectionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -179,7 +185,36 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
   const lastReplyAudioUrisRef = useRef<string[]>([]);
   const [hasReplayableAudio, setHasReplayableAudio] = useState(false);
 
+  const killPlayer = useCallback((player: AudioPlayer | null | undefined) => {
+    if (!player) return;
+    livePlayersRef.current.delete(player);
+    // pause() first: remove() alone can leave a player that is still loading its data URI
+    // free to start talking a moment later.
+    try {
+      player.pause();
+    } catch {
+      // already released
+    }
+    try {
+      player.remove();
+    } catch {
+      // already released
+    }
+  }, []);
+
+  const killAllPlayers = useCallback(() => {
+    for (const player of Array.from(livePlayersRef.current)) killPlayer(player);
+    livePlayersRef.current.clear();
+  }, [killPlayer]);
+
   const playNextInQueue = useCallback(() => {
+    if (disposedRef.current || endRequestedRef.current) {
+      audioQueueRef.current = [];
+      aiAudioPlayingRef.current = false;
+      currentPlayerRef.current = null;
+      currentSubscriptionRef.current = null;
+      return;
+    }
     const nextUri = audioQueueRef.current.shift();
     if (!nextUri) {
       setIsAiSpeaking(false);
@@ -191,21 +226,23 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     setIsAiSpeaking(true);
     aiAudioPlayingRef.current = true;
     const player = createAudioPlayer({ uri: nextUri });
+    livePlayersRef.current.add(player);
     currentPlayerRef.current = player;
     const subscription = player.addListener('playbackStatusUpdate', (playerStatus) => {
       if (playerStatus.didJustFinish) {
         subscription.remove();
-        player.remove();
+        killPlayer(player);
         playNextInQueue();
       }
     });
     currentSubscriptionRef.current = subscription;
     player.play();
-  }, []);
+  }, [killPlayer]);
 
   const enqueueAudio = useCallback(
     (buffer: ArrayBuffer) => {
       const uri = `data:audio/wav;base64,${arrayBufferToBase64(buffer)}`;
+      if (disposedRef.current || endRequestedRef.current) return;
       lastReplyAudioUrisRef.current.push(uri);
       if (mutedReplyRef.current) return;
       audioQueueRef.current.push(uri);
@@ -222,12 +259,13 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     mutedReplyRef.current = true;
     currentSubscriptionRef.current?.remove();
     currentSubscriptionRef.current = null;
-    currentPlayerRef.current?.remove();
+    killPlayer(currentPlayerRef.current);
+    killAllPlayers();
     currentPlayerRef.current = null;
     audioQueueRef.current = [];
     aiAudioPlayingRef.current = false;
     setIsAiSpeaking(false);
-  }, []);
+  }, [killPlayer, killAllPlayers]);
 
   // "Tekrar Dinle" — replays the reply that just finished, while the user
   // is still deciding what to say next (thinking_time/recording/reviewing).
@@ -308,6 +346,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
 
     let cancelled = false;
     let socket: WebSocket | null = null;
+    disposedRef.current = false;
 
     setStatus('connecting');
     setCloseInfo(null);
@@ -561,9 +600,11 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
       // crashed on Android ("shared object was already released"). The
       // still-mounted "connection dropped" case is covered by onclose's
       // stopStream() call above.
+      disposedRef.current = true;
       currentSubscriptionRef.current?.remove();
       currentSubscriptionRef.current = null;
-      currentPlayerRef.current?.remove();
+      killPlayer(currentPlayerRef.current);
+      killAllPlayers();
       currentPlayerRef.current = null;
       audioQueueRef.current = [];
       aiAudioPlayingRef.current = false;

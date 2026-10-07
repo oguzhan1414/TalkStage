@@ -23,6 +23,7 @@ import { TappableWords } from '../components/TappableWords';
 import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
 import { useConversationSocket, type TurnPhase } from '../hooks/useConversationSocket';
+import { confirmLeave, useConfirmBack } from '../hooks/useConfirmLeave';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { colors, fonts, radii, spacing, typography } from '../theme/tokens';
@@ -168,6 +169,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
   const accoladeAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingSessionRef = useRef(false);
+  const leavingRef = useRef(false);
   const lastTrackedCloseReasonRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -283,6 +285,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
       });
       navigation.replace('Scorecard', { session: result, scenarioTitle, wordsAddedCount });
     } catch {
+      leavingRef.current = false;
       setSaveError(t("Oturum kaydedilemedi. Bağlantını kontrol edip tekrar dene."));
     } finally {
       savingSessionRef.current = false;
@@ -291,9 +294,31 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
   };
 
   const handleExit = () => {
+    leavingRef.current = true;
     endSession();
     void finishSession();
   };
+
+  // Leaving mid-conversation asks first (X button, Android back, iOS swipe-back).
+  const hasConversation = turns.some((turn) => turn.role === 'user');
+  const leaveCopy = {
+    title: t("Sohbetten çıkmak istiyor musun?"),
+    message: t("Konuşma burada bitecek ve karnen hazırlanacak."),
+    confirmLabel: t("Bitir"),
+  };
+  const requestExit = () => {
+    if (leavingRef.current) return;
+    if (!hasConversation || status === 'closed') {
+      handleExit();
+      return;
+    }
+    confirmLeave(leaveCopy, handleExit);
+  };
+  useConfirmBack(
+    () => !leavingRef.current && !savingSessionRef.current && hasConversation && status !== 'closed',
+    handleExit,
+    leaveCopy
+  );
 
   const currentWpm = latestMetrics?.wpm ?? (wpmHistory.length > 0 ? wpmHistory[wpmHistory.length - 1] : 0);
   const currentConfidence = latestMetrics?.avg_confidence ?? null;
@@ -332,7 +357,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
       {/* Top Header */}
       <View style={styles.header}>
         <Pressable
-          onPress={handleExit}
+          onPress={requestExit}
           hitSlop={12}
           style={styles.headerIconButton}
           accessibilityRole="button"
