@@ -4,22 +4,23 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status
 from postgrest.exceptions import APIError
 
-from app.api.deps import AuthContext, get_auth_context
+from app.api.deps import AuthContext, get_auth_context, get_locale
 from app.schemas.scenario import ScenarioOut
+from app.services.content_i18n import overlay_translation
 
 router = APIRouter(prefix="/scenarios", tags=["scenarios"])
 
-_LIST_COLUMNS = (
-    "id, slug, title, category, description, cefr_level, "
-    "estimated_minutes, is_premium, cover_image_url, sort_order, "
-    "ai_name, ai_role, situation, objectives, key_phrases, suggested_vocab"
-)
+# "*" on purpose: the `translations` column (migration 0022) may not exist yet on an
+# environment, and an explicit column list naming it would 500 the whole catalog.
+# `system_prompt` still never leaves the server — ScenarioOut simply doesn't declare it.
+_LIST_COLUMNS = "*"
 
 
 @router.get("", response_model=list[ScenarioOut])
 def list_scenarios(
     category: str | None = None,
     ctx: AuthContext = Depends(get_auth_context),
+    locale: str = Depends(get_locale),
 ) -> list[ScenarioOut]:
     # `is_active` lets the catalog be narrowed to a curated set (e.g. the
     # A1/A2 relaunch) without destroying older, hand-authored scenario rows —
@@ -28,11 +29,13 @@ def list_scenarios(
     if category:
         query = query.eq("category", category)
     result = query.execute()
-    return [ScenarioOut(**row) for row in result.data]
+    return [ScenarioOut(**overlay_translation(row, locale)) for row in result.data]
 
 
 @router.get("/recommended", response_model=ScenarioOut)
-def get_recommended_scenario(ctx: AuthContext = Depends(get_auth_context)) -> ScenarioOut:
+def get_recommended_scenario(
+    ctx: AuthContext = Depends(get_auth_context), locale: str = Depends(get_locale)
+) -> ScenarioOut:
     """Home Dashboard's "günün önerilen senaryosu" (plan doc 3.2). Deterministic per
     user per day (same pick all day, rotates daily), narrowed by interests/level when
     possible and falling back to the full catalog otherwise.
@@ -60,11 +63,13 @@ def get_recommended_scenario(ctx: AuthContext = Depends(get_auth_context)) -> Sc
 
     seed = f"{ctx.user.id}:{date.today().isoformat()}"
     index = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(pool)
-    return ScenarioOut(**pool[index])
+    return ScenarioOut(**overlay_translation(pool[index], locale))
 
 
 @router.get("/{slug}", response_model=ScenarioOut)
-def get_scenario(slug: str, ctx: AuthContext = Depends(get_auth_context)) -> ScenarioOut:
+def get_scenario(
+    slug: str, ctx: AuthContext = Depends(get_auth_context), locale: str = Depends(get_locale)
+) -> ScenarioOut:
     try:
         result = (
             ctx.db.table("scenarios")
@@ -75,4 +80,4 @@ def get_scenario(slug: str, ctx: AuthContext = Depends(get_auth_context)) -> Sce
         )
     except APIError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found") from exc
-    return ScenarioOut(**result.data)
+    return ScenarioOut(**overlay_translation(result.data, locale))

@@ -15,7 +15,7 @@ class ChatMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2_000)
     # Optional roleplay instruction for Study Path daily tasks (e.g. "You are
     # playing Barista Mert in a cafe..."). Resent every turn since nothing is
-    # persisted server-side — without it the model only has generic "Yankı"
+    # persisted server-side — without it the model only has generic "Mivo"
     # framing and won't actually stay in character.
     role_context: str | None = Field(default=None, max_length=2_000)
     # Curriculum grammar topic this chat is practicing (e.g. "A1_G01"), if
@@ -54,3 +54,13 @@ class ChatMessageResponse(BaseModel):
     # concrete answer to "I don't know what to say next", refreshed every
     # turn instead of a fixed client-side chip list.
     suggested_replies: list[str] = []
+    # Turkish translation of each suggested_replies entry, same order/length
+    # — powers the "Söylemeyi dene" coaching card's translation line.
+    suggested_replies_tr: list[str] = []
+
+
+class TranscribeResponse(BaseModel):
+    # Empty string (not an error) means "no speech detected" — the client
+    # decides what to show (e.g. a retry prompt), same as a blank STT result
+    # from any provider is not inherently a failure.
+    transcript: str

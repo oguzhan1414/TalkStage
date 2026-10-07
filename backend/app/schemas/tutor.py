@@ -16,7 +16,7 @@ class TutorCorrection(BaseModel):
     )
     explanation_tr: str | None = Field(
         default=None,
-        description="Warm, patient, encouraging Turkish explanation of why this correction is better. Never clinical or harsh."
+        description="Warm, patient, encouraging explanation, written in the learner's native language, of why this correction is better. Never clinical or harsh."
     )
     category: str | None = Field(
         default=None,
@@ -29,14 +29,14 @@ class TutorTurnResponse(BaseModel):
         description="Maya's spoken English response. Natural, engaging, appropriate for learner's level (1-2 sentences)."
     )
     reply_tr_hint: str = Field(
-        description="Turkish translation or intuitive gist of Maya's English reply to help the learner understand."
+        description="Translation or intuitive gist (in the learner's native language) of the English phrase being practiced, to help the learner understand."
     )
     correction: TutorCorrection = Field(
         description="Immediate analysis of the user's input with warm feedback if needed."
     )
     coach_tip_tr: str | None = Field(
         default=None,
-        description="Proactive micro-coaching tip in Turkish whispering in the student's ear what to say or try next."
+        description="Proactive micro-coaching tip, in the learner's native language, whispering in the student's ear what to say or try next."
     )
     fluency_score: int = Field(
         default=85,
@@ -48,13 +48,17 @@ class TutorTurnResponse(BaseModel):
         default_factory=list,
         description="2-3 short (3-8 word) example replies in English answering Maya's question."
     )
+    suggested_replies_tr: list[str] = Field(
+        default_factory=list,
+        description="Translation of each suggested_replies entry into the learner's native language, same order and length."
+    )
     is_task_complete: bool = Field(
         default=False,
         description="True if all scenario/lesson objectives have been successfully met or turn cap reached."
     )
     summary_tr: str | None = Field(
         default=None,
-        description="Short, encouraging Turkish summary of user's performance if task is completed."
+        description="Short, encouraging summary (in the learner's native language) of user's performance if task is completed."
     )
 
     # Dynamic properties for backward compatibility with existing ChatMessageResponse clients
@@ -87,5 +91,9 @@ class TutorTurnRequest(BaseModel):
     is_strict_mission: bool = True
     target_grammar_rule: str | None = None
     display_name: str | None = None
+    #: Önceki serbest sohbetlerden hafıza özeti (services/chat_memory.py). Kullanıcı kaynaklı veri.
+    memory_context: str | None = None
+    #: Öğrenenin ana dili (profiles.native_language) — açıklamaların dili.
+    native_language: str = "tr"
     turn_index: int = 1
     max_turns: int = 4

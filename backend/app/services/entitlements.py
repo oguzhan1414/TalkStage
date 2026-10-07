@@ -21,7 +21,11 @@ def is_pro(db: Client, user_id: str) -> bool:
     if not rows:
         return False
     row = rows[0]
-    if row["status"] not in _ENTITLED_STATUSES:
+    # `cancelled` = otomatik yenileme kapatıldı, ödenen dönem bitene kadar hak sürer.
+    if row["status"] == "cancelled":
+        if row["current_period_end"] is None:
+            return False
+    elif row["status"] not in _ENTITLED_STATUSES:
         return False
     if row["current_period_end"] is None:
         return True

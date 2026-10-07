@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from app.core.language import NATIVE_LANGUAGE_PATTERN
 from app.schemas.profile import LEARNING_GOAL_PATTERN, PERSONA_PATTERN
 
 
@@ -13,3 +14,4 @@ class OnboardingCompleteRequest(BaseModel):
     learning_goal: str = Field(pattern=LEARNING_GOAL_PATTERN)
     cefr_level: str = Field(pattern="^(A1|A2|B1|B2|C1|C2)$")
     daily_target_minutes: int = Field(ge=1, le=180)
+    native_language: str | None = Field(default=None, pattern=NATIVE_LANGUAGE_PATTERN)

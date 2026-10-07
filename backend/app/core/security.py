@@ -46,6 +46,8 @@ def decode_supabase_jwt(token: str) -> dict:
                 signing_key.key,
                 algorithms=["ES256", "RS256"],
                 audience="authenticated",
+                issuer=f"{settings.supabase_url.rstrip('/')}/auth/v1",
+                options={"require": ["exp", "sub", "aud", "iss"]},
                 leeway=10,
             )
         except (PyJWKClientError, jwt.PyJWTError):
@@ -58,6 +60,8 @@ def decode_supabase_jwt(token: str) -> dict:
                 settings.supabase_jwt_secret,
                 algorithms=["HS256"],
                 audience="authenticated",
+                issuer=f"{settings.supabase_url.rstrip('/')}/auth/v1" if settings.supabase_url else None,
+                options={"require": ["exp", "sub", "aud", "iss"]},
                 leeway=10,
             )
         except jwt.PyJWTError:

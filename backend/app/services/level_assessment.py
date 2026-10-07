@@ -5,9 +5,8 @@ from pydantic import BaseModel, Field
 
 from app.core.config import settings
 
-#: Same gpt-5-nano switch as llm_orchestrator.py — cheaper, and this is a
-#: one-shot classification task, not something deep reasoning improves.
-CHAT_MODEL = "gpt-5.6-luna"
+#: gpt-4o-mini is fast, reliable, and cost-effective for CEFR classification.
+CHAT_MODEL = "gpt-4o-mini"
 
 CEFRLevel = Literal["A1", "A2", "B1", "B2", "C1", "C2"]
 

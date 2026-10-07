@@ -19,7 +19,7 @@ async def tutor_turn(
     try:
         profile = (
             ctx.db.table("profiles")
-            .select("cefr_level, display_name")
+            .select("*")
             .eq("id", ctx.user.id)
             .single()
             .execute()
@@ -30,6 +30,8 @@ async def tutor_turn(
                 payload.cefr_level = profile["cefr_level"]
             if not payload.display_name and profile.get("display_name"):
                 payload.display_name = profile["display_name"]
+            if profile.get("native_language"):
+                payload.native_language = profile["native_language"]
     except Exception:
         pass
 

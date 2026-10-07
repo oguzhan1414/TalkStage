@@ -2,14 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
-    burger_session,
     chat,
+    freechat_session,
     learning_flags,
+    memory,
     onboarding,
     profiles,
     progress,
     reading,
     scenarios,
+    scene_play_session,
     sessions,
     speech,
     tts,
@@ -44,11 +46,13 @@ app.include_router(tts.router)
 app.include_router(sessions.router)
 app.include_router(webhooks.router)
 app.include_router(ws_session.router)
-app.include_router(burger_session.router)
+app.include_router(freechat_session.router)
+app.include_router(scene_play_session.router)
 app.include_router(chat.router)
 app.include_router(tutor.router)
 app.include_router(learning_flags.router)
 app.include_router(speech.router)
+app.include_router(memory.router)
 
 
 import os

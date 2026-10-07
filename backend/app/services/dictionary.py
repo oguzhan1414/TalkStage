@@ -3,6 +3,7 @@ import re
 from functools import lru_cache
 from openai import OpenAI
 from app.core.config import settings
+from app.core.language import native_language_name, normalize_native_language
 
 # Common offline dictionary cache (thousands of CEFR words)
 COMMON_DICTIONARY: dict[str, dict[str, str]] = {
@@ -28,11 +29,14 @@ COMMON_DICTIONARY: dict[str, dict[str, str]] = {
 
 
 @lru_cache(maxsize=1000)
-def lookup_word(term: str) -> dict:
-    """Translates and enriches any English word or phrase with Turkish meaning, IPA and example sentence."""
+def lookup_word(term: str, native_language: str = "tr") -> dict:
+    """Translates and enriches any English word or phrase with a native-language meaning, IPA and example sentence."""
+    native_language = normalize_native_language(native_language)
+    lang = native_language_name(native_language)
     clean_term = term.strip().strip(".,!?\"';:").lower()
-    
-    if clean_term in COMMON_DICTIONARY:
+
+    # The offline cache is Turkish-only; other languages go straight to the LLM lookup below.
+    if native_language == "tr" and clean_term in COMMON_DICTIONARY:
         d = COMMON_DICTIONARY[clean_term]
         return {
             "term": term,
@@ -51,13 +55,13 @@ def lookup_word(term: str) -> dict:
                 api_key=settings.groq_api_key
             )
             prompt = (
-                f"You are an English-Turkish dictionary. For the English word or phrase '{term}', "
+                f"You are an English-{lang} dictionary. For the English word or phrase '{term}', "
                 "return a strict JSON object with keys: "
-                "'translation' (natural Turkish meaning, e.g. 'geliştirmek'), "
+                f"'translation' (natural {lang} meaning, 1-4 words), "
                 "'phonetic' (IPA phonetic transcription, e.g. '/ɪmˈpruːv/'), "
                 "'part_of_speech' (e.g. 'noun', 'verb', 'adjective', 'adverb', 'phrase'), "
                 "'example_en' (short clear English sentence using the word), "
-                "'example_tr' (Turkish translation of the example sentence)."
+                f"'example_tr' ({lang} translation of the example sentence)."
             )
             completion = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
@@ -72,7 +76,7 @@ def lookup_word(term: str) -> dict:
             data = json.loads(raw)
             return {
                 "term": term,
-                "translation": data.get("translation", "çeviri bulunamadı"),
+                "translation": data.get("translation", term),
                 "phonetic": data.get("phonetic", ""),
                 "part_of_speech": data.get("part_of_speech", ""),
                 "example_en": data.get("example_en", ""),
@@ -86,7 +90,7 @@ def lookup_word(term: str) -> dict:
         "term": term,
         "translation": clean_term,
         "phonetic": "",
-        "part_of_speech": "kelime",
+        "part_of_speech": "word",
         "example_en": f"Example with {term}.",
-        "example_tr": f"{term} ile ilgili örnek."
+        "example_tr": ""
     }

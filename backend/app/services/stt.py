@@ -26,13 +26,16 @@ async def transcribe_audio(
     "prefer the cheaper option, degrade gracefully" pattern as
     llm_orchestrator.py's OpenAI/Groq client selection.
     """
-    if settings.groq_api_key:
+    if settings.deepgram_api_key:
         try:
-            return await _transcribe_groq(client, audio_bytes, content_type)
-        except httpx.HTTPError:
-            if not settings.deepgram_api_key:
-                raise
-    return await _transcribe_deepgram(client, audio_bytes, content_type, model)
+            return await _transcribe_deepgram(client, audio_bytes, content_type, model)
+        except Exception:
+            if settings.groq_api_key:
+                return await _transcribe_groq(client, audio_bytes, content_type)
+            raise
+    if settings.groq_api_key:
+        return await _transcribe_groq(client, audio_bytes, content_type)
+    raise RuntimeError("Neither DEEPGRAM_API_KEY nor GROQ_API_KEY is configured")
 
 
 async def _transcribe_groq(client: httpx.AsyncClient, audio_bytes: bytes, content_type: str) -> str:

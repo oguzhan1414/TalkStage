@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timezone
 
 import httpx
+from postgrest.exceptions import APIError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from app.api.deps import AuthContext, get_auth_context
@@ -102,7 +103,17 @@ def complete_onboarding(
         "interests": _derive_interests(payload.persona_id, payload.learning_goal),
         "onboarding_completed_at": datetime.now(timezone.utc).isoformat(),
     }
-    result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
+    if payload.native_language:
+        updates["native_language"] = payload.native_language
+    try:
+        result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
+    except APIError:
+        # Migration 0021 (profiles.native_language) may not be applied on this
+        # environment yet — never let that block onboarding itself.
+        if "native_language" not in updates:
+            raise
+        updates.pop("native_language")
+        result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
     return ProfileOut(**result.data[0])

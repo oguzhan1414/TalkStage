@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from postgrest.exceptions import APIError
 
-from app.api.deps import AuthContext, get_auth_context
+from app.api.deps import AuthContext, get_auth_context, get_locale
 from app.schemas.vocab import (
     VocabCardCreate,
     VocabCardOut,
@@ -19,9 +19,11 @@ router = APIRouter(prefix="/vocab-cards", tags=["vocab"])
 
 
 @router.get("/lookup", response_model=VocabLookupOut)
-def lookup_term(term: str, ctx: AuthContext = Depends(get_auth_context)) -> VocabLookupOut:
+def lookup_term(
+    term: str, ctx: AuthContext = Depends(get_auth_context), locale: str = Depends(get_locale)
+) -> VocabLookupOut:
     """Translates and enriches any English word or phrase in reading passages."""
-    data = lookup_word(term)
+    data = lookup_word(term, locale)
     return VocabLookupOut(**data)
 
 

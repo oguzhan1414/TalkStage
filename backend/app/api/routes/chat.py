@@ -1,10 +1,13 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+import httpx
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from postgrest.exceptions import APIError
 
 from app.api.deps import AuthContext, get_auth_context
-from app.schemas.chat import ChatMessageRequest, ChatMessageResponse
+from app.schemas.chat import ChatMessageRequest, ChatMessageResponse, TranscribeResponse
+from app.services.chat_memory import format_memory_context, load_memory
+from app.services.stt import transcribe_audio
 from app.services.text_chat import generate_chat_reply
 
 logger = logging.getLogger(__name__)
@@ -22,7 +25,7 @@ def send_message(
     try:
         profile = (
             ctx.db.table("profiles")
-            .select("cefr_level, display_name")
+            .select("*")
             .eq("id", ctx.user.id)
             .single()
             .execute()
@@ -30,6 +33,10 @@ def send_message(
         )
     except APIError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found") from exc
+
+    memory_context = None
+    if not payload.role_context:
+        memory_context = format_memory_context(load_memory(ctx.db, ctx.user.id))
 
     try:
         response = generate_chat_reply(
@@ -39,6 +46,8 @@ def send_message(
             payload.role_context,
             profile.get("display_name"),
             payload.topic_context,
+            profile.get("native_language"),
+            memory_context,
         )
     except RuntimeError as exc:
         # GROQ_API_KEY not configured — same "not set up yet" shape as the other AI keys.
@@ -68,3 +77,31 @@ def send_message(
             logger.exception("Failed to log grammar mistake")
 
     return response
+
+
+@router.post("/transcribe", response_model=TranscribeResponse)
+async def transcribe_message(
+    audio: UploadFile = File(...),
+    ctx: AuthContext = Depends(get_auth_context),
+) -> TranscribeResponse:
+    """One-shot speech-to-text for the voice-first chat room — tap-record a
+    single turn, transcribe it, then feed the text into the exact same
+    `POST /chat/message` flow a typed message would use. Mirrors
+    `POST /onboarding/calibrate`'s transcription step (same underlying
+    `transcribe_audio`, same Groq-Whisper-first/Deepgram-fallback behavior).
+    """
+    audio_bytes = await audio.read()
+    content_type = audio.content_type or "audio/m4a"
+    try:
+        async with httpx.AsyncClient() as http_client:
+            transcript = await transcribe_audio(http_client, audio_bytes, content_type)
+    except RuntimeError as exc:
+        # Neither GROQ_API_KEY nor DEEPGRAM_API_KEY configured.
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+    except httpx.HTTPError as exc:
+        logger.exception("Transcription request failed")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail="Ses yazıya çevrilemedi"
+        ) from exc
+
+    return TranscribeResponse(transcript=transcript.strip())

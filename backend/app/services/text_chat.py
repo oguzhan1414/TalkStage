@@ -1,5 +1,7 @@
 import re
 
+from app.core.language import normalize_native_language
+
 # This module used to call Groq directly (see git history / CLAUDE.md Ek
 # 15-21 for that chapter) — it now delegates the actual reply generation to
 # `tutor_engine.py` (OpenAI-first, Groq-fallback; see that module's
@@ -35,7 +37,7 @@ _COMMON_TURKISH_WORDS = {
 _VOWELS = set("aeiou")
 
 
-def _looks_like_english_attempt(message: str) -> bool:
+def _looks_like_english_attempt(message: str, native_language: str = "tr") -> bool:
     """Cheap, deterministic heuristic — not real language detection, just
     enough to stop the two concrete abuse patterns reported: typing Turkish,
     or keyboard-mashing gibberish, to coast through the turn count without
@@ -46,11 +48,15 @@ def _looks_like_english_attempt(message: str) -> bool:
     stripped = message.strip().lower()
     if len(stripped) < 2:
         return False
-    if any(ch in _TURKISH_CHARS for ch in stripped):
-        return False
-    words = re.findall(r"[a-z']+", stripped)
-    if any(w in _COMMON_TURKISH_WORDS for w in words):
-        return False
+    # The Turkish-specific checks only make sense for Turkish learners — German
+    # ü/ö (and Spanish/Portuguese accents) are legitimate in other native-language
+    # users' names/words and must not be flagged as "not English".
+    if native_language == "tr":
+        if any(ch in _TURKISH_CHARS for ch in stripped):
+            return False
+        words = re.findall(r"[a-z']+", stripped)
+        if any(w in _COMMON_TURKISH_WORDS for w in words):
+            return False
     letters = [c for c in stripped if c.isalpha()]
     if len(letters) >= 4 and not any(c in _VOWELS for c in letters):
         return False  # e.g. "asdkjqwrty" — no real English text is this long with zero vowels
@@ -64,11 +70,14 @@ def generate_chat_reply(
     role_context: str | None = None,
     display_name: str | None = None,
     topic_context: str | None = None,
+    native_language: str | None = None,
+    memory_context: str | None = None,
 ) -> ChatMessageResponse:
     from app.schemas.tutor import TutorTurnRequest
     from app.services.tutor_engine import generate_tutor_turn_sync
 
     level = cefr_level or "A1"
+    native_language = normalize_native_language(native_language)
     # Only a real Study Path / focusTopic mission (role_context set) gets
     # turn-capped and force-completed — a bare topic_context anchor or fully
     # free chat must stay unlimited (see ChatMessageRequest.topic_context's
@@ -88,9 +97,9 @@ def generate_chat_reply(
         # (+ grace) so someone who never once attempts English isn't stuck
         # forever either.
         valid_turn_count = sum(
-            1 for t in history if t.role == "user" and _looks_like_english_attempt(t.content)
+            1 for t in history if t.role == "user" and _looks_like_english_attempt(t.content, native_language)
         )
-        if _looks_like_english_attempt(user_message):
+        if _looks_like_english_attempt(user_message, native_language):
             valid_turn_count += 1
         hard_cap_hit = raw_turn_count >= turn_cap + _VALID_TURN_GRACE
 
@@ -107,6 +116,8 @@ def generate_chat_reply(
         task_goal=role_context or topic_context,
         is_strict_mission=is_strict_mission,
         display_name=display_name,
+        memory_context=memory_context,
+        native_language=native_language,
         turn_index=turn_index,
         max_turns=max_turns,
     )
@@ -124,4 +135,5 @@ def generate_chat_reply(
             explanation_tr=tutor_res.correction.explanation_tr,
         ),
         suggested_replies=tutor_res.suggested_replies,
+        suggested_replies_tr=tutor_res.suggested_replies_tr,
     )

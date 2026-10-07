@@ -9,6 +9,7 @@ Grade = Literal["again", "good", "easy"]
 _GRADE_QUALITY: dict[Grade, int] = {"again": 2, "good": 4, "easy": 5}
 
 MIN_EASE_FACTOR = 1.3
+EASY_BONUS = 1.3
 
 
 @dataclass
@@ -35,12 +36,17 @@ def review_card(
         new_interval = 1
     else:
         new_repetitions = repetitions + 1
+        # Klasik SM-2 ilk iki tekrarda "İyi" ile "Kolay"ı ayırt etmez (hep 1 ve
+        # 6 gün) — kullanıcıya iki buton da aynı sonucu veriyordu. Anki'deki
+        # gibi "Kolay" artık daha uzun bir aralık veriyor. Mobildeki
+        # lib/sm2Preview.ts bu mantığı birebir yansıtır; ikisi birlikte değişmeli.
+        easy = grade == "easy"
         if new_repetitions == 1:
-            new_interval = 1
+            new_interval = 4 if easy else 1
         elif new_repetitions == 2:
-            new_interval = 6
+            new_interval = 10 if easy else 6
         else:
-            new_interval = round(interval_days * ease_factor)
+            new_interval = round(interval_days * ease_factor * (EASY_BONUS if easy else 1.0))
 
     new_ease_factor = ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
     new_ease_factor = max(MIN_EASE_FACTOR, new_ease_factor)
