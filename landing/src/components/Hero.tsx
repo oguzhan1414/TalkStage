@@ -135,11 +135,11 @@ export default function Hero() {
             </PhoneFrame>
           </div>
 
-          {/* 3D Floating Yankı Mascot */}
+          {/* 3D Floating Mivo Mascot */}
           <div className="gsap-float-yanki absolute -right-4 sm:-right-12 -top-6 z-30 w-28 h-28 sm:w-36 sm:h-36 pointer-events-none drop-shadow-[0_20px_30px_rgba(155,109,255,0.3)]">
             <Image
               src="/images/64_companion_yanki_transparent.png"
-              alt="Yankı AI Sesli Yol Arkadaşı"
+              alt="Mivo AI Sesli Yol Arkadaşı"
               fill
               sizes="144px"
               className="object-contain"

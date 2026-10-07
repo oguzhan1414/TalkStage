@@ -253,7 +253,7 @@ export function InteractiveVideoScenario({ scenario, onClose, onComplete }: Prop
               <div className="absolute bottom-4 left-4 right-4 max-w-2xl mx-auto bg-slate-900/85 backdrop-blur-md border border-slate-700/80 rounded-2xl p-4 shadow-xl text-center space-y-2 pointer-events-auto">
                 <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-1.5">
                   <span className="font-bold text-indigo-400 flex items-center gap-1.5">
-                    <span>Yankı</span>
+                    <span>Mivo</span>
                     <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono">
                       AI Konuşmacı
                     </span>
@@ -308,7 +308,7 @@ export function InteractiveVideoScenario({ scenario, onClose, onComplete }: Prop
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Kafe Tanışması Tamamlandı!</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Yankı ile kafede buluştun, siparişini verdin ve 6 adımlı konuşma pratiğini başarıyla bitirdin. Harika bir akıcılık gösterdin!
+                  Mivo ile kafede buluştun, siparişini verdin ve 6 adımlı konuşma pratiğini başarıyla bitirdin. Harika bir akıcılık gösterdin!
                 </p>
               </div>
 
@@ -433,7 +433,7 @@ export function InteractiveVideoScenario({ scenario, onClose, onComplete }: Prop
               <div className="flex items-center justify-between text-xs text-slate-400 px-2 py-1">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-                  <span>Yankı konuşuyor, videoyu dikkatle dinle...</span>
+                  <span>Mivo konuşuyor, videoyu dikkatle dinle...</span>
                 </div>
 
                 <button

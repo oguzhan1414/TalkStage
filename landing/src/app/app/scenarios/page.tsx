@@ -72,10 +72,10 @@ export default function ScenariosCatalogPage() {
               <span>YENİ NESİL 3D ETKİLEŞİMLİ DİYALOG</span>
             </div>
             <h2 className="text-xl md:text-2xl font-black tracking-tight text-white">
-              Yankı ile Kafede Buluşma & Sipariş ☕
+              Mivo ile Kafede Buluşma & Sipariş ☕
             </h2>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-              Pixar 3D tarzı 6 adımlı canlı video sahneleriyle pratik yap. Yankı&apos;nın söylediklerini dinle, mikrofona konuş ve anlık ses tanıma ile akıcılığını geliştir!
+              Pixar 3D tarzı 6 adımlı canlı video sahneleriyle pratik yap. Mivo&apos;nun söylediklerini dinle, mikrofona konuş ve anlık ses tanıma ile akıcılığını geliştir!
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1">
               <span className="flex items-center gap-1.5 font-semibold text-emerald-400">

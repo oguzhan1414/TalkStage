@@ -204,7 +204,7 @@ export default function ScenarioStudioPage({ params }: { params: Promise<{ id: s
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-200 font-semibold">Yeni</span>
               </div>
               <p className="text-[11px] text-slate-300 mt-0.5">
-                Yankı ile kafede yüz yüze buluş, 6 adımlı animasyonlu sahnede mikrofonunla doğrudan konuş.
+                Mivo ile kafede yüz yüze buluş, 6 adımlı animasyonlu sahnede mikrofonunla doğrudan konuş.
               </p>
             </div>
           </div>

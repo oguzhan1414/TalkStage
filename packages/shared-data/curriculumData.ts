@@ -18,6 +18,8 @@
  * CEFR-filtered reading list) instead of a guessed slug.
  */
 
+import { getDataLocale, localizeList, localizeRecord, type Overlay } from './i18nOverlay';
+
 export type CurriculumTopic = {
   id: string;
   code: string;
@@ -29,6 +31,15 @@ export type CurriculumTopic = {
   moduleType: 'speaking' | 'reading' | 'vocab';
 };
 
+/** A "Bölüm" (unit/chapter) grouping of consecutive topic codes within a
+ * level, Busuu-style: a short neutral title + how many topics it bundles.
+ * Purely a display/grouping layer over the existing flat `topics` array —
+ * doesn't change completion logic, vocab pools, or any backend contract. */
+export type CurriculumUnit = {
+  title: string;
+  topicCodes: string[];
+};
+
 export type LevelCurriculum = {
   level: string;
   title: string;
@@ -36,6 +47,7 @@ export type LevelCurriculum = {
   objective: string;
   targetDays: number;
   topics: CurriculumTopic[];
+  units: CurriculumUnit[];
   bossChallenge: {
     title: string;
     description: string;
@@ -112,7 +124,7 @@ export function computeFullCompletion(
   return result;
 }
 
-export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
+const CEFR_CURRICULUM_RAW: Record<string, LevelCurriculum> = {
   A1: {
     level: 'A1',
     title: 'Beginner / Breakthrough',
@@ -277,9 +289,15 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'vocab',
       },
     ],
+    units: [
+      { title: 'Tanışma ve Kimlik', topicCodes: ['A1_G01', 'A1_G02', 'A1_G03'] },
+      { title: 'Günlük Rutinler', topicCodes: ['A1_G04', 'A1_G05', 'A1_G06'] },
+      { title: 'Çevrendeki Dünya', topicCodes: ['A1_G07', 'A1_G08', 'A1_G09'] },
+      { title: 'Geçmiş ve Gelecek', topicCodes: ['A1_G10', 'A1_G11', 'A1_G12'] },
+    ],
     bossChallenge: {
       title: 'A1 ➔ A2 Seviye Atlama Sohbeti',
-      description: 'Yankı ile tanışma, günlük rutinler ve basit sipariş cümleleri içeren serbest bir değerlendirme sohbeti.',
+      description: 'Mivo ile tanışma, günlük rutinler ve basit sipariş cümleleri içeren serbest bir değerlendirme sohbeti.',
     },
   },
 
@@ -421,9 +439,14 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'speaking',
       },
     ],
+    units: [
+      { title: 'Karşılaştırma ve Geçmiş Zaman', topicCodes: ['A2_G01', 'A2_G02', 'A2_G03'] },
+      { title: 'Kurallar ve Olasılıklar', topicCodes: ['A2_G04', 'A2_G05', 'A2_G06'] },
+      { title: 'Koşullar, Deneyim ve Bağlaçlar', topicCodes: ['A2_G07', 'A2_G08', 'A2_G09', 'A2_G10'] },
+    ],
     bossChallenge: {
       title: 'A2 ➔ B1 Seviye Atlama Sohbeti',
-      description: 'Yankı ile seyahat, sorun çözme ve geçmiş deneyimleri anlatmayı kapsayan serbest bir değerlendirme sohbeti.',
+      description: 'Mivo ile seyahat, sorun çözme ve geçmiş deneyimleri anlatmayı kapsayan serbest bir değerlendirme sohbeti.',
     },
   },
 
@@ -565,9 +588,14 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'speaking',
       },
     ],
+    units: [
+      { title: 'Süreklilik ve Koşullar', topicCodes: ['B1_G01', 'B1_G02', 'B1_G03'] },
+      { title: 'Cümle Yapıları ve Çıkarım', topicCodes: ['B1_G04', 'B1_G05', 'B1_G06', 'B1_G07'] },
+      { title: 'Aktarım ve Deyimsel Fiiller', topicCodes: ['B1_G08', 'B1_G09', 'B1_G10'] },
+    ],
     bossChallenge: {
       title: 'B1 ➔ B2 Seviye Atlama Sohbeti',
-      description: 'Yankı ile teknik bir tartışma, gerekçelendirme ve görüş savunma içeren serbest bir değerlendirme sohbeti.',
+      description: 'Mivo ile teknik bir tartışma, gerekçelendirme ve görüş savunma içeren serbest bir değerlendirme sohbeti.',
     },
   },
 
@@ -683,9 +711,13 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'vocab',
       },
     ],
+    units: [
+      { title: 'Varsayımlar ve Gelecek', topicCodes: ['B2_G01', 'B2_G02', 'B2_G03', 'B2_G04'] },
+      { title: 'İleri Cümle Yapıları', topicCodes: ['B2_G05', 'B2_G06', 'B2_G07', 'B2_G08'] },
+    ],
     bossChallenge: {
       title: 'B2 ➔ C1 Seviye Atlama Sohbeti',
-      description: 'Yankı ile kurumsal bir sunum ve zorlu itirazları karşılamayı içeren serbest bir değerlendirme sohbeti.',
+      description: 'Mivo ile kurumsal bir sunum ve zorlu itirazları karşılamayı içeren serbest bir değerlendirme sohbeti.',
     },
   },
 
@@ -749,9 +781,13 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'reading',
       },
     ],
+    units: [
+      { title: 'Vurgu Yapıları', topicCodes: ['C1_G01', 'C1_G02'] },
+      { title: 'Akademik Söylem', topicCodes: ['C1_G03', 'C1_G04'] },
+    ],
     bossChallenge: {
       title: 'C1 ➔ C2 Ustalık Sohbeti',
-      description: 'Yankı ile uluslararası kriz yönetimi ve diplomatik uzlaşı temalı serbest bir değerlendirme sohbeti.',
+      description: 'Mivo ile uluslararası kriz yönetimi ve diplomatik uzlaşı temalı serbest bir değerlendirme sohbeti.',
     },
   },
 
@@ -789,9 +825,12 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
         moduleType: 'speaking',
       },
     ],
+    units: [
+      { title: 'Ustalık Düzeyi Retorik', topicCodes: ['C2_G01', 'C2_G02'] },
+    ],
     bossChallenge: {
       title: 'C2 Dil Ustalığı Sohbeti 👑',
-      description: 'Yankı ile serbest konulu, en üst düzey akıcılık ve kelime zenginliği değerlendirme sohbeti.',
+      description: 'Mivo ile serbest konulu, en üst düzey akıcılık ve kelime zenginliği değerlendirme sohbeti.',
     },
   },
 };
@@ -800,6 +839,17 @@ export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = {
  * screen that needs to check TextChatScreen's `topic_chat_completed_{code}`
  * AsyncStorage flags (see `computeFullCompletion` above) without recomputing
  * per level. */
+
+// ---- Çok dilli içerik: i18n/curriculumData.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
+const OVERLAYS: Record<string, Overlay | undefined> = {
+  en: require('./i18n/curriculumData.en.json'),
+  es: require('./i18n/curriculumData.es.json'),
+  pt: require('./i18n/curriculumData.pt.json'),
+  de: require('./i18n/curriculumData.de.json'),
+};
+const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
+export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = localizeRecord(CEFR_CURRICULUM_RAW, ACTIVE_OVERLAY);
+
 export const ALL_SPEAKING_TOPIC_CODES = Object.values(CEFR_CURRICULUM).flatMap((lvl) =>
   lvl.topics.filter((t) => t.moduleType === 'speaking').map((t) => t.code)
 );

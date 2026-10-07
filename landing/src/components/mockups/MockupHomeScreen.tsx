@@ -56,7 +56,7 @@ export default function MockupHomeScreen() {
 
       {/* Scrollable Content Area */}
       <div className="flex-1 px-3 py-1.5 space-y-2.5 overflow-hidden flex flex-col justify-between">
-        {/* 3. Hero Action Card: Yankı Canlı AI */}
+        {/* 3. Hero Action Card: Mivo Canlı AI */}
         <div className="relative rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-3 text-white shadow-md shadow-purple-500/15 overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/10 blur-xl pointer-events-none" />
@@ -65,7 +65,7 @@ export default function MockupHomeScreen() {
           <div className="flex items-center justify-between mb-1.5">
             <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full text-[9px] font-bold text-white/95">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Yankı Canlı • &lt;1.2s Ses AI</span>
+              <span>Mivo Canlı • &lt;1.2s Ses AI</span>
             </div>
             {/* Live Audio Visualizer Bars */}
             <div className="flex items-center gap-0.5 h-3">
@@ -90,7 +90,7 @@ export default function MockupHomeScreen() {
             <div className="relative w-12 h-12 shrink-0 drop-shadow-md">
               <Image
                 src="/images/64_companion_yanki_coffee_cup.png"
-                alt="Yankı"
+                alt="Mivo"
                 fill
                 sizes="48px"
                 className="object-contain"

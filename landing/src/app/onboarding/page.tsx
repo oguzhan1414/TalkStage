@@ -259,7 +259,7 @@ export default function OnboardingPage() {
             <div className="relative w-24 h-24 mx-auto">
               <Image
                 src="/images/64_companion_yanki_transparent.png"
-                alt="Yankı"
+                alt="Mivo"
                 fill
                 sizes="96px"
                 className="object-contain drop-shadow-[0_20px_30px_rgba(79,70,229,0.3)]"
@@ -275,7 +275,7 @@ export default function OnboardingPage() {
                 Gramer Ezberlemeyi Bırak, Gerçek Sahnede Konuş 🚀
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-                &ldquo;İngilizceyi anlıyorum ama konuşamıyorum&rdquo; diyenler için tasarlandı. Sabırlı yapay zeka koçun Yankı ile takıldığın anda Türkçe ipucu al, özgüvenle konuş.
+                &ldquo;İngilizceyi anlıyorum ama konuşamıyorum&rdquo; diyenler için tasarlandı. Sabırlı yapay zeka koçun Mivo ile takıldığın anda Türkçe ipucu al, özgüvenle konuş.
               </p>
             </div>
 

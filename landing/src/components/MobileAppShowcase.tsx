@@ -146,7 +146,7 @@ const APP_SCREENS: ScreenTab[] = [
     src: "/images/app-screens/roadmap.png",
     headline: "6 Seviyeli Takımada Yolculuğu ve Rozetler",
     caption:
-      "A1 Başlangıç'tan C2 Ustalık zirvesine kadar 46 CEFR dersi ve 3D başarı rozetleri. Her adımda Yankı AI sana eşlik eder.",
+      "A1 Başlangıç'tan C2 Ustalık zirvesine kadar 46 CEFR dersi ve 3D başarı rozetleri. Her adımda Mivo AI sana eşlik eder.",
     highlights: [
       "3D izometrik takımada haritasında istasyon bazlı ilerleme",
       "10 adet 3D başarı rozeti (Standup Hero, Visa Approved, 30-Day Master)",

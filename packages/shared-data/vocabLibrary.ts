@@ -5,6 +5,8 @@
  * tek dokunuşla SM-2 Kelime Sandığı'na eklenir.
  */
 
+import { getDataLocale, localizeList, localizeRecord, type Overlay } from './i18nOverlay';
+
 export type LibraryFormDetail = {
   form: string;
   phonetic?: string;
@@ -45,7 +47,7 @@ export type LibraryWordEntry = {
   pastSimple?: LibraryFormDetail;
 };
 
-export const ADJECTIVES_100: LibraryWordEntry[] = [
+const ADJECTIVES_100_RAW: LibraryWordEntry[] = [
   {
     "id": "adj_001",
     "rank": 1,
@@ -2648,7 +2650,7 @@ export const ADJECTIVES_100: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const ADJECTIVES_200: LibraryWordEntry[] = [
+const ADJECTIVES_200_RAW: LibraryWordEntry[] = [
   {
     "id": "adj_101",
     "rank": 101,
@@ -5251,7 +5253,7 @@ export const ADJECTIVES_200: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const ADJECTIVES_300: LibraryWordEntry[] = [
+const ADJECTIVES_300_RAW: LibraryWordEntry[] = [
   {
     "id": "adj_201",
     "rank": 201,
@@ -7854,7 +7856,7 @@ export const ADJECTIVES_300: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const NOUNS_100: LibraryWordEntry[] = [
+const NOUNS_100_RAW: LibraryWordEntry[] = [
   {
     "id": "noun_001",
     "rank": 1,
@@ -10841,7 +10843,7 @@ export const NOUNS_100: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const NOUNS_200: LibraryWordEntry[] = [
+const NOUNS_200_RAW: LibraryWordEntry[] = [
   {
     "id": "noun_101",
     "rank": 101,
@@ -13831,7 +13833,7 @@ export const NOUNS_200: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const NOUNS_300: LibraryWordEntry[] = [
+const NOUNS_300_RAW: LibraryWordEntry[] = [
   {
     "id": "noun_201",
     "rank": 201,
@@ -16823,7 +16825,7 @@ export const NOUNS_300: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const VERBS_100: LibraryWordEntry[] = [
+const VERBS_100_RAW: LibraryWordEntry[] = [
   {
     "id": "verb_001",
     "rank": 1,
@@ -19526,7 +19528,7 @@ export const VERBS_100: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const VERBS_200: LibraryWordEntry[] = [
+const VERBS_200_RAW: LibraryWordEntry[] = [
   {
     "id": "verb_101",
     "rank": 101,
@@ -22229,7 +22231,7 @@ export const VERBS_200: LibraryWordEntry[] = [
   }
 ] as LibraryWordEntry[];
 
-export const VERBS_300: LibraryWordEntry[] = [
+const VERBS_300_RAW: LibraryWordEntry[] = [
   {
     "id": "verb_201",
     "rank": 201,
@@ -24931,3 +24933,21 @@ export const VERBS_300: LibraryWordEntry[] = [
     }
   }
 ] as LibraryWordEntry[];
+
+// ---- Çok dilli içerik: i18n/vocabLibrary.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
+const OVERLAYS: Record<string, Overlay | undefined> = {
+  en: require('./i18n/vocabLibrary.en.json'),
+  es: require('./i18n/vocabLibrary.es.json'),
+  pt: require('./i18n/vocabLibrary.pt.json'),
+  de: require('./i18n/vocabLibrary.de.json'),
+};
+const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
+export const ADJECTIVES_100: LibraryWordEntry[] = localizeList(ADJECTIVES_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const ADJECTIVES_200: LibraryWordEntry[] = localizeList(ADJECTIVES_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const ADJECTIVES_300: LibraryWordEntry[] = localizeList(ADJECTIVES_300_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_100: LibraryWordEntry[] = localizeList(NOUNS_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_200: LibraryWordEntry[] = localizeList(NOUNS_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_300: LibraryWordEntry[] = localizeList(NOUNS_300_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_100: LibraryWordEntry[] = localizeList(VERBS_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_200: LibraryWordEntry[] = localizeList(VERBS_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_300: LibraryWordEntry[] = localizeList(VERBS_300_RAW, (e) => e.id, ACTIVE_OVERLAY);

@@ -33,6 +33,8 @@ export type GrammarQuizQuestion = {
   explanationTr: string;
 };
 
+import { getDataLocale, localizeList, localizeRecord, type Overlay } from './i18nOverlay';
+
 export type GrammarLesson = {
   code: string;
   title: string;
@@ -47,9 +49,11 @@ export type GrammarLesson = {
   quiz?: GrammarQuizQuestion[];
   relatedPodcastId?: string;
   isFree: boolean;
+  /** Seçili dil için henüz çevirisi yok (içerik Türkçe kaynaktır). */
+  untranslated?: boolean;
 };
 
-export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
+const A1_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "A1_G01",
     "title": "Subject Pronouns & Verb To Be (Am / Is / Are)",
@@ -2339,7 +2343,7 @@ export const A1_GRAMMAR_LESSONS: GrammarLesson[] = [
   }
 ];
 
-export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
+const A2_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "A2_G01",
     "title": "Comparatives & Superlatives (-er / more than & the -est / the most)",
@@ -4668,7 +4672,7 @@ export const A2_GRAMMAR_LESSONS: GrammarLesson[] = [
   }
 ];
 
-export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
+const B1_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "B1_G01",
     "title": "Present Perfect Continuous (have/has been + V-ing)",
@@ -6939,7 +6943,7 @@ export const B1_GRAMMAR_LESSONS: GrammarLesson[] = [
   }
 ];
 
-export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
+const B2_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "B2_G01",
     "title": "Third & Mixed Conditionals (Past Regrets & Hybrid Timelines)",
@@ -9211,7 +9215,7 @@ export const B2_GRAMMAR_LESSONS: GrammarLesson[] = [
   }
 ];
 
-export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
+const C1_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "C1_G01",
     "title": "Cleft Sentences for Focus & Emphasis (It-clefts, Wh-clefts, All-clefts)",
@@ -10714,7 +10718,7 @@ export const C1_GRAMMAR_LESSONS: GrammarLesson[] = [
   }
 ];
 
-export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
+const C2_GRAMMAR_LESSONS_RAW: GrammarLesson[] = [
   {
     "code": "C2_G01",
     "title": "Stylistic & Rhetorical Inversion and Fronting",
@@ -11830,6 +11834,31 @@ export const C2_GRAMMAR_LESSONS: GrammarLesson[] = [
     "isFree": false
   }
 ];
+
+
+// ---- Çok dilli içerik: i18n/grammarLessons.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
+const OVERLAYS: Record<string, Overlay | undefined> = {
+  en: require('./i18n/grammarLessons.en.json'),
+  es: require('./i18n/grammarLessons.es.json'),
+  pt: require('./i18n/grammarLessons.pt.json'),
+  de: require('./i18n/grammarLessons.de.json'),
+};
+const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
+
+/** Çeviri overlay'i olmayan (henüz çevrilmemiş) dersler Türkçe açıklama taşır; ekran bunu `untranslated` ile ayırt eder. */
+function localizeLesson(lesson: GrammarLesson): GrammarLesson {
+  if (getDataLocale() === 'tr') return lesson;
+  const overlay = ACTIVE_OVERLAY?.[lesson.code];
+  if (!overlay) return { ...lesson, untranslated: true };
+  return localizeList([lesson], (l) => l.code, { [lesson.code]: overlay })[0];
+}
+
+export const A1_GRAMMAR_LESSONS: GrammarLesson[] = A1_GRAMMAR_LESSONS_RAW.map(localizeLesson);
+export const A2_GRAMMAR_LESSONS: GrammarLesson[] = A2_GRAMMAR_LESSONS_RAW.map(localizeLesson);
+export const B1_GRAMMAR_LESSONS: GrammarLesson[] = B1_GRAMMAR_LESSONS_RAW.map(localizeLesson);
+export const B2_GRAMMAR_LESSONS: GrammarLesson[] = B2_GRAMMAR_LESSONS_RAW.map(localizeLesson);
+export const C1_GRAMMAR_LESSONS: GrammarLesson[] = C1_GRAMMAR_LESSONS_RAW.map(localizeLesson);
+export const C2_GRAMMAR_LESSONS: GrammarLesson[] = C2_GRAMMAR_LESSONS_RAW.map(localizeLesson);
 
 export const ALL_GRAMMAR_LESSONS: GrammarLesson[] = [
   ...A1_GRAMMAR_LESSONS,

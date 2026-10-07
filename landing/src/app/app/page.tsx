@@ -163,10 +163,10 @@ export default function AppDashboardPage() {
                   <span>YENİ 3D PİXAR ANİMASYONLU SAHNE</span>
                 </div>
                 <h3 className="text-lg sm:text-xl font-black text-white">
-                  Yankı ile Kafede Buluşma & Kahve Siparişi ☕
+                  Mivo ile Kafede Buluşma & Kahve Siparişi ☕
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
-                  6 adımlı canlı video sahneleriyle Yankı ile yüz yüze konuş, siparişini ver ve mikrofonunla doğrudan diyalog kur.
+                  6 adımlı canlı video sahneleriyle Mivo ile yüz yüze konuş, siparişini ver ve mikrofonunla doğrudan diyalog kur.
                 </p>
               </div>
 
