@@ -140,7 +140,7 @@ export const AppleStyleReels: React.FC = () => {
                 letterSpacing: '-0.02em',
               }}
             >
-              TalkStage
+              Spekiva
             </h2>
           </div>
 

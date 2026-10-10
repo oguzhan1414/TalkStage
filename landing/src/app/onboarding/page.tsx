@@ -269,7 +269,7 @@ export default function OnboardingPage() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-xs font-semibold text-indigo-700">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>TalkStage Konuşma Simülatörü</span>
+                <span>Spekiva Konuşma Simülatörü</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Gramer Ezberlemeyi Bırak, Gerçek Sahnede Konuş 🚀
@@ -851,7 +851,7 @@ export default function OnboardingPage() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-slate-400 py-2">
-        <span>© 2026 TalkStage. Web ve Mobil Tek Hesap Sistemi.</span>
+        <span>© 2026 Spekiva. Web ve Mobil Tek Hesap Sistemi.</span>
       </footer>
     </div>
   );

@@ -15,7 +15,7 @@
   --color-ink-soft: #221e55;
   --color-ink-line: #36317a;
 
-  /* ─── TalkStage v2 brand (logo indigo/cyan + Mivo + clapperboard yellow) ─── */
+  /* ─── Spekiva v2 brand (logo indigo/cyan + Mivo + clapperboard yellow) ─── */
   --color-stage: #4f46e5;
   --color-stage-deep: #3a32c9;
   --color-spot: #0ea5e9;
@@ -312,7 +312,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TalkStage v2 — "take slate" motif
+   Spekiva v2 — "take slate" motif
    ═══════════════════════════════════════════════════════════════ */
 
 /* Clapperboard stripes (ink + yellow) — the slate bar on stage frames & scene cards */

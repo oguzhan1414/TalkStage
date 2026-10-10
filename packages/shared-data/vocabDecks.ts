@@ -37,8 +37,8 @@ export const DEFAULT_VOCAB_DECKS: VocabDeck[] = [
         phonetic: '/ˈwel.kəm/',
         translation: 'Hoş geldiniz / Karşılamak',
         pos: 'verb',
-        exampleEn: 'Welcome to our TalkStage English community!',
-        exampleTr: 'TalkStage İngilizce topluluğumuza hoş geldiniz!',
+        exampleEn: 'Welcome to our Spekiva English community!',
+        exampleTr: 'Spekiva İngilizce topluluğumuza hoş geldiniz!',
         level: 'A1',
       },
       {
@@ -277,8 +277,8 @@ export const DEFAULT_VOCAB_DECKS: VocabDeck[] = [
         phonetic: '/ˈfriː.kwənt.li/',
         translation: 'Sık sık / Çoğunlukla',
         pos: 'adverb',
-        exampleEn: 'I frequently listen to TalkStage podcasts.',
-        exampleTr: 'Sık sık TalkStage podcast\'lerini dinlerim.',
+        exampleEn: 'I frequently listen to Spekiva podcasts.',
+        exampleTr: 'Sık sık Spekiva podcast\'lerini dinlerim.',
         level: 'A2',
       },
       {

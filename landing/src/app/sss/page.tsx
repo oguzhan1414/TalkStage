@@ -5,7 +5,7 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Sıkça Sorulan Sorular (SSS) — TalkStage",
+  title: "Sıkça Sorulan Sorular (SSS) — Spekiva",
   description:
     "Sahneler, Mivo, anlık düzeltme, kelime çalışması, abonelik ve gizlilik hakkında en çok sorulan sorular.",
 };

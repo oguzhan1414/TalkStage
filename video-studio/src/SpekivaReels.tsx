@@ -13,7 +13,7 @@ import { PhoneMockup } from './components/PhoneMockup';
 import { Scorecard } from './components/Scorecard';
 import { VoiceOrb } from './components/VoiceOrb';
 
-export const TalkStageReels: React.FC = () => {
+export const SpekivaReels: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -475,8 +475,8 @@ export const TalkStageReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage Logo"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva Logo"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -494,7 +494,7 @@ export const TalkStageReels: React.FC = () => {
               margin: '0 0 16px 0',
             }}
           >
-            TalkStage
+            Spekiva
           </h1>
 
           {/* Tagline */}

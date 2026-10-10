@@ -209,8 +209,8 @@ export const NotificationsReels: React.FC = () => {
         {/* Notification 1: Yankı Café Scenario */}
         <NotificationItem
           delay={25}
-          icon="brand/talkstage-mark.png"
-          appTitle="TalkStage • Canlı Senaryo"
+          icon="brand/spekiva-icon.png"
+          appTitle="Spekiva • Canlı Senaryo"
           time="Şimdi"
           title="☕ Yankı seni kafede bekliyor!"
           message="Hey! Kahve tezgahı açıldı. Baristadan latte siparişi vermek için hazır mısın?"
@@ -221,7 +221,7 @@ export const NotificationsReels: React.FC = () => {
         <NotificationItem
           delay={110}
           icon="17_badge_7day_flame.png"
-          appTitle="TalkStage • Streak Uyarısı"
+          appTitle="Spekiva • Streak Uyarısı"
           time="3 dk önce"
           title="🔥 7 Günlük Ateş Serin Tehlikede!"
           message="Günün konuşma oturumunu tamamla, serini koru ve Korkusuz Rozeti kazan!"
@@ -232,7 +232,7 @@ export const NotificationsReels: React.FC = () => {
         <NotificationItem
           delay={200}
           icon="14_badge_first_mic.png"
-          appTitle="TalkStage • Seviye Raporu"
+          appTitle="Spekiva • Seviye Raporu"
           time="15 dk önce"
           title="🎯 Tebrikler! %96 Akıcılık Skoru"
           message="İş mülakatı simülasyonunu başarıyla tamamladın. Duraksama sıfıra indi!"
@@ -284,8 +284,8 @@ export const NotificationsReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -302,7 +302,7 @@ export const NotificationsReels: React.FC = () => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            TalkStage
+            Spekiva
           </h1>
 
           <p

@@ -188,7 +188,7 @@ export const VintageNewspaperReels: React.FC = () => {
           </div>
           <div>
             <p style={{ margin: '0 0 16px 0' }}>
-              <strong>YENİ ÇÖZÜM —</strong> TalkStage adı verilen yapay zeka konuşma motoru, kafede
+              <strong>YENİ ÇÖZÜM —</strong> Spekiva adı verilen yapay zeka konuşma motoru, kafede
               kahve siparişinden vize mülakatına kadar gerçek hayat simülasyonları sunuyor.
             </p>
             <p style={{ margin: 0, fontWeight: 'bold' }}>
@@ -197,7 +197,7 @@ export const VintageNewspaperReels: React.FC = () => {
           </div>
         </div>
 
-        {/* Red Ink Rubber Stamp / Stamp Seal (TalkStage Çözüm) */}
+        {/* Red Ink Rubber Stamp / Stamp Seal (Spekiva Çözüm) */}
         {frame >= 150 && (
           <div
             style={{
@@ -218,7 +218,7 @@ export const VintageNewspaperReels: React.FC = () => {
               boxShadow: '0 10px 25px rgba(163, 29, 29, 0.35)',
             }}
           >
-            ✓ ÇÖZÜM BULUNDU: TALKSTAGE
+            ✓ ÇÖZÜM BULUNDU: SPEKIVA
           </div>
         )}
       </div>
@@ -249,8 +249,8 @@ export const VintageNewspaperReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -280,7 +280,7 @@ export const VintageNewspaperReels: React.FC = () => {
               maxWidth: 760,
             }}
           >
-            TalkStage ile korkmadan, hata yaparak, konuşarak öğren.
+            Spekiva ile korkmadan, hata yaparak, konuşarak öğren.
           </p>
 
           <div

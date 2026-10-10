@@ -60,3 +60,6 @@ Thumbs.db
 
 # Çeviri hattı ara çıktıları (bkz. mobile/CLAUDE.md çok dil desteği)
 .i18n-work/
+
+# vercel
+.vercel

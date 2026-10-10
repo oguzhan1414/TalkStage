@@ -26,25 +26,25 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const TITLE = "TalkStage — İngilizceyi sahnede konuş, Mivo anında düzeltsin";
+const TITLE = "Spekiva — İngilizceyi sahnede konuş, Mivo anında düzeltsin";
 const DESCRIPTION =
   "Havalimanı, otel, iş görüşmesi... Gerçek hayat sahnelerini Mivo ile sesli prova et. Takıldığın cümleyi anında Türkçe açıklamayla düzeltir; her oynayışta sahne farklı bir sürprizle gelir.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://talkstage.app"),
+  metadataBase: new URL("https://spekiva.app"),
   title: TITLE,
   description: DESCRIPTION,
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "TalkStage — Mivo ile sesli İngilizce sahneleri" }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Spekiva — Mivo ile sesli İngilizce sahneleri" }],
     locale: "tr_TR",
     type: "website",
   },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.jpg"] },
   icons: {
-    icon: "/brand/talkstage-app-icon.png",
-    apple: "/brand/talkstage-app-icon.png",
+    icon: "/brand/spekiva-app-icon.png",
+    apple: "/brand/spekiva-app-icon.png",
   },
 };
 

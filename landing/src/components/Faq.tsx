@@ -24,7 +24,7 @@ const faqData: FaqItem[] = [
   {
     id: "g1",
     category: "Genel",
-    question: "TalkStage nedir?",
+    question: "Spekiva nedir?",
     answer:
       "Gerçek hayat sahnelerini sesli prova ettiğin bir İngilizce uygulaması. Mivo karşındaki karakteri oynar, sen konuşursun; takıldığın cümleyi anında düzeltir ve nedenini kendi dilinde açıklar. Yanında kelime, okuma ve podcast çalışmaları da var.",
   },
@@ -33,7 +33,7 @@ const faqData: FaqItem[] = [
     category: "Genel",
     question: "Mivo kim?",
     answer:
-      "Mivo, TalkStage’in yapay zekâ koçu ve maskotu. Sahnelerde karakteri oynar, serbest sohbette seninle istediğin konuda konuşur ve önceki sohbetlerden birkaç kısa not hatırlar.",
+      "Mivo, Spekiva’nın yapay zekâ koçu ve maskotu. Sahnelerde karakteri oynar, serbest sohbette seninle istediğin konuda konuşur ve önceki sohbetlerden birkaç kısa not hatırlar.",
   },
   {
     id: "g3",
@@ -353,10 +353,10 @@ export default function Faq() {
               <span>→</span>
             </Link>
             <a
-              href="mailto:destek@talkstage.app"
+              href="mailto:destek@spekiva.app"
               className="inline-flex items-center gap-2 rounded-full border border-line bg-porcelain px-6 py-3 text-sm font-semibold text-heading hover:bg-slate-100"
             >
-              destek@talkstage.app
+              destek@spekiva.app
             </a>
           </div>
         </div>

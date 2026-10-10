@@ -1,8 +1,8 @@
 import { t } from '../i18n';
 /**
- * TalkStage design tokens — Light Edition.
+ * Spekiva design tokens — Light Edition.
  * Source: `../../CLAUDE.md` (Design Tokens) / repo-root
- * "TalkStage - Uctan Uca Grafik Tasarim..." doc, Bölüm 1.1-1.2.
+ * "Spekiva - Uctan Uca Grafik Tasarim..." doc, Bölüm 1.1-1.2.
  * Keep in sync with `landing/tailwind` tokens — same brand, same values.
  */
 

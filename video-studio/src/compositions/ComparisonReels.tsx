@@ -68,7 +68,7 @@ export const ComparisonReels: React.FC = () => {
             letterSpacing: '-0.02em',
           }}
         >
-          Eski Yöntem vs. TalkStage
+          Eski Yöntem vs. Spekiva
         </h1>
       </div>
 
@@ -154,7 +154,7 @@ export const ComparisonReels: React.FC = () => {
           VS
         </div>
 
-        {/* TALKSTAGE WAY (Rises & Shines) */}
+        {/* SPEKIVA WAY (Rises & Shines) */}
         <div
           style={{
             transform: `scale(${cardSpring}) translateY(${interpolate(
@@ -184,7 +184,7 @@ export const ComparisonReels: React.FC = () => {
                 margin: 0,
               }}
             >
-              TalkStage ile Yapay Zeka Koçluğu
+              Spekiva ile Yapay Zeka Koçluğu
             </h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -225,8 +225,8 @@ export const ComparisonReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -254,7 +254,7 @@ export const ComparisonReels: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            Ezberleme, TalkStage ile Akıcı Konuş.
+            Ezberleme, Spekiva ile Akıcı Konuş.
           </p>
 
           <div

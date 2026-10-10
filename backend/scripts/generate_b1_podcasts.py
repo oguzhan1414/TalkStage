@@ -24,7 +24,7 @@ B1_PODCAST_EPISODES = [
         "subtitle": "Strengths, Overcoming Challenges & Leadership",
         "level": "B1",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to TalkStage English Podcasts for B1 Intermediate learners. Episode 1: The Job Interview and Career Growth. Learn how to highlight your strengths, discuss past projects, and answer behavioral interview questions with confidence."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts for B1 Intermediate learners. Episode 1: The Job Interview and Career Growth. Learn how to highlight your strengths, discuss past projects, and answer behavioral interview questions with confidence."),
             ("en-US-JennyNeural", "-2%", "Good morning, Alex. Thank you for taking the time to speak with us today. To start off, could you tell me a little bit about your professional background?"),
             ("en-US-ChristopherNeural", "-2%", "Good morning, Victoria. It is a pleasure to be here. Over the past four years, I have been working as a digital marketing specialist, where I managed cross-functional campaigns and analyzed user growth metrics."),
             ("en-US-JennyNeural", "-2%", "That sounds impressive. In our team, projects move very fast. How do you usually handle tight deadlines and unexpected roadblocks?"),
@@ -191,7 +191,7 @@ async def process_episode(ep: dict):
 
 async def main():
     print("=" * 60)
-    print("🚀 TALKSTAGE B1 PODCAST SERIES GENERATOR (5 EPISODES)")
+    print("🚀 SPEKIVA B1 PODCAST SERIES GENERATOR (5 EPISODES)")
     print("=" * 60)
     
     for ep in B1_PODCAST_EPISODES:

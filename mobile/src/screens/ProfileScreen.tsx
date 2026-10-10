@@ -125,7 +125,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           />
         </View>
 
-        {/* VIP Stage Pass — kasıtlı olarak farklı, promosyon stili korunuyor. */}
+        {/* VIP Spekiva Pro — kasıtlı olarak farklı, promosyon stili korunuyor. */}
         <BouncyPressable
           onPress={() => navigation.navigate('Paywall')}
           style={[styles.vipBanner, shadow.card]}
@@ -138,7 +138,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             resizeMode="contain"
           />
           <View style={styles.vipContent}>
-            <Text style={styles.vipBadge}>{isPro ? t("PRO ÜYELİĞİN AKTİF 🌟") : t("STAGE PASS VIP")}</Text>
+            <Text style={styles.vipBadge}>{isPro ? t("PRO ÜYELİĞİN AKTİF 🌟") : t("SPEKIVA PRO")}</Text>
             <Text style={styles.vipTitle}>{isPro ? t("Sınırsız Ayrıcalıklar") : t("Sınırsız Sahneye Çık")}</Text>
             <Text style={styles.vipDesc}>
               {isPro
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     height: 52,
   },
 
-  /* VIP Stage Pass Banner */
+  /* VIP Spekiva Pro Banner */
   vipBanner: {
     backgroundColor: '#0F172A',
     borderRadius: 18,

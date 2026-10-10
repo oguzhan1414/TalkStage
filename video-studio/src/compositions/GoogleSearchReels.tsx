@@ -188,7 +188,7 @@ export const GoogleSearchReels: React.FC = () => {
                   display: 'inline-block',
                 }}
               >
-                💡 Kesin Çözüm: TalkStage AI ile Canlı Senaryolar
+                💡 Kesin Çözüm: Spekiva AI ile Canlı Senaryolar
               </div>
             </div>
 
@@ -207,14 +207,14 @@ export const GoogleSearchReels: React.FC = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                 <img
-                  src={staticFile('brand/talkstage-mark.png')}
-                  alt="TalkStage"
+                  src={staticFile('brand/spekiva-icon.png')}
+                  alt="Spekiva"
                   style={{ width: 64, height: 64, borderRadius: 16 }}
                 />
                 <div>
-                  <div style={{ fontSize: 18, color: '#202124' }}>talkstage.app</div>
+                  <div style={{ fontSize: 18, color: '#202124' }}>spekiva.app</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#1a0dab' }}>
-                    TalkStage: Speak English Fearlessly
+                    Spekiva: Speak English Fearlessly
                   </div>
                   <div style={{ fontSize: 20, color: '#4d5156', marginTop: 4 }}>
                     ⭐⭐⭐⭐⭐ 4.9 • 10.000+ Aktif Konuşmacı
@@ -264,8 +264,8 @@ export const GoogleSearchReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -291,7 +291,7 @@ export const GoogleSearchReels: React.FC = () => {
               maxWidth: 760,
             }}
           >
-            TalkStage ile Bugün İlk Cümleni Kur.
+            Spekiva ile Bugün İlk Cümleni Kur.
           </p>
 
           <div

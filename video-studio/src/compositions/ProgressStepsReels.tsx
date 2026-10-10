@@ -229,8 +229,8 @@ export const ProgressStepsReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -258,7 +258,7 @@ export const ProgressStepsReels: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            TalkStage ile Kendi Seviyenden Başla.
+            Spekiva ile Kendi Seviyenden Başla.
           </p>
 
           <div

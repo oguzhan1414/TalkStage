@@ -1,6 +1,6 @@
 # Mivo — 3D Maskot Animasyon Üretim Rehberi ve Prompt Kütüphanesi
 
-Bu rehber, TalkStage'in yapay zekâ asistanı ve öğrenme arkadaşı **Mivo** için modüler, tutarlı ve etkileşimli video animasyonlarının üretilme standardını belirler.
+Bu rehber, Spekiva'nın yapay zekâ asistanı ve öğrenme arkadaşı **Mivo** için modüler, tutarlı ve etkileşimli video animasyonlarının üretilme standardını belirler.
 
 ---
 

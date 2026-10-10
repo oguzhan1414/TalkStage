@@ -1,4 +1,4 @@
--- TalkStage initial schema
+-- Spekiva initial schema
 -- Tables: profiles, scenarios, vocab_cards, sessions, progress, subscriptions
 
 create extension if not exists "pgcrypto";

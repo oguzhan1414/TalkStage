@@ -64,8 +64,8 @@ export const blogPosts: BlogPost[] = [
     date: "20 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/hotel-checkin.webp",
     featured: true,
@@ -108,7 +108,7 @@ export const blogPosts: BlogPost[] = [
             rows: [
               ["To Be (Am/Is/Are)", "Kimlik, Durum & Konum", "I am ready for the meeting.", "Are you ready?"],
               ["Simple Present", "Rutinler & Alışkanlıklar", "I drink green tea every morning.", "Do you drink coffee?"],
-              ["Present Continuous", "Şu Anda Yapılan Eylemler", "I am learning English on TalkStage.", "What are you doing?"],
+              ["Present Continuous", "Şu Anda Yapılan Eylemler", "I am learning English on Spekiva.", "What are you doing?"],
               ["Wh- Questions", "Bilgi ve Detay Sorma", "Where is the nearest subway station?", "How do I get there?"],
               ["Can Modal", "Yetenek ve Kibar Rica", "I can speak basic English.", "Can you speak slowly, please?"],
             ],
@@ -130,7 +130,7 @@ export const blogPosts: BlogPost[] = [
             "4. 'I like very much coffee' yerine: 'I like coffee very much.' (Zarf nesneden sonra gelir).",
             "5. 'Do you have a question?' yerine 'Have you a question?' gibi eski yapıları karıştırmamak.",
           ],
-          proTip: "Cümle kurarken Türkçeden çeviri yapmayın. TalkStage'in Lego Cümle Blokları metodunu kullanarak 'Özne + Fiil + Nesne + Zaman' sırasını refleks edinin.",
+          proTip: "Cümle kurarken Türkçeden çeviri yapmayın. Spekiva'nın Lego Cümle Blokları metodunu kullanarak 'Özne + Fiil + Nesne + Zaman' sırasını refleks edinin.",
         },
         {
           heading: "4. Canlı Konuşma Senaryosu: Bir Kafede Sipariş Verme ve Hesap İsteme",
@@ -202,15 +202,15 @@ export const blogPosts: BlogPost[] = [
           ],
           checklist: [
             "Sabah Rutini (3 Dk): Aynanın karşısına geçin ve gününüzü 3 basit A1 cümlesiyle sesli anlatın ('Today is Monday. I have a team meeting at 10 AM. I will eat lunch with my friend.').",
-            "Kelime Tekrarı (4 Dk): TalkStage Spaced Repetition destenizden 5 yeni A1 kelimesini sesli telaffuz ederek çalışın.",
-            "Canlı AI Seansı (5 Dk): TalkStage uygulamasında A1 'Kahve Siparişi', 'Otel Girişi' veya 'Tanışma' senaryosundan birini canlı mikrofonla tamamlayın.",
-            "Hata Analizi (3 Dk): Seans sonunda TalkStage'in Türkçe Hata Raporunu açıp yanlış kurduğunuz cümleleri ve telaffuz düzeltmelerini bir kez daha sesli prova edin.",
+            "Kelime Tekrarı (4 Dk): Spekiva Spaced Repetition destenizden 5 yeni A1 kelimesini sesli telaffuz ederek çalışın.",
+            "Canlı AI Seansı (5 Dk): Spekiva uygulamasında A1 'Kahve Siparişi', 'Otel Girişi' veya 'Tanışma' senaryosundan birini canlı mikrofonla tamamlayın.",
+            "Hata Analizi (3 Dk): Seans sonunda Spekiva'nın Türkçe Hata Raporunu açıp yanlış kurduğunuz cümleleri ve telaffuz düzeltmelerini bir kez daha sesli prova edin.",
           ],
         },
       ],
       conclusion: [
         "A1 seviyesi bir kısıtlama değil, özgüveninizi sıfırdan inşa edeceğiniz en heyecan verici basamaktır. Unutmayın: Dünyadaki en iyi hatip ve liderler de bir gün 'Hello, my name is...' diyerek başladı.",
-        "Hemen bugün TalkStage'i açın, yargılanma korkusu olmadan yapay zekâ sahnesine çıkın ve ilk A1 diyalogunuzu sesli olarak başlatın!",
+        "Hemen bugün Spekiva'yı açın, yargılanma korkusu olmadan yapay zekâ sahnesine çıkın ve ilk A1 diyalogunuzu sesli olarak başlatın!",
       ],
     },
   },
@@ -227,7 +227,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/restaurant-dinner.webp",
     content: {
@@ -341,13 +341,13 @@ export const blogPosts: BlogPost[] = [
           checklist: [
             "1. Dününüzü Geçmiş Zamanla Özetleyin: Her akşam yatmadan önce 'Yesterday I went to... and I met...' kalıbıyla dününüzü 2 dakika sesli anlatın.",
             "2. 'Because' Egzersizi: Söylediğiniz her fikrin arkasına mutlaka bir 'because' ekleyerek gerekçe sunma alışkanlığı kazanın.",
-            "3. TalkStage Otel & Restoran Sahnelerini Tamamlayın: Uygulamada A2 seviyesindeki 10 farklı sosyal senaryoyu tamamlayıp telaffuz puanınızı %85'in üzerine çıkarın.",
+            "3. Spekiva Otel & Restoran Sahnelerini Tamamlayın: Uygulamada A2 seviyesindeki 10 farklı sosyal senaryoyu tamamlayıp telaffuz puanınızı %85'in üzerine çıkarın.",
           ],
         },
       ],
       conclusion: [
         "A2 seviyesini tamamladığınızda yurt dışında tek başınıza seyahat etme ve sosyal ortamlarda sohbet başlatma özgüvenine kavuşursunuz.",
-        "TalkStage'de hemen bir A2 senaryosu başlatın ve konuşma reflekslerinizi gerçek yapay zekâ karakterleriyle güçlendirin!",
+        "Spekiva'da hemen bir A2 senaryosu başlatın ve konuşma reflekslerinizi gerçek yapay zekâ karakterleriyle güçlendirin!",
       ],
     },
   },
@@ -364,7 +364,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/hotel-checkin.webp",
     featured: true,
@@ -442,16 +442,16 @@ export const blogPosts: BlogPost[] = [
         {
           heading: "5. 'Anlıyorum Ama Konuşamıyorum' Sendromunu Kırmak İçin 4 Adımlı Metot",
           body: [
-            "1. Düşünme Süresini 1 Saniyenin Altına İndirin: Kelimeleri kafanızda Türkçeye çevirmeyi bırakın. TalkStage'in 1.2 saniyelik yapay zekâ ses yanıtıyla pratik yaparak beyninizi zaman baskısı altında doğrudan İngilizce yanıt vermeye alıştırın.",
+            "1. Düşünme Süresini 1 Saniyenin Altına İndirin: Kelimeleri kafanızda Türkçeye çevirmeyi bırakın. Spekiva'nın 1.2 saniyelik yapay zekâ ses yanıtıyla pratik yaparak beyninizi zaman baskısı altında doğrudan İngilizce yanıt vermeye alıştırın.",
             "2. Hata Defteri Tutun: Yaptığınız her gramer hatasını kişisel gelişim kasasına kaydedin. Hangi kuralda takıldığınızı görün ve o kuralı konuşarak pekiştirin.",
             "3. Shadowing (Gölgeleme) Yapın: Anadili İngilizce olan bir konuşmacının ses tonunu, vurgusunu ve ritmini eşzamanlı olarak sesli taklit edin.",
-            "4. Günlük 1 Sahne Canlı Prova: Her gün TalkStage'de B1 seviyesinde 1 toplantı veya mülakat senaryosunu tamamlayın.",
+            "4. Günlük 1 Sahne Canlı Prova: Her gün Spekiva'da B1 seviyesinde 1 toplantı veya mülakat senaryosunu tamamlayın.",
           ],
         },
       ],
       conclusion: [
         "B1 seviyesinden B2'ye geçiş, bilginin fazlalığıyla değil; bilinen bilginin otomatik bir konuşma refleksine dönüşmesiyle gerçekleşir.",
-        "TalkStage'de hemen bir B1 iş toplantısı senaryosu başlatın ve 'sessiz kilitlenme' sendromunu geride bırakın!",
+        "Spekiva'da hemen bir B1 iş toplantısı senaryosu başlatın ve 'sessiz kilitlenme' sendromunu geride bırakın!",
       ],
     },
   },
@@ -467,8 +467,8 @@ export const blogPosts: BlogPost[] = [
     date: "18 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/job-interview.webp",
     featured: true,
@@ -563,13 +563,13 @@ export const blogPosts: BlogPost[] = [
           checklist: [
             "1. Metrik Odaklı Konuşma: Projelerinizi anlatırken daima yüzdeler ve zaman aralıkları verin ('reduced latency by 35%').",
             "2. Diplomatik Kalıpları Kullanın: 'In my perspective', 'Furthermore', 'To mitigate this risk' ifadelerini konuşmanıza dahil edin.",
-            "3. TalkStage FAANG Mülakatı Sahnesinde Canlı Prova: Her hafta en az 2 zorlu mülakat senaryosunu tamamlayın.",
+            "3. Spekiva FAANG Mülakatı Sahnesinde Canlı Prova: Her hafta en az 2 zorlu mülakat senaryosunu tamamlayın.",
           ],
         },
       ],
       conclusion: [
         "B2 seviyesi, İngilizceyi bir yabancı dil olmaktan çıkarıp kariyerinizin en büyük çarpanı haline getirdiğiniz noktadır.",
-        "TalkStage'de hemen bir FAANG mülakatı veya Tech Standup sahnesi başlatın ve profesyonel kariyerinizi bir üst lige taşıyın!",
+        "Spekiva'da hemen bir FAANG mülakatı veya Tech Standup sahnesi başlatın ve profesyonel kariyerinizi bir üst lige taşıyın!",
       ],
     },
   },
@@ -586,7 +586,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/taxi-ride.webp",
     content: {
@@ -655,7 +655,7 @@ export const blogPosts: BlogPost[] = [
       ],
       conclusion: [
         "C1 seviyesine ulaşmak sadece dinlemekle değil; üst düzey sahnelerde fikir savunup müzakere yönetmekle mümkündür.",
-        "TalkStage'de C1 seviyesindeki zorlu müzakere ve strateji sahnelerini deneyimleyin!",
+        "Spekiva'da C1 seviyesindeki zorlu müzakere ve strateji sahnelerini deneyimleyin!",
       ],
     },
   },
@@ -672,7 +672,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/doctor-visit.webp",
     content: {
@@ -707,7 +707,7 @@ export const blogPosts: BlogPost[] = [
       ],
       conclusion: [
         "C2 seviyesi bir varış noktası değil, dili sürekli olarak entelektüel hayatınızın bir parçası yapma biçimidir.",
-        "TalkStage ile her gün İngilizceyi anadil akıcılığında deneyimleyin!",
+        "Spekiva ile her gün İngilizceyi anadil akıcılığında deneyimleyin!",
       ],
     },
   },
@@ -724,7 +724,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/restaurant-dinner.webp",
     featured: true,
@@ -786,7 +786,7 @@ export const blogPosts: BlogPost[] = [
             },
             {
               speaker: "Yazılımcı",
-              role: "Backend Engineer (TalkStage)",
+              role: "Backend Engineer (Spekiva)",
               en: "Good morning everyone. Yesterday, I refactored the Stripe webhook handler and pushed the branch with 95% unit test coverage. Today, I'm pairing with Sarah to run end-to-end staging validations.",
               tr: "Herkese günaydın. Dün Stripe webhook işleyicisini yeniden yapılandırdım ve %95 birim test kapsamıyla dalı gönderdim. Bugün uçtan uca test doğrulamaları yapmak için Sarah ile eşleşiyorum.",
               tip: "'Pair with...' ve 'unit test coverage' gibi sektör standartlarını kullanmak teknik duruşunuzu güçlendirir.",
@@ -799,7 +799,7 @@ export const blogPosts: BlogPost[] = [
             },
             {
               speaker: "Yazılımcı",
-              role: "Backend Engineer (TalkStage)",
+              role: "Backend Engineer (Spekiva)",
               en: "I just need the DevOps team to provision the Redis cluster environment variables in the staging pipeline. Once that's merged, we are good to go.",
               tr: "DevOps ekibinin staging boru hattındaki Redis kümesi ortam değişkenlerini tanımlamasına ihtiyacım var. Bu birleştirildiğinde hazırız.",
             },
@@ -807,7 +807,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in 'Tech Standup' sahnesinde yapay zekâ Tech Lead ve Scrum Master ile her sabah 3 dakika prova yaparak toplantı stresinizi tamamen yok edin!",
+        "Spekiva'nın 'Tech Standup' sahnesinde yapay zekâ Tech Lead ve Scrum Master ile her sabah 3 dakika prova yaparak toplantı stresinizi tamamen yok edin!",
       ],
     },
   },
@@ -823,8 +823,8 @@ export const blogPosts: BlogPost[] = [
     date: "14 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/istanbul-tour.webp",
     content: {
@@ -887,7 +887,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in 'Konsolosluk Vize Mülakatı' sahnesinde gerçek konsolosluk görevlisi yapay zekâ ile ter dökerek mülakat stresinizi sıfıra indirin!",
+        "Spekiva'nın 'Konsolosluk Vize Mülakatı' sahnesinde gerçek konsolosluk görevlisi yapay zekâ ile ter dökerek mülakat stresinizi sıfıra indirin!",
       ],
     },
   },
@@ -904,7 +904,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/restaurant-dinner.webp",
     content: {
@@ -938,7 +938,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in Hata Teşhis Motoru tam olarak bu hataları konuşurken anında yakalar ve ekranınıza doğrusunu Türkçe açıklamasıyla düşürür.",
+        "Spekiva'nın Hata Teşhis Motoru tam olarak bu hataları konuşurken anında yakalar ve ekranınıza doğrusunu Türkçe açıklamasıyla düşürür.",
       ],
     },
   },
@@ -955,19 +955,19 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/airport-travel.webp",
     content: {
       intro: [
         "Bir kelimeyi deftere 50 kez alt alta yazmak veya rastgele kelime listeleri ezberlemek kalıcı konuşma hafızası oluşturmaz. İnsan beyni, tam bir bilgiyi unutmak üzere olduğu anda o bilgiyi geri çağırmaya zorlandığında güçlü nöron bağları kurar.",
-        "Bu bilimsel prensibe 'Spaced Repetition' (Aralıklı Tekrar) denir ve TalkStage Akıllı Kelime Sandığı'nın kalbinde yer alan SM-2 algoritmasını oluşturur.",
+        "Bu bilimsel prensibe 'Spaced Repetition' (Aralıklı Tekrar) denir ve Spekiva Akıllı Kelime Sandığı'nın kalbinde yer alan SM-2 algoritmasını oluşturur.",
       ],
       tableOfContents: [
         "1. Ebbinghaus Unutma Eğrisi Nedir?",
         "2. SM-2 Algoritması Nasıl Çalışır?",
         "3. Pasif Ezber vs Aktif Geri Çağırma (Active Recall)",
-        "4. TalkStage Akıllı Kelime Destesi ile Pratik",
+        "4. Spekiva Akıllı Kelime Destesi ile Pratik",
       ],
       sections: [
         {
@@ -988,7 +988,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'de konuştuğunuz senaryolardaki tüm kelimeler otomatik olarak SM-2 döngüsüne alınır.",
+        "Spekiva'da konuştuğunuz senaryolardaki tüm kelimeler otomatik olarak SM-2 döngüsüne alınır.",
       ],
     },
   },
@@ -1005,7 +1005,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/flea-market.webp",
     featured: true,
@@ -1043,7 +1043,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in fonetik telaffuz analiz motoru ile mikrofona konuşarak sesinizi anlık hece doğruluğuyla test edebilirsiniz.",
+        "Spekiva'nın fonetik telaffuz analiz motoru ile mikrofona konuşarak sesinizi anlık hece doğruluğuyla test edebilirsiniz.",
       ],
     },
   },
@@ -1059,8 +1059,8 @@ export const blogPosts: BlogPost[] = [
     date: "10 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/job-interview.webp",
     content: {
@@ -1099,7 +1099,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in 'FAANG Mülakatı' sahnesinde AI işe alım yöneticisiyle mülakat provası yaparak ilk 90 saniyenizi kusursuzlaştırın.",
+        "Spekiva'nın 'FAANG Mülakatı' sahnesinde AI işe alım yöneticisiyle mülakat provası yaparak ilk 90 saniyenizi kusursuzlaştırın.",
       ],
     },
   },
@@ -1116,7 +1116,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/flea-market.webp",
     content: {
@@ -1143,7 +1143,7 @@ export const blogPosts: BlogPost[] = [
             },
             {
               speaker: "Satış Lideri",
-              role: "B2B Sales Lead (TalkStage)",
+              role: "B2B Sales Lead (Spekiva)",
               en: "I completely appreciate that budget alignment is crucial for you. If we look at the projected 30% reduction in customer churn, the platform typically delivers full ROI within four months. That said, what if we phased the rollout across two quarters to fit your immediate cash flow?",
               tr: "Bütçe uyumunun sizin için ne kadar kritik olduğunu çok iyi anlıyorum. Müşteri kaybında öngörülen %30'luk düşüşe bakarsak platform genellikle 4 ay içinde yatırımını amorti ediyor. Bununla birlikte, anlık nakit akışınıza uyması için uygulamayı iki çeyreğe bölerek aşamalı başlatsak nasıl olur?",
             },
@@ -1151,7 +1151,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in B2B Satış sahnesinde yabancı kurumsal müşterilerle canlı pazarlık provası yapabilirsiniz.",
+        "Spekiva'nın B2B Satış sahnesinde yabancı kurumsal müşterilerle canlı pazarlık provası yapabilirsiniz.",
       ],
     },
   },
@@ -1167,8 +1167,8 @@ export const blogPosts: BlogPost[] = [
     date: "8 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/job-interview.webp",
     content: {
@@ -1200,7 +1200,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "Phrasal verb'leri kelime listesi olarak ezberlemek yerine TalkStage senaryolarında sesli kullanarak refleks haline getirin.",
+        "Phrasal verb'leri kelime listesi olarak ezberlemek yerine Spekiva senaryolarında sesli kullanarak refleks haline getirin.",
       ],
     },
   },
@@ -1217,7 +1217,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/airport-travel.webp",
     content: {
@@ -1252,7 +1252,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'in 'Havalimanı & Seyahat' sahnesinde gümrük memuru ve otel resepsiyonistiyle canlı sesli pratik yapabilirsiniz.",
+        "Spekiva'nın 'Havalimanı & Seyahat' sahnesinde gümrük memuru ve otel resepsiyonistiyle canlı sesli pratik yapabilirsiniz.",
       ],
     },
   },
@@ -1269,7 +1269,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/istanbul-tour.webp",
     featured: true,
@@ -1292,12 +1292,12 @@ export const blogPosts: BlogPost[] = [
           checklist: [
             "Günde 5 dakika etrafınızdaki nesneleri sesli olarak İngilizce adlandırın ('The coffee is getting cold', 'The traffic is heavy').",
             "Duşta veya yürüyüşte günün özetini İngilizce sesli mırıldanın.",
-            "TalkStage'de 1.2 saniyelik yapay zekâ ses yanıtıyla zaman baskısı altında pratik yapın.",
+            "Spekiva'da 1.2 saniyelik yapay zekâ ses yanıtıyla zaman baskısı altında pratik yapın.",
           ],
         },
       ],
       conclusion: [
-        "TalkStage'in 1.2 saniye gecikmeli ses motoru beyninize çeviri yapacak vakit bırakmaz; sizi doğrudan refleksle konuşmaya zorlar.",
+        "Spekiva'nın 1.2 saniye gecikmeli ses motoru beyninize çeviri yapacak vakit bırakmaz; sizi doğrudan refleksle konuşmaya zorlar.",
       ],
     },
   },
@@ -1313,8 +1313,8 @@ export const blogPosts: BlogPost[] = [
     date: "5 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/hotel-checkin.webp",
     content: {
@@ -1341,7 +1341,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "TalkStage'de zaman baskısı altında prova yaparak sınav günü stresini tamamen ortadan kaldırabilirsiniz.",
+        "Spekiva'da zaman baskısı altında prova yaparak sınav günü stresini tamamen ortadan kaldırabilirsiniz.",
       ],
     },
   },
@@ -1358,7 +1358,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Burak Tan",
       role: "Kıdemli Eğitmen & Telaffuz Koçu",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/doctor-visit.webp",
     content: {
@@ -1385,7 +1385,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "Yazılı iletişimde kazandığınız kalıpları TalkStage'de sözlüye dökerek iş iletişiminde tam ustalık kazanın.",
+        "Yazılı iletişimde kazandığınız kalıpları Spekiva'da sözlüye dökerek iş iletişiminde tam ustalık kazanın.",
       ],
     },
   },
@@ -1401,8 +1401,8 @@ export const blogPosts: BlogPost[] = [
     date: "3 Ağustos 2026",
     author: {
       name: "Selin Aksoy",
-      role: "Dilbilimci & TalkStage İçerik Lideri",
-      avatar: "/brand/talkstage-app-icon.png",
+      role: "Dilbilimci & Spekiva İçerik Lideri",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/airport-travel.webp",
     content: {
@@ -1450,7 +1450,7 @@ export const blogPosts: BlogPost[] = [
     author: {
       name: "Emre Kaya",
       role: "Kurucu & Baş Mühendis",
-      avatar: "/brand/talkstage-app-icon.png",
+      avatar: "/brand/spekiva-app-icon.png",
     },
     coverImage: "/scenes/taxi-ride.webp",
     featured: true,
@@ -1469,7 +1469,7 @@ export const blogPosts: BlogPost[] = [
           heading: "1. Günlük 15 Dakikanın Bölünüşü",
           body: [
             "• İlk 3 Dakika: Günün senaryo konusunu okuma ve yeni 5 kelimeyi dinleme.",
-            "• 7 Dakika: TalkStage ile canlı sesli senaryo pratiği ve yapay zekâ ile rol yapma.",
+            "• 7 Dakika: Spekiva ile canlı sesli senaryo pratiği ve yapay zekâ ile rol yapma.",
             "• 5 Dakika: Oturum sonu hata raporunu inceleme ve düzeltilen kalıpları bir kez daha sesli tekrar etme.",
           ],
           checklist: [
@@ -1481,7 +1481,7 @@ export const blogPosts: BlogPost[] = [
         },
       ],
       conclusion: [
-        "Bugün TalkStage uygulamasını açıp 1. gününüzü başlatın ve 30 gün sonraki konuşma akıcılığınıza siz bile inanamayacaksınız!",
+        "Bugün Spekiva uygulamasını açıp 1. gününüzü başlatın ve 30 gün sonraki konuşma akıcılığınıza siz bile inanamayacaksınız!",
       ],
     },
   },

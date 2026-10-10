@@ -1,4 +1,4 @@
-"""Losslessly recompress TalkStage mobile PNG assets.
+"""Losslessly recompress Spekiva mobile PNG assets.
 
 The original is replaced only when Pillow produces a smaller valid PNG.
 Run from the repository root with backend's virtual environment Python.

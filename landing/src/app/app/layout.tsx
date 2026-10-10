@@ -92,7 +92,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
           <span className="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <span>TalkStage Masaüstü Stüdyosu Yükleniyor...</span>
+          <span>Spekiva Masaüstü Stüdyosu Yükleniyor...</span>
         </div>
       </div>
     );
@@ -114,8 +114,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link href="/app" className="flex items-center gap-2.5 group shrink-0">
               <div className="relative w-8 h-8 shrink-0 group-hover:scale-105 transition-transform">
                 <Image
-                  src="/brand/talkstage-mark.png"
-                  alt="TalkStage"
+                  src="/brand/spekiva-icon.png"
+                  alt="Spekiva"
                   fill
                   sizes="32px"
                   className="object-contain"
@@ -123,7 +123,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-base tracking-tight text-slate-900">
-                  TalkStage
+                  Spekiva
                 </span>
                 <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-200">
                   Studio

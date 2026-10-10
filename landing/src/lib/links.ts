@@ -4,4 +4,4 @@
 // NEXT_PUBLIC_IOS_STORE_URL / NEXT_PUBLIC_ANDROID_STORE_URL olarak eklenmeli.
 export const iosStoreUrl = process.env.NEXT_PUBLIC_IOS_STORE_URL ?? "#";
 export const androidStoreUrl = process.env.NEXT_PUBLIC_ANDROID_STORE_URL ?? "#";
-export const appScheme = process.env.NEXT_PUBLIC_APP_SCHEME ?? "talkstage://";
+export const appScheme = process.env.NEXT_PUBLIC_APP_SCHEME ?? "spekiva://";

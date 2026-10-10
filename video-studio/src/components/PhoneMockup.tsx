@@ -70,7 +70,7 @@ export const PhoneMockup: React.FC<PhoneMockupProps> = ({
         >
           <img
             src={staticFile(imageSrc)}
-            alt="TalkStage App Screen"
+            alt="Spekiva App Screen"
             style={{
               width: '100%',
               height: '100%',

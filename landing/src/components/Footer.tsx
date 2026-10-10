@@ -13,7 +13,7 @@ const COLUMNS = [
     ],
   },
   {
-    title: "TalkStage",
+    title: "Spekiva",
     links: [
       { label: "Hakkımızda", href: "/hakkimizda" },
       { label: "Blog", href: "/blog" },
@@ -37,7 +37,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col gap-12 lg:flex-row lg:justify-between">
           <div className="max-w-sm">
-            <Link href="/" className="group inline-block" aria-label="TalkStage ana sayfa">
+            <Link href="/" className="group inline-block" aria-label="Spekiva ana sayfa">
               <Logo tone="light" />
             </Link>
             <p className="mt-4 text-[0.95rem] leading-relaxed text-white/65">
@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-[0.82rem] text-white/50 sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} TalkStage. Tüm hakları saklıdır.</p>
+          <p>© {new Date().getFullYear()} Spekiva. Tüm hakları saklıdır.</p>
           <p className="font-mono text-[0.72rem]">Türkçe · English · Español · Português · Deutsch</p>
         </div>
       </div>

@@ -22,12 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) {
     return {
-      title: "Makale Bulunamadı — TalkStage",
+      title: "Makale Bulunamadı — Spekiva",
     };
   }
 
   return {
-    title: `${post.title} — TalkStage Rehberi`,
+    title: `${post.title} — Spekiva Rehberi`,
     description: post.excerpt,
     openGraph: {
       title: post.title,
@@ -304,7 +304,7 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Interactive In-Article TalkStage CTA Box */}
+          {/* Interactive In-Article Spekiva CTA Box */}
           <div className="my-14 rounded-[28px] border border-indigo/20 bg-linear-to-br from-indigo/5 via-cyan/5 to-white p-8 text-center sm:p-10 shadow-sm">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo text-2xl text-white shadow-md">
               🎙️
@@ -313,7 +313,7 @@ export default async function BlogPostPage({ params }: Props) {
               Bu Konuyu Canlı Sahnede Prova Etmek İster misin?
             </h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-body">
-              TalkStage ile 1.2 saniye gecikmeli yapay zekâ simülasyonunda hemen konuşmaya başlayın.
+              Spekiva ile 1.2 saniye gecikmeli yapay zekâ simülasyonunda hemen konuşmaya başlayın.
             </p>
             <div className="mt-6 flex justify-center">
               <Link

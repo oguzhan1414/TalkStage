@@ -1,4 +1,4 @@
-# TalkStage Ürün Yol Haritası
+# Spekiva Ürün Yol Haritası
 
 ## Çalışma Panosu
 
@@ -147,9 +147,9 @@
 
 ## Ayrıntılı Plan
 
-TalkStage ürün yol haritası
+Spekiva ürün yol haritası
 Ana ürün hedefi
-TalkStage’in temel vaadi:
+Spekiva’nın temel vaadi:
 Kullanıcıyı her gün gerçek hayat senaryolarında İngilizce konuşturmak ve gelişimini somut olarak göstermek.
 
 Ana başarı metriği:

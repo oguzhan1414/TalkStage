@@ -75,7 +75,7 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.eyebrow}>{t("STAGE PASS PRO")}</Text>
+        <Text style={styles.eyebrow}>{t("SPEKIVA PRO")}</Text>
         <Text style={styles.title}>{t("Sınırsız pratik yap, hızla ilerle")}</Text>
 
         <View style={styles.featureList}>

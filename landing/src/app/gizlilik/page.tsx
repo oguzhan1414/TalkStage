@@ -3,8 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Gizlilik Politikası — TalkStage",
-  description: "TalkStage kullanıcı verilerinin, ses kayıtlarının ve kişisel bilgilerin nasıl korunduğuna dair Gizlilik Politikası ve KVKK/GDPR aydınlatma metni.",
+  title: "Gizlilik Politikası — Spekiva",
+  description: "Spekiva kullanıcı verilerinin, ses kayıtlarının ve kişisel bilgilerin nasıl korunduğuna dair Gizlilik Politikası ve KVKK/GDPR aydınlatma metni.",
 };
 
 export default function PrivacyPage() {
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="font-display text-xl font-bold text-heading">1. Genel Bakış</h2>
               <p className="mt-2">
-                TalkStage (&quot;Uygulama&quot;, &quot;Biz&quot;), kullanıcılarının kişisel verilerinin ve gizliliğinin korunmasına azami özen göstermektedir. Bu Gizlilik Politikası, mobil uygulamamızı ve web sitemizi kullandığınızda toplanan, işlenen ve saklanan veriler hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.
+                Spekiva (&quot;Uygulama&quot;, &quot;Biz&quot;), kullanıcılarının kişisel verilerinin ve gizliliğinin korunmasına azami özen göstermektedir. Bu Gizlilik Politikası, mobil uygulamamızı ve web sitemizi kullandığınızda toplanan, işlenen ve saklanan veriler hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.
               </p>
             </section>
 
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
                 2. Ses Verileri ve Mikrofon İzinleri
               </h2>
               <p className="mt-2">
-                TalkStage, senaryo bazlı konuşma pratiği sunan bir yapay zekâ asistanıdır.
+                Spekiva, senaryo bazlı konuşma pratiği sunan bir yapay zekâ asistanıdır.
               </p>
               <ul className="mt-3 list-disc pl-5 space-y-2 text-heading">
                 <li>
@@ -75,21 +75,21 @@ export default function PrivacyPage() {
             <section>
               <h2 className="font-display text-xl font-bold text-heading">4. Ödeme ve Fatura Güvenliği</h2>
               <p className="mt-2">
-                Uygulama içi satın alımlar (In-App Purchases) Apple App Store ve Google Play Store altyapısı üzerinden gerçekleştirilir. TalkStage, kredi kartı numaralarınızı veya banka hesap detaylarınızı asla görmez ve kendi sunucularında saklamaz.
+                Uygulama içi satın alımlar (In-App Purchases) Apple App Store ve Google Play Store altyapısı üzerinden gerçekleştirilir. Spekiva, kredi kartı numaralarınızı veya banka hesap detaylarınızı asla görmez ve kendi sunucularında saklamaz.
               </p>
             </section>
 
             <section>
               <h2 className="font-display text-xl font-bold text-heading">5. Kullanıcı Hakları & Hesap Silme</h2>
               <p className="mt-2">
-                6698 sayılı KVKK ve Avrupa Birliği GDPR düzenlemeleri uyarınca; dilediğiniz zaman hesabınızı ve tüm öğrenme geçmişinizi mobil uygulama ayarlarından silebilir veya <strong>destek@talkstage.app</strong> adresine e-posta göndererek verilerinizin imhasını talep edebilirsiniz.
+                6698 sayılı KVKK ve Avrupa Birliği GDPR düzenlemeleri uyarınca; dilediğiniz zaman hesabınızı ve tüm öğrenme geçmişinizi mobil uygulama ayarlarından silebilir veya <strong>destek@spekiva.app</strong> adresine e-posta göndererek verilerinizin imhasını talep edebilirsiniz.
               </p>
             </section>
 
             <section className="border-t border-line pt-6">
               <h2 className="font-display text-lg font-bold text-heading">İletişim</h2>
               <p className="mt-1">
-                Gizlilik politikamızla ilgili her türlü soru için bizimle <strong>destek@talkstage.app</strong> üzerinden iletişime geçebilirsiniz.
+                Gizlilik politikamızla ilgili her türlü soru için bizimle <strong>destek@spekiva.app</strong> üzerinden iletişime geçebilirsiniz.
               </p>
             </section>
           </div>

@@ -1,5 +1,5 @@
 /**
- * Central registry for static 3D video assets in TalkStage Mobile.
+ * Central registry for static 3D video assets in Spekiva Mobile.
  * Metro requires static string-literal `require()` calls (no dynamic paths).
  */
 export const mayaSpeakingVideo = require('../../assets/videos/maya_speaking.mp4');

@@ -37,8 +37,8 @@ export const PODCASTS: PodcastEpisode[] = [
         id: 't1',
         timeSec: 0,
         speaker: 'Mivo',
-        en: 'Welcome back to TalkStage Podcast! Today, we are exploring how AI pair-programming is reshaping modern tech workflows.',
-        tr: 'TalkStage Podcast\'e tekrar hoş geldiniz! Bugün, yapay zeka destekli kodlamanın modern teknoloji iş akışlarını nasıl yeniden şekillendirdiğini inceliyoruz.',
+        en: 'Welcome back to Spekiva Podcast! Today, we are exploring how AI pair-programming is reshaping modern tech workflows.',
+        tr: 'Spekiva Podcast\'e tekrar hoş geldiniz! Bugün, yapay zeka destekli kodlamanın modern teknoloji iş akışlarını nasıl yeniden şekillendirdiğini inceliyoruz.',
         keyVocab: [{ word: 'Reshaping', tr: 'Yeniden şekillendirme' }, { word: 'Workflows', tr: 'İş akışları' }],
       },
       {

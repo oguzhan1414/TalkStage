@@ -24,7 +24,7 @@ A2_PODCAST_EPISODES = [
         "subtitle": "Airport Check-in, Luggage & Security",
         "level": "A2",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to TalkStage English Podcasts for A2 Elementary. Episode 1: Boarding Pass and Departure Gate. Practice airport check-in, luggage allowance, and boarding procedures."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts for A2 Elementary. Episode 1: Boarding Pass and Departure Gate. Practice airport check-in, luggage allowance, and boarding procedures."),
             ("en-US-ChristopherNeural", "-3%", "Good morning! Welcome to SkyWay Airlines. May I please see your passport and flight booking confirmation?"),
             ("en-US-AriaNeural", "-3%", "Good morning! Here is my passport and my mobile e-ticket confirmation code."),
             ("en-US-ChristopherNeural", "-3%", "Thank you, Rachel. I see you are flying to London Heathrow today on flight SK 402. Are you checking in any baggage this morning?"),
@@ -202,7 +202,7 @@ async def process_episode(ep: dict):
 
 async def main():
     print("=" * 60)
-    print("🚀 TALKSTAGE A2 PODCAST SERIES GENERATOR (5 EPISODES)")
+    print("🚀 SPEKIVA A2 PODCAST SERIES GENERATOR (5 EPISODES)")
     print("=" * 60)
     
     for ep in A2_PODCAST_EPISODES:

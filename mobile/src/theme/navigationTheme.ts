@@ -2,7 +2,7 @@ import { DefaultTheme, type Theme } from '@react-navigation/native';
 
 import { colors, fonts } from './tokens';
 
-/** React Navigation theme wired to TalkStage's light design tokens. App is light-mode only for now. */
+/** React Navigation theme wired to Spekiva's light design tokens. App is light-mode only for now. */
 export const talkStageNavigationTheme: Theme = {
   ...DefaultTheme,
   dark: false,

@@ -114,27 +114,27 @@ ep_meta = {
 
 ep_speaker_map = {
     'podcast_a1_ep1_cafe': {
-        'en-US-AvaNeural': ('🎙️ TalkStage Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Liam', 'Barista (Green Bean)', 'avatarImages.maleTraveler'),
         'en-US-JennyNeural': ('Emma', 'Müşteri', 'avatarImages.femaleDesigner'),
     },
     'podcast_a1_ep2_routines': {
-        'en-US-AvaNeural': ('🎙️ TalkStage Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-AriaNeural': ('Sarah', 'Tasarımcı', 'avatarImages.femaleLead'),
         'en-US-GuyNeural': ('David', 'Yazılımcı', 'avatarImages.maleEngineer'),
     },
     'podcast_a1_ep3_city': {
-        'en-US-AvaNeural': ('🎙️ TalkStage Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-EricNeural': ('Alex', 'Gezgin', 'avatarImages.maleDev'),
         'en-US-JennyNeural': ('Mia', 'Şehir Sakini', 'avatarImages.femaleDesigner'),
     },
     'podcast_a1_ep4_restaurant': {
-        'en-US-AvaNeural': ('🎙️ TalkStage Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Marco', 'Garson (Bistro)', 'avatarImages.maleTraveler'),
         'en-US-MichelleNeural': ('Chloe', 'Müşteri', 'avatarImages.femaleEntrepreneur'),
     },
     'podcast_a1_ep5_weekend': {
-        'en-US-AvaNeural': ('🎙️ TalkStage Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-BrianNeural': ('Leo', 'Doğa Sever', 'avatarImages.maleEngineer'),
         'en-US-EmmaNeural': ('Sophie', 'Fotoğrafçı', 'avatarImages.femaleDesigner'),
     }
@@ -142,7 +142,7 @@ ep_speaker_map = {
 
 tr_dict = {
     # Ep 1
-    'Welcome to TalkStage English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food.': 'A1 Başlangıç seviyesi TalkStage İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Sabah Kafesi. Dikkatle dinleyin ve içecek/yiyecek siparişi pratiği yapın.',
+    'Welcome to Spekiva English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food.': 'A1 Başlangıç seviyesi Spekiva İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Sabah Kafesi. Dikkatle dinleyin ve içecek/yiyecek siparişi pratiği yapın.',
     'Good morning! Welcome to Green Bean Cafe. How are you doing today?': 'Günaydın! Green Bean Kafeye hoş geldiniz. Bugün nasılsınız?',
     'Good morning! I am doing well, thank you. It is a lovely sunny day.': 'Günaydın! İyiyim, teşekkür ederim. Çok güzel güneşli bir gün.',
     'It really is! What can I get started for you this morning?': 'Gerçekten öyle! Bu sabah sizin için ne hazırlayabilirim?',

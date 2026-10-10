@@ -410,13 +410,13 @@ def build_data():
 
             if is_host:
                 if 'Intro' in clean_name:
-                    display_speaker = '🎙️ TalkStage Sunucu'
+                    display_speaker = '🎙️ Spekiva Sunucu'
                     role = 'Ders Rehberi (Giriş)'
                 elif 'Outro' in clean_name:
-                    display_speaker = '🎙️ TalkStage Sunucu'
+                    display_speaker = '🎙️ Spekiva Sunucu'
                     role = 'Ders Rehberi (Kapanış)'
                 else:
-                    display_speaker = '🎙️ TalkStage Sunucu'
+                    display_speaker = '🎙️ Spekiva Sunucu'
                     role = 'Ders Rehberi'
                 avatar = 'avatarImages.femaleLead'
             else:

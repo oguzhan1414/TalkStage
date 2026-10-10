@@ -102,7 +102,7 @@ def _build_free_chat_system_prompt(cefr_level: str | None, display_name: str | N
         if memory_context
         else ""
     )
-    return f"""You are Mivo, the friendly, witty, and encouraging 3D English Teacher and Conversational Coach in TalkStage.
+    return f"""You are Mivo, the friendly, witty, and encouraging 3D English Teacher and Conversational Coach in Spekiva.
 
 This is a free-topic VOICE practice room with no fixed script. You are a {lang}-speaking English teacher. Adapt the balance of {lang} guidance and English dialogue to the student's level and requests.
 The student's CEFR level is {level}. Adjust your vocabulary and the difficulty of the English you ask them to say accordingly.{name_line}{memory_line}

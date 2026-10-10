@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import { t } from '../i18n';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://talkstage.app/gizlilik';
+const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://spekiva.app/gizlilik';
 
 export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
   return (
@@ -14,7 +14,7 @@ export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
         <Ionicons name="mic-outline" size={34} color={colors.brand} />
       </View>
       <Text style={styles.title}>{t("Sesin nasıl işleniyor?")}</Text>
-      <Text style={styles.body}>{t("Mikrofon yalnızca canlı konuşma sırasında kullanılır. Ses akışı konuşmayı yazıya çevirmek ve geri bildirim üretmek için hizmet sağlayıcılarımıza güvenli bağlantıyla iletilir. Ham ses TalkStage öğrenme geçmişinde saklanmaz; konuşma metni ve performans sonuçları hesabına kaydedilebilir.")}</Text>
+      <Text style={styles.body}>{t("Mikrofon yalnızca canlı konuşma sırasında kullanılır. Ses akışı konuşmayı yazıya çevirmek ve geri bildirim üretmek için hizmet sağlayıcılarımıza güvenli bağlantıyla iletilir. Ham ses Spekiva öğrenme geçmişinde saklanmaz; konuşma metni ve performans sonuçları hesabına kaydedilebilir.")}</Text>
       <Button label={t("Anladım, Devam Et")} onPress={onContinue} style={styles.button} />
       <Pressable
         onPress={() => {

@@ -82,7 +82,7 @@ export const NotionMinimalReels: React.FC = () => {
             marginBottom: 48,
           }}
         >
-          ✦ TalkStage Minimalist Note ✦
+          ✦ Spekiva Minimalist Note ✦
         </div>
 
         {/* Thought / Hook Typography */}
@@ -165,7 +165,7 @@ export const NotionMinimalReels: React.FC = () => {
           >
             <img
               src={staticFile('home.png')}
-              alt="TalkStage"
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 38 }}
             />
           </div>
@@ -198,8 +198,8 @@ export const NotionMinimalReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/talkstage-mark.png')}
-              alt="TalkStage"
+              src={staticFile('brand/spekiva-icon.png')}
+              alt="Spekiva"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -213,7 +213,7 @@ export const NotionMinimalReels: React.FC = () => {
               letterSpacing: '-0.02em',
             }}
           >
-            TalkStage
+            Spekiva
           </h2>
 
           <p

@@ -27,7 +27,7 @@ from app.core.observability import init_sentry
 
 init_sentry()
 
-app = FastAPI(title="TalkStage API", version="0.1.0")
+app = FastAPI(title="Spekiva API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
