@@ -8,7 +8,7 @@ export default function Logo({ className = "", tone = "dark" }: { className?: st
         src={tone === "light" ? "/brand/spekvia-wordmark-white.png" : "/brand/spekvia-wordmark.png"}
         alt="Spekvia"
         width={1200}
-        height={380}
+        height={355}
         sizes="140px"
         className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
         priority
