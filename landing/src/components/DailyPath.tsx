@@ -1,7 +1,21 @@
 import Image from 'next/image';
 import Reveal from './Reveal';
+import a1Level from '../assets/levels/a1-rounded.png';
+import a2Level from '../assets/levels/a2-rounded.png';
+import b1Level from '../assets/levels/b1-rounded.png';
+import b2Level from '../assets/levels/b2-rounded.png';
+import c1Level from '../assets/levels/c1-rounded.png';
+import c2Level from '../assets/levels/c2-rounded.png';
 
-const LEVELS = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'] as const;
+// Static imports give each image a content-hashed URL when the artwork changes.
+const LEVELS = [
+  { code: 'A1', image: a1Level },
+  { code: 'A2', image: a2Level },
+  { code: 'B1', image: b1Level },
+  { code: 'B2', image: b2Level },
+  { code: 'C1', image: c1Level },
+  { code: 'C2', image: c2Level },
+] as const;
 
 type Tile = { icon: string; title: string; text: string; className?: string };
 
@@ -97,8 +111,8 @@ export default function DailyPath() {
             </div>
             <ul className="grid grid-cols-6 gap-2 sm:gap-4">
               {LEVELS.map((lv) => (
-                <li key={lv} className="flex justify-center">
-                    <Image src={`/levels/${lv}.webp`} alt={lv.toUpperCase()} width={120} height={120} className="h-auto w-full max-w-[84px]" />
+                <li key={lv.code} className="flex justify-center">
+                  <Image src={lv.image} alt={lv.code} width={120} height={120} sizes="84px" className="h-auto w-full max-w-[84px]" />
                 </li>
               ))}
             </ul>
