@@ -229,7 +229,10 @@ export function TextChatScreen({ navigation, route }: TextChatScreenProps) {
     // Hafıza okunamazsa (ör. migration yok) sohbet yine de normal açılsın.
     retry: false,
   });
-  const lastTopic = memory?.topics?.[0]?.topic;
+  // A topic title written in another language ("Restoranda Sipariş Verme" in an English greeting) is
+  // never shown: the backend translates the memory to the user's language, and until that has happened
+  // (or if it failed) the generic opening is used instead.
+  const lastTopic = memory?.lang === getLocale() ? memory?.topics?.[0]?.topic : undefined;
   const [rerollSeed, setRerollSeed] = useState(0);
   const todaysTopics = useMemo(() => {
     // Wait for the real level/persona before picking — otherwise this would

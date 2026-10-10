@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -15,7 +16,7 @@ import {
 } from '@talkstage/shared-data/curriculumData';
 import { ALL_GRAMMAR_LESSONS } from '@talkstage/shared-data/grammarLessons';
 import { SCENARIOS } from '@talkstage/shared-data/scenariosData';
-import { mivoHomeImages, resolveScenarioCoverSource, stateImages } from '../assets/images';
+import { mivoHomeImages, resolveScenarioCoverSource, roadmapTaskImages, stateImages } from '../assets/images';
 import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { MivoAvatar } from '../components/MivoAvatar';
@@ -31,6 +32,7 @@ import {
   isTopicLocked,
   type CurriculumTask,
 } from '../lib/curriculumTasks';
+import { requestBadgeSync } from '../lib/badges';
 import { pullLearningFlags } from '../lib/learningFlags';
 import { loadSceneStars, pickSceneOfTheDay, type SceneStars } from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
@@ -38,14 +40,6 @@ import { cefrThemes, colors, fonts, gradients, radii, shadow, spacing } from '..
 import type { ProfileOut, ProgressOut, ReadingPassageOut, VocabCardOut } from '../types/api';
 import { MivoLoader } from '../components/MivoLoader';
 import { t } from '../i18n';
-
-const TASK_TYPE_ICON: Record<CurriculumTask['type'], keyof typeof Ionicons.glyphMap> = {
-  lesson: 'school-outline',
-  vocab: 'bookmark-outline',
-  listening: 'headset-outline',
-  reading: 'book-outline',
-  practice: 'chatbubbles-outline',
-};
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BANNER_WIDTH = SCREEN_WIDTH - spacing.md * 2;
@@ -79,7 +73,8 @@ type PathNodeProps = {
   left: number;
   top: number;
   palette: { main: string; dark: string; soft: string };
-  icon: keyof typeof Ionicons.glyphMap;
+  image: ImageSourcePropType;
+  label: string;
   done: boolean;
   current: boolean;
   locked: boolean;
@@ -89,7 +84,7 @@ type PathNodeProps = {
 /** Yoldaki tek bir ders düğümü — "chunky 3D" yuvarlak buton; sıradaki ders
  * nabız atan bir halka ve "BAŞLA" balonuyla öne çıkar. */
 const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
-  { left, top, palette, icon, done, current, locked, onPress },
+  { left, top, palette, image, label, done, current, locked, onPress },
   ref
 ) {
   const pulse = useRef(new Animated.Value(0)).current;
@@ -109,9 +104,8 @@ const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
   const haloScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.28] });
   const haloOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0] });
 
-  const bg = locked ? '#E2E8F0' : done ? '#10B981' : current ? palette.main : '#FFFFFF';
-  const edge = locked ? '#CBD5E1' : done ? '#059669' : palette.dark;
-  const iconColor = locked ? '#94A3B8' : done || current ? '#FFFFFF' : palette.main;
+  const bg = locked ? '#F1F5F9' : done ? '#ECFDF5' : current ? palette.soft : '#FFFFFF';
+  const edge = locked ? '#E2E8F0' : done ? '#A7F3D0' : current ? palette.main : palette.soft;
 
   return (
     <View ref={ref} collapsable={false} style={{ position: 'absolute', left, top, width: NODE, height: NODE }}>
@@ -132,6 +126,9 @@ const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
       )}
       <BouncyPressable
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: locked, selected: current }}
         hapticType={locked ? 'light' : 'medium'}
         scaleTo={0.92}
         style={[
@@ -139,16 +136,29 @@ const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
           {
             backgroundColor: bg,
             borderColor: edge,
-            borderWidth: !done && !locked && !current ? 3 : 0,
-            borderBottomWidth: 6,
+            borderWidth: 2,
+            borderBottomWidth: 4,
           },
         ]}
       >
-        <Ionicons
-          name={locked ? 'lock-closed' : done ? 'checkmark' : icon}
-          size={done ? 34 : 28}
-          color={iconColor}
+        <Image
+          source={image}
+          style={[styles.nodeImage, locked && styles.nodeImageLocked]}
+          resizeMode="contain"
+          accessible={false}
         />
+        {(locked || done) && (
+          <View
+            pointerEvents="none"
+            style={[styles.nodeStatusBadge, { backgroundColor: locked ? '#E2E8F0' : '#10B981' }]}
+          >
+            <Ionicons
+              name={locked ? 'lock-closed' : 'checkmark'}
+              size={locked ? 11 : 14}
+              color={locked ? '#64748B' : '#FFFFFF'}
+            />
+          </View>
+        )}
       </BouncyPressable>
     </View>
   );
@@ -253,6 +263,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   }, [profile]);
 
   const reloadStationFlags = useCallback(() => {
+    requestBadgeSync();
     pullLearningFlags().then(() => {
       AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
         (pairs) => {
@@ -867,7 +878,8 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                             left={nodeLeft}
                             top={centerY - NODE / 2}
                             palette={palette}
-                            icon={TASK_TYPE_ICON[task.type]}
+                            image={roadmapTaskImages[task.type]}
+                            label={`${palette.label}: ${task.title}`}
                             done={task.done}
                             current={isCurrent}
                             locked={isLocked}
@@ -1527,6 +1539,25 @@ const styles = StyleSheet.create({
     width: NODE + 4,
     height: NODE + 4,
     borderRadius: (NODE + 4) / 2,
+  },
+  nodeImage: {
+    width: 58,
+    height: 58,
+  },
+  nodeImageLocked: {
+    opacity: 0.35,
+  },
+  nodeStatusBadge: {
+    position: 'absolute',
+    right: -3,
+    bottom: -3,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   startBubble: {
     position: 'absolute',

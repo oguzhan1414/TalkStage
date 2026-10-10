@@ -14,6 +14,7 @@ import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
+import { requestBadgeSync } from '../lib/badges';
 import { api, ApiError } from '../lib/api';
 import { useAnalytics } from '../lib/analytics';
 import type { ReadingPassageScreenProps } from '../navigation/types';
@@ -321,6 +322,7 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     setCelebrationVisible(true);
     try {
       await api.post(`/reading/${slug}/complete`);
+      requestBadgeSync({ afterActivity: true });
       track('reading_passage_completed', { slug });
       queryClient.invalidateQueries({ queryKey: ['reading', 'completed'] });
     } catch {

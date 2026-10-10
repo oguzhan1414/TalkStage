@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { api } from './api';
+import { requestBadgeSync } from './badges';
 
 /**
  * Sahneler roadmap completion flags (lesson_quiz_done_*, topic_chat_completed_*,
@@ -67,7 +68,11 @@ export async function setLearningFlag(key: string): Promise<void> {
   if (!outbox.includes(key)) await writeOutbox([...outbox, key]);
   api
     .post('/learning-flags', { flag_key: key })
-    .then(() => removeFromOutbox(key))
+    .then(() => {
+      void removeFromOutbox(key);
+      // A finished scene / podcast / lesson / pronunciation set may have earned a badge.
+      requestBadgeSync({ afterActivity: true });
+    })
     .catch(() => {
       // stays in the outbox; retried by flushLearningFlagOutbox()
     });

@@ -24,6 +24,7 @@ import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
 import { useConversationSocket, type TurnPhase } from '../hooks/useConversationSocket';
 import { confirmLeave, useConfirmBack } from '../hooks/useConfirmLeave';
+import { requestBadgeSync } from '../lib/badges';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { colors, fonts, radii, spacing, typography } from '../theme/tokens';
@@ -283,6 +284,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
         duration_seconds: result.duration_seconds,
         fluency_score: result.fluency_score,
       });
+      requestBadgeSync({ afterActivity: true });
       navigation.replace('Scorecard', { session: result, scenarioTitle, wordsAddedCount });
     } catch {
       leavingRef.current = false;
@@ -510,7 +512,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                       <Text style={styles.dockBadgeText}>
                         {currentConfidence == null
                           ? t("— Telaffuz")
-                          : t("%{{p0}} Tan?ma g?veni", { p0: Math.round(currentConfidence * 100) })}
+                          : t("%{{p0}} Tanıma güveni", { p0: Math.round(currentConfidence * 100) })}
                       </Text>
                     </View>
                     <View style={styles.dockBadge}>

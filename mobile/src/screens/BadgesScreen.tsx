@@ -14,7 +14,7 @@ import { t } from '../i18n';
 
 export function BadgesScreen({ navigation }: BadgesScreenProps) {
   const { finishTransition } = useMivoTransition();
-  const { earnedBadgeIds, isLoading } = useEarnedBadges();
+  const { earnedBadgeIds, states, isLoading } = useEarnedBadges();
 
   useEffect(() => {
     if (!isLoading) finishTransition();
@@ -49,6 +49,8 @@ export function BadgesScreen({ navigation }: BadgesScreenProps) {
           <View style={styles.grid}>
             {BADGES.map((badge) => {
               const earned = earnedBadgeIds.has(badge.id);
+              const state = states.get(badge.id);
+              const pct = state ? Math.min(100, Math.round((state.current / Math.max(1, state.target)) * 100)) : 0;
               return (
                 <View key={badge.id} style={[styles.card, shadow.card]}>
                   <View style={[styles.badgeMedallion, earned && styles.badgeMedallionEarned]}>
@@ -61,6 +63,16 @@ export function BadgesScreen({ navigation }: BadgesScreenProps) {
                   </View>
                   <Text style={[styles.badgeTitle, !earned && styles.badgeTitleLocked]}>{badge.title}</Text>
                   <Text style={styles.badgeCriteria}>{badge.criteriaText}</Text>
+                  {earned && state?.earned_at ? (
+                    <Text style={styles.badgeDate}>{new Date(state.earned_at).toLocaleDateString()}</Text>
+                  ) : state && state.target > 1 ? (
+                    <View style={styles.badgeProgress}>
+                      <View style={styles.badgeProgressTrack}>
+                        <View style={[styles.badgeProgressFill, { width: `${pct}%` }]} />
+                      </View>
+                      <Text style={styles.badgeProgressText}>{state.current}/{state.target}</Text>
+                    </View>
+                  ) : null}
                 </View>
               );
             })}
@@ -126,10 +138,10 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   badgeMedallion: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
-    backgroundColor: '#F1F5F9',
+    width: 74,
+    height: 74,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     alignItems: 'center',
@@ -137,12 +149,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   badgeMedallionEarned: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FDE68A',
   },
   badgeImage: {
-    width: 56,
-    height: 56,
+    width: 70,
+    height: 70,
+    borderRadius: 18,
   },
   badgeImageLocked: {
     opacity: 0.42,
@@ -172,4 +185,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     textAlign: 'center',
   },
+  badgeDate: { fontFamily: fonts.bodyMedium, fontSize: 10.5, color: '#059669', marginTop: 4 },
+  badgeProgress: { width: '100%', marginTop: 6, gap: 3, alignItems: 'center' },
+  badgeProgressTrack: { width: '86%', height: 4, borderRadius: 2, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  badgeProgressFill: { height: '100%', borderRadius: 2, backgroundColor: colors.brand },
+  badgeProgressText: { fontFamily: fonts.mono, fontSize: 10, color: colors.textMuted },
 });

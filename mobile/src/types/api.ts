@@ -336,6 +336,19 @@ export type ChatMemory = {
   facts: string[];
   session_count: number;
   last_session_at?: string | null;
+  /** Language the memory is written in (null = legacy row, translated on first read). */
+  lang?: string | null;
+};
+
+/** POST /badges/sync — state of one badge (the server evaluates and awards them). */
+export type BadgeState = {
+  id: string;
+  earned: boolean;
+  earned_at?: string | null;
+  current: number;
+  target: number;
+  /** Earned but the celebration has not been shown yet. */
+  unseen: boolean;
 };
 
 /** POST /reading/{slug}/check-speaking */

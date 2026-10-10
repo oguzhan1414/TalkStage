@@ -21,6 +21,7 @@ import { isSupabaseConfigured } from './src/lib/supabase';
 import { navigationRef } from './src/navigation/navigationRef';
 import { AnalyticsProvider } from './src/lib/analytics';
 import { MivoTransitionProvider } from './src/components/MivoTransitionOverlay';
+import { BadgeCelebration } from './src/components/BadgeCelebration';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore — already hidden (e.g. fast refresh) or unsupported on this platform.
@@ -70,6 +71,7 @@ export default function App() {
                     <NavigationContainer ref={navigationRef} theme={talkStageNavigationTheme}>
                       <RootNavigator />
                     </NavigationContainer>
+                    <BadgeCelebration />
                   </MivoTransitionProvider>
                 </OnboardingProvider>
               </AuthProvider>

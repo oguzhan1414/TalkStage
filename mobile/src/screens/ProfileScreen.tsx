@@ -5,13 +5,13 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   minimalFeatureIcons,
-  premiumFeatureIcons,
   stateImages,
 } from '../assets/images';
 import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { ContributionHeatmap } from '../components/ContributionHeatmap';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { BADGES } from '../constants/badges';
 import { useEarnedBadges } from '../hooks/useEarnedBadges';
 import { api } from '../lib/api';
 import { isProUser } from '../lib/revenuecat';
@@ -101,8 +101,8 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           />
           <FeatureCard
             title={t("Rozetlerim")}
-            desc={t("{{size}}/10 kazanıldı · Başarılarını gör", { size: earnedBadgeIds.size })}
-            icon={premiumFeatureIcons.badges}
+            desc={t("{{size}}/{{total}} kazanıldı · Başarılarını gör", { size: earnedBadgeIds.size, total: BADGES.length })}
+            icon={minimalFeatureIcons.badges}
             onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
           />
           <FeatureCard
