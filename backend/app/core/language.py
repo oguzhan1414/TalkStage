@@ -1,6 +1,6 @@
 """Öğrenenin ana dili (arayüz + açıklama dili).
 
-Spekiva İngilizce öğretir; ana dil (profiles.native_language) ise açıklamaların,
+Spekvia İngilizce öğretir; ana dil (profiles.native_language) ise açıklamaların,
 çeviri ipuçlarının ve Mivo'nun "fısıltı" desteğinin hangi dilde yazılacağını belirler.
 Alan adları (`*_tr`, `reply_tr_hint`…) geriye dönük uyumluluk için aynı kalır; içerikleri
 artık ana dildedir.

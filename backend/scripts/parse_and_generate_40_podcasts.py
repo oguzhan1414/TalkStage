@@ -128,11 +128,11 @@ def parse_markdown_curriculum(file_path):
             
             if is_host:
                 if 'Intro' in clean_speaker:
-                    display_speaker = '🎙️ Spekiva Sunucu (Giriş)'
+                    display_speaker = '🎙️ Spekvia Sunucu (Giriş)'
                 elif 'Outro' in clean_speaker:
-                    display_speaker = '🎙️ Spekiva Sunucu (Kapanış)'
+                    display_speaker = '🎙️ Spekvia Sunucu (Kapanış)'
                 else:
-                    display_speaker = '🎙️ Spekiva Sunucu'
+                    display_speaker = '🎙️ Spekvia Sunucu'
                 speaker_role = 'Ders Rehberi'
             else:
                 display_speaker = clean_speaker

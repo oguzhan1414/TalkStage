@@ -8,8 +8,8 @@ import Footer from "@/components/Footer";
 
 const faqs = [
   {
-    q: "Spekiva gerçekten konuşma becerimi geliştirebilir mi?",
-    a: "Evet. Spekiva pasif öğrenme yerine konuşmayı çalıştırır: 5–10 dakikalık sesli sahnelerde cümle kurar, anında düzeltme alırsın.",
+    q: "Spekvia gerçekten konuşma becerimi geliştirebilir mi?",
+    a: "Evet. Spekvia pasif öğrenme yerine konuşmayı çalıştırır: 5–10 dakikalık sesli sahnelerde cümle kurar, anında düzeltme alırsın.",
   },
   {
     q: "Ücretsiz deneme için kredi kartı gerekiyor mu?",
@@ -37,7 +37,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
-    window.location.href = `mailto:destek@spekiva.app?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:destek@spekvia.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
     setSubmitted(true);
   };
 
@@ -84,10 +84,10 @@ export default function ContactPage() {
                     Destek & Genel İletişim
                   </span>
                   <a
-                    href="mailto:destek@spekiva.app"
+                    href="mailto:destek@spekvia.com"
                     className="mt-1 block font-display text-lg font-bold text-indigo hover:underline"
                   >
-                    destek@spekiva.app
+                    destek@spekvia.com
                   </a>
                   <span className="mt-1 block text-xs text-muted">
                     Kullanıcı desteği ve senaryo geri bildirimleri
@@ -99,10 +99,10 @@ export default function ContactPage() {
                     Kurumsal & B2B Satış
                   </span>
                   <a
-                    href="mailto:b2b@spekiva.app"
+                    href="mailto:b2b@spekvia.com"
                     className="mt-1 block font-display text-lg font-bold text-heading hover:underline"
                   >
-                    b2b@spekiva.app
+                    b2b@spekvia.com
                   </a>
                   <span className="mt-1 block text-xs text-muted">
                     Yazılım ekipleri ve şirket toplu lisansları için
@@ -123,7 +123,7 @@ export default function ContactPage() {
                       E-posta uygulaman açıldı
                     </h3>
                     <p className="mx-auto mt-2 max-w-sm text-sm text-body">
-                      Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <strong>destek@spekiva.app</strong> adresine yazabilirsin.
+                      Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <strong>destek@spekvia.com</strong> adresine yazabilirsin.
                     </p>
                     <button
                       onClick={() => setSubmitted(false)}

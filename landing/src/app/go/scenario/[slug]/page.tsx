@@ -51,7 +51,7 @@ export default function ScenarioDeepLinkPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-6 text-center">
       <div className="h-10 w-10 animate-spin rounded-full border-2 border-line border-t-indigo" />
-      <p className="text-heading font-semibold">Spekiva açılıyor…</p>
+      <p className="text-heading font-semibold">Spekvia açılıyor…</p>
       <p className="text-muted text-sm">
         Uygulama açılmadıysa mağazaya yönlendirileceksin.
       </p>

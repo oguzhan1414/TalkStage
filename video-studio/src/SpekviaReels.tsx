@@ -13,7 +13,7 @@ import { PhoneMockup } from './components/PhoneMockup';
 import { Scorecard } from './components/Scorecard';
 import { VoiceOrb } from './components/VoiceOrb';
 
-export const SpekivaReels: React.FC = () => {
+export const SpekviaReels: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -475,8 +475,8 @@ export const SpekivaReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/spekiva-icon.png')}
-              alt="Spekiva Logo"
+              src={staticFile('brand/spekvia-icon.png')}
+              alt="Spekvia Logo"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -494,7 +494,7 @@ export const SpekivaReels: React.FC = () => {
               margin: '0 0 16px 0',
             }}
           >
-            Spekiva
+            Spekvia
           </h1>
 
           {/* Tagline */}

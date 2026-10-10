@@ -78,7 +78,7 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
               <View style={styles.topSection}>
                 <View style={[styles.brandCapsule, shadow.card]}>
                   <Image source={appLogoIcon} style={styles.brandLogoImg} resizeMode="contain" />
-                  <Text style={styles.brandName}>{t("Spekiva")}</Text>
+                  <Text style={styles.brandName}>{t("Spekvia")}</Text>
                 </View>
               </View>
 

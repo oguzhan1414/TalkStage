@@ -1,4 +1,4 @@
--- Spekiva initial schema
+-- Spekvia initial schema
 -- Tables: profiles, scenarios, vocab_cards, sessions, progress, subscriptions
 
 create extension if not exists "pgcrypto";

@@ -4,9 +4,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Hakkımızda — Spekiva",
+  title: "Hakkımızda — Spekvia",
   description:
-    "Anlıyorum ama konuşamıyorum diyenler için: Spekiva, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeyi ve hatadan korkmadan konuşmayı öğretir.",
+    "Anlıyorum ama konuşamıyorum diyenler için: Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeyi ve hatadan korkmadan konuşmayı öğretir.",
 };
 
 const PRINCIPLES = [
@@ -48,7 +48,7 @@ export default function AboutPage() {
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body sm:text-xl">
             Yıllarca İngilizce öğrenip gerçek bir konuşmada donup kalmak çok yaygın. Sebep çoğu zaman gramer eksiği değil,
-            hiç prova yapmamış olmak. Spekiva bu provayı güvenli bir sahneye taşır: kimse yargılamaz, hata yapmak serbest,
+            hiç prova yapmamış olmak. Spekvia bu provayı güvenli bir sahneye taşır: kimse yargılamaz, hata yapmak serbest,
             her cümle bir sonrakinin ön hazırlığı.
           </p>
 

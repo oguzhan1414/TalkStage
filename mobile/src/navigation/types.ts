@@ -61,7 +61,7 @@ export type RootStackParamList = {
   Onboarding: NavigatorScreenParams<OnboardingStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;
   // `scenarioId`/`scenarioTitle` are omitted when arriving via deep link
-  // (`spekiva://scenario/:slug` only ever carries the slug) — the screen
+  // (`spekvia://scenario/:slug` only ever carries the slug) — the screen
   // resolves them itself via `GET /scenarios/{slug}` when missing.
   LiveConversationRoom: { scenarioSlug: string; scenarioId?: string; scenarioTitle?: string };
   // Topic-less live voice room (+ optional `scene`: live variation of a video scene via `WS /ws/scene-play`) — Home's FAB and Profile's "Serbest Yazma"

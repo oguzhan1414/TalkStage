@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Spekiva (eski ad: TalkStage) — Mobile (Expo / React Native)
+# Spekvia (eski ad: TalkStage) — Mobile (Expo / React Native)
 
 Bu klasör TalkStage'in **ana ürünü**dür: ses kaydı, canlı ses akışı, anlık gramer düzeltme kartları, kelime kartları ve streak takibi burada yaşar.
 
@@ -558,4 +558,4 @@ RevenueCat SDK entegrasyonu, günlük 1 ücretsiz senaryo kotası, Pro paywall e
 **Görev 21 — Uçtan Uca Test**
 Onboarding → Konuşma → Kelime Kaydı → Paywall akışının manuel/otomatik testi.
 
-**Marka adı: TalkStage → Spekiva (2026-10-10).** Kullanıcıya görünen tüm metinler (UI, kataloglar, paylaşılan veri), uygulama adı (`app.json` name/scheme: `spekiva://`), ikonlar ve açılış ekranı yeni marka/logoyla değişti; Türkçe ek halleri düzeltildi (Spekiva'ya/'da/'nın/'yı). **Bilerek değişmeyen iç tanımlayıcılar:** `@talkstage/shared-data` paket kapsamı, AsyncStorage anahtarları (`@talkstage_*`, `talkstage.daily_reminder.v1`), `talkstage_*` olay adları, `talkStageNavigationTheme`. Android adaptive ikon: ön plan = Mivo kesiti (şeffaf), arka plan = indigo gradyan; `android-icon-monochrome.png` basit siluet. Marka kitabı `brand/` (ana ikon/yazı logosu ve varyantlar). **Henüz yapılmadı:** alan adı satın alma (`spekiva.com/.app`), marka tescil araması, mağaza kimlikleri (`bundleIdentifier`/`package`).
+**Marka adı: TalkStage → Spekvia (2026-10-10).** Kullanıcıya görünen tüm metinler (UI, kataloglar, paylaşılan veri), uygulama adı (`app.json` name/scheme: `spekvia://`), ikonlar ve açılış ekranı yeni marka/logoyla değişti; Türkçe ek halleri düzeltildi (Spekvia'ya/'da/'nın/'yı). **Bilerek değişmeyen iç tanımlayıcılar:** `@talkstage/shared-data` paket kapsamı, AsyncStorage anahtarları (`@talkstage_*`, `talkstage.daily_reminder.v1`), `talkstage_*` olay adları, `talkStageNavigationTheme`. Android adaptive ikon: ön plan = Mivo kesiti (şeffaf), arka plan = indigo gradyan; `android-icon-monochrome.png` basit siluet. Marka kitabı `brand/` (ana ikon/yazı logosu ve varyantlar). **Henüz yapılmadı:** alan adı satın alma (`spekvia.com/.app`), marka tescil araması, mağaza kimlikleri (`bundleIdentifier`/`package`).

@@ -24,7 +24,7 @@ PODCAST_EPISODES = [
         "level": "A1 Beginner",
         "duration_target": "3.5 - 4 minutes",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts. Level A1, Episode 1: The Morning Cafe. Listen carefully, notice the pronunciation, and enjoy the conversation."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekvia English Podcasts. Level A1, Episode 1: The Morning Cafe. Listen carefully, notice the pronunciation, and enjoy the conversation."),
             ("en-US-ChristopherNeural", "-4%", "Good morning! Welcome to Green Bean Cafe. How are you doing today?"),
             ("en-US-JennyNeural", "-4%", "Good morning! I am doing well, thank you. It is a lovely sunny day."),
             ("en-US-ChristopherNeural", "-4%", "It really is! What can I get started for you this morning?"),
@@ -55,7 +55,7 @@ PODCAST_EPISODES = [
         "level": "A2 Elementary",
         "duration_target": "3.5 - 4 minutes",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts. Level A2, Episode 2: Cozy Kitchen Talks. Listen to everyday home conversation, past memories, and future weekend plans."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekvia English Podcasts. Level A2, Episode 2: Cozy Kitchen Talks. Listen to everyday home conversation, past memories, and future weekend plans."),
             ("en-US-AriaNeural", "-3%", "Hey David! Welcome home. How was your day at the office?"),
             ("en-US-GuyNeural", "-3%", "Hey Sarah! It was quite busy today. We had three team meetings and launched a new website update, but I am glad to be home now. What smells so delicious in the kitchen?"),
             ("en-US-AriaNeural", "-3%", "I am making fresh homemade pasta with garlic, cherry tomatoes, and basil from our balcony garden!"),
@@ -78,7 +78,7 @@ PODCAST_EPISODES = [
         "level": "B1 Intermediate",
         "duration_target": "4 minutes",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts. Level B1, Episode 3: Mastering the Job Interview. Learn key professional vocabulary, interview etiquette, and expressing your strengths."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekvia English Podcasts. Level B1, Episode 3: Mastering the Job Interview. Learn key professional vocabulary, interview etiquette, and expressing your strengths."),
             ("en-US-JennyNeural", "+0%", "Good afternoon, Alex! Thank you for joining us today for this technical interview. Can you hear and see me clearly on the video call?"),
             ("en-US-EricNeural", "+0%", "Good afternoon, Olivia! Yes, loud and clear. It is a real pleasure to meet you, and I appreciate the opportunity to discuss the Frontend Engineer position."),
             ("en-US-JennyNeural", "+0%", "Wonderful! To start off, could you walk me through your professional background and highlight a recent project you are particularly proud of?"),
@@ -99,7 +99,7 @@ PODCAST_EPISODES = [
         "level": "B2 Upper-Intermediate",
         "duration_target": "4 - 4.5 minutes",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts. Level B2, Episode 4: Tech Horizons. Join Marcus and Elena as they analyze emerging trends in artificial intelligence, engineering workflows, and global tech ecosystems."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekvia English Podcasts. Level B2, Episode 4: Tech Horizons. Join Marcus and Elena as they analyze emerging trends in artificial intelligence, engineering workflows, and global tech ecosystems."),
             ("en-US-ChristopherNeural", "+1%", "Welcome back to Tech Horizons! I am Marcus, and joining me today is Elena, Principal AI Product Strategist. Elena, we are seeing a massive paradigm shift in how software engineers write, debug, and architect modern systems. From your perspective, how is AI fundamentally reshaping the developer workflow?"),
             ("en-US-MichelleNeural", "+1%", "Thanks for having me, Marcus. It is truly an exhilarating era. We have transitioned from basic code completion to sophisticated agentic coding environments. Today, developers aren't just writing boilerplate syntax; they are acting as orchestrators and systems architects. AI agents can analyze entire codebases, detect subtle race conditions, propose refactoring plans, and execute integration tests in minutes."),
             ("en-US-ChristopherNeural", "+1%", "That is a crucial distinction. But with all these automated capabilities, what does this mean for the skill sets aspiring software engineers need to cultivate? Is deep domain knowledge still critical?"),
@@ -172,7 +172,7 @@ async def process_episode(ep: dict):
 
 async def main():
     print("=" * 60)
-    print("🚀 SPEKIVA PODCAST STUDIO GENERATOR (Edge-TTS + FFmpeg)")
+    print("🚀 SPEKVIA PODCAST STUDIO GENERATOR (Edge-TTS + FFmpeg)")
     print("=" * 60)
     
     for ep in PODCAST_EPISODES:

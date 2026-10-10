@@ -26,7 +26,7 @@ import type {
 import { getLocale, LOCALE_META, t } from '../i18n';
 import { LanguagePickerModal } from '../components/LanguagePickerModal';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://spekiva.app/gizlilik';
+const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://spekvia.com/gizlilik';
 const APP_VERSION = '1.0.0';
 
 const AVATAR_LIST = [
@@ -461,7 +461,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
           <View style={styles.guideModalCard}>
             <View style={styles.guideModalHeader}>
               <View>
-                <Text style={styles.guideModalTitle}>{t("Spekiva Ödül Sistemi ⚡")}</Text>
+                <Text style={styles.guideModalTitle}>{t("Spekvia Ödül Sistemi ⚡")}</Text>
                 <Text style={styles.guideModalSub}>{t("XP ve Seri mekaniklerinin rehberi")}</Text>
               </View>
               <Pressable
@@ -482,7 +482,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                     <Text style={styles.guideBlockTag}>{t("Kalıcı İlerleme")}</Text>
                   </View>
                 </View>
-                <Text style={styles.guideBlockBody}>{t("XP, Spekiva'ya verdiğin emeğin ve İngilizce seviyenin kalıcı kanıtıdır. Asla silinmez veya harcanamaz.")}</Text>
+                <Text style={styles.guideBlockBody}>{t("XP, Spekvia'ya verdiğin emeğin ve İngilizce seviyenin kalıcı kanıtıdır. Asla silinmez veya harcanamaz.")}</Text>
                 <View style={styles.guideBulletBox}>
                   <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Nasıl Kazanılır?")}</Text>{" "}{t("Canlı AI konuşmaları, okuma parçaları, kelime tekrarları ve günlük görevlerin tamamı XP kazandırır.")}</Text>
                   <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Ne İşe Yarar?")}</Text>{" "}{t("Seviye İlerleme Raporu'nda görünür ve A1'den C2'ye gerçek ilerlemeni yansıtır.")}</Text>
@@ -654,7 +654,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                   ) : isLevelComplete ? (
                     <View style={styles.levelUpBox}>
                       <Text style={styles.levelUpTitle}>{t("🏆 Zirvedesin!")}</Text>
-                      <Text style={styles.levelUpDesc}>{t("C2 müfredatının tamamını bitirdin — Spekiva'nın sunduğu en üst seviyedesin.")}</Text>
+                      <Text style={styles.levelUpDesc}>{t("C2 müfredatının tamamını bitirdin — Spekvia'nın sunduğu en üst seviyedesin.")}</Text>
                     </View>
                   ) : (
                     <>

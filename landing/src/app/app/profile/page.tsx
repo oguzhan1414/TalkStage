@@ -248,7 +248,7 @@ export default function ProfileSettingsPage() {
         <div>
           <h3 className="font-bold text-red-950 text-sm">Oturumu Kapat</h3>
           <p className="text-xs text-red-700 mt-0.5">
-            Bu cihazdaki Spekiva oturumunuz sonlandırılır.
+            Bu cihazdaki Spekvia oturumunuz sonlandırılır.
           </p>
         </div>
 

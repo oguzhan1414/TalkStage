@@ -336,79 +336,79 @@ ep_meta = {
 ep_speaker_map = {
     # A1
     'podcast_a1_ep1_cafe': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Liam', 'Barista (Green Bean)', 'avatarImages.maleTraveler'),
         'en-US-JennyNeural': ('Emma', 'Müşteri', 'avatarImages.femaleDesigner'),
     },
     'podcast_a1_ep2_routines': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-AriaNeural': ('Sarah', 'Tasarımcı', 'avatarImages.femaleLead'),
         'en-US-GuyNeural': ('David', 'Yazılımcı', 'avatarImages.maleEngineer'),
     },
     'podcast_a1_ep3_city': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-EricNeural': ('Alex', 'Gezgin', 'avatarImages.maleDev'),
         'en-US-JennyNeural': ('Mia', 'Şehir Sakini', 'avatarImages.femaleDesigner'),
     },
     'podcast_a1_ep4_restaurant': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Marco', 'Garson (Bistro)', 'avatarImages.maleTraveler'),
         'en-US-MichelleNeural': ('Chloe', 'Müşteri', 'avatarImages.femaleEntrepreneur'),
     },
     'podcast_a1_ep5_weekend': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-BrianNeural': ('Leo', 'Doğa Sever', 'avatarImages.maleEngineer'),
         'en-US-EmmaNeural': ('Sophie', 'Fotoğrafçı', 'avatarImages.femaleDesigner'),
     },
     # A2
     'podcast_a2_ep1_airport': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Daniel', 'Hava Yolu Görevlisi', 'avatarImages.maleTraveler'),
         'en-US-AriaNeural': ('Rachel', 'Yolcu', 'avatarImages.femaleLead'),
     },
     'podcast_a2_ep2_hotel': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-GuyNeural': ('James', 'Resepsiyonist', 'avatarImages.maleEngineer'),
         'en-US-JennyNeural': ('Clara', 'Otel Misafiri', 'avatarImages.femaleDesigner'),
     },
     'podcast_a2_ep3_shopping': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-EricNeural': ('Lucas', 'Mağaza Danışmanı', 'avatarImages.maleDev'),
         'en-US-MichelleNeural': ('Nora', 'Müşteri', 'avatarImages.femaleEntrepreneur'),
     },
     'podcast_a2_ep4_doctor': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-BrianNeural': ('Dr. Harrison', 'Hekim', 'avatarImages.maleEngineer'),
         'en-US-EmmaNeural': ('Lily', 'Hasta', 'avatarImages.femaleDesigner'),
     },
     'podcast_a2_ep5_cinema': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-GuyNeural': ('Mark', 'Film Meraklısı', 'avatarImages.maleEngineer'),
         'en-US-AriaNeural': ('Zoe', 'Sinema Sever', 'avatarImages.femaleLead'),
     },
     # B1
     'podcast_b1_ep1_interview': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-JennyNeural': ('Victoria', 'İK Direktörü', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Alex', 'Pazarlama Uzmanı', 'avatarImages.maleDev'),
     },
     'podcast_b1_ep2_apartment': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-EricNeural': ('Ryan', 'Emlak Danışmanı', 'avatarImages.maleTraveler'),
         'en-US-AriaNeural': ('Laura', 'Kiracı Adayı', 'avatarImages.femaleDesigner'),
     },
     'podcast_b1_ep3_luggage': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-GuyNeural': ('Kevin', 'Müşteri Hizmetleri', 'avatarImages.maleEngineer'),
         'en-US-MichelleNeural': ('Natalie', 'Yolcu', 'avatarImages.femaleEntrepreneur'),
     },
     'podcast_b1_ep4_ai': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-BrianNeural': ('Liam', 'Yazılım Mimarı', 'avatarImages.maleEngineer'),
         'en-US-EmmaNeural': ('Chloe', 'Ürün Yöneticisi', 'avatarImages.femaleLead'),
     },
     'podcast_b1_ep5_sustainability': {
-        'en-US-AvaNeural': ('🎙️ Spekiva Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
+        'en-US-AvaNeural': ('🎙️ Spekvia Sunucu', 'Ders Rehberi', 'avatarImages.femaleLead'),
         'en-US-ChristopherNeural': ('Ethan', 'Çevre Bilimci', 'avatarImages.maleTraveler'),
         'en-US-JennyNeural': ('Maya', 'Şehir Plancısı', 'avatarImages.femaleDesigner'),
     },
@@ -416,7 +416,7 @@ ep_speaker_map = {
 
 tr_dict = {
     # A1 & A2 (Existing translations preserved)
-    'Welcome to Spekiva English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food.': 'A1 Başlangıç seviyesi Spekiva İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Sabah Kafesi. Dikkatle dinleyin ve içecek/yiyecek siparişi pratiği yapın.',
+    'Welcome to Spekvia English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food.': 'A1 Başlangıç seviyesi Spekvia İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Sabah Kafesi. Dikkatle dinleyin ve içecek/yiyecek siparişi pratiği yapın.',
     'Good morning! Welcome to Green Bean Cafe. How are you doing today?': 'Günaydın! Green Bean Kafeye hoş geldiniz. Bugün nasılsınız?',
     'Good morning! I am doing well, thank you. It is a lovely sunny day.': 'Günaydın! İyiyim, teşekkür ederim. Çok güzel güneşli bir gün.',
     'It really is! What can I get started for you this morning?': 'Gerçekten öyle! Bu sabah sizin için ne hazırlayabilirim?',
@@ -515,7 +515,7 @@ tr_dict = {
     'See you tomorrow morning Sophie! Have a great Friday evening!': 'Yarın sabah görüşürüz Sophie! Harika bir cuma akşamı geçir!',
     'Congratulations! You have completed all 5 A1 Beginner Masterclass episodes. Keep listening and repeating to master conversational English!': 'Tebrikler! 5 A1 Başlangıç Masterclass bölümünün tamamını bitirdiniz. Konuşma İngilizcesinde ustalaşmak için dinlemeye ve tekrar etmeye devam edin!',
 
-    'Welcome to Spekiva English Podcasts for A2 Elementary. Episode 1: Boarding Pass and Departure Gate. Practice airport check-in, luggage allowance, and boarding procedures.': 'A2 Temel seviye Spekiva İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Biniş Kartı ve Uçuş Kapısı. Havaalanı check-in, bagaj hakkı ve uçağa biniş prosedürleri pratiği yapın.',
+    'Welcome to Spekvia English Podcasts for A2 Elementary. Episode 1: Boarding Pass and Departure Gate. Practice airport check-in, luggage allowance, and boarding procedures.': 'A2 Temel seviye Spekvia İngilizce Podcastlerine hoş geldiniz. Bölüm 1: Biniş Kartı ve Uçuş Kapısı. Havaalanı check-in, bagaj hakkı ve uçağa biniş prosedürleri pratiği yapın.',
     'Good morning! Welcome to SkyWay Airlines. May I please see your passport and flight booking confirmation?': 'Günaydın! SkyWay Hava Yollarına hoş geldiniz. Pasaportunuzu ve uçuş rezervasyon onayınızı görebilir miyim lütfen?',
     'Good morning! Here is my passport and my mobile e-ticket confirmation code.': 'Günaydın! İşte pasaportum ve mobil e-bilet onay kodum.',
     'Thank you, Rachel. I see you are flying to London Heathrow today on flight SK 402. Are you checking in any baggage this morning?': 'Teşekkürler Rachel. Bugün SK 402 seferiyle Londra Heathrow’a uçtuğunuzu görüyorum. Bu sabah bagaj teslim edecek misiniz?',
@@ -599,7 +599,7 @@ tr_dict = {
     'Congratulations! You have completed all 5 A2 Elementary Masterclass podcast episodes. Continue your journey to speak English naturally!': 'Tebrikler! 5 A2 Temel Masterclass podcast bölümünün tamamını bitirdiniz. Doğal İngilizce konuşma yolculuğunuza devam edin!',
 
     # --- B1 Translations ---
-    'Welcome to Spekiva English Podcasts for B1 Intermediate learners. Episode 1: The Job Interview and Career Growth. Learn how to highlight your strengths, discuss past projects, and answer behavioral interview questions with confidence.': 'B1 Orta seviye Spekiva İngilizce Podcastlerine hoş geldiniz. Bölüm 1: İş Mülakatı ve Kariyer Gelişimi. Güçlü yönlerinizi vurgulamayı, geçmiş projeleri tartışmayı ve mülakat sorularını özgüvenle yanıtlamayı öğrenin.',
+    'Welcome to Spekvia English Podcasts for B1 Intermediate learners. Episode 1: The Job Interview and Career Growth. Learn how to highlight your strengths, discuss past projects, and answer behavioral interview questions with confidence.': 'B1 Orta seviye Spekvia İngilizce Podcastlerine hoş geldiniz. Bölüm 1: İş Mülakatı ve Kariyer Gelişimi. Güçlü yönlerinizi vurgulamayı, geçmiş projeleri tartışmayı ve mülakat sorularını özgüvenle yanıtlamayı öğrenin.',
     'Good morning, Alex. Thank you for taking the time to speak with us today. To start off, could you tell me a little bit about your professional background?': 'Günaydın Alex. Bugün bizimle görüşmeye vakit ayırdığınız için teşekkür ederiz. Başlangıç olarak, profesyonel geçmişinizden biraz bahsedebilir misiniz?',
     'Good morning, Victoria. It is a pleasure to be here. Over the past four years, I have been working as a digital marketing specialist, where I managed cross-functional campaigns and analyzed user growth metrics.': 'Günaydın Victoria. Burada olmak bir zevk. Son dört yıldır dijital pazarlama uzmanı olarak çalışıyorum; fonksiyonlar arası kampanyalar yönettim ve kullanıcı büyüme metriklerini analiz ettim.',
     'That sounds impressive. In our team, projects move very fast. How do you usually handle tight deadlines and unexpected roadblocks?': 'Kulağa etkileyici geliyor. Ekibimizde projeler çok hızlı ilerler. Sıkışık teslim tarihlerini ve beklenmedik engelleri genellikle nasıl yönetirsiniz?',

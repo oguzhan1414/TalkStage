@@ -1,21 +1,21 @@
 {
-  "name": "spekiva-video-studio",
+  "name": "spekvia-video-studio",
   "version": "1.0.0",
   "private": true,
-  "description": "Spekiva Video Studio - Clean, watermark-free motion graphics & social media video generator powered by Remotion",
+  "description": "Spekvia Video Studio - Clean, watermark-free motion graphics & social media video generator powered by Remotion",
   "scripts": {
     "dev": "remotion preview src/index.ts",
     "preview": "remotion preview src/index.ts",
-    "build:newspaper": "remotion render src/index.ts SpekivaVintageNewspaper ../videos/spekiva_vintage_newspaper.mp4",
-    "build:google": "remotion render src/index.ts SpekivaGoogleSearch ../videos/spekiva_google_search.mp4",
-    "build:notion": "remotion render src/index.ts SpekivaNotionMinimal ../videos/spekiva_notion_minimal.mp4",
-    "build:cinematic": "remotion render src/index.ts SpekivaCinematicNavy ../videos/spekiva_cinematic_navy.mp4",
-    "build:reels": "remotion render src/index.ts SpekivaReels ../videos/spekiva_viral_reels_clean.mp4",
-    "build:notifications": "remotion render src/index.ts SpekivaNotifications ../videos/spekiva_notifications_hook.mp4",
-    "build:comparison": "remotion render src/index.ts SpekivaComparison ../videos/spekiva_comparison.mp4",
-    "build:apple": "remotion render src/index.ts SpekivaAppleStyle ../videos/spekiva_apple_style.mp4",
-    "build:progress": "remotion render src/index.ts SpekivaProgressSteps ../videos/spekiva_progress_steps.mp4",
-    "build:question": "remotion render src/index.ts SpekivaQuestionHook ../videos/spekiva_question_hook.mp4"
+    "build:newspaper": "remotion render src/index.ts SpekviaVintageNewspaper ../videos/spekvia_vintage_newspaper.mp4",
+    "build:google": "remotion render src/index.ts SpekviaGoogleSearch ../videos/spekvia_google_search.mp4",
+    "build:notion": "remotion render src/index.ts SpekviaNotionMinimal ../videos/spekvia_notion_minimal.mp4",
+    "build:cinematic": "remotion render src/index.ts SpekviaCinematicNavy ../videos/spekvia_cinematic_navy.mp4",
+    "build:reels": "remotion render src/index.ts SpekviaReels ../videos/spekvia_viral_reels_clean.mp4",
+    "build:notifications": "remotion render src/index.ts SpekviaNotifications ../videos/spekvia_notifications_hook.mp4",
+    "build:comparison": "remotion render src/index.ts SpekviaComparison ../videos/spekvia_comparison.mp4",
+    "build:apple": "remotion render src/index.ts SpekviaAppleStyle ../videos/spekvia_apple_style.mp4",
+    "build:progress": "remotion render src/index.ts SpekviaProgressSteps ../videos/spekvia_progress_steps.mp4",
+    "build:question": "remotion render src/index.ts SpekviaQuestionHook ../videos/spekvia_question_hook.mp4"
   },
   "dependencies": {
     "react": "^18.3.1",

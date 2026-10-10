@@ -3,8 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Kullanım Şartları — Spekiva",
-  description: "Spekiva mobil ve web platformlarının kullanım koşulları, abonelik ve iptal şartları.",
+  title: "Kullanım Şartları — Spekvia",
+  description: "Spekvia mobil ve web platformlarının kullanım koşulları, abonelik ve iptal şartları.",
 };
 
 export default function TermsPage() {
@@ -26,7 +26,7 @@ export default function TermsPage() {
             Hukuki Koşullar
           </span>
           <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
-            Spekiva Kullanım Şartları & Sözleşmesi
+            Spekvia Kullanım Şartları & Sözleşmesi
           </h1>
           <p className="mt-2 text-xs text-muted">
             Son Güncelleme: {new Date().toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })}
@@ -36,18 +36,18 @@ export default function TermsPage() {
             <section>
               <h2 className="font-display text-xl font-bold text-heading">1. Şartların Kabulü</h2>
               <p className="mt-2">
-                Spekiva uygulamasını indirerek, hesap oluşturarak veya web sitemizi ziyaret ederek bu Kullanım Şartları&apos;nı kabul etmiş sayılırsınız. Şartları kabul etmiyorsanız lütfen uygulamayı kullanmayınız.
+                Spekvia uygulamasını indirerek, hesap oluşturarak veya web sitemizi ziyaret ederek bu Kullanım Şartları&apos;nı kabul etmiş sayılırsınız. Şartları kabul etmiyorsanız lütfen uygulamayı kullanmayınız.
               </p>
             </section>
 
             <section>
               <h2 className="font-display text-xl font-bold text-heading">2. Hizmet Kapsamı & Abonelik Modeli</h2>
               <p className="mt-2">
-                Spekiva, freemium iş modeliyle çalışır:
+                Spekvia, freemium iş modeliyle çalışır:
               </p>
               <ul className="mt-2 list-disc pl-5 space-y-1">
                 <li><strong>Ücretsiz Katman (Free Stage):</strong> Günde 1 adet sesli senaryo (maksimum 5 dakika) ve sınırsız kelime kartı/okuma hakkı sunar.</li>
-                <li><strong>Spekiva Pro Aboneliği:</strong> Aylık veya yıllık faturalandırma ile sınırsız sesli senaryo pratiği ve gelişmiş fonetik analizlere erişim sağlar.</li>
+                <li><strong>Spekvia Pro Aboneliği:</strong> Aylık veya yıllık faturalandırma ile sınırsız sesli senaryo pratiği ve gelişmiş fonetik analizlere erişim sağlar.</li>
               </ul>
             </section>
 
@@ -75,14 +75,14 @@ export default function TermsPage() {
             <section>
               <h2 className="font-display text-xl font-bold text-heading">5. Fikri Mülkiyet</h2>
               <p className="mt-2">
-                Spekiva adı, logosu, 3D görsel varlıkları, senaryo veritabanı ve ses motoru mimarisi Spekiva Inc.&apos;in tescilli fikri mülkiyetidir ve izinsiz çoğaltılamaz.
+                Spekvia adı, logosu, 3D görsel varlıkları, senaryo veritabanı ve ses motoru mimarisi Spekvia Inc.&apos;in tescilli fikri mülkiyetidir ve izinsiz çoğaltılamaz.
               </p>
             </section>
 
             <section className="border-t border-line pt-6">
               <h2 className="font-display text-lg font-bold text-heading">Sorularınız İçin</h2>
               <p className="mt-1">
-                Kullanım koşullarıyla ilgili detaylı bilgi için: <strong>destek@spekiva.app</strong>
+                Kullanım koşullarıyla ilgili detaylı bilgi için: <strong>destek@spekvia.com</strong>
               </p>
             </section>
           </div>

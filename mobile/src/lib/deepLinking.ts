@@ -1,8 +1,8 @@
 import * as Linking from 'expo-linking';
 
 /**
- * Deep link scheme (Görev 18): `spekiva://scenario/:slug` and
- * `spekiva://reading/:slug`. `app.json`'s `expo.scheme` must match this.
+ * Deep link scheme (Görev 18): `spekvia://scenario/:slug` and
+ * `spekvia://reading/:slug`. `app.json`'s `expo.scheme` must match this.
  * Landing's Smart Deep-Link Router should point at the same paths — see
  * `landing/CLAUDE.md`'s `NEXT_PUBLIC_APP_SCHEME` note.
  */
@@ -17,8 +17,8 @@ export function parseDeepLink(url: string): DeepLinkTarget | null {
   } catch {
     return null;
   }
-  // `spekiva://scenario/cafe` parses `scenario` as the *hostname* (only the
-  // three-slash form `spekiva:///scenario/cafe` puts it in the path), so
+  // `spekvia://scenario/cafe` parses `scenario` as the *hostname* (only the
+  // three-slash form `spekvia:///scenario/cafe` puts it in the path), so
   // both are joined. For http(s) links the hostname is a real domain and is
   // ignored — only the path counts there.
   const isCustomScheme = !parsed.scheme || (parsed.scheme !== 'http' && parsed.scheme !== 'https');

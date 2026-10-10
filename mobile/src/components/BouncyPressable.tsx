@@ -20,7 +20,7 @@ export interface BouncyPressableProps extends Omit<PressableProps, 'style'> {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /**
- * Universal tactile bouncy pressable component for Spekiva.
+ * Universal tactile bouncy pressable component for Spekvia.
  * Uses AnimatedPressable directly so styles, flex layouts, and dimensions
  * are 100% preserved with zero layout side effects or unwanted expansions.
  */

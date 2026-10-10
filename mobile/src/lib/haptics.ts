@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
 /**
- * Universal tactile haptic feedback utility for Spekiva.
+ * Universal tactile haptic feedback utility for Spekvia.
  * Safely triggers on iOS & Android; fails gracefully on Web/Emulators without crashing.
  */
 export const haptics = {

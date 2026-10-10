@@ -140,7 +140,7 @@ export const AppleStyleReels: React.FC = () => {
                 letterSpacing: '-0.02em',
               }}
             >
-              Spekiva
+              Spekvia
             </h2>
           </div>
 

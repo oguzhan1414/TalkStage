@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Spekiva",
+    "name": "Spekvia",
     "slug": "mobile",
     "version": "1.0.0",
-    "scheme": "spekiva",
+    "scheme": "spekvia",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

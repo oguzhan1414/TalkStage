@@ -71,10 +71,10 @@ def build_prompt(kind: str, src: str, langs: list[str], items: list[dict]) -> st
         else ""
     )
     return (
-        f"You are a professional localizer for an English-learning mobile app (Spekiva). "
+        f"You are a professional localizer for an English-learning mobile app (Spekvia). "
         f"Source language of every item: {src_name}. Translate into each target language:\n{targets}\n\n"
         f"Rules for this batch ({kind}): {KIND_RULES[kind]}\n"
-        "Never change {{placeholders}} (e.g. {{name}}), numbers, URLs, brand names (Spekiva, Mivo, Yankı, XP, CEFR) "
+        "Never change {{placeholders}} (e.g. {{name}}), numbers, URLs, brand names (Spekvia, Mivo, Yankı, XP, CEFR) "
         "or emoji. Do not add quotes or commentary. Never leave an item untranslated unless it is a proper noun. "
         f"{en_note}\n\n"
         "Return ONLY a JSON object mapping each id to an object with one key per target language code, e.g. "

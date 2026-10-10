@@ -39,7 +39,7 @@ function levelFor(minutes: number, target: number): 0 | 1 | 2 | 3 | 4 {
 
 // Brand indigo scale (not a borrowed GitHub green, not a flame/fire theme
 // either — see 2026-10 icon-simplification pass) so this reads as one clean
-// Spekiva surface rather than a commit graph or a gamified badge wall.
+// Spekvia surface rather than a commit graph or a gamified badge wall.
 const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   0: colors.borderLight,
   1: '#E0E7FF',

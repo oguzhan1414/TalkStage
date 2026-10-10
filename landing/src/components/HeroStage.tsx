@@ -18,7 +18,7 @@ type Take = {
   note: string;
 };
 
-/** Real mistakes Turkish speakers make, played inside real Spekiva scenes (levels/twists match the app). */
+/** Real mistakes Turkish speakers make, played inside real Spekvia scenes (levels/twists match the app). */
 const TAKES: Take[] = [
   {
     scene: 'İstanbul şehir turu',

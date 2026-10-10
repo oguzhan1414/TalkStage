@@ -181,8 +181,8 @@ export const QuestionHookReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/spekiva-icon.png')}
-              alt="Spekiva"
+              src={staticFile('brand/spekvia-icon.png')}
+              alt="Spekvia"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -196,7 +196,7 @@ export const QuestionHookReels: React.FC = () => {
               margin: '0 0 16px 0',
             }}
           >
-            Spekiva
+            Spekvia
           </h1>
 
           <p

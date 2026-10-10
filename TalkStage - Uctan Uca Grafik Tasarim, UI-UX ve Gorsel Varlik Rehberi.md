@@ -1,6 +1,6 @@
-# Spekiva — Uçtan Uca Grafik Tasarım, UI/UX & Görsel Varlık (Asset) Rehberi (Açık & Ferah Tema — Light Edition)
+# Spekvia — Uçtan Uca Grafik Tasarım, UI/UX & Görsel Varlık (Asset) Rehberi (Açık & Ferah Tema — Light Edition)
 
-> **Marka Adı:** Spekiva  
+> **Marka Adı:** Spekvia  
 > **Konumlandırma:** AI Destekli Senaryo & Mülakat Konuşma Simülatörü  
 > **Tasarım Felsefesi (Pure Light & Airy Modernism):** Apple, Linear ve modern EdTech (Speak, Superhuman) kalitesinde; **kar beyazı ve porselen zeminler (`#FFFFFF` / `#F8FAFC`)**, yumuşak difüze stüdyo ışıkları, buzlu beyaz cam efektleri (Frosted White Glassmorphism), derin kobalt mavi (`#3B82F6` / `#2563EB`) ve canlı taze nane/zümrüt (`#10B981`) vurguları, pürüzsüz 3D pastel claymorphic / minimal 3D izometrik illüstrasyonlar. Göz yormayan, iç açıcı, ferah ve aşırı prestijli bir görsel dil.
 
@@ -51,7 +51,7 @@
 > Bembeyaz, pürüzsüz porselen zemin üzerinde; 'T' harfi ve zarif bir konuşma dalgası formunda birleşen şeffaf gök mavisi ve kobalt cam heykelcik. İnce gün ışığı yansımaları, hafif yumuşak gölge, ultra temiz Apple App Store ikonu.
 
 ```text
-A minimalist ultra-clean app icon for a voice AI app named "Spekiva". On a pure white smooth porcelain squircle background, a glossy translucent glass sculpture forming the letter 'T' merged with a dynamic speech soundwave curve. Vibrant gradient accents of royal indigo (#4F46E5) and electric cyan (#0EA5E9) glowing subtly inside the frosted white glass. Soft ambient daylight studio lighting, subtle clean drop shadow, premium Apple design award aesthetic, 8k, Octane render, no text, hyper-detailed --v 6.0
+A minimalist ultra-clean app icon for a voice AI app named "Spekvia". On a pure white smooth porcelain squircle background, a glossy translucent glass sculpture forming the letter 'T' merged with a dynamic speech soundwave curve. Vibrant gradient accents of royal indigo (#4F46E5) and electric cyan (#0EA5E9) glowing subtly inside the frosted white glass. Soft ambient daylight studio lighting, subtle clean drop shadow, premium Apple design award aesthetic, 8k, Octane render, no text, hyper-detailed --v 6.0
 ```
 
 #### 2. Vektörel Minimalist Logo Monogramı (Web Navbar & Splash Screen İçin)
@@ -60,7 +60,7 @@ A minimalist ultra-clean app icon for a voice AI app named "Spekiva". On a pure 
 > Açık arka planlarda kullanılabilecek, sahne ışığını ve interaktif konuşma dalgasını birleştiren modern, geometrik ve zarif bir kurumsal vektör amblem.
 
 ```text
-Vector logo mark for "Spekiva", flat modern minimalist icon of an elegant speech wave forming a stage podium and the letter 'T', royal blue (#2563EB) and fresh cyan gradient, clean geometric line art, isolated on pure white background (#FFFFFF), modern tech SaaS brand identity, Swiss style graphic design, Behance award winner, ultra sharp SVG vector --v 6.0
+Vector logo mark for "Spekvia", flat modern minimalist icon of an elegant speech wave forming a stage podium and the letter 'T', royal blue (#2563EB) and fresh cyan gradient, clean geometric line art, isolated on pure white background (#FFFFFF), modern tech SaaS brand identity, Swiss style graphic design, Behance award winner, ultra sharp SVG vector --v 6.0
 ```
 
 ---
@@ -71,7 +71,7 @@ TikTok ve Instagram'dan gelen ziyaretçileri karşılayan; ferah, bol nefes alan
 
 ```
 +-------------------------------------------------------------------------+
-| [NAVBAR] Logo (Spekiva) | Sahneler | Nasıl Çalışır? | Fiyatlandırma | [Ücretsiz Başla] |
+| [NAVBAR] Logo (Spekvia) | Sahneler | Nasıl Çalışır? | Fiyatlandırma | [Ücretsiz Başla] |
 +-------------------------------------------------------------------------+
 | [HERO SECTION] (Bembeyaz Ferah Zemin + Yumuşak Mavi Işık Halesi)        |
 |                                                                         |
@@ -85,7 +85,7 @@ TikTok ve Instagram'dan gelen ziyaretçileri karşılayan; ferah, bol nefes alan
 |                +------------------------------------+                   |
 +-------------------------------------------------------------------------+
 | [PROBLEM / KONTRAST] "Sessiz Kilitlenme (Silent Freeze) Problemi"       |
-|  Klasik Bulmaca Uygulamaları (Soluk Gri) vs. Spekiva (Aydınlık & Canlı)|
+|  Klasik Bulmaca Uygulamaları (Soluk Gri) vs. Spekvia (Aydınlık & Canlı)|
 +-------------------------------------------------------------------------+
 | [BENTO GRID: 6 ÇEKİRDEK SAHNE] (Pürüzsüz Beyaz Cam Kartlar)             |
 |  [1. Tech Daily Standup]  [2. Global İş Mülakatı]  [3. Vize Görüşmesi]  |
@@ -114,7 +114,7 @@ TikTok ve Instagram'dan gelen ziyaretçileri karşılayan; ferah, bol nefes alan
 ### Hero 3D Görsel Promptu (Geniş Açılı Açık Tema Mockup)
 
 ```text
-A stunning wide-angle 3D isometric floating mockup of a modern white smartphone presenting the Spekiva English conversation app. The phone screen displays an ultra-clean white interface with an interactive audio wave in royal blue and fresh cyan. Floating around the phone are frosted white glassmorphic cards: a bright green badge showing "Natural: I agree with the proposal" and a circular progress ring scoring "Fluency 94%". Bright airy minimalist daylight studio background, soft diffuse morning sunlight, light gray and pastel blue floor reflection, luxury Apple product launch aesthetic, 8k, Octane render --ar 16:9 --v 6.0
+A stunning wide-angle 3D isometric floating mockup of a modern white smartphone presenting the Spekvia English conversation app. The phone screen displays an ultra-clean white interface with an interactive audio wave in royal blue and fresh cyan. Floating around the phone are frosted white glassmorphic cards: a bright green badge showing "Natural: I agree with the proposal" and a circular progress ring scoring "Fluency 94%". Bright airy minimalist daylight studio background, soft diffuse morning sunlight, light gray and pastel blue floor reflection, luxury Apple product launch aesthetic, 8k, Octane render --ar 16:9 --v 6.0
 ```
 
 ---
@@ -367,7 +367,7 @@ A shiny 3D achievement streak badge on a pure white background: A stylized geome
 |  +------------------------------------+  |
 |                                          |
 |  +------------------------------------+  |
-|  | ✅ DOĞRUSU (Spekiva Simülasyonu):|  |
+|  | ✅ DOĞRUSU (Spekvia Simülasyonu):|  |
 |  | [Uygulamanın Beyaz Ekran Kaydı]    |  |
 |  | "I aim to specialize in AI..."     |  |
 |  +------------------------------------+  |

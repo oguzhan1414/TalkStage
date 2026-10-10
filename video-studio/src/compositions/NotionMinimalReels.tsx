@@ -82,7 +82,7 @@ export const NotionMinimalReels: React.FC = () => {
             marginBottom: 48,
           }}
         >
-          ✦ Spekiva Minimalist Note ✦
+          ✦ Spekvia Minimalist Note ✦
         </div>
 
         {/* Thought / Hook Typography */}
@@ -165,7 +165,7 @@ export const NotionMinimalReels: React.FC = () => {
           >
             <img
               src={staticFile('home.png')}
-              alt="Spekiva"
+              alt="Spekvia"
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 38 }}
             />
           </div>
@@ -198,8 +198,8 @@ export const NotionMinimalReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/spekiva-icon.png')}
-              alt="Spekiva"
+              src={staticFile('brand/spekvia-icon.png')}
+              alt="Spekvia"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -213,7 +213,7 @@ export const NotionMinimalReels: React.FC = () => {
               letterSpacing: '-0.02em',
             }}
           >
-            Spekiva
+            Spekvia
           </h2>
 
           <p

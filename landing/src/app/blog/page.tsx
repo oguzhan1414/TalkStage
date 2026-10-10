@@ -222,7 +222,7 @@ export default function BlogPage() {
               Okumayı Bırak, Gerçek Sahnede Konuşmaya Başla
             </h3>
             <p className="mx-auto mt-3 max-w-md text-sm text-body">
-              Tüm bu seviye rehberlerindeki senaryoları Spekiva ile canlı sesli prova yapabilirsiniz.
+              Tüm bu seviye rehberlerindeki senaryoları Spekvia ile canlı sesli prova yapabilirsiniz.
             </p>
             <div className="mt-6 flex justify-center">
               <Link

@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Spekiva (eski ad: TalkStage) — Landing (Next.js)
+# Spekvia (eski ad: TalkStage) — Landing (Next.js)
 
 Bu klasör TikTok/Instagram/YouTube'dan gelen trafiği App Store / Play Store indirmesine ve senaryo deep-link'ine dönüştüren tek sayfalık pazarlama vitrinidir.
 
@@ -270,4 +270,4 @@ Kullanıcının kendi eliyle eklediği video senaryo özelliği (`@talkstage/sha
 
 **Doğrulama:** `npm run build` temiz.
 
-**Marka adı: TalkStage → Spekiva (2026-10-10).** Yazı logosu (`/brand/spekiva-wordmark*.png`, beyaz sürüm koyu zeminde) `Logo.tsx`'te, ikon `/brand/spekiva-icon.png`, favicon ve OG görseli yenilendi; e-posta/alan adı `spekiva.app`, derin bağlantı `spekiva://`. Hukuki sayfalardaki (gizlilik, kullanım şartları) marka adı da değişti ama şirket unvanı/KVKK bilgileri gözden geçirilmeli. Eski TalkStage logo dosyaları silindi.
+**Marka adı: TalkStage → Spekvia (2026-10-10).** Yazı logosu (`/brand/spekvia-wordmark*.png`, beyaz sürüm koyu zeminde) `Logo.tsx`'te, ikon `/brand/spekvia-icon.png`, favicon ve OG görseli yenilendi; e-posta/alan adı `spekvia.com`, derin bağlantı `spekvia://`. Hukuki sayfalardaki (gizlilik, kullanım şartları) marka adı da değişti ama şirket unvanı/KVKK bilgileri gözden geçirilmeli. Eski TalkStage logo dosyaları silindi.

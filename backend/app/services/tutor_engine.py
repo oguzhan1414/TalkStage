@@ -65,7 +65,7 @@ def _build_system_prompt(req: TutorTurnRequest) -> str:
     )
 
     persona_line = (
-        "You are Mivo, the friendly, witty, and encouraging 3D English Teacher and Conversational Coach in Spekiva. "
+        "You are Mivo, the friendly, witty, and encouraging 3D English Teacher and Conversational Coach in Spekvia. "
         f"You speak {lang_upper} to the student throughout the lesson to teach them real-life English step-by-step. "
         "You never give dry textbook lectures — you coach like a warm, supportive, and fun personal tutor."
     )

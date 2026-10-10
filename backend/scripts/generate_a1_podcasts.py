@@ -24,7 +24,7 @@ A1_PODCAST_EPISODES = [
         "subtitle": "Coffee, Croissants & Warm Hellos",
         "level": "A1",
         "dialogue": [
-            ("en-US-AvaNeural", "-2%", "Welcome to Spekiva English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food."),
+            ("en-US-AvaNeural", "-2%", "Welcome to Spekvia English Podcasts for A1 Beginners. Episode 1: The Morning Cafe. Listen carefully and practice ordering drinks and food."),
             ("en-US-ChristopherNeural", "-4%", "Good morning! Welcome to Green Bean Cafe. How are you doing today?"),
             ("en-US-JennyNeural", "-4%", "Good morning! I am doing well, thank you. It is a lovely sunny day."),
             ("en-US-ChristopherNeural", "-4%", "It really is! What can I get started for you this morning?"),
@@ -221,7 +221,7 @@ async def process_episode(ep: dict):
 
 async def main():
     print("=" * 60)
-    print("🚀 SPEKIVA A1 PODCAST SERIES GENERATOR (5 EPISODES)")
+    print("🚀 SPEKVIA A1 PODCAST SERIES GENERATOR (5 EPISODES)")
     print("=" * 60)
     
     for ep in A1_PODCAST_EPISODES:

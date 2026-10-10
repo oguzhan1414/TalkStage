@@ -12,7 +12,7 @@ export const isRevenueCatConfigured = Boolean(Platform.OS === 'ios' ? IOS_API_KE
  * `appUserID` is set to the Supabase auth user id on purpose — backend's
  * RevenueCat webhook matches purchases back to `subscriptions` rows by this
  * id (see `backend/CLAUDE.md`'s API contract note on Görev 19). Without it,
- * the webhook can't tell which Spekiva account a purchase belongs to.
+ * the webhook can't tell which Spekvia account a purchase belongs to.
  */
 export function configureRevenueCat(supabaseUserId: string) {
   const apiKey = Platform.OS === 'ios' ? IOS_API_KEY : ANDROID_API_KEY;

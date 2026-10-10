@@ -1,5 +1,5 @@
 /**
- * Central registry for static image assets in Spekiva Mobile.
+ * Central registry for static image assets in Spekvia Mobile.
  * Metro requires string-literal `require()` calls (no dynamic paths).
  */
 import type { ScenarioCategory } from '../constants/categories';

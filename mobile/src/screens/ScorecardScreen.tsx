@@ -68,8 +68,8 @@ export function ScorecardScreen({ navigation, route }: ScorecardScreenProps) {
     try {
       await Share.share({
         message: radarAvailable
-          ? t("Spekiva'da \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılık ve 360° yetkinlik radarıyla tamamladım! 🎉", { scenarioTitle, fluency })
-          : t("Spekiva'da \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılıkla tamamladım! 🎉", { scenarioTitle, fluency }),
+          ? t("Spekvia'da \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılık ve 360° yetkinlik radarıyla tamamladım! 🎉", { scenarioTitle, fluency })
+          : t("Spekvia'da \"{{scenarioTitle}}\" sahnesini %{{fluency}} akıcılıkla tamamladım! 🎉", { scenarioTitle, fluency }),
       });
     } catch {
       // Cancelled or unsupported

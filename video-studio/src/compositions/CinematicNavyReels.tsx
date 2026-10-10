@@ -222,8 +222,8 @@ export const CinematicNavyReels: React.FC = () => {
             }}
           >
             <img
-              src={staticFile('brand/spekiva-icon.png')}
-              alt="Spekiva"
+              src={staticFile('brand/spekvia-icon.png')}
+              alt="Spekvia"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
@@ -238,7 +238,7 @@ export const CinematicNavyReels: React.FC = () => {
               textShadow: '0 0 50px rgba(56, 189, 248, 0.6)',
             }}
           >
-            Spekiva
+            Spekvia
           </h2>
 
           <p

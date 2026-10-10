@@ -1,4 +1,4 @@
-# Spekiva (eski ad: TalkStage) — Backend (FastAPI)
+# Spekvia (eski ad: TalkStage) — Backend (FastAPI)
 
 Bu klasör TalkStage'in **tek birleşik backend servisi**dir: auth kontrolü, WebSocket ses akışı, RAG retrieval, Spaced Repetition (SM-2) motoru, kullanıcı profili ve RevenueCat webhook'ları buradan yönetilir.
 
@@ -340,4 +340,4 @@ Tüm REST endpoint'leri `Authorization: Bearer <supabase_access_token>` bekler.
 - **Migration kullanıcı tarafından Studio'ya uygulandı ve uçtan uca doğrulandı (2026-08-23):** Kullanıcı `0005_profile_xp_avatar.sql`'i Studio SQL editöründen çalıştırdı. Geçici bir test kullanıcısı + geçici bir senaryo ile gerçek backend'e (`uvicorn --host 127.0.0.1 --port 8000`) karşı tam akış doğrulandı: `xp` başlangıçta 0, `/sessions/end` (fluency ortalaması 85) sonrası 18 (10 + round(85/10)) oldu, `/vocab-cards/{id}/review` sonrası 20 (+2) oldu, `PATCH /me` ile `avatar_id` kalıcı kaydedildi. Test verileri sonda silindi, backend süreci durduruldu.
   - **Bu doğrulama sırasında gerçek bir 3. bug bulundu ve düzeltildi:** `decode_supabase_jwt` (JWKS ve legacy secret dallarının ikisi de) `jwt.decode`'u varsayılan `leeway=0` ile çağırıyordu. Bu makine ile Supabase'in auth sunucusu arasında sadece ~1 saniyelik bir saat kayması bile PyJWT'nin `iat` (issued-at) kontrolünü **her seferinde tutarlı şekilde** `ImmatureSignatureError` ile patlatıyordu (401 "Invalid or expired token" olarak yüzeyleşiyordu) — daha önce mobil Görev 8/9 doğrulamasında "ara sıra olan bir flake" diye not düşülen 401'in muhtemel gerçek sebebi de bu. **Düzeltme:** her iki `jwt.decode` çağrısına `leeway=10` (saniye) eklendi — küçük, standart bir tolerans, güvenliği zayıflatmıyor. Düzeltmeden önce/sonra aynı ortamda iki kez tekrarlanarak doğrulandı (öncesi: 2/2 başarısız; sonrası: 1/1 başarılı).
 
-**Marka adı: TalkStage → Spekiva (2026-10-10).** Backend'de yalnızca birkaç kullanıcıya dönük metin/istem etkilendi; API yolları ve tablo adları aynı. Eski belgelerde (Ek 1–45) geçen "TalkStage" tarihsel kayıt olarak bırakıldı.
+**Marka adı: TalkStage → Spekvia (2026-10-10).** Backend'de yalnızca birkaç kullanıcıya dönük metin/istem etkilendi; API yolları ve tablo adları aynı. Eski belgelerde (Ek 1–45) geçen "TalkStage" tarihsel kayıt olarak bırakıldı.

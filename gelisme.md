@@ -1,4 +1,4 @@
-# Spekiva Ürün Yol Haritası
+# Spekvia Ürün Yol Haritası
 
 ## Çalışma Panosu
 
@@ -147,9 +147,9 @@
 
 ## Ayrıntılı Plan
 
-Spekiva ürün yol haritası
+Spekvia ürün yol haritası
 Ana ürün hedefi
-Spekiva’nın temel vaadi:
+Spekvia’nın temel vaadi:
 Kullanıcıyı her gün gerçek hayat senaryolarında İngilizce konuşturmak ve gelişimini somut olarak göstermek.
 
 Ana başarı metriği:

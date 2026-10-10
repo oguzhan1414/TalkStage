@@ -267,7 +267,7 @@ export function GrammarLessonScreen({ route, navigation }: GrammarLessonScreenPr
     <View style={[styles.lockCard, shadow.card]}>
       <Image source={mivoImages.thinking} style={styles.lockMivo} resizeMode="contain" />
       <Text style={styles.lockTitle}>{t("Bu bölüm Pro'da açılıyor")}</Text>
-      <Text style={styles.lockBody}>{t("Kural tablosu, canlı diyalog, sık yapılan hatalar, örnek cümleler ve interaktif mini test Spekiva Pro üyeliğiyle açılır. Her seviyenin ilk dersi ücretsiz.")}</Text>
+      <Text style={styles.lockBody}>{t("Kural tablosu, canlı diyalog, sık yapılan hatalar, örnek cümleler ve interaktif mini test Spekvia Pro üyeliğiyle açılır. Her seviyenin ilk dersi ücretsiz.")}</Text>
       <BouncyPressable
         style={styles.lockButton}
         onPress={() => navigation.navigate('Paywall')}

@@ -1,4 +1,4 @@
-# Spekiva — Görsel Varlık & Ekran Entegrasyon Kılavuzu (v1.0)
+# Spekvia — Görsel Varlık & Ekran Entegrasyon Kılavuzu (v1.0)
 
 > **Doküman Amacı:** `images/` klasöründeki 33 adet üretilmiş görsel varlığın; Web Landing Page (Next.js), Mobil Uygulama (React Native / Expo), Bildirimler ve Sosyal Medya (TikTok/ASO) üzerindeki kesin kullanım yerlerini, bileşen eşleşmelerini ve kod entegrasyon kurallarını belirler.
 
@@ -71,7 +71,7 @@
 | **61** | `61_avatar_female_designer.png`| PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Yaratıcı UI/UX Tasarımcı |
 | **62** | `62_avatar_male_engineer.png` | PNG | 1:1 (Kare) | Web / Mobil Ortak Varlık | 3D Kullanıcı Avatarı: Sistem & AI Mühendisi |
 | **63** | `63_avatar_female_entrepreneur.png`| PNG | 1:1 (Kare)| Web / Mobil Ortak Varlık| 3D Kullanıcı Avatarı: Girişimci & Konuşmacı |
-| **64** | `64_companion_yanki_coffee_cup.png`| PNG | 1:1 (Kare)| Web Hero & Mobil Karşılama | Spekiva Canlı Maskotu: Kahve Kupası Yankı ☕ |
+| **64** | `64_companion_yanki_coffee_cup.png`| PNG | 1:1 (Kare)| Web Hero & Mobil Karşılama | Spekvia Canlı Maskotu: Kahve Kupası Yankı ☕ |
 
 ---
 
@@ -89,7 +89,7 @@ Web landing page, TikTok ve sosyal medyadan gelen trafiği mağazalara yönlendi
 | Sağ: 03_hero_3d_mockup.jpg (Büyük 3D Telefon & Ses Dalgası Mockup'ı)              |
 +-----------------------------------------------------------------------------------+
 | [PROBLEM & ÇÖZÜM: THE SILENT FREEZE]                                              |
-| Merkez: 04_problem_comparison.jpg (Gri Bulmaca Tuzağı vs. Spekiva Konuşma)     |
+| Merkez: 04_problem_comparison.jpg (Gri Bulmaca Tuzağı vs. Spekvia Konuşma)     |
 +-----------------------------------------------------------------------------------+
 | [BENTO GRID: 6 ÇEKİRDEK SAHNE (THE STAGES)]                                       |
 | [Kart 1] 05_bento_tech_standup.jpg   | [Kart 2] 06_bento_visa_interview.jpg       |
@@ -223,7 +223,7 @@ import Image from 'next/image';
 // Hero 3D Mockup Örneği
 <Image 
   src="/images/03_hero_3d_mockup.jpg" 
-  alt="Spekiva English AI Live Voice Conversation Simulator" 
+  alt="Spekvia English AI Live Voice Conversation Simulator" 
   width={1200} 
   height={675} 
   priority 

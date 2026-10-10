@@ -9,7 +9,7 @@ import { NotionMinimalReels } from './compositions/NotionMinimalReels';
 import { ProgressStepsReels } from './compositions/ProgressStepsReels';
 import { QuestionHookReels } from './compositions/QuestionHookReels';
 import { VintageNewspaperReels } from './compositions/VintageNewspaperReels';
-import { SpekivaReels } from './SpekivaReels';
+import { SpekviaReels } from './SpekviaReels';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* 1. 📰 Eski Gazete & Araştırma Dosyası (Warm Sepia / Black Ink) */}
       <Composition
-        id="SpekivaVintageNewspaper"
+        id="SpekviaVintageNewspaper"
         component={VintageNewspaperReels}
         durationInFrames={420}
         fps={60}
@@ -30,7 +30,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* 2. 🔍 Google Arama Çubuğu Kancası (Temiz Beyaz & Google Renkleri) */}
       <Composition
-        id="SpekivaGoogleSearch"
+        id="SpekviaGoogleSearch"
         component={GoogleSearchReels}
         durationInFrames={420}
         fps={60}
@@ -40,7 +40,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* 4. ⚪ Notion / Apple Tarzı Ultra Minimalist Beyaz & Gri */}
       <Composition
-        id="SpekivaNotionMinimal"
+        id="SpekviaNotionMinimal"
         component={NotionMinimalReels}
         durationInFrames={420}
         fps={60}
@@ -50,7 +50,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* 5. 🎬 Sinematik Derin Gece Mavisi & Kehribar (Widescreen Teaser) */}
       <Composition
-        id="SpekivaCinematicNavy"
+        id="SpekviaCinematicNavy"
         component={CinematicNavyReels}
         durationInFrames={450}
         fps={60}
@@ -62,7 +62,7 @@ export const RemotionRoot: React.FC = () => {
       {/* DİĞER HAZIR ŞABLONLAR */}
       {/* ============================================================== */}
       <Composition
-        id="SpekivaNotifications"
+        id="SpekviaNotifications"
         component={NotificationsReels}
         durationInFrames={480}
         fps={60}
@@ -71,7 +71,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="SpekivaComparison"
+        id="SpekviaComparison"
         component={ComparisonReels}
         durationInFrames={480}
         fps={60}
@@ -80,7 +80,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="SpekivaAppleStyle"
+        id="SpekviaAppleStyle"
         component={AppleStyleReels}
         durationInFrames={450}
         fps={60}
@@ -89,7 +89,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="SpekivaProgressSteps"
+        id="SpekviaProgressSteps"
         component={ProgressStepsReels}
         durationInFrames={480}
         fps={60}
@@ -98,7 +98,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="SpekivaQuestionHook"
+        id="SpekviaQuestionHook"
         component={QuestionHookReels}
         durationInFrames={420}
         fps={60}
@@ -107,8 +107,8 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="SpekivaReels"
-        component={SpekivaReels}
+        id="SpekviaReels"
+        component={SpekviaReels}
         durationInFrames={480}
         fps={60}
         width={1080}

@@ -564,7 +564,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     return (
       <SafeAreaView style={[styles.container, styles.appLoadingContainer]}>
         <MivoLoader size={160} />
-        <Text style={styles.appLoadingTitle}>{t("Spekiva Açılıyor ✨")}</Text>
+        <Text style={styles.appLoadingTitle}>{t("Spekvia Açılıyor ✨")}</Text>
         <Text style={styles.appLoadingSub}>{t("Mivo senin için öğrenme yolunu hazırlıyor…")}</Text>
       </SafeAreaView>
     );

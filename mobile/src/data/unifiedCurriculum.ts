@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 /**
- * Unified Spekiva CEFR Curriculum & Daily Micro-Steps.
+ * Unified Spekvia CEFR Curriculum & Daily Micro-Steps.
  *
  * Replaces the fragmented two-map system with a single linear hierarchy:
  * CEFR Level -> Units -> Daily Lessons (5-step progressive flow) -> Unit Capstone
@@ -92,8 +92,8 @@ export const UNIFIED_CURRICULUM_A1: CurriculumUnit[] = [
         topicCode: 'A1_G01',
         xpReward: 50,
         warmup: {
-          aiPromptEn: "Hi there! Welcome to Spekiva! I'm Mivo. What is your name?",
-          aiPromptTr: t("Selam! Spekiva'ya hoş geldin! Ben Mivo. Adın ne?"),
+          aiPromptEn: "Hi there! Welcome to Spekvia! I'm Mivo. What is your name?",
+          aiPromptTr: t("Selam! Spekvia'ya hoş geldin! Ben Mivo. Adın ne?"),
           hintTr: t("My name is... veya I am... diyerek başla."),
           expectedKeywords: ['name', 'am', "i'm", 'hello', 'hi'],
         },
