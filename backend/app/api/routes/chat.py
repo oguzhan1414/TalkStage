@@ -4,7 +4,8 @@ import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from postgrest.exceptions import APIError
 
-from app.api.deps import AuthContext, get_auth_context
+from app.api.deps import AuthContext, get_auth_context, get_locale
+from app.core.messages import msg
 from app.schemas.chat import ChatMessageRequest, ChatMessageResponse, TranscribeResponse
 from app.services.chat_memory import format_memory_context, load_memory
 from app.services.stt import transcribe_audio
@@ -55,7 +56,7 @@ def send_message(
     except Exception as exc:  # Groq network/parsing failures — an external service boundary
         logger.exception("Groq chat completion failed")
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY, detail="Sohbet cevabı alınamadı"
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=msg("chat_unavailable", profile.get("native_language"))
         ) from exc
 
     if response.correction.has_error and response.correction.corrected:
@@ -83,6 +84,7 @@ def send_message(
 async def transcribe_message(
     audio: UploadFile = File(...),
     ctx: AuthContext = Depends(get_auth_context),
+    locale: str = Depends(get_locale),
 ) -> TranscribeResponse:
     """One-shot speech-to-text for the voice-first chat room — tap-record a
     single turn, transcribe it, then feed the text into the exact same
@@ -101,7 +103,7 @@ async def transcribe_message(
     except httpx.HTTPError as exc:
         logger.exception("Transcription request failed")
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY, detail="Ses yazıya çevrilemedi"
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=msg("stt_unavailable", locale)
         ) from exc
 
     return TranscribeResponse(transcript=transcript.strip())

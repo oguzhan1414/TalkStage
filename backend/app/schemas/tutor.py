@@ -26,7 +26,7 @@ class TutorCorrection(BaseModel):
 
 class TutorTurnResponse(BaseModel):
     spoken_reply_en: str = Field(
-        description="Maya's spoken English response. Natural, engaging, appropriate for learner's level (1-2 sentences)."
+        description="Mivo's spoken English response. Natural, engaging, appropriate for learner's level (1-2 sentences)."
     )
     reply_tr_hint: str = Field(
         description="Translation or intuitive gist (in the learner's native language) of the English phrase being practiced, to help the learner understand."
@@ -46,7 +46,7 @@ class TutorTurnResponse(BaseModel):
     )
     suggested_replies: list[str] = Field(
         default_factory=list,
-        description="2-3 short (3-8 word) example replies in English answering Maya's question."
+        description="2-3 short (3-8 word) example replies in English answering Mivo's question."
     )
     suggested_replies_tr: list[str] = Field(
         default_factory=list,

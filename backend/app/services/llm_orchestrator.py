@@ -347,7 +347,7 @@ def analyze_turn(
     `_build_beginner_teacher_block`) — unlike the standard in-character
     voice_reply, which never touches correctness at all. Running this call
     fully blind to that reply (as the standard path safely does) risked the
-    correction CARD disagreeing with what Maya's voice just said. Passed in,
+    correction CARD disagreeing with what the assistant's voice just said. Passed in,
     called AFTER the stream finishes (not concurrently, same timing
     generate_suggested_replies already uses) instead of before/during it —
     doesn't add to time-to-first-audio, just to when the (already
@@ -357,11 +357,11 @@ def analyze_turn(
     task_suffix = _ANALYSIS_TASK_SUFFIX
     if ai_reply_for_consistency:
         task_suffix += (
-            "\n\nMaya's reply this turn (already decided and spoken to the "
+            "\n\nThe assistant's reply this turn (already decided and spoken to the "
             f"learner) was:\n\"{ai_reply_for_consistency}\"\nYour correction/"
             "fluency/is_scene_complete verdict MUST be consistent with what "
-            "Maya already said — don't flag an error Maya's reply treated as "
-            "fine, and don't praise/reference something Maya's reply didn't "
+            "the assistant already said — don't flag an error its reply treated as "
+            "fine, and don't praise/reference something its reply didn't "
             "actually mention."
         )
     messages = _build_messages(f"{system_prompt}{task_suffix}", history, user_transcript)

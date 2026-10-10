@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
+    badges,
     chat,
     freechat_session,
     learning_flags,
@@ -53,6 +54,7 @@ app.include_router(tutor.router)
 app.include_router(learning_flags.router)
 app.include_router(speech.router)
 app.include_router(memory.router)
+app.include_router(badges.router)
 
 
 import os

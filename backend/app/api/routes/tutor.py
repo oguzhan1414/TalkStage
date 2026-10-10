@@ -1,6 +1,7 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.core.messages import msg
 from app.api.deps import AuthContext, get_auth_context
 from app.schemas.tutor import TutorTurnRequest, TutorTurnResponse
 from app.services.tutor_engine import generate_tutor_turn
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/tutor", tags=["tutor"])
 async def tutor_turn(
     payload: TutorTurnRequest, ctx: AuthContext = Depends(get_auth_context)
 ) -> TutorTurnResponse:
-    """Unified Maya tutoring endpoint: handles writing practice, speaking analysis,
+    """Unified Mivo tutoring endpoint: handles writing practice, speaking analysis,
     micro-grammar checks, and structured feedback."""
     try:
         profile = (
@@ -40,7 +41,7 @@ async def tutor_turn(
     except Exception as exc:
         logger.exception("Tutor turn endpoint failed")
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY, detail="Maya şu an yanıt veremedi."
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=msg("tutor_unavailable", payload.native_language)
         ) from exc
 
     # Best-effort logging of grammar mistakes into user's history

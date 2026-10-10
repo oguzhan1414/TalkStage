@@ -9,7 +9,9 @@ from fastapi import APIRouter, WebSocket
 from app.core.config import settings
 from app.core.language import native_language_directive, native_language_name, normalize_native_language
 from app.core.supabase_client import get_service_client
-from app.services.chat_memory import format_memory_context, load_memory, update_memory_sync
+from app.services.chat_memory import (
+    ensure_memory_language_sync, format_memory_context, load_memory, memory_in_language, update_memory_sync,
+)
 from app.services.entitlements import FREE_SESSION_MAX_SECONDS, can_start_session, is_pro
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
 from app.services.voice_turn import run_voice_turn
@@ -74,7 +76,8 @@ _RETURNING_LINES = {
 
 def _opening_line(native: str, display_name: str | None, memory: dict | None) -> str:
     topics = [t.get("topic") for t in ((memory or {}).get("topics") or []) if isinstance(t, dict) and t.get("topic")]
-    if topics:
+    # Konu başlığı başka dilde yazılmışsa ("Restoranda Sipariş Verme") karşılamada geçirme; genel selam yeter.
+    if topics and memory_in_language(memory, native):
         first = (display_name or "").strip().split(" ")[0]
         name = f", {first}" if first else ""
         return _RETURNING_LINES[native].format(name=name, topic=topics[0])
@@ -168,6 +171,10 @@ async def free_chat_session(websocket: WebSocket) -> None:
         return
     native = normalize_native_language(profile.get("native_language"))
     memory = await asyncio.to_thread(load_memory, db, user.id)
+    try:
+        memory = await asyncio.wait_for(asyncio.to_thread(ensure_memory_language_sync, db, memory, native), 8)
+    except Exception:
+        logger.warning("Memory language sync timed out; greeting will not mention a topic", exc_info=True)
     prompt = _build_free_chat_system_prompt(profile.get("cefr_level"), profile.get("display_name"), native,
                                             format_memory_context(memory))
     async def run_turn(ws, client, history, text, send_json):

@@ -6,6 +6,7 @@ from openai import OpenAI
 
 from app.core.config import settings
 from app.core.language import native_language_directive, native_language_name
+from app.core.messages import msg
 from app.schemas.tutor import TutorCorrection, TutorTurnRequest, TutorTurnResponse
 
 logger = logging.getLogger(__name__)
@@ -128,7 +129,7 @@ def _get_client() -> tuple[OpenAI, str, bool]:
 
 
 def generate_tutor_turn_sync(req: TutorTurnRequest) -> TutorTurnResponse:
-    """Executes a unified Maya tutoring turn with OpenAI Structured Outputs or Groq fallback."""
+    """Executes a unified Mivo tutoring turn with OpenAI Structured Outputs or Groq fallback."""
     client, model, is_openai = _get_client()
     system_prompt = _build_system_prompt(req)
 
@@ -182,7 +183,7 @@ def generate_tutor_turn_sync(req: TutorTurnRequest) -> TutorTurnResponse:
     if req.is_strict_mission and req.turn_index >= req.max_turns:
         result.is_task_complete = True
         if not result.summary_tr:
-            result.summary_tr = "Harika bir çalışma oldu! Bugünün hedefini başarıyla tamamladın."
+            result.summary_tr = msg("tutor_summary_mission", req.native_language)
 
     return result
 
@@ -196,12 +197,12 @@ async def generate_tutor_turn(req: TutorTurnRequest) -> TutorTurnResponse:
         # Graceful fallback response so the user is never left hanging
         return TutorTurnResponse(
             spoken_reply_en="Nice try! Let's keep practicing. Could you tell me more?",
-            reply_tr_hint="Güzel deneme! Pratik yapmaya devam edelim. Biraz daha anlatır mısın?",
+            reply_tr_hint=msg("tutor_fallback_hint", req.native_language),
             correction=TutorCorrection(has_error=False),
-            coach_tip_tr="Cümle kurmaya devam et, Mivo seni dinliyor.",
+            coach_tip_tr=msg("tutor_fallback_tip", req.native_language),
             fluency_score=75,
             suggested_replies=["Yes, I can!", "Sure, let's practice."],
-            suggested_replies_tr=["Evet, yapabilirim!", "Tabii, pratik yapalım."],
+            suggested_replies_tr=msg("tutor_fallback_replies", req.native_language),
             is_task_complete=(req.turn_index >= req.max_turns),
-            summary_tr="Günün pratiğini tamamladın!" if req.turn_index >= req.max_turns else None,
+            summary_tr=msg("tutor_summary_done", req.native_language) if req.turn_index >= req.max_turns else None,
         )

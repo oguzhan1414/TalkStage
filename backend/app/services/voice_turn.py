@@ -102,7 +102,7 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                     async with asyncio.timeout(8):
                         return await analyze_voice_turn(system_prompt, context, text, reply)
                 except Exception:
-                    logger.warning("Voice feedback unavailable; preserving successful reply")
+                    logger.warning("Voice feedback unavailable (no correction/tips this turn); preserving successful reply", exc_info=True)
                     return None
             analysis_task = asyncio.create_task(feedback())
             await speaker.flush()

@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.api.deps import AuthContext, get_auth_context
 from app.core.language import normalize_native_language
-from app.services.chat_memory import load_memory, update_memory_sync
+from app.services.chat_memory import ensure_memory_language_sync, load_memory, update_memory_sync
 
 router = APIRouter(prefix="/memory", tags=["memory"])
 
@@ -21,6 +21,8 @@ class MemoryOut(BaseModel):
     facts: list[str] = []
     session_count: int = 0
     last_session_at: str | None = None
+    #: Hafızanın yazıldığı dil; istemci başka dilde yazılmış konuyu karşılamada kullanmaz.
+    lang: str | None = None
 
 
 class MemoryTurn(BaseModel):
@@ -37,12 +39,15 @@ def get_memory(ctx: AuthContext = Depends(get_auth_context)) -> MemoryOut:
     row = load_memory(ctx.db, ctx.user.id)
     if not row:
         return MemoryOut()
+    profile = ctx.db.table("profiles").select("native_language").eq("id", ctx.user.id).limit(1).execute().data or [{}]
+    row = ensure_memory_language_sync(ctx.db, row, normalize_native_language(profile[0].get("native_language"))) or row
     return MemoryOut(
         summary=row.get("summary") or "",
         topics=[MemoryTopic(**t) for t in (row.get("topics") or []) if isinstance(t, dict) and t.get("topic")],
         facts=[f for f in (row.get("facts") or []) if isinstance(f, str)],
         session_count=row.get("session_count") or 0,
         last_session_at=row.get("last_session_at"),
+        lang=row.get("lang"),
     )
 
 
