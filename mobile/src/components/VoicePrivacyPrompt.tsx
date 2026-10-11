@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import { t } from '../i18n';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://spekvia.com/gizlilik';
+const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://www.spekvia.com/gizlilik';
 
 export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
   return (

@@ -2,7 +2,7 @@ export const LOCALES = ["tr", "en", "es", "pt", "de"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "tr";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
-export const SITE_URL = "https://spekvia.com";
+export const SITE_URL = "https://www.spekvia.com";
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);

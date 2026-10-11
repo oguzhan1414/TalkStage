@@ -62,7 +62,7 @@ for f in files:
     if not noindex and (not desc or len(desc) < 70 or len(desc) > 165): p.append(f'desc {len(desc or "")}')
     if h1 != 1: p.append(f'h1={h1}')
     if not canonical: p.append('no canonical')
-    if canonical and not canonical.startswith('https://spekvia.com'): p.append('canonical host')
+    if canonical and not canonical.startswith('https://www.spekvia.com'): p.append('canonical host')
     if not lang: p.append('no lang')
     if not noindex:
         if 'x-default' not in alts: p.append('no x-default')

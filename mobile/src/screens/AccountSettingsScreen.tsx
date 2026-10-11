@@ -26,7 +26,7 @@ import type {
 import { getLocale, LOCALE_META, t } from '../i18n';
 import { LanguagePickerModal } from '../components/LanguagePickerModal';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://spekvia.com/gizlilik';
+const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://www.spekvia.com/gizlilik';
 const APP_VERSION = '1.0.0';
 
 const AVATAR_LIST = [
