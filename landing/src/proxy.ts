@@ -35,12 +35,12 @@ export function proxy(request: NextRequest) {
   if (key) {
     const publicPath = localizePath(`/${key}${rest}`, locale);
     if (stripTrailingSlash(pathname) !== publicPath) return redirect(request, `${publicPath}${search}`, 308);
-    return rewrite(request, `/${locale}/${key}${rest}${search}`);
+    return rewrite(request, `/${locale}/${key}${rest}${search}`, locale);
   }
 
   // Home, or an unknown path that will 404 inside the locale layout.
   if (prefix === DEFAULT_LOCALE) return redirect(request, `${stripLocalePrefix(pathname) || "/"}${search}`, 308);
-  return rewrite(request, `/${locale}${slug ? `/${slug}${rest}` : ""}${search}`);
+  return rewrite(request, `/${locale}${slug ? `/${slug}${rest}` : ""}${search}`, slug ? undefined : locale);
 }
 
 function stripTrailingSlash(p: string) {
@@ -56,8 +56,13 @@ function redirect(request: NextRequest, to: string, status: 307 | 308) {
   return NextResponse.redirect(url, status);
 }
 
-function rewrite(request: NextRequest, to: string) {
-  return NextResponse.rewrite(new URL(to, request.url));
+function rewrite(request: NextRequest, to: string, locale?: Locale) {
+  const res = NextResponse.rewrite(new URL(to, request.url));
+  // Remember the language the visitor is reading, so the bare domain (`/`) opens in it next time.
+  if (locale && request.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+    res.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  }
+  return res;
 }
 
 function preferredLocale(request: NextRequest): Locale {

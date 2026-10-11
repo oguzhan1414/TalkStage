@@ -45,6 +45,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
             <NextLink
               href={targetFor(pathname, l)}
               hrefLang={l}
+              prefetch={false}
               lang={l}
               onClick={() => writeLocaleCookie(l)}
               aria-current={l === locale ? "true" : undefined}
@@ -84,6 +85,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
               <NextLink
                 href={targetFor(pathname, l)}
                 hrefLang={l}
+              prefetch={false}
                 lang={l}
                 onClick={() => {
                   writeLocaleCookie(l);
