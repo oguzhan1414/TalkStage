@@ -3,6 +3,8 @@ import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getT } from "@/i18n/server";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema, faqSchema, webPageSchema } from "@/i18n/schema";
 import { pageLocale, pageMetadata, type PageProps } from "@/i18n/page";
 import { tr } from "@/i18n/shared";
 
@@ -12,8 +14,8 @@ export async function generateMetadata({ params }: PageProps) {
   return pageMetadata({
     path: "/about",
     locale,
-    title: t("Hakkımızda — Spekvia"),
-    description: t("Anlıyorum ama konuşamıyorum diyenler için: Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeyi ve hatadan korkmadan konuşmayı öğretir."),
+    title: t("Spekvia Hakkında: Konuşarak İngilizce Öğren"),
+    description: t("Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeni sağlar. Nasıl çalıştığımızı ve hatadan korkmadan konuşmanı sağlayan ilkelerimizi keşfet."),
   });
 }
 
@@ -37,10 +39,14 @@ const PRINCIPLES = [
 ];
 
 export default async function AboutPage({ params }: PageProps) {
-  await pageLocale(params);
+  const locale = await pageLocale(params);
   const t = getT();
   return (
     <>
+      <JsonLd data={[
+        webPageSchema(locale, "AboutPage", "/about", t("Spekvia Hakkında: Konuşarak İngilizce Öğren"), t("Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeni sağlar. Nasıl çalıştığımızı ve hatadan korkmadan konuşmanı sağlayan ilkelerimizi keşfet.")),
+        breadcrumbSchema(locale, [{ name: t("Ana Sayfa"), path: "/" }, { name: t("Hakkımızda"), path: "/about" }]),
+      ]} />
       <Navbar />
       <main className="flex-1 bg-paper pb-24 pt-36 sm:pb-32 sm:pt-44">
         <div className="mx-auto max-w-4xl px-6">

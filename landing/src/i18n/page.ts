@@ -39,11 +39,11 @@ export function pageMetadata({
       title,
       description,
       url: absoluteUrl(localizePath(path, locale)),
-      images: [{ url: "/og.jpg", width: 1200, height: 630, alt: title }],
+      images: [{ url: `/og/og-${locale}.jpg`, width: 1200, height: 630, alt: title }],
       locale: LOCALE_META[locale].ogLocale,
       alternateLocale: (only ?? LOCALES).filter((l) => l !== locale).map((l) => LOCALE_META[l].ogLocale),
       type: "website",
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/og.jpg"] },
+    twitter: { card: "summary_large_image", title, description, images: [`/og/og-${locale}.jpg`] },
   };
 }

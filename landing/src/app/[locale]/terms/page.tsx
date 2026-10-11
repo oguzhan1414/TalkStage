@@ -1,6 +1,8 @@
 import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema, webPageSchema } from "@/i18n/schema";
 import { getLocale, getT } from "@/i18n/server";
 import { LOCALE_META } from "@/i18n/config";
 import { pageLocale, pageMetadata, type PageProps } from "@/i18n/page";
@@ -14,15 +16,19 @@ export async function generateMetadata({ params }: PageProps) {
     path: "/terms",
     locale,
     title: t("Kullanım Şartları — Spekvia"),
-    description: t("Spekvia mobil ve web platformlarının kullanım koşulları, abonelik ve iptal şartları."),
+    description: t("Spekvia mobil ve web uygulamalarının kullanım şartları: hesap, abonelik, iptal koşulları ve kullanıcı sorumlulukları."),
   });
 }
 
 export default async function TermsPage({ params }: PageProps) {
-  await pageLocale(params);
+  const locale = await pageLocale(params);
   const t = getT();
   return (
     <>
+      <JsonLd data={[
+        webPageSchema(locale, "WebPage", "/terms", t("Kullanım Şartları — Spekvia"), t("Spekvia mobil ve web uygulamalarının kullanım şartları: hesap, abonelik, iptal koşulları ve kullanıcı sorumlulukları.")),
+        breadcrumbSchema(locale, [{ name: t("Ana Sayfa"), path: "/" }, { name: t("Kullanım Şartları"), path: "/terms" }]),
+      ]} />
       <Navbar />
       <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
         <div className="mx-auto max-w-3xl px-6">

@@ -1,6 +1,8 @@
 import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema, webPageSchema } from "@/i18n/schema";
 import { getLocale, getT } from "@/i18n/server";
 import { LOCALE_META } from "@/i18n/config";
 import { pageLocale, pageMetadata, type PageProps } from "@/i18n/page";
@@ -13,16 +15,20 @@ export async function generateMetadata({ params }: PageProps) {
   return pageMetadata({
     path: "/privacy",
     locale,
-    title: t("Gizlilik Politikası — Spekvia"),
-    description: t("Spekvia kullanıcı verilerinin, ses kayıtlarının ve kişisel bilgilerin nasıl korunduğuna dair Gizlilik Politikası ve KVKK/GDPR aydınlatma metni."),
+    title: t("Gizlilik Politikası ve KVKK — Spekvia"),
+    description: t("Spekvia kullanıcı verilerini, ses kayıtlarını ve kişisel bilgileri nasıl işler ve korur? Gizlilik Politikası ile KVKK/GDPR aydınlatma metni."),
   });
 }
 
 export default async function PrivacyPage({ params }: PageProps) {
-  await pageLocale(params);
+  const locale = await pageLocale(params);
   const t = getT();
   return (
     <>
+      <JsonLd data={[
+        webPageSchema(locale, "WebPage", "/privacy", t("Gizlilik Politikası ve KVKK — Spekvia"), t("Spekvia kullanıcı verilerini, ses kayıtlarını ve kişisel bilgileri nasıl işler ve korur? Gizlilik Politikası ile KVKK/GDPR aydınlatma metni.")),
+        breadcrumbSchema(locale, [{ name: t("Ana Sayfa"), path: "/" }, { name: t("Gizlilik Politikası"), path: "/privacy" }]),
+      ]} />
       <Navbar />
       <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
         <div className="mx-auto max-w-3xl px-6">

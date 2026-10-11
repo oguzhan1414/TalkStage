@@ -4,7 +4,7 @@ import { absoluteUrl, localizePath } from "@/i18n/paths";
 import { blogPosts } from "@/lib/blog-data";
 
 /** Every public page in every language, with hreflang alternates. */
-const PAGES: (RouteKey | "")[] = ["", "about", "contact", "faq", "privacy", "terms", "blog", "onboarding", "login"];
+const PAGES: (RouteKey | "")[] = ["", "about", "contact", "faq", "privacy", "terms", "blog"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
@@ -12,7 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const page of PAGES) {
     const internal = page ? `/${page}` : "/";
     const langs = LOCALES.filter((l) => !(page && (TR_ONLY_ROUTES as readonly string[]).includes(page) && l !== "tr"));
-    const languages = Object.fromEntries(langs.map((l) => [l, absoluteUrl(localizePath(internal, l))]));
+    const languages: Record<string, string> = Object.fromEntries(langs.map((l) => [l, absoluteUrl(localizePath(internal, l))]));
+    languages["x-default"] = absoluteUrl(localizePath(internal, "tr"));
     for (const l of langs) {
       entries.push({
         url: absoluteUrl(localizePath(internal, l)),
@@ -26,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const post of blogPosts) {
     entries.push({
       url: absoluteUrl(`/blog/${post.slug}`),
+      lastModified: post.dateModified,
       changeFrequency: "monthly",
       priority: 0.6,
     });

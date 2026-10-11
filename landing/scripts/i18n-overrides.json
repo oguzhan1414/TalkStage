@@ -46,5 +46,77 @@
   "es": "Volver al inicio",
   "pt": "Voltar ao início",
   "de": "Zurück zur Startseite"
+ },
+ "Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması": {
+  "en": "Spekvia — Practice Speaking English with an AI Coach",
+  "es": "Spekvia: practica hablar inglés con un coach de IA",
+  "pt": "Spekvia: pratique falar inglês com um coach de IA",
+  "de": "Spekvia: Englisch sprechen üben mit KI-Coach"
+ },
+ "Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla.": {
+  "en": "Rehearse real-life English scenes by voice: airport, hotel, job interview. Mivo corrects every slip instantly, in your own language. Start free.",
+  "es": "Ensaya escenas reales en inglés con tu voz: aeropuerto, hotel, entrevista. Mivo corrige tus errores al instante en tu idioma. Empieza gratis.",
+  "pt": "Ensaie cenas reais em inglês com a sua voz: aeroporto, hotel, entrevista. O Mivo corrige seus erros na hora, no seu idioma. Comece de graça.",
+  "de": "Übe echte Alltagssituationen auf Englisch per Sprache: Flughafen, Hotel, Vorstellungsgespräch. Mivo korrigiert dich sofort in deiner Sprache. Gratis starten."
+ },
+ "Spekvia Hakkında: Konuşarak İngilizce Öğren": {
+  "en": "About Spekvia: Learn English by Speaking",
+  "es": "Sobre Spekvia: aprende inglés hablando",
+  "pt": "Sobre o Spekvia: aprenda inglês falando",
+  "de": "Über Spekvia: Englisch lernen durch Sprechen"
+ },
+ "Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeni sağlar. Nasıl çalıştığımızı ve hatadan korkmadan konuşmanı sağlayan ilkelerimizi keşfet.": {
+  "en": "Spekvia lets you rehearse English by voice in real-life scenes. See how it works and the principles that help you speak without fear of mistakes.",
+  "es": "Spekvia te permite ensayar inglés con tu voz en escenas de la vida real. Descubre cómo funciona y los principios para hablar sin miedo a equivocarte.",
+  "pt": "O Spekvia permite ensaiar inglês com a voz em cenas da vida real. Conheça como funciona e os princípios para falar sem medo de errar.",
+  "de": "Mit Spekvia probst du Englisch per Sprache in realen Alltagsszenen. So funktioniert es und diese Prinzipien helfen dir, ohne Angst vor Fehlern zu sprechen."
+ },
+ "Sıkça Sorulan Sorular — Spekvia": {
+  "en": "FAQ — How Spekvia Works, Pricing & Privacy",
+  "es": "Preguntas frecuentes sobre Spekvia",
+  "pt": "Perguntas frequentes sobre o Spekvia",
+  "de": "Häufige Fragen zu Spekvia"
+ },
+ "Spekvia nasıl çalışır? Ücretsiz mi, Pro neleri kapsar, sesim nasıl işlenir? Sahneler, Mivo, kelime çalışması ve abonelik hakkında en çok sorulanlar.": {
+  "en": "How does Spekvia work? Is it free, what does Pro include, what happens to my voice? Answers about scenes, Mivo, vocabulary practice and subscriptions.",
+  "es": "¿Cómo funciona Spekvia? ¿Es gratis, qué incluye Pro, qué pasa con mi voz? Respuestas sobre escenas, Mivo, vocabulario y suscripción.",
+  "pt": "Como funciona o Spekvia? É grátis, o que o Pro inclui, o que acontece com a minha voz? Respostas sobre cenas, Mivo, vocabulário e assinatura.",
+  "de": "Wie funktioniert Spekvia? Ist es kostenlos, was bietet Pro, was passiert mit meiner Stimme? Antworten zu Szenen, Mivo, Vokabeln und Abo."
+ },
+ "İletişim — Spekvia Destek ve Kurumsal": {
+  "en": "Contact Spekvia — Support & Business",
+  "es": "Contacto — Soporte y empresas | Spekvia",
+  "pt": "Contato — Suporte e empresas | Spekvia",
+  "de": "Kontakt — Support & Unternehmen | Spekvia"
+ },
+ "Spekvia ekibine ulaş: kullanıcı desteği için destek@spekvia.com, kurumsal talepler ve toplu lisanslar için b2b@spekvia.com adreslerine yazabilirsin.": {
+  "en": "Get in touch with the Spekvia team: write to destek@spekvia.com for support, or b2b@spekvia.com for business requests and bulk licenses.",
+  "es": "Escribe al equipo de Spekvia: destek@spekvia.com para soporte y b2b@spekvia.com para solicitudes de empresas y licencias en grupo.",
+  "pt": "Fale com a equipe do Spekvia: destek@spekvia.com para suporte e b2b@spekvia.com para pedidos de empresas e licenças em grupo.",
+  "de": "Schreib dem Spekvia-Team: destek@spekvia.com für Support und b2b@spekvia.com für Unternehmensanfragen und Sammellizenzen."
+ },
+ "Gizlilik Politikası ve KVKK — Spekvia": {
+  "en": "Privacy Policy & GDPR — Spekvia",
+  "es": "Política de privacidad y RGPD — Spekvia",
+  "pt": "Política de privacidade e GDPR — Spekvia",
+  "de": "Datenschutzerklärung & DSGVO — Spekvia"
+ },
+ "Spekvia kullanıcı verilerini, ses kayıtlarını ve kişisel bilgileri nasıl işler ve korur? Gizlilik Politikası ile KVKK/GDPR aydınlatma metni.": {
+  "en": "How Spekvia handles and protects your data, voice and personal information: the Privacy Policy with GDPR and KVKK disclosures.",
+  "es": "Cómo trata y protege Spekvia tus datos, tu voz y tu información personal: política de privacidad con información sobre RGPD y KVKK.",
+  "pt": "Como o Spekvia trata e protege seus dados, sua voz e suas informações pessoais: política de privacidade com informações sobre GDPR e KVKK.",
+  "de": "Wie Spekvia deine Daten, deine Stimme und persönliche Informationen verarbeitet und schützt: Datenschutzerklärung mit DSGVO- und KVKK-Hinweisen."
+ },
+ "Kullanım Şartları — Spekvia": {
+  "en": "Terms of Use — Spekvia",
+  "es": "Términos de uso — Spekvia",
+  "pt": "Termos de uso — Spekvia",
+  "de": "Nutzungsbedingungen — Spekvia"
+ },
+ "Spekvia mobil ve web uygulamalarının kullanım şartları: hesap, abonelik, iptal koşulları ve kullanıcı sorumlulukları.": {
+  "en": "Terms of use for the Spekvia mobile and web apps: account, subscriptions, cancellation terms and user responsibilities.",
+  "es": "Términos de uso de las apps móvil y web de Spekvia: cuenta, suscripciones, condiciones de cancelación y responsabilidades del usuario.",
+  "pt": "Termos de uso dos apps móvel e web do Spekvia: conta, assinaturas, condições de cancelamento e responsabilidades do usuário.",
+  "de": "Nutzungsbedingungen der Spekvia-Apps für Mobilgeräte und Web: Konto, Abonnements, Kündigungsbedingungen und Pflichten der Nutzer."
  }
 }

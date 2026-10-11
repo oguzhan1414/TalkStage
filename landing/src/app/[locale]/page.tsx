@@ -7,6 +7,9 @@ import Pricing from "@/components/Pricing";
 import HomeFaq from "@/components/HomeFaq";
 import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
+import { HOME_FAQS } from "@/data/homeFaq";
+import { faqSchema, webPageSchema } from "@/i18n/schema";
 import { getT } from "@/i18n/server";
 import { pageLocale, pageMetadata, type PageProps } from "@/i18n/page";
 
@@ -16,17 +19,22 @@ export async function generateMetadata({ params }: PageProps) {
   return pageMetadata({
     path: "/",
     locale,
-    title: t("Spekvia — İngilizceyi sahnede konuş, Mivo anında düzeltsin"),
-    description: t(
-      "Havalimanı, otel, iş görüşmesi... Gerçek hayat sahnelerini Mivo ile sesli prova et. Takıldığın cümleyi anında Türkçe açıklamayla düzeltir; her oynayışta sahne farklı bir sürprizle gelir.",
-    ),
+    title: t("Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması"),
+    description: t("Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla."),
   });
 }
 
 export default async function Home({ params }: PageProps) {
-  await pageLocale(params);
+  const locale = await pageLocale(params);
+  const t = getT();
   return (
     <>
+      <JsonLd
+        data={[
+          webPageSchema(locale, "WebPage", "/", t("Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması"), t("Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla.")),
+          faqSchema(locale, HOME_FAQS.map((f) => ({ q: t(f.q), a: t(f.a) })), "/"),
+        ]}
+      />
       <Navbar />
       <main className="flex-1">
         <Hero />

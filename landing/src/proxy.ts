@@ -29,6 +29,9 @@ export function proxy(request: NextRequest) {
     return redirect(request, `${localizePath("/", locale)}${search}`, 308);
   }
 
+  // Sign-up lives inside the onboarding flow: a real HTTP redirect (better than a client-side hop).
+  if (key === "signup") return redirect(request, `${localizePath("/onboarding", locale)}${search}`, 308);
+
   if (key) {
     const publicPath = localizePath(`/${key}${rest}`, locale);
     if (stripTrailingSlash(pathname) !== publicPath) return redirect(request, `${publicPath}${search}`, 308);

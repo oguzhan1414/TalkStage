@@ -7,13 +7,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { blogPosts, BlogPost } from "@/lib/blog-data";
 
-type BlogCategory = "Tümü" | "Seviyeler & Gramer" | "Kariyer & Mülakat" | "Metodoloji & Taktikler";
+type BlogCategory = "Tümü" | "Seviyeler & Gramer" | "Kariyer & Mülakat" | "Metodoloji & Taktikler" | "Seyahat & Günlük Hayat";
 
 const categories: BlogCategory[] = [
   "Tümü",
   "Seviyeler & Gramer",
   "Kariyer & Mülakat",
   "Metodoloji & Taktikler",
+  "Seyahat & Günlük Hayat",
 ];
 
 export default function BlogIndexClient() {
@@ -113,7 +114,7 @@ export default function BlogIndexClient() {
                 <div className="relative h-64 w-full shrink-0 overflow-hidden rounded-2xl bg-white sm:h-80 lg:w-[48%]">
                   <Image
                     src={featuredPost.coverImage}
-                    alt={featuredPost.title}
+                    alt={featuredPost.coverAlt}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -177,7 +178,7 @@ export default function BlogIndexClient() {
                 <div className="relative h-48 w-full overflow-hidden rounded-xl bg-porcelain">
                   <Image
                     src={post.coverImage}
-                    alt={post.title}
+                    alt={post.coverAlt}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
