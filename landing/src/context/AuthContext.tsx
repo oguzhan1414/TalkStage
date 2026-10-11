@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase';
 import { api, ApiError } from '@/lib/api';
 import type { OnboardingCompleteRequest, ProfileOut, ProfileUpdate } from '@/types/api';
 import { identifyUser, resetAnalyticsIdentity, trackEvent } from '@/lib/analytics';
+import { readLocaleCookie } from '@/i18n/client';
+import { localizePath } from '@/i18n/paths';
 
 // Web's onboarding form uses its own short goal ids for copywriting reasons —
 // the backend (and mobile) expect the real enum values from
@@ -300,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
     setProfile(null);
     resetAnalyticsIdentity();
-    window.location.href = '/giris';
+    window.location.href = localizePath('/login', readLocaleCookie());
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {

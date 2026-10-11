@@ -41,6 +41,20 @@ KIND_RULES = {
              "(`en` field) in the target language — concise (1-4 words), no explanations. The `hint` is its Turkish "
              "meaning, only to disambiguate the sense. For target English, give a very short plain-English synonym/definition "
              "(1-4 words), never the term itself.",
+    "web": "Copy of the Spekvia WEBSITE (landing pages, FAQ, legal pages, sign-up flow) of an app where people rehearse "
+           "real-life English scenes by voice with an AI coach called Mivo. Write natural, concise, friendly marketing/UI copy "
+           "in the target language (follow the tone rules above). Keep HTML-like tags such as <b>...</b> exactly as in the source. "
+           "IMPORTANT: the app explains and corrects in the user's OWN language (it supports Turkish, English, Spanish, Brazilian "
+           "Portuguese and German). So when the Turkish source says the explanation is 'kendi dilinde' or 'Türkçe', say 'in your own "
+           "language' (never 'in Turkish') in every target language; when it mentions things specific to Turkish speakers "
+           "(e.g. 'Türkçe konuşanların zorlandığı'), generalize to 'learners of your language'. English example sentences and the "
+           "English words being taught stay unchanged. Legal pages: translate faithfully and keep law names (KVKK, GDPR). "
+           "Fixed terminology (match the mobile app): Sahneler=Scenes/Escenas/Cenas/Szenen, Bugün=Today/Hoy/Hoje/Heute, "
+           "Hata Defterim=My Mistakes Notebook/Mi cuaderno de errores/Meu caderno de erros/Mein Fehlerheft, "
+           "Okuma=Reading/Lectura/Leitura/Lesen, Kelimeler=Words/Palabras/Palavras/Wörter, "
+           "Telaffuz=Pronunciation/Pronunciación/Pronúncia/Aussprache. Product names stay: Spekvia, Mivo, Pro, App Store, "
+           "Google Play, SM-2, A1–C2. A bare Turkish name or example (e.g. a person's name in a placeholder) may be replaced by "
+           "a natural local one. Keep length close to the source.",
     "sentence": "Each item is a full sentence; translate it naturally and fluently (not word for word).",
     "doc": "Each item is a longer explanatory text for learners. Preserve ALL formatting exactly: line breaks, "
            "markdown like **bold**, bullets, numbering, tables separators (|), emoji and ASCII diagrams' structure. "
@@ -49,7 +63,7 @@ KIND_RULES = {
            "contains no Turkish at all, return it unchanged for every language.",
 }
 
-PH = re.compile(r"\{\{\w+\}\}")
+PH = re.compile(r"\{\{\w+\}\}|</?\w+>")
 
 
 def placeholders(text: str) -> list[str]:

@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useT } from "@/i18n/client";
+import { tr } from "@/i18n/shared";
 
 type Segment = { text: string; bad?: boolean; fix?: string };
 
@@ -21,52 +23,52 @@ type Take = {
 /** Real mistakes Turkish speakers make, played inside real Spekvia scenes (levels/twists match the app). */
 const TAKES: Take[] = [
   {
-    scene: 'İstanbul şehir turu',
+    scene: tr("İstanbul şehir turu"),
     level: 'A2',
-    twist: 'Sohbet etmek istiyor',
+    twist: tr("Sohbet etmek istiyor"),
     image: '/scenes/istanbul-tour.webp',
     objectPosition: '70% 50%',
     character: 'Elif',
-    role: 'Şehir rehberi',
+    role: tr("Şehir rehberi"),
     line: 'Welcome to Istanbul! Is this your first time here?',
     said: [
       { text: 'No, I ' },
       { text: 'am here', bad: true, fix: 'have been here' },
       { text: ' since last year.' },
     ],
-    note: '“Since” ile şimdiki zaman değil “have been” kullanılır.',
+    note: tr("“Since” ile şimdiki zaman değil “have been” kullanılır."),
   },
   {
-    scene: 'Londra’da taksi yolculuğu',
+    scene: tr("Londra’da taksi yolculuğu"),
     level: 'A2',
-    twist: 'Acele var',
+    twist: tr("Acele var"),
     image: '/scenes/taxi-ride.webp',
     objectPosition: '75% 50%',
     character: 'Tom',
-    role: 'Taksi şoförü',
+    role: tr("Taksi şoförü"),
     line: 'Where to, mate? Traffic’s terrible today, so be quick!',
     said: [
       { text: 'I ' },
       { text: 'want go', bad: true, fix: 'want to go' },
       { text: ' to Big Ben.' },
     ],
-    note: '“Want” fiilinden sonra “to” gelir: want to go.',
+    note: tr("“Want” fiilinden sonra “to” gelir: want to go."),
   },
   {
-    scene: 'Spor salonunda antrenman',
+    scene: tr("Spor salonunda antrenman"),
     level: 'A2',
-    twist: 'Öneri iste',
+    twist: tr("Öneri iste"),
     image: '/scenes/fitness-gym.webp',
     objectPosition: '70% 50%',
     character: 'Jake',
-    role: 'Antrenör',
+    role: tr("Antrenör"),
     line: 'What’s your goal — more strength or more cardio?',
     said: [
       { text: 'I ' },
       { text: 'am wanting to be strong', bad: true, fix: 'want to get stronger' },
       { text: '.' },
     ],
-    note: '“Want” durum fiilidir; “am wanting” denmez. Doğrusu: I want to get stronger.',
+    note: tr("“Want” durum fiilidir; “am wanting” denmez. Doğrusu: I want to get stronger."),
   },
 ];
 
@@ -75,6 +77,7 @@ type Phase = 'line' | 'typing' | 'fixing' | 'note';
 const TYPE_MS = 48;
 
 export default function HeroStage() {
+  const t = useT();
   const [takeIndex, setTakeIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('line');
   const [typed, setTyped] = useState(0);
@@ -165,7 +168,7 @@ export default function HeroStage() {
         <Image
           key={mivoPose}
           src={mivoPose}
-          alt="Mivo, yapay zekâ İngilizce koçun"
+          alt={t("Mivo, yapay zekâ İngilizce koçun")}
           width={750}
           height={900}
           sizes="(max-width: 1024px) 176px, 24vw"
@@ -179,7 +182,7 @@ export default function HeroStage() {
         <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-lifted">
           <div className="mb-1 flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-wider text-muted">
             <span className="font-semibold text-heading">{take.character}</span>
-            <span>{take.role}</span>
+            <span>{t(take.role)}</span>
             {speaking ? (
               <span aria-hidden className="ml-auto flex h-3 items-end gap-0.5">
                 {[0, 1, 2, 3].map((b) => (
@@ -200,7 +203,7 @@ export default function HeroStage() {
             phase === 'line' ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          <div className="mb-1 font-mono text-[0.62rem] uppercase tracking-wider text-white/65">Sen</div>
+          <div className="mb-1 font-mono text-[0.62rem] uppercase tracking-wider text-white/65">{t("Sen")}</div>
           <p className={`text-[0.95rem] font-medium leading-snug ${phase === 'typing' ? 'caret' : ''}`}>{rendered}</p>
         </div>
 
@@ -210,8 +213,8 @@ export default function HeroStage() {
           }`}
         >
           <p className="text-[0.82rem] leading-snug text-white/85">
-            <span className="mr-1.5 font-bold text-slate-yellow">Mivo</span>
-            {take.note}
+            <span className="mr-1.5 font-bold text-slate-yellow">{t("Mivo")}</span>
+            {t(take.note)}
           </p>
         </div>
       </div>
@@ -221,21 +224,21 @@ export default function HeroStage() {
         <div aria-hidden className="slate-stripes w-10 shrink-0 sm:w-16" />
         <dl className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3 font-mono text-[0.62rem] uppercase tracking-wider text-white/90 sm:text-[0.68rem]">
           <div className="min-w-0">
-            <dt className="text-white/45">Sahne</dt>
-            <dd className="truncate font-semibold">{take.scene}</dd>
+            <dt className="text-white/45">{t("Sahne")}</dt>
+            <dd className="truncate font-semibold">{t(take.scene)}</dd>
           </div>
           <div>
-            <dt className="text-white/45">Seviye</dt>
+            <dt className="text-white/45">{t("Seviye")}</dt>
             <dd className="font-semibold">{take.level}</dd>
           </div>
           <div>
-            <dt className="text-white/45">Take</dt>
+            <dt className="text-white/45">{t("Take")}</dt>
             <dd className="font-semibold">{takeIndex + 1}</dd>
           </div>
           <div className="max-sm:hidden">
-            <dt className="text-white/45">Bu sefer</dt>
+            <dt className="text-white/45">{t("Bu sefer")}</dt>
             <dd>
-              <span className="rounded-full bg-coral-glow px-2 py-0.5 font-semibold text-white">{take.twist}</span>
+              <span className="rounded-full bg-coral-glow px-2 py-0.5 font-semibold text-white">{t(take.twist)}</span>
             </dd>
           </div>
         </dl>

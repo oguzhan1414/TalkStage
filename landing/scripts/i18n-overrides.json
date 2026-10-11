@@ -1,0 +1,50 @@
+{
+ "dilde açıklama": {
+  "en": "languages for explanations",
+  "es": "idiomas de explicación",
+  "pt": "idiomas de explicação",
+  "de": "Sprachen für Erklärungen"
+ },
+ "Aradığın yok": {
+  "en": "Not available",
+  "es": "No hay lo que buscas",
+  "pt": "Não tem o que procura",
+  "de": "Nicht verfügbar"
+ },
+ "Karışıklık çıktı": {
+  "en": "A mix-up happens",
+  "es": "Hay una confusión",
+  "pt": "Surge uma confusão",
+  "de": "Es gibt ein Durcheinander"
+ },
+ "Örn: Ahmet Yılmaz": {
+  "en": "e.g. Jane Miller",
+  "es": "Ej.: Laura Gómez",
+  "pt": "Ex.: Ana Souza",
+  "de": "z. B. Anna Müller"
+ },
+ "ahmet@sirketiniz.com": {
+  "en": "jane@yourcompany.com",
+  "es": "laura@tuempresa.com",
+  "pt": "ana@suaempresa.com",
+  "de": "anna@deinefirma.com"
+ },
+ "Sayfa bulunamadı": {
+  "en": "Page not found",
+  "es": "Página no encontrada",
+  "pt": "Página não encontrada",
+  "de": "Seite nicht gefunden"
+ },
+ "Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.": {
+  "en": "The page you are looking for may have moved or never existed.",
+  "es": "Es posible que la página que buscas se haya movido o que nunca haya existido.",
+  "pt": "A página que você procura pode ter sido movida ou nunca ter existido.",
+  "de": "Die gesuchte Seite wurde vielleicht verschoben oder hat nie existiert."
+ },
+ "Ana sayfaya dön": {
+  "en": "Back to home",
+  "es": "Volver al inicio",
+  "pt": "Voltar ao início",
+  "de": "Zurück zur Startseite"
+ }
+}

@@ -1,20 +1,25 @@
 import Image from 'next/image';
 import Reveal from './Reveal';
+import { getLocale, getT } from "@/i18n/server";
+import { anchorId } from "@/i18n/paths";
+import { tr } from "@/i18n/shared";
+import { LOCALES, LOCALE_META } from "@/i18n/config";
 
-const LANGS = ['Türkçe', 'English', 'Español', 'Português', 'Deutsch'];
+const LANGS = LOCALES.map((l) => LOCALE_META[l].label);
 
 /** Example memory notes floating around Mivo. Anchors are in the same 100×120 space as the SVG lines. */
 const NOTES = [
-  { kind: 'Ad', text: 'Ece', x: 76, y: 9, delay: '0s' },
-  { kind: 'Konu', text: 'İş mülakatı', x: 17, y: 24, delay: '-1.4s' },
-  { kind: 'Hedef', text: 'Vize görüşmesi', x: 84, y: 50, delay: '-2.6s' },
-  { kind: 'Konu', text: 'Havalimanı sohbeti', x: 19, y: 72, delay: '-3.8s' },
+  { kind: tr("Ad"), text: "Ece", x: 76, y: 9, delay: '0s' },
+  { kind: tr("Konu"), text: tr("İş mülakatı"), x: 17, y: 24, delay: '-1.4s' },
+  { kind: tr("Hedef"), text: tr("Vize görüşmesi"), x: 84, y: 50, delay: '-2.6s' },
+  { kind: tr("Konu"), text: tr("Havalimanı sohbeti"), x: 19, y: 72, delay: '-3.8s' },
 ];
 
 export default function MivoSection() {
+  const t = getT();
   return (
     <section
-      id="mivo"
+      id={anchorId("mivo", getLocale())}
       className="relative flex min-h-[100svh] items-center overflow-hidden bg-ink px-5 py-24 text-white sm:px-8 lg:py-20"
     >
       {/* Night sky: nebula + constellations sit behind Mivo, the open dark sky carries the copy */}
@@ -49,7 +54,7 @@ export default function MivoSection() {
 
           <Image
             src="/mivo/chat-invite.webp"
-            alt="Mivo el sallıyor"
+            alt={t("Mivo el sallıyor")}
             width={900}
             height={900}
             sizes="(max-width: 1024px) 70vw, 340px"
@@ -62,39 +67,31 @@ export default function MivoSection() {
               className="animate-float absolute z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/20 bg-white/10 py-1.5 pl-2.5 pr-3.5 text-[0.8rem] font-semibold shadow-layered backdrop-blur-md"
               style={{ left: `${n.x}%`, top: `${(n.y / 120) * 100}%`, animationDelay: n.delay }}
             >
-              <span className="mr-1.5 font-mono text-[0.6rem] font-medium uppercase tracking-wider text-slate-yellow">{n.kind}</span>
-              {n.text}
+              <span className="mr-1.5 font-mono text-[0.6rem] font-medium uppercase tracking-wider text-slate-yellow">{t(n.kind)}</span>
+              {t(n.text)}
             </div>
           ))}
         </Reveal>
 
         <Reveal delay={120}>
-          <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-slate-yellow">Mivo ile serbest sohbet</p>
-          <h2 className="mt-3 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-5xl lg:text-[3.6rem]">
-            Mivo seni hatırlar.
-          </h2>
-          <p className="mt-4 max-w-lg text-pretty text-base leading-relaxed text-white/75 sm:text-lg">
-            Konu seçmek zorunda değilsin; ne istersen konuş. Mivo neler konuştuğunuzu aklında tutar, sonraki sohbete kaldığınız
-            yerden başlar.
-          </p>
+          <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-slate-yellow">{t("Mivo ile serbest sohbet")}</p>
+          <h2 className="mt-3 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-5xl lg:text-[3.6rem]">{t("Mivo seni hatırlar.")}</h2>
+          <p className="mt-4 max-w-lg text-pretty text-base leading-relaxed text-white/75 sm:text-lg">{t("Konu seçmek zorunda değilsin; ne istersen konuş. Mivo neler konuştuğunuzu aklında tutar, sonraki sohbete kaldığınız yerden başlar.")}</p>
 
           {/* The returning-user greeting, as it appears in the app */}
           <div className="mt-6 max-w-lg rounded-3xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur sm:p-5">
-            <p className="font-mono text-[0.62rem] uppercase tracking-wider text-white/50">Mivo</p>
-            <p className="mt-1 text-[0.98rem] leading-relaxed text-white">
-              Tekrar hoş geldin, Ece! Geçen sefer iş mülakatından konuşmuştuk. İstersen oradan devam edelim, istersen yeni bir
-              konu seç.
-            </p>
+            <p className="font-mono text-[0.62rem] uppercase tracking-wider text-white/50">{t("Mivo")}</p>
+            <p className="mt-1 text-[0.98rem] leading-relaxed text-white">{t("Tekrar hoş geldin, Ece! Geçen sefer iş mülakatından konuşmuştuk. İstersen oradan devam edelim, istersen yeni bir konu seç.")}</p>
             <div className="mt-3.5 flex flex-wrap gap-2">
-              <span className="rounded-full bg-slate-yellow px-4 py-2 text-[0.82rem] font-bold text-ink">Oradan devam et</span>
-              <span className="rounded-full border border-white/25 px-4 py-2 text-[0.82rem] font-semibold text-white/90">Yeni bir konu seç</span>
+              <span className="rounded-full bg-slate-yellow px-4 py-2 text-[0.82rem] font-bold text-ink">{t("Oradan devam et")}</span>
+              <span className="rounded-full border border-white/25 px-4 py-2 text-[0.82rem] font-semibold text-white/90">{t("Yeni bir konu seç")}</span>
             </div>
           </div>
 
           <ul className="mt-6 grid max-w-xl gap-x-8 gap-y-4 text-[0.9rem] leading-relaxed text-white/70 sm:grid-cols-2">
             <li>
-              <p className="font-semibold text-white">Açıklamalar kendi dilinde</p>
-              <p className="mt-0.5">Hedef dil hep İngilizce, açıklamalar ana dilinde.</p>
+              <p className="font-semibold text-white">{t("Açıklamalar kendi dilinde")}</p>
+              <p className="mt-0.5">{t("Hedef dil hep İngilizce, açıklamalar ana dilinde.")}</p>
               <p className="mt-2 flex flex-wrap gap-1.5">
                 {LANGS.map((l) => (
                   <span key={l} className="rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-[0.66rem] text-white/80">
@@ -104,10 +101,8 @@ export default function MivoSection() {
               </p>
             </li>
             <li>
-              <p className="font-semibold text-white">Hafıza senin kontrolünde</p>
-              <p className="mt-0.5">
-                Kısa notlar saklanır, tam kayıt değil. Bakabilir, düzeltebilir ya da tümünü silebilirsin.
-              </p>
+              <p className="font-semibold text-white">{t("Hafıza senin kontrolünde")}</p>
+              <p className="mt-0.5">{t("Kısa notlar saklanır, tam kayıt değil. Bakabilir, düzeltebilir ya da tümünü silebilirsin.")}</p>
             </li>
           </ul>
         </Reveal>

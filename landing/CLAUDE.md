@@ -271,3 +271,12 @@ Kullanıcının kendi eliyle eklediği video senaryo özelliği (`@talkstage/sha
 **Doğrulama:** `npm run build` temiz.
 
 **Marka adı: TalkStage → Spekvia (2026-10-10).** Yazı logosu (`/brand/spekvia-wordmark*.png`, beyaz sürüm koyu zeminde) `Logo.tsx`'te, ikon `/brand/spekvia-icon.png`, favicon ve OG görseli yenilendi; e-posta/alan adı `spekvia.com`, derin bağlantı `spekvia://`. Hukuki sayfalardaki (gizlilik, kullanım şartları) marka adı da değişti ama şirket unvanı/KVKK bilgileri gözden geçirilmeli. Eski TalkStage logo dosyaları silindi.
+
+## Çok dilli landing (tr · en · es · pt · de) — 2026-10-11
+- **URL düzeni:** Türkçe önek almaz (`/hakkimizda`), diğerleri önekli ve yerelleştirilmiş sluglı (`/en/about`, `/es/sobre-nosotros`, `/pt/sobre-nos`, `/de/ueber-uns`). Sayfalar `src/app/[locale]/<route-key>` altında; `src/proxy.ts` yerel slug'ı iç yola çevirir (rewrite), yanlış dil/slug yazımını doğru adrese 308 ile yönlendirir, kök `/` için çerez (`NEXT_LOCALE`) → `Accept-Language` ile dil seçer.
+- **Eşleme tablosu:** `src/i18n/config.ts` → `ROUTES` (sayfa slug'ları), `ANCHORS` (ana sayfa bölüm id'leri: `#sahneler` / `#scenes` / `#escenas` …), `TR_ONLY_ROUTES` (blog yalnızca Türkçe; diğer dillerde ana sayfaya yönlenir). Yeni sayfa = klasör + `ROUTES` satırı + sitemap'e ekleme.
+- **Link/yönlendirme:** Her yerde `@/i18n/Link` (next/link yerine) ve `useLocalizedRouter`; `href` dilden bağımsız iç yoldur (`/contact`, `/#pricing`). `/app` ve `/go` yerelleştirilmez (web uygulaması şimdilik Türkçe, `(web)` route grubu).
+- **Metinler:** Mobildeki gibi Türkçe kaynak metin anahtardır: `t("…")`. Sunucu bileşeninde `getT()` (sayfa/layout başında `await pageLocale(params)`), istemci bileşeninde `useT()`. Modül düzeyindeki sabitler `tr("…")` ile işaretlenir ve render'da `t(değer)` ile çevrilir. Cümle içi kalın/bağlantı için `rich(t("… <b>…</b>"), { b: … })`.
+- **Katalog hattı:** `node scripts/i18n-extract.js` (eksik özet) → `--items ../.i18n-work/landing_items.json` → `backend/scripts/translate_batch.py` (kind `web`) → `--merge <çıktı>`. Elle düzeltmeler `scripts/i18n-overrides.json` (merge'de her zaman kazanır). `scripts/i18n-codemod.js` yeni Türkçe metinleri `t()` ile sarar, `scripts/i18n-residual.js` sarılmamış metin adaylarını listeler.
+- **SEO:** her sayfada `pageMetadata()` (canonical + hreflang + OG), `sitemap.ts` (tüm diller, alternates), `robots.ts`.
+- **Henüz yok:** `/app` web uygulaması çevirisi; web kaydında `native_language` gönderimi; blog çevirisi.

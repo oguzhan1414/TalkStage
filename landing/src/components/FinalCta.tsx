@@ -1,11 +1,14 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Reveal from "./Reveal";
 import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
+import { getLocale, getT } from "@/i18n/server";
+import { anchorId } from "@/i18n/paths";
 
 export default function FinalCta() {
+  const t = getT();
   return (
-    <section id="indir" className="scroll-mt-24 px-5 pb-24 sm:px-8 sm:pb-32">
+    <section id={anchorId("download", getLocale())} className="scroll-mt-24 px-5 pb-24 sm:px-8 sm:pb-32">
       <Reveal className="grain-overlay relative mx-auto max-w-6xl overflow-hidden rounded-[36px] bg-ink px-7 py-14 text-white shadow-lifted sm:px-14 sm:py-20">
         {/* Stage lighting: deep indigo pool, a single warm spotlight, velvet folds at the wings */}
         <div
@@ -26,14 +29,9 @@ export default function FinalCta() {
 
         <div className="relative grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
-            <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-slate-yellow">Sahne senin</p>
-            <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-6xl">
-              Sahne hazır. İlk cümleni söyle.
-            </h2>
-            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-white/75">
-              Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden
-              oynarsın.
-            </p>
+            <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-slate-yellow">{t("Sahne senin")}</p>
+            <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-6xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
+            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-white/75">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a
@@ -42,8 +40,8 @@ export default function FinalCta() {
               >
                 <AppleMark />
                 <span className="text-left leading-tight">
-                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">İndir</span>
-                  <span className="block text-[0.95rem] font-bold">App Store</span>
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">{t("İndir")}</span>
+                  <span className="block text-[0.95rem] font-bold">{t("App Store")}</span>
                 </span>
               </a>
               <a
@@ -52,17 +50,13 @@ export default function FinalCta() {
               >
                 <PlayMark />
                 <span className="text-left leading-tight">
-                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">İndir</span>
-                  <span className="block text-[0.95rem] font-bold">Google Play</span>
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">{t("İndir")}</span>
+                  <span className="block text-[0.95rem] font-bold">{t("Google Play")}</span>
                 </span>
               </a>
             </div>
 
-            <p className="mt-5 text-sm text-white/60">
-              Telefonun yanında değil mi?{" "}
-              <Link href="/onboarding" className="font-semibold text-white underline decoration-slate-yellow/70 underline-offset-4">
-                Web’den başla
-              </Link>
+            <p className="mt-5 text-sm text-white/60">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-white underline decoration-slate-yellow/70 underline-offset-4">{t("Web’den başla")}</Link>
               .
             </p>
           </div>
@@ -76,7 +70,7 @@ export default function FinalCta() {
             <div aria-hidden className="absolute -bottom-2 left-1/2 h-9 w-[78%] -translate-x-1/2 rounded-[50%] border border-slate-yellow/40" />
             <Image
               src="/mivo/success.webp"
-              alt="Sevinen Mivo"
+              alt={t("Sevinen Mivo")}
               width={750}
               height={900}
               sizes="(max-width: 1024px) 60vw, 360px"
