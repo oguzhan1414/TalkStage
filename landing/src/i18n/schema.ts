@@ -16,8 +16,8 @@ export function siteSchema(locale: Locale, description: string) {
       logo: { "@type": "ImageObject", url: `${SITE_URL}/brand/spekvia-app-icon.png`, width: 512, height: 512 },
       description,
       contactPoint: [
-        { "@type": "ContactPoint", contactType: "customer support", email: "destek@spekvia.com", availableLanguage: LOCALES.map((l) => LOCALE_META[l].label) },
-        { "@type": "ContactPoint", contactType: "sales", email: "b2b@spekvia.com" },
+        { "@type": "ContactPoint", contactType: "customer support", email: "support@spekvia.com", availableLanguage: LOCALES.map((l) => LOCALE_META[l].label) },
+        { "@type": "ContactPoint", contactType: "sales", email: "info@spekvia.com" },
       ],
     },
     {

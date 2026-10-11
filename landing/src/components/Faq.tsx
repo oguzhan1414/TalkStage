@@ -165,9 +165,9 @@ export default function Faq() {
               <span>→</span>
             </Link>
             <a
-              href="mailto:destek@spekvia.com"
+              href="mailto:support@spekvia.com"
               className="inline-flex items-center gap-2 rounded-full border border-line bg-porcelain px-6 py-3 text-sm font-semibold text-heading hover:bg-slate-100"
-            >destek@spekvia.com</a>
+            >support@spekvia.com</a>
           </div>
         </div>
       </div>

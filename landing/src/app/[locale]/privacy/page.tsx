@@ -79,12 +79,12 @@ export default async function PrivacyPage({ params }: PageProps) {
 
             <section>
               <h2 className="font-display text-xl font-bold text-heading">{t("5. Kullanıcı Hakları & Hesap Silme")}</h2>
-              <p className="mt-2">{rich(t("6698 sayılı KVKK ve Avrupa Birliği GDPR düzenlemeleri uyarınca; dilediğiniz zaman hesabınızı ve tüm öğrenme geçmişinizi mobil uygulama ayarlarından silebilir veya <b>destek@spekvia.com</b> adresine e-posta göndererek verilerinizin imhasını talep edebilirsiniz."), { b: (c) => <strong>{c}</strong> })}</p>
+              <p className="mt-2">{rich(t("6698 sayılı KVKK ve Avrupa Birliği GDPR düzenlemeleri uyarınca; dilediğiniz zaman hesabınızı ve tüm öğrenme geçmişinizi mobil uygulama ayarlarından silebilir veya <b>support@spekvia.com</b> adresine e-posta göndererek verilerinizin imhasını talep edebilirsiniz."), { b: (c) => <strong>{c}</strong> })}</p>
             </section>
 
             <section className="border-t border-line pt-6">
               <h2 className="font-display text-lg font-bold text-heading">{t("İletişim")}</h2>
-              <p className="mt-1">{rich(t("Gizlilik politikamızla ilgili her türlü soru için bizimle <b>destek@spekvia.com</b> üzerinden iletişime geçebilirsiniz."), { b: (c) => <strong>{c}</strong> })}</p>
+              <p className="mt-1">{rich(t("Gizlilik politikamızla ilgili her türlü soru için bizimle <b>support@spekvia.com</b> üzerinden iletişime geçebilirsiniz."), { b: (c) => <strong>{c}</strong> })}</p>
             </section>
           </div>
         </div>

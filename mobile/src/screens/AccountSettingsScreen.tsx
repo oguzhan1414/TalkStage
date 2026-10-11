@@ -26,6 +26,7 @@ import type {
 import { getLocale, LOCALE_META, t } from '../i18n';
 import { LanguagePickerModal } from '../components/LanguagePickerModal';
 
+const SUPPORT_EMAIL = 'support@spekvia.com';
 const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://www.spekvia.com/gizlilik';
 const APP_VERSION = '1.0.0';
 
@@ -364,6 +365,24 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
             <View style={styles.settingTextCol}>
               <Text style={styles.settingLabel}>{t("Gizlilik ve Ses Verileri")}</Text>
               <Text style={styles.settingDesc}>{t("Verilerinin nasıl işlendiğini ve haklarını incele")}</Text>
+            </View>
+            <Ionicons name="open-outline" size={18} color={colors.textMuted} />
+          </Pressable>
+
+          <View style={styles.settingDivider} />
+
+          <Pressable
+            onPress={() => {
+              void Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Spekvia')}`);
+            }}
+            style={styles.settingRow}
+            accessibilityRole="link"
+            accessibilityLabel={t("Destek ekibine e-posta yaz")}
+          >
+            <Ionicons name="mail-outline" size={20} color={colors.brand} />
+            <View style={styles.settingTextCol}>
+              <Text style={styles.settingLabel}>{t("Yardım ve Destek")}</Text>
+              <Text style={styles.settingDesc}>{t("Soru, öneri ya da sorun için bize yaz")}</Text>
             </View>
             <Ionicons name="open-outline" size={18} color={colors.textMuted} />
           </Pressable>

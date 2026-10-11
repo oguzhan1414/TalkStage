@@ -37,7 +37,7 @@ export function GET() {
 - Pricing: free to start (one voice scene per day, up to 5 minutes, plus vocabulary cards, reading and instant correction). Spekvia Pro adds unlimited voice scenes and free conversation with Mivo; prices are shown in the app by the App Store and Google Play.
 - Platforms: mobile app (iOS and Android) and a companion web app. Check ${SITE_URL} for current availability.
 - Privacy: speech is converted to text and sent to Mivo; the app asks for consent before the first voice room; users can view, edit or delete what Mivo remembers and can delete their account in the app settings.
-- Company contact: support destek@spekvia.com, business b2b@spekvia.com.
+- Company contact: support support@spekvia.com, business info@spekvia.com.
 
 ## Main pages
 ${pageLines.join("\n")}

@@ -41,7 +41,7 @@ export default function ContactClient() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
-    window.location.href = `mailto:destek@spekvia.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:support@spekvia.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
     setSubmitted(true);
   };
 
@@ -76,18 +76,18 @@ export default function ContactClient() {
                 <div className="rounded-2xl border border-line bg-porcelain p-5">
                   <span className="block text-xs font-mono font-bold uppercase tracking-wider text-muted">{t("Destek & Genel İletişim")}</span>
                   <a
-                    href="mailto:destek@spekvia.com"
+                    href="mailto:support@spekvia.com"
                     className="mt-1 block font-display text-lg font-bold text-indigo hover:underline"
-                  >destek@spekvia.com</a>
+                  >support@spekvia.com</a>
                   <span className="mt-1 block text-xs text-muted">{t("Kullanıcı desteği ve senaryo geri bildirimleri")}</span>
                 </div>
 
                 <div className="rounded-2xl border border-line bg-porcelain p-5">
                   <span className="block text-xs font-mono font-bold uppercase tracking-wider text-muted">{t("Kurumsal & B2B Satış")}</span>
                   <a
-                    href="mailto:b2b@spekvia.com"
+                    href="mailto:info@spekvia.com"
                     className="mt-1 block font-display text-lg font-bold text-heading hover:underline"
-                  >b2b@spekvia.com</a>
+                  >info@spekvia.com</a>
                   <span className="mt-1 block text-xs text-muted">{t("Yazılım ekipleri ve şirket toplu lisansları için")}</span>
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function ContactClient() {
                       ✓
                     </span>
                     <h3 className="mt-6 font-display text-2xl font-bold text-heading">{t("E-posta uygulaman açıldı")}</h3>
-                    <p className="mx-auto mt-2 max-w-sm text-sm text-body">{rich(t("Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <b>destek@spekvia.com</b> adresine yazabilirsin."), { b: (c) => <strong>{c}</strong> })}</p>
+                    <p className="mx-auto mt-2 max-w-sm text-sm text-body">{rich(t("Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <b>support@spekvia.com</b> adresine yazabilirsin."), { b: (c) => <strong>{c}</strong> })}</p>
                     <button
                       onClick={() => setSubmitted(false)}
                       className="mt-6 rounded-full border border-line px-6 py-2 text-sm font-semibold text-heading hover:bg-slate-50"

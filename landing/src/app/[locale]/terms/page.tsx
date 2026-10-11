@@ -80,7 +80,7 @@ export default async function TermsPage({ params }: PageProps) {
 
             <section className="border-t border-line pt-6">
               <h2 className="font-display text-lg font-bold text-heading">{t("Sorularınız İçin")}</h2>
-              <p className="mt-1">{rich(t("Kullanım koşullarıyla ilgili detaylı bilgi için: <b>destek@spekvia.com</b>"), { b: (c) => <strong>{c}</strong> })}
+              <p className="mt-1">{rich(t("Kullanım koşullarıyla ilgili detaylı bilgi için: <b>support@spekvia.com</b>"), { b: (c) => <strong>{c}</strong> })}
               </p>
             </section>
           </div>

@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: PageProps) {
     path: "/contact",
     locale,
     title: t("İletişim — Spekvia Destek ve Kurumsal"),
-    description: t("Spekvia ekibine ulaş: kullanıcı desteği için destek@spekvia.com, kurumsal talepler ve toplu lisanslar için b2b@spekvia.com adreslerine yazabilirsin."),
+    description: t("Spekvia ekibine ulaş: kullanıcı desteği için support@spekvia.com, kurumsal talepler ve toplu lisanslar için info@spekvia.com adreslerine yazabilirsin."),
   });
 }
 
@@ -22,7 +22,7 @@ export default async function ContactPage({ params }: PageProps) {
     <>
       <JsonLd
         data={[
-          webPageSchema(locale, "ContactPage", "/contact", t("İletişim — Spekvia Destek ve Kurumsal"), t("Spekvia ekibine ulaş: kullanıcı desteği için destek@spekvia.com, kurumsal talepler ve toplu lisanslar için b2b@spekvia.com adreslerine yazabilirsin.")),
+          webPageSchema(locale, "ContactPage", "/contact", t("İletişim — Spekvia Destek ve Kurumsal"), t("Spekvia ekibine ulaş: kullanıcı desteği için support@spekvia.com, kurumsal talepler ve toplu lisanslar için info@spekvia.com adreslerine yazabilirsin.")),
           breadcrumbSchema(locale, [{ name: t("Ana Sayfa"), path: "/" }, { name: t("İletişim & Destek"), path: "/contact" }]),
         ]}
       />
