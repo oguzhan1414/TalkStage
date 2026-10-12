@@ -66,7 +66,7 @@ export default function TwistDemo() {
             <p className="font-mono text-[0.65rem] uppercase tracking-wider text-white/70">{t("Aynı sahne · 4 farklı oynayış")}</p>
             <p className="font-display text-xl font-bold text-white sm:text-2xl">{t("Havalimanında check-in")}</p>
           </div>
-          <span className="rounded-full bg-slate-yellow px-2.5 py-1 font-mono text-[0.65rem] font-bold text-ink">A1</span>
+          <span className="rounded-full bg-white/90 px-2.5 py-1 font-mono text-[0.65rem] font-bold text-stage backdrop-blur">A1</span>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export default function TwistDemo() {
               onClick={() => setActive(i)}
               className={`shrink-0 rounded-full border px-4 py-2 text-[0.85rem] font-semibold transition-colors ${
                 i === active
-                  ? 'border-coral-glow bg-coral-glow text-white'
+                  ? 'border-transparent bg-linear-to-r from-stage to-purple-pop text-white shadow-[0_10px_24px_-10px_rgba(79,70,229,0.8)]'
                   : 'border-line bg-paper text-body hover:border-stage/40 hover:text-heading'
               }`}
             >
@@ -93,7 +93,7 @@ export default function TwistDemo() {
 
         <div id="twist-panel" role="tabpanel" aria-labelledby={`twist-tab-${twist.id}`} className="mt-5 space-y-3">
           <p className="text-sm text-muted">
-            <span className="font-mono text-[0.68rem] font-semibold uppercase tracking-wider text-coral-glow">{t("Bu sefer")}</span>{" "}
+            <span className="font-mono text-[0.68rem] font-semibold uppercase tracking-wider text-stage">{t("Bu sefer")}</span>{" "}
             {t(twist.hint)}
           </p>
 

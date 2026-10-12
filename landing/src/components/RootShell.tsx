@@ -33,10 +33,12 @@ export default function RootShell({ locale, children }: { locale: Locale; childr
   return (
     <html
       lang={locale}
-      className={`${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full overflow-x-hidden antialiased`}
+      // The site is already localized (own language switcher): stop browsers' automatic page translation from mangling it.
+      translate="no"
+      className={`notranslate ${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full overflow-x-clip antialiased`}
       style={{ colorScheme: "light" }}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-body selection:bg-stage selection:text-white">
+      <body className="min-h-full flex flex-col overflow-x-clip bg-paper text-body selection:bg-stage selection:text-white">
         <I18nProvider locale={locale} catalog={getCatalog(locale)} fallback={getCatalog("en")}>
           <AuthProvider>
             <Analytics />

@@ -19,7 +19,7 @@ export default function HomeFaq() {
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="divide-y divide-line rounded-[28px] border border-line bg-white">
+          <div className="divide-y divide-line rounded-[28px] border border-white/80 bg-white/80 shadow-layered backdrop-blur-xl">
             {HOME_FAQS.map((item, i) => (
               <details key={item.q} className="group px-6 py-1" open={i === 0}>
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left font-display text-[1.05rem] font-bold text-heading [&::-webkit-details-marker]:hidden">

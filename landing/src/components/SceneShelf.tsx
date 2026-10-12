@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import { Star } from 'lucide-react';
 import Reveal from './Reveal';
 import TwistDemo from './TwistDemo';
+import SceneRow from './SceneRow';
 import { getLocale, getT } from "@/i18n/server";
 import { anchorId } from "@/i18n/paths";
 import { tr } from "@/i18n/shared";
@@ -26,7 +26,8 @@ const STARS = [
 export default function SceneShelf() {
   const t = getT();
   return (
-    <section id={anchorId("scenes", getLocale())} className="scroll-mt-24 bg-white px-5 py-24 sm:px-8 sm:py-32">
+    <section id={anchorId("scenes", getLocale())} className="relative scroll-mt-24 overflow-hidden bg-white px-5 py-24 sm:px-8 sm:py-32">
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.14),transparent_65%)] blur-3xl" />
       <div className="mx-auto max-w-6xl">
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Sahneler")}</p>
@@ -65,27 +66,8 @@ export default function SceneShelf() {
         </div>
 
         <Reveal className="mt-16">
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {SCENES.map((scene) => (
-              <li key={scene.slug} className="group">
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-paper-deep">
-                  <Image
-                    src={`/scenes/${scene.slug}.webp`}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 280px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute left-2.5 top-2.5 rounded-full bg-slate-yellow px-2 py-0.5 font-mono text-[0.65rem] font-bold text-ink">
-                    {scene.level}
-                  </span>
-                  <span className="absolute bottom-2.5 right-2.5 rounded-full bg-ink/70 px-2 py-0.5 font-mono text-[0.65rem] text-white backdrop-blur">{t("{{min}} dk", { min: scene.min })}</span>
-                </div>
-                <p className="mt-2.5 text-[0.92rem] font-semibold leading-snug text-heading">{t(scene.title)}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 text-sm text-muted">{t("Toplam 21 sahne, A1’den B2’ye.")}</p>
+          <SceneRow scenes={SCENES} />
+          <p className="mt-2 text-sm text-muted">{t("Toplam 21 sahne, A1’den B2’ye.")}</p>
         </Reveal>
       </div>
     </section>

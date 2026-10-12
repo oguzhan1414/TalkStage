@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Reveal from './Reveal';
+import PathDraw from './PathDraw';
 import a1Level from '../assets/levels/a1-rounded.png';
 import a2Level from '../assets/levels/a2-rounded.png';
 import b1Level from '../assets/levels/b1-rounded.png';
@@ -53,7 +54,7 @@ const TILES: Tile[] = [
 export default function DailyPath() {
   const t = getT();
   return (
-    <section id={anchorId("path", getLocale())} className="scroll-mt-24 px-5 py-24 sm:px-8 sm:py-32">
+    <section id={anchorId("path", getLocale())} className="relative scroll-mt-24 overflow-hidden bg-linear-to-b from-white via-paper to-white px-5 py-24 sm:px-8 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Günlük yol")}</p>
@@ -62,29 +63,34 @@ export default function DailyPath() {
         </Reveal>
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-          {/* Lead tile */}
-          <Reveal className="lg:col-span-3 lg:row-span-2">
-            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[28px] bg-stage p-7 text-white sm:p-9">
-              <div aria-hidden className="slate-stripes absolute inset-x-0 top-0 h-3" />
-              <div className="mt-3">
-                <Image src="/icons/today.webp" alt="" width={256} height={256} className="h-20 w-20" />
-                <h3 className="mt-5 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Bugün")}</h3>
-                <p className="mt-3 max-w-md text-[1.02rem] leading-relaxed text-white/80">{t("Seviyene göre sıralanmış bir yol: konu anlatımı, kelimeler, podcast, okuma ve en sonda konuşma. Günlük hedefin ve serin burada görünür.")}</p>
+          {/* Lead tile: the day-by-day road */}
+          <Reveal className="lg:col-span-6">
+            <div className="relative overflow-hidden rounded-[32px] bg-linear-to-br from-stage via-[#5b4bf0] to-purple-pop p-7 text-white shadow-lifted sm:p-10">
+              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-spot/25 blur-3xl" />
+              <div className="relative grid items-center gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+                <div>
+                  <Image src="/icons/today.webp" alt="" width={256} height={256} className="h-16 w-16" />
+                  <h3 className="mt-4 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Bugün")}</h3>
+                  <p className="mt-3 max-w-md text-[1.02rem] leading-relaxed text-white/85">{t("Seviyene göre gün gün ilerleyen bir yol. Her gün birkaç küçük görev: konu anlatımı, okuma, podcast ve Mivo ile tekrar.")}</p>
+                  <ol className="mt-6 flex flex-wrap gap-2 text-[0.78rem] font-semibold">
+                    {[tr("Gün 1 · Öğren"), tr("Gün 2 · Oku ve dinle"), tr("Gün 3 · Mivo ile pekiştir")].map((step) => (
+                      <li key={step} className="rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 backdrop-blur">
+                        {t(step)}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div className="rounded-3xl bg-white/95 p-4 shadow-lifted sm:p-6">
+                  <PathDraw />
+                </div>
               </div>
-              <ol className="mt-8 flex flex-wrap gap-2 font-mono text-[0.7rem] font-semibold uppercase tracking-wider">
-                {[tr("Ders"), tr("Kelime"), tr("Podcast"), tr("Okuma"), tr("Konuşma")].map((step, i) => (
-                  <li key={step} className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-yellow text-[0.6rem] text-ink">{i + 1}</span>
-                    {t(step)}
-                  </li>
-                ))}
-              </ol>
             </div>
           </Reveal>
 
           {TILES.map((tile, i) => (
             <Reveal key={tile.icon} delay={i * 70} className={i < 2 ? 'lg:col-span-3' : 'lg:col-span-2'}>
-              <div className="flex h-full items-start gap-4 rounded-[28px] border border-line bg-white p-5 transition-shadow hover:shadow-layered sm:p-6">
+              <div className="flex h-full items-start gap-4 rounded-[28px] border border-white/80 bg-white/80 p-5 shadow-layered backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted sm:p-6">
                 <Image src={`/icons/${tile.icon}.webp`} alt="" width={96} height={96} className="h-16 w-16 shrink-0 object-contain" />
                 <div>
                   <h3 className="font-display text-xl font-bold tracking-tight text-heading">{t(tile.title)}</h3>
@@ -97,7 +103,7 @@ export default function DailyPath() {
 
         {/* Levels */}
         <Reveal className="mt-20">
-          <div className="grid items-center gap-8 rounded-[28px] border border-line bg-white p-6 sm:p-9 lg:grid-cols-[1fr_1.4fr]">
+          <div className="grid items-center gap-8 rounded-[28px] border border-white/80 bg-white/80 p-6 shadow-layered backdrop-blur-xl sm:p-9 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <h3 className="font-display text-2xl font-extrabold tracking-tight text-heading sm:text-3xl">{t("Doğru yerden başla")}</h3>
               <p className="mt-3 text-[0.97rem] leading-relaxed text-body">{t("Kısa bir seviye belirleme seni A1’den C2’ye uzanan yolda doğru basamağa koyar. İçerik ve kilitler buna göre şekillenir; hazır olduğunda üst seviyeye geçersin.")}</p>

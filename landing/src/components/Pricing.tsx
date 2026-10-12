@@ -22,8 +22,9 @@ const PRO = [
 export default function Pricing() {
   const t = getT();
   return (
-    <section id={anchorId("pricing", getLocale())} className="scroll-mt-24 bg-white px-5 py-24 sm:px-8 sm:py-32">
-      <div className="mx-auto max-w-5xl">
+    <section id={anchorId("pricing", getLocale())} className="relative scroll-mt-24 overflow-hidden bg-white px-5 py-24 sm:px-8 sm:py-32">
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[28rem] w-[44rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.12),transparent_65%)] blur-3xl" />
+      <div className="relative mx-auto max-w-5xl">
         <Reveal className="max-w-2xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Fiyat")}</p>
           <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Ücretsiz başla. Sınırı kaldırmak istersen Pro.")}</h2>
@@ -31,7 +32,7 @@ export default function Pricing() {
 
         <div className="mt-12 grid gap-5 md:grid-cols-2">
           <Reveal>
-            <div className="flex h-full flex-col rounded-[28px] border border-line bg-paper p-7 sm:p-9">
+            <div className="flex h-full flex-col rounded-[28px] border border-white/80 bg-paper/80 p-7 shadow-layered backdrop-blur-xl sm:p-9">
               <h3 className="font-display text-2xl font-extrabold tracking-tight text-heading">{t("Ücretsiz")}</h3>
               <p className="mt-2 text-[0.95rem] text-body">{t("Her gün biraz konuşmak için yeterli.")}</p>
               <ul className="mt-7 flex-1 space-y-3.5">
@@ -50,21 +51,21 @@ export default function Pricing() {
           </Reveal>
 
           <Reveal delay={100}>
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[28px] bg-ink p-7 text-white sm:p-9">
-              <div aria-hidden className="slate-stripes absolute inset-x-0 top-0 h-3" />
-              <h3 className="mt-2 font-display text-2xl font-extrabold tracking-tight">{t("Pro")}</h3>
-              <p className="mt-2 text-[0.95rem] text-white/70">{t("Sahneleri ve Mivo’yu sınırsız kullan.")}</p>
-              <ul className="mt-7 flex-1 space-y-3.5">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[28px] bg-linear-to-br from-stage via-[#5b4bf0] to-purple-pop p-7 text-white shadow-lifted sm:p-9">
+              <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/15 blur-2xl" />
+              <h3 className="relative font-display text-2xl font-extrabold tracking-tight">{t("Pro")}</h3>
+              <p className="relative mt-2 text-[0.95rem] text-white/80">{t("Sahneleri ve Mivo’yu sınırsız kullan.")}</p>
+              <ul className="relative mt-7 flex-1 space-y-3.5">
                 {PRO.map((item) => (
                   <li key={t(item)} className="flex gap-3 text-[0.97rem] leading-snug">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-slate-yellow" aria-hidden />
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-white" aria-hidden />
                     {item}
                   </li>
                 ))}
               </ul>
               <Link
                 href="/onboarding"
-                className="mt-9 inline-flex items-center justify-center rounded-full bg-slate-yellow px-6 py-3.5 text-[0.95rem] font-bold text-ink transition-transform hover:-translate-y-0.5"
+                className="relative mt-9 inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-[0.95rem] font-bold text-stage shadow-[0_18px_36px_-14px_rgba(0,0,0,0.45)] transition-transform hover:-translate-y-0.5"
               >{t("Önce ücretsiz dene")}</Link>
             </div>
           </Reveal>

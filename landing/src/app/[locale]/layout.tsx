@@ -37,6 +37,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     twitter: { card: "summary_large_image", title, description, images: [`/og/og-${locale}.jpg`] },
     icons: { icon: "/brand/spekvia-app-icon.png", apple: "/brand/spekvia-app-icon.png" },
+    // Already localized into 5 languages: do not let Chrome/Google offer to (mis)translate the page again.
+    other: { google: "notranslate" },
   };
 }
 

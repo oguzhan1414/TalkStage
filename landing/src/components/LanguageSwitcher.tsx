@@ -49,7 +49,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
               lang={l}
               onClick={() => writeLocaleCookie(l)}
               aria-current={l === locale ? "true" : undefined}
-              className={l === locale ? "font-bold text-white" : "text-white/55 transition-colors hover:text-slate-yellow"}
+              className={l === locale ? "font-bold text-stage" : "text-muted transition-colors hover:text-heading"}
             >
               {LOCALE_META[l].label}
             </NextLink>

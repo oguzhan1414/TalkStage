@@ -1,5 +1,7 @@
+import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import ScrollStory from "@/components/ScrollStory";
 import SceneShelf from "@/components/SceneShelf";
 import MivoSection from "@/components/MivoSection";
 import DailyPath from "@/components/DailyPath";
@@ -35,9 +37,11 @@ export default async function Home({ params }: PageProps) {
           faqSchema(locale, HOME_FAQS.map((f) => ({ q: t(f.q), a: t(f.a) })), "/"),
         ]}
       />
+      <ScrollProgress />
       <Navbar />
       <main className="flex-1">
         <Hero />
+        <ScrollStory />
         <SceneShelf />
         <MivoSection />
         <DailyPath />
