@@ -24,17 +24,17 @@ export type AuthStackScreenProps<T extends keyof AuthStackParamList> = NativeSta
 export type OnboardingStackParamList = {
   Welcome: undefined;
   Name: undefined;
-  Persona: undefined;
   Goal: undefined;
   // Voice mini-demo beat (revived `/onboarding/calibrate`, see `backend/CLAUDE.md`
   // Ek 23/Ek 1) — `MicPermission` explains + requests mic access, `Calibration`
   // records 2 short answers and estimates CEFR level. `Level` is no longer on
   // the main path; it's the fallback both of these can drop into (denied
   // permission, skipped, or a calibration API failure).
-  MicPermission: undefined;
-  Calibration: undefined;
   Level: undefined;
   DailyTime: undefined;
+  Reminder: undefined;
+  Premium: undefined;
+  Microphone: undefined;
   Preparing: undefined;
   Ready: undefined;
 };

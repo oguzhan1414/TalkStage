@@ -16,6 +16,10 @@ export type OnboardingDraft = {
   // purely a UI nicety, never sent to the backend.
   cefrSource: 'calibrated' | 'self_selected' | null;
   dailyTargetMinutes: number;
+  /** Optional: 'female' | 'male' | 'other' (null = skipped). */
+  gender: string | null;
+  /** Optional age bracket id (see AGE_OPTIONS), null = skipped. */
+  ageRange: string | null;
 };
 
 /** Matches the design prototype's own defaults (`landing/src/app/onboarding/page.tsx`)
@@ -28,6 +32,8 @@ const DEFAULT_DRAFT: OnboardingDraft = {
   cefrLevel: 'A2',
   cefrSource: null,
   dailyTargetMinutes: 10,
+  gender: null,
+  ageRange: null,
 };
 
 type OnboardingContextValue = {
@@ -117,6 +123,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         cefr_level: draft.cefrLevel,
         daily_target_minutes: draft.dailyTargetMinutes,
         native_language: getLocale(),
+        ...(draft.gender ? { gender: draft.gender } : {}),
+        ...(draft.ageRange ? { age_range: draft.ageRange } : {}),
       } satisfies OnboardingCompleteRequest)
       .then((updated) => {
         setCompletedProfile(updated);

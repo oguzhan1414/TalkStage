@@ -85,6 +85,35 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
   },
 ];
 
+export const GENDER_OPTIONS = [
+  { id: 'female', label: t("Kadın") },
+  { id: 'male', label: t("Erkek") },
+  { id: 'other', label: t("Diğer") },
+] as const;
+
+export const AGE_OPTIONS = [
+  { id: 'u17', label: t("17 ve altı") },
+  { id: '18_24', label: '18-24' },
+  { id: '25_34', label: '25-34' },
+  { id: '35_44', label: '35-44' },
+  { id: '45_plus', label: t("45+") },
+] as const;
+
+/** The separate "persona" question is gone; Mivo's persona now follows the chosen goal (and age for the youngest). */
+export function personaForGoal(goalId: string | null, ageRange?: string | null): string {
+  if (ageRange === 'u17') return 'student';
+  switch (goalId) {
+    case 'exams_school':
+      return 'student';
+    case 'work_career':
+      return 'corporate';
+    case 'travel_life':
+      return 'traveler';
+    default:
+      return 'adult_hobby'; // freeze_barrier, no_partner
+  }
+}
+
 export type GoalOption = {
   id: string;
   icon: string;

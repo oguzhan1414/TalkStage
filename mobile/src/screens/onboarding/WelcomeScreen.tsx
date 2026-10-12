@@ -1,42 +1,104 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { yankiGreetingImage } from '../../assets/images';
+import { mivoWaveImage } from '../../assets/images';
+import { mivoVideos } from '../../assets/videos';
 import { Button } from '../../components/Button';
 import { LanguagePickerModal } from '../../components/LanguagePickerModal';
-import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
+import { colors, fonts, radii, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
 import { getLocale, LOCALE_META, t } from '../../i18n';
 
-const PILLARS = [
-  {
-    icon: '🎙️',
-    bg: 'rgba(79, 70, 229, 0.08)',
-    title: t("Canlı Sesli Fısıltı Koçu (Mivo)"),
-    desc: t("Takıldığında Türkçe fısıldar, konuşmanı asla bölmez."),
-  },
-  {
-    icon: '🎯',
-    bg: 'rgba(14, 165, 233, 0.08)',
-    title: t("Sana Özel Gerçek Hayat Sahneleri"),
-    desc: t("Okul, iş, sınav, gezi veya günlük sohbet senaryoları."),
-  },
-  {
-    icon: '📓',
-    bg: 'rgba(16, 185, 129, 0.08)',
-    title: t("Akıllı Hata & Telaffuz Defteri"),
-    desc: t("Yanlışlarını anında yakalar, seni adım adım geliştirir."),
-  },
-];
+/** The waving-Mivo clip is 9:16 on a perfectly flat background of this colour, so the screen simply uses the
+ * same colour: the video then melts into the page and works on any phone shape. */
+const VIDEO_BG = '#D9E2F9';
+const VIDEO_ASPECT = 9 / 16;
+/** Where Mivo actually stands inside the clip (fraction of its height), used to keep him between the title and the button. */
+const MIVO_TOP = 0.22;
+const MIVO_BOTTOM = 0.88;
+const FOOTER_H = 96;
 
+/** First screen: brand on top, Mivo introduces itself and waves (video loop; static image until the first frame). */
 export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcome'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'welcome' });
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [headerBottom, setHeaderBottom] = useState(210);
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  const player = useVideoPlayer(mivoVideos.wave, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+
+  // Only play while the screen is visible (it stays mounted underneath the next steps).
+  useFocusEffect(
+    useCallback(() => {
+      try {
+        player.play();
+      } catch {
+        setVideoFailed(true);
+      }
+      return () => {
+        try {
+          player.pause();
+        } catch {
+          // player already released
+        }
+      };
+    }, [player])
+  );
+
+  // Fade the video in once its first frame is on screen (the static Mivo is shown until then, or forever on error).
+  const videoOpacity = useRef(new Animated.Value(0)).current;
+  const showVideo = () => Animated.timing(videoOpacity, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+  useEffect(() => {
+    const sub = player.addListener('statusChange', ({ status }) => {
+      if (status === 'error') setVideoFailed(true);
+    });
+    return () => sub.remove();
+  }, [player]);
+
+  // Size/position the clip so Mivo (22%–88% of its height) fits between the header and the footer.
+  const footerTop = height - FOOTER_H - insets.bottom;
+  const room = Math.max(120, footerTop - headerBottom - 8);
+  const videoH = Math.min((width / VIDEO_ASPECT) * 1, room / (MIVO_BOTTOM - MIVO_TOP));
+  const videoW = videoH * VIDEO_ASPECT;
+  const mivoH = videoH * (MIVO_BOTTOM - MIVO_TOP);
+  const videoTop = headerBottom + (room - mivoH) / 2 - MIVO_TOP * videoH;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      {/* Mivo: video loop on top of the static fallback */}
+      <View pointerEvents="none" style={[styles.stage, { width: videoW, height: videoH, top: videoTop, left: (width - videoW) / 2 }]}>
+        <Image
+          source={mivoWaveImage}
+          style={{ position: 'absolute', alignSelf: 'center', top: MIVO_TOP * videoH, height: mivoH, width: mivoH * (750 / 900) }}
+          resizeMode="contain"
+        />
+        {!videoFailed ? (
+          <Animated.View style={[StyleSheet.absoluteFill, { opacity: videoOpacity }]}>
+            <VideoView
+              player={player}
+              style={StyleSheet.absoluteFill}
+              contentFit="contain"
+              nativeControls={false}
+              onFirstFrameRender={showVideo}
+            />
+          </Animated.View>
+        ) : null}
+      </View>
+
+      <View
+        style={[styles.header, { paddingTop: insets.top + spacing.sm }]}
+        onLayout={(e) => setHeaderBottom(e.nativeEvent.layout.y + e.nativeEvent.layout.height)}
+      >
         <Pressable
           onPress={() => setLanguageModalVisible(true)}
           style={styles.languageChip}
@@ -49,138 +111,40 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
         </Pressable>
         <LanguagePickerModal visible={languageModalVisible} onClose={() => setLanguageModalVisible(false)} />
 
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{t("✨ Öğrenci, Çalışan & Her Yaş İçin")}</Text>
-        </View>
-
-        <Text style={styles.title}>{t("\"İngilizceyi Anlıyorum")}{'\n'}<Text style={styles.titleAccent}>{t("Ama Konuşamıyorum\"")}</Text>{'\n'}{t("Diyenlere Özel.")}</Text>
-
-        <Text style={styles.subtitle}>{t("Sıfır stres, sıfır yargılanma korkusu. Takıldığın anda Türkçe fısıldayan yapay zeka koçunla dilediğin gibi konuş.")}</Text>
-
-        <Image source={yankiGreetingImage} style={styles.hero} resizeMode="contain" />
-
-        <View style={styles.pillars}>
-          {PILLARS.map((p) => (
-            <View key={p.title} style={[styles.pillarRow, shadow.card]}>
-              <View style={[styles.pillarIconBox, { backgroundColor: p.bg }]}>
-                <Text style={styles.pillarIcon}>{p.icon}</Text>
-              </View>
-              <View style={styles.pillarTextCol}>
-                <Text style={styles.pillarTitle}>{p.title}</Text>
-                <Text style={styles.pillarDesc}>{p.desc}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <Button label={t("Hadi Başlayalım ➔")} variant="chunky" onPress={() => navigation.navigate('Name')} />
+        <Text style={styles.brand}>Spekvia</Text>
+        <Text style={styles.hello}>{t("Selam, ben Mivo! 👋")}</Text>
+        <Text style={styles.subtitle}>{t("İngilizce konuşmanı birlikte geliştireceğiz.")}</Text>
       </View>
-    </SafeAreaView>
+
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+        <Button label={t("Başlayalım ➔")} variant="chunky" onPress={() => navigation.navigate('Name')} />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundSecondary,
-  },
-  scroll: {
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
+  container: { flex: 1, backgroundColor: VIDEO_BG },
+  stage: { position: 'absolute' },
+  header: { paddingHorizontal: spacing.lg, alignItems: 'center', paddingBottom: spacing.sm },
   languageChip: {
     alignSelf: 'flex-end',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: 'rgba(255,255,255,0.7)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: radii.pill,
-    marginBottom: spacing.sm,
   },
-  languageChipText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
-  badge: {
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(79, 70, 229, 0.2)',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    marginBottom: spacing.sm,
-  },
-  badgeText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: colors.brand,
-  },
-  title: {
-    fontFamily: fonts.headingBold,
-    fontSize: 24,
-    color: colors.textHeading,
-    textAlign: 'center',
-    lineHeight: 30,
-  },
-  titleAccent: {
-    color: colors.accent,
-  },
+  languageChipText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textHeading },
+  brand: { fontFamily: fonts.headingBold, fontSize: 42, letterSpacing: -1, color: colors.brand, marginTop: spacing.sm },
+  hello: { fontFamily: fonts.headingBold, fontSize: 25, color: colors.textHeading, marginTop: 4, textAlign: 'center' },
   subtitle: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 13,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 15,
+    lineHeight: 21,
     color: colors.textBody,
     textAlign: 'center',
-    marginTop: spacing.sm,
-    lineHeight: 19,
-    maxWidth: 320,
+    marginTop: 6,
+    maxWidth: 300,
   },
-  hero: {
-    width: 160,
-    height: 160,
-    marginVertical: spacing.md,
-  },
-  pillars: {
-    width: '100%',
-    gap: spacing.sm,
-  },
-  pillarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  pillarIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pillarIcon: {
-    fontSize: 17,
-  },
-  pillarTextCol: {
-    flex: 1,
-  },
-  pillarTitle: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12.5,
-    color: colors.textHeading,
-  },
-  pillarDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  footer: {
-    padding: spacing.lg,
-    paddingTop: spacing.sm,
-  },
+  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
 });

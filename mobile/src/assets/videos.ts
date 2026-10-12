@@ -18,4 +18,6 @@ export const mivoVideos = {
   flip: require('../../assets/videos/mivo/mivo_navigation_flip.mp4'),
   tap: require('../../assets/videos/mivo/mivo_tap_reaction.mp4'),
   success: require('../../assets/videos/mivo/mivo_success_jump.mp4'),
+  /** 9:16, flat #D9E2F9 background, 4 s loop — Welcome screen (see WelcomeScreen). */
+  wave: require('../../assets/videos/mivo/mivo_wave_loop.mp4'),
 };

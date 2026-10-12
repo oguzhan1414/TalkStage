@@ -10,9 +10,9 @@ import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
 import { t } from '../../i18n';
 
-export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenProps<'Ready'>) {
+export function ReadyScreen({ navigation }: OnboardingStackScreenProps<'Ready'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'ready' });
-  const { draft, completedProfile, finishOnboarding } = useOnboarding();
+  const { draft, completedProfile } = useOnboarding();
 
   // `completedProfile` is set the instant `Preparing` succeeds — normal flow
   // always has it by the time this screen mounts. Falling back to the local
@@ -69,7 +69,7 @@ export function ReadyScreen({ navigation: _navigation }: OnboardingStackScreenPr
       </View>
 
       <View style={styles.footer}>
-        <Button label={t("Sahneye Çık & Başla 🚀")} variant="chunky" onPress={finishOnboarding} />
+        <Button label={t("Devam Et ➔")} variant="chunky" onPress={() => navigation.navigate('Reminder')} />
       </View>
     </SafeAreaView>
   );

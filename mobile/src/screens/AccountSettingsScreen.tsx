@@ -338,11 +338,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
             <Ionicons name="notifications-outline" size={20} color={colors.brand} />
             <View style={styles.settingTextCol}>
               <Text style={styles.settingLabel}>{t("Günlük Hatırlatıcı")}</Text>
-              <Text style={styles.settingDesc}>
-                {remindersUnavailable
-                  ? t("Bu sürümde kullanılamıyor (Expo Go)")
-                  : t("Bugünkü görevin ve yarınki planın için akıllı hatırlatma")}
-              </Text>
+              <Text style={styles.settingDesc}>{t("Bugünkü görevin ve yarınki planın için akıllı hatırlatma")}</Text>
             </View>
             <Switch
               value={remindersEnabled}

@@ -20,6 +20,8 @@ export type ProfileOut = {
   learning_goal: string | null;
   daily_target_minutes: number;
   native_language?: string;
+  gender?: string | null;
+  age_range?: string | null;
   onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -44,6 +46,8 @@ export type OnboardingCompleteRequest = {
   cefr_level: string;
   daily_target_minutes: number;
   native_language?: string;
+  gender?: string;
+  age_range?: string;
 };
 
 export type ScenarioObjective = {

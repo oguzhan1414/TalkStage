@@ -39,6 +39,14 @@ export const yankiMagicImage = mivoImages.speaking;
 /** Konuşma animasyonunda "ağız kapalı" yedeği: konuşan poz ile dinlenme pozu dönüşümlü gösterilir. */
 export const yankiMagicMouthClosedImage = mivoImages.idle;
 export const yankiGreetingImage = mivoHomeImages.chatInvite;
+
+/** Full-screen Pro offer poster (941x1672, Turkish text + price baked in -> only shown for the Turkish UI).
+ * `mivo_final_days_999` and `mivo_special_offer_999` also exist in assets/images/paywall but claim urgency / a
+ * personal discount: use them only for real campaigns. */
+export const paywallPoster = require('../../assets/images/paywall/mivo_365_journey_999.webp');
+
+/** Waving Mivo for the Welcome screen (transparent WebP). */
+export const mivoWaveImage = require('../../assets/images/companion/mivo/mivo_wave.webp');
 export const yankiListeningImage = mivoImages.listening;
 export const yankiCelebrateImage = mivoImages.success;
 

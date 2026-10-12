@@ -3,7 +3,7 @@ import { Image, ScrollView, StyleSheet, Text, Pressable, View } from 'react-nati
 
 import { Button } from '../../components/Button';
 import { OnboardingProgressHeader } from '../../components/OnboardingProgressHeader';
-import { GOAL_OPTIONS } from '../../constants/onboarding';
+import { GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { colors, fonts, radii, shadow, spacing } from '../../theme/tokens';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
@@ -16,7 +16,7 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <OnboardingProgressHeader step={3} onBack={() => navigation.goBack()} />
+      <OnboardingProgressHeader step={2} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>{t("İngilizce konuşurken en büyük hedefin ne? 🎯")}</Text>
@@ -28,7 +28,7 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
             return (
               <Pressable
                 key={g.id}
-                onPress={() => updateDraft({ learningGoal: g.id })}
+                onPress={() => updateDraft({ learningGoal: g.id, personaId: personaForGoal(g.id, draft.ageRange) })}
                 style={[styles.card, shadow.card, isSelected && { borderColor: colors.brand }]}
               >
                 <View style={styles.cardTopRow}>
@@ -59,7 +59,15 @@ export function GoalScreen({ navigation }: OnboardingStackScreenProps<'Goal'>) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label={t("Devam Et ➔")} variant="chunky" onPress={() => navigation.navigate('MicPermission')} />
+        <Button
+          label={t("Devam Et ➔")}
+          variant="chunky"
+          onPress={() => {
+            // Defaults are pre-selected; make sure the derived persona matches the (possibly default) goal.
+            updateDraft({ personaId: personaForGoal(draft.learningGoal, draft.ageRange) });
+            navigation.navigate('Level');
+          }}
+        />
       </View>
     </SafeAreaView>
   );

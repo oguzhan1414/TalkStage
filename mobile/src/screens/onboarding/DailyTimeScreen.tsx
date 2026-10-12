@@ -17,7 +17,7 @@ export function DailyTimeScreen({ navigation }: OnboardingStackScreenProps<'Dail
 
   return (
     <SafeAreaView style={styles.container}>
-      <OnboardingProgressHeader step={6} onBack={() => navigation.goBack()} />
+      <OnboardingProgressHeader step={4} onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
         <Text style={styles.title}>{t("Günde ne kadar vakit ayırabilirsin? ⏱️")}</Text>
