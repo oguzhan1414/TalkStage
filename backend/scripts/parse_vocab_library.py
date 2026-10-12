@@ -15,6 +15,12 @@ def clean_str(s: str) -> str:
     s = s.replace(r"\-", "-").replace(r"\_", "_")
     return s.strip()
 
+
+def parse_respelling(block: str) -> str:
+    """Read the learner-friendly English respelling stored beside the IPA."""
+    match = re.search(r'^- Pronunciation:\s*`([^`]+)`', block, re.M)
+    return clean_str(match.group(1)) if match else ""
+
 def parse_adjectives(md_content: str, prefix="adj_") -> list[dict]:
     entries = []
     blocks = re.split(r'\n(?=### Adjective \d+:)', md_content.strip())
@@ -29,6 +35,7 @@ def parse_adjectives(md_content: str, prefix="adj_") -> list[dict]:
         rank = int(m_head.group(1))
         word = clean_str(m_head.group(2))
         phonetic = clean_str(m_head.group(3))
+        respelling = parse_respelling(block)
         translation = clean_str(m_head.group(4))
         
         m_comp = re.search(r'- Comparative Form:\s*(.+?)\s*`([^`]+)`\s*[–-]\s*(.+)', block, re.M)
@@ -92,6 +99,7 @@ def parse_adjectives(md_content: str, prefix="adj_") -> list[dict]:
             "rank": rank,
             "word": word,
             "phonetic": phonetic,
+            "respelling": respelling,
             "translation": translation,
             "exampleEn": exampleEn,
             "grammarNote": grammarNote,
@@ -123,6 +131,7 @@ def parse_nouns(md_content: str, prefix="noun_") -> list[dict]:
         rank = int(m_head.group(1))
         word = clean_str(m_head.group(2))
         phonetic = clean_str(m_head.group(3))
+        respelling = parse_respelling(block)
         raw_translation = clean_str(m_head.group(4))
         
         countable = "Sayılamayan" not in raw_translation and "Uncountable" not in block
@@ -200,6 +209,7 @@ def parse_nouns(md_content: str, prefix="noun_") -> list[dict]:
             "rank": rank,
             "word": word,
             "phonetic": phonetic,
+            "respelling": respelling,
             "translation": translation,
             "exampleEn": exampleEn,
             "grammarNote": grammarNote,
@@ -236,6 +246,7 @@ def parse_verbs(md_content: str, prefix="verb_") -> list[dict]:
         rank = int(m_head.group(1))
         word = clean_str(m_head.group(2))
         phonetic = clean_str(m_head.group(3))
+        respelling = parse_respelling(block)
         translation = clean_str(m_head.group(4))
         
         m_pres = re.search(r'-\s*(I [a-zA-Z\s\']+?)\s*[–-]\s*(.+)', block, re.M)
@@ -283,6 +294,7 @@ def parse_verbs(md_content: str, prefix="verb_") -> list[dict]:
             "rank": rank,
             "word": word,
             "phonetic": phonetic,
+            "respelling": respelling,
             "translation": translation,
             "exampleEn": exampleEn,
             "grammarNote": grammarNote,
@@ -336,6 +348,8 @@ def generate_full_vocab_library():
  * tek dokunuşla SM-2 Kelime Sandığı'na eklenir.
  */
 
+import { getDataLocale, localizeList, type Overlay } from './i18nOverlay';
+
 export type LibraryFormDetail = {
   form: string;
   phonetic?: string;
@@ -354,6 +368,8 @@ export type LibraryWordEntry = {
   partOfSpeech: 'adjective' | 'verb' | 'noun' | 'adverb';
   word: string;
   phonetic: string;
+  /** Learner-friendly English respelling; capitals mark the stressed syllable. */
+  respelling: string;
   translation: string;
   exampleEn: string;
   exampleTr: string;
@@ -376,26 +392,44 @@ export type LibraryWordEntry = {
   pastSimple?: LibraryFormDetail;
 };
 
-export const ADJECTIVES_100: LibraryWordEntry[] = ''' + json.dumps(adj_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const ADJECTIVES_100_RAW: LibraryWordEntry[] = ''' + json.dumps(adj_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const ADJECTIVES_200: LibraryWordEntry[] = ''' + json.dumps(adj_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const ADJECTIVES_200_RAW: LibraryWordEntry[] = ''' + json.dumps(adj_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const ADJECTIVES_300: LibraryWordEntry[] = ''' + json.dumps(adj_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const ADJECTIVES_300_RAW: LibraryWordEntry[] = ''' + json.dumps(adj_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const NOUNS_100: LibraryWordEntry[] = ''' + json.dumps(noun_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const NOUNS_100_RAW: LibraryWordEntry[] = ''' + json.dumps(noun_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const NOUNS_200: LibraryWordEntry[] = ''' + json.dumps(noun_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const NOUNS_200_RAW: LibraryWordEntry[] = ''' + json.dumps(noun_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const NOUNS_300: LibraryWordEntry[] = ''' + json.dumps(noun_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const NOUNS_300_RAW: LibraryWordEntry[] = ''' + json.dumps(noun_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const VERBS_100: LibraryWordEntry[] = ''' + json.dumps(verb_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const VERBS_100_RAW: LibraryWordEntry[] = ''' + json.dumps(verb_1, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const VERBS_200: LibraryWordEntry[] = ''' + json.dumps(verb_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const VERBS_200_RAW: LibraryWordEntry[] = ''' + json.dumps(verb_2, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
 
-export const VERBS_300: LibraryWordEntry[] = ''' + json.dumps(verb_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+const VERBS_300_RAW: LibraryWordEntry[] = ''' + json.dumps(verb_3, ensure_ascii=False, indent=2) + ''' as LibraryWordEntry[];
+
+// ---- Çok dilli içerik: i18n/vocabLibrary.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
+const OVERLAYS: Record<string, Overlay | undefined> = {
+  en: require('./i18n/vocabLibrary.en.json'),
+  es: require('./i18n/vocabLibrary.es.json'),
+  pt: require('./i18n/vocabLibrary.pt.json'),
+  de: require('./i18n/vocabLibrary.de.json'),
+};
+const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
+export const ADJECTIVES_100: LibraryWordEntry[] = localizeList(ADJECTIVES_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const ADJECTIVES_200: LibraryWordEntry[] = localizeList(ADJECTIVES_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const ADJECTIVES_300: LibraryWordEntry[] = localizeList(ADJECTIVES_300_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_100: LibraryWordEntry[] = localizeList(NOUNS_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_200: LibraryWordEntry[] = localizeList(NOUNS_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const NOUNS_300: LibraryWordEntry[] = localizeList(NOUNS_300_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_100: LibraryWordEntry[] = localizeList(VERBS_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_200: LibraryWordEntry[] = localizeList(VERBS_200_RAW, (e) => e.id, ACTIVE_OVERLAY);
+export const VERBS_300: LibraryWordEntry[] = localizeList(VERBS_300_RAW, (e) => e.id, ACTIVE_OVERLAY);
 '''
 
-    out_file = os.path.join(base_dir, 'mobile/src/data/vocabLibrary.ts')
+    out_file = os.path.join(base_dir, 'packages/shared-data/vocabLibrary.ts')
     with open(out_file, 'w', encoding='utf-8') as f:
         f.write(ts_content)
     print(f"Successfully generated {out_file} with all 9 sets (900 total core words)!")
