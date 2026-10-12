@@ -346,3 +346,6 @@ Tüm REST endpoint'leri `Authorization: Bearer <supabase_access_token>` bekler.
 
 ### freechat_session: tek konulu "öğretici tekrar" modu (2026-10-12)
 - `focus.kind == "review"` ve `topics` tek elemanlıysa: `_TEACH_OPENING` ile açılır (kuralı kullanıcıya anlattır) ve `_focus_prompt_block` "TOPIC REVIEW LESSON" bloğunu kullanır (önce kural hatırlatma/düzeltme, sonra kullanıcıya o yapıyla cümle kurdurma). Birden fazla konuysa eski serbest tekrar akışı aynen duruyor. `focus.code` (örn. A1_G03) varsa yapılan hatalar `grammar_mistakes.topic_code`'a o kodla yazılır. Backend yeniden başlatılmalı.
+
+### Onboarding: isteğe bağlı cinsiyet + yaş aralığı (2026-10-12)
+- Migration `0029_profile_gender_age.sql` (`profiles.gender`, `profiles.age_range`, check kısıtlı, null olabilir). `OnboardingCompleteRequest` ve `ProfileOut` bu iki alanı taşır. `POST /onboarding/complete` kolon yoksa (migration uygulanmamış) önce `gender`, `age_range`, sonra `native_language` alanını düşürüp tekrar dener — eksik opsiyonel kolon onboarding'i asla bloklamaz. Kesin doğum tarihi tutulmaz (veri azaltma).

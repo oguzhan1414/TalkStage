@@ -5,6 +5,8 @@ from app.core.language import NATIVE_LANGUAGE_PATTERN
 
 PERSONA_PATTERN = "^(student|corporate|tech|traveler|adult_hobby|service)$"
 LEARNING_GOAL_PATTERN = "^(freeze_barrier|exams_school|work_career|travel_life|no_partner)$"
+GENDER_PATTERN = "^(female|male|other)$"
+AGE_RANGE_PATTERN = "^(u17|18_24|25_34|35_44|45_plus)$"
 
 
 class ProfileOut(BaseModel):
@@ -22,6 +24,9 @@ class ProfileOut(BaseModel):
     daily_target_minutes: int = 10
     study_days: list[int] | None = None
     native_language: str = "tr"
+    #: Onboarding'de isteğe bağlı alınır (boş olabilir).
+    gender: str | None = None
+    age_range: str | None = None
     onboarding_completed_at: str | None = None
     created_at: str
     updated_at: str

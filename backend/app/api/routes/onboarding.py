@@ -105,15 +105,22 @@ def complete_onboarding(
     }
     if payload.native_language:
         updates["native_language"] = payload.native_language
-    try:
-        result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
-    except APIError:
-        # Migration 0021 (profiles.native_language) may not be applied on this
-        # environment yet — never let that block onboarding itself.
-        if "native_language" not in updates:
-            raise
-        updates.pop("native_language")
-        result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
+    if payload.gender:
+        updates["gender"] = payload.gender
+    if payload.age_range:
+        updates["age_range"] = payload.age_range
+    # Migrations 0021 (native_language) / 0029 (gender, age_range) may not be applied on this environment yet —
+    # never let a missing optional column block onboarding itself: drop the optional fields one by one and retry.
+    optional_fields = ["gender", "age_range", "native_language"]
+    while True:
+        try:
+            result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()
+            break
+        except APIError:
+            dropped = next((f for f in optional_fields if f in updates), None)
+            if dropped is None:
+                raise
+            updates.pop(dropped)
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
     return ProfileOut(**result.data[0])
