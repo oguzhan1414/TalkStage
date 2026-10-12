@@ -108,9 +108,14 @@ export function parsePath(pathname: string): ParsedPath {
 /** The same page, in another language. */
 export function switchLocalePath(pathname: string, to: Locale): string {
   const { key, rest } = parsePath(pathname);
+  if (key === "blog" && rest) {
+    // Blog articles are language-specific; switch to the blog index of the target language
+    return localizePath("/blog", to);
+  }
   const internal = key ? `/${key}${rest}` : pathname.replace(/^\/(tr|en|es|pt|de)(?=\/|$)/, "") || "/";
   return localizePath(internal, to);
 }
+
 
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path === "/" ? "" : path}`;

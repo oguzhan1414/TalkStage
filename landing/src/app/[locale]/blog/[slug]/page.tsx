@@ -5,66 +5,223 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
-import { blogPosts } from "@/lib/blog-data";
-import { alternatesFor, absoluteUrl, localizePath } from "@/i18n/paths";
+import { blogPosts, getPostBySlug, getPostsByLocale } from "@/lib/blog-data";
+import { absoluteUrl, localizePath } from "@/i18n/paths";
 import { pageLocale } from "@/i18n/page";
 import { breadcrumbSchema, faqSchema, ORG_ID } from "@/i18n/schema";
+import { LOCALE_META, type Locale } from "@/i18n/config";
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
-  // The blog is written for Turkish learners and exists in Turkish only.
   return blogPosts.map((post) => ({
-    locale: "tr",
+    locale: post.locale,
     slug: post.slug,
   }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const { locale, slug } = await params;
+  const post = getPostBySlug(slug, locale as Locale);
 
   if (!post) {
-    return { title: "Makale bulunamadı — Spekvia", robots: { index: false } };
+    return { title: "Article not found — Spekvia", robots: { index: false } };
   }
 
-  const url = absoluteUrl(localizePath(`/blog/${post.slug}`, "tr"));
+  const url = absoluteUrl(localizePath(`/blog/${post.slug}`, post.locale));
   return {
     title: post.metaTitle,
     description: post.excerpt,
-    alternates: alternatesFor(`/blog/${slug}`, "tr", ["tr"]),
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: post.metaTitle,
       description: post.excerpt,
       url,
       type: "article",
-      locale: "tr_TR",
+      locale: LOCALE_META[post.locale]?.ogLocale || "en_US",
       publishedTime: post.datePublished,
       modifiedTime: post.dateModified,
       authors: [post.author.name],
       section: post.category,
       images: [{ url: post.coverImage, width: 1440, height: 810, alt: post.coverAlt }],
     },
-    twitter: { card: "summary_large_image", title: post.metaTitle, description: post.excerpt, images: [post.coverImage] },
+    twitter: {
+      card: "summary_large_image",
+      title: post.metaTitle,
+      description: post.excerpt,
+      images: [post.coverImage],
+    },
   };
 }
 
+interface ArticleUI {
+  homeLabel: string;
+  blogLabel: string;
+  lastUpdated: string;
+  inBrief: string;
+  tableOfContents: string;
+  dialogueHeading: string;
+  tipLabel: string;
+  checklistHeading: string;
+  proTipLabel: string;
+  keyTakeawayLabel: string;
+  wrongLabel: string;
+  correctLabel: string;
+  exampleLabel: string;
+  explanationLabel: string;
+  faqHeading: string;
+  sourcesHeading: string;
+  editorialNote: string;
+  ctaTitle: string;
+  ctaSubtitle: string;
+  ctaButton: string;
+  relatedHeading: string;
+  readAction: string;
+}
+
+const ARTICLE_UI: Record<Locale, ArticleUI> = {
+  tr: {
+    homeLabel: "Ana Sayfa",
+    blogLabel: "Blog",
+    lastUpdated: "Son güncelleme:",
+    inBrief: "Kısaca",
+    tableOfContents: "İçindekiler",
+    dialogueHeading: "Örnek diyalog",
+    tipLabel: "İpucu:",
+    checklistHeading: "Uygulama listesi",
+    proTipLabel: "İpucu:",
+    keyTakeawayLabel: "Önemli nokta:",
+    wrongLabel: "Yanlış:",
+    correctLabel: "Doğru:",
+    exampleLabel: "Örnek:",
+    explanationLabel: "Açıklama:",
+    faqHeading: "Sık sorulan sorular",
+    sourcesHeading: "Kaynaklar ve ileri okuma",
+    editorialNote: "Bu yazı Spekvia Editör Ekibi tarafından hazırlanmıştır.",
+    ctaTitle: "Bu konuyu sesli sahnede prova etmek ister misin?",
+    ctaSubtitle: "Spekvia'da gerçek hayat sahnelerini Mivo ile sesli oyna; takıldığın cümle anında kendi dilinde açıklanarak düzeltilir.",
+    ctaButton: "Ücretsiz başla →",
+    relatedHeading: "İlginizi çekebilecek diğer rehberler",
+    readAction: "Oku →",
+  },
+  en: {
+    homeLabel: "Home",
+    blogLabel: "Blog",
+    lastUpdated: "Last updated:",
+    inBrief: "In brief",
+    tableOfContents: "Table of Contents",
+    dialogueHeading: "Sample dialogue",
+    tipLabel: "Tip:",
+    checklistHeading: "Action checklist",
+    proTipLabel: "Pro tip:",
+    keyTakeawayLabel: "Key takeaway:",
+    wrongLabel: "Incorrect:",
+    correctLabel: "Correct:",
+    exampleLabel: "Example:",
+    explanationLabel: "Explanation:",
+    faqHeading: "Frequently asked questions",
+    sourcesHeading: "Sources and further reading",
+    editorialNote: "Prepared by the Spekvia Editorial Team.",
+    ctaTitle: "Want to practice this scenario out loud?",
+    ctaSubtitle: "Rehearse real-life conversations with Mivo in Spekvia. Instant voice corrections in your language whenever you get stuck.",
+    ctaButton: "Start for free →",
+    relatedHeading: "Other guides you might like",
+    readAction: "Read →",
+  },
+  es: {
+    homeLabel: "Inicio",
+    blogLabel: "Blog",
+    lastUpdated: "Última actualización:",
+    inBrief: "En resumen",
+    tableOfContents: "Índice de contenidos",
+    dialogueHeading: "Diálogo de ejemplo",
+    tipLabel: "Consejo:",
+    checklistHeading: "Lista de verificación",
+    proTipLabel: "Consejo:",
+    keyTakeawayLabel: "Punto clave:",
+    wrongLabel: "Incorrecto:",
+    correctLabel: "Correcto:",
+    exampleLabel: "Ejemplo:",
+    explanationLabel: "Explicación:",
+    faqHeading: "Preguntas frecuentes",
+    sourcesHeading: "Fuentes y lecturas recomendadas",
+    editorialNote: "Preparado por el equipo editorial de Spekvia.",
+    ctaTitle: "¿Quieres practicar este escenario en voz alta?",
+    ctaSubtitle: "Interpreta situaciones reales con Mivo en Spekvia. Recibe correcciones al instante en tu idioma cuando te trabes.",
+    ctaButton: "Comenzar gratis →",
+    relatedHeading: "Otras guías que te pueden interesar",
+    readAction: "Leer →",
+  },
+  pt: {
+    homeLabel: "Início",
+    blogLabel: "Blog",
+    lastUpdated: "Última atualização:",
+    inBrief: "Em resumo",
+    tableOfContents: "Índice do conteúdo",
+    dialogueHeading: "Diálogo de exemplo",
+    tipLabel: "Dica:",
+    checklistHeading: "Passo a passo prático",
+    proTipLabel: "Dica prática:",
+    keyTakeawayLabel: "Ponto fundamental:",
+    wrongLabel: "Incorreto:",
+    correctLabel: "Correto:",
+    exampleLabel: "Exemplo:",
+    explanationLabel: "Explicação:",
+    faqHeading: "Perguntas frequentes",
+    sourcesHeading: "Fontes e leituras recomendadas",
+    editorialNote: "Preparado pela equipe editorial do Spekvia.",
+    ctaTitle: "Quer praticar esse cenário em voz alta?",
+    ctaSubtitle: "Treine situações reais com o Mivo no Spekvia. Receba correções imediatas no seu idioma sempre que travar.",
+    ctaButton: "Começar de graça →",
+    relatedHeading: "Outros guias que podem te interessar",
+    readAction: "Ler →",
+  },
+  de: {
+    homeLabel: "Startseite",
+    blogLabel: "Blog",
+    lastUpdated: "Zuletzt aktualisiert:",
+    inBrief: "Auf einen Blick",
+    tableOfContents: "Inhaltsverzeichnis",
+    dialogueHeading: "Beispieldialog",
+    tipLabel: "Tipp:",
+    checklistHeading: "Praxis-Checkliste",
+    proTipLabel: "Praxis-Tipp:",
+    keyTakeawayLabel: "Wichtig:",
+    wrongLabel: "Nicht so:",
+    correctLabel: "Sag so:",
+    exampleLabel: "Beispiel:",
+    explanationLabel: "Erklärung:",
+    faqHeading: "Häufig gestellte Fragen",
+    sourcesHeading: "Quellen und weiterführende Hinweise",
+    editorialNote: "Verfasst vom Spekvia Redaktionsteam.",
+    ctaTitle: "Möchtest du diese Situation laut üben?",
+    ctaSubtitle: "Spiele reale Alltagsszenarien mit Mivo in Spekvia durch. Erhalte sofortige Erklärungen in deiner Sprache, sobald du stecken bleibst.",
+    ctaButton: "Kostenlos starten →",
+    relatedHeading: "Weitere interessante Leitfäden",
+    readAction: "Lesen →",
+  },
+};
+
 export default async function BlogPostPage({ params }: Props) {
-  const locale = await pageLocale(params);
+  const locale = (await pageLocale(params)) as Locale;
   const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post = getPostBySlug(slug, locale);
 
   if (!post) {
     notFound();
   }
 
+  const ui = ARTICLE_UI[locale] || ARTICLE_UI.tr;
   const path = `/blog/${post.slug}`;
   const url = absoluteUrl(localizePath(path, locale));
 
-  const sameCategory = blogPosts.filter((p) => p.slug !== slug && p.category === post.category);
-  const others = blogPosts.filter((p) => p.slug !== slug && p.category !== post.category);
+  const localePosts = getPostsByLocale(locale);
+  const sameCategory = localePosts.filter((p) => p.slug !== slug && p.category === post.category);
+  const others = localePosts.filter((p) => p.slug !== slug && p.category !== post.category);
   const relatedPosts = [...sameCategory, ...others].slice(0, 3);
 
   const articleSchema = {
@@ -78,13 +235,13 @@ export default async function BlogPostPage({ params }: Props) {
     image: [absoluteUrl(post.coverImage)],
     datePublished: post.datePublished,
     dateModified: post.dateModified,
-    inLanguage: "tr",
+    inLanguage: locale,
     articleSection: post.category,
     wordCount: post.wordCount,
     author: { "@type": "Organization", "@id": ORG_ID, name: post.author.name },
     publisher: { "@id": ORG_ID },
     isAccessibleForFree: true,
-    ...(post.sources?.length ? { citation: post.sources.map((s) => ({ "@type": "CreativeWork", name: s.name, url: s.url })) } : {}),
+    ...(post.sources?.length ? { citation: post.sources.map((s) => ({ "@type": "CreativeWork", name: s.name, ...(s.url ? { url: s.url } : {}) })) } : {}),
   };
 
   return (
@@ -93,8 +250,8 @@ export default async function BlogPostPage({ params }: Props) {
         data={[
           articleSchema,
           breadcrumbSchema(locale, [
-            { name: "Ana Sayfa", path: "/" },
-            { name: "Blog", path: "/blog" },
+            { name: ui.homeLabel, path: "/" },
+            { name: ui.blogLabel, path: "/blog" },
             { name: post.title, path },
           ]),
           ...(post.content.faq.length ? [faqSchema(locale, post.content.faq, path)] : []),
@@ -104,13 +261,13 @@ export default async function BlogPostPage({ params }: Props) {
       <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
         <article className="mx-auto max-w-4xl px-6">
           {/* Breadcrumb */}
-          <nav aria-label="Sayfa yolu" className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
+          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
             <Link href="/" className="hover:text-indigo transition-colors">
-              Ana Sayfa
+              {ui.homeLabel}
             </Link>
             <span>/</span>
             <Link href="/blog" className="hover:text-indigo transition-colors">
-              Blog
+              {ui.blogLabel}
             </Link>
             <span>/</span>
             <span className="text-heading font-semibold truncate max-w-xs sm:max-w-md">{post.title}</span>
@@ -127,9 +284,7 @@ export default async function BlogPostPage({ params }: Props) {
               </time>
             </div>
 
-            <h1
-              className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-[2.75rem] leading-[1.15]"
-            >
+            <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-[2.75rem] leading-[1.15]">
               {post.title}
             </h1>
 
@@ -145,11 +300,9 @@ export default async function BlogPostPage({ params }: Props) {
                 <p className="text-xs text-muted">{post.author.role}</p>
               </div>
               <p className="text-xs text-muted">
-                Son güncelleme:{" "}
+                {ui.lastUpdated}{" "}
                 <time dateTime={post.dateModified}>
-                  {new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(
-                    new Date(`${post.dateModified}T00:00:00Z`),
-                  )}
+                  {post.date}
                 </time>
               </p>
             </div>
@@ -168,8 +321,8 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
 
           {/* Summary (answer-first) */}
-          <aside aria-label="Kısaca" className="my-8 rounded-2xl border border-indigo/20 bg-indigo/5 p-6">
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-indigo">Kısaca</h2>
+          <aside aria-label={ui.inBrief} className="my-8 rounded-2xl border border-indigo/20 bg-indigo/5 p-6">
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-indigo">{ui.inBrief}</h2>
             <ul className="mt-3 space-y-2.5 text-[0.97rem] leading-relaxed text-heading">
               {post.summary.map((item, i) => (
                 <li key={i} className="flex gap-2.5">
@@ -182,8 +335,8 @@ export default async function BlogPostPage({ params }: Props) {
 
           {/* Table of contents */}
           {post.tableOfContents.length > 1 && (
-            <nav aria-label="İçindekiler" className="my-8 rounded-2xl border border-line bg-porcelain p-6">
-              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-heading">İçindekiler</h2>
+            <nav aria-label={ui.tableOfContents} className="my-8 rounded-2xl border border-line bg-porcelain p-6">
+              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-heading">{ui.tableOfContents}</h2>
               <ol className="mt-3 space-y-2 text-sm">
                 {post.tableOfContents.map((item, idx) => (
                   <li key={item.id} className="flex items-start gap-2.5">
@@ -218,7 +371,7 @@ export default async function BlogPostPage({ params }: Props) {
                   {section.subheading && <p className="mt-1 font-semibold text-indigo">{section.subheading}</p>}
                 </div>
 
-                {section.body.length > 0 && (
+                {section.body && section.body.length > 0 && (
                   <div className="space-y-4">
                     {section.body.map((paragraph, pIdx) => (
                       <p key={pIdx}>{paragraph}</p>
@@ -241,7 +394,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <div className="my-8 overflow-hidden rounded-2xl border border-line bg-porcelain p-5 sm:p-6 space-y-4 shadow-xs">
                     <div className="flex items-center gap-2 border-b border-line/80 pb-3">
                       <span aria-hidden className="text-base">🎙️</span>
-                      <h3 className="font-display text-sm font-bold uppercase tracking-wider text-heading">Örnek diyalog</h3>
+                      <h3 className="font-display text-sm font-bold uppercase tracking-wider text-heading">{ui.dialogueHeading}</h3>
                     </div>
                     <div className="space-y-4">
                       {section.dialogue.map((exchange, dIdx) => (
@@ -253,10 +406,10 @@ export default async function BlogPostPage({ params }: Props) {
                           <p lang="en" className="text-sm font-semibold text-heading">
                             &quot;{exchange.en}&quot;
                           </p>
-                          <p className="text-xs text-muted">{exchange.tr}</p>
+                          {exchange.tr && <p className="text-xs text-muted">{exchange.tr}</p>}
                           {exchange.tip && (
                             <div className="mt-2 rounded-lg bg-indigo/5 p-2 text-xs text-indigo">
-                              <strong>İpucu:</strong> {exchange.tip}
+                              <strong>{ui.tipLabel}</strong> {exchange.tip}
                             </div>
                           )}
                         </div>
@@ -297,7 +450,7 @@ export default async function BlogPostPage({ params }: Props) {
 
                 {section.checklist && section.checklist.length > 0 && (
                   <div className="my-6 rounded-2xl border border-emerald/20 bg-emerald/5 p-6 space-y-3">
-                    <h3 className="font-display text-sm font-bold uppercase tracking-wider text-emerald-900">Uygulama listesi</h3>
+                    <h3 className="font-display text-sm font-bold uppercase tracking-wider text-emerald-900">{ui.checklistHeading}</h3>
                     <ul className="space-y-2.5 text-sm text-heading">
                       {section.checklist.map((item, cIdx) => (
                         <li key={cIdx} className="flex items-start gap-2.5">
@@ -316,13 +469,13 @@ export default async function BlogPostPage({ params }: Props) {
 
                 {section.keyTakeaway && (
                   <div className="my-4 rounded-xl border-l-4 border-emerald bg-emerald/10 p-4 text-sm font-semibold text-emerald-900">
-                    <strong>Önemli nokta:</strong> {section.keyTakeaway}
+                    <strong>{ui.keyTakeawayLabel}</strong> {section.keyTakeaway}
                   </div>
                 )}
 
                 {section.proTip && (
                   <div className="my-4 rounded-xl border-l-4 border-indigo bg-indigo/10 p-4 text-sm font-semibold text-indigo-950">
-                    <strong>İpucu:</strong> {section.proTip}
+                    <strong>{ui.proTipLabel}</strong> {section.proTip}
                   </div>
                 )}
 
@@ -331,16 +484,16 @@ export default async function BlogPostPage({ params }: Props) {
                     <h3 className="font-display text-sm font-bold text-heading">{section.exampleBox.title}</h3>
                     {section.exampleBox.wrong && (
                       <div className="mt-3 flex items-start gap-2 text-xs text-rose-700 bg-rose-50 p-2.5 rounded-lg">
-                        <span className="font-bold shrink-0">Yanlış:</span>
-                        <span lang="en" className="whitespace-pre-line">{section.exampleBox.wrong}</span>
+                        <span className="font-bold shrink-0">{ui.wrongLabel}</span>
+                        <span className="whitespace-pre-line">{section.exampleBox.wrong}</span>
                       </div>
                     )}
                     <div className="mt-2 flex items-start gap-2 text-xs text-emerald-800 bg-emerald-50 p-2.5 rounded-lg">
-                      <span className="font-bold shrink-0">{section.exampleBox.wrong ? "Doğru:" : "Örnek:"}</span>
-                      <span lang="en" className="whitespace-pre-line">{section.exampleBox.correct}</span>
+                      <span className="font-bold shrink-0">{section.exampleBox.wrong ? ui.correctLabel : ui.exampleLabel}</span>
+                      <span className="whitespace-pre-line">{section.exampleBox.correct}</span>
                     </div>
                     <p className="mt-2.5 text-xs text-muted leading-relaxed">
-                      <strong>Açıklama:</strong> {section.exampleBox.explanation}
+                      <strong>{ui.explanationLabel}</strong> {section.exampleBox.explanation}
                     </p>
                   </div>
                 )}
@@ -349,8 +502,8 @@ export default async function BlogPostPage({ params }: Props) {
 
             {/* FAQ */}
             {post.content.faq.length > 0 && (
-              <section id="sss" className="scroll-mt-28 space-y-5 border-t border-line/60 pt-8">
-                <h2 className="font-display text-2xl font-bold text-heading sm:text-3xl">Sık sorulan sorular</h2>
+              <section id={post.tableOfContents[post.tableOfContents.length - 1]?.id} className="scroll-mt-28 space-y-5 border-t border-line/60 pt-8">
+                <h2 className="font-display text-2xl font-bold text-heading sm:text-3xl">{ui.faqHeading}</h2>
                 <div className="space-y-6">
                   {post.content.faq.map((item, fIdx) => (
                     <div key={fIdx}>
@@ -372,45 +525,48 @@ export default async function BlogPostPage({ params }: Props) {
 
           {/* Sources */}
           {post.sources && post.sources.length > 0 && (
-            <aside aria-label="Kaynaklar" className="mt-10 rounded-2xl border border-line bg-porcelain p-5 text-sm">
-              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-heading">Kaynaklar ve ileri okuma</h2>
+            <aside aria-label={ui.sourcesHeading} className="mt-10 rounded-2xl border border-line bg-porcelain p-5 text-sm">
+              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-heading">{ui.sourcesHeading}</h2>
               <ul className="mt-3 space-y-2">
                 {post.sources.map((s) => (
-                  <li key={s.url}>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-indigo underline underline-offset-4 hover:text-stage">
-                      {s.name}
-                    </a>
+                  <li key={s.name}>
+                    {s.url ? (
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-indigo underline underline-offset-4 hover:text-stage">
+                        {s.name}
+                      </a>
+                    ) : (
+                      <span className="text-body">{s.name}</span>
+                    )}
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-xs text-muted">Bu yazı Spekvia Editör Ekibi tarafından hazırlanmıştır. Sınav ve vize gibi konularda güncel kuralları resmî kaynaklardan doğrula.</p>
+              <p className="mt-3 text-xs text-muted">{ui.editorialNote}</p>
             </aside>
           )}
 
-          {/* CTA */}
+          {/* CTA Banner */}
           <div className="my-14 rounded-[28px] border border-indigo/20 bg-linear-to-br from-indigo/5 via-cyan/5 to-white p-8 text-center sm:p-10 shadow-sm">
             <span aria-hidden className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo text-2xl text-white shadow-md">
               🎙️
             </span>
-            <h2 className="mt-4 font-display text-2xl font-bold text-heading">Bu konuyu sesli sahnede prova etmek ister misin?</h2>
+            <h2 className="mt-4 font-display text-2xl font-bold text-heading">{ui.ctaTitle}</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-body">
-              Spekvia&apos;da gerçek hayat sahnelerini Mivo ile sesli oyna; takıldığın cümle anında kendi dilinde açıklanarak düzeltilir.
+              {ui.ctaSubtitle}
             </p>
             <div className="mt-6 flex justify-center">
               <Link
                 href="/#download"
                 className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo to-cyan px-8 py-3.5 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
               >
-                <span>Ücretsiz başla</span>
-                <span aria-hidden>→</span>
+                <span>{ui.ctaButton}</span>
               </Link>
             </div>
           </div>
 
-          {/* Related */}
+          {/* Related Articles */}
           {relatedPosts.length > 0 && (
             <div className="border-t border-line/80 pt-12">
-              <h2 className="font-display text-lg font-bold text-heading">İlginizi çekebilecek diğer rehberler</h2>
+              <h2 className="font-display text-lg font-bold text-heading">{ui.relatedHeading}</h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-3">
                 {relatedPosts.map((related) => (
                   <Link
@@ -422,7 +578,7 @@ export default async function BlogPostPage({ params }: Props) {
                     <h3 className="mt-1 font-display text-sm font-bold text-heading group-hover:text-indigo transition-colors line-clamp-3">
                       {related.title}
                     </h3>
-                    <span className="mt-3 block text-xs font-semibold text-indigo">Oku →</span>
+                    <span className="mt-3 block text-xs font-semibold text-indigo">{ui.readAction}</span>
                   </Link>
                 ))}
               </div>

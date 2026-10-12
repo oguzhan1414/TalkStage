@@ -7,6 +7,7 @@ import { AppleMark, PlayMark } from "./StoreMarks";
 import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 import { useLocale, useT } from "@/i18n/client";
 import { TR_ONLY_ROUTES } from "@/i18n/config";
+import { localizePath } from "@/i18n/paths";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { tr } from "@/i18n/shared";
 
@@ -103,12 +104,24 @@ export default function Footer() {
                 <nav key={col.title} aria-label={t(col.title)}>
                   <h4 className="font-mono text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-muted">{t(col.title)}</h4>
                   <ul className="mt-5 space-y-3.5">
-                    {col.links.filter((link) => !trOnly(link.href)).map((link) => (
+                    {col.links.map((link) => (
                       <li key={link.label}>
-                        <Link href={link.href} className="group relative inline-block text-[0.95rem] font-medium text-heading transition-colors hover:text-stage">
-                          {t(link.label)}
-                          <span aria-hidden className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-linear-to-r from-stage to-spot transition-transform duration-300 group-hover:scale-x-100" />
-                        </Link>
+                        {trOnly(link.href) ? (
+                          // Pages written only in Turkish (the blog): other languages link straight to the Turkish page, marked "TR".
+                          <a
+                            href={localizePath(link.href, "tr")}
+                            hrefLang="tr"
+                            className="group relative inline-flex items-center gap-2 text-[0.95rem] font-medium text-heading transition-colors hover:text-stage"
+                          >
+                            {t(link.label)}
+                            <span className="rounded-md bg-stage/10 px-1.5 py-0.5 font-mono text-[0.58rem] font-bold text-stage">TR</span>
+                          </a>
+                        ) : (
+                          <Link href={link.href} className="group relative inline-block text-[0.95rem] font-medium text-heading transition-colors hover:text-stage">
+                            {t(link.label)}
+                            <span aria-hidden className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-linear-to-r from-stage to-spot transition-transform duration-300 group-hover:scale-x-100" />
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>

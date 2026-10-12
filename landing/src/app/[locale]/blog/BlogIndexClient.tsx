@@ -5,32 +5,135 @@ import Image from "next/image";
 import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { blogPosts, BlogPost } from "@/lib/blog-data";
+import type { BlogPost } from "@/lib/blog-data";
+import type { Locale } from "@/i18n/config";
 
-type BlogCategory = "Tümü" | "Seviyeler & Gramer" | "Kariyer & Mülakat" | "Metodoloji & Taktikler" | "Seyahat & Günlük Hayat";
+interface Props {
+  locale: Locale;
+  initialPosts: BlogPost[];
+}
 
-const categories: BlogCategory[] = [
-  "Tümü",
-  "Seviyeler & Gramer",
-  "Kariyer & Mülakat",
-  "Metodoloji & Taktikler",
-  "Seyahat & Günlük Hayat",
-];
+interface LocaleStrings {
+  allCategory: string;
+  categories: string[];
+  homeLabel: string;
+  blogLabel: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  searchPlaceholder: string;
+  featuredLabel: string;
+  readGuide: string;
+  readShort: string;
+  emptyState: string;
+  ctaTitle: string;
+  ctaSubtitle: string;
+  ctaButton: string;
+}
 
-export default function BlogIndexClient() {
-  const [activeCategory, setActiveCategory] = useState<BlogCategory>("Tümü");
+const UI_STRINGS: Record<Locale, LocaleStrings> = {
+  tr: {
+    allCategory: "Tümü",
+    categories: ["Tümü", "Seviyeler & Gramer", "Kariyer & Mülakat", "Metodoloji & Taktikler", "Seyahat & Günlük Hayat"],
+    homeLabel: "Ana Sayfa",
+    blogLabel: "Blog & Rehberler",
+    eyebrow: "İngilizce Konuşma & Seviye Rehberleri",
+    title: "Gramerden Sahneye: Akıcı İngilizce Kütüphanesi",
+    subtitle: "A1'den C2'ye seviye rehberleri, yazılımcı standup tüyoları, vize mülakatı hazırlığı ve Türk öğrencilere özel konuşma stratejileri.",
+    searchPlaceholder: "Makale veya konu ara...",
+    featuredLabel: "Öne Çıkan Rehber",
+    readGuide: "Rehberi Oku →",
+    readShort: "Oku →",
+    emptyState: "Aramanıza uygun rehber bulunamadı.",
+    ctaTitle: "Okumayı Bırak, Gerçek Sahnede Konuşmaya Başla",
+    ctaSubtitle: "Tüm bu rehberlerdeki senaryoları Spekvia ile Mivo karşısında canlı sesli prova yapabilirsiniz.",
+    ctaButton: "Ücretsiz Sahneye Çık →",
+  },
+  en: {
+    allCategory: "All",
+    categories: ["All", "Levels & Grammar", "Career & Interview", "Methodology & Tactics", "Travel & Daily Life"],
+    homeLabel: "Home",
+    blogLabel: "Blog & Guides",
+    eyebrow: "English Speaking & Learning Guides",
+    title: "From Theory to Practice: Spoken English Library",
+    subtitle: "Practical guides for solo practice, job interviews, developer standups, and everyday speaking confidence.",
+    searchPlaceholder: "Search articles or topics...",
+    featuredLabel: "Featured Guide",
+    readGuide: "Read Guide →",
+    readShort: "Read →",
+    emptyState: "No articles found matching your search.",
+    ctaTitle: "Stop Just Reading, Start Speaking Out Loud",
+    ctaSubtitle: "Rehearse every scenario from these guides in voice simulations with Mivo in Spekvia.",
+    ctaButton: "Start Free Practice →",
+  },
+  es: {
+    allCategory: "Todos",
+    categories: ["Todos", "Niveles y gramática", "Carrera y entrevistas", "Metodología y tácticas", "Viajes y vida cotidiana"],
+    homeLabel: "Inicio",
+    blogLabel: "Blog y Guías",
+    eyebrow: "Guías para Hablar y Aprender Inglés",
+    title: "De la teoría a la práctica: biblioteca de fluidez en inglés",
+    subtitle: "Estrategias para superar el bloqueo, dominar entrevistas de trabajo, corregir falsos amigos y hablar con seguridad.",
+    searchPlaceholder: "Buscar artículos o temas...",
+    featuredLabel: "Guía destacada",
+    readGuide: "Leer guía →",
+    readShort: "Leer →",
+    emptyState: "No se encontraron artículos con esa búsqueda.",
+    ctaTitle: "Deja de leer y empieza a hablar en la vida real",
+    ctaSubtitle: "Practica cada uno de estos escenarios por voz con Mivo en Spekvia y recibe correcciones inmediatas.",
+    ctaButton: "Comenzar gratis →",
+  },
+  pt: {
+    allCategory: "Todos",
+    categories: ["Todos", "Níveis e gramática", "Carreira e entrevistas", "Metodologia e táticas", "Viagens e dia a dia"],
+    homeLabel: "Início",
+    blogLabel: "Blog e Guias",
+    eyebrow: "Guias de Conversação e Aprendizado",
+    title: "Da teoria à prática: biblioteca de fluência em inglês",
+    subtitle: "Estratégias para destravar a fala, entrevistas remotas internacionais, pronúncia correta e prática diária sem medo.",
+    searchPlaceholder: "Buscar artigos ou temas...",
+    featuredLabel: "Guia em destaque",
+    readGuide: "Ler guia →",
+    readShort: "Ler →",
+    emptyState: "Nenhum artigo encontrado para essa busca.",
+    ctaTitle: "Chega de só ler: comece a falar de verdade",
+    ctaSubtitle: "Treine cada um desses cenários por voz com o Mivo no Spekvia com correções imediatas no seu idioma.",
+    ctaButton: "Começar de graça →",
+  },
+  de: {
+    allCategory: "Alle",
+    categories: ["Alle", "Niveaus & Grammatik", "Karriere & Vorstellungsgespräch", "Methodik & Lerntipps", "Reisen & Alltag"],
+    homeLabel: "Startseite",
+    blogLabel: "Blog & Leitfäden",
+    eyebrow: "Leitfäden für Englische Sprachpraxis",
+    title: "Von der Theorie zur Praxis: Leitfäden für flüssiges Englisch",
+    subtitle: "Strukturierte Leitfäden für internationale Meetings, fehlerfreie Aussprache, False Friends und souveräne Vorstellungsgespräche.",
+    searchPlaceholder: "Artikel oder Themen suchen...",
+    featuredLabel: "Empfohlener Leitfaden",
+    readGuide: "Leitfaden lesen →",
+    readShort: "Lesen →",
+    emptyState: "Keine passenden Artikel gefunden.",
+    ctaTitle: "Nicht nur lesen, sondern laut sprechen lernen",
+    ctaSubtitle: "Übe all diese Alltagsszenarien per Spracheingabe mit Mivo in Spekvia und erhalte sofortiges Feedback.",
+    ctaButton: "Kostenlos starten →",
+  },
+};
+
+export default function BlogIndexClient({ locale, initialPosts }: Props) {
+  const ui = UI_STRINGS[locale] || UI_STRINGS.tr;
+  const [activeCategory, setActiveCategory] = useState<string>(ui.allCategory);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPosts = blogPosts.filter((post) => {
+  const filteredPosts = initialPosts.filter((post) => {
     const matchesCategory =
-      activeCategory === "Tümü" || post.category === activeCategory;
+      activeCategory === ui.allCategory || post.category === activeCategory;
     const matchesSearch =
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const featuredPost = blogPosts.find((p) => p.featured) || blogPosts[0];
+  const featuredPost = initialPosts.find((p) => p.featured) || initialPosts[0];
 
   return (
     <>
@@ -40,22 +143,22 @@ export default function BlogIndexClient() {
           {/* Breadcrumb */}
           <div className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
             <Link href="/" className="hover:text-indigo transition-colors">
-              Ana Sayfa
+              {ui.homeLabel}
             </Link>
             <span>/</span>
-            <span className="text-heading font-semibold">Blog & Rehberler</span>
+            <span className="text-heading font-semibold">{ui.blogLabel}</span>
           </div>
 
           {/* Page Header */}
           <div className="max-w-2xl">
             <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">
-              İngilizce Konuşma & Seviye Rehberleri
+              {ui.eyebrow}
             </span>
             <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
-              Gramerden Sahneye: Akıcı İngilizce Kütüphanesi
+              {ui.title}
             </h1>
             <p className="mt-4 text-lg leading-relaxed text-body">
-              A1&apos;den C2&apos;ye seviye rehberleri, yazılımcı standup tüyoları, vize mülakatı hazırlığı ve Türk öğrencilere özel konuşma stratejileri.
+              {ui.subtitle}
             </p>
           </div>
 
@@ -63,7 +166,7 @@ export default function BlogIndexClient() {
           <div className="mt-12 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between border-y border-line/80 py-6">
             {/* Category Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              {categories.map((cat) => {
+              {ui.categories.map((cat) => {
                 const isActive = activeCategory === cat;
                 return (
                   <button
@@ -86,7 +189,7 @@ export default function BlogIndexClient() {
             <div className="relative w-full sm:w-72">
               <input
                 type="text"
-                placeholder="Makale veya konu ara..."
+                placeholder={ui.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-full border border-line bg-porcelain px-4 py-2 pl-9 text-xs text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/15"
@@ -105,7 +208,7 @@ export default function BlogIndexClient() {
           </div>
 
           {/* Featured Hero Article (Only on All & No Search) */}
-          {activeCategory === "Tümü" && !searchQuery && featuredPost && (
+          {activeCategory === ui.allCategory && !searchQuery && featuredPost && (
             <div className="mt-10">
               <Link
                 href={`/blog/${featuredPost.slug}`}
@@ -120,7 +223,7 @@ export default function BlogIndexClient() {
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <span className="absolute left-4 top-4 rounded-full bg-heading/90 px-3 py-1 font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-white shadow-xs backdrop-blur-md">
-                    Öne Çıkan Rehber
+                    {ui.featuredLabel}
                   </span>
                 </div>
 
@@ -158,7 +261,7 @@ export default function BlogIndexClient() {
                     </div>
 
                     <span className="text-xs font-bold text-indigo group-hover:translate-x-1 transition-transform">
-                      Rehberi Oku →
+                      {ui.readGuide}
                     </span>
                   </div>
                 </div>
@@ -167,71 +270,76 @@ export default function BlogIndexClient() {
           )}
 
           {/* Articles Grid */}
-          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="group flex flex-col overflow-hidden rounded-[24px] border border-line bg-white p-3.5 shadow-2xs transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo/30 hover:shadow-[var(--shadow-layered)]"
-              >
-                {/* Card Cover Image */}
-                <div className="relative h-48 w-full overflow-hidden rounded-xl bg-porcelain">
-                  <Image
-                    src={post.coverImage}
-                    alt={post.coverAlt}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 font-mono text-[0.68rem] font-semibold text-indigo shadow-xs backdrop-blur-md">
-                    {post.category}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <div className="mt-4 flex flex-1 flex-col justify-between p-1">
-                  <div>
-                    <div className="flex items-center gap-2 text-[0.75rem] text-muted">
-                      <span>{post.readTime}</span>
-                      <span>•</span>
-                      <span>{post.date}</span>
-                    </div>
-
-                    <h3 className="mt-2 font-display text-base font-bold leading-snug text-heading transition-colors group-hover:text-indigo">
-                      {post.title}
-                    </h3>
-
-                    <p className="mt-2 text-xs leading-relaxed text-body line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-3">
-                    <span className="text-xs text-muted">{post.author.name}</span>
-                    <span className="text-xs font-semibold text-indigo group-hover:translate-x-0.5 transition-transform">
-                      Oku →
+          {filteredPosts.length > 0 ? (
+            <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-[24px] border border-line bg-white p-3.5 shadow-2xs transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo/30 hover:shadow-[var(--shadow-layered)]"
+                >
+                  {/* Card Cover Image */}
+                  <div className="relative h-48 w-full overflow-hidden rounded-xl bg-porcelain">
+                    <Image
+                      src={post.coverImage}
+                      alt={post.coverAlt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 font-mono text-[0.68rem] font-semibold text-indigo shadow-xs backdrop-blur-md">
+                      {post.category}
                     </span>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
 
-          {/* Bottom Newsletter / Action */}
+                  {/* Content */}
+                  <div className="mt-4 flex flex-1 flex-col justify-between p-1">
+                    <div>
+                      <div className="flex items-center gap-2 text-[0.75rem] text-muted">
+                        <span>{post.readTime}</span>
+                        <span>•</span>
+                        <span>{post.date}</span>
+                      </div>
+
+                      <h3 className="mt-2 font-display text-base font-bold leading-snug text-heading transition-colors group-hover:text-indigo">
+                        {post.title}
+                      </h3>
+
+                      <p className="mt-2 text-xs leading-relaxed text-body line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-3">
+                      <span className="text-xs text-muted">{post.author.name}</span>
+                      <span className="text-xs font-semibold text-indigo group-hover:translate-x-0.5 transition-transform">
+                        {ui.readShort}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-16 py-12 text-center border border-dashed border-line rounded-2xl">
+              <p className="text-sm text-muted">{ui.emptyState}</p>
+            </div>
+          )}
+
+          {/* Bottom Call to Action */}
           <div className="mt-20 rounded-[28px] border border-line bg-porcelain p-8 text-center sm:p-12">
             <h3 className="font-display text-2xl font-bold text-heading sm:text-3xl">
-              Okumayı Bırak, Gerçek Sahnede Konuşmaya Başla
+              {ui.ctaTitle}
             </h3>
             <p className="mx-auto mt-3 max-w-md text-sm text-body">
-              Tüm bu seviye rehberlerindeki senaryoları Spekvia ile canlı sesli prova yapabilirsiniz.
+              {ui.ctaSubtitle}
             </p>
             <div className="mt-6 flex justify-center">
               <Link
                 href="/#download"
                 className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo to-cyan px-8 py-3.5 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
               >
-                <span>Ücretsiz Sahneye Çık</span>
-                <span>→</span>
+                <span>{ui.ctaButton}</span>
               </Link>
             </div>
           </div>

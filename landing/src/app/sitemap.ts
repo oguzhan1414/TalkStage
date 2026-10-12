@@ -26,12 +26,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const post of blogPosts) {
     entries.push({
-      url: absoluteUrl(`/blog/${post.slug}`),
+      url: absoluteUrl(localizePath(`/blog/${post.slug}`, post.locale)),
       lastModified: post.dateModified,
       changeFrequency: "monthly",
       priority: 0.6,
     });
   }
+
   return entries;
 }
 

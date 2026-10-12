@@ -10,8 +10,8 @@ export const grammarPosts: BlogPostSource[] = [
     category: "Seviyeler & Gramer",
     datePublished: "2026-08-08",
     dateModified: "2026-10-11",
-    coverImage: "/scenes/job-interview.webp",
-    coverAlt: "Toplantıda konuşan iş arkadaşları: günlük iş İngilizcesinde phrasal verb kullanımı",
+    coverImage: "/blog/tr/ingilizce-phrasal-verbs-en-cok-kullanilan-50-fiil-cover.webp",
+    coverAlt: "Birbirine geçen renkli yapboz parçalarıyla dolu ahşap alet kutusu",
     summary: [
       "Phrasal verb, bir fiil ile bir edat veya zarfın birleşip yeni bir anlam kazandığı yapıdır: give up (vazgeçmek), find out (öğrenmek).",
       "Anadili İngilizce olanlar 'discover' yerine 'find out', 'cancel' yerine 'call off' der; bu yüzden konuşmada çok sık duyulurlar.",
@@ -178,8 +178,8 @@ export const grammarPosts: BlogPostSource[] = [
     category: "Seviyeler & Gramer",
     datePublished: "2026-08-03",
     dateModified: "2026-10-11",
-    coverImage: "/scenes/airport-travel.webp",
-    coverAlt: "Havalimanında bağlaçlarla akıcı konuşan bir yolcu: linking words örnekleri",
+    coverImage: "/blog/tr/ingilizce-baglaclar-ve-gecis-ifadeleri-linking-words-cover.webp",
+    coverAlt: "Köprülerle birbirine bağlanan yüzen adalar: bağlaçların cümleleri bağlaması",
     summary: [
       "Linking words (bağlaçlar ve geçiş ifadeleri), cümleleri ve fikirleri birbirine bağlayarak konuşmanı akıcı ve mantıklı kılar.",
       "Başlıca kategoriler: ekleme, karşıtlık, sebep, sonuç, sıralama, örnekleme ve sonuçlandırma.",

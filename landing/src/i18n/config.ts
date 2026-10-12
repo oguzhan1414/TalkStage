@@ -46,5 +46,6 @@ export const ANCHORS = {
 } as const satisfies Record<string, Record<Locale, string>>;
 export type AnchorKey = keyof typeof ANCHORS;
 
-/** Pages that exist only in Turkish (the blog is written for Turkish learners). */
-export const TR_ONLY_ROUTES: readonly RouteKey[] = ["blog"];
+/** Pages that exist only in Turkish. */
+export const TR_ONLY_ROUTES: readonly RouteKey[] = [];
+
