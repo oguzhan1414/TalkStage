@@ -1,7 +1,7 @@
-import * as Google from 'expo-auth-session/providers/google';
+import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { useState } from 'react';
+import { Platform } from 'react-native';
 
 import { supabase } from '../lib/supabase';
 import { Button } from './Button';
@@ -13,95 +13,98 @@ type Props = {
   onError: (message: string) => void;
 };
 
-/**
- * Google Sign-In via Supabase's `signInWithIdToken`. Needs
- * `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID` (see `.env.example`) plus the Google
- * provider enabled in the Supabase project — until both exist this renders
- * as a button that only explains what is missing rather than crashing.
- *
- * `Google.useAuthRequest` THROWS when the client id of the CURRENT platform is missing (e.g. `webClientId` on
- * web), so the hook lives in an inner component that is only mounted when this platform's id exists.
- */
-const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-const platformClientId = Platform.select({ ios: iosClientId, android: androidClientId, default: webClientId });
+type NativeGoogle = typeof import('@react-native-google-signin/google-signin');
 
-export function GoogleSignInButton({ onError }: Props) {
-  if (!platformClientId) {
-    return (
-      <Button
-        label={t("Google ile devam et")}
-        variant="secondary"
-        onPress={() =>
-          Alert.alert(t("Google girişi henüz yapılandırılmadı"), t("EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik."))
-        }
-      />
-    );
+/**
+ * Google Sign-In with two paths, same Supabase project and Google *Web* client either way:
+ *
+ * 1. Native (in-app account sheet): `@react-native-google-signin` -> `signInWithIdToken`. Only exists in a
+ *    development/production build (never in Expo Go or on web) and needs `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
+ *    plus an Android OAuth client (package name + SHA-1) in Google Cloud. If the native module is missing or the
+ *    native call fails for any reason other than the user cancelling, we fall through to path 2 so sign-in
+ *    never dead-ends on a configuration gap.
+ * 2. Browser (Supabase OAuth + PKCE): `signInWithOAuth` -> system browser sheet -> `?code=` ->
+ *    `exchangeCodeForSession`. Works everywhere (Expo Go, web) with only the Google provider enabled in Supabase;
+ *    `redirectTo` (`spekvia://auth/callback`, or `exp://…/--/auth/callback` in Expo Go) must be listed under
+ *    Supabase -> Auth -> URL Configuration.
+ */
+const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+
+function loadNativeGoogle(): NativeGoogle | null {
+  if (Platform.OS === 'web' || !webClientId) return null;
+  try {
+    // Throws when the native module is not part of the running binary (Expo Go).
+    const mod = require('@react-native-google-signin/google-signin') as NativeGoogle;
+    mod.GoogleSignin.configure({ webClientId });
+    return mod;
+  } catch {
+    return null;
   }
-  return <ConfiguredGoogleButton onError={onError} />;
 }
 
-function ConfiguredGoogleButton({ onError }: Props) {
-  const [loading, setLoading] = useState(false);
-  const configured = true;
+const nativeGoogle = loadNativeGoogle();
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId,
-    androidClientId,
-    webClientId,
+async function signInWithBrowser(onError: (message: string) => void) {
+  const redirectTo = Linking.createURL('auth/callback');
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
   });
+  if (error || !data?.url) {
+    onError(error?.message ?? t("Google giriş ekranı açılamadı. Lütfen tekrar dene."));
+    return;
+  }
 
-  useEffect(() => {
-    if (!response) return;
-    if (response.type !== 'success') {
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  // User closed the sheet: not an error.
+  if (result.type !== 'success') return;
+
+  const params = Linking.parse(result.url).queryParams ?? {};
+  const code = typeof params.code === 'string' ? params.code : null;
+  if (!code) {
+    const reason = typeof params.error_description === 'string' ? params.error_description : null;
+    onError(reason ?? t("Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene."));
+    return;
+  }
+
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (exchangeError) onError(exchangeError.message);
+}
+
+/** Returns true when the attempt is finished (signed in, cancelled, or a Supabase error already reported). */
+async function signInNatively(google: NativeGoogle, onError: (message: string) => void): Promise<boolean> {
+  try {
+    const response = await google.GoogleSignin.signIn();
+    if (response.type !== 'success') return true; // cancelled
+    const idToken = response.data.idToken;
+    if (!idToken) throw new Error('Google returned no id token');
+
+    const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken });
+    if (error) onError(error.message);
+    return true;
+  } catch (e) {
+    if (google.isErrorWithCode(e) && e.code === google.statusCodes.SIGN_IN_CANCELLED) return true;
+    // Most likely a configuration gap (missing SHA-1 / client id): use the browser flow instead.
+    console.warn('Native Google sign-in failed, falling back to the browser flow', e);
+    return false;
+  }
+}
+
+export function GoogleSignInButton({ onError }: Props) {
+  const [loading, setLoading] = useState(false);
+
+  const handlePress = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      if (nativeGoogle && (await signInNatively(nativeGoogle, onError))) return;
+      await signInWithBrowser(onError);
+    } catch {
+      onError(t("Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene."));
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    const idToken = response.authentication?.idToken ?? response.params?.id_token;
-    if (!idToken) {
-      onError(t("Google oturum açma bir kimlik jetonu döndürmedi."));
-      setLoading(false);
-      return;
-    }
-
-    const finishSignIn = async () => {
-      try {
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: idToken,
-        });
-        if (error) onError(error.message);
-      } catch {
-        onError(t("Google ile giriş yapılamadı. Bağlantını kontrol edip tekrar dene."));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void finishSignIn();
-  }, [response, onError]);
-
-  return (
-    <Button
-      label={t("Google ile devam et")}
-      variant="secondary"
-      loading={loading}
-      disabled={configured && !request}
-      onPress={async () => {
-        if (!configured) {
-          Alert.alert(t("Google girişi henüz yapılandırılmadı"), t("EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik."));
-          return;
-        }
-        setLoading(true);
-        try {
-          await promptAsync();
-        } catch {
-          setLoading(false);
-          onError(t("Google giriş ekranı açılamadı. Lütfen tekrar dene."));
-        }
-      }}
-    />
-  );
+  return <Button label={t("Google ile devam et")} variant="secondary" loading={loading} onPress={handlePress} />;
 }

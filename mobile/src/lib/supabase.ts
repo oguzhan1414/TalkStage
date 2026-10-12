@@ -23,6 +23,8 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
+      // Google sign-in returns `?code=` and is finished with exchangeCodeForSession (GoogleSignInButton).
+      flowType: 'pkce',
     },
   }
 );
