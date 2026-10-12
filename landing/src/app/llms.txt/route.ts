@@ -14,6 +14,7 @@ export function GET() {
     ["/contact", "Contact"],
     ["/privacy", "Privacy policy"],
     ["/terms", "Terms of use"],
+    ["/delete-account", "Account and data deletion"],
   ] as const;
 
   const pageLines = pages.map(([path, label]) => {

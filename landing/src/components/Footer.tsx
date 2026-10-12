@@ -10,6 +10,8 @@ import { TR_ONLY_ROUTES } from "@/i18n/config";
 import { localizePath } from "@/i18n/paths";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { tr } from "@/i18n/shared";
+import { isAnalyticsConfigured } from "@/lib/analytics";
+import { openConsentPreferences } from "@/lib/consent";
 
 const COLUMNS = [
   {
@@ -36,6 +38,7 @@ const COLUMNS = [
     links: [
       { label: tr("Gizlilik politikası"), href: "/privacy" },
       { label: tr("Kullanım şartları"), href: "/terms" },
+      { label: tr("Hesap ve veri silme"), href: "/delete-account" },
     ],
   },
 ];
@@ -132,7 +135,14 @@ export default function Footer() {
 
           {/* Bottom bar */}
           <div className="relative z-10 mt-12 flex flex-col items-start justify-between gap-5 border-t border-line pt-6 text-[0.82rem] text-muted sm:flex-row sm:items-center">
-            <p>{t("© {{year}} Spekvia. Tüm hakları saklıdır.", { year: new Date().getFullYear() })}</p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <p>{t("© {{year}} Spekvia. Tüm hakları saklıdır.", { year: new Date().getFullYear() })}</p>
+              {isAnalyticsConfigured && (
+                <button type="button" onClick={openConsentPreferences} className="underline underline-offset-4 transition-colors hover:text-stage">
+                  {t("Çerez tercihleri")}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-3">
               <div className="rounded-full border border-line bg-paper px-4 py-2">
                 <LanguageSwitcher variant="links" />

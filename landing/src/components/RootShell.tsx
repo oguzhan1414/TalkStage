@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import CookieConsent from "@/components/CookieConsent";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Analytics } from "@/lib/analytics";
 import { I18nProvider } from "@/i18n/client";
@@ -43,6 +44,7 @@ export default function RootShell({ locale, children }: { locale: Locale; childr
           <AuthProvider>
             <Analytics />
             <ScrollToTop />
+            <CookieConsent />
             {children}
           </AuthProvider>
         </I18nProvider>

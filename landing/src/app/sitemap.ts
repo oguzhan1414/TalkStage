@@ -4,7 +4,7 @@ import { absoluteUrl, localizePath } from "@/i18n/paths";
 import { blogPosts } from "@/lib/blog-data";
 
 /** Every public page in every language, with hreflang alternates. */
-const PAGES: (RouteKey | "")[] = ["", "about", "contact", "faq", "privacy", "terms", "blog"];
+const PAGES: (RouteKey | "")[] = ["", "about", "contact", "faq", "privacy", "terms", "delete-account", "blog"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];

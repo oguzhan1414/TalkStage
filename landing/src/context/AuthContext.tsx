@@ -79,7 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async (currentUser: User) => {
-    identifyUser(currentUser.id, { email: currentUser.email ?? null });
+    // Only the random account id goes to analytics (same as the mobile app) — never the e-mail address.
+    identifyUser(currentUser.id);
     try {
       const { data: dbProfile } = await supabase
         .from('profiles')

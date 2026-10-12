@@ -27,6 +27,7 @@ export const ROUTES = {
   faq: { tr: "sss", en: "faq", es: "preguntas-frecuentes", pt: "perguntas-frequentes", de: "haeufige-fragen" },
   privacy: { tr: "gizlilik", en: "privacy", es: "privacidad", pt: "privacidade", de: "datenschutz" },
   terms: { tr: "kullanim-sartlari", en: "terms", es: "terminos", pt: "termos", de: "nutzungsbedingungen" },
+  "delete-account": { tr: "hesap-silme", en: "delete-account", es: "eliminar-cuenta", pt: "excluir-conta", de: "konto-loeschen" },
   blog: { tr: "blog", en: "blog", es: "blog", pt: "blog", de: "blog" },
   login: { tr: "giris", en: "login", es: "iniciar-sesion", pt: "entrar", de: "anmelden" },
   signup: { tr: "kayit", en: "signup", es: "registro", pt: "cadastro", de: "registrieren" },

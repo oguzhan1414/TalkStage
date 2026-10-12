@@ -316,3 +316,13 @@ Kullanıcının kendi eliyle eklediği video senaryo özelliği (`@talkstage/sha
 
 ### Blog kapakları — tüm diller (2026-10-12)
 - 44 yazının hepsinin kapağı hazır: TR 20 + EN/ES/PT/DE 6'şar adet, `public/blog/<dil>/<slug>-cover.webp` (1376×768, WebP q80, 27–110 KB). EN/ES/PT/DE kapaklarının hepsinde Mivo var (karar: kapaklarda Mivo zorunlu). Orijinal JPG'ler silindi. Yeni yazı eklerken aynı adlandırmayı kullan; `coverImage` yolu dosya adıyla birebir eşleşmeli (eksik dosya testi: tüm `coverImage` yolları `public/` altında var mı).
+
+### Yasal sayfalar yenilendi (2026-10-13)
+- `privacy`, `terms` ve YENİ `delete-account` (hesap/veri silme; Play Data safety formundaki URL) sayfaları ortak `components/LegalDocument.tsx` ile çiziliyor; metinler `src/data/legalContent.ts` (Türkçe `tr()` anahtarları) + `src/i18n/catalog/*.json` (en/es/pt/de). Metni değiştirirsen Türkçe anahtarı ve 4 dil çevirisini birlikte güncelle, `LEGAL_UPDATED` tarihini de değiştir (sabit tarih; eskiden `new Date()` ile her gün "bugün" yazıyordu).
+- Eski metindeki doğrulanamayan iddialar kaldırıldı: "Spekvia Inc.", "TLS 1.3", "ses kaydı hiç saklanmaz" yerine gerçek akış (ham ses saklanmaz ama konuşma tanıma/ses üretim sağlayıcılarına gider, metin hesapta saklanır). Sağlayıcılar kodda kullanılanlarla birebir: Supabase, OpenAI, Groq, Deepgram, Cartesia, RevenueCat, PostHog, Sentry. Yeni sağlayıcı eklenirse politikaya da ekle.
+- Web analitiği artık kullanıcının e-postasını PostHog'a göndermiyor (`context/AuthContext.tsx`, yalnız hesap kimliği).
+- Rota: `ROUTES["delete-account"]` (tr hesap-silme, es eliminar-cuenta, pt excluir-conta, de konto-loeschen), sitemap, footer ve llms.txt'e eklendi.
+
+### Çerez onayı (2026-10-13)
+- `lib/consent.ts` (seçim `localStorage: spekvia.cookie_consent.v1`), `components/CookieConsent.tsx` (banner, Kabul/Reddet eşit ağırlık; sadece `NEXT_PUBLIC_POSTHOG_KEY` varsa görünür), `lib/analytics.tsx`: onay (`granted`) yoksa PostHog `init` EDİLMEZ, hiçbir şey gönderilmez/saklanmaz; "Reddet" `disableAnalytics()` ile `ph_*` depolamayı temizler. Footer'da "Çerez tercihleri" bağlantısı bannerı yeniden açar. Dil tercihi çerezi ve oturum "gerekli" sayılır (onay istemez); gizlilik metni bölüm 10 bunu anlatıyor.
+- Yeni analitik/çerez eklersen: onay kapısının arkasına koy ve gizlilik metnini güncelle.
