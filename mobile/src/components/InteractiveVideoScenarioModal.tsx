@@ -19,6 +19,7 @@ import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import { haptics } from '../lib/haptics';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api } from '../lib/api';
+import { postQueued } from '../lib/outbox';
 import { resolveMediaUrl, resolveVideoUrl } from '../lib/media';
 import { companionImage, resolveScenarioCategoryFallback, scenarioCustomCovers } from '../assets/images';
 import { t, nativeFlag } from '../i18n';
@@ -189,7 +190,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 
     setPhase('success');
     // Record practice XP on server silently — once, for the completed scenario.
-    api.post('/progress/log-practice').catch(() => {});
+    postQueued('/progress/log-practice').catch(() => {});
     setTimeout(() => {
       setPhase('completed');
       if (onComplete) {

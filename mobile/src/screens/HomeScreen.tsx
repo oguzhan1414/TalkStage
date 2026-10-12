@@ -9,7 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
-  ALL_SPEAKING_TOPIC_CODES,
   ALL_TOPIC_CODES,
   CEFR_CURRICULUM,
   type CurriculumTopic,
@@ -28,12 +27,19 @@ import { PODCAST_EPISODES } from '../data/podcastData';
 import { api, ApiError } from '../lib/api';
 import {
   buildTaskQueueForLevel,
-  isTopicFullyDone,
-  isTopicLocked,
+  daySummary,
+  groupTasksIntoDays,
+  isLevelCoreDone,
+  isTopicCoreDone,
+  isTaskLocked,
+  nextSuggestedTask,
+  reviewIdsForTopics,
+  type CurriculumDay,
   type CurriculumTask,
 } from '../lib/curriculumTasks';
 import { requestBadgeSync } from '../lib/badges';
 import { pullLearningFlags } from '../lib/learningFlags';
+import { askForNotificationsOnce, scheduleSmartNotifications } from '../lib/notifications';
 import { loadSceneStars, pickSceneOfTheDay, type SceneStars } from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
 import { cefrThemes, colors, fonts, gradients, radii, shadow, spacing } from '../theme/tokens';
@@ -44,8 +50,12 @@ import { t } from '../i18n';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BANNER_WIDTH = SCREEN_WIDTH - spacing.md * 2;
 
+/** Her konunun "Mivo ile Konu Tekrarı" düğümünün kimliği (A1_G01_review …) — tamamlanma bayrakları için. */
+const ALL_REVIEW_IDS = Object.values(CEFR_CURRICULUM).flatMap((c) => reviewIdsForTopics(c.topics));
+
 const NODE = 68;
 const ROW_H = 112;
+const DAY_HEAD_H = 46;
 const PATH_W = SCREEN_WIDTH - spacing.md * 2;
 // Düğümlerin yatay sapması (px) — yol sağa-sola kıvrılarak ilerler.
 const X_OFFSETS = [0, 62, 88, 62, 0, -62, -88, -62];
@@ -66,7 +76,7 @@ const TASK_COLORS: Record<
   vocab: { main: '#F59E0B', dark: '#B45309', soft: '#FEF3C7', label: t("Kelime") },
   listening: { main: '#0EA5E9', dark: '#0369A1', soft: '#E0F2FE', label: t("Dinleme") },
   reading: { main: '#10B981', dark: '#047857', soft: '#D1FAE5', label: t("Okuma") },
-  practice: { main: '#F43F5E', dark: '#BE123C', soft: '#FFE4E6', label: t("Konuşma") },
+  review: { main: '#F43F5E', dark: '#BE123C', soft: '#FFE4E6', label: t("Konu Tekrarı") },
 };
 
 type PathNodeProps = {
@@ -265,7 +275,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const reloadStationFlags = useCallback(() => {
     requestBadgeSync();
     pullLearningFlags().then(() => {
-      AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+      AsyncStorage.multiGet(ALL_REVIEW_IDS.map((c) => `topic_chat_completed_${c}`)).then(
         (pairs) => {
           setChatCompletedCodes(
             new Set(
@@ -343,10 +353,27 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       completedPodcastEpisodeIds,
     ]
   );
-  const firstIncompleteIdx = useMemo(() => taskQueue.findIndex((t) => !t.done), [taskQueue]);
-  const nextTask: CurriculumTask | undefined =
-    firstIncompleteIdx === -1 ? undefined : taskQueue[firstIncompleteIdx];
+  // The banner follows the core path (listening, lesson, words) and the light Mivo review; reading never holds it back.
+  const nextTask: CurriculumTask | undefined = useMemo(() => nextSuggestedTask(taskQueue), [taskQueue]);
   const isLevelFullyDone = taskQueue.length > 0 && !nextTask;
+
+  // Smart reminders: tell the scheduler what the user has done today and what comes next (see lib/notifications.ts).
+  // Re-runs whenever the profile (streak / last practice day) or the path changes.
+  useEffect(() => {
+    if (!profile || !nextTask) return;
+    const nextDay = groupTasksIntoDays(taskQueue).find((d) => d.tasks.includes(nextTask));
+    if (!nextDay) return;
+    const localToday = new Date().toLocaleDateString('en-CA');
+    const todayDone = profile.last_practice_date === localToday;
+    void scheduleSmartNotifications({
+      name: profile.display_name?.split(' ')[0] || t("Konuşmacı"),
+      streak: profile.streak_count ?? 0,
+      todayDone,
+      nextDayNo: nextDay.no,
+      nextSummary: daySummary(nextDay),
+    });
+    if (todayDone) void askForNotificationsOnce();
+  }, [profile, nextTask, taskQueue]);
 
   // ---- Full chapter path (browsable, independent of currentLevel above) ----
   const selectedCurriculum = CEFR_CURRICULUM[selectedLevel] ?? CEFR_CURRICULUM.A1;
@@ -372,8 +399,9 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       completedPodcastEpisodeIds,
     ]
   );
+  const selectedDays = useMemo(() => groupTasksIntoDays(selectedTaskQueue), [selectedTaskQueue]);
   const practicedTopicsCount = useMemo(
-    () => selectedCurriculum.topics.filter((t) => isTopicFullyDone(selectedTaskQueue, t.code)).length,
+    () => selectedCurriculum.topics.filter((t) => isTopicCoreDone(selectedTaskQueue, t.code)).length,
     [selectedCurriculum.topics, selectedTaskQueue]
   );
 
@@ -389,7 +417,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         readingPassagesForLevel: readingPassagesForLevel(lvl),
         completedReadingSlugs: completedReadingSlugSet,
       });
-      return queue.every((t) => t.done);
+      return isLevelCoreDone(queue);
     },
     [
       savedWordsSet,
@@ -514,14 +542,15 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       } else if (task.type === 'reading') {
         if (task.readingSlug) navigation.navigate('ReadingPassage', { slug: task.readingSlug });
         else navigation.navigate('ReadingList');
-      } else {
-        navigation.navigate('TextChat', {
-          focusTopic: {
-            title: task.topic.title,
-            formula: task.topic.formula,
-            targetWords: task.topic.targetWords,
-            topicCode: task.topic.code,
-          },
+      } else if (task.type === 'review') {
+        navigation.navigate('FreeChatRoom', {
+          reviewId: task.id,
+          reviewTopics: (task.reviewTopics ?? []).map((tp) => ({
+            code: tp.code,
+            title: tp.title,
+            formula: tp.formula,
+            targetWords: tp.targetWords,
+          })),
         });
       }
     };
@@ -536,14 +565,14 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           ? t("Podcast Sahnesi Açılıyor…")
           : task.type === 'reading'
           ? t("Okuma Parçaları Açılıyor…")
-          : t("Mivo ile Konuşma Başlıyor…");
+          : t("Mivo ile Konu Tekrarı Başlıyor…");
       transitionTo(doNav, msg);
     }
   };
 
   const handleStartBossChallenge = () => {
     transitionTo(() => {
-      navigation.navigate('TextChat', {
+      navigation.navigate('FreeChatRoom', {
         focusTopic: { title: selectedCurriculum.bossChallenge.title },
       });
     }, t("Bölüm Sonu Değerlendirmesi Başlıyor…"));
@@ -781,22 +810,36 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             );
           })()}
 
-          {/* Bölümler — her bölüm renkli bir başlık + kıvrımlı bir ders yolu.
-              Tüm seviye tek seferde render edilir, aşağı kaydırdıkça sıradaki
-              dersler görünür. */}
+          {/* Bölümler — her bölüm renkli bir başlık + kıvrımlı bir yol. Yol GÜN GÜN ilerler (Gün 1, Gün 2 …);
+              her günün altında o günün görevleri tek tek düğüm; tüm günler açık. */}
           {(() => {
             const isReviewLevel = CEFR_LEVELS.indexOf(selectedLevel) < userLevelIdx;
-            const firstIncompleteSelectedIdx = selectedTaskQueue.findIndex((t) => !t.done);
+            const nextSelectedTask = nextSuggestedTask(selectedTaskQueue);
 
             return selectedCurriculum.units.map((unit, unitIdx) => {
-              const unitTaskEntries = selectedTaskQueue
-                .map((task, idx) => ({ task, idx }))
-                .filter(({ task }) => unit.topicCodes.includes(task.topic.code));
-              const unitDoneCount = unitTaskEntries.filter(({ task }) => task.done).length;
-              const unitPct = Math.round((unitDoneCount / Math.max(1, unitTaskEntries.length)) * 100);
-              const unitComplete = unitTaskEntries.length > 0 && unitDoneCount === unitTaskEntries.length;
+              const unitDays = selectedDays.filter((d) => unit.topicCodes.includes(d.topic.code));
+              const unitDoneCount = unitDays.filter((d) => d.done).length;
+              const unitPct = Math.round((unitDoneCount / Math.max(1, unitDays.length)) * 100);
+              const unitComplete = unitDays.length > 0 && unitDoneCount === unitDays.length;
               const unitGradient = UNIT_GRADIENTS[unitIdx % UNIT_GRADIENTS.length];
-              const pathHeight = (unitTaskEntries.length + 1) * ROW_H;
+
+              type PathRow =
+                | { kind: 'head'; day: CurriculumDay; top: number }
+                | { kind: 'step'; task: CurriculumTask; top: number; n: number };
+              const rows: PathRow[] = [];
+              let y = 0;
+              let n = 0;
+              unitDays.forEach((day) => {
+                rows.push({ kind: 'head', day, top: y });
+                y += DAY_HEAD_H;
+                day.tasks.forEach((task) => {
+                  rows.push({ kind: 'step', task, top: y, n: n++ });
+                  y += ROW_H;
+                });
+              });
+              const trophyTop = y;
+              const pathHeight = y + ROW_H;
+              const stepCx = (k: number) => PATH_W / 2 + X_OFFSETS[k % X_OFFSETS.length];
 
               return (
                 <View key={unit.title} style={styles.unitBlock}>
@@ -812,7 +855,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                       <Text style={styles.unitBannerPretitle}>{t("BÖLÜM")}{" "}{unitIdx + 1}</Text>
                       <View style={styles.unitBannerCountPill}>
                         <Text style={styles.unitBannerCountText}>
-                          {unitDoneCount}/{unitTaskEntries.length}
+                          {unitDoneCount}/{unitDays.length} {t("gün")}
                         </Text>
                       </View>
                     </View>
@@ -825,22 +868,36 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   </LinearGradient>
 
                   <View style={{ height: pathHeight, width: PATH_W }}>
-                    {unitTaskEntries.map(({ task, idx }, i) => {
-                      const isLocked = isTopicLocked(
-                        selectedTaskQueue,
-                        selectedCurriculum.topics,
-                        task.topic.code,
-                        isReviewLevel
-                      );
-                      const isCurrent = idx === firstIncompleteSelectedIdx && !isLocked;
-                      const isFirstOfTopic = i === 0 || unitTaskEntries[i - 1].task.topic.code !== task.topic.code;
-                      const offset = X_OFFSETS[i % X_OFFSETS.length];
-                      const nextOffset = X_OFFSETS[(i + 1) % X_OFFSETS.length];
-                      const centerX = PATH_W / 2 + offset;
-                      const centerY = i * ROW_H + ROW_H / 2;
+                    {rows.map((row, ri) => {
+                      if (row.kind === 'head') {
+                        const { day } = row;
+                        return (
+                          <View key={`${day.key}_head`} style={[styles.pathTopicHeader, { top: row.top }]}>
+                            <View style={styles.pathTopicLine} />
+                            <View style={styles.pathTopicPill}>
+                              {day.done ? <Ionicons name="checkmark-circle" size={15} color="#10B981" /> : null}
+                              <Text style={styles.pathTopicCode}>{t("GÜN")} {day.no}</Text>
+                              <Text style={styles.pathTopicName} numberOfLines={1}>
+                                {daySummary(day)}
+                              </Text>
+                            </View>
+                            <View style={styles.pathTopicLine} />
+                          </View>
+                        );
+                      }
+
+                      const { task } = row;
+                      const isLocked = isTaskLocked(selectedTaskQueue, task, isReviewLevel);
+                      const isCurrent = !isLocked && task === nextSelectedTask;
+                      const cx = stepCx(row.n);
+                      const cy = row.top + ROW_H / 2;
+                      const nextRow = rows[ri + 1];
+                      const hasNext = nextRow?.kind === 'step';
+                      const nx = hasNext ? stepCx(nextRow.n) : cx;
+                      const ny = hasNext ? nextRow.top + ROW_H / 2 : cy;
                       const palette = TASK_COLORS[task.type];
-                      const labelOnLeft = offset > 20;
-                      const nodeLeft = centerX - NODE / 2;
+                      const labelOnLeft = cx - PATH_W / 2 > 20;
+                      const nodeLeft = cx - NODE / 2;
                       const labelStyle = labelOnLeft
                         ? { left: 0, width: Math.max(80, nodeLeft - 12), alignItems: 'flex-end' as const }
                         : {
@@ -850,7 +907,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                           };
                       const onPressTask = () => {
                         if (isLocked) {
-                          showToast(t("🔒 Önceki konuyu tamamlayınca açılır"));
+                          showToast(t("🔒 Önce önceki adımları bitir"));
                           return;
                         }
                         handleStartTask(task, selectedLevel);
@@ -858,25 +915,26 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
                       return (
                         <View key={task.id} style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                          {/* Bir sonraki ders düğümüne giden noktalı bağlantı */}
-                          {[0.34, 0.5, 0.66].map((t) => (
-                            <View
-                              key={t}
-                              style={[
-                                styles.pathDot,
-                                {
-                                  left: centerX + (PATH_W / 2 + nextOffset - centerX) * t - 4,
-                                  top: centerY + ROW_H * t - 4,
-                                  backgroundColor: task.done ? '#34D399' : '#CBD5E1',
-                                },
-                              ]}
-                            />
-                          ))}
+                          {/* Aynı günün bir sonraki düğümüne giden noktalı bağlantı */}
+                          {hasNext &&
+                            [0.34, 0.5, 0.66].map((f) => (
+                              <View
+                                key={f}
+                                style={[
+                                  styles.pathDot,
+                                  {
+                                    left: cx + (nx - cx) * f - 4,
+                                    top: cy + (ny - cy) * f - 4,
+                                    backgroundColor: task.done ? '#34D399' : '#CBD5E1',
+                                  },
+                                ]}
+                              />
+                            ))}
 
                           <PathNode
                             ref={isCurrent ? currentStoneRef : undefined}
                             left={nodeLeft}
-                            top={centerY - NODE / 2}
+                            top={cy - NODE / 2}
                             palette={palette}
                             image={roadmapTaskImages[task.type]}
                             label={`${palette.label}: ${task.title}`}
@@ -886,29 +944,9 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                             onPress={onPressTask}
                           />
 
-                          <Pressable
-                            onPress={onPressTask}
-                            style={[styles.pathLabel, { top: centerY - 30 }, labelStyle]}
-                          >
-                            {isFirstOfTopic && (
-                              <Pressable
-                                onPress={() => setSelectedTopicModal(task.topic)}
-                                hitSlop={8}
-                                style={[styles.pathTopicTag, { backgroundColor: palette.soft }]}
-                              >
-                                <Text style={[styles.pathTopicTagText, { color: palette.dark }]} numberOfLines={1}>
-                                  {task.topic.code}
-                                </Text>
-                                <Ionicons name="information-circle" size={12} color={palette.dark} />
-                              </Pressable>
-                            )}
-                            <Text
-                              style={[
-                                styles.pathLabelKind,
-                                { color: isLocked ? '#94A3B8' : palette.dark },
-                              ]}
-                            >
-                              {palette.label.toUpperCase()}
+                          <Pressable onPress={onPressTask} style={[styles.pathLabel, { top: cy - 26 }, labelStyle]}>
+                            <Text style={[styles.pathLabelKind, { color: isLocked ? '#94A3B8' : palette.dark }]}>
+                              {task.type === 'listening' ? t("BONUS · İSTEĞE BAĞLI") : palette.label.toUpperCase()}
                             </Text>
                             <Text
                               style={[styles.pathLabelTitle, isLocked && styles.pathLabelTitleLocked]}
@@ -921,27 +959,20 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                       );
                     })}
 
-                    {/* Bölüm sonu kupası */}
-                    {(() => {
-                      const i = unitTaskEntries.length;
-                      const centerX = PATH_W / 2 + X_OFFSETS[i % X_OFFSETS.length];
-                      const centerY = i * ROW_H + ROW_H / 2;
-                      return (
-                        <View
-                          style={[
-                            styles.pathTrophy,
-                            unitComplete && styles.pathTrophyDone,
-                            { left: centerX - 30, top: centerY - 30 },
-                          ]}
-                        >
-                          <Ionicons
-                            name={unitComplete ? 'trophy' : 'trophy-outline'}
-                            size={28}
-                            color={unitComplete ? '#FFFFFF' : '#CBD5E1'}
-                          />
-                        </View>
-                      );
-                    })()}
+                    {/* Bölüm sonu kupası — sadece zorunlu görevlere bağlı (podcast bonus) */}
+                    <View
+                      style={[
+                        styles.pathTrophy,
+                        unitComplete && styles.pathTrophyDone,
+                        { left: stepCx(n) - 30, top: trophyTop + ROW_H / 2 - 30 },
+                      ]}
+                    >
+                      <Ionicons
+                        name={unitComplete ? 'trophy' : 'trophy-outline'}
+                        size={28}
+                        color={unitComplete ? '#FFFFFF' : '#CBD5E1'}
+                      />
+                    </View>
                   </View>
                 </View>
               );
@@ -1059,7 +1090,18 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   </View>
                 </View>
 
-                <Text style={styles.duoModalFooterHint}>{t("Bu konunun görevlerini yukarıdaki yol üzerinden tek tek başlatabilirsin.")}</Text>
+                <Pressable
+                  onPress={() => {
+                    const topic = selectedTopicModal;
+                    setSelectedTopicModal(null);
+                    handleAddTopicWords(topic, selectedLevel);
+                  }}
+                  style={styles.duoAddWordsBtn}
+                  accessibilityRole="button"
+                >
+                  <Ionicons name="add-circle-outline" size={16} color={colors.brand} />
+                  <Text style={styles.duoAddWordsText}>{t("Kelimeleri sandığıma ekle")}</Text>
+                </Pressable>
               </>
             )}
           </Pressable>
@@ -1594,25 +1636,45 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
   },
-  pathTopicTag: {
+  pathTopicHeader: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: DAY_HEAD_H,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    gap: 8,
+  },
+  pathTopicLine: { flex: 1, height: 1, backgroundColor: '#E2E8F0' },
+  pathTopicPill: {
+    flexShrink: 1,
+    maxWidth: PATH_W - 72,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: radii.pill,
-    marginBottom: 4,
+    backgroundColor: '#F1F5F9',
   },
-  pathTopicTagText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    letterSpacing: 0.3,
-  },
+  pathTopicCode: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 0.4, color: colors.brand },
+  pathTopicName: { flexShrink: 1, fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
   pathLabelKind: {
     fontFamily: fonts.headingBold,
     fontSize: 10,
     letterSpacing: 0.8,
   },
+  duoAddWordsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    marginTop: 12,
+    paddingVertical: 11,
+    borderRadius: radii.pill,
+    backgroundColor: '#EEF2FF',
+  },
+  duoAddWordsText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.brand },
   pathLabelTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 14.5,

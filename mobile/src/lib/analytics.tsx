@@ -31,11 +31,16 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** `usePostHog()` returns the provider's context value, which is `undefined`
- * when there's no `AnalyticsProvider` ancestor (unconfigured) — the optional
- * chaining below is the actual no-op, not a conditional hook call. */
+/** Newer posthog-react-native versions log an error when `usePostHog()` runs
+ * without a provider, so when analytics is unconfigured we skip the hook
+ * entirely. `POSTHOG_KEY` is a build-time constant, so the same branch is taken
+ * on every render for the whole app lifetime (hook order never changes). */
+const useOptionalPostHog: () => ReturnType<typeof usePostHog> | undefined = POSTHOG_KEY
+  ? usePostHog
+  : () => undefined;
+
 export function useAnalytics() {
-  const posthog = usePostHog();
+  const posthog = useOptionalPostHog();
   const track = useCallback((name: string, props?: Record<string, string | number | boolean | null>) => {
       posthog?.capture(name, props);
     }, [posthog]);

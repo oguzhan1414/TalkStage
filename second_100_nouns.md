@@ -7,6 +7,7 @@
 ---
 
 ### Noun 101: Address `/əˈdres/` \- Adres
+- Pronunciation: `uh-DRES` *(English respelling)*
 
 - Singular: an address `/əˈdres/` – bir adres *(Singular Noun \- Tekil İsim)*  
 - Plural: addresses `/əˈdres.ɪz/` – adresler *(Plural Noun \- Çoğul İsim)*  
@@ -21,6 +22,7 @@
 ---
 
 ### Noun 102: Age `/eɪdʒ/` \- Yaş / Çağ
+- Pronunciation: `ayj` *(English respelling)*
 
 - Singular: an age `/eɪdʒ/` – bir yaş / çağ *(Singular Noun \- Tekil İsim)*  
 - Plural: ages `/ˈeɪ.dʒɪz/` – yaşlar / çağlar *(Plural Noun \- Çoğul İsim)*  
@@ -35,6 +37,7 @@
 ---
 
 ### Noun 103: Air `/eər/` \- Hava (Sayılamayan)
+- Pronunciation: `air` *(English respelling)*
 
 - Singular / Base: air `/eər/` – hava *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: fresh air – temiz hava *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -49,6 +52,7 @@
 ---
 
 ### Noun 104: Area `/ˈeə.ri.ə/` \- Alan / Bölge
+- Pronunciation: `AIR-ree-uh` *(English respelling)*
 
 - Singular: an area `/ˈeə.ri.ə/` – bir alan *(Singular Noun \- Tekil İsim)*  
 - Plural: areas `/ˈeə.ri.əz/` – alanlar *(Plural Noun \- Çoğul İsim)*  
@@ -63,6 +67,7 @@
 ---
 
 ### Noun 105: Art `/ɑːt/` \- Sanat (Sayılamayan/Çoğul)
+- Pronunciation: `aht` *(English respelling)*
 
 - Singular / Base: art `/ɑːt/` – sanat *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: a work of art – bir sanat eseri *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -77,6 +82,7 @@
 ---
 
 ### Noun 106: Bank `/bæŋk/` \- Banka
+- Pronunciation: `bangk` *(English respelling)*
 
 - Singular: a bank `/bæŋk/` – bir banka *(Singular Noun \- Tekil İsim)*  
 - Plural: banks `/bæŋks/` – bankalar *(Plural Noun \- Çoğul İsim)*  
@@ -91,6 +97,7 @@
 ---
 
 ### Noun 107: Bed `/bed/` \- Yatak
+- Pronunciation: `bed` *(English respelling)*
 
 - Singular: a bed `/bed/` – bir yatak *(Singular Noun \- Tekil İsim)*  
 - Plural: beds `/bedz/` – yataklar *(Plural Noun \- Çoğul İsim)*  
@@ -105,6 +112,7 @@
 ---
 
 ### Noun 108: Bill `/bɪl/` \- Hesap / Fatura
+- Pronunciation: `bihl` *(English respelling)*
 
 - Singular: a bill `/bɪl/` – bir fatura / hesap *(Singular Noun \- Tekil İsim)*  
 - Plural: bills `/bɪlz/` – faturalar *(Plural Noun \- Çoğul İsim)*  
@@ -119,6 +127,7 @@
 ---
 
 ### Noun 109: Blood `/blʌd/` \- Kan (Sayılamayan)
+- Pronunciation: `blud` *(English respelling)*
 
 - Singular / Base: blood `/blʌd/` – kan *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: a drop of blood – bir damla kan *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -133,6 +142,7 @@
 ---
 
 ### Noun 110: Body `/ˈbɒd.i/` \- Vücut / Gövde (Düzensiz \-ies)
+- Pronunciation: `BOD-ee` *(English respelling)*
 
 - Singular: a body `/ˈbɒd.i/` – bir vücut / gövde *(Singular Noun \- Tekil İsim)*  
 - Plural: bodies `/ˈbɒd.iz/` – vücutlar *(Plural Noun \- Çoğul İsim)*  
@@ -147,6 +157,7 @@
 ---
 
 ### Noun 111: Box `/bɒks/` \- Kutu (Çoğul: boxes)
+- Pronunciation: `boks` *(English respelling)*
 
 - Singular: a box `/bɒks/` – bir kutu *(Singular Noun \- Tekil İsim)*  
 - Plural: boxes `/ˈbɒk.sɪz/` – kutular *(Plural Noun \- Çoğul İsim)*  
@@ -161,6 +172,7 @@
 ---
 
 ### Noun 112: Boy `/bɔɪ/` \- Erkek çocuk / Oğlan
+- Pronunciation: `boy` *(English respelling)*
 
 - Singular: a boy `/bɔɪ/` – bir erkek çocuk *(Singular Noun \- Tekil İsim)*  
 - Plural: boys `/bɔɪz/` – erkek çocuklar *(Plural Noun \- Çoğul İsim)*  
@@ -175,6 +187,7 @@
 ---
 
 ### Noun 113: Building `/ˈbɪl.dɪŋ/` \- Bina / Yapı
+- Pronunciation: `BIHL-dihng` *(English respelling)*
 
 - Singular: a building `/ˈbɪl.dɪŋ/` – bir bina *(Singular Noun \- Tekil İsim)*  
 - Plural: buildings `/ˈbɪl.dɪŋz/` – binalar *(Plural Noun \- Çoğul İsim)*  
@@ -189,6 +202,7 @@
 ---
 
 ### Noun 114: Business `/ˈbɪz.nɪs/` \- İş / Ticaret
+- Pronunciation: `BIHZ-nihs` *(English respelling)*
 
 - Singular: a business `/ˈbɪz.nɪs/` – bir işletme / iş *(Singular Noun \- Tekil İsim)*  
 - Plural: businesses `/ˈbɪz.nɪ.sɪz/` – işletmeler *(Plural Noun \- Çoğul İsim)*  
@@ -203,6 +217,7 @@
 ---
 
 ### Noun 115: Card `/kɑːd/` \- Kart
+- Pronunciation: `kahd` *(English respelling)*
 
 - Singular: a card `/kɑːd/` – bir kart *(Singular Noun \- Tekil İsim)*  
 - Plural: cards `/kɑːdz/` – kartlar *(Plural Noun \- Çoğul İsim)*  
@@ -217,6 +232,7 @@
 ---
 
 ### Noun 116: Center `/ˈsen.tər/` \- Merkez
+- Pronunciation: `SEN-tuhr` *(English respelling)*
 
 - Singular: a center `/ˈsen.tər/` – bir merkez *(Singular Noun \- Tekil İsim)*  
 - Plural: centers `/ˈsen.tərz/` – merkezler *(Plural Noun \- Çoğul İsim)*  
@@ -231,6 +247,7 @@
 ---
 
 ### Noun 117: Century `/ˈsen.tʃər.i/` \- Yüzyıl / Asır
+- Pronunciation: `SEN-chuhr-ee` *(English respelling)*
 
 - Singular: a century `/ˈsen.tʃər.i/` – bir yüzyıl *(Singular Noun \- Tekil İsim)*  
 - Plural: centuries `/ˈsen.tʃər.iz/` – yüzyıllar *(Plural Noun \- Çoğul İsim)*  
@@ -245,6 +262,7 @@
 ---
 
 ### Noun 118: Change `/tʃeɪndʒ/` \- Değişiklik / Para üstü
+- Pronunciation: `chaynj` *(English respelling)*
 
 - Singular: a change `/tʃeɪndʒ/` – bir değişiklik *(Singular Noun \- Tekil İsim)*  
 - Plural: changes `/ˈtʃeɪn.dʒɪz/` – değişiklikler *(Plural Noun \- Çoğul İsim)*  
@@ -259,6 +277,7 @@
 ---
 
 ### Noun 119: Class `/klɑːs/` \- Sınıf / Ders (Çoğul: classes)
+- Pronunciation: `klahs` *(English respelling)*
 
 - Singular: a class `/klɑːs/` – bir sınıf / ders *(Singular Noun \- Tekil İsim)*  
 - Plural: classes `/ˈklɑː.sɪz/` – sınıflar / dersler *(Plural Noun \- Çoğul İsim)*  
@@ -273,6 +292,7 @@
 ---
 
 ### Noun 120: Code `/kəʊd/` \- Kod (Sayılamayan)
+- Pronunciation: `kohd` *(English respelling)*
 
 - Singular / Base: code `/kəʊd/` – kod *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: a line of code – bir satır kod *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -287,6 +307,7 @@
 ---
 
 ### Noun 121: Color `/ˈkʌl.ər/` \- Renk
+- Pronunciation: `KUHL-uhr` *(English respelling)*
 
 - Singular: a color `/ˈkʌl.ər/` – bir renk *(Singular Noun \- Tekil İsim)*  
 - Plural: colors `/ˈkʌl.ərz/` – renkler *(Plural Noun \- Çoğul İsim)*  
@@ -301,6 +322,7 @@
 ---
 
 ### Noun 122: Community `/kəˈmjuː.nə.ti/` \- Topluluk (Düzensiz \-ies)
+- Pronunciation: `kuh-MYOO-nuh-tee` *(English respelling)*
 
 - Singular: a community `/kəˈmjuː.nə.ti/` – bir topluluk *(Singular Noun \- Tekil İsim)*  
 - Plural: communities `/kəˈmjuː.nə.tiz/` – topluluklar *(Plural Noun \- Çoğul İsim)*  
@@ -315,6 +337,7 @@
 ---
 
 ### Noun 123: Cost `/kɒst/` \- Maliyet / Masraf
+- Pronunciation: `kost` *(English respelling)*
 
 - Singular: a cost `/kɒst/` – bir maliyet *(Singular Noun \- Tekil İsim)*  
 - Plural: costs `/kɒsts/` – maliyetler *(Plural Noun \- Çoğul İsim)*  
@@ -329,6 +352,7 @@
 ---
 
 ### Noun 124: Course `/kɔːs/` \- Kurs / Ders / Eğitim
+- Pronunciation: `kaws` *(English respelling)*
 
 - Singular: a course `/kɔːs/` – bir kurs *(Singular Noun \- Tekil İsim)*  
 - Plural: courses `/ˈkɔː.sɪz/` – kurslar *(Plural Noun \- Çoğul İsim)*  
@@ -343,6 +367,7 @@
 ---
 
 ### Noun 125: Customer `/ˈkʌs.tə.mər/` \- Müşteri
+- Pronunciation: `KUHS-tuh-muhr` *(English respelling)*
 
 - Singular: a customer `/ˈkʌs.tə.mər/` – bir müşteri *(Singular Noun \- Tekil İsim)*  
 - Plural: customers `/ˈkʌs.tə.mərz/` – müşteriler *(Plural Noun \- Çoğul İsim)*  
@@ -357,6 +382,7 @@
 ---
 
 ### Noun 126: Database `/ˈdeɪ.tə.beɪs/` \- Veritabanı
+- Pronunciation: `DAY-tuh-bays` *(English respelling)*
 
 - Singular: a database `/ˈdeɪ.tə.beɪs/` – bir veritabanı *(Singular Noun \- Tekil İsim)*  
 - Plural: databases `/ˈdeɪ.tə.beɪ.sɪz/` – veritabanları *(Plural Noun \- Çoğul İsim)*  
@@ -371,6 +397,7 @@
 ---
 
 ### Noun 127: Decision `/dɪˈsɪʒ.ən/` \- Karar
+- Pronunciation: `dih-SIHZH-uhn` *(English respelling)*
 
 - Singular: a decision `/dɪˈsɪʒ.ən/` – bir karar *(Singular Noun \- Tekil İsim)*  
 - Plural: decisions `/dɪˈsɪʒ.ənz/` – kararlar *(Plural Noun \- Çoğul İsim)*  
@@ -385,6 +412,7 @@
 ---
 
 ### Noun 128: Design `/dɪˈzaɪn/` \- Tasarım
+- Pronunciation: `dih-ZYN` *(English respelling)*
 
 - Singular: a design `/dɪˈzaɪn/` – bir tasarım *(Singular Noun \- Tekil İsim)*  
 - Plural: designs `/dɪˈzaɪnz/` – tasarımlar *(Plural Noun \- Çoğul İsim)*  
@@ -399,6 +427,7 @@
 ---
 
 ### Noun 129: Desk `/desk/` \- Çalışma Masası
+- Pronunciation: `desk` *(English respelling)*
 
 - Singular: a desk `/desk/` – bir masa *(Singular Noun \- Tekil İsim)*  
 - Plural: desks `/desks/` – masalar *(Plural Noun \- Çoğul İsim)*  
@@ -413,6 +442,7 @@
 ---
 
 ### Noun 130: Development `/dɪˈvel.əp.mənt/` \- Geliştirme / Gelişim
+- Pronunciation: `dih-VEL-uhp-muhnt` *(English respelling)*
 
 - Singular / Base: development `/dɪˈvel.əp.mənt/` – geliştirme *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: software development – yazılım geliştirme *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -427,6 +457,7 @@
 ---
 
 ### Noun 131: Device `/dɪˈvaɪs/` \- Cihaz / Aygıt
+- Pronunciation: `dih-VYS` *(English respelling)*
 
 - Singular: a device `/dɪˈvaɪs/` – bir cihaz *(Singular Noun \- Tekil İsim)*  
 - Plural: devices `/dɪˈvaɪ.sɪz/` – cihazlar *(Plural Noun \- Çoğul İsim)*  
@@ -441,6 +472,7 @@
 ---
 
 ### Noun 132: Difference `/ˈdɪf.ər.əns/` \- Fark / Ayrım
+- Pronunciation: `DIHF-uhr-uhns` *(English respelling)*
 
 - Singular: a difference `/ˈdɪf.ər.əns/` – bir fark *(Singular Noun \- Tekil İsim)*  
 - Plural: differences `/ˈdɪf.ər.ən.sɪz/` – farklar *(Plural Noun \- Çoğul İsim)*  
@@ -455,6 +487,7 @@
 ---
 
 ### Noun 133: Direction `/dɪˈrek.ʃən/` \- Yön / Talimat
+- Pronunciation: `dih-REK-shuhn` *(English respelling)*
 
 - Singular: a direction `/dɪˈrek.ʃən/` – bir yön *(Singular Noun \- Tekil İsim)*  
 - Plural: directions `/dɪˈrek.ʃənz/` – yönler / talimatlar *(Plural Noun \- Çoğul İsim)*  
@@ -469,6 +502,7 @@
 ---
 
 ### Noun 134: Distance `/ˈdɪs.təns/` \- Mesafe / Uzaklık
+- Pronunciation: `DIHS-tuhns` *(English respelling)*
 
 - Singular: a distance `/ˈdɪs.təns/` – bir mesafe *(Singular Noun \- Tekil İsim)*  
 - Plural: distances `/ˈdɪs.tən.sɪz/` – mesafeler *(Plural Noun \- Çoğul İsim)*  
@@ -483,6 +517,7 @@
 ---
 
 ### Noun 135: Driver `/ˈdraɪ.vər/` \- Sürücü / Donanım Sürücüsü
+- Pronunciation: `DRY-vuhr` *(English respelling)*
 
 - Singular: a driver `/ˈdraɪ.vər/` – bir sürücü *(Singular Noun \- Tekil İsim)*  
 - Plural: drivers `/ˈdraɪ.vərz/` – sürücüler *(Plural Noun \- Çoğul İsim)*  
@@ -497,6 +532,7 @@
 ---
 
 ### Noun 136: Education `/ˌedʒ.uˈkeɪ.ʃən/` \- Eğitim (Sayılamayan)
+- Pronunciation: `ej-oo-KAY-shuhn` *(English respelling)*
 
 - Singular / Base: education `/ˌedʒ.uˈkeɪ.ʃən/` – eğitim *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: higher education – yüksek öğrenim *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -511,6 +547,7 @@
 ---
 
 ### Noun 137: Electricity `/ɪˌlekˈtrɪs.ə.ti/` \- Elektrik (Sayılamayan)
+- Pronunciation: `ih-lek-TRIHS-uh-tee` *(English respelling)*
 
 - Singular / Base: electricity `/ɪˌlekˈtrɪs.ə.ti/` – elektrik *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: green electricity – yeşil elektrik *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -525,6 +562,7 @@
 ---
 
 ### Noun 138: End `/end/` \- Son / Bitiş
+- Pronunciation: `end` *(English respelling)*
 
 - Singular: an end `/end/` – bir son *(Singular Noun \- Tekil İsim)*  
 - Plural: ends `/endz/` – sonlar / uçlar *(Plural Noun \- Çoğul İsim)*  
@@ -539,6 +577,7 @@
 ---
 
 ### Noun 139: Energy `/ˈen.ə.dʒi/` \- Enerji (Sayılamayan)
+- Pronunciation: `EN-uh-jee` *(English respelling)*
 
 - Singular / Base: energy `/ˈen.ə.dʒi/` – enerji *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: renewable energy – yenilenebilir enerji *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -553,6 +592,7 @@
 ---
 
 ### Noun 140: Engineer `/ˌen.dʒɪˈnɪər/` \- Mühendis
+- Pronunciation: `en-jih-NEER` *(English respelling)*
 
 - Singular: an engineer `/ˌen.dʒɪˈnɪər/` – bir mühendis *(Singular Noun \- Tekil İsim)*  
 - Plural: engineers `/ˌen.dʒɪˈnɪərz/` – mühendisler *(Plural Noun \- Çoğul İsim)*  
@@ -567,6 +607,7 @@
 ---
 
 ### Noun 141: Environment `/ɪnˈvaɪ.rən.mənt/` \- Ortam / Çevre
+- Pronunciation: `ihn-VY-ruhn-muhnt` *(English respelling)*
 
 - Singular: an environment `/ɪnˈvaɪ.rən.mənt/` – bir ortam *(Singular Noun \- Tekil İsim)*  
 - Plural: environments `/ɪnˈvaɪ.rən.mənts/` – ortamlar *(Plural Noun \- Çoğul İsim)*  
@@ -581,6 +622,7 @@
 ---
 
 ### Noun 142: Error `/ˈer.ər/` \- Hata / Yanılgı
+- Pronunciation: `ER-uhr` *(English respelling)*
 
 - Singular: an error `/ˈer.ər/` – bir hata *(Singular Noun \- Tekil İsim)*  
 - Plural: errors `/ˈer.ərz/` – hatalar *(Plural Noun \- Çoğul İsim)*  
@@ -595,6 +637,7 @@
 ---
 
 ### Noun 143: Event `/ɪˈvent/` \- Etkinlik / Olay (Yazılımda)
+- Pronunciation: `ih-VENT` *(English respelling)*
 
 - Singular: an event `/ɪˈvent/` – bir etkinlik / olay *(Singular Noun \- Tekil İsim)*  
 - Plural: events `/ɪˈvents/` – etkinlikler / olaylar *(Plural Noun \- Çoğul İsim)*  
@@ -609,6 +652,7 @@
 ---
 
 ### Noun 144: Example `/ɪɡˈzɑːm.pəl/` \- Örnek
+- Pronunciation: `ihg-ZAHM-puhl` *(English respelling)*
 
 - Singular: an example `/ɪɡˈzɑːm.pəl/` – bir örnek *(Singular Noun \- Tekil İsim)*  
 - Plural: examples `/ɪɡˈzɑːm.pəlz/` – örnekler *(Plural Noun \- Çoğul İsim)*  
@@ -623,6 +667,7 @@
 ---
 
 ### Noun 145: Experience `/ɪkˈspɪə.ri.əns/` \- Deneyim / Tecrübe
+- Pronunciation: `ihk-SPEER-ree-uhns` *(English respelling)*
 
 - Singular / Base: experience `/ɪkˈspɪə.ri.əns/` – deneyim *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: five years of experience – beş yıllık deneyim *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -637,6 +682,7 @@
 ---
 
 ### Noun 146: Face `/feɪs/` \- Yüz / Çehre
+- Pronunciation: `fays` *(English respelling)*
 
 - Singular: a face `/feɪs/` – bir yüz *(Singular Noun \- Tekil İsim)*  
 - Plural: faces `/ˈfeɪ.sɪz/` – yüzler *(Plural Noun \- Çoğul İsim)*  
@@ -651,6 +697,7 @@
 ---
 
 ### Noun 147: Fact `/fækt/` \- Gerçek / Olgu
+- Pronunciation: `fakt` *(English respelling)*
 
 - Singular: a fact `/fækt/` – bir gerçek *(Singular Noun \- Tekil İsim)*  
 - Plural: facts `/fækts/` – gerçekler *(Plural Noun \- Çoğul İsim)*  
@@ -665,6 +712,7 @@
 ---
 
 ### Noun 148: Feature `/ˈfiː.tʃər/` \- Özellik / Nitelik
+- Pronunciation: `FEE-chuhr` *(English respelling)*
 
 - Singular: a feature `/ˈfiː.tʃər/` – bir özellik *(Singular Noun \- Tekil İsim)*  
 - Plural: features `/ˈfiː.tʃərz/` – özellikler *(Plural Noun \- Çoğul İsim)*  
@@ -679,6 +727,7 @@
 ---
 
 ### Noun 149: Fee `/fiː/` \- Ücret / Harç
+- Pronunciation: `fee` *(English respelling)*
 
 - Singular: a fee `/fiː/` – bir ücret *(Singular Noun \- Tekil İsim)*  
 - Plural: fees `/fiːz/` – ücretler *(Plural Noun \- Çoğul İsim)*  
@@ -693,6 +742,7 @@
 ---
 
 ### Noun 150: Field `/fiːld/` \- Alan / Saha
+- Pronunciation: `feeld` *(English respelling)*
 
 - Singular: a field `/fiːld/` – bir alan *(Singular Noun \- Tekil İsim)*  
 - Plural: fields `/fiːldz/` – alanlar *(Plural Noun \- Çoğul İsim)*  
@@ -707,6 +757,7 @@
 ---
 
 ### Noun 151: Floor `/flɔːr/` \- Zemin / Kat
+- Pronunciation: `flawr` *(English respelling)*
 
 - Singular: a floor `/flɔːr/` – bir kat / zemin *(Singular Noun \- Tekil İsim)*  
 - Plural: floors `/flɔːrz/` – katlar *(Plural Noun \- Çoğul İsim)*  
@@ -721,6 +772,7 @@
 ---
 
 ### Noun 152: Forest `/ˈfɒr.ɪst/` \- Orman
+- Pronunciation: `FOR-ihst` *(English respelling)*
 
 - Singular: a forest `/ˈfɒr.ɪst/` – bir orman *(Singular Noun \- Tekil İsim)*  
 - Plural: forests `/ˈfɒr.ɪsts/` – ormanlar *(Plural Noun \- Çoğul İsim)*  
@@ -735,6 +787,7 @@
 ---
 
 ### Noun 153: Form `/fɔːm/` \- Form / Biçim
+- Pronunciation: `fawm` *(English respelling)*
 
 - Singular: a form `/fɔːm/` – bir form *(Singular Noun \- Tekil İsim)*  
 - Plural: forms `/fɔːmz/` – formlar *(Plural Noun \- Çoğul İsim)*  
@@ -749,6 +802,7 @@
 ---
 
 ### Noun 154: Framework `/ˈfreɪm.wɜːk/` \- Çatı / Altyapı
+- Pronunciation: `FRAYM-wurk` *(English respelling)*
 
 - Singular: a framework `/ˈfreɪm.wɜːk/` – bir çatı *(Singular Noun \- Tekil İsim)*  
 - Plural: frameworks `/ˈfreɪm.wɜːks/` – çatılar *(Plural Noun \- Çoğul İsim)*  
@@ -763,6 +817,7 @@
 ---
 
 ### Noun 155: Girl `/ɡɜːl/` \- Kız çocuk
+- Pronunciation: `gurl` *(English respelling)*
 
 - Singular: a girl `/ɡɜːl/` – bir kız çocuk *(Singular Noun \- Tekil İsim)*  
 - Plural: girls `/ɡɜːlz/` – kızlar *(Plural Noun \- Çoğul İsim)*  
@@ -777,6 +832,7 @@
 ---
 
 ### Noun 156: Group `/ɡruːp/` \- Grup / Topluluk
+- Pronunciation: `groop` *(English respelling)*
 
 - Singular: a group `/ɡruːp/` – bir grup *(Singular Noun \- Tekil İsim)*  
 - Plural: groups `/ɡruːps/` – gruplar *(Plural Noun \- Çoğul İsim)*  
@@ -791,6 +847,7 @@
 ---
 
 ### Noun 157: Hand `/hænd/` \- El
+- Pronunciation: `hand` *(English respelling)*
 
 - Singular: a hand `/hænd/` – bir el *(Singular Noun \- Tekil İsim)*  
 - Plural: hands `/hændz/` – eller *(Plural Noun \- Çoğul İsim)*  
@@ -805,6 +862,7 @@
 ---
 
 ### Noun 158: Head `/hed/` \- Baş / Kafa / Lider
+- Pronunciation: `hed` *(English respelling)*
 
 - Singular: a head `/hed/` – bir baş / lider *(Singular Noun \- Tekil İsim)*  
 - Plural: heads `/hedz/` – başlar / liderler *(Plural Noun \- Çoğul İsim)*  
@@ -819,6 +877,7 @@
 ---
 
 ### Noun 159: Health `/helθ/` \- Sağlık (Sayılamayan)
+- Pronunciation: `helth` *(English respelling)*
 
 - Singular / Base: health `/helθ/` – sağlık *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: good health – iyi sağlık *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -833,6 +892,7 @@
 ---
 
 ### Noun 160: History `/ˈhɪs.tər.i/` \- Tarih / Geçmiş (Git log)
+- Pronunciation: `HIHS-tuhr-ee` *(English respelling)*
 
 - Singular: a history `/ˈhɪs.tər.i/` – bir tarih / geçmiş *(Singular Noun \- Tekil İsim)*  
 - Plural: histories `/ˈhɪs.tər.iz/` – tarihler *(Plural Noun \- Çoğul İsim)*  
@@ -847,6 +907,7 @@
 ---
 
 ### Noun 161: Idea `/aɪˈdɪə/` \- Fikir / Düşünce
+- Pronunciation: `y-DEER` *(English respelling)*
 
 - Singular: an idea `/aɪˈdɪə/` – bir fikir *(Singular Noun \- Tekil İsim)*  
 - Plural: ideas `/aɪˈdɪəz/` – fikirler *(Plural Noun \- Çoğul İsim)*  
@@ -861,6 +922,7 @@
 ---
 
 ### Noun 162: Image `/ˈɪm.ɪdʒ/` \- Resim / Görüntü
+- Pronunciation: `IHM-ihj` *(English respelling)*
 
 - Singular: an image `/ˈɪm.ɪdʒ/` – bir resim / görüntü *(Singular Noun \- Tekil İsim)*  
 - Plural: images `/ˈɪm.ɪ.dʒɪz/` – resimler / görüntüler *(Plural Noun \- Çoğul İsim)*  
@@ -875,6 +937,7 @@
 ---
 
 ### Noun 163: Industry `/ˈɪn.də.stri/` \- Endüstri / Sanayi (Düzensiz \-ies)
+- Pronunciation: `IHN-duh-stree` *(English respelling)*
 
 - Singular: an industry `/ˈɪn.də.stri/` – bir endüstri *(Singular Noun \- Tekil İsim)*  
 - Plural: industries `/ˈɪn.də.striz/` – endüstriler *(Plural Noun \- Çoğul İsim)*  
@@ -889,6 +952,7 @@
 ---
 
 ### Noun 164: Level `/ˈlev.əl/` \- Seviye / Düzey
+- Pronunciation: `LEV-uhl` *(English respelling)*
 
 - Singular: a level `/ˈlev.əl/` – bir seviye *(Singular Noun \- Tekil İsim)*  
 - Plural: levels `/ˈlev.əlz/` – seviyeler *(Plural Noun \- Çoğul İsim)*  
@@ -903,6 +967,7 @@
 ---
 
 ### Noun 165: Library `/ˈlaɪ.brər.i/` \- Kütüphane (Yazılım / Bina)
+- Pronunciation: `LY-bruhr-ee` *(English respelling)*
 
 - Singular: a library `/ˈlaɪ.brər.i/` – bir kütüphane *(Singular Noun \- Tekil İsim)*  
 - Plural: libraries `/ˈlaɪ.brər.iz/` – kütüphaneler *(Plural Noun \- Çoğul İsim)*  
@@ -917,6 +982,7 @@
 ---
 
 ### Noun 166: Line `/laɪn/` \- Satır / Çizgi / Hat
+- Pronunciation: `lyn` *(English respelling)*
 
 - Singular: a line `/laɪn/` – bir satır *(Singular Noun \- Tekil İsim)*  
 - Plural: lines `/laɪnz/` – satırlar *(Plural Noun \- Çoğul İsim)*  
@@ -931,6 +997,7 @@
 ---
 
 ### Noun 167: List `/lɪst/` \- Liste
+- Pronunciation: `lihst` *(English respelling)*
 
 - Singular: a list `/lɪst/` – bir liste *(Singular Noun \- Tekil İsim)*  
 - Plural: lists `/lɪsts/` – listeler *(Plural Noun \- Çoğul İsim)*  
@@ -945,6 +1012,7 @@
 ---
 
 ### Noun 168: Manager `/ˈmæn.ɪ.dʒər/` \- Yönetici / Müdür
+- Pronunciation: `MAN-ih-juhr` *(English respelling)*
 
 - Singular: a manager `/ˈmæn.ɪ.dʒər/` – bir yönetici *(Singular Noun \- Tekil İsim)*  
 - Plural: managers `/ˈmæn.ɪ.dʒərz/` – yöneticiler *(Plural Noun \- Çoğul İsim)*  
@@ -959,6 +1027,7 @@
 ---
 
 ### Noun 169: Man `/mæn/` \- Adam / Erkek (Düzensiz: men)
+- Pronunciation: `man` *(English respelling)*
 
 - Singular: a man `/mæn/` – bir adam *(Singular Noun \- Tekil İsim)*  
 - Plural: men `/men/` – adamlar / erkekler *(Plural Noun \- Çoğul İsim)*  
@@ -973,6 +1042,7 @@
 ---
 
 ### Noun 170: Map `/mæp/` \- Harita
+- Pronunciation: `map` *(English respelling)*
 
 - Singular: a map `/mæp/` – bir harita *(Singular Noun \- Tekil İsim)*  
 - Plural: maps `/mæps/` – haritalar *(Plural Noun \- Çoğul İsim)*  
@@ -987,6 +1057,7 @@
 ---
 
 ### Noun 171: Memory `/ˈmem.ər.i/` \- Bellek / Hafıza (Düzensiz \-ies)
+- Pronunciation: `MEM-uhr-ee` *(English respelling)*
 
 - Singular: a memory `/ˈmem.ər.i/` – bir bellek / anı *(Singular Noun \- Tekil İsim)*  
 - Plural: memories `/ˈmem.ər.iz/` – bellekler / anılar *(Plural Noun \- Çoğul İsim)*  
@@ -1001,6 +1072,7 @@
 ---
 
 ### Noun 172: Method `/ˈmeθ.əd/` \- Yöntem / Metot (Yazılımda)
+- Pronunciation: `METH-uhd` *(English respelling)*
 
 - Singular: a method `/ˈmeθ.əd/` – bir yöntem / metot *(Singular Noun \- Tekil İsim)*  
 - Plural: methods `/ˈmeθ.ədz/` – yöntemler / metotlar *(Plural Noun \- Çoğul İsim)*  
@@ -1015,6 +1087,7 @@
 ---
 
 ### Noun 173: Model `/ˈmɒd.əl/` \- Model (Makine Öğrenmesi)
+- Pronunciation: `MOD-uhl` *(English respelling)*
 
 - Singular: a model `/ˈmɒd.əl/` – bir model *(Singular Noun \- Tekil İsim)*  
 - Plural: models `/ˈmɒd.əlz/` – modeller *(Plural Noun \- Çoğul İsim)*  
@@ -1029,6 +1102,7 @@
 ---
 
 ### Noun 174: Name `/neɪm/` \- İsim / Ad
+- Pronunciation: `naym` *(English respelling)*
 
 - Singular: a name `/neɪm/` – bir isim *(Singular Noun \- Tekil İsim)*  
 - Plural: names `/neɪmz/` – isimler *(Plural Noun \- Çoğul İsim)*  
@@ -1043,6 +1117,7 @@
 ---
 
 ### Noun 175: Nature `/ˈneɪ.tʃər/` \- Doğa / Tabiat (Sayılamayan)
+- Pronunciation: `NAY-chuhr` *(English respelling)*
 
 - Singular / Base: nature `/ˈneɪ.tʃər/` – doğa *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: human nature – insan doğası *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1057,6 +1132,7 @@
 ---
 
 ### Noun 176: Network `/ˈnet.wɜːk/` \- Ağ / Şebeke
+- Pronunciation: `NET-wurk` *(English respelling)*
 
 - Singular: a network `/ˈnet.wɜːk/` – bir ağ *(Singular Noun \- Tekil İsim)*  
 - Plural: networks `/ˈnet.wɜːks/` – ağlar *(Plural Noun \- Çoğul İsim)*  
@@ -1071,6 +1147,7 @@
 ---
 
 ### Noun 177: Number `/ˈnʌm.bər/` \- Sayı / Numara
+- Pronunciation: `NUHM-buhr` *(English respelling)*
 
 - Singular: a number `/ˈnʌm.bər/` – bir sayı / numara *(Singular Noun \- Tekil İsim)*  
 - Plural: numbers `/ˈnʌm.bərz/` – sayılar / numaralar *(Plural Noun \- Çoğul İsim)*  
@@ -1085,6 +1162,7 @@
 ---
 
 ### Noun 178: Order `/ˈɔː.dər/` \- Sipariş / Sıralama / Düzen
+- Pronunciation: `AW-duhr` *(English respelling)*
 
 - Singular: an order `/ˈɔː.dər/` – bir sipariş / düzen *(Singular Noun \- Tekil İsim)*  
 - Plural: orders `/ˈɔː.dərz/` – siparişler *(Plural Noun \- Çoğul İsim)*  
@@ -1099,6 +1177,7 @@
 ---
 
 ### Noun 179: Page `/peɪdʒ/` \- Sayfa
+- Pronunciation: `payj` *(English respelling)*
 
 - Singular: a page `/peɪdʒ/` – bir sayfa *(Singular Noun \- Tekil İsim)*  
 - Plural: pages `/ˈpeɪ.dʒɪz/` – sayfalar *(Plural Noun \- Çoğul İsim)*  
@@ -1113,6 +1192,7 @@
 ---
 
 ### Noun 180: Paper `/ˈpeɪ.pər/` \- Kağıt / Akademik Makale
+- Pronunciation: `PAY-puhr` *(English respelling)*
 
 - Singular: a paper `/ˈpeɪ.pər/` – bir makale / kağıt *(Singular Noun \- Tekil İsim)*  
 - Plural: papers `/ˈpeɪ.pərz/` – makaleler / kağıtlar *(Plural Noun \- Çoğul İsim)*  
@@ -1127,6 +1207,7 @@
 ---
 
 ### Noun 181: Parent `/ˈpeə.rənt/` \- Ebeveyn (Anne/Baba)
+- Pronunciation: `PAIR-ruhnt` *(English respelling)*
 
 - Singular: a parent `/ˈpeə.rənt/` – bir ebeveyn *(Singular Noun \- Tekil İsim)*  
 - Plural: parents `/ˈpeə.rənts/` – ebeveynler / aile *(Plural Noun \- Çoğul İsim)*  
@@ -1141,6 +1222,7 @@
 ---
 
 ### Noun 182: Part `/pɑːt/` \- Parça / Bölüm
+- Pronunciation: `paht` *(English respelling)*
 
 - Singular: a part `/pɑːt/` – bir parça *(Singular Noun \- Tekil İsim)*  
 - Plural: parts `/pɑːts/` – parçalar *(Plural Noun \- Çoğul İsim)*  
@@ -1155,6 +1237,7 @@
 ---
 
 ### Noun 183: Person `/ˈpɜː.sən/` \- Kişi (Düzensiz çoğul: people)
+- Pronunciation: `PUR-suhn` *(English respelling)*
 
 - Singular: a person `/ˈpɜː.sən/` – bir kişi *(Singular Noun \- Tekil İsim)*  
 - Plural: people `/ˈpiː.pəl/` – insanlar / kişiler *(Plural Noun \- Çoğul İsim)*  
@@ -1169,6 +1252,7 @@
 ---
 
 ### Noun 184: Picture `/ˈpɪk.tʃər/` \- Resim / Fotoğraf
+- Pronunciation: `PIK-chuhr` *(English respelling)*
 
 - Singular: a picture `/ˈpɪk.tʃər/` – bir resim *(Singular Noun \- Tekil İsim)*  
 - Plural: pictures `/ˈpɪk.tʃərz/` – resimler *(Plural Noun \- Çoğul İsim)*  
@@ -1183,6 +1267,7 @@
 ---
 
 ### Noun 185: Piece `/piːs/` \- Parça / Tane
+- Pronunciation: `pees` *(English respelling)*
 
 - Singular: a piece `/piːs/` – bir parça *(Singular Noun \- Tekil İsim)*  
 - Plural: pieces `/ˈpiː.sɪz/` – parçalar *(Plural Noun \- Çoğul İsim)*  
@@ -1197,6 +1282,7 @@
 ---
 
 ### Noun 186: Plan `/plæn/` \- Plan
+- Pronunciation: `plan` *(English respelling)*
 
 - Singular: a plan `/plæn/` – bir plan *(Singular Noun \- Tekil İsim)*  
 - Plural: plans `/plænz/` – planlar *(Plural Noun \- Çoğul İsim)*  
@@ -1211,6 +1297,7 @@
 ---
 
 ### Noun 187: Platform `/ˈplæt.fɔːm/` \- Platform / Ortam
+- Pronunciation: `PLAT-fawm` *(English respelling)*
 
 - Singular: a platform `/ˈplæt.fɔːm/` – bir platform *(Singular Noun \- Tekil İsim)*  
 - Plural: platforms `/ˈplæt.fɔːmz/` – platformlar *(Plural Noun \- Çoğul İsim)*  
@@ -1225,6 +1312,7 @@
 ---
 
 ### Noun 188: Policy `/ˈpɒl.ə.si/` \- Politika / Kural (Düzensiz \-ies)
+- Pronunciation: `POL-uh-see` *(English respelling)*
 
 - Singular: a policy `/ˈpɒl.ə.si/` – bir politika *(Singular Noun \- Tekil İsim)*  
 - Plural: policies `/ˈpɒl.ə.siz/` – politikalar *(Plural Noun \- Çoğul İsim)*  
@@ -1239,6 +1327,7 @@
 ---
 
 ### Noun 189: Power `/paʊər/` \- Güç / Elektrik Gücü
+- Pronunciation: `powuhr` *(English respelling)*
 
 - Singular / Base: power `/paʊər/` – güç *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: processing power – işlem gücü *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1253,6 +1342,7 @@
 ---
 
 ### Noun 190: Product `/ˈprɒd.ʌkt/` \- Ürün
+- Pronunciation: `PROD-uhkt` *(English respelling)*
 
 - Singular: a product `/ˈprɒd.ʌkt/` – bir ürün *(Singular Noun \- Tekil İsim)*  
 - Plural: products `/ˈprɒd.ʌkts/` – ürünler *(Plural Noun \- Çoğul İsim)*  
@@ -1267,6 +1357,7 @@
 ---
 
 ### Noun 191: Reason `/ˈriː.zən/` \- Sebep / Neden
+- Pronunciation: `REE-zuhn` *(English respelling)*
 
 - Singular: a reason `/ˈriː.zən/` – bir sebep *(Singular Noun \- Tekil İsim)*  
 - Plural: reasons `/ˈriː.zənz/` – sebepler *(Plural Noun \- Çoğul İsim)*  
@@ -1281,6 +1372,7 @@
 ---
 
 ### Noun 192: Record `/ˈrek.ɔːd/` \- Kayıt / Sicil
+- Pronunciation: `REK-awd` *(English respelling)*
 
 - Singular: a record `/ˈrek.ɔːd/` – bir kayıt *(Singular Noun \- Tekil İsim)*  
 - Plural: records `/ˈrek.ɔːdz/` – kayıtlar *(Plural Noun \- Çoğul İsim)*  
@@ -1295,6 +1387,7 @@
 ---
 
 ### Noun 193: Report `/rɪˈpɔːt/` \- Rapor
+- Pronunciation: `rih-PAWT` *(English respelling)*
 
 - Singular: a report `/rɪˈpɔːt/` – bir rapor *(Singular Noun \- Tekil İsim)*  
 - Plural: reports `/rɪˈpɔːts/` – raporlar *(Plural Noun \- Çoğul İsim)*  
@@ -1309,6 +1402,7 @@
 ---
 
 ### Noun 194: Request `/rɪˈkwest/` \- İstek / Talep (HTTP İsteği)
+- Pronunciation: `rih-KWEST` *(English respelling)*
 
 - Singular: a request `/rɪˈkwest/` – bir istek *(Singular Noun \- Tekil İsim)*  
 - Plural: requests `/rɪˈkwests/` – istekler *(Plural Noun \- Çoğul İsim)*  
@@ -1323,6 +1417,7 @@
 ---
 
 ### Noun 195: Response `/rɪˈspɒns/` \- Yanıt / Cevap (API Yanıtı)
+- Pronunciation: `rih-SPONS` *(English respelling)*
 
 - Singular: a response `/rɪˈspɒns/` – bir yanıt *(Singular Noun \- Tekil İsim)*  
 - Plural: responses `/rɪˈspɒn.sɪz/` – yanıtlar *(Plural Noun \- Çoğul İsim)*  
@@ -1337,6 +1432,7 @@
 ---
 
 ### Noun 196: Result `/rɪˈzʌlt/` \- Sonuç
+- Pronunciation: `rih-ZUHLT` *(English respelling)*
 
 - Singular: a result `/rɪˈzʌlt/` – bir sonuç *(Singular Noun \- Tekil İsim)*  
 - Plural: results `/rɪˈzʌlts/` – sonuçlar *(Plural Noun \- Çoğul İsim)*  
@@ -1351,6 +1447,7 @@
 ---
 
 ### Noun 197: Security `/sɪˈkjʊə.rə.ti/` \- Güvenlik (Sayılamayan)
+- Pronunciation: `sih-KYOOR-ruh-tee` *(English respelling)*
 
 - Singular / Base: security `/sɪˈkjʊə.rə.ti/` – güvenlik *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: cyber security – siber güvenlik *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1365,6 +1462,7 @@
 ---
 
 ### Noun 198: Service `/ˈsɜː.vɪs/` \- Servis / Hizmet
+- Pronunciation: `SUR-vihs` *(English respelling)*
 
 - Singular: a service `/ˈsɜː.vɪs/` – bir servis / hizmet *(Singular Noun \- Tekil İsim)*  
 - Plural: services `/ˈsɜː.vɪ.sɪz/` – servisler / hizmetler *(Plural Noun \- Çoğul İsim)*  
@@ -1379,6 +1477,7 @@
 ---
 
 ### Noun 199: System `/ˈsɪs.təm/` \- Sistem / Düzen
+- Pronunciation: `SIHS-tuhm` *(English respelling)*
 
 - Singular: a system `/ˈsɪs.təm/` – bir sistem *(Singular Noun \- Tekil İsim)*  
 - Plural: systems `/ˈsɪs.təmz/` – sistemler *(Plural Noun \- Çoğul İsim)*  
@@ -1393,6 +1492,7 @@
 ---
 
 ### Noun 200: User `/ˈjuː.zər/` \- Kullanıcı
+- Pronunciation: `YOO-zuhr` *(English respelling)*
 
 - Singular: a user `/ˈjuː.zər/` – bir kullanıcı *(Singular Noun \- Tekil İsim)*  
 - Plural: users `/ˈjuː.zərz/` – kullanıcılar *(Plural Noun \- Çoğul İsim)*  

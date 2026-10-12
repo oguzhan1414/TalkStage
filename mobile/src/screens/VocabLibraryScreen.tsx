@@ -1,8 +1,9 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Toast } from '../components/Toast';
 import {
@@ -26,537 +27,582 @@ import { MivoLoader } from '../components/MivoLoader';
 import { t, nativeFlag } from '../i18n';
 
 type LibraryCategory = 'nouns' | 'verbs' | 'adjectives';
+type StatusFilter = 'new' | 'all' | 'saved' | 'known';
 
 const PACKS: Record<
   LibraryCategory,
   {
-    id: string;
     label: string;
-    icon: string;
-    sets: { id: string; name: string; range: string; words: LibraryWordEntry[] }[];
+    icon: keyof typeof Ionicons.glyphMap;
+    color: string;
+    soft: string;
+    sets: { id: string; range: string; words: LibraryWordEntry[] }[];
   }
 > = {
   nouns: {
-    id: 'nouns',
     label: t("İsimler"),
-    icon: '📦',
+    icon: 'cube-outline',
+    color: '#6366F1',
+    soft: '#EEF2FF',
     sets: [
-      { id: 'nouns_1', name: '1. Paket', range: '1 – 100', words: NOUNS_100 },
-      { id: 'nouns_2', name: '2. Paket', range: '101 – 200', words: NOUNS_200 },
-      { id: 'nouns_3', name: '3. Paket', range: '201 – 300', words: NOUNS_300 },
+      { id: 'nouns_1', range: '1–100', words: NOUNS_100 },
+      { id: 'nouns_2', range: '101–200', words: NOUNS_200 },
+      { id: 'nouns_3', range: '201–300', words: NOUNS_300 },
     ],
   },
   verbs: {
-    id: 'verbs',
     label: t("Fiiller"),
-    icon: '🏃',
+    icon: 'walk-outline',
+    color: '#0EA5E9',
+    soft: '#E0F2FE',
     sets: [
-      { id: 'verbs_1', name: '1. Paket', range: '1 – 100', words: VERBS_100 },
-      { id: 'verbs_2', name: '2. Paket', range: '101 – 200', words: VERBS_200 },
-      { id: 'verbs_3', name: '3. Paket', range: '201 – 300', words: VERBS_300 },
+      { id: 'verbs_1', range: '1–100', words: VERBS_100 },
+      { id: 'verbs_2', range: '101–200', words: VERBS_200 },
+      { id: 'verbs_3', range: '201–300', words: VERBS_300 },
     ],
   },
   adjectives: {
-    id: 'adjectives',
     label: t("Sıfatlar"),
-    icon: '🎯',
+    icon: 'color-palette-outline',
+    color: '#F59E0B',
+    soft: '#FEF3C7',
     sets: [
-      { id: 'adjectives_1', name: '1. Paket', range: '1 – 100', words: ADJECTIVES_100 },
-      { id: 'adjectives_2', name: '2. Paket', range: '101 – 200', words: ADJECTIVES_200 },
-      { id: 'adjectives_3', name: '3. Paket', range: '201 – 300', words: ADJECTIVES_300 },
+      { id: 'adjectives_1', range: '1–100', words: ADJECTIVES_100 },
+      { id: 'adjectives_2', range: '101–200', words: ADJECTIVES_200 },
+      { id: 'adjectives_3', range: '201–300', words: ADJECTIVES_300 },
     ],
   },
 };
 
+const CATEGORIES = Object.keys(PACKS) as LibraryCategory[];
+const SEARCH_LIMIT = 60;
+
+/** Every library word with its place in the library (for global search and the "source" label of saved cards). */
+const ALL_WORDS: { entry: LibraryWordEntry; category: LibraryCategory; packIndex: number }[] = CATEGORIES.flatMap((category) =>
+  PACKS[category].sets.flatMap((set, packIndex) => set.words.map((entry) => ({ entry, category, packIndex })))
+);
+const TOTAL_WORDS = ALL_WORDS.length;
+const META_BY_ID = new Map(ALL_WORDS.map((w) => [w.entry.id, w]));
+
+const POS_LABEL: Record<LibraryWordEntry['partOfSpeech'], string> = {
+  noun: t("İsim"),
+  verb: t("Fiil"),
+  adjective: t("Sıfat"),
+  adverb: t("Zarf"),
+};
+
+type FormRowData = { label: string; form: string; sub?: string };
+
+/** The grammar forms worth showing for a word, in reading order. */
+function detailRows(item: LibraryWordEntry): FormRowData[] {
+  const rows: FormRowData[] = [];
+  const add = (label: string, d?: { form: string; translation?: string }) => {
+    if (d?.form) rows.push({ label, form: d.form, sub: d.translation });
+  };
+  if (item.partOfSpeech === 'adjective') {
+    add(t("Karşılaştırma:"), item.comparative);
+    add(t("Üstünlük:"), item.superlative);
+    if (item.antonym) rows.push({ label: t("Zıt Anlam:"), form: item.antonym.word, sub: item.antonym.translation });
+  } else if (item.partOfSpeech === 'noun') {
+    add(t("Tekil:"), item.singular);
+    add(t("Çoğul:"), item.plural ?? item.partitiveUnit);
+    add(t("İyelik / Tamlama:"), item.possessivePhrase);
+  } else if (item.partOfSpeech === 'verb') {
+    add(t("Geniş Zaman:"), item.presentSimple);
+    add(t("Şimdiki Zaman:"), item.presentContinuous);
+    add(t("Gelecek Zaman:"), item.future);
+    add(t("Geçmiş Zaman:"), item.pastSimple);
+  }
+  return rows;
+}
+
+type WordCardProps = {
+  item: LibraryWordEntry;
+  tag?: string;
+  accent: string;
+  saved: boolean;
+  known: boolean;
+  expanded: boolean;
+  onToggle: (id: string) => void;
+  onSpeak: (word: string) => void;
+  onAdd: (item: LibraryWordEntry) => void;
+  onKnown: (item: LibraryWordEntry) => void;
+  onUndo: (item: LibraryWordEntry) => void;
+};
+
+const WordCard = memo(function WordCard({ item, tag, accent, saved, known, expanded, onToggle, onSpeak, onAdd, onKnown, onUndo }: WordCardProps) {
+  const rows = useMemo(() => detailRows(item), [item]);
+  const hasDetails = rows.length > 0 || !!item.grammarNote || (!!item.exampleTr && item.exampleTr !== item.exampleEn);
+
+  return (
+    <View style={[styles.wordCard, shadow.card, (saved || known) && styles.wordCardDone]}>
+      <View style={[styles.cardAccent, { backgroundColor: accent }]} />
+      <View style={styles.cardBody}>
+        <View style={styles.cardTop}>
+          <View style={{ flex: 1 }}>
+            <View style={styles.wordLine}>
+              <Text style={styles.wordTerm}>{item.word}</Text>
+              {item.respelling ? <Text style={styles.wordRespelling}>{item.respelling}</Text> : null}
+            </View>
+            <Text style={styles.meaningText}>
+              {nativeFlag()} {item.translation}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => onSpeak(item.word)}
+            hitSlop={10}
+            style={styles.soundBtn}
+            accessibilityRole="button"
+            accessibilityLabel={t("Telaffuzu dinle")}
+          >
+            <Ionicons name="volume-high" size={18} color={colors.brand} />
+          </Pressable>
+        </View>
+
+        <View style={styles.tagRow}>
+          <View style={[styles.tag, { backgroundColor: `${accent}1A` }]}>
+            <Text style={[styles.tagText, { color: accent }]}>{POS_LABEL[item.partOfSpeech]}</Text>
+          </View>
+          <View style={styles.tagNeutral}>
+            <Text style={styles.tagNeutralText}>#{item.rank}</Text>
+          </View>
+          {tag ? (
+            <View style={styles.tagNeutral}>
+              <Text style={styles.tagNeutralText}>{tag}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        {item.exampleEn ? (
+          <Text style={styles.exampleEn} numberOfLines={expanded ? undefined : 2}>
+            &ldquo;{item.exampleEn}&rdquo;
+          </Text>
+        ) : null}
+
+        {expanded && hasDetails ? (
+          <View style={styles.details}>
+            {item.exampleTr && item.exampleTr !== item.exampleEn ? <Text style={styles.exampleTr}>{item.exampleTr}</Text> : null}
+            {item.grammarNote ? (
+              <View style={styles.noteRow}>
+                <Ionicons name="sparkles" size={12} color={colors.brand} />
+                <Text style={styles.noteText}>{item.grammarNote}</Text>
+              </View>
+            ) : null}
+            {rows.length > 0 ? (
+              <View style={styles.formGrid}>
+                {rows.map((r) => (
+                  <View key={r.label} style={styles.formCell}>
+                    <Text style={styles.formLabel}>{r.label}</Text>
+                    <Text style={styles.formValue}>{r.form}</Text>
+                    {r.sub ? <Text style={styles.formSub}>{r.sub}</Text> : null}
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
+        {hasDetails ? (
+          <Pressable onPress={() => onToggle(item.id)} hitSlop={8} style={styles.moreBtn} accessibilityRole="button">
+            <Text style={styles.moreBtnText}>{expanded ? t("Daha az") : t("Detaylar")}</Text>
+            <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={colors.brand} />
+          </Pressable>
+        ) : null}
+
+        <View style={styles.actionsRow}>
+          {saved ? (
+            <View style={styles.statusPill}>
+              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+              <Text style={styles.statusPillText}>{t("Sandığında Kayıtlı ✓")}</Text>
+            </View>
+          ) : known ? (
+            <View style={styles.knownRow}>
+              <View style={styles.statusPillMuted}>
+                <Ionicons name="eye-off-outline" size={15} color={colors.textMuted} />
+                <Text style={styles.statusPillMutedText}>{t("Biliniyor, Atlandı")}</Text>
+              </View>
+              <Pressable onPress={() => onUndo(item)} hitSlop={8}>
+                <Text style={styles.undoText}>{t("Geri Al")}</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              <Pressable
+                onPress={() => onKnown(item)}
+                style={({ pressed }) => [styles.knownBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Ionicons name="checkmark-outline" size={16} color={colors.textMuted} />
+                <Text style={styles.knownBtnText}>{t("Biliyorum, Atla")}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => onAdd(item)}
+                style={({ pressed }) => [styles.addBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+              >
+                <Ionicons name="add-circle" size={16} color="#FFFFFF" />
+                <Text style={styles.addBtnText}>{t("Sandığıma Ekle")}</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+});
+
 export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   const queryClient = useQueryClient();
   const { pronounce } = usePronunciation();
-  const listRef = useRef<FlatList<LibraryWordEntry>>(null);
-  // Only auto-jump once per pack (on first load) — not on every add/skip
-  // action within that pack, which would yank the list out from under the
-  // user mid-browse.
-  const autoScrolledPackKey = useRef<string | null>(null);
 
   const [category, setCategory] = useState<LibraryCategory>('nouns');
-  const [packIndex, setPackIndex] = useState<number>(0);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [packIndex, setPackIndex] = useState(0);
+  const [status, setStatus] = useState<StatusFilter>('new');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const statusInitialized = useRef(false);
 
-  const showToast = (msg: string) => {
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    []
+  );
+
+  const showToast = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast(msg);
-    setTimeout(() => setToast(null), 2200);
-  };
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
+  }, []);
 
-  // Fetch all saved cards from Supabase to compute real dedup + pack progress
+  // All saved cards (dedup + progress) and the words explicitly marked "Biliyorum, Atla".
   const { data: allCards, isLoading } = useQuery({
     queryKey: ['vocab-cards', 'all'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
   });
-
-  // Words explicitly marked "Biliyorum, Atla" — reviewed but never saved to
-  // the chest, so they still need their own persisted signal (see backend
-  // Ek: vocab_library_progress) or every pack would look 0% done forever.
   const { data: dismissedWordIds, isLoading: progressLoading } = useQuery({
     queryKey: ['vocab-library-progress'],
     queryFn: () => api.get<string[]>('/vocab-library/progress'),
   });
 
-  const savedTermsLower = useMemo(
-    () => new Set((allCards ?? []).map((c) => c.term.trim().toLowerCase())),
-    [allCards]
-  );
+  const savedTermsLower = useMemo(() => new Set((allCards ?? []).map((c) => c.term.trim().toLowerCase())), [allCards]);
   const dismissedIds = useMemo(() => new Set(dismissedWordIds ?? []), [dismissedWordIds]);
+  const loading = isLoading || progressLoading;
 
-  const activeCategoryObj = PACKS[category];
-  const activeSet = activeCategoryObj.sets[packIndex] ?? activeCategoryObj.sets[0];
+  const isSaved = useCallback((w: LibraryWordEntry) => savedTermsLower.has(w.word.trim().toLowerCase()), [savedTermsLower]);
+  const isKnown = useCallback((w: LibraryWordEntry) => dismissedIds.has(w.id), [dismissedIds]);
+  const isReviewed = useCallback((w: LibraryWordEntry) => isSaved(w) || isKnown(w), [isSaved, isKnown]);
 
-  const isWordReviewed = (w: LibraryWordEntry) =>
-    savedTermsLower.has(w.word.trim().toLowerCase()) || dismissedIds.has(w.id);
+  // Progress per pack / category / overall.
+  const stats = useMemo(() => {
+    const perCategory = {} as Record<LibraryCategory, { done: number; total: number; packs: { done: number; total: number }[] }>;
+    let overall = 0;
+    for (const cat of CATEGORIES) {
+      const packs = PACKS[cat].sets.map((s) => ({ done: s.words.filter(isReviewed).length, total: s.words.length }));
+      const done = packs.reduce((a, p) => a + p.done, 0);
+      perCategory[cat] = { done, total: packs.reduce((a, p) => a + p.total, 0), packs };
+      overall += done;
+    }
+    return { perCategory, overall };
+  }, [isReviewed]);
 
-  // Filtered by search query
-  const filteredWords = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return activeSet.words;
-    return activeSet.words.filter(
-      (w) =>
-        w.word.toLowerCase().includes(q) ||
-        w.translation.toLowerCase().includes(q) ||
-        w.exampleEn.toLowerCase().includes(q) ||
-        w.exampleTr.toLowerCase().includes(q)
-    );
-  }, [activeSet, searchQuery]);
+  const activeCat = PACKS[category];
+  const activeSet = activeCat.sets[packIndex] ?? activeCat.sets[0];
+  const query = searchQuery.trim().toLowerCase();
+  const searching = query.length > 0;
 
-  // Pack completion stats — "reviewed" now covers both saved AND explicitly
-  // skipped words, so the percentage (and the resume-scroll below) reflect
-  // real exposure to the pack, not just how many ended up in the chest.
-  const reviewedInActiveSetCount = useMemo(() => {
-    return activeSet.words.filter(isWordReviewed).length;
-  }, [activeSet, savedTermsLower, dismissedIds]);
-
-  const packProgressPercent = Math.round((reviewedInActiveSetCount / activeSet.words.length) * 100);
-
-  // Resume where the user left off: once both data sources are ready, jump
-  // straight to the first not-yet-reviewed word in the pack instead of
-  // always restarting at #1 — otherwise a returning user only ever re-sees
-  // the same first 10-20 words and the 100th word is never reached.
+  // Once the data is in: start on "Yeni" (where the user left off), or "Tümü" if this pack has nothing new.
   useEffect(() => {
-    if (searchQuery.trim()) return;
-    if (isLoading || progressLoading) return;
-    const packKey = `${category}_${packIndex}`;
-    if (autoScrolledPackKey.current === packKey) return;
-    autoScrolledPackKey.current = packKey;
+    if (loading || statusInitialized.current) return;
+    statusInitialized.current = true;
+    if (activeSet.words.every(isReviewed)) setStatus('all');
+  }, [loading, activeSet, isReviewed]);
 
-    const firstUnreviewedIndex = activeSet.words.findIndex((w) => !isWordReviewed(w));
-    if (firstUnreviewedIndex > 0) {
-      const timer = setTimeout(() => {
-        listRef.current?.scrollToIndex({
-          index: firstUnreviewedIndex,
-          animated: false,
-          viewPosition: 0,
-        });
-      }, 60);
-      return () => clearTimeout(timer);
+  const counts = useMemo(() => {
+    const words = activeSet.words;
+    return {
+      new: words.filter((w) => !isReviewed(w)).length,
+      all: words.length,
+      saved: words.filter(isSaved).length,
+      known: words.filter((w) => isKnown(w) && !isSaved(w)).length,
+    };
+  }, [activeSet, isReviewed, isSaved, isKnown]);
+
+  const data = useMemo(() => {
+    if (searching) {
+      const out: { entry: LibraryWordEntry; category: LibraryCategory; packIndex: number }[] = [];
+      for (const w of ALL_WORDS) {
+        const e = w.entry;
+        if (
+          e.word.toLowerCase().includes(query) ||
+          e.translation.toLowerCase().includes(query) ||
+          e.exampleEn.toLowerCase().includes(query)
+        ) {
+          out.push(w);
+          if (out.length >= SEARCH_LIMIT) break;
+        }
+      }
+      return out;
     }
-  }, [category, packIndex, isLoading, progressLoading, activeSet, savedTermsLower, dismissedIds, searchQuery]);
+    return activeSet.words
+      .filter((w) => {
+        if (status === 'new') return !isReviewed(w);
+        if (status === 'saved') return isSaved(w);
+        if (status === 'known') return isKnown(w) && !isSaved(w);
+        return true;
+      })
+      .map((entry) => ({ entry, category, packIndex }));
+  }, [searching, query, activeSet, status, category, packIndex, isReviewed, isSaved, isKnown]);
 
-  const handleAddWord = async (entry: LibraryWordEntry) => {
-    if (savedTermsLower.has(entry.word.trim().toLowerCase())) return;
-    try {
-      await api.post<VocabCardOut>('/vocab-cards', {
-        term: entry.word,
-        translation: entry.translation,
-        example_sentence: entry.exampleEn,
-        part_of_speech: entry.partOfSpeech,
-        source_label: `${activeCategoryObj.label} (${activeSet.range})`,
-      } satisfies VocabCardCreate);
+  const handleAdd = useCallback(
+    async (entry: LibraryWordEntry) => {
+      if (savedTermsLower.has(entry.word.trim().toLowerCase())) return;
+      const meta = META_BY_ID.get(entry.id);
+      const source = meta ? `${PACKS[meta.category].label} (${PACKS[meta.category].sets[meta.packIndex].range})` : undefined;
+      try {
+        await api.post<VocabCardOut>('/vocab-cards', {
+          term: entry.word,
+          translation: entry.translation,
+          example_sentence: entry.exampleEn,
+          part_of_speech: entry.partOfSpeech,
+          source_label: source,
+        } satisfies VocabCardCreate);
+        await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+        showToast(t("“{{word}}” Kelime Sandığına eklendi 📚", { word: entry.word }));
+      } catch (err) {
+        showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi"));
+      }
+    },
+    [queryClient, savedTermsLower, showToast]
+  );
 
-      await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
-      await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(t("“{{word}}” Kelime Sandığına eklendi 📚", { word: entry.word }));
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi"));
-    }
-  };
+  const handleKnown = useCallback(
+    async (entry: LibraryWordEntry) => {
+      try {
+        await api.post('/vocab-library/progress', { word_id: entry.id } satisfies VocabLibraryProgressCreate);
+        await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
+        showToast(t("“{{word}}” biliniyor olarak işaretlendi ✓", { word: entry.word }));
+      } catch (err) {
+        showToast(err instanceof ApiError ? err.message : t("İşaretlenemedi"));
+      }
+    },
+    [queryClient, showToast]
+  );
 
-  const handleMarkKnown = async (entry: LibraryWordEntry) => {
-    if (dismissedIds.has(entry.id)) return;
-    try {
-      await api.post('/vocab-library/progress', {
-        word_id: entry.id,
-      } satisfies VocabLibraryProgressCreate);
-      await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
-      showToast(t("“{{word}}” biliniyor olarak işaretlendi ✓", { word: entry.word }));
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("İşaretlenemedi"));
-    }
-  };
+  const handleUndo = useCallback(
+    async (entry: LibraryWordEntry) => {
+      try {
+        await api.delete(`/vocab-library/progress/${entry.id}`);
+        await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
+      } catch (err) {
+        showToast(err instanceof ApiError ? err.message : t("Geri alınamadı"));
+      }
+    },
+    [queryClient, showToast]
+  );
 
-  const handleUndoKnown = async (entry: LibraryWordEntry) => {
-    try {
-      await api.delete(`/vocab-library/progress/${entry.id}`);
-      await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("Geri alınamadı"));
-    }
-  };
+  const toggleExpanded = useCallback((id: string) => setExpandedId((prev) => (prev === id ? null : id)), []);
 
-  const handleCategoryChange = (newCat: LibraryCategory) => {
-    setCategory(newCat);
+  const pickCategory = (cat: LibraryCategory) => {
+    setCategory(cat);
     setPackIndex(0);
-    setSearchQuery('');
+    setExpandedId(null);
   };
+
+  const pickPack = (idx: number) => {
+    setPackIndex(idx);
+    setExpandedId(null);
+  };
+
+  const overallPct = Math.round((stats.overall / TOTAL_WORDS) * 100);
+  const FILTERS: { id: StatusFilter; label: string; count: number }[] = [
+    { id: 'new', label: t("Yeni"), count: counts.new },
+    { id: 'all', label: t("Tümü"), count: counts.all },
+    { id: 'saved', label: t("Sandıkta"), count: counts.saved },
+    { id: 'known', label: t("Biliyorum"), count: counts.known },
+  ];
+
+  const header = (
+    <View style={styles.listHeader}>
+      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.summaryCard}>
+        <View style={styles.summaryTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.summaryLabel}>{t("Genel ilerleme")}</Text>
+            <Text style={styles.summaryValue}>
+              {stats.overall}
+              <Text style={styles.summaryTotal}> / {TOTAL_WORDS}</Text>
+            </Text>
+            <Text style={styles.summarySub}>{t("kelime incelendi (sandıkta veya biliniyor)")}</Text>
+          </View>
+          <View style={styles.summaryBadge}>
+            <Text style={styles.summaryBadgeText}>%{overallPct}</Text>
+          </View>
+        </View>
+        <View style={styles.summaryTrack}>
+          <View style={[styles.summaryFill, { width: `${Math.max(3, overallPct)}%` }]} />
+        </View>
+      </LinearGradient>
+
+      <View style={styles.catRow}>
+        {CATEGORIES.map((cat) => {
+          const c = PACKS[cat];
+          const st = stats.perCategory[cat];
+          const active = cat === category;
+          return (
+            <Pressable
+              key={cat}
+              onPress={() => pickCategory(cat)}
+              style={[styles.catCard, active && { borderColor: c.color, backgroundColor: c.soft }]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+            >
+              <Ionicons name={c.icon} size={20} color={active ? c.color : colors.textMuted} />
+              <Text style={[styles.catLabel, active && { color: c.color }]}>{c.label}</Text>
+              <Text style={styles.catCount}>
+                {st.done}/{st.total}
+              </Text>
+              <View style={styles.catTrack}>
+                <View style={[styles.catFill, { backgroundColor: c.color, width: `${Math.max(4, (st.done / st.total) * 100)}%` }]} />
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.packRow}>
+        {activeCat.sets.map((s, idx) => {
+          const p = stats.perCategory[category].packs[idx];
+          const pct = Math.round((p.done / p.total) * 100);
+          const active = idx === packIndex;
+          return (
+            <Pressable
+              key={s.id}
+              onPress={() => pickPack(idx)}
+              style={[styles.packChip, active && { backgroundColor: activeCat.color, borderColor: activeCat.color }]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+            >
+              <Text style={[styles.packRange, active && styles.packRangeActive]}>{s.range}</Text>
+              <Text style={[styles.packPct, active && styles.packPctActive]}>{pct === 100 ? '✓' : `%${pct}`}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={18} color={colors.textMuted} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={t("Tüm kütüphanede ara…")}
+          placeholderTextColor={colors.textMuted}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="search"
+          accessibilityLabel={t("Tüm kütüphanede ara…")}
+        />
+        {searchQuery ? (
+          <Pressable onPress={() => setSearchQuery('')} hitSlop={10} accessibilityLabel={t("Aramayı temizle")}>
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      {searching ? (
+        <Text style={styles.hint}>{t("Tüm {{total}} kelimede aranıyor", { total: TOTAL_WORDS })}</Text>
+      ) : (
+        <View style={styles.filterRow}>
+          {FILTERS.map((f) => {
+            const active = status === f.id;
+            return (
+              <Pressable
+                key={f.id}
+                onPress={() => {
+                  setStatus(f.id);
+                  setExpandedId(null);
+                }}
+                style={[styles.filterChip, active && styles.filterChipActive]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+              >
+                <Text style={[styles.filterText, active && styles.filterTextActive]}>
+                  {f.label} <Text style={[styles.filterCount, active && styles.filterTextActive]}>{f.count}</Text>
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+
+  const empty = loading ? (
+    <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
+  ) : searching ? (
+    <View style={styles.emptyBox}>
+      <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+      <Text style={styles.emptyTitle}>{t("Aradığın kelime bulunamadı")}</Text>
+      <Text style={styles.emptySub}>{t("Farklı bir arama terimi yazmayı dene.")}</Text>
+    </View>
+  ) : (
+    <View style={styles.emptyBox}>
+      <Text style={styles.emptyEmoji}>🎉</Text>
+      <Text style={styles.emptyTitle}>
+        {status === 'new' ? t("Bu pakette yeni kelime kalmadı 🎉") : t("Burada henüz kelime yok")}
+      </Text>
+      <Pressable onPress={() => setStatus('all')} style={styles.emptyBtn}>
+        <Text style={styles.emptyBtnText}>{t("Hepsini göster")}</Text>
+      </Pressable>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top App Bar */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn} accessibilityRole="button" accessibilityLabel={t("Geri")}>
           <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerTitleCol}>
           <Text style={styles.headerTitle}>{t("Kelime Kütüphanesi")}</Text>
           <Text style={styles.headerSub}>{t("En Sık Kullanılan 900 Çekirdek Kelime")}</Text>
         </View>
-        <Pressable
-          onPress={() => navigation.navigate('Main', { screen: 'Vocab' })}
-          style={styles.goToChestBtn}
-        >
+        <Pressable onPress={() => navigation.navigate('Main', { screen: 'Vocab' })} style={styles.chestBtn} accessibilityRole="button">
           <Ionicons name="archive" size={15} color={colors.brand} />
-          <Text style={styles.goToChestBtnText}>{t("Sandığım")}</Text>
+          <Text style={styles.chestBtnText}>{t("Sandığım")}</Text>
         </Pressable>
       </View>
 
       <FlatList
-        ref={listRef}
-        data={filteredWords}
-        keyExtractor={(item) => item.id}
+        data={data}
+        keyExtractor={(row) => row.entry.id}
+        ListHeaderComponent={header}
+        ListEmptyComponent={empty}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={15}
-        windowSize={5}
-        onScrollToIndexFailed={(info) => {
-          setTimeout(() => {
-            listRef.current?.scrollToOffset({
-              offset: info.averageItemLength * info.index,
-              animated: false,
-            });
-          }, 100);
-        }}
-        ListHeaderComponent={
-          <View style={styles.headerContainer}>
-            {/* 1. Main Category Tabs (İsimler / Fiiller / Sıfatlar) */}
-            <View style={styles.categoryTabsRow}>
-              {(Object.keys(PACKS) as LibraryCategory[]).map((catKey) => {
-                const cat = PACKS[catKey];
-                const isActive = category === catKey;
-                return (
-                  <Pressable
-                    key={catKey}
-                    onPress={() => handleCategoryChange(catKey)}
-                    style={[styles.categoryTab, isActive && styles.categoryTabActive]}
-                  >
-                    <Text style={styles.categoryTabIcon}>{cat.icon}</Text>
-                    <Text style={[styles.categoryTabText, isActive && styles.categoryTabTextActive]}>
-                      {cat.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 2. Responsive 3-SubPack Selector */}
-            <View style={styles.subPackContainer}>
-              {activeCategoryObj.sets.map((s, idx) => {
-                const isSelected = packIndex === idx;
-                return (
-                  <Pressable
-                    key={s.id}
-                    onPress={() => {
-                      setPackIndex(idx);
-                      setSearchQuery('');
-                    }}
-                    style={[styles.subPackButton, isSelected && styles.subPackButtonActive]}
-                  >
-                    <Text
-                      style={[styles.subPackButtonTitle, isSelected && styles.subPackButtonTitleActive]}
-                    >
-                      {s.name}
-                    </Text>
-                    <Text
-                      style={[styles.subPackButtonRange, isSelected && styles.subPackButtonRangeActive]}
-                    >
-                      ({s.range})
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 3. Progress Card (Paket İlerleme Çubuğu) */}
-            <View style={styles.progressCard}>
-              <View style={styles.progressHeaderRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.progressTitle}>{t("{{icon}} {{label}} • {{name}} İlerlemesi", { icon: activeCategoryObj.icon, label: activeCategoryObj.label, name: activeSet.name })}</Text>
-                  <Text style={styles.progressSub}>{t("100 kelimeden {{reviewedInActiveSetCount}} tanesi incelendi (sandıkta veya atlanmış)", { reviewedInActiveSetCount })}</Text>
-                </View>
-                <View style={styles.progressPercentBadge}>
-                  <Text style={styles.progressPercentText}>%{packProgressPercent}</Text>
-                </View>
-              </View>
-
-              <View style={styles.progressBarTrack}>
-                <View style={[styles.progressBarFill, { width: `${Math.max(4, packProgressPercent)}%` }]} />
-              </View>
-            </View>
-
-            {/* 4. Search Bar */}
-            <View style={styles.searchBarBox}>
-              <Ionicons name="search" size={17} color={colors.textMuted} />
-              <TextInput
-                style={styles.searchBarInput}
-                placeholder={t("{{name}} ({{range}}) içinde ara...", { name: activeSet.name, range: activeSet.range })}
-                placeholderTextColor={colors.textMuted}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery ? (
-                <Pressable onPress={() => setSearchQuery('')} hitSlop={10}>
-                  <Ionicons name="close-circle" size={17} color={colors.textMuted} />
-                </Pressable>
-              ) : null}
-            </View>
-          </View>
-        }
-        ListEmptyComponent={
-          isLoading ? (
-            <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
-          ) : (
-            <View style={styles.emptyBox}>
-              <Ionicons name="search-outline" size={32} color={colors.textMuted} />
-              <Text style={styles.emptyTitle}>{t("Aradığın kelime bulunamadı")}</Text>
-              <Text style={styles.emptySub}>{t("Farklı bir arama terimi yazmayı dene.")}</Text>
-            </View>
-          )
-        }
-        renderItem={({ item }) => {
-          const isSaved = savedTermsLower.has(item.word.trim().toLowerCase());
-          const isDismissed = dismissedIds.has(item.id);
-
-          return (
-            <View style={[styles.wordCard, shadow.card]}>
-              {/* Top Row: Rank Badge, Word + Phonetic, Sound Button */}
-              <View style={styles.cardHeaderRow}>
-                <View style={styles.headerLeftGroup}>
-                  <View style={styles.rankBadge}>
-                    <Text style={styles.rankBadgeText}>#{item.rank}</Text>
-                  </View>
-
-                  <Text style={styles.wordTerm}>{item.word}</Text>
-                  {item.phonetic ? (
-                    <Text style={styles.wordPhonetic}>{item.phonetic}</Text>
-                  ) : null}
-                </View>
-
-                <Pressable
-                  onPress={() => pronounce(item.word)}
-                  hitSlop={10}
-                  style={styles.soundBtn}
-                >
-                  <Ionicons name="volume-high" size={17} color={colors.brand} />
-                </Pressable>
-              </View>
-
-              {/* Turkish Meaning */}
-              <View style={styles.meaningRow}>
-                <Text style={styles.meaningText}>{nativeFlag()} {item.translation}</Text>
-              </View>
-
-              {/* Compact Grammar Forms Breakdown */}
-              {/* 1. ADJECTIVE FORMS */}
-              {item.partOfSpeech === 'adjective' && (item.comparative || item.superlative || item.antonym) ? (
-                <View style={styles.formsContainer}>
-                  <View style={styles.formItemRow}>
-                    {item.comparative ? (
-                      <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>{t("Karşılaştırma:")}</Text>
-                        <Text style={styles.formValueText}>
-                          {item.comparative.form}{' '}
-                          <Text style={styles.formSubText}>({item.comparative.translation})</Text>
-                        </Text>
-                      </View>
-                    ) : null}
-
-                    {item.superlative ? (
-                      <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>{t("Üstünlük:")}</Text>
-                        <Text style={styles.formValueText}>
-                          {item.superlative.form}{' '}
-                          <Text style={styles.formSubText}>({item.superlative.translation})</Text>
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-
-                  {item.antonym ? (
-                    <View style={styles.antonymPill}>
-                      <Ionicons name="swap-horizontal" size={13} color="#7C3AED" />
-                      <Text style={styles.antonymText}>{t("Zıt Anlam:")}{" "}<Text style={styles.antonymBold}>{item.antonym.word}</Text>{' '}
-                        <Text style={styles.antonymTr}>({item.antonym.translation})</Text>
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {/* 2. NOUN FORMS */}
-              {item.partOfSpeech === 'noun' && (item.singular || item.plural || item.partitiveUnit || item.possessivePhrase) ? (
-                <View style={styles.formsContainer}>
-                  <View style={styles.formItemRow}>
-                    {item.singular ? (
-                      <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>{t("Tekil:")}</Text>
-                        <Text style={styles.formValueText}>
-                          {item.singular.form}{' '}
-                          <Text style={styles.formSubText}>({item.singular.translation})</Text>
-                        </Text>
-                      </View>
-                    ) : null}
-
-                    {item.plural ? (
-                      <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>{t("Çoğul:")}</Text>
-                        <Text style={styles.formValueText}>
-                          {item.plural.form}{' '}
-                          <Text style={styles.formSubText}>({item.plural.translation})</Text>
-                        </Text>
-                      </View>
-                    ) : item.partitiveUnit ? (
-                      <View style={styles.compactFormPill}>
-                        <Text style={styles.formLabelText}>{t("Miktar / Birim:")}</Text>
-                        <Text style={styles.formValueText}>
-                          {item.partitiveUnit.form}{' '}
-                          <Text style={styles.formSubText}>({item.partitiveUnit.translation})</Text>
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-
-                  {item.possessivePhrase ? (
-                    <View style={styles.compactSinglePill}>
-                      <Text style={styles.formLabelText}>{t("İyelik / Tamlama:")}</Text>
-                      <Text style={styles.formValueText}>
-                        {item.possessivePhrase.form}{' '}
-                        <Text style={styles.formSubText}>({item.possessivePhrase.translation})</Text>
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {/* 3. VERB FORMS (Tenses Grid) */}
-              {item.partOfSpeech === 'verb' && (item.presentSimple || item.presentContinuous || item.future || item.pastSimple) ? (
-                <View style={styles.formsContainer}>
-                  <View style={styles.tensesGrid}>
-                    {item.presentSimple ? (
-                      <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>{t("Geniş Zaman:")}</Text>
-                        <Text style={styles.tenseValue}>{item.presentSimple.form}</Text>
-                        <Text style={styles.tenseTr}>{item.presentSimple.translation}</Text>
-                      </View>
-                    ) : null}
-
-                    {item.presentContinuous ? (
-                      <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>{t("Şimdiki Zaman:")}</Text>
-                        <Text style={styles.tenseValue}>{item.presentContinuous.form}</Text>
-                        <Text style={styles.tenseTr}>{item.presentContinuous.translation}</Text>
-                      </View>
-                    ) : null}
-
-                    {item.future ? (
-                      <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>{t("Gelecek Zaman:")}</Text>
-                        <Text style={styles.tenseValue}>{item.future.form}</Text>
-                        <Text style={styles.tenseTr}>{item.future.translation}</Text>
-                      </View>
-                    ) : null}
-
-                    {item.pastSimple ? (
-                      <View style={styles.tenseCell}>
-                        <Text style={styles.tenseLabel}>{t("Geçmiş Zaman:")}</Text>
-                        <Text style={styles.tenseValue}>
-                          {item.pastSimple.form}
-                          {item.pastSimple.phonetic ? (
-                            <Text style={styles.tensePhonetic}> {item.pastSimple.phonetic}</Text>
-                          ) : null}
-                        </Text>
-                        <Text style={styles.tenseTr}>{item.pastSimple.translation}</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                </View>
-              ) : null}
-
-              {/* Example Sentence Box */}
-              {item.exampleEn ? (
-                <View style={styles.exampleBox}>
-                  {item.grammarNote ? (
-                    <View style={styles.grammarNoteRow}>
-                      <Ionicons name="sparkles" size={10} color={colors.brand} />
-                      <Text style={styles.grammarNoteText}>{item.grammarNote}</Text>
-                    </View>
-                  ) : null}
-                  <Text style={styles.exampleEn}>&ldquo;{item.exampleEn}&rdquo;</Text>
-                  {item.exampleTr && item.exampleTr !== item.exampleEn ? <Text style={styles.exampleTr}>{item.exampleTr}</Text> : null}
-                </View>
-              ) : null}
-
-              {/* Bottom Action: Add to Chest / Mark Known / Status Badges */}
-              <View style={styles.cardBottomRow}>
-                {isSaved ? (
-                  <View style={styles.savedStatusBadge}>
-                    <Ionicons name="checkmark-circle" size={14} color={colors.success} />
-                    <Text style={styles.savedStatusText}>{t("Sandığında Kayıtlı ✓")}</Text>
-                  </View>
-                ) : isDismissed ? (
-                  <View style={styles.knownStatusRow}>
-                    <View style={styles.knownStatusBadge}>
-                      <Ionicons name="eye-off-outline" size={13} color={colors.textMuted} />
-                      <Text style={styles.knownStatusText}>{t("Biliniyor, Atlandı")}</Text>
-                    </View>
-                    <Pressable onPress={() => handleUndoKnown(item)} hitSlop={8}>
-                      <Text style={styles.undoKnownText}>{t("Geri Al")}</Text>
-                    </Pressable>
-                  </View>
-                ) : (
-                  <View style={styles.cardActionsRow}>
-                    <Pressable
-                      onPress={() => handleMarkKnown(item)}
-                      style={({ pressed }) => [
-                        styles.knownBtn,
-                        pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-                      ]}
-                    >
-                      <Ionicons name="checkmark-outline" size={15} color={colors.textMuted} />
-                      <Text style={styles.knownBtnText}>{t("Biliyorum, Atla")}</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => handleAddWord(item)}
-                      style={({ pressed }) => [
-                        styles.addBtn,
-                        pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-                      ]}
-                    >
-                      <Ionicons name="add-circle" size={15} color="#FFFFFF" />
-                      <Text style={styles.addBtnText}>{t("Sandığıma Ekle")}</Text>
-                    </Pressable>
-                  </View>
-                )}
-              </View>
-            </View>
-          );
-        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        initialNumToRender={8}
+        maxToRenderPerBatch={10}
+        windowSize={7}
+        extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}`}
+        renderItem={({ item: row }) => (
+          <WordCard
+            item={row.entry}
+            accent={PACKS[row.category].color}
+            tag={searching ? `${PACKS[row.category].label} · ${PACKS[row.category].sets[row.packIndex].range}` : undefined}
+            saved={isSaved(row.entry)}
+            known={isKnown(row.entry) && !isSaved(row.entry)}
+            expanded={expandedId === row.entry.id}
+            onToggle={toggleExpanded}
+            onSpeak={pronounce}
+            onAdd={handleAdd}
+            onKnown={handleKnown}
+            onUndo={handleUndo}
+          />
+        )}
       />
 
       {toast ? <Toast message={toast} /> : null}
@@ -565,536 +611,170 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC', // Porcelain Base
-  },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleCol: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  headerTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16.5,
-    color: colors.textHeading,
-  },
-  headerSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  goToChestBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  goToChestBtnText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: colors.brand,
-  },
-  listContent: {
-    padding: spacing.md,
-    gap: 12,
-    paddingBottom: 60,
-  },
-  headerContainer: {
-    gap: 10,
-    paddingBottom: 4,
-  },
-
-  /* 1. Category Tabs */
-  categoryTabsRow: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.xl,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 4,
-  },
-  categoryTab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 9,
-    borderRadius: radii.lg,
-  },
-  categoryTabActive: {
-    backgroundColor: colors.brand,
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  categoryTabIcon: {
-    fontSize: 14,
-  },
-  categoryTabText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.textBody,
-  },
-  categoryTabTextActive: {
-    color: '#FFFFFF',
-  },
-
-  /* 2. Responsive 3-SubPack Selector */
-  subPackContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 4,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    gap: 4,
-  },
-  subPackButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 7,
-    borderRadius: 12,
-    backgroundColor: 'transparent',
-  },
-  subPackButtonActive: {
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  subPackButtonTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-  subPackButtonTitleActive: {
-    color: colors.brand,
-  },
-  subPackButtonRange: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  subPackButtonRangeActive: {
-    color: colors.brand,
-    fontWeight: 'bold',
-  },
-
-  /* 3. Progress Card */
-  progressCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.xl,
-    padding: 12,
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    gap: 8,
-  },
-  progressHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  progressTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.textHeading,
-  },
-  progressSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  progressPercentBadge: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    marginLeft: 8,
-  },
-  progressPercentText: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: colors.success,
-  },
-  progressBarTrack: {
-    height: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: colors.success,
-    borderRadius: 3,
-  },
-
-  /* 4. Search Bar */
-  searchBarBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 8,
-  },
-  searchBarInput: {
-    flex: 1,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textHeading,
-  },
-
-  /* Word Card */
-  wordCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    gap: 8,
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerLeftGroup: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  rankBadge: {
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  rankBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    fontWeight: 'bold',
-    color: colors.brand,
-  },
-  wordTerm: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16.5,
-    color: colors.textHeading,
-  },
-  wordPhonetic: {
-    fontFamily: fonts.mono,
-    fontSize: 12,
-    color: '#0EA5E9',
-  },
-  soundBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 6,
-  },
-
-  /* Meaning */
-  meaningRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  meaningText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-    color: colors.textHeading,
-  },
-
-  /* Forms Section */
-  formsContainer: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 6,
-  },
-  formItemRow: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  compactFormPill: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  compactSinglePill: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  formLabelText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-  },
-  formValueText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.textHeading,
-    marginTop: 1,
-  },
-  formSubText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    fontWeight: 'normal',
-  },
-  antonymPill: {
+  backBtn: { width: 36, height: 36, borderRadius: radii.pill, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
+  headerTitleCol: { flex: 1, marginLeft: 12 },
+  headerTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
+  headerSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
+  chestBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#F5F3FF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#DDD6FE',
-  },
-  antonymText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: '#6D28D9',
-  },
-  antonymBold: {
-    fontFamily: fonts.headingBold,
-    color: '#6D28D9',
-  },
-  antonymTr: {
-    color: colors.textMuted,
-  },
-
-  /* Tenses Grid for Verbs */
-  tensesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  tenseCell: {
-    width: '48.8%',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 7,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  tenseLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 8.5,
-    fontWeight: 'bold',
-    color: colors.brand,
-    textTransform: 'uppercase',
-  },
-  tenseValue: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.textHeading,
-    marginTop: 1,
-  },
-  tensePhonetic: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    color: '#0EA5E9',
-    fontWeight: 'normal',
-  },
-  tenseTr: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-
-  /* Example Box */
-  exampleBox: {
-    backgroundColor: '#F5F7FF',
-    borderRadius: 10,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#E0E7FF',
-    gap: 2,
-  },
-  grammarNoteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 2,
-  },
-  grammarNoteText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    color: colors.brand,
-    fontWeight: 'bold',
-  },
-  exampleEn: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    color: colors.textHeading,
-    lineHeight: 16,
-  },
-  exampleTr: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    lineHeight: 15,
-  },
-
-  /* Bottom Actions */
-  cardBottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingTop: 2,
-  },
-  savedStatusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  savedStatusText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 10.5,
-    color: colors.success,
-  },
-  addBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.brand,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: radii.pill,
+    backgroundColor: '#EEF2FF',
   },
-  addBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
-  cardActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  knownBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  knownBtnText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  knownStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  knownStatusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  knownStatusText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 10.5,
-    color: colors.textMuted,
-  },
-  undoKnownText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 10.5,
-    color: colors.brand,
-  },
+  chestBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.brand },
 
-  /* Empty state */
-  emptyBox: {
-    paddingVertical: 40,
+  listContent: { paddingBottom: 120 },
+  listHeader: { paddingHorizontal: spacing.md, paddingTop: spacing.md, gap: 12 },
+
+  summaryCard: { borderRadius: radii.lg, padding: 18 },
+  summaryTop: { flexDirection: 'row', alignItems: 'center' },
+  summaryLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: 'rgba(255,255,255,0.8)', letterSpacing: 0.4 },
+  summaryValue: { fontFamily: fonts.headingBold, fontSize: 34, color: '#FFFFFF', marginTop: 2 },
+  summaryTotal: { fontFamily: fonts.headingSemiBold, fontSize: 18, color: 'rgba(255,255,255,0.75)' },
+  summarySub: { fontFamily: fonts.bodyRegular, fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+  summaryBadge: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 8 },
+  summaryBadgeText: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
+  summaryTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', marginTop: 14, overflow: 'hidden' },
+  summaryFill: { height: '100%', borderRadius: 4, backgroundColor: '#FFFFFF' },
+
+  catRow: { flexDirection: 'row', gap: 10 },
+  catCard: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 3,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+  },
+  catLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
+  catCount: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted },
+  catTrack: { height: 4, alignSelf: 'stretch', marginTop: 4, borderRadius: 2, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  catFill: { height: '100%', borderRadius: 2 },
+
+  packRow: { flexDirection: 'row', gap: 8 },
+  packChip: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
-  emptyTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: colors.textHeading,
-    marginTop: 8,
+  packRange: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
+  packRangeActive: { color: '#FFFFFF' },
+  packPct: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: colors.textMuted },
+  packPctActive: { color: 'rgba(255,255,255,0.85)' },
+
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    height: 46,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
   },
-  emptySub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textMuted,
-    marginTop: 3,
+  searchInput: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 14.5, color: colors.textHeading, paddingVertical: 0 },
+  hint: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, marginLeft: 4, marginBottom: 4 },
+  filterRow: { flexDirection: 'row', gap: 8, marginBottom: 4 },
+  filterChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: radii.pill, backgroundColor: '#EEF2F7' },
+  filterChipActive: { backgroundColor: colors.textHeading },
+  filterText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
+  filterTextActive: { color: '#FFFFFF' },
+  filterCount: { fontFamily: fonts.bodyMedium, color: colors.textMuted },
+
+  wordCard: {
+    flexDirection: 'row',
+    marginHorizontal: spacing.md,
+    marginTop: 12,
+    borderRadius: radii.md,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
   },
+  wordCardDone: { backgroundColor: '#FAFFFC' },
+  cardAccent: { width: 5 },
+  cardBody: { flex: 1, padding: 14, gap: 8 },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  wordLine: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 },
+  wordTerm: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
+  wordRespelling: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
+  meaningText: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textBody, marginTop: 3 },
+  soundBtn: { width: 38, height: 38, borderRadius: radii.pill, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  tag: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radii.pill },
+  tagText: { fontFamily: fonts.headingSemiBold, fontSize: 11 },
+  tagNeutral: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radii.pill, backgroundColor: '#F1F5F9' },
+  tagNeutralText: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted },
+  exampleEn: { fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody, fontStyle: 'italic' },
+  details: { gap: 8, paddingTop: 2 },
+  exampleTr: { fontFamily: fonts.bodyRegular, fontSize: 13, lineHeight: 18, color: colors.textMuted },
+  noteRow: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', backgroundColor: '#EEF2FF', borderRadius: radii.sm, padding: 9 },
+  noteText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: '#3730A3' },
+  formGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  formCell: { minWidth: '46%', flexGrow: 1, backgroundColor: '#F8FAFC', borderRadius: radii.sm, padding: 9, gap: 1 },
+  formLabel: { fontFamily: fonts.bodyMedium, fontSize: 10.5, color: colors.textMuted },
+  formValue: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textHeading },
+  formSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted },
+  moreBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
+  moreBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
+
+  actionsRow: { flexDirection: 'row', gap: 10, marginTop: 2 },
+  knownBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 11,
+    borderRadius: radii.pill,
+    backgroundColor: '#F1F5F9',
+  },
+  knownBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
+  addBtn: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 11,
+    borderRadius: radii.pill,
+    backgroundColor: colors.brand,
+  },
+  addBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#FFFFFF' },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
+  statusPillText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: '#059669' },
+  knownRow: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  statusPillMuted: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  statusPillMutedText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
+  undoText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.brand },
+
+  emptyBox: { alignItems: 'center', gap: 8, paddingVertical: 40, paddingHorizontal: spacing.lg },
+  emptyEmoji: { fontSize: 34 },
+  emptyTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: colors.textHeading, textAlign: 'center' },
+  emptySub: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, textAlign: 'center' },
+  emptyBtn: { marginTop: 6, paddingHorizontal: 18, paddingVertical: 10, borderRadius: radii.pill, backgroundColor: colors.brand },
+  emptyBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: '#FFFFFF' },
 });

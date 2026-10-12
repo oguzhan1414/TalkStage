@@ -7,6 +7,7 @@
 ---
 
 ### Verb 201: Achieve `/əˈtʃiːv/` \- Başarmak / Elde etmek
+- Pronunciation: `uh-CHEEV` *(English respelling)*
 
 - I achieve – Başarırım *(Present Simple \- Geniş Zaman)*  
 - I am achieving – Başarıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -21,6 +22,7 @@
 ---
 
 ### Verb 202: Admire `/ədˈmaɪər/` \- Hayran olmak / Takdir etmek
+- Pronunciation: `uhd-MYUHR` *(English respelling)*
 
 - I admire – Takdir ederim *(Present Simple \- Geniş Zaman)*  
 - I am admiring – Takdir ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -35,6 +37,7 @@
 ---
 
 ### Verb 203: Admit `/ədˈmɪt/` \- İtiraf etmek / Kabul etmek
+- Pronunciation: `uhd-MIHT` *(English respelling)*
 
 - I admit – Kabul ederim *(Present Simple \- Geniş Zaman)*  
 - I am admitting – Kabul ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -49,6 +52,7 @@
 ---
 
 ### Verb 204: Advise `/ədˈvaɪz/` \- Tavsiye etmek / Öğütlemek
+- Pronunciation: `uhd-VYZ` *(English respelling)*
 
 - I advise – Tavsiye ederim *(Present Simple \- Geniş Zaman)*  
 - I am advising – Tavsiye ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -63,6 +67,7 @@
 ---
 
 ### Verb 205: Affect `/əˈfekt/` \- Etkilemek
+- Pronunciation: `uh-FEKT` *(English respelling)*
 
 - I affect – Etkilerim *(Present Simple \- Geniş Zaman)*  
 - I am affecting – Etkiliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -77,6 +82,7 @@
 ---
 
 ### Verb 206: Afford `/əˈfɔːd/` \- Maddi gücü yetmek
+- Pronunciation: `uh-FAWD` *(English respelling)*
 
 - I afford – Gücüm yeter *(Present Simple \- Geniş Zaman)*  
 - I am affording – Gücüm yetiyor *(Present Continuous \- Şimdiki Zaman)*  
@@ -91,6 +97,7 @@
 ---
 
 ### Verb 207: Analyze `/ˈæn.əl.aɪz/` \- Analiz etmek / İncelemek
+- Pronunciation: `AN-uhl-yz` *(English respelling)*
 
 - I analyze – Analiz ederim *(Present Simple \- Geniş Zaman)*  
 - I am analyzing – Analiz ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -105,6 +112,7 @@
 ---
 
 ### Verb 208: Announce `/əˈnaʊns/` \- Duyurmak / İlan etmek
+- Pronunciation: `uh-NOWNS` *(English respelling)*
 
 - I announce – Duyururum *(Present Simple \- Geniş Zaman)*  
 - I am announcing – Duyuruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -119,6 +127,7 @@
 ---
 
 ### Verb 209: Apologize `/əˈpɒl.ə.dʒaɪz/` \- Özür dilemek
+- Pronunciation: `uh-POL-uh-jyz` *(English respelling)*
 
 - I apologize – Özür dilerim *(Present Simple \- Geniş Zaman)*  
 - I am apologizing – Özür diliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -133,6 +142,7 @@
 ---
 
 ### Verb 210: Approve `/əˈpruːv/` \- Onaylamak
+- Pronunciation: `uh-PROOV` *(English respelling)*
 
 - I approve – Onaylarım *(Present Simple \- Geniş Zaman)*  
 - I am approving – Onaylıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -147,6 +157,7 @@
 ---
 
 ### Verb 211: Argue `/ˈɑːɡ.juː/` \- Tartışmak / İddia etmek
+- Pronunciation: `AHG-yoo` *(English respelling)*
 
 - I argue – Tartışırım *(Present Simple \- Geniş Zaman)*  
 - I am arguing – Tartışıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -161,6 +172,7 @@
 ---
 
 ### Verb 212: Arrange `/əˈreɪndʒ/` \- Düzenlemek / Ayarlamak
+- Pronunciation: `uh-RAYNJ` *(English respelling)*
 
 - I arrange – Ayarlarım *(Present Simple \- Geniş Zaman)*  
 - I am arranging – Ayarlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -175,6 +187,7 @@
 ---
 
 ### Verb 213: Arrest `/əˈrest/` \- Durdurmak / Tutuklamak
+- Pronunciation: `uh-REST` *(English respelling)*
 
 - I arrest – Durdururum *(Present Simple \- Geniş Zaman)*  
 - I am arresting – Durduruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -189,6 +202,7 @@
 ---
 
 ### Verb 214: Attach `/əˈtætʃ/` \- Eklemek / İliştirmek
+- Pronunciation: `uh-TACH` *(English respelling)*
 
 - I attach – Eklerim *(Present Simple \- Geniş Zaman)*  
 - I am attaching – Ekliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -203,6 +217,7 @@
 ---
 
 ### Verb 215: Attack `/əˈtæk/` \- Saldırmak
+- Pronunciation: `uh-TAK` *(English respelling)*
 
 - I attack – Saldırırım *(Present Simple \- Geniş Zaman)*  
 - I am attacking – Saldırıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -217,6 +232,7 @@
 ---
 
 ### Verb 216: Attempt `/əˈtempt/` \- Girişimde bulunmak / Denemek
+- Pronunciation: `uh-TEMPT` *(English respelling)*
 
 - I attempt – Denerim / Girişirim *(Present Simple \- Geniş Zaman)*  
 - I am attempting – Deniyorum / Girişiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -231,6 +247,7 @@
 ---
 
 ### Verb 217: Attend `/əˈtend/` \- Katılmak / İştirak etmek
+- Pronunciation: `uh-TEND` *(English respelling)*
 
 - I attend – Katılırım *(Present Simple \- Geniş Zaman)*  
 - I am attending – Katılıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -245,6 +262,7 @@
 ---
 
 ### Verb 218: Attract `/əˈtrækt/` \- Çekmek / Cezbetmek
+- Pronunciation: `uh-TRAKT` *(English respelling)*
 
 - I attract – Çekerim *(Present Simple \- Geniş Zaman)*  
 - I am attracting – Çekiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -259,6 +277,7 @@
 ---
 
 ### Verb 219: Bake `/beɪk/` \- Fırında pişirmek
+- Pronunciation: `bayk` *(English respelling)*
 
 - I bake – Pişiririm *(Present Simple \- Geniş Zaman)*  
 - I am baking – Pişiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -273,6 +292,7 @@
 ---
 
 ### Verb 220: Ban `/bæn/` \- Yasaklamak
+- Pronunciation: `ban` *(English respelling)*
 
 - I ban – Yasaklarım *(Present Simple \- Geniş Zaman)*  
 - I am banning – Yasaklıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -287,6 +307,7 @@
 ---
 
 ### Verb 221: Behave `/bɪˈheɪv/` \- Davranmak / Çalışmak
+- Pronunciation: `bih-HAYV` *(English respelling)*
 
 - I behave – Davranırım *(Present Simple \- Geniş Zaman)*  
 - I am behaving – Davranıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -301,6 +322,7 @@
 ---
 
 ### Verb 222: Belong `/bɪˈlɒŋ/` \- Ait olmak
+- Pronunciation: `bih-LONG` *(English respelling)*
 
 - I belong – Ait olurum *(Present Simple \- Geniş Zaman)*  
 - I am belonging – Ait oluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -315,6 +337,7 @@
 ---
 
 ### Verb 223: Bend `/bend/` \- Bükmek / Eğilmek
+- Pronunciation: `bend` *(English respelling)*
 
 - I bend – Bükerim *(Present Simple \- Geniş Zaman)*  
 - I am bending – Büküyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -329,6 +352,7 @@
 ---
 
 ### Verb 224: Bet `/bet/` \- Bahse girmek / İddiaya girmek
+- Pronunciation: `bet` *(English respelling)*
 
 - I bet – Bahse girerim *(Present Simple \- Geniş Zaman)*  
 - I am beting – Bahse giriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -343,6 +367,7 @@
 ---
 
 ### Verb 225: Bite `/baɪt/` \- Isırmak
+- Pronunciation: `byt` *(English respelling)*
 
 - I bite – Isırırım *(Present Simple \- Geniş Zaman)*  
 - I am biting – Isırıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -357,6 +382,7 @@
 ---
 
 ### Verb 226: Blame `/bleɪm/` \- Suçlamak
+- Pronunciation: `blaym` *(English respelling)*
 
 - I blame – Suçlarım *(Present Simple \- Geniş Zaman)*  
 - I am blaming – Suçluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -371,6 +397,7 @@
 ---
 
 ### Verb 227: Block `/blɒk/` \- Engellemek / Bloklamak
+- Pronunciation: `blok` *(English respelling)*
 
 - I block – Engellerim *(Present Simple \- Geniş Zaman)*  
 - I am blocking – Engelliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -385,6 +412,7 @@
 ---
 
 ### Verb 228: Blow `/bləʊ/` \- Üflemek / Esmek
+- Pronunciation: `bloh` *(English respelling)*
 
 - I blow – Eserim / Üflerim *(Present Simple \- Geniş Zaman)*  
 - I am blowing – Esiyorum / Üflüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -399,6 +427,7 @@
 ---
 
 ### Verb 229: Boil `/bɔɪl/` \- Kaynamak / Kaynatmak
+- Pronunciation: `boyl` *(English respelling)*
 
 - I boil – Kaynatırım *(Present Simple \- Geniş Zaman)*  
 - I am boiling – Kaynatıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -413,6 +442,7 @@
 ---
 
 ### Verb 230: Bother `/ˈbɒð.ər/` \- Rahatsız etmek / Uğraşmak
+- Pronunciation: `BOTH-uhr` *(English respelling)*
 
 - I bother – Rahatsız ederim *(Present Simple \- Geniş Zaman)*  
 - I am bothering – Rahatsız ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -427,6 +457,7 @@
 ---
 
 ### Verb 231: Breathe `/briːð/` \- Nefes almak
+- Pronunciation: `breeth` *(English respelling)*
 
 - I breathe – Nefes alırım *(Present Simple \- Geniş Zaman)*  
 - I am breathing – Nefes alıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -441,6 +472,7 @@
 ---
 
 ### Verb 232: Burn `/bɜːn/` \- Yanmak / Yakmak
+- Pronunciation: `burn` *(English respelling)*
 
 - I burn – Yakarım / Yanarım *(Present Simple \- Geniş Zaman)*  
 - I am burning – Yakıyorum / Yanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -455,6 +487,7 @@
 ---
 
 ### Verb 233: Cancel `/ˈkæn.səl/` \- İptal etmek
+- Pronunciation: `KAN-suhl` *(English respelling)*
 
 - I cancel – İptal ederim *(Present Simple \- Geniş Zaman)*  
 - I am canceling – İptal ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -469,6 +502,7 @@
 ---
 
 ### Verb 234: Celebrate `/ˈsel.ə.breɪt/` \- Kutlamak
+- Pronunciation: `SEL-uh-brayt` *(English respelling)*
 
 - I celebrate – Kutlarım *(Present Simple \- Geniş Zaman)*  
 - I am celebrating – Kutluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -483,6 +517,7 @@
 ---
 
 ### Verb 235: Charge `/tʃɑːdʒ/` \- Şarj etmek / Ücret almak
+- Pronunciation: `chahj` *(English respelling)*
 
 - I charge – Şarj ederim / Ücret alırım *(Present Simple \- Geniş Zaman)*  
 - I am charging – Şarj ediyorum / Ücret alıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -497,6 +532,7 @@
 ---
 
 ### Verb 236: Chase `/tʃeɪs/` \- Kovalamak / Peşinden koşmak
+- Pronunciation: `chays` *(English respelling)*
 
 - I chase – Kovalarım *(Present Simple \- Geniş Zaman)*  
 - I am chasing – Kovalıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -511,6 +547,7 @@
 ---
 
 ### Verb 237: Cheat `/tʃiːt/` \- Hile yapmak / Aldatmak
+- Pronunciation: `cheet` *(English respelling)*
 
 - I cheat – Hile yaparım *(Present Simple \- Geniş Zaman)*  
 - I am cheating – Hile yapıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -525,6 +562,7 @@
 ---
 
 ### Verb 238: Claim `/kleɪm/` \- İddia etmek / Talep etmek
+- Pronunciation: `klaym` *(English respelling)*
 
 - I claim – İddia ederim / Talep ederim *(Present Simple \- Geniş Zaman)*  
 - I am claiming – İddia ediyorum / Talep ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -539,6 +577,7 @@
 ---
 
 ### Verb 239: Clear `/klɪər/` \- Temizlemek / Boşaltmak
+- Pronunciation: `kleer` *(English respelling)*
 
 - I clear – Temizlerim *(Present Simple \- Geniş Zaman)*  
 - I am clearing – Temizliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -553,6 +592,7 @@
 ---
 
 ### Verb 240: Climb `/klaɪm/` \- Tırmanmak / Yükselmek
+- Pronunciation: `klyme` *(English respelling)*
 
 - I climb – Tırmanırım / Yükselirim *(Present Simple \- Geniş Zaman)*  
 - I am climbing – Tırmanıyorum / Yükseliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -567,6 +607,7 @@
 ---
 
 ### Verb 241: Combine `/kəmˈbaɪn/` \- Birleştirmek / Harmanlamak
+- Pronunciation: `kuhm-BYN` *(English respelling)*
 
 - I combine – Birleştiririm *(Present Simple \- Geniş Zaman)*  
 - I am combining – Birleştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -581,6 +622,7 @@
 ---
 
 ### Verb 242: Command `/kəˈmɑːnd/` \- Komut vermek / Emretmek
+- Pronunciation: `kuh-MAHND` *(English respelling)*
 
 - I command – Komut veririm *(Present Simple \- Geniş Zaman)*  
 - I am commanding – Komut veriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -595,6 +637,7 @@
 ---
 
 ### Verb 243: Communicate `/kəˈmjuː.nɪ.keɪt/` \- İletişim kurmak / Haberleşmek
+- Pronunciation: `kuh-MYOO-nih-kayt` *(English respelling)*
 
 - I communicate – Haberleşirim *(Present Simple \- Geniş Zaman)*  
 - I am communicating – Haberleşiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -609,6 +652,7 @@
 ---
 
 ### Verb 244: Compete `/kəmˈpiːt/` \- Rekabet etmek / Yarışmak
+- Pronunciation: `kuhm-PEET` *(English respelling)*
 
 - I compete – Yarışırım *(Present Simple \- Geniş Zaman)*  
 - I am competing – Yarışıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -623,6 +667,7 @@
 ---
 
 ### Verb 245: Complain `/kəmˈpleɪn/` \- Şikayet etmek
+- Pronunciation: `kuhm-PLAYN` *(English respelling)*
 
 - I complain – Şikayet ederim *(Present Simple \- Geniş Zaman)*  
 - I am complaining – Şikayet ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -637,6 +682,7 @@
 ---
 
 ### Verb 246: Confirm `/kənˈfɜːm/` \- Onaylamak / Teyit etmek
+- Pronunciation: `kuhn-FURM` *(English respelling)*
 
 - I confirm – Teyit ederim *(Present Simple \- Geniş Zaman)*  
 - I am confirming – Teyit ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -651,6 +697,7 @@
 ---
 
 ### Verb 247: Consider `/kənˈsɪd.ər/` \- Düşünmek / Göz önünde bulundurmak
+- Pronunciation: `kuhn-SIHD-uhr` *(English respelling)*
 
 - I consider – Düşünürüm *(Present Simple \- Geniş Zaman)*  
 - I am considering – Düşünüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -665,6 +712,7 @@
 ---
 
 ### Verb 248: Contain `/kənˈteɪn/` \- İçermek / Kapsamak
+- Pronunciation: `kuhn-TAYN` *(English respelling)*
 
 - I contain – İçeririm *(Present Simple \- Geniş Zaman)*  
 - I am containing – İçeriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -679,6 +727,7 @@
 ---
 
 ### Verb 249: Convince `/kənˈvɪns/` \- İkna etmek
+- Pronunciation: `kuhn-VIHNS` *(English respelling)*
 
 - I convince – İkna ederim *(Present Simple \- Geniş Zaman)*  
 - I am convincing – İkna ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -693,6 +742,7 @@
 ---
 
 ### Verb 250: Correct `/kəˈrekt/` \- Düzeltmek
+- Pronunciation: `kuh-REKT` *(English respelling)*
 
 - I correct – Düzeltirim *(Present Simple \- Geniş Zaman)*  
 - I am correcting – Düzeltiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -707,6 +757,7 @@
 ---
 
 ### Verb 251: Count `/kaʊnt/` \- Saymak
+- Pronunciation: `kownt` *(English respelling)*
 
 - I count – Sayarım *(Present Simple \- Geniş Zaman)*  
 - I am counting – Sayıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -721,6 +772,7 @@
 ---
 
 ### Verb 252: Crash `/kræʃ/` \- Çökmek / Çarpmak
+- Pronunciation: `krash` *(English respelling)*
 
 - I crash – Çökerim *(Present Simple \- Geniş Zaman)*  
 - I am crashing – Çöküyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -735,6 +787,7 @@
 ---
 
 ### Verb 253: Cross `/krɒs/` \- Karşıya geçmek / Aşmak
+- Pronunciation: `kros` *(English respelling)*
 
 - I cross – Aşarım / Geçerim *(Present Simple \- Geniş Zaman)*  
 - I am crossing – Aşıyorum / Geçiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -749,6 +802,7 @@
 ---
 
 ### Verb 254: Cry `/kraɪ/` \- Ağlamak / Haykırmak
+- Pronunciation: `kry` *(English respelling)*
 
 - I cry – Ağlarım *(Present Simple \- Geniş Zaman)*  
 - I am crying – Ağlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -763,6 +817,7 @@
 ---
 
 ### Verb 255: Damage `/ˈdæm.ɪdʒ/` \- Hasar vermek / Zarar vermek
+- Pronunciation: `DAM-ij` *(English respelling)*
 
 - I damage – Zarar veririm *(Present Simple \- Geniş Zaman)*  
 - I am damaging – Zarar veriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -777,6 +832,7 @@
 ---
 
 ### Verb 256: Deal `/diːl/` \- İlgilenmek / Başa çıkmak
+- Pronunciation: `deel` *(English respelling)*
 
 - I deal – İlgilenirim *(Present Simple \- Geniş Zaman)*  
 - I am dealing – İlgileniyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -791,6 +847,7 @@
 ---
 
 ### Verb 257: Defend `/dɪˈfend/` \- Savunmak / Korumak
+- Pronunciation: `dih-FEND` *(English respelling)*
 
 - I defend – Savunurum *(Present Simple \- Geniş Zaman)*  
 - I am defending – Savunuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -805,6 +862,7 @@
 ---
 
 ### Verb 258: Delay `/dɪˈleɪ/` \- Geciktirmek / Ertelemek
+- Pronunciation: `dih-LAY` *(English respelling)*
 
 - I delay – Geciktiririm *(Present Simple \- Geniş Zaman)*  
 - I am delaying – Geciktiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -819,6 +877,7 @@
 ---
 
 ### Verb 259: Deny `/dɪˈnaɪ/` \- Reddetmek / İnkâr etmek
+- Pronunciation: `dih-NY` *(English respelling)*
 
 - I deny – Reddederim *(Present Simple \- Geniş Zaman)*  
 - I am denying – Reddediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -833,6 +892,7 @@
 ---
 
 ### Verb 260: Depend `/dɪˈpend/` \- Bağlı olmak / Güvenmek
+- Pronunciation: `dih-PEND` *(English respelling)*
 
 - I depend – Bağlıyım / Güvenirim *(Present Simple \- Geniş Zaman)*  
 - I am depending – Bağlı oluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -847,6 +907,7 @@
 ---
 
 ### Verb 261: Destroy `/dɪˈstrɔɪ/` \- Yok etmek / Yıkmak
+- Pronunciation: `dih-STROY` *(English respelling)*
 
 - I destroy – Yok ederim *(Present Simple \- Geniş Zaman)*  
 - I am destroying – Yok ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -861,6 +922,7 @@
 ---
 
 ### Verb 262: Detect `/dɪˈtekt/` \- Tespit etmek / Algılamak
+- Pronunciation: `dih-TEKT` *(English respelling)*
 
 - I detect – Tespit ederim *(Present Simple \- Geniş Zaman)*  
 - I am detecting – Tespit ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -875,6 +937,7 @@
 ---
 
 ### Verb 263: Disappear `/ˌdɪs.əˈpɪər/` \- Gözden kaybolmak / Yok olmak
+- Pronunciation: `dihs-uh-PEER` *(English respelling)*
 
 - I disappear – Kaybolurum *(Present Simple \- Geniş Zaman)*  
 - I am disappearing – Kayboluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -889,6 +952,7 @@
 ---
 
 ### Verb 264: Dislike `/dɪˈslaɪk/` \- Sevmemek / Hoşlanmamak
+- Pronunciation: `dih-SLYK` *(English respelling)*
 
 - I dislike – Sevmem *(Present Simple \- Geniş Zaman)*  
 - I am disliking – Sevmiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -903,6 +967,7 @@
 ---
 
 ### Verb 265: Distribute `/dɪˈstrɪb.juːt/` \- Dağıtmak / Yaymak
+- Pronunciation: `dih-STRIHB-yoot` *(English respelling)*
 
 - I distribute – Dağıtırım *(Present Simple \- Geniş Zaman)*  
 - I am distributing – Dağıtıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -917,6 +982,7 @@
 ---
 
 ### Verb 266: Doubt `/daʊt/` \- Şüphelenmek / Kuşku duymak
+- Pronunciation: `dowt` *(English respelling)*
 
 - I doubt – Şüphelenirim *(Present Simple \- Geniş Zaman)*  
 - I am doubting – Şüpheleniyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -931,6 +997,7 @@
 ---
 
 ### Verb 267: Drag `/dræɡ/` \- Sürüklemek
+- Pronunciation: `drag` *(English respelling)*
 
 - I drag – Sürüklerim *(Present Simple \- Geniş Zaman)*  
 - I am dragging – Sürüklüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -945,6 +1012,7 @@
 ---
 
 ### Verb 268: Dream `/driːm/` \- Hayal kurmak / Rüya görmek
+- Pronunciation: `dreem` *(English respelling)*
 
 - I dream – Hayal ederim *(Present Simple \- Geniş Zaman)*  
 - I am dreaming – Hayal ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -959,6 +1027,7 @@
 ---
 
 ### Verb 269: Dump `/dʌmp/` \- Dökmek / Bellek dökümü almak
+- Pronunciation: `duhmp` *(English respelling)*
 
 - I dump – Dökerim / Döküm alırım *(Present Simple \- Geniş Zaman)*  
 - I am dumping – Döküyorum / Döküm alıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -973,6 +1042,7 @@
 ---
 
 ### Verb 270: Eliminate `/iˈlɪm.ɪ.neɪt/` \- Ortadan kaldırmak / Elemek
+- Pronunciation: `ee-LIHM-ih-nayt` *(English respelling)*
 
 - I eliminate – Ortadan kaldırırım *(Present Simple \- Geniş Zaman)*  
 - I am eliminating – Ortadan kaldırıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -987,6 +1057,7 @@
 ---
 
 ### Verb 271: Employ `/ɪmˈplɔɪ/` \- İstihdam etmek / Kullanmak
+- Pronunciation: `ihm-PLOY` *(English respelling)*
 
 - I employ – İstihdam ederim / Kullanırım *(Present Simple \- Geniş Zaman)*  
 - I am employing – İstihdam ediyorum / Kullanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1001,6 +1072,7 @@
 ---
 
 ### Verb 272: Enable `/ɪˈneɪ.bəl/` \- Etkinleştirmek / Olanak tanımak
+- Pronunciation: `ih-NAY-buhl` *(English respelling)*
 
 - I enable – Etkinleştiririm *(Present Simple \- Geniş Zaman)*  
 - I am enabling – Etkinleştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1015,6 +1087,7 @@
 ---
 
 ### Verb 273: Enforce `/ɪnˈfɔːs/` \- Zorunlu kılmak / Uygulamak
+- Pronunciation: `ihn-FAWS` *(English respelling)*
 
 - I enforce – Zorunlu kılarım *(Present Simple \- Geniş Zaman)*  
 - I am enforcing – Zorunlu kılıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1029,6 +1102,7 @@
 ---
 
 ### Verb 274: Engage `/ɪnˈɡeɪdʒ/` \- Etkileşime girmek / Bağlanmak
+- Pronunciation: `ihn-GAYJ` *(English respelling)*
 
 - I engage – Etkileşime girerim *(Present Simple \- Geniş Zaman)*  
 - I am engaging – Etkileşime giriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1043,6 +1117,7 @@
 ---
 
 ### Verb 275: Enhance `/ɪnˈhɑːns/` \- Geliştirmek / Artırmak
+- Pronunciation: `ihn-HAHNS` *(English respelling)*
 
 - I enhance – Artırırım / Geliştiririm *(Present Simple \- Geniş Zaman)*  
 - I am enhancing – Artırıyorum / Geliştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1057,6 +1132,7 @@
 ---
 
 ### Verb 276: Escape `/ɪˈskeɪp/` \- Kaçmak / Kurtulmak
+- Pronunciation: `ih-SKAYP` *(English respelling)*
 
 - I escape – Kaçarım / Kurtulurum *(Present Simple \- Geniş Zaman)*  
 - I am escaping – Kaçıyorum / Kurtuluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1071,6 +1147,7 @@
 ---
 
 ### Verb 277: Estimate `/ˈes.tɪ.meɪt/` \- Tahmin etmek / Hesaplamak
+- Pronunciation: `ES-tih-mayt` *(English respelling)*
 
 - I estimate – Tahmin ederim *(Present Simple \- Geniş Zaman)*  
 - I am estimating – Tahmin ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1085,6 +1162,7 @@
 ---
 
 ### Verb 278: Evaluate `/ɪˈvæl.ju.eɪt/` \- Değerlendirmek
+- Pronunciation: `ih-VAL-yoo-ayt` *(English respelling)*
 
 - I evaluate – Değerlendiririm *(Present Simple \- Geniş Zaman)*  
 - I am evaluating – Değerlendiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1099,6 +1177,7 @@
 ---
 
 ### Verb 279: Examine `/ɪɡˈzæm.ɪn/` \- İncelemek / Muayene etmek
+- Pronunciation: `ig-ZAM-in` *(English respelling)*
 
 - I examine – İncelerim *(Present Simple \- Geniş Zaman)*  
 - I am examining – İnceliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1113,6 +1192,7 @@
 ---
 
 ### Verb 280: Exchange `/ɪksˈtʃeɪndʒ/` \- Değiş tokuş etmek / Takas etmek
+- Pronunciation: `ihks-CHAYNJ` *(English respelling)*
 
 - I exchange – Değiş tokuş ederim *(Present Simple \- Geniş Zaman)*  
 - I am exchanging – Değiş tokuş ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1127,6 +1207,7 @@
 ---
 
 ### Verb 281: Exist `/ɪɡˈzɪst/` \- Var olmak / Bulunmak
+- Pronunciation: `ihg-ZIHST` *(English respelling)*
 
 - I exist – Var olurum *(Present Simple \- Geniş Zaman)*  
 - I am existing – Var oluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1141,6 +1222,7 @@
 ---
 
 ### Verb 282: Expand `/ɪkˈspænd/` \- Genişlemek / Büyümek
+- Pronunciation: `ihk-SPAND` *(English respelling)*
 
 - I expand – Genişletirim / Genişlerim *(Present Simple \- Geniş Zaman)*  
 - I am expanding – Genişletiyorum / Genişliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1155,6 +1237,7 @@
 ---
 
 ### Verb 283: Export `/ɪkˈspɔːt/` \- Dışa aktarmak / İhraç etmek
+- Pronunciation: `ihk-SPAWT` *(English respelling)*
 
 - I export – Dışa aktarırım *(Present Simple \- Geniş Zaman)*  
 - I am exporting – Dışa aktarıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1169,6 +1252,7 @@
 ---
 
 ### Verb 284: Express `/ɪkˈspres/` \- İfade etmek / Belirtmek
+- Pronunciation: `ihk-SPRES` *(English respelling)*
 
 - I express – İfade ederim *(Present Simple \- Geniş Zaman)*  
 - I am expressing – İfade ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1183,6 +1267,7 @@
 ---
 
 ### Verb 285: Fetch `/fetʃ/` \- Veri çekmek / Gidip getirmek
+- Pronunciation: `fech` *(English respelling)*
 
 - I fetch – Veri çekerim / Getiririm *(Present Simple \- Geniş Zaman)*  
 - I am fetching – Veri çekiyorum / Getiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1197,6 +1282,7 @@
 ---
 
 ### Verb 286: Focus `/ˈfəʊ.kəs/` \- Odaklanmak
+- Pronunciation: `FOH-kuhs` *(English respelling)*
 
 - I focus – Odaklanırım *(Present Simple \- Geniş Zaman)*  
 - I am focusing – Odaklanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1211,6 +1297,7 @@
 ---
 
 ### Verb 287: Form `/fɔːm/` \- Oluşturmak / Biçimlendirmek
+- Pronunciation: `fawm` *(English respelling)*
 
 - I form – Oluştururum *(Present Simple \- Geniş Zaman)*  
 - I am forming – Oluşturuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1225,6 +1312,7 @@
 ---
 
 ### Verb 288: Format `/ˈfɔː.mæt/` \- Biçimlendirmek
+- Pronunciation: `FAW-mat` *(English respelling)*
 
 - I format – Biçimlendiririm *(Present Simple \- Geniş Zaman)*  
 - I am formating – Biçimlendiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1239,6 +1327,7 @@
 ---
 
 ### Verb 289: Found `/faʊnd/` \- Kurmak / Temelini atmak
+- Pronunciation: `fownd` *(English respelling)*
 
 - I found – Kurarım *(Present Simple \- Geniş Zaman)*  
 - I am founding – Kuruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1253,6 +1342,7 @@
 ---
 
 ### Verb 290: Gain `/ɡeɪn/` \- Kazanmak / Elde etmek
+- Pronunciation: `gayn` *(English respelling)*
 
 - I gain – Kazanırım *(Present Simple \- Geniş Zaman)*  
 - I am gaining – Kazanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1267,6 +1357,7 @@
 ---
 
 ### Verb 291: Generate `/ˈdʒen.ə.reɪt/` \- Üretmek / Meydana getirmek
+- Pronunciation: `JEN-uh-rayt` *(English respelling)*
 
 - I generate – Üretirim *(Present Simple \- Geniş Zaman)*  
 - I am generating – Üretiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1281,6 +1372,7 @@
 ---
 
 ### Verb 292: Grant `/ɡrɑːnt/` \- Yetki vermek / Hibe etmek
+- Pronunciation: `grahnt` *(English respelling)*
 
 - I grant – Yetki veririm *(Present Simple \- Geniş Zaman)*  
 - I am granting – Yetki veriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1295,6 +1387,7 @@
 ---
 
 ### Verb 293: Greet `/ɡriːt/` \- Selamlamak / Karşılamak
+- Pronunciation: `greet` *(English respelling)*
 
 - I greet – Karşılarım / Selamlarım *(Present Simple \- Geniş Zaman)*  
 - I am greeting – Karşılıyorum / Selamlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1309,6 +1402,7 @@
 ---
 
 ### Verb 294: Guess `/ɡes/` \- Tahmin etmek
+- Pronunciation: `ges` *(English respelling)*
 
 - I guess – Tahmin ederim *(Present Simple \- Geniş Zaman)*  
 - I am guessing – Tahmin ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1323,6 +1417,7 @@
 ---
 
 ### Verb 295: Guide `/ɡaɪd/` \- Rehberlik etmek / Yol göstermek
+- Pronunciation: `gyde` *(English respelling)*
 
 - I guide – Rehberlik ederim *(Present Simple \- Geniş Zaman)*  
 - I am guiding – Rehberlik ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1337,6 +1432,7 @@
 ---
 
 ### Verb 296: Import `/ɪmˈpɔːt/` \- İçe aktarmak
+- Pronunciation: `ihm-PAWT` *(English respelling)*
 
 - I import – İçe aktarırım *(Present Simple \- Geniş Zaman)*  
 - I am importing – İçe aktarıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1351,6 +1447,7 @@
 ---
 
 ### Verb 297: Initialize `/ɪˈnɪʃ.əl.aɪz/` \- Başlatmak / İlk değer vermek
+- Pronunciation: `ih-NIHSH-uhl-yz` *(English respelling)*
 
 - I initialize – Başlatırım *(Present Simple \- Geniş Zaman)*  
 - I am initializing – Başlatıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1365,6 +1462,7 @@
 ---
 
 ### Verb 298: Inspect `/ɪnˈspekt/` \- Denetlemek / İncelemek
+- Pronunciation: `ihn-SPEKT` *(English respelling)*
 
 - I inspect – Denetlerim / İncelerim *(Present Simple \- Geniş Zaman)*  
 - I am inspecting – Denetliyorum / İnceliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1379,6 +1477,7 @@
 ---
 
 ### Verb 299: Integrate `/ˈɪn.tɪ.ɡreɪt/` \- Entegre etmek / Birleştirmek
+- Pronunciation: `IHN-tih-grayt` *(English respelling)*
 
 - I integrate – Entegre ederim *(Present Simple \- Geniş Zaman)*  
 - I am integrating – Entegre ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1393,6 +1492,7 @@
 ---
 
 ### Verb 300: Launch `/lɔːntʃ/` \- Yayına almak / Başlatmak
+- Pronunciation: `lawnch` *(English respelling)*
 
 - I launch – Yayına alırım / Başlatırım *(Present Simple \- Geniş Zaman)*  
 - I am launching – Yayına alıyorum / Başlatıyorum *(Present Continuous \- Şimdiki Zaman)*  

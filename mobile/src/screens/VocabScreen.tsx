@@ -487,6 +487,28 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
           </View>
         </View>
 
+        {/* Kütüphane ve klasörler: kelime ile ilgili her şey bu sekmede */}
+        <View style={styles.vocabLinks}>
+          <Pressable
+            onPress={() => navigation.navigate('VocabLibrary')}
+            style={styles.vocabLink}
+            accessibilityRole="button"
+            accessibilityLabel={t("Kelime Kütüphanesi")}
+          >
+            <Ionicons name="library-outline" size={16} color={colors.brand} />
+            <Text style={styles.vocabLinkText} numberOfLines={1}>{t("Kelime Kütüphanesi")}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('VocabDecks')}
+            style={styles.vocabLink}
+            accessibilityRole="button"
+            accessibilityLabel={t("Kelime Klasörlerim")}
+          >
+            <Ionicons name="folder-open-outline" size={16} color={colors.brand} />
+            <Text style={styles.vocabLinkText} numberOfLines={1}>{t("Kelime Klasörlerim")}</Text>
+          </Pressable>
+        </View>
+
         {/* İki görünüm: bugün ne tekrar edeceğim / tüm kelimelerim */}
         <View style={styles.segmentWrap}>
           {(
@@ -1996,6 +2018,29 @@ const styles = StyleSheet.create({
   },
 
   /* Segmentli sekme */
+  vocabLinks: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  vocabLink: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#E0E7FF',
+    backgroundColor: '#FFFFFF',
+  },
+  vocabLinkText: {
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 12.5,
+    color: colors.brand,
+  },
   segmentWrap: {
     flexDirection: 'row',
     backgroundColor: '#EEF2F7',

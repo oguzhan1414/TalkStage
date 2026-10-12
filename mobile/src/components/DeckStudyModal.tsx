@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   wordPhonetic: {
-    fontFamily: fonts.mono,
+    // System font on purpose: the app fonts (JetBrains Mono) lack IPA glyphs (ə ː ˈ ɑ …) and garble them.
     fontSize: 16,
     color: '#64748B',
     marginBottom: 24,

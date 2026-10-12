@@ -25,6 +25,7 @@ import { Waveform } from '../components/Waveform';
 import { useFreeChatSocket, type TurnPhase } from '../hooks/useFreeChatSocket';
 import { confirmLeave, useConfirmBack } from '../hooks/useConfirmLeave';
 import { api, ApiError } from '../lib/api';
+import { postQueued } from '../lib/outbox';
 import { haptics } from '../lib/haptics';
 import { setLearningFlag } from '../lib/learningFlags';
 import { SCENE_STAR2_PREFIX, SCENE_STAR3_PREFIX } from '../lib/sceneProgress';
@@ -52,7 +53,11 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   voice_reply_failed: t("AI yanıtı oluşturulamadı. Birkaç saniye sonra tekrar konuşabilirsin."),
   session_error: t("Canlı konuşma bağlantısında beklenmeyen bir hata oluştu."),
   microphone_start_failed: t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."),
+  app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak yeni bir konuşma başlatabilirsin."),
 };
+
+/** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
+const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_error', 'reply_timeout', 'slow_connection', 'connection_timeout']);
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -74,12 +79,33 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const twistTitle = route.params?.twistTitle;
   const twistEmoji = route.params?.twistEmoji;
   const twistHint = route.params?.twistHint;
-  useTrackScreenView(scene ? 'scene_play_started' : 'free_chat_started', scene ? { scene_id: scene.id } : {});
+  const focusTopic = route.params?.focusTopic;
+  const reviewTopics = route.params?.reviewTopics;
+  const reviewId = route.params?.reviewId;
+  const isReview = Boolean(reviewTopics?.length);
+  useTrackScreenView(
+    scene ? 'scene_play_started' : isReview ? 'review_started' : focusTopic ? 'topic_practice_started' : 'free_chat_started',
+    scene ? { scene_id: scene.id } : focusTopic?.topicCode ? { topic: focusTopic.topicCode } : {}
+  );
   const aiName = scene?.ai_name || AI_NAME;
-  const aiRole = scene?.ai_role || AI_ROLE;
+  // One topic = the per-topic "Konu Tekrarı" (teach-then-practice); several = a mixed recall chat.
+  const singleReview = reviewTopics?.length === 1 ? reviewTopics[0] : undefined;
+  const aiRole = scene?.ai_role || (singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
   const { finishTransition } = useMivoTransition();
 
-  const voice = useFreeChatSocket(scene);
+  const voice = useFreeChatSocket(
+    scene,
+    isReview
+      ? {
+          title: singleReview ? singleReview.title : t("Mivo ile Tekrar"),
+          kind: 'review',
+          code: singleReview?.code,
+          topics: (reviewTopics ?? []).map((tp) => ({ title: tp.title, formula: tp.formula, words: tp.targetWords })),
+        }
+      : focusTopic
+        ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
+        : undefined
+  );
   const {
     status,
     closeInfo,
@@ -167,6 +193,28 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     }
   };
 
+  // Konu pratiği: 3 konuşma turundan sonra tamamlanır — XP/seri kaydı + "pratik yapıldı" bayrağı
+  // (Bugün yolundaki Mivo pratiği düğümü ve Hata Defterim bu bayrağı/konu kodunu kullanır).
+  const focusUserTurns = turns.filter((turn) => turn.role === 'user').length;
+  const focusDoneRef = useRef(false);
+  useEffect(() => {
+    if ((!focusTopic && !isReview) || focusDoneRef.current || focusUserTurns < 3) return;
+    focusDoneRef.current = true;
+    if (isReview || focusTopic?.formula) {
+      postQueued('/progress/log-practice')
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['me'] });
+          queryClient.invalidateQueries({ queryKey: ['progress'] });
+        })
+        .catch(() => {});
+      const flagId = isReview ? reviewId : focusTopic?.topicCode;
+      if (flagId) setLearningFlag(`topic_chat_completed_${flagId}`);
+    }
+    haptics.success();
+    showToast(isReview ? t("Tekrarı tamamladın! 🎉") : t("Konu pratiğini tamamladın! 🎉"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusTopic, isReview, focusUserTurns]);
+
   // Sahne modu: oturum bitince yıldız hesapla (2★ = en az 4 cümle söyledi ya da hedefler tamamlandı,
   // 3★ = hedefler tamamlandı ve en fazla 2 düzeltme aldı). Yıldız bayrakları `/learning-flags` ile senkron.
   const [resultStars, setResultStars] = useState<0 | 2 | 3 | null>(null);
@@ -182,7 +230,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
       if (earned >= 2) {
         setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
         if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
-        api.post('/progress/log-practice').catch(() => {});
+        postQueued('/progress/log-practice').catch(() => {});
         haptics.success();
         setResultStars(earned);
         return;
@@ -292,7 +340,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           <Text style={styles.statusText}>
             {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
           </Text>
-          {turns.length === 0 ? (
+          {turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason)) ? (
             <Pressable onPress={reconnect}>
               <Text style={styles.backLink}>{t("Tekrar Bağlan")}</Text>
             </Pressable>

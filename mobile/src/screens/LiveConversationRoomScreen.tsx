@@ -54,7 +54,11 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   time_limit_reached: t("5 dakikalık ücretsiz süre doldu."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
+  app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak sahneyi baştan oynayabilirsin."),
 };
+
+/** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
+const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_error', 'reply_timeout', 'slow_connection', 'connection_timeout']);
 
 Object.assign(CLOSE_REASON_MESSAGES, {
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
@@ -433,9 +437,14 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
               </Pressable>
             </>
           ) : (
-            <Pressable onPress={finishSession}>
-              <Text style={styles.backLink}>{turns.length > 0 ? t("Karneni Gör") : t("Sahnelere dön")}</Text>
-            </Pressable>
+            <>
+              {closeInfo && DROP_REASONS.has(closeInfo.reason) ? (
+                <Button label={t("Tekrar Bağlan")} onPress={reconnect} style={styles.upsellButton} />
+              ) : null}
+              <Pressable onPress={finishSession}>
+                <Text style={styles.backLink}>{turns.length > 0 ? t("Karneni Gör") : t("Sahnelere dön")}</Text>
+              </Pressable>
+            </>
           )}
         </View>
       ) : (

@@ -22,6 +22,11 @@ import { navigationRef } from './src/navigation/navigationRef';
 import { AnalyticsProvider } from './src/lib/analytics';
 import { MivoTransitionProvider } from './src/components/MivoTransitionOverlay';
 import { BadgeCelebration } from './src/components/BadgeCelebration';
+import { OfflineBanner } from './src/components/OfflineBanner';
+import { startNetworkSync } from './src/lib/network';
+
+// Online/focus signals for React Query + re-sending parked writes (see src/lib/network.ts).
+startNetworkSync();
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore — already hidden (e.g. fast refresh) or unsupported on this platform.
@@ -31,9 +36,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // 4xx (e.g. GET /scenarios/recommended's 404 on an empty catalog) won't
-      // succeed on retry — only retry on network errors / 5xx, and just once.
+      // succeed on retry — only retry on network errors (status 0) / 5xx, and just once.
       retry: (failureCount, error) =>
-        !(error instanceof ApiError && error.status < 500) && failureCount < 1,
+        !(error instanceof ApiError && error.status >= 400 && error.status < 500) && failureCount < 1,
     },
   },
 });
@@ -72,6 +77,7 @@ export default function App() {
                       <RootNavigator />
                     </NavigationContainer>
                     <BadgeCelebration />
+                    <OfflineBanner />
                   </MivoTransitionProvider>
                 </OnboardingProvider>
               </AuthProvider>

@@ -7,6 +7,7 @@
 ---
 
 ### Adjective 201: Absolute `/ˈæb.sə.luːt/` \- Mutlak / Kesin
+- Pronunciation: `AB-suh-loot` *(English respelling)*
 
 - Base Form (Positive): absolute `/ˈæb.sə.luːt/` – mutlak *(Yalın Hali)*  
 - Comparative Form: more absolute (than) `/mɔːr ˈæb.sə.luːt/` – daha mutlak *(Karşılaştırma Hali)*  
@@ -21,6 +22,7 @@
 ---
 
 ### Adjective 202: Abstract `/ˈæb.strækt/` \- Soyut
+- Pronunciation: `AB-strakt` *(English respelling)*
 
 - Base Form (Positive): abstract `/ˈæb.strækt/` – soyut *(Yalın Hali)*  
 - Comparative Form: more abstract (than) `/mɔːr ˈæb.strækt/` – daha soyut *(Karşılaştırma Hali)*  
@@ -35,6 +37,7 @@
 ---
 
 ### Adjective 203: Academic `/ˌæk.əˈdem.ɪk/` \- Akademik
+- Pronunciation: `ak-uh-DEM-ihk` *(English respelling)*
 
 - Base Form (Positive): academic `/ˌæk.əˈdem.ɪk/` – akademik *(Yalın Hali)*  
 - Comparative Form: more academic (than) `/mɔːr ˌæk.əˈdem.ɪk/` – daha akademik *(Karşılaştırma Hali)*  
@@ -49,6 +52,7 @@
 ---
 
 ### Adjective 204: Accessible `/əkˈses.ə.bəl/` \- Erişilebilir
+- Pronunciation: `uhk-SES-uh-buhl` *(English respelling)*
 
 - Base Form (Positive): accessible `/əkˈses.ə.bəl/` – erişilebilir *(Yalın Hali)*  
 - Comparative Form: more accessible (than) `/mɔːr əkˈses.ə.bəl/` – daha erişilebilir *(Karşılaştırma Hali)*  
@@ -63,6 +67,7 @@
 ---
 
 ### Adjective 205: Actual `/ˈæk.tʃu.əl/` \- Gerçek / Fiili
+- Pronunciation: `AK-choo-uhl` *(English respelling)*
 
 - Base Form (Positive): actual `/ˈæk.tʃu.əl/` – fiili / gerçek *(Yalın Hali)*  
 - Comparative Form: more actual (than) `/mɔːr ˈæk.tʃu.əl/` – daha fiili *(Karşılaştırma Hali)*  
@@ -77,6 +82,7 @@
 ---
 
 ### Adjective 206: Acute `/əˈkjuːt/` \- Akut / Şiddetli
+- Pronunciation: `uh-KYOOT` *(English respelling)*
 
 - Base Form (Positive): acute `/əˈkjuːt/` – şiddetli / akut *(Yalın Hali)*  
 - Comparative Form: more acute (than) `/ˈmɔːr əˈkjuːt/` – daha akut *(Karşılaştırma Hali)*  
@@ -91,6 +97,7 @@
 ---
 
 ### Adjective 207: Adequate `/ˈæd.ə.kwət/` \- Yeterli / Uygun
+- Pronunciation: `AD-uh-kwuht` *(English respelling)*
 
 - Base Form (Positive): adequate `/ˈæd.ə.kwət/` – yeterli *(Yalın Hali)*  
 - Comparative Form: more adequate (than) `/mɔːr ˈæd.ə.kwət/` – daha yeterli *(Karşılaştırma Hali)*  
@@ -105,6 +112,7 @@
 ---
 
 ### Adjective 208: Administrative `/ədˈmɪn.ɪ.strə.tɪv/` \- İdari / Yönetimsel
+- Pronunciation: `uhd-MIHN-ih-struh-tihv` *(English respelling)*
 
 - Base Form (Positive): administrative `/ədˈmɪn.ɪ.strə.tɪv/` – idari *(Yalın Hali)*  
 - Comparative Form: more administrative (than) `/mɔːr ədˈmɪn.ɪ.strə.tɪv/` – daha idari *(Karşılaştırma Hali)*  
@@ -119,6 +127,7 @@
 ---
 
 ### Adjective 209: Advanced `/ədˈvɑːnst/` \- İleri Düzey / Gelişmiş
+- Pronunciation: `uhd-VAHNST` *(English respelling)*
 
 - Base Form (Positive): advanced `/ədˈvɑːnst/` – ileri düzey *(Yalın Hali)*  
 - Comparative Form: more advanced (than) `/mɔːr ədˈvɑːnst/` – daha ileri düzey *(Karşılaştırma Hali)*  
@@ -133,6 +142,7 @@
 ---
 
 ### Adjective 210: Aggressive `/əˈɡres.ɪv/` \- Agresif / Hırslı
+- Pronunciation: `uh-GRES-ihv` *(English respelling)*
 
 - Base Form (Positive): aggressive `/əˈɡres.ɪv/` – agresif *(Yalın Hali)*  
 - Comparative Form: more aggressive (than) `/mɔːr əˈɡres.ɪv/` – daha agresif *(Karşılaştırma Hali)*  
@@ -147,6 +157,7 @@
 ---
 
 ### Adjective 211: Alternative `/ɒlˈtɜː.nə.tɪv/` \- Alternatif / Farklı
+- Pronunciation: `ol-TUR-nuh-tihv` *(English respelling)*
 
 - Base Form (Positive): alternative `/ɒlˈtɜː.nə.tɪv/` – alternatif *(Yalın Hali)*  
 - Comparative Form: more alternative (than) `/mɔːr ɒlˈtɜː.nə.tɪv/` – daha alternatif *(Karşılaştırma Hali)*  
@@ -161,6 +172,7 @@
 ---
 
 ### Adjective 212: Ambitious `/æmˈbɪʃ.əs/` \- İddialı / Hırslı
+- Pronunciation: `am-BIHSH-uhs` *(English respelling)*
 
 - Base Form (Positive): ambitious `/æmˈbɪʃ.əs/` – iddialı *(Yalın Hali)*  
 - Comparative Form: more ambitious (than) `/mɔːr æmˈbɪʃ.əs/` – daha iddialı *(Karşılaştırma Hali)*  
@@ -175,6 +187,7 @@
 ---
 
 ### Adjective 213: Ancient `/ˈeɪn.ʃənt/` \- Antik / Çok eski
+- Pronunciation: `AYN-shuhnt` *(English respelling)*
 
 - Base Form (Positive): ancient `/ˈeɪn.ʃənt/` – antik / çok eski *(Yalın Hali)*  
 - Comparative Form: more ancient (than) `/mɔːr ˈeɪn.ʃənt/` – daha antik *(Karşılaştırma Hali)*  
@@ -189,6 +202,7 @@
 ---
 
 ### Adjective 214: Annual `/ˈæn.ju.əl/` \- Yıllık
+- Pronunciation: `AN-yoo-uhl` *(English respelling)*
 
 - Base Form (Positive): annual `/ˈæn.ju.əl/` – yıllık *(Yalın Hali)*  
 - Comparative Form: more annual (than) `/mɔːr ˈæn.ju.əl/` – daha yıllık *(Karşılaştırma Hali)*  
@@ -203,6 +217,7 @@
 ---
 
 ### Adjective 215: Apparent `/əˈpær.ənt/` \- Belirgin / Aşikar
+- Pronunciation: `uh-PAR-uhnt` *(English respelling)*
 
 - Base Form (Positive): apparent `/əˈpær.ənt/` – belirgin *(Yalın Hali)*  
 - Comparative Form: more apparent (than) `/mɔːr əˈpær.ənt/` – daha belirgin *(Karşılaştırma Hali)*  
@@ -217,6 +232,7 @@
 ---
 
 ### Adjective 216: Appropriate `/əˈprəʊ.pri.ət/` \- Uygun / Yerinde
+- Pronunciation: `uh-PROH-pree-uht` *(English respelling)*
 
 - Base Form (Positive): appropriate `/əˈprəʊ.pri.ət/` – uygun *(Yalın Hali)*  
 - Comparative Form: more appropriate (than) `/mɔːr əˈprəʊ.pri.ət/` – daha uygun *(Karşılaştırma Hali)*  
@@ -231,6 +247,7 @@
 ---
 
 ### Adjective 217: Approximate `/əˈprɒk.sɪ.mət/` \- Yaklaşık
+- Pronunciation: `uh-PROK-sih-muht` *(English respelling)*
 
 - Base Form (Positive): approximate `/əˈprɒk.sɪ.mət/` – yaklaşık *(Yalın Hali)*  
 - Comparative Form: more approximate (than) `/mɔːr əˈprɒk.sɪ.mət/` – daha yaklaşık *(Karşılaştırma Hali)*  
@@ -245,6 +262,7 @@
 ---
 
 ### Adjective 218: Arbitrary `/ˈɑː.bɪ.trər.i/` \- Keyfi / Rastgele
+- Pronunciation: `AH-bih-truhr-ee` *(English respelling)*
 
 - Base Form (Positive): arbitrary `/ˈɑː.bɪ.trər.i/` – keyfi *(Yalın Hali)*  
 - Comparative Form: more arbitrary (than) `/mɔːr ˈɑː.bɪ.trər.i/` – daha keyfi *(Karşılaştırma Hali)*  
@@ -259,6 +277,7 @@
 ---
 
 ### Adjective 219: Artificial `/ˌɑː.tɪˈfɪʃ.əl/` \- Yapay / Suni
+- Pronunciation: `ah-tih-FIHSH-uhl` *(English respelling)*
 
 - Base Form (Positive): artificial `/ˌɑː.tɪˈfɪʃ.əl/` – yapay *(Yalın Hali)*  
 - Comparative Form: more artificial (than) `/mɔːr ˌɑː.tɪˈfɪʃ.əl/` – daha yapay *(Karşılaştırma Hali)*  
@@ -273,6 +292,7 @@
 ---
 
 ### Adjective 220: Artistic `/ɑːˈtɪs.tɪk/` \- Sanatsal
+- Pronunciation: `ah-TIHS-tihk` *(English respelling)*
 
 - Base Form (Positive): artistic `/ɑːˈtɪs.tɪk/` – sanatsal *(Yalın Hali)*  
 - Comparative Form: more artistic (than) `/mɔːr ɑːˈtɪs.tɪk/` – daha sanatsal *(Karşılaştırma Hali)*  
@@ -287,6 +307,7 @@
 ---
 
 ### Adjective 221: Asleep `/əˈsliːp/` \- Uykuda / Uyuyan
+- Pronunciation: `uh-SLEEP` *(English respelling)*
 
 - Base Form (Positive): asleep `/əˈsliːp/` – uykuda *(Yalın Hali)*  
 - Comparative Form: more asleep (than) `/mɔːr əˈsliːp/` – daha uykuda *(Karşılaştırma Hali)*  
@@ -301,6 +322,7 @@
 ---
 
 ### Adjective 222: Automatic `/ˌɔː.təˈmæt.ɪk/` \- Otomatik
+- Pronunciation: `aw-tuh-MAT-ihk` *(English respelling)*
 
 - Base Form (Positive): automatic `/ˌɔː.təˈmæt.ɪk/` – otomatik *(Yalın Hali)*  
 - Comparative Form: more automatic (than) `/mɔːr ˌɔː.təˈmæt.ɪk/` – daha otomatik *(Karşılaştırma Hali)*  
@@ -315,6 +337,7 @@
 ---
 
 ### Adjective 223: Autonomous `/ɔːˈtɒn.ə.məs/` \- Otonom / Özerk
+- Pronunciation: `aw-TON-uh-muhs` *(English respelling)*
 
 - Base Form (Positive): autonomous `/ɔːˈtɒn.ə.məs/` – otonom *(Yalın Hali)*  
 - Comparative Form: more autonomous (than) `/mɔːr ɔːˈtɒn.ə.məs/` – daha otonom *(Karşılaştırma Hali)*  
@@ -329,6 +352,7 @@
 ---
 
 ### Adjective 224: Aware `/əˈweər/` \- Farkında / Bilinçli
+- Pronunciation: `uh-WAIR` *(English respelling)*
 
 - Base Form (Positive): aware `/əˈweər/` – farkında *(Yalın Hali)*  
 - Comparative Form: more aware (than) `/mɔːr əˈweər/` – daha farkında *(Karşılaştırma Hali)*  
@@ -343,6 +367,7 @@
 ---
 
 ### Adjective 225: Awful `/ˈɔː.fəl/` \- Berbat / Korkunç
+- Pronunciation: `AW-fuhl` *(English respelling)*
 
 - Base Form (Positive): awful `/ˈɔː.fəl/` – berbat *(Yalın Hali)*  
 - Comparative Form: more awful (than) `/mɔːr ˈɔː.fəl/` – daha berbat *(Karşılaştırma Hali)*  
@@ -357,6 +382,7 @@
 ---
 
 ### Adjective 226: Backward `/ˈbæk.wəd/` \- Geriye doğru / Geriye uyumlu
+- Pronunciation: `BAK-wuhd` *(English respelling)*
 
 - Base Form (Positive): backward `/ˈbæk.wəd/` – geriye doğru *(Yalın Hali)*  
 - Comparative Form: more backward (than) `/mɔːr ˈbæk.wəd/` – daha geriye dönük *(Karşılaştırma Hali)*  
@@ -371,6 +397,7 @@
 ---
 
 ### Adjective 227: Bare `/beər/` \- Sade / Çıplak (Bare-metal)
+- Pronunciation: `bair` *(English respelling)*
 
 - Base Form (Positive): bare `/beər/` – sade / çıplak *(Yalın Hali)*  
 - Comparative Form: barer (than) `/ˈbeə.rər/` – daha sade *(Karşılaştırma Hali)*  
@@ -385,6 +412,7 @@
 ---
 
 ### Adjective 228: Beneficial `/ˌben.ɪˈfɪʃ.əl/` \- Faydalı / Yararlı
+- Pronunciation: `ben-ih-FIHSH-uhl` *(English respelling)*
 
 - Base Form (Positive): beneficial `/ˌben.ɪˈfɪʃ.əl/` – faydalı *(Yalın Hali)*  
 - Comparative Form: more beneficial (than) `/mɔːr ˌben.ɪˈfɪʃ.əl/` – daha faydalı *(Karşılaştırma Hali)*  
@@ -399,6 +427,7 @@
 ---
 
 ### Adjective 229: Biological `/ˌbaɪ.əˈlɒdʒ.ɪ.kəl/` \- Biyolojik
+- Pronunciation: `by-uh-LOJ-ih-kuhl` *(English respelling)*
 
 - Base Form (Positive): biological `/ˌbaɪ.əˈlɒdʒ.ɪ.kəl/` – biyolojik *(Yalın Hali)*  
 - Comparative Form: more biological (than) `/mɔːr ˌbaɪ.əˈlɒdʒ.ɪ.kəl/` – daha biyolojik *(Karşılaştırma Hali)*  
@@ -413,6 +442,7 @@
 ---
 
 ### Adjective 230: Blank `/blæŋk/` \- Boş
+- Pronunciation: `blangk` *(English respelling)*
 
 - Base Form (Positive): blank `/blæŋk/` – boş *(Yalın Hali)*  
 - Comparative Form: blanker (than) `/ˈblæŋ.kər/` – daha boş *(Karşılaştırma Hali)*  
@@ -427,6 +457,7 @@
 ---
 
 ### Adjective 231: Brief `/briːf/` \- Kısa / Öz
+- Pronunciation: `breef` *(English respelling)*
 
 - Base Form (Positive): brief `/briːf/` – kısa / öz *(Yalın Hali)*  
 - Comparative Form: briefer (than) `/ˈbriː.fər/` – daha kısa *(Karşılaştırma Hali)*  
@@ -441,6 +472,7 @@
 ---
 
 ### Adjective 232: Brilliant `/ˈbrɪl.jənt/` \- Dahiyane / Parlak
+- Pronunciation: `BRIHL-yuhnt` *(English respelling)*
 
 - Base Form (Positive): brilliant `/ˈbrɪl.jənt/` – dahiyane *(Yalın Hali)*  
 - Comparative Form: more brilliant (than) `/mɔːr ˈbrɪl.jənt/` – daha dahiyane *(Karşılaştırma Hali)*  
@@ -455,6 +487,7 @@
 ---
 
 ### Adjective 233: Brittle `/ˈbrɪt.əl/` \- Kırılgan / Kolay bozulan
+- Pronunciation: `BRIHT-uhl` *(English respelling)*
 
 - Base Form (Positive): brittle `/ˈbrɪt.əl/` – kırılgan *(Yalın Hali)*  
 - Comparative Form: brittler (than) `/ˈbrɪt.lər/` – daha kırılgan *(Karşılaştırma Hali)*  
@@ -469,6 +502,7 @@
 ---
 
 ### Adjective 234: Cautious `/ˈkɔː.ʃəs/` \- Temkinli / Dikkatli
+- Pronunciation: `KAW-shuhs` *(English respelling)*
 
 - Base Form (Positive): cautious `/ˈkɔː.ʃəs/` – temkinli *(Yalın Hali)*  
 - Comparative Form: more cautious (than) `/mɔːr ˈkɔː.ʃəs/` – daha temkinli *(Karşılaştırma Hali)*  
@@ -483,6 +517,7 @@
 ---
 
 ### Adjective 235: Capable `/ˈkeɪ.pə.bəl/` \- Yetenekli / Muktedir
+- Pronunciation: `KAY-puh-buhl` *(English respelling)*
 
 - Base Form (Positive): capable `/ˈkeɪ.pə.bəl/` – yetenekli *(Yalın Hali)*  
 - Comparative Form: more capable (than) `/mɔːr ˈkeɪ.pə.bəl/` – daha yetenekli *(Karşılaştırma Hali)*  
@@ -497,6 +532,7 @@
 ---
 
 ### Adjective 236: Capital `/ˈkæp.ɪ.təl/` \- Büyük / Başlıca
+- Pronunciation: `KAP-ih-tuhl` *(English respelling)*
 
 - Base Form (Positive): capital `/ˈkæp.ɪ.təl/` – başlıca *(Yalın Hali)*  
 - Comparative Form: more capital (than) `/mɔːr ˈkæp.ɪ.təl/` – daha başlıca *(Karşılaştırma Hali)*  
@@ -511,6 +547,7 @@
 ---
 
 ### Adjective 237: Casual `/ˈkæʒ.u.əl/` \- Gündelik / Rahat
+- Pronunciation: `KAZH-oo-uhl` *(English respelling)*
 
 - Base Form (Positive): casual `/ˈkæʒ.u.əl/` – gündelik / rahat *(Yalın Hali)*  
 - Comparative Form: more casual (than) `/mɔːr ˈkæʒ.u.əl/` – daha gündelik *(Karşılaştırma Hali)*  
@@ -525,6 +562,7 @@
 ---
 
 ### Adjective 238: Chemical `/ˈkem.ɪ.kəl/` \- Kimyasal
+- Pronunciation: `KEM-ih-kuhl` *(English respelling)*
 
 - Base Form (Positive): chemical `/ˈkem.ɪ.kəl/` – kimyasal *(Yalın Hali)*  
 - Comparative Form: more chemical (than) `/mɔːr ˈkem.ɪ.kəl/` – daha kimyasal *(Karşılaştırma Hali)*  
@@ -539,6 +577,7 @@
 ---
 
 ### Adjective 239: Chief `/tʃiːf/` \- Baş / Başlıca
+- Pronunciation: `cheef` *(English respelling)*
 
 - Base Form (Positive): chief `/tʃiːf/` – başlıca / baş *(Yalın Hali)*  
 - Comparative Form: more chief (than) `/mɔːr tʃiːf/` – daha başlıca *(Karşılaştırma Hali)*  
@@ -553,6 +592,7 @@
 ---
 
 ### Adjective 240: Chronic `/ˈkrɒn.ɪk/` \- Kronik / Süreğen
+- Pronunciation: `KRON-ihk` *(English respelling)*
 
 - Base Form (Positive): chronic `/ˈkrɒn.ɪk/` – kronik *(Yalın Hali)*  
 - Comparative Form: more chronic (than) `/mɔːr ˈkrɒn.ɪk/` – daha kronik *(Karşılaştırma Hali)*  
@@ -567,6 +607,7 @@
 ---
 
 ### Adjective 241: Civic `/ˈsɪv.ɪk/` \- Kentsel / Sivil
+- Pronunciation: `SIHV-ihk` *(English respelling)*
 
 - Base Form (Positive): civic `/ˈsɪv.ɪk/` – kentsel / sivil *(Yalın Hali)*  
 - Comparative Form: more civic (than) `/mɔːr ˈsɪv.ɪk/` – daha kentsel *(Karşılaştırma Hali)*  
@@ -581,6 +622,7 @@
 ---
 
 ### Adjective 242: Classical `/ˈklæs.ɪ.kəl/` \- Klasik
+- Pronunciation: `KLAS-ih-kuhl` *(English respelling)*
 
 - Base Form (Positive): classical `/ˈklæs.ɪ.kəl/` – klasik *(Yalın Hali)*  
 - Comparative Form: more classical (than) `/mɔːr ˈklæs.ɪ.kəl/` – daha klasik *(Karşılaştırma Hali)*  
@@ -595,6 +637,7 @@
 ---
 
 ### Adjective 243: Clever `/ˈklev.ər/` \- Zeki / Akıllı
+- Pronunciation: `KLEV-uhr` *(English respelling)*
 
 - Base Form (Positive): clever `/ˈklev.ər/` – zeki *(Yalın Hali)*  
 - Comparative Form: cleverer (than) `/ˈklev.ər.ər/` – daha zeki *(Karşılaştırma Hali)*  
@@ -609,6 +652,7 @@
 ---
 
 ### Adjective 244: Clinical `/ˈklɪn.ɪ.kəl/` \- Klinik
+- Pronunciation: `KLIHN-ih-kuhl` *(English respelling)*
 
 - Base Form (Positive): clinical `/ˈklɪn.ɪ.kəl/` – klinik *(Yalın Hali)*  
 - Comparative Form: more clinical (than) `/mɔːr ˈklɪn.ɪ.kəl/` – daha klinik *(Karşılaştırma Hali)*  
@@ -623,6 +667,7 @@
 ---
 
 ### Adjective 245: Close `/kləʊs/` \- Yakın / Samimi
+- Pronunciation: `klohs` *(English respelling)*
 
 - Base Form (Positive): close `/kləʊs/` – yakın *(Yalın Hali)*  
 - Comparative Form: closer (than) `/ˈkləʊ.sər/` – daha yakın *(Karşılaştırma Hali)*  
@@ -637,6 +682,7 @@
 ---
 
 ### Adjective 246: Coarse `/kɔːs/` \- Kaba / Pürüzlü
+- Pronunciation: `kaws` *(English respelling)*
 
 - Base Form (Positive): coarse `/kɔːs/` – kaba *(Yalın Hali)*  
 - Comparative Form: coarser (than) `/ˈkɔː.sər/` – daha kaba *(Karşılaştırma Hali)*  
@@ -651,6 +697,7 @@
 ---
 
 ### Adjective 247: Cognitive `/ˈkɒɡ.nə.tɪv/` \- Bilişsel
+- Pronunciation: `KOG-nuh-tihv` *(English respelling)*
 
 - Base Form (Positive): cognitive `/ˈkɒɡ.nə.tɪv/` – bilişsel *(Yalın Hali)*  
 - Comparative Form: more cognitive (than) `/mɔːr ˈkɒɡ.nə.tɪv/` – daha bilişsel *(Karşılaştırma Hali)*  
@@ -665,6 +712,7 @@
 ---
 
 ### Adjective 248: Coherent `/kəʊˈhɪə.rənt/` \- Tutarlı / Bağlantılı
+- Pronunciation: `koh-HEER-ruhnt` *(English respelling)*
 
 - Base Form (Positive): coherent `/kəʊˈhɪə.rənt/` – tutarlı *(Yalın Hali)*  
 - Comparative Form: more coherent (than) `/mɔːr kəʊˈhɪə.rənt/` – daha tutarlı *(Karşılaştırma Hali)*  
@@ -679,6 +727,7 @@
 ---
 
 ### Adjective 249: Collective `/kəˈlek.tɪv/` \- Kolektif / Ortak
+- Pronunciation: `kuh-LEK-tihv` *(English respelling)*
 
 - Base Form (Positive): collective `/kəˈlek.tɪv/` – ortak / kolektif *(Yalın Hali)*  
 - Comparative Form: more collective (than) `/mɔːr kəˈlek.tɪv/` – daha ortak *(Karşılaştırma Hali)*  
@@ -693,6 +742,7 @@
 ---
 
 ### Adjective 250: Compatible `/kəmˈpæt.ə.bəl/` \- Uyumlu
+- Pronunciation: `kuhm-PAT-uh-buhl` *(English respelling)*
 
 - Base Form (Positive): compatible `/kəmˈpæt.ə.bəl/` – uyumlu *(Yalın Hali)*  
 - Comparative Form: more compatible (than) `/mɔːr kəmˈpæt.ə.bəl/` – daha uyumlu *(Karşılaştırma Hali)*  
@@ -707,6 +757,7 @@
 ---
 
 ### Adjective 251: Competitive `/kəmˈpet.ɪ.tɪv/` \- Rekabetçi
+- Pronunciation: `kuhm-PET-ih-tihv` *(English respelling)*
 
 - Base Form (Positive): competitive `/kəmˈpet.ɪ.tɪv/` – rekabetçi *(Yalın Hali)*  
 - Comparative Form: more competitive (than) `/mɔːr kəmˈpet.ɪ.tɪv/` – daha rekabetçi *(Karşılaştırma Hali)*  
@@ -721,6 +772,7 @@
 ---
 
 ### Adjective 252: Comprehensive `/ˌkɒm.prɪˈhen.sɪv/` \- Kapsamlı / Detaylı
+- Pronunciation: `kom-prih-HEN-sihv` *(English respelling)*
 
 - Base Form (Positive): comprehensive `/ˌkɒm.prɪˈhen.sɪv/` – kapsamlı *(Yalın Hali)*  
 - Comparative Form: more comprehensive (than) `/mɔːr ˌkɒm.prɪˈhen.sɪv/` – daha kapsamlı *(Karşılaştırma Hali)*  
@@ -735,6 +787,7 @@
 ---
 
 ### Adjective 253: Concrete `/ˈkɒŋ.kriːt/` \- Somut / Kesin
+- Pronunciation: `KONG-kreet` *(English respelling)*
 
 - Base Form (Positive): concrete `/ˈkɒŋ.kriːt/` – somut *(Yalın Hali)*  
 - Comparative Form: more concrete (than) `/mɔːr ˈkɒŋ.kriːt/` – daha somut *(Karşılaştırma Hali)*  
@@ -749,6 +802,7 @@
 ---
 
 ### Adjective 254: Confidential `/ˌkɒn.fɪˈden.ʃəl/` \- Gizli / Mahrem
+- Pronunciation: `kon-fih-DEN-shuhl` *(English respelling)*
 
 - Base Form (Positive): confidential `/ˌkɒn.fɪˈden.ʃəl/` – gizli *(Yalın Hali)*  
 - Comparative Form: more confidential (than) `/mɔːr ˌkɒn.fɪˈden.ʃəl/` – daha gizli *(Karşılaştırma Hali)*  
@@ -763,6 +817,7 @@
 ---
 
 ### Adjective 255: Conscious `/ˈkɒn.ʃəs/` \- Bilinçli / Farkında
+- Pronunciation: `KON-shuhs` *(English respelling)*
 
 - Base Form (Positive): conscious `/ˈkɒn.ʃəs/` – bilinçli *(Yalın Hali)*  
 - Comparative Form: more conscious (than) `/mɔːr ˈkɒn.ʃəs/` – daha bilinçli *(Karşılaştırma Hali)*  
@@ -777,6 +832,7 @@
 ---
 
 ### Adjective 256: Consecutive `/kənˈsek.jə.tɪv/` \- Ardışık / Peş peşe
+- Pronunciation: `kuhn-SEK-yuh-tihv` *(English respelling)*
 
 - Base Form (Positive): consecutive `/kənˈsek.jə.tɪv/` – ardışık *(Yalın Hali)*  
 - Comparative Form: more consecutive (than) `/mɔːr kənˈsek.jə.tɪv/` – daha ardışık *(Karşılaştırma Hali)*  
@@ -791,6 +847,7 @@
 ---
 
 ### Adjective 257: Consistent `/kənˈsɪs.tənt/` \- Tutarlı / İstikrarlı
+- Pronunciation: `kuhn-SIHS-tuhnt` *(English respelling)*
 
 - Base Form (Positive): consistent `/kənˈsɪs.tənt/` – tutarlı *(Yalın Hali)*  
 - Comparative Form: more consistent (than) `/mɔːr kənˈsɪs.tənt/` – daha tutarlı *(Karşılaştırma Hali)*  
@@ -805,6 +862,7 @@
 ---
 
 ### Adjective 258: Conspicuous `/kənˈspɪk.ju.əs/` \- Belirgin / Göze çarpan
+- Pronunciation: `kuhn-SPIHK-yoo-uhs` *(English respelling)*
 
 - Base Form (Positive): conspicuous `/kənˈspɪk.ju.əs/` – göze çarpan *(Yalın Hali)*  
 - Comparative Form: more conspicuous (than) `/mɔːr kənˈspɪk.ju.əs/` – daha göze çarpan *(Karşılaştırma Hali)*  
@@ -819,6 +877,7 @@
 ---
 
 ### Adjective 259: Constructive `/kənˈstrʌk.tɪv/` \- Yapıcı
+- Pronunciation: `kuhn-STRUHK-tihv` *(English respelling)*
 
 - Base Form (Positive): constructive `/kənˈstrʌk.tɪv/` – yapıcı *(Yalın Hali)*  
 - Comparative Form: more constructive (than) `/mɔːr kənˈstrʌk.tɪv/` – daha yapıcı *(Karşılaştırma Hali)*  
@@ -833,6 +892,7 @@
 ---
 
 ### Adjective 260: Contemporary `/kənˈtem.pər.ər.i/` \- Çağdaş / Güncel
+- Pronunciation: `kuhn-TEM-puhr-uhr-ee` *(English respelling)*
 
 - Base Form (Positive): contemporary `/kənˈtem.pər.ər.i/` – çağdaş *(Yalın Hali)*  
 - Comparative Form: more contemporary (than) `/mɔːr kənˈtem.pər.ər.i/` – daha çağdaş *(Karşılaştırma Hali)*  
@@ -847,6 +907,7 @@
 ---
 
 ### Adjective 261: Continuous `/kənˈtɪn.ju.əs/` \- Sürekli / Kesintisiz
+- Pronunciation: `kuhn-TIHN-yoo-uhs` *(English respelling)*
 
 - Base Form (Positive): continuous `/kənˈtɪn.ju.əs/` – kesintisiz *(Yalın Hali)*  
 - Comparative Form: more continuous (than) `/mɔːr kənˈtɪn.ju.əs/` – daha kesintisiz *(Karşılaştırma Hali)*  
@@ -861,6 +922,7 @@
 ---
 
 ### Adjective 262: Conventional `/kənˈven.ʃən.əl/` \- Geleneksel / Alışılagelmiş
+- Pronunciation: `kuhn-VEN-shuhn-uhl` *(English respelling)*
 
 - Base Form (Positive): conventional `/kənˈven.ʃən.əl/` – geleneksel *(Yalın Hali)*  
 - Comparative Form: more conventional (than) `/mɔːr kənˈven.ʃən.əl/` – daha geleneksel *(Karşılaştırma Hali)*  
@@ -875,6 +937,7 @@
 ---
 
 ### Adjective 263: Corporate `/ˈkɔː.pər.ət/` \- Kurumsal
+- Pronunciation: `KAW-puhr-uht` *(English respelling)*
 
 - Base Form (Positive): corporate `/ˈkɔː.pər.ət/` – kurumsal *(Yalın Hali)*  
 - Comparative Form: more corporate (than) `/mɔːr ˈkɔː.pər.ət/` – daha kurumsal *(Karşılaştırma Hali)*  
@@ -889,6 +952,7 @@
 ---
 
 ### Adjective 264: Costly `/ˈkɒst.li/` \- Maliyetli / Pahalı
+- Pronunciation: `KOST-lee` *(English respelling)*
 
 - Base Form (Positive): costly `/ˈkɒst.li/` – maliyetli *(Yalın Hali)*  
 - Comparative Form: costlier (than) `/ˈkɒst.li.ər/` – daha maliyetli *(Karşılaştırma Hali)*  
@@ -903,6 +967,7 @@
 ---
 
 ### Adjective 265: Creative `/kriˈeɪ.tɪv/` \- Yaratıcı
+- Pronunciation: `kree-AY-tihv` *(English respelling)*
 
 - Base Form (Positive): creative `/kriˈeɪ.tɪv/` – yaratıcı *(Yalın Hali)*  
 - Comparative Form: more creative (than) `/mɔːr kriˈeɪ.tɪv/` – daha yaratıcı *(Karşılaştırma Hali)*  
@@ -917,6 +982,7 @@
 ---
 
 ### Adjective 266: Criminal `/ˈkrɪm.ɪ.nəl/` \- Suç Teşkil Eden / Cezai
+- Pronunciation: `KRIHM-ih-nuhl` *(English respelling)*
 
 - Base Form (Positive): criminal `/ˈkrɪm.ɪ.nəl/` – suç teşkil eden *(Yalın Hali)*  
 - Comparative Form: more criminal (than) `/mɔːr ˈkrɪm.ɪ.nəl/` – daha cezai *(Karşılaştırma Hali)*  
@@ -931,6 +997,7 @@
 ---
 
 ### Adjective 267: Crowded `/ˈkraʊ.dɪd/` \- Kalabalık
+- Pronunciation: `KROW-dihd` *(English respelling)*
 
 - Base Form (Positive): crowded `/ˈkraʊ.dɪd/` – kalabalık *(Yalın Hali)*  
 - Comparative Form: more crowded (than) `/mɔːr ˈkraʊ.dɪd/` – daha kalabalık *(Karşılaştırma Hali)*  
@@ -945,6 +1012,7 @@
 ---
 
 ### Adjective 268: Crude `/kruːd/` \- Ham / İşlenmemiş
+- Pronunciation: `krood` *(English respelling)*
 
 - Base Form (Positive): crude `/kruːd/` – ham *(Yalın Hali)*  
 - Comparative Form: cruder (than) `/ˈkruː.dər/` – daha ham *(Karşılaştırma Hali)*  
@@ -959,6 +1027,7 @@
 ---
 
 ### Adjective 269: Cultural `/ˈkʌl.tʃər.əl/` \- Kültürel
+- Pronunciation: `KUHL-chuhr-uhl` *(English respelling)*
 
 - Base Form (Positive): cultural `/ˈkʌl.tʃər.əl/` – kültürel *(Yalın Hali)*  
 - Comparative Form: more cultural (than) `/mɔːr ˈkʌl.tʃər.əl/` – daha kültürel *(Karşılaştırma Hali)*  
@@ -973,6 +1042,7 @@
 ---
 
 ### Adjective 270: Cumulative `/ˈkjuː.mjə.lə.tɪv/` \- Kümülatif / Birikimli
+- Pronunciation: `KYOO-myuh-luh-tihv` *(English respelling)*
 
 - Base Form (Positive): cumulative `/ˈkjuː.mjə.lə.tɪv/` – kümülatif *(Yalın Hali)*  
 - Comparative Form: more cumulative (than) `/mɔːr ˈkjuː.mjə.lə.tɪv/` – daha kümülatif *(Karşılaştırma Hali)*  
@@ -987,6 +1057,7 @@
 ---
 
 ### Adjective 271: Custom `/ˈkʌs.təm/` \- Özel / Özelleştirilmiş
+- Pronunciation: `KUHS-tuhm` *(English respelling)*
 
 - Base Form (Positive): custom `/ˈkʌs.təm/` – özel *(Yalın Hali)*  
 - Comparative Form: more custom (than) `/mɔːr ˈkʌs.təm/` – daha özel *(Karşılaştırma Hali)*  
@@ -1001,6 +1072,7 @@
 ---
 
 ### Adjective 272: Cute `/kjuːt/` \- Sevimli / Tatlı
+- Pronunciation: `kyoot` *(English respelling)*
 
 - Base Form (Positive): cute `/kjuːt/` – sevimli *(Yalın Hali)*  
 - Comparative Form: cuter (than) `/ˈkjuː.tər/` – daha sevimli *(Karşılaştırma Hali)*  
@@ -1015,6 +1087,7 @@
 ---
 
 ### Adjective 273: Damp `/dæmp/` \- Nemli / Rutubetli
+- Pronunciation: `damp` *(English respelling)*
 
 - Base Form (Positive): damp `/dæmp/` – nemli *(Yalın Hali)*  
 - Comparative Form: damper (than) `/ˈdæm.pər/` – daha nemli *(Karşılaştırma Hali)*  
@@ -1029,6 +1102,7 @@
 ---
 
 ### Adjective 274: Daring `/ˈdeə.rɪŋ/` \- Cesur / Cüretkâr
+- Pronunciation: `DAIR-rihng` *(English respelling)*
 
 - Base Form (Positive): daring `/ˈdeə.rɪŋ/` – cüretkâr *(Yalın Hali)*  
 - Comparative Form: more daring (than) `/mɔːr ˈdeə.rɪŋ/` – daha cüretkâr *(Karşılaştırma Hali)*  
@@ -1043,6 +1117,7 @@
 ---
 
 ### Adjective 275: Deaf `/def/` \- İşitme Engelli / Sağır
+- Pronunciation: `def` *(English respelling)*
 
 - Base Form (Positive): deaf `/def/` – işitme engelli *(Yalın Hali)*  
 - Comparative Form: deafer (than) `/ˈdef.ər/` – daha sağır *(Karşılaştırma Hali)*  
@@ -1057,6 +1132,7 @@
 ---
 
 ### Adjective 276: Decent `/ˈdiː.sənt/` \- Düzgün / Saygın / Yeterli
+- Pronunciation: `DEE-suhnt` *(English respelling)*
 
 - Base Form (Positive): decent `/ˈdiː.sənt/` – düzgün *(Yalın Hali)*  
 - Comparative Form: more decent (than) `/mɔːr ˈdiː.sənt/` – daha düzgün *(Karşılaştırma Hali)*  
@@ -1071,6 +1147,7 @@
 ---
 
 ### Adjective 277: Declarative `/dɪˈklær.ə.tɪv/` \- Bildirimsel
+- Pronunciation: `dih-KLAR-uh-tihv` *(English respelling)*
 
 - Base Form (Positive): declarative `/dɪˈklær.ə.tɪv/` – bildirimsel *(Yalın Hali)*  
 - Comparative Form: more declarative (than) `/mɔːr dɪˈklær.ə.tɪv/` – daha bildirimsel *(Karşılaştırma Hali)*  
@@ -1085,6 +1162,7 @@
 ---
 
 ### Adjective 278: Dedicated `/ˈded.ɪ.keɪ.tɪd/` \- Özel / Tahsis Edilmiş
+- Pronunciation: `DED-ih-kay-tihd` *(English respelling)*
 
 - Base Form (Positive): dedicated `/ˈded.ɪ.keɪ.tɪd/` – özel / tahsis edilmiş *(Yalın Hali)*  
 - Comparative Form: more dedicated (than) `/mɔːr ˈded.ɪ.keɪ.tɪd/` – daha tahsis edilmiş *(Karşılaştırma Hali)*  
@@ -1099,6 +1177,7 @@
 ---
 
 ### Adjective 279: Defective `/dɪˈfek.tɪv/` \- Kusurlu / Bozuk
+- Pronunciation: `dih-FEK-tihv` *(English respelling)*
 
 - Base Form (Positive): defective `/dɪˈfek.tɪv/` – kusurlu *(Yalın Hali)*  
 - Comparative Form: more defective (than) `/mɔːr dɪˈfek.tɪv/` – daha kusurlu *(Karşılaştırma Hali)*  
@@ -1113,6 +1192,7 @@
 ---
 
 ### Adjective 280: Defensive `/dɪˈfen.sɪv/` \- Savunmacı / Güvenlik Odaklı
+- Pronunciation: `dih-FEN-sihv` *(English respelling)*
 
 - Base Form (Positive): defensive `/dɪˈfen.sɪv/` – savunmacı *(Yalın Hali)*  
 - Comparative Form: more defensive (than) `/mɔːr dɪˈfen.sɪv/` – daha savunmacı *(Karşılaştırma Hali)*  
@@ -1127,6 +1207,7 @@
 ---
 
 ### Adjective 281: Delicate `/ˈdel.ɪ.kət/` \- Hassas / Narin
+- Pronunciation: `DEL-ih-kuht` *(English respelling)*
 
 - Base Form (Positive): delicate `/ˈdel.ɪ.kət/` – hassas *(Yalın Hali)*  
 - Comparative Form: more delicate (than) `/mɔːr ˈdel.ɪ.kət/` – daha hassas *(Karşılaştırma Hali)*  
@@ -1141,6 +1222,7 @@
 ---
 
 ### Adjective 282: Democratic `/ˌdem.əˈkræt.ɪk/` \- Demokratik / Katılımcı
+- Pronunciation: `dem-uh-KRAT-ihk` *(English respelling)*
 
 - Base Form (Positive): democratic `/ˌdem.əˈkræt.ɪk/` – demokratik *(Yalın Hali)*  
 - Comparative Form: more democratic (than) `/mɔːr ˌdem.əˈkræt.ɪk/` – daha demokratik *(Karşılaştırma Hali)*  
@@ -1155,6 +1237,7 @@
 ---
 
 ### Adjective 283: Dense `/dens/` \- Yoğun / Sık
+- Pronunciation: `dens` *(English respelling)*
 
 - Base Form (Positive): dense `/dens/` – yoğun *(Yalın Hali)*  
 - Comparative Form: denser (than) `/ˈden.sər/` – daha yoğun *(Karşılaştırma Hali)*  
@@ -1169,6 +1252,7 @@
 ---
 
 ### Adjective 284: Desirable `/dɪˈzaɪə.rə.bəl/` \- Arzu Edilen / İstenen
+- Pronunciation: `dih-ZYUH-ruh-buhl` *(English respelling)*
 
 - Base Form (Positive): desirable `/dɪˈzaɪə.rə.bəl/` – arzu edilen *(Yalın Hali)*  
 - Comparative Form: more desirable (than) `/mɔːr dɪˈzaɪə.rə.bəl/` – daha arzu edilen *(Karşılaştırma Hali)*  
@@ -1183,6 +1267,7 @@
 ---
 
 ### Adjective 285: Destructive `/dɪˈstrʌk.tɪv/` \- Yıkıcı / Zararlı
+- Pronunciation: `dih-STRUHK-tihv` *(English respelling)*
 
 - Base Form (Positive): destructive `/dɪˈstrʌk.tɪv/` – yıkıcı *(Yalın Hali)*  
 - Comparative Form: more destructive (than) `/mɔːr dɪˈstrʌk.tɪv/` – daha yıkıcı *(Karşılaştırma Hali)*  
@@ -1197,6 +1282,7 @@
 ---
 
 ### Adjective 286: Deterministic `/dɪˌtɜː.mɪˈnɪs.tɪk/` \- Belirlenimci / Öngörülebilir
+- Pronunciation: `dih-tur-mih-NIHS-tihk` *(English respelling)*
 
 - Base Form (Positive): deterministic `/dɪˌtɜː.mɪˈnɪs.tɪk/` – belirlenimci *(Yalın Hali)*  
 - Comparative Form: more deterministic (than) `/mɔːr dɪˌtɜː.mɪˈnɪs.tɪk/` – daha belirlenimci *(Karşılaştırma Hali)*  
@@ -1211,6 +1297,7 @@
 ---
 
 ### Adjective 287: Digital `/ˈdɪdʒ.ɪ.təl/` \- Dijital
+- Pronunciation: `DIHJ-ih-tuhl` *(English respelling)*
 
 - Base Form (Positive): digital `/ˈdɪdʒ.ɪ.təl/` – dijital *(Yalın Hali)*  
 - Comparative Form: more digital (than) `/mɔːr ˈdɪdʒ.ɪ.təl/` – daha dijital *(Karşılaştırma Hali)*  
@@ -1225,6 +1312,7 @@
 ---
 
 ### Adjective 288: Diplomatic `/ˌdɪp.ləˈmæt.ɪk/` \- Diplomatik / Nezaketli
+- Pronunciation: `dihp-luh-MAT-ihk` *(English respelling)*
 
 - Base Form (Positive): diplomatic `/ˌdɪp.ləˈmæt.ɪk/` – diplomatik *(Yalın Hali)*  
 - Comparative Form: more diplomatic (than) `/mɔːr ˌdɪp.ləˈmæt.ɪk/` – daha diplomatik *(Karşılaştırma Hali)*  
@@ -1239,6 +1327,7 @@
 ---
 
 ### Adjective 289: Discrete `/dɪˈskriːt/` \- Ayrık / Bağımsız
+- Pronunciation: `dih-SKREET` *(English respelling)*
 
 - Base Form (Positive): discrete `/dɪˈskriːt/` – ayrık *(Yalın Hali)*  
 - Comparative Form: more discrete (than) `/mɔːr dɪˈskriːt/` – daha ayrık *(Karşılaştırma Hali)*  
@@ -1253,6 +1342,7 @@
 ---
 
 ### Adjective 290: Diverse `/daɪˈvɜːs/` \- Çeşitli / Farklı
+- Pronunciation: `dy-VURS` *(English respelling)*
 
 - Base Form (Positive): diverse `/daɪˈvɜːs/` – çeşitli *(Yalın Hali)*  
 - Comparative Form: more diverse (than) `/mɔːr daɪˈvɜːs/` – daha çeşitli *(Karşılaştırma Hali)*  
@@ -1267,6 +1357,7 @@
 ---
 
 ### Adjective 291: Domestic `/dəˈmes.tɪk/` \- Yerli / Ülke İçi
+- Pronunciation: `duh-MES-tihk` *(English respelling)*
 
 - Base Form (Positive): domestic `/dəˈmes.tɪk/` – yerli / ülke içi *(Yalın Hali)*  
 - Comparative Form: more domestic (than) `/mɔːr dəˈmes.tɪk/` – daha yerli *(Karşılaştırma Hali)*  
@@ -1281,6 +1372,7 @@
 ---
 
 ### Adjective 292: Dominant `/ˈdɒm.ɪ.nənt/` \- Baskın / Egemen
+- Pronunciation: `DOM-ih-nuhnt` *(English respelling)*
 
 - Base Form (Positive): dominant `/ˈdɒm.ɪ.nənt/` – baskın *(Yalın Hali)*  
 - Comparative Form: more dominant (than) `/mɔːr ˈdɒm.ɪ.nənt/` – daha baskın *(Karşılaştırma Hali)*  
@@ -1295,6 +1387,7 @@
 ---
 
 ### Adjective 293: Dramatic `/drəˈmæt.ɪk/` \- Çarpıcı / Dramatik
+- Pronunciation: `druh-MAT-ihk` *(English respelling)*
 
 - Base Form (Positive): dramatic `/drəˈmæt.ɪk/` – çarpıcı *(Yalın Hali)*  
 - Comparative Form: more dramatic (than) `/mɔːr drəˈmæt.ɪk/` – daha çarpıcı *(Karşılaştırma Hali)*  
@@ -1309,6 +1402,7 @@
 ---
 
 ### Adjective 294: Dual `/ˈdʒuː.əl/` \- Çift / İkili
+- Pronunciation: `JOO-uhl` *(English respelling)*
 
 - Base Form (Positive): dual `/ˈdʒuː.əl/` – ikili / çift *(Yalın Hali)*  
 - Comparative Form: more dual (than) `/mɔːr ˈdʒuː.əl/` – daha çift *(Karşılaştırma Hali)*  
@@ -1323,6 +1417,7 @@
 ---
 
 ### Adjective 295: Durable `/ˈdʒʊə.rə.bəl/` \- Dayanıklı / Kalıcı
+- Pronunciation: `JOOR-ruh-buhl` *(English respelling)*
 
 - Base Form (Positive): durable `/ˈdʒʊə.rə.bəl/` – dayanıklı *(Yalın Hali)*  
 - Comparative Form: more durable (than) `/mɔːr ˈdʒʊə.rə.bəl/` – daha dayanıklı *(Karşılaştırma Hali)*  
@@ -1337,6 +1432,7 @@
 ---
 
 ### Adjective 296: Dynamic `/daɪˈnæm.ɪk/` \- Dinamik / Değişken
+- Pronunciation: `dy-NAM-ihk` *(English respelling)*
 
 - Base Form (Positive): dynamic `/daɪˈnæm.ɪk/` – dinamik *(Yalın Hali)*  
 - Comparative Form: more dynamic (than) `/mɔːr daɪˈnæm.ɪk/` – daha dinamik *(Karşılaştırma Hali)*  
@@ -1351,6 +1447,7 @@
 ---
 
 ### Adjective 297: Economic `/ˌiː.kəˈnɒm.ɪk/` \- İktisadi / Ekonomik
+- Pronunciation: `ee-kuh-NOM-ihk` *(English respelling)*
 
 - Base Form (Positive): economic `/ˌiː.kəˈnɒm.ɪk/` – ekonomik / iktisadi *(Yalın Hali)*  
 - Comparative Form: more economic (than) `/mɔːr ˌiː.kəˈnɒm.ɪk/` – daha ekonomik *(Karşılaştırma Hali)*  
@@ -1365,6 +1462,7 @@
 ---
 
 ### Adjective 298: Empirical `/ɪmˈpɪr.ɪ.kəl/` \- Ampirik / Deneye Dayalı
+- Pronunciation: `ihm-PIHR-ih-kuhl` *(English respelling)*
 
 - Base Form (Positive): empirical `/ɪmˈpɪr.ɪ.kəl/` – ampirik *(Yalın Hali)*  
 - Comparative Form: more empirical (than) `/mɔːr ɪmˈpɪr.ɪ.kəl/` – daha ampirik *(Karşılaştırma Hali)*  
@@ -1379,6 +1477,7 @@
 ---
 
 ### Adjective 299: Endless `/ˈend.ləs/` \- Sonsuz / Bitmek Bilmeyen
+- Pronunciation: `END-luhs` *(English respelling)*
 
 - Base Form (Positive): endless `/ˈend.ləs/` – sonsuz *(Yalın Hali)*  
 - Comparative Form: more endless (than) `/mɔːr ˈend.ləs/` – daha sonsuz *(Karşılaştırma Hali)*  
@@ -1393,6 +1492,7 @@
 ---
 
 ### Adjective 300: Energetic `/ˌen.əˈdʒet.ɪk/` \- Enerjik / Canlı
+- Pronunciation: `en-uh-JET-ihk` *(English respelling)*
 
 - Base Form (Positive): energetic `/ˌen.əˈdʒet.ɪk/` – enerjik *(Yalın Hali)*  
 - Comparative Form: more energetic (than) `/mɔːr ˌen.əˈdʒet.ɪk/` – daha enerjik *(Karşılaştırma Hali)*  

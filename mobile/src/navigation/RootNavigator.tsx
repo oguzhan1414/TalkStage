@@ -3,24 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { useOnboarding } from '../context/OnboardingContext';
 import { useDeepLinking } from '../hooks/useDeepLinking';
-import { AccountSettingsScreen } from '../screens/AccountSettingsScreen';
-import { BadgesScreen } from '../screens/BadgesScreen';
-import { FreeChatRoomScreen } from '../screens/FreeChatRoomScreen';
-import { GrammarLessonScreen } from '../screens/GrammarLessonScreen';
-import { LiveConversationRoomScreen } from '../screens/LiveConversationRoomScreen';
-import { MispronouncedWordsScreen } from '../screens/MispronouncedWordsScreen';
-import { MivoMemoryScreen } from '../screens/MivoMemoryScreen';
-import { MistakesNotebookScreen } from '../screens/MistakesNotebookScreen';
 import { PaywallScreen } from '../screens/PaywallScreen';
 import { ProfileLoadErrorScreen } from '../screens/ProfileLoadErrorScreen';
-import { PodcastListScreen } from '../screens/PodcastListScreen';
-import { PodcastPlayerScreen } from '../screens/PodcastPlayerScreen';
-import { ReadingListScreen } from '../screens/ReadingListScreen';
-import { ReadingPassageScreen } from '../screens/ReadingPassageScreen';
-import { ScorecardScreen } from '../screens/ScorecardScreen';
-import { TextChatScreen } from '../screens/TextChatScreen';
-import { VocabDecksScreen } from '../screens/VocabDecksScreen';
-import { VocabLibraryScreen } from '../screens/VocabLibraryScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
@@ -60,32 +44,29 @@ export function RootNavigator() {
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen
             name="LiveConversationRoom"
-            component={LiveConversationRoomScreen}
+            getComponent={() => require('../screens/LiveConversationRoomScreen').LiveConversationRoomScreen}
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen
             name="FreeChatRoom"
-            component={FreeChatRoomScreen}
+            getComponent={() => require('../screens/FreeChatRoomScreen').FreeChatRoomScreen}
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
-          <Stack.Screen name="Scorecard" component={ScorecardScreen} />
-          <Stack.Screen name="PodcastList" component={PodcastListScreen} />
-          <Stack.Screen name="PodcastPlayer" component={PodcastPlayerScreen} />
-          <Stack.Screen name="ReadingList" component={ReadingListScreen} />
-          <Stack.Screen name="ReadingPassage" component={ReadingPassageScreen} />
-          <Stack.Screen name="Badges" component={BadgesScreen} />
-          <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
-          <Stack.Screen name="GrammarLesson" component={GrammarLessonScreen} />
-          <Stack.Screen name="MistakesNotebook" component={MistakesNotebookScreen} />
-          <Stack.Screen name="MivoMemory" component={MivoMemoryScreen} />
-          <Stack.Screen name="VocabLibrary" component={VocabLibraryScreen} />
-          <Stack.Screen name="VocabDecks" component={VocabDecksScreen} />
-          <Stack.Screen name="MispronouncedWords" component={MispronouncedWordsScreen} />
-          <Stack.Screen
-            name="TextChat"
-            component={TextChatScreen}
-            options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
-          />
+          {/* Secondary screens are required lazily (`getComponent`): their modules — and big data files like the vocab library
+              or grammar lessons — are only evaluated when first opened, which keeps app start fast. */}
+          <Stack.Screen name="Scorecard" getComponent={() => require('../screens/ScorecardScreen').ScorecardScreen} />
+          <Stack.Screen name="PodcastList" getComponent={() => require('../screens/PodcastListScreen').PodcastListScreen} />
+          <Stack.Screen name="PodcastPlayer" getComponent={() => require('../screens/PodcastPlayerScreen').PodcastPlayerScreen} />
+          <Stack.Screen name="ReadingList" getComponent={() => require('../screens/ReadingListScreen').ReadingListScreen} />
+          <Stack.Screen name="ReadingPassage" getComponent={() => require('../screens/ReadingPassageScreen').ReadingPassageScreen} />
+          <Stack.Screen name="Badges" getComponent={() => require('../screens/BadgesScreen').BadgesScreen} />
+          <Stack.Screen name="AccountSettings" getComponent={() => require('../screens/AccountSettingsScreen').AccountSettingsScreen} />
+          <Stack.Screen name="GrammarLesson" getComponent={() => require('../screens/GrammarLessonScreen').GrammarLessonScreen} />
+          <Stack.Screen name="MistakesNotebook" getComponent={() => require('../screens/MistakesNotebookScreen').MistakesNotebookScreen} />
+          <Stack.Screen name="MivoMemory" getComponent={() => require('../screens/MivoMemoryScreen').MivoMemoryScreen} />
+          <Stack.Screen name="VocabLibrary" getComponent={() => require('../screens/VocabLibraryScreen').VocabLibraryScreen} />
+          <Stack.Screen name="VocabDecks" getComponent={() => require('../screens/VocabDecksScreen').VocabDecksScreen} />
+          <Stack.Screen name="MispronouncedWords" getComponent={() => require('../screens/MispronouncedWordsScreen').MispronouncedWordsScreen} />
           <Stack.Screen
             name="Paywall"
             component={PaywallScreen}

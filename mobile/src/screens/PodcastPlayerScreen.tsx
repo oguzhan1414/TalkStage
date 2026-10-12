@@ -22,6 +22,7 @@ import { Toast } from '../components/Toast';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PODCAST_EPISODES, type PodcastEpisode } from '../data/podcastData';
 import { api, ApiError } from '../lib/api';
+import { postQueued } from '../lib/outbox';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -197,8 +198,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
   const logPracticeOnce = () => {
     if (practiceLoggedRef.current) return;
     practiceLoggedRef.current = true;
-    api
-      .post('/progress/log-practice')
+    postQueued('/progress/log-practice')
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['me'] });
         queryClient.invalidateQueries({ queryKey: ['progress'] });

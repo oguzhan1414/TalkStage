@@ -6,14 +6,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
-import { ALL_SPEAKING_TOPIC_CODES, ALL_TOPIC_CODES, CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
+import { ALL_TOPIC_CODES, CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
 import { avatarImages, cefrLevelImages, stateImages } from '../assets/images';
 import { Button } from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { PODCAST_EPISODES } from '../data/podcastData';
 import { useDailyReminder } from '../hooks/useDailyReminder';
+import { TIME_PRESETS } from '../lib/notifications';
 import { api } from '../lib/api';
-import { buildTaskQueueForLevel, isTopicFullyDone } from '../lib/curriculumTasks';
+import { buildTaskQueueForLevel, isCoreTask, isTopicCoreDone, reviewIdsForTopics } from '../lib/curriculumTasks';
 import { isProUser } from '../lib/revenuecat';
 import type { AccountSettingsScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
@@ -139,7 +140,11 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      AsyncStorage.multiGet(ALL_SPEAKING_TOPIC_CODES.map((c) => `topic_chat_completed_${c}`)).then(
+      AsyncStorage.multiGet(
+        Object.entries(CEFR_CURRICULUM)
+          .flatMap(([, c]) => reviewIdsForTopics(c.topics))
+          .map((c) => `topic_chat_completed_${c}`)
+      ).then(
         (pairs) => {
           if (cancelled) return;
           setChatCompletedCodes(
@@ -209,6 +214,9 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
     enabled: remindersEnabled,
     toggle: toggleReminders,
     unavailable: remindersUnavailable,
+    hour: reminderHour,
+    minute: reminderMinute,
+    setTime: setReminderTime,
   } = useDailyReminder(displayName);
 
   const currentLevel = profile?.cefr_level ?? 'A1';
@@ -232,7 +240,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
     readingPassagesForLevel,
     completedReadingSlugs: completedReadingSlugSetForLevel,
   });
-  const remainingTopics = activeCurriculum.topics.filter((t) => !isTopicFullyDone(taskQueue, t.code));
+  const remainingTopics = activeCurriculum.topics.filter((t) => !isTopicCoreDone(taskQueue, t.code));
   const completedTopicsCount = activeCurriculum.topics.length - remainingTopics.length;
   const levelCompletionPercent = activeCurriculum.topics.length
     ? Math.round((completedTopicsCount / activeCurriculum.topics.length) * 100)
@@ -330,7 +338,11 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
             <Ionicons name="notifications-outline" size={20} color={colors.brand} />
             <View style={styles.settingTextCol}>
               <Text style={styles.settingLabel}>{t("Günlük Hatırlatıcı")}</Text>
-              <Text style={styles.settingDesc}>{t("Sabah kahvesinde 5 dk pratik bildirimi")}</Text>
+              <Text style={styles.settingDesc}>
+                {remindersUnavailable
+                  ? t("Bu sürümde kullanılamıyor (Expo Go)")
+                  : t("Bugünkü görevin ve yarınki planın için akıllı hatırlatma")}
+              </Text>
             </View>
             <Switch
               value={remindersEnabled}
@@ -339,6 +351,26 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
               trackColor={{ false: '#CBD5E1', true: colors.brand }}
             />
           </View>
+          {remindersEnabled && !remindersUnavailable ? (
+            <View style={styles.reminderTimes}>
+              {TIME_PRESETS.map((p) => {
+                const active = p.hour === reminderHour && p.minute === reminderMinute;
+                return (
+                  <Pressable
+                    key={`${p.hour}:${p.minute}`}
+                    onPress={() => void setReminderTime(p.hour, p.minute)}
+                    style={[styles.reminderChip, active && styles.reminderChipActive]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text style={[styles.reminderChipText, active && styles.reminderChipTextActive]}>
+                      {p.label} {String(p.hour).padStart(2, '0')}:{String(p.minute).padStart(2, '0')}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
 
           <View style={styles.settingDivider} />
 
@@ -680,8 +712,8 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                       <Text style={styles.remainingSectionTitle}>{t("📚 Seviyedeki Konular & Durumun ({{length}})", { length: activeCurriculum.topics.length })}</Text>
                       {activeCurriculum.topics.map((topic) => {
                         const topicTasks = taskQueue.filter((t) => t.topic.code === topic.code);
-                        const isDone = isTopicFullyDone(taskQueue, topic.code);
-                        const firstMissingTask = topicTasks.find((t) => !t.done);
+                        const isDone = isTopicCoreDone(taskQueue, topic.code);
+                        const firstMissingTask = topicTasks.find((t) => !t.done && isCoreTask(t));
                         const missingHint = !firstMissingTask
                           ? null
                           : firstMissingTask.type === 'lesson'
@@ -783,6 +815,11 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
 }
 
 const styles = StyleSheet.create({
+  reminderTimes: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 12, paddingLeft: 52 },
+  reminderChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.pill, backgroundColor: '#F1F5F9' },
+  reminderChipActive: { backgroundColor: '#EEF2FF', borderWidth: 1.5, borderColor: colors.brand },
+  reminderChipText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
+  reminderChipTextActive: { color: colors.brand },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',

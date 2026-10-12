@@ -19,20 +19,48 @@ async function authHeaders(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}`, 'X-App-Locale': getLocale() };
 }
 
+/** Normal calls give up after 20 s, uploads (audio forms) after 60 s — a dead connection must not hang a screen forever. */
+const REQUEST_TIMEOUT_MS = 20_000;
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+/** fetch with a timeout. Network failures and timeouts become `ApiError(0, …)` with a friendly message
+ * (status 0 = "never reached the server"; React Query retries it once and the outbox can park it). */
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    const aborted = error instanceof Error && error.name === 'AbortError';
+    throw new ApiError(
+      0,
+      aborted
+        ? t("Sunucu zamanında yanıt vermedi. Bağlantını kontrol edip tekrar dene.")
+        : t("Sunucuya ulaşılamıyor. İnternet bağlantını kontrol et.")
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!API_BASE_URL) {
     throw new ApiError(0, 'EXPO_PUBLIC_API_BASE_URL tanımlı değil (.env eksik)');
   }
 
   const isFormData = init.body instanceof FormData;
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      ...(await authHeaders()),
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...init.headers,
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}${path}`,
+    {
+      ...init,
+      headers: {
+        ...(await authHeaders()),
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+        ...init.headers,
+      },
     },
-  });
+    isFormData ? UPLOAD_TIMEOUT_MS : REQUEST_TIMEOUT_MS
+  );
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
@@ -58,11 +86,15 @@ export const api = {
     if (!API_BASE_URL) {
       throw new ApiError(0, 'EXPO_PUBLIC_API_BASE_URL tanımlı değil (.env eksik)');
     }
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { ...(await authHeaders()), 'Content-Type': 'application/json' },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+    const response = await fetchWithTimeout(
+      `${API_BASE_URL}${path}`,
+      {
+        method: 'POST',
+        headers: { ...(await authHeaders()), 'Content-Type': 'application/json' },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      },
+      REQUEST_TIMEOUT_MS
+    );
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
       throw new ApiError(response.status, detail || response.statusText);

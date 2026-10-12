@@ -10,11 +10,13 @@ export function resolveMediaUrl(pathOrUrl?: string): string {
     return pathOrUrl;
   }
 
-  const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  // Media (scenario videos/images) comes from the media origin (Supabase Storage / CDN) when configured,
+  // otherwise from the backend's own `/videos` mount (local development).
+  const baseUrl = process.env.EXPO_PUBLIC_MEDIA_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
   const resolvedBase =
     Platform.OS === 'android' && baseUrl.includes('localhost')
       ? baseUrl.replace('localhost', '10.0.2.2')
-      : baseUrl;
+      : baseUrl.replace(/\/$/, '');
 
   // Clean leading slashes
   const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;

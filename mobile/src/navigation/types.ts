@@ -68,7 +68,21 @@ export type RootStackParamList = {
   // card. Backed by `WS /ws/free-chat` (no `scenarios` row, see
   // `backend/app/api/routes/freechat_session.py`), so unlike
   // `LiveConversationRoom` it takes no params at all.
-  FreeChatRoom: { scene?: ScenePlayPayload; twistTitle?: string; twistEmoji?: string; twistHint?: string } | undefined;
+  FreeChatRoom:
+    | {
+        scene?: ScenePlayPayload;
+        twistTitle?: string;
+        twistEmoji?: string;
+        twistHint?: string;
+        // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
+        // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
+        // corrections and the "practice done" flag to the topic.
+        focusTopic?: { title: string; formula?: string; targetWords?: string[]; topicCode?: string };
+        // "Mivo ile Tekrar" node (every few topics on Bugün): the last topics to recall in conversation.
+        reviewId?: string;
+        reviewTopics?: { code?: string; title: string; formula?: string; targetWords?: string[] }[];
+      }
+    | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   ReadingList: undefined;
   ReadingPassage: { slug: string };
@@ -90,35 +104,6 @@ export type RootStackParamList = {
   MispronouncedWords: undefined;
   PodcastList: undefined;
   PodcastPlayer: { episodeId: string };
-  // `focusTopic` is set when opened from Bugün's "Öğrenme Yolun" chapter path
-  // (a grammar topic or the level's boss challenge) so the opening message can steer the
-  // conversation toward practicing that specific structure. `dailyTask` is a
-  // richer role/scenario/goals variant (its first user message logs
-  // `POST /progress/log-practice`, see TextChatScreen) — its only producer
-  // (the now-removed Çalışma Takvimi screen) is gone, so no caller passes it
-  // today, but TextChatScreen's handling is left in place since it's harmless
-  // and a future entry point could resurrect it cheaply. Both are omitted for
-  // the regular Home entry point, which just opens a free daily-chat session.
-  TextChat:
-    | {
-        // `topicCode` (e.g. "A1_G01") attributes any correction the model
-        // finds during this chat to a specific grammar topic when logged to
-        // `grammar_mistakes` server-side — omitted when the chat isn't tied
-        // to a specific curriculum topic (e.g. boss challenges, free chat).
-        focusTopic?: { title: string; formula?: string; targetWords?: string[]; topicCode?: string };
-        dailyTask?: {
-          id: string;
-          title: string;
-          roleName: string;
-          roleBio: string;
-          scenario: string;
-          goals: string[];
-          openingEn: string;
-          openingTr: string;
-          topicCode?: string;
-        };
-      }
-    | undefined;
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -154,7 +139,6 @@ export type VocabLibraryScreenProps = NativeStackScreenProps<RootStackParamList,
 
 export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackParamList, 'MispronouncedWords'>;
 
-export type TextChatScreenProps = NativeStackScreenProps<RootStackParamList, 'TextChat'>;
 
 export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;
 

@@ -91,9 +91,21 @@ function levelFromPcm16(buffer: ArrayBuffer): number {
  * parses server events down, and plays each `reply.sentence`'s TTS audio
  * (the binary frame that immediately follows it) in order.
  */
-export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload) {
+export type FocusTopicPayload = {
+  title: string;
+  formula?: string;
+  words?: string[];
+  code?: string;
+  /** 'review' = recall several recent topics in one conversation (`topics`). */
+  kind?: 'review';
+  topics?: { title: string; formula?: string; words?: string[] }[];
+};
+
+export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload, focus?: FocusTopicPayload) {
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
+  const focusRef = useRef(focus);
+  focusRef.current = focus;
   const { session } = useAuth();
   const accessToken = session?.access_token;
   const tokenRef = useRef(accessToken);
@@ -386,6 +398,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             type: 'auth',
             access_token: tokenRef.current,
             ...(sceneRef.current ? { scene: sceneRef.current } : {}),
+            ...(focusRef.current ? { focus: focusRef.current } : {}),
           })
         );
         // `stream` is null on web — expo-audio's useAudioStream is a no-op stub there.
@@ -630,10 +643,11 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     setVoicePrivacyAcknowledged(true);
   }, []);
 
+  // Reconnecting always starts a fresh session (the effect resets turns); the screens decide when to offer it
+  // (no turns yet, or the connection dropped / the app was backgrounded mid-conversation).
   const reconnect = useCallback(() => {
-    if (turns.some((turn) => turn.role === 'user')) return;
     setConnectionAttempt((attempt) => attempt + 1);
-  }, [turns.length]);
+  }, []);
 
   // Remembers the last text actually sent as confirm_turn, so a
   // "voice_reply_failed" error can offer "Tekrar Dene" (resend the exact
@@ -765,7 +779,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     }
   }, [confirmTranscript, redoTurn]);
 
-  const endSession = useCallback(() => {
+  const endSessionWith = useCallback((closeReason: string) => {
     if (endRequestedRef.current) return;
     endRequestedRef.current = true;
     isRecordingActiveRef.current = false;
@@ -781,7 +795,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
       // close handshake. Closing immediately can discard the queued frame on
       // slower mobile networks.
       closeTimerRef.current = setTimeout(() => {
-        socket.close(1000, 'user_ended_session');
+        socket.close(1000, closeReason);
         closeTimerRef.current = null;
       }, 300);
       return;
@@ -789,14 +803,17 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     socket?.close();
   }, []);
 
+  const endSession = useCallback(() => endSessionWith('user_ended_session'), [endSessionWith]);
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
+      // Backgrounded: close on purpose (saves cost + mic) but with its own reason so the room can offer "Tekrar Bağlan".
       if (state !== 'active' && wsRef.current?.readyState === WebSocket.OPEN) {
-        endSession();
+        endSessionWith('app_backgrounded');
       }
     });
     return () => subscription.remove();
-  }, [endSession]);
+  }, [endSessionWith]);
 
   const orbState: OrbState =
     status !== 'open'

@@ -1,7 +1,7 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import { supabase } from '../lib/supabase';
 import { Button } from './Button';
@@ -17,14 +17,34 @@ type Props = {
  * Google Sign-In via Supabase's `signInWithIdToken`. Needs
  * `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID` (see `.env.example`) plus the Google
  * provider enabled in the Supabase project — until both exist this renders
- * as a disabled button rather than crashing.
+ * as a button that only explains what is missing rather than crashing.
+ *
+ * `Google.useAuthRequest` THROWS when the client id of the CURRENT platform is missing (e.g. `webClientId` on
+ * web), so the hook lives in an inner component that is only mounted when this platform's id exists.
  */
+const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const platformClientId = Platform.select({ ios: iosClientId, android: androidClientId, default: webClientId });
+
 export function GoogleSignInButton({ onError }: Props) {
+  if (!platformClientId) {
+    return (
+      <Button
+        label={t("Google ile devam et")}
+        variant="secondary"
+        onPress={() =>
+          Alert.alert(t("Google girişi henüz yapılandırılmadı"), t("EXPO_PUBLIC_GOOGLE_*_CLIENT_ID .env değerleri eksik."))
+        }
+      />
+    );
+  }
+  return <ConfiguredGoogleButton onError={onError} />;
+}
+
+function ConfiguredGoogleButton({ onError }: Props) {
   const [loading, setLoading] = useState(false);
-  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-  const configured = Boolean(iosClientId || androidClientId || webClientId);
+  const configured = true;
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId,

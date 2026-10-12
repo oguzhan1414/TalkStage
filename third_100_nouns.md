@@ -7,6 +7,7 @@
 ---
 
 ### Noun 201: Ability `/əˈbɪl.ə.ti/` \- Yetenek / Kabiliyet (Düzensiz \-ies)
+- Pronunciation: `uh-BIHL-uh-tee` *(English respelling)*
 
 - Singular: an ability `/əˈbɪl.ə.ti/` – bir yetenek *(Singular Noun \- Tekil İsim)*  
 - Plural: abilities `/əˈbɪl.ə.tiz/` – yetenekler *(Plural Noun \- Çoğul İsim)*  
@@ -21,6 +22,7 @@
 ---
 
 ### Noun 202: Action `/ˈæk.ʃən/` \- Eylem / Hareket
+- Pronunciation: `AK-shuhn` *(English respelling)*
 
 - Singular: an action `/ˈæk.ʃən/` – bir eylem *(Singular Noun \- Tekil İsim)*  
 - Plural: actions `/ˈæk.ʃənz/` – eylemler *(Plural Noun \- Çoğul İsim)*  
@@ -35,6 +37,7 @@
 ---
 
 ### Noun 203: Activity `/ækˈtɪv.ə.ti/` \- Faaliyet / Aktivite (Düzensiz \-ies)
+- Pronunciation: `ak-TIHV-uh-tee` *(English respelling)*
 
 - Singular: an activity `/ækˈtɪv.ə.ti/` – bir aktivite *(Singular Noun \- Tekil İsim)*  
 - Plural: activities `/ækˈtɪv.ə.tiz/` – aktiviteler *(Plural Noun \- Çoğul İsim)*  
@@ -49,6 +52,7 @@
 ---
 
 ### Noun 204: Addition `/əˈdɪʃ.ən/` \- Ekleme / İlave
+- Pronunciation: `uh-DIHSH-uhn` *(English respelling)*
 
 - Singular: an addition `/əˈdɪʃ.ən/` – bir ekleme *(Singular Noun \- Tekil İsim)*  
 - Plural: additions `/əˈdɪʃ.ənz/` – eklemeler *(Plural Noun \- Çoğul İsim)*  
@@ -63,6 +67,7 @@
 ---
 
 ### Noun 205: Advantage `/ədˈvɑːn.tɪdʒ/` \- Avantaj / Üstünlük
+- Pronunciation: `uhd-VAHN-tihj` *(English respelling)*
 
 - Singular: an advantage `/ədˈvɑːn.tɪdʒ/` – bir avantaj *(Singular Noun \- Tekil İsim)*  
 - Plural: advantages `/ədˈvɑːn.tɪ.dʒɪz/` – avantajlar *(Plural Noun \- Çoğul İsim)*  
@@ -77,6 +82,7 @@
 ---
 
 ### Noun 206: Algorithm `/ˈæl.ɡə.rɪ.ðəm/` \- Algoritma
+- Pronunciation: `AL-guh-rih-thuhm` *(English respelling)*
 
 - Singular: an algorithm `/ˈæl.ɡə.rɪ.ðəm/` – bir algoritma *(Singular Noun \- Tekil İsim)*  
 - Plural: algorithms `/ˈæl.ɡə.rɪ.ðəmz/` – algoritmalar *(Plural Noun \- Çoğul İsim)*  
@@ -91,6 +97,7 @@
 ---
 
 ### Noun 207: Amount `/əˈmaʊnt/` \- Miktar / Tutar
+- Pronunciation: `uh-MOWNT` *(English respelling)*
 
 - Singular: an amount `/əˈmaʊnt/` – bir miktar *(Singular Noun \- Tekil İsim)*  
 - Plural: amounts `/əˈmaʊnts/` – miktarlar *(Plural Noun \- Çoğul İsim)*  
@@ -105,6 +112,7 @@
 ---
 
 ### Noun 208: Analysis `/əˈnæl.ə.sɪs/` \- Analiz / Çözümleme (Çoğul: analyses)
+- Pronunciation: `uh-NAL-uh-sihs` *(English respelling)*
 
 - Singular: an analysis `/əˈnæl.ə.sɪs/` – bir analiz *(Singular Noun \- Tekil İsim)*  
 - Plural: analyses `/əˈnæl.ə.siːz/` – analizler *(Plural Noun \- Çoğul İsim)*  
@@ -119,6 +127,7 @@
 ---
 
 ### Noun 209: Application `/ˌæp.lɪˈkeɪ.ʃən/` \- Uygulama / Başvuru
+- Pronunciation: `ap-lih-KAY-shuhn` *(English respelling)*
 
 - Singular: an application `/ˌæp.lɪˈkeɪ.ʃən/` – bir uygulama *(Singular Noun \- Tekil İsim)*  
 - Plural: applications `/ˌæp.lɪˈkeɪ.ʃənz/` – uygulamalar *(Plural Noun \- Çoğul İsim)*  
@@ -133,6 +142,7 @@
 ---
 
 ### Noun 210: Architecture `/ˈɑː.kɪ.tek.tʃər/` \- Mimari / Yapı (Sayılamayan)
+- Pronunciation: `AR-kih-tek-chuhr` *(English respelling)*
 
 - Singular / Base: architecture `/ˈɑː.kɪ.tek.tʃər/` – mimari *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: system architecture – sistem mimarisi *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -147,6 +157,7 @@
 ---
 
 ### Noun 211: Argument `/ˈɑːɡ.jə.mənt/` \- Argüman / Parametre / Tartışma
+- Pronunciation: `AHG-yuh-muhnt` *(English respelling)*
 
 - Singular: an argument `/ˈɑːɡ.jə.mənt/` – bir argüman *(Singular Noun \- Tekil İsim)*  
 - Plural: arguments `/ˈɑːɡ.jə.mənts/` – argümanlar *(Plural Noun \- Çoğul İsim)*  
@@ -161,6 +172,7 @@
 ---
 
 ### Noun 212: Army `/ˈɑː.mi/` \- Ordu (Düzensiz \-ies)
+- Pronunciation: `AH-mee` *(English respelling)*
 
 - Singular: an army `/ˈɑː.mi/` – bir ordu *(Singular Noun \- Tekil İsim)*  
 - Plural: armies `/ˈɑː.miz/` – ordular *(Plural Noun \- Çoğul İsim)*  
@@ -175,6 +187,7 @@
 ---
 
 ### Noun 213: Article `/ˈɑː.tɪ.kəl/` \- Makale / Yazı
+- Pronunciation: `AH-tih-kuhl` *(English respelling)*
 
 - Singular: an article `/ˈɑː.tɪ.kəl/` – bir makale *(Singular Noun \- Tekil İsim)*  
 - Plural: articles `/ˈɑː.tɪ.kəlz/` – makaleler *(Plural Noun \- Çoğul İsim)*  
@@ -189,6 +202,7 @@
 ---
 
 ### Noun 214: Association `/əˌsəʊ.siˈeɪ.ʃən/` \- Dernek / Birlik / Ortaklık
+- Pronunciation: `uh-soh-see-AY-shuhn` *(English respelling)*
 
 - Singular: an association `/əˌsəʊ.siˈeɪ.ʃən/` – bir dernek *(Singular Noun \- Tekil İsim)*  
 - Plural: associations `/əˌsəʊ.siˈeɪ.ʃənz/` – dernekler / birlikler *(Plural Noun \- Çoğul İsim)*  
@@ -203,6 +217,7 @@
 ---
 
 ### Noun 215: Attempt `/əˈtempt/` \- Girişim / Deneme
+- Pronunciation: `uh-TEMPT` *(English respelling)*
 
 - Singular: an attempt `/əˈtempt/` – bir girişim *(Singular Noun \- Tekil İsim)*  
 - Plural: attempts `/əˈtempts/` – girişimler *(Plural Noun \- Çoğul İsim)*  
@@ -217,6 +232,7 @@
 ---
 
 ### Noun 216: Attention `/əˈten.ʃən/` \- Dikkat / İlgi (Sayılamayan)
+- Pronunciation: `uh-TEN-shuhn` *(English respelling)*
 
 - Singular / Base: attention `/əˈten.ʃən/` – dikkat *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: careful attention – özenli dikkat *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -231,6 +247,7 @@
 ---
 
 ### Noun 217: Attitude `/ˈæt.ɪ.tʃuːd/` \- Tutum / Tavır
+- Pronunciation: `AT-ih-chood` *(English respelling)*
 
 - Singular: an attitude `/ˈæt.ɪ.tʃuːd/` – bir tutum *(Singular Noun \- Tekil İsim)*  
 - Plural: attitudes `/ˈæt.ɪ.tʃuːdz/` – tutumlar *(Plural Noun \- Çoğul İsim)*  
@@ -245,6 +262,7 @@
 ---
 
 ### Noun 218: Audience `/ˈɔː.di.əns/` \- Kitle / Dinleyici Topluluğu
+- Pronunciation: `AW-dee-uhns` *(English respelling)*
 
 - Singular: an audience `/ˈɔː.di.əns/` – bir kitle *(Singular Noun \- Tekil İsim)*  
 - Plural: audiences `/ˈɔː.di.ən.sɪz/` – kitleler *(Plural Noun \- Çoğul İsim)*  
@@ -259,6 +277,7 @@
 ---
 
 ### Noun 219: Author `/ˈɔː.θər/` \- Yazar / Geliştirici
+- Pronunciation: `AW-thuhr` *(English respelling)*
 
 - Singular: an author `/ˈɔː.θər/` – bir yazar *(Singular Noun \- Tekil İsim)*  
 - Plural: authors `/ˈɔː.θərz/` – yazarlar *(Plural Noun \- Çoğul İsim)*  
@@ -273,6 +292,7 @@
 ---
 
 ### Noun 220: Authority `/ɔːˈθɒr.ə.ti/` \- Yetki / Otorite (Düzensiz \-ies)
+- Pronunciation: `aw-THOR-uh-tee` *(English respelling)*
 
 - Singular: an authority `/ɔːˈθɒr.ə.ti/` – bir otorite *(Singular Noun \- Tekil İsim)*  
 - Plural: authorities `/ɔːˈθɒr.ə.tiz/` – yetkililer / otoriteler *(Plural Noun \- Çoğul İsim)*  
@@ -287,6 +307,7 @@
 ---
 
 ### Noun 221: Balance `/ˈbæl.əns/` \- Denge / Bakiye
+- Pronunciation: `BAL-uhns` *(English respelling)*
 
 - Singular: a balance `/ˈbæl.əns/` – bir bakiye / denge *(Singular Noun \- Tekil İsim)*  
 - Plural: balances `/ˈbæl.ən.sɪz/` – bakiyeler *(Plural Noun \- Çoğul İsim)*  
@@ -301,6 +322,7 @@
 ---
 
 ### Noun 222: Basis `/ˈbeɪ.sɪs/` \- Temel / Dayanak (Çoğul: bases)
+- Pronunciation: `BAY-sihs` *(English respelling)*
 
 - Singular: a basis `/ˈbeɪ.sɪs/` – bir temel *(Singular Noun \- Tekil İsim)*  
 - Plural: bases `/ˈbeɪ.siːz/` – temeller *(Plural Noun \- Çoğul İsim)*  
@@ -315,6 +337,7 @@
 ---
 
 ### Noun 223: Battle `/ˈbæt.əl/` \- Mücadele / Savaş
+- Pronunciation: `BAT-uhl` *(English respelling)*
 
 - Singular: a battle `/ˈbæt.əl/` – bir mücadele *(Singular Noun \- Tekil İsim)*  
 - Plural: battles `/ˈbæt.əlz/` – mücadeleler *(Plural Noun \- Çoğul İsim)*  
@@ -329,6 +352,7 @@
 ---
 
 ### Noun 224: Beginning `/bɪˈɡɪn.ɪŋ/` \- Başlangıç
+- Pronunciation: `bih-GIHN-ihng` *(English respelling)*
 
 - Singular: a beginning `/bɪˈɡɪn.ɪŋ/` – bir başlangıç *(Singular Noun \- Tekil İsim)*  
 - Plural: beginnings `/bɪˈɡɪn.ɪŋz/` – başlangıçlar *(Plural Noun \- Çoğul İsim)*  
@@ -343,6 +367,7 @@
 ---
 
 ### Noun 225: Behavior `/bɪˈheɪ.vjər/` \- Davranış / Tutum (Sayılamayan)
+- Pronunciation: `bih-HAY-vyuhr` *(English respelling)*
 
 - Singular / Base: behavior `/bɪˈheɪ.vjər/` – davranış *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: user behavior – kullanıcı davranışı *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -357,6 +382,7 @@
 ---
 
 ### Noun 226: Belief `/bɪˈliːf/` \- İnanç / Görüş
+- Pronunciation: `bih-LEEF` *(English respelling)*
 
 - Singular: a belief `/bɪˈliːf/` – bir inanç *(Singular Noun \- Tekil İsim)*  
 - Plural: beliefs `/bɪˈliːfs/` – inançlar / görüşler *(Plural Noun \- Çoğul İsim)*  
@@ -371,6 +397,7 @@
 ---
 
 ### Noun 227: Benefit `/ˈben.ɪ.fɪt/` \- Fayda / Yarar
+- Pronunciation: `BEN-ih-fiht` *(English respelling)*
 
 - Singular: a benefit `/ˈben.ɪ.fɪt/` – bir fayda *(Singular Noun \- Tekil İsim)*  
 - Plural: benefits `/ˈben.ɪ.fɪts/` – faydalar *(Plural Noun \- Çoğul İsim)*  
@@ -385,6 +412,7 @@
 ---
 
 ### Noun 228: Bit `/bɪt/` \- Bit / Parça
+- Pronunciation: `biht` *(English respelling)*
 
 - Singular: a bit `/bɪt/` – bir bit *(Singular Noun \- Tekil İsim)*  
 - Plural: bits `/bɪts/` – bitler *(Plural Noun \- Çoğul İsim)*  
@@ -399,6 +427,7 @@
 ---
 
 ### Noun 229: Branch `/brɑːntʃ/` \- Git Dalı / Şube (Çoğul: branches)
+- Pronunciation: `brahnch` *(English respelling)*
 
 - Singular: a branch `/brɑːntʃ/` – bir dal *(Singular Noun \- Tekil İsim)*  
 - Plural: branches `/ˈbrɑːn.tʃɪz/` – dallar *(Plural Noun \- Çoğul İsim)*  
@@ -413,6 +442,7 @@
 ---
 
 ### Noun 230: Budget `/ˈbʌdʒ.ɪt/` \- Bütçe
+- Pronunciation: `BUHJ-iht` *(English respelling)*
 
 - Singular: a budget `/ˈbʌdʒ.ɪt/` – bir bütçe *(Singular Noun \- Tekil İsim)*  
 - Plural: budgets `/ˈbʌdʒ.ɪts/` – bütçeler *(Plural Noun \- Çoğul İsim)*  
@@ -427,6 +457,7 @@
 ---
 
 ### Noun 231: Cache `/kæʃ/` \- Önbellek
+- Pronunciation: `kash` *(English respelling)*
 
 - Singular: a cache `/kæʃ/` – bir önbellek *(Singular Noun \- Tekil İsim)*  
 - Plural: caches `/ˈkæʃ.ɪz/` – önbellekler *(Plural Noun \- Çoğul İsim)*  
@@ -441,6 +472,7 @@
 ---
 
 ### Noun 232: Campaign `/kæmˈpeɪn/` \- Kampanya
+- Pronunciation: `kam-PAYN` *(English respelling)*
 
 - Singular: a campaign `/kæmˈpeɪn/` – bir kampanya *(Singular Noun \- Tekil İsim)*  
 - Plural: campaigns `/kæmˈpeɪnz/` – kampanyalar *(Plural Noun \- Çoğul İsim)*  
@@ -455,6 +487,7 @@
 ---
 
 ### Noun 233: Capacity `/kəˈpæs.ə.ti/` \- Kapasite (Düzensiz \-ies)
+- Pronunciation: `kuh-PAS-uh-tee` *(English respelling)*
 
 - Singular: a capacity `/kəˈpæs.ə.ti/` – bir kapasite *(Singular Noun \- Tekil İsim)*  
 - Plural: capacities `/kəˈpæs.ə.tiz/` – kapasiteler *(Plural Noun \- Çoğul İsim)*  
@@ -469,6 +502,7 @@
 ---
 
 ### Noun 234: Career `/kəˈrɪər/` \- Kariyer / Meslek Hayatı
+- Pronunciation: `kuh-REER` *(English respelling)*
 
 - Singular: a career `/kəˈrɪər/` – bir kariyer *(Singular Noun \- Tekil İsim)*  
 - Plural: careers `/kəˈrɪərz/` – kariyerler *(Plural Noun \- Çoğul İsim)*  
@@ -483,6 +517,7 @@
 ---
 
 ### Noun 235: Category `/ˈkæt.ə.ɡri/` \- Kategori (Düzensiz \-ies)
+- Pronunciation: `KAT-uh-gree` *(English respelling)*
 
 - Singular: a category `/ˈkæt.ə.ɡri/` – bir kategori *(Singular Noun \- Tekil İsim)*  
 - Plural: categories `/ˈkæt.ə.ɡriz/` – kategoriler *(Plural Noun \- Çoğul İsim)*  
@@ -497,6 +532,7 @@
 ---
 
 ### Noun 236: Cell `/sel/` \- Hücre / Pil Hücresi
+- Pronunciation: `sel` *(English respelling)*
 
 - Singular: a cell `/sel/` – bir hücre *(Singular Noun \- Tekil İsim)*  
 - Plural: cells `/selz/` – hücreler *(Plural Noun \- Çoğul İsim)*  
@@ -511,6 +547,7 @@
 ---
 
 ### Noun 237: Challenge `/ˈtʃæl.ɪndʒ/` \- Zorluk / Meydan Okuma
+- Pronunciation: `CHAL-ihnj` *(English respelling)*
 
 - Singular: a challenge `/ˈtʃæl.ɪndʒ/` – bir zorluk *(Singular Noun \- Tekil İsim)*  
 - Plural: challenges `/ˈtʃæl.ɪn.dʒɪz/` – zorluklar *(Plural Noun \- Çoğul İsim)*  
@@ -525,6 +562,7 @@
 ---
 
 ### Noun 238: Chapter `/ˈtʃæp.tər/` \- Bölüm / Kısım
+- Pronunciation: `CHAP-tuhr` *(English respelling)*
 
 - Singular: a chapter `/ˈtʃæp.tər/` – bir bölüm *(Singular Noun \- Tekil İsim)*  
 - Plural: chapters `/ˈtʃæp.tərz/` – bölümler *(Plural Noun \- Çoğul İsim)*  
@@ -539,6 +577,7 @@
 ---
 
 ### Noun 239: Choice `/tʃɔɪs/` \- Seçim / Tercih
+- Pronunciation: `choys` *(English respelling)*
 
 - Singular: a choice `/tʃɔɪs/` – bir seçim *(Singular Noun \- Tekil İsim)*  
 - Plural: choices `/ˈtʃɔɪ.sɪz/` – seçimler *(Plural Noun \- Çoğul İsim)*  
@@ -553,6 +592,7 @@
 ---
 
 ### Noun 240: Client `/ˈklaɪ.ənt/` \- İstemci / Müşteri
+- Pronunciation: `KLY-uhnt` *(English respelling)*
 
 - Singular: a client `/ˈklaɪ.ənt/` – bir istemci / müşteri *(Singular Noun \- Tekil İsim)*  
 - Plural: clients `/ˈklaɪ.ənts/` – istemciler *(Plural Noun \- Çoğul İsim)*  
@@ -567,6 +607,7 @@
 ---
 
 ### Noun 241: Cloud `/klaʊd/` \- Bulut Bilişim / Bulut
+- Pronunciation: `klowd` *(English respelling)*
 
 - Singular / Base: cloud `/klaʊd/` – bulut *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: cloud computing – bulut bilişim *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -581,6 +622,7 @@
 ---
 
 ### Noun 242: Collection `/kəˈlek.ʃən/` \- Koleksiyon / Veri Topluluğu
+- Pronunciation: `kuh-LEK-shuhn` *(English respelling)*
 
 - Singular: a collection `/kəˈlek.ʃən/` – bir koleksiyon *(Singular Noun \- Tekil İsim)*  
 - Plural: collections `/kəˈlek.ʃənz/` – koleksiyonlar *(Plural Noun \- Çoğul İsim)*  
@@ -595,6 +637,7 @@
 ---
 
 ### Noun 243: Communication `/kəˌmjuː.nɪˈkeɪ.ʃən/` \- İletişim / Haberleşme (Sayılamayan)
+- Pronunciation: `kuh-myoo-nih-KAY-shuhn` *(English respelling)*
 
 - Singular / Base: communication `/kəˌmjuː.nɪˈkeɪ.ʃən/` – iletişim *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: inter-process communication – süreçler arası iletişim *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -609,6 +652,7 @@
 ---
 
 ### Noun 244: Competition `/ˌkɒm.pəˈtɪʃ.ən/` \- Yarışma / Rekabet
+- Pronunciation: `kom-puh-TIHSH-uhn` *(English respelling)*
 
 - Singular: a competition `/ˌkɒm.pəˈtɪʃ.ən/` – bir yarışma *(Singular Noun \- Tekil İsim)*  
 - Plural: competitions `/ˌkɒm.pəˈtɪʃ.ənz/` – yarışmalar *(Plural Noun \- Çoğul İsim)*  
@@ -623,6 +667,7 @@
 ---
 
 ### Noun 245: Concept `/ˈkɒn.sept/` \- Kavram / Konsept
+- Pronunciation: `KON-sept` *(English respelling)*
 
 - Singular: a concept `/ˈkɒn.sept/` – bir kavram *(Singular Noun \- Tekil İsim)*  
 - Plural: concepts `/ˈkɒn.septs/` – kavramlar *(Plural Noun \- Çoğul İsim)*  
@@ -637,6 +682,7 @@
 ---
 
 ### Noun 246: Condition `/kənˈdɪʃ.ən/` \- Koşul / Durum / Şart
+- Pronunciation: `kuhn-DIHSH-uhn` *(English respelling)*
 
 - Singular: a condition `/kənˈdɪʃ.ən/` – bir koşul *(Singular Noun \- Tekil İsim)*  
 - Plural: conditions `/kənˈdɪʃ.ənz/` – koşullar *(Plural Noun \- Çoğul İsim)*  
@@ -651,6 +697,7 @@
 ---
 
 ### Noun 247: Conference `/ˈkɒn.fər.əns/` \- Konferans / Sempozyum
+- Pronunciation: `KON-fuhr-uhns` *(English respelling)*
 
 - Singular: a conference `/ˈkɒn.fər.əns/` – bir konferans *(Singular Noun \- Tekil İsim)*  
 - Plural: conferences `/ˈkɒn.fər.ən.sɪz/` – konferanslar *(Plural Noun \- Çoğul İsim)*  
@@ -665,6 +712,7 @@
 ---
 
 ### Noun 248: Configuration `/kənˌfɪɡ.əˈreɪ.ʃən/` \- Yapılandırma / Konfigürasyon
+- Pronunciation: `kuhn-fihg-uh-RAY-shuhn` *(English respelling)*
 
 - Singular: a configuration `/kənˌfɪɡ.əˈreɪ.ʃən/` – bir yapılandırma *(Singular Noun \- Tekil İsim)*  
 - Plural: configurations `/kənˌfɪɡ.əˈreɪ.ʃənz/` – yapılandırmalar *(Plural Noun \- Çoğul İsim)*  
@@ -679,6 +727,7 @@
 ---
 
 ### Noun 249: Conflict `/ˈkɒn.flɪkt/` \- Çakışma / Uyuşmazlık
+- Pronunciation: `KON-flihkt` *(English respelling)*
 
 - Singular: a conflict `/ˈkɒn.flɪkt/` – bir çakışma *(Singular Noun \- Tekil İsim)*  
 - Plural: conflicts `/ˈkɒn.flɪkts/` – çakışmalar *(Plural Noun \- Çoğul İsim)*  
@@ -693,6 +742,7 @@
 ---
 
 ### Noun 250: Connection `/kəˈnek.ʃən/` \- Bağlantı
+- Pronunciation: `kuh-NEK-shuhn` *(English respelling)*
 
 - Singular: a connection `/kəˈnek.ʃən/` – bir bağlantı *(Singular Noun \- Tekil İsim)*  
 - Plural: connections `/kəˈnek.ʃənz/` – bağlantılar *(Plural Noun \- Çoğul İsim)*  
@@ -707,6 +757,7 @@
 ---
 
 ### Noun 251: Context `/ˈkɒn.tekst/` \- Bağlam / İçerik Durumu
+- Pronunciation: `KON-tekst` *(English respelling)*
 
 - Singular: a context `/ˈkɒn.tekst/` – bir bağlam *(Singular Noun \- Tekil İsim)*  
 - Plural: contexts `/ˈkɒn.teksts/` – bağlamlar *(Plural Noun \- Çoğul İsim)*  
@@ -721,6 +772,7 @@
 ---
 
 ### Noun 252: Contract `/ˈkɒn.trækt/` \- Sözleşme / Kontrat
+- Pronunciation: `KON-trakt` *(English respelling)*
 
 - Singular: a contract `/ˈkɒn.trækt/` – bir sözleşme *(Singular Noun \- Tekil İsim)*  
 - Plural: contracts `/ˈkɒn.trækts/` – sözleşmeler *(Plural Noun \- Çoğul İsim)*  
@@ -735,6 +787,7 @@
 ---
 
 ### Noun 253: Control `/kənˈtrəʊl/` \- Denetim / Kontrol (Sayılamayan)
+- Pronunciation: `kuhn-TROHL` *(English respelling)*
 
 - Singular / Base: control `/kənˈtrəʊl/` – kontrol *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: version control – sürüm kontrolü *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -749,6 +802,7 @@
 ---
 
 ### Noun 254: Council `/ˈkaʊn.səl/` \- Kurul / Konsey
+- Pronunciation: `KOWN-suhl` *(English respelling)*
 
 - Singular: a council `/ˈkaʊn.səl/` – bir kurul *(Singular Noun \- Tekil İsim)*  
 - Plural: councils `/ˈkaʊn.səlz/` – kurullar *(Plural Noun \- Çoğul İsim)*  
@@ -763,6 +817,7 @@
 ---
 
 ### Noun 255: County `/ˈkaʊn.ti/` \- İlçe / Bölge (Düzensiz \-ies)
+- Pronunciation: `KOWN-tee` *(English respelling)*
 
 - Singular: a county `/ˈkaʊn.ti/` – bir ilçe / bölge *(Singular Noun \- Tekil İsim)*  
 - Plural: counties `/ˈkaʊn.tiz/` – ilçeler *(Plural Noun \- Çoğul İsim)*  
@@ -777,6 +832,7 @@
 ---
 
 ### Noun 256: Court `/kɔːt/` \- Mahkeme / Kort
+- Pronunciation: `kawt` *(English respelling)*
 
 - Singular: a court `/kɔːt/` – bir mahkeme *(Singular Noun \- Tekil İsim)*  
 - Plural: courts `/kɔːts/` – mahkemeler *(Plural Noun \- Çoğul İsim)*  
@@ -791,6 +847,7 @@
 ---
 
 ### Noun 257: Culture `/ˈkʌl.tʃər/` \- Kültür (Şirket Kültürü)
+- Pronunciation: `KUHL-chuhr` *(English respelling)*
 
 - Singular: a culture `/ˈkʌl.tʃər/` – bir kültür *(Singular Noun \- Tekil İsim)*  
 - Plural: cultures `/ˈkʌl.tʃərz/` – kültürler *(Plural Noun \- Çoğul İsim)*  
@@ -805,6 +862,7 @@
 ---
 
 ### Noun 258: Deal `/diːl/` \- Anlaşma / Fırsat
+- Pronunciation: `deel` *(English respelling)*
 
 - Singular: a deal `/diːl/` – bir anlaşma *(Singular Noun \- Tekil İsim)*  
 - Plural: deals `/diːlz/` – anlaşmalar *(Plural Noun \- Çoğul İsim)*  
@@ -819,6 +877,7 @@
 ---
 
 ### Noun 259: Death `/deθ/` \- Ölüm (Sayılamayan)
+- Pronunciation: `deth` *(English respelling)*
 
 - Singular / Base: death `/deθ/` – ölüm *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: sudden death – ani ölüm *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -833,6 +892,7 @@
 ---
 
 ### Noun 260: Department `/dɪˈpɑːt.mənt/` \- Departman / Bölüm
+- Pronunciation: `dih-PAHT-muhnt` *(English respelling)*
 
 - Singular: a department `/dɪˈpɑːt.mənt/` – bir departman *(Singular Noun \- Tekil İsim)*  
 - Plural: departments `/dɪˈpɑːt.mənts/` – departmanlar *(Plural Noun \- Çoğul İsim)*  
@@ -847,6 +907,7 @@
 ---
 
 ### Noun 261: Dependency `/dɪˈpen.dən.si/` \- Bağımlılık (Yazılımda \-ies)
+- Pronunciation: `dih-PEN-duhn-see` *(English respelling)*
 
 - Singular: a dependency `/dɪˈpen.dən.si/` – bir bağımlılık *(Singular Noun \- Tekil İsim)*  
 - Plural: dependencies `/dɪˈpen.dən.siz/` – bağımlılıklar *(Plural Noun \- Çoğul İsim)*  
@@ -861,6 +922,7 @@
 ---
 
 ### Noun 262: Deployment `/dɪˈplɔɪ.mənt/` \- Dağıtım / Yayına Alma
+- Pronunciation: `dih-PLOY-muhnt` *(English respelling)*
 
 - Singular: a deployment `/dɪˈplɔɪ.mənt/` – bir dağıtım *(Singular Noun \- Tekil İsim)*  
 - Plural: deployments `/dɪˈplɔɪ.mənts/` – dağıtımlar *(Plural Noun \- Çoğul İsim)*  
@@ -875,6 +937,7 @@
 ---
 
 ### Noun 263: Description `/dɪˈskrɪp.ʃən/` \- Tanım / Açıklama
+- Pronunciation: `dih-SKRIHP-shuhn` *(English respelling)*
 
 - Singular: a description `/dɪˈskrɪp.ʃən/` – bir açıklama *(Singular Noun \- Tekil İsim)*  
 - Plural: descriptions `/dɪˈskrɪp.ʃənz/` – açıklamalar *(Plural Noun \- Çoğul İsim)*  
@@ -889,6 +952,7 @@
 ---
 
 ### Noun 264: Detail `/ˈdiː.teɪl/` \- Ayrıntı / Detay
+- Pronunciation: `DEE-tayl` *(English respelling)*
 
 - Singular: a detail `/ˈdiː.teɪl/` – bir detay *(Singular Noun \- Tekil İsim)*  
 - Plural: details `/ˈdiː.teɪlz/` – detaylar *(Plural Noun \- Çoğul İsim)*  
@@ -903,6 +967,7 @@
 ---
 
 ### Noun 265: Dialogue `/ˈdaɪ.ə.lɒɡ/` \- Diyalog / Konuşma
+- Pronunciation: `DY-uh-log` *(English respelling)*
 
 - Singular: a dialogue `/ˈdaɪ.ə.lɒɡ/` – bir diyalog *(Singular Noun \- Tekil İsim)*  
 - Plural: dialogues `/ˈdaɪ.ə.lɒɡz/` – diyaloglar *(Plural Noun \- Çoğul İsim)*  
@@ -917,6 +982,7 @@
 ---
 
 ### Noun 266: Discussion `/dɪˈskʌʃ.ən/` \- Tartışma / Görüşme
+- Pronunciation: `dih-SKUHSH-uhn` *(English respelling)*
 
 - Singular: a discussion `/dɪˈskʌʃ.ən/` – bir görüşme *(Singular Noun \- Tekil İsim)*  
 - Plural: discussions `/dɪˈskʌʃ.ənz/` – görüşmeler *(Plural Noun \- Çoğul İsim)*  
@@ -931,6 +997,7 @@
 ---
 
 ### Noun 267: Disease `/dɪˈziːz/` \- Hastalık
+- Pronunciation: `dih-ZEEZ` *(English respelling)*
 
 - Singular: a disease `/dɪˈziːz/` – bir hastalık *(Singular Noun \- Tekil İsim)*  
 - Plural: diseases `/dɪˈziː.zɪz/` – hastalıklar *(Plural Noun \- Çoğul İsim)*  
@@ -945,6 +1012,7 @@
 ---
 
 ### Noun 268: Disk `/dɪsk/` \- Depolama Diski / Sürücü
+- Pronunciation: `dihsk` *(English respelling)*
 
 - Singular: a disk `/dɪsk/` – bir disk *(Singular Noun \- Tekil İsim)*  
 - Plural: disks `/dɪsks/` – diskler *(Plural Noun \- Çoğul İsim)*  
@@ -959,6 +1027,7 @@
 ---
 
 ### Noun 269: Document `/ˈdɒk.jə.mənt/` \- Belge / Doküman
+- Pronunciation: `DOK-yuh-muhnt` *(English respelling)*
 
 - Singular: a document `/ˈdɒk.jə.mənt/` – bir belge *(Singular Noun \- Tekil İsim)*  
 - Plural: documents `/ˈdɒk.jə.mənts/` – belgeler *(Plural Noun \- Çoğul İsim)*  
@@ -973,6 +1042,7 @@
 ---
 
 ### Noun 270: Documentation `/ˌdɒk.jə.menˈteɪ.ʃən/` \- Dokümantasyon (Sayılamayan)
+- Pronunciation: `dok-yuh-men-TAY-shuhn` *(English respelling)*
 
 - Singular / Base: documentation `/ˌdɒk.jə.menˈteɪ.ʃən/` – dokümantasyon *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: API documentation – API dokümantasyonu *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -987,6 +1057,7 @@
 ---
 
 ### Noun 271: Dollar `/ˈdɒl.ər/` \- Dolar
+- Pronunciation: `DOL-uhr` *(English respelling)*
 
 - Singular: a dollar `/ˈdɒl.ər/` – bir dolar *(Singular Noun \- Tekil İsim)*  
 - Plural: dollars `/ˈdɒl.ərz/` – dolar (çoğul) *(Plural Noun \- Çoğul İsim)*  
@@ -1001,6 +1072,7 @@
 ---
 
 ### Noun 272: Doubt `/daʊt/` \- Şüphe / Kuşku
+- Pronunciation: `dowt` *(English respelling)*
 
 - Singular: a doubt `/daʊt/` – bir şüphe *(Singular Noun \- Tekil İsim)*  
 - Plural: doubts `/daʊts/` – şüpheler *(Plural Noun \- Çoğul İsim)*  
@@ -1015,6 +1087,7 @@
 ---
 
 ### Noun 273: Duty `/ˈdjuː.ti/` \- Görev / Sorumluluk (Düzensiz \-ies)
+- Pronunciation: `DYOO-tee` *(English respelling)*
 
 - Singular: a duty `/ˈdjuː.ti/` – bir görev *(Singular Noun \- Tekil İsim)*  
 - Plural: duties `/ˈdjuː.tiz/` – görevler *(Plural Noun \- Çoğul İsim)*  
@@ -1029,6 +1102,7 @@
 ---
 
 ### Noun 274: Economy `/iˈkɒn.ə.mi/` \- Ekonomi (Düzensiz \-ies)
+- Pronunciation: `ee-KON-uh-mee` *(English respelling)*
 
 - Singular: an economy `/iˈkɒn.ə.mi/` – bir ekonomi *(Singular Noun \- Tekil İsim)*  
 - Plural: economies `/iˈkɒn.ə.miz/` – ekonomiler *(Plural Noun \- Çoğul İsim)*  
@@ -1043,6 +1117,7 @@
 ---
 
 ### Noun 275: Effort `/ˈef.ət/` \- Çaba / Gayret
+- Pronunciation: `EF-uht` *(English respelling)*
 
 - Singular: an effort `/ˈef.ət/` – bir çaba *(Singular Noun \- Tekil İsim)*  
 - Plural: efforts `/ˈef.əts/` – çabalar *(Plural Noun \- Çoğul İsim)*  
@@ -1057,6 +1132,7 @@
 ---
 
 ### Noun 276: Element `/ˈel.ɪ.mənt/` \- Öğe / Eleman / Bileşen
+- Pronunciation: `EL-ih-muhnt` *(English respelling)*
 
 - Singular: an element `/ˈel.ɪ.mənt/` – bir öğe *(Singular Noun \- Tekil İsim)*  
 - Plural: elements `/ˈel.ɪ.mənts/` – öğeler *(Plural Noun \- Çoğul İsim)*  
@@ -1071,6 +1147,7 @@
 ---
 
 ### Noun 277: Employee `/ɪmˈplɔɪ.iː/` \- Çalışan / Personel
+- Pronunciation: `ihm-PLOY-ee` *(English respelling)*
 
 - Singular: an employee `/ɪmˈplɔɪ.iː/` – bir çalışan *(Singular Noun \- Tekil İsim)*  
 - Plural: employees `/ɪmˈplɔɪ.iːz/` – çalışanlar *(Plural Noun \- Çoğul İsim)*  
@@ -1085,6 +1162,7 @@
 ---
 
 ### Noun 278: Employer `/ɪmˈplɔɪ.ər/` \- İşveren
+- Pronunciation: `ihm-PLOY-uhr` *(English respelling)*
 
 - Singular: an employer `/ɪmˈplɔɪ.ər/` – bir işveren *(Singular Noun \- Tekil İsim)*  
 - Plural: employers `/ɪmˈplɔɪ.ərz/` – işverenler *(Plural Noun \- Çoğul İsim)*  
@@ -1099,6 +1177,7 @@
 ---
 
 ### Noun 279: Endpoint `/ˈend.pɔɪnt/` \- Uç Nokta / API Uç Noktası
+- Pronunciation: `END-poynt` *(English respelling)*
 
 - Singular: an endpoint `/ˈend.pɔɪnt/` – bir uç nokta *(Singular Noun \- Tekil İsim)*  
 - Plural: endpoints `/ˈend.pɔɪnts/` – uç noktalar *(Plural Noun \- Çoğul İsim)*  
@@ -1113,6 +1192,7 @@
 ---
 
 ### Noun 280: Engine `/ˈen.dʒɪn/` \- Motor (Yazılım / Veritabanı)
+- Pronunciation: `EN-jin` *(English respelling)*
 
 - Singular: an engine `/ˈen.dʒɪn/` – bir motor *(Singular Noun \- Tekil İsim)*  
 - Plural: engines `/ˈen.dʒɪnz/` – motorlar *(Plural Noun \- Çoğul İsim)*  
@@ -1127,6 +1207,7 @@
 ---
 
 ### Noun 281: Entity `/ˈen.tə.ti/` \- Varlık / Veri Varlığı (Düzensiz \-ies)
+- Pronunciation: `EN-tuh-tee` *(English respelling)*
 
 - Singular: an entity `/ˈen.tə.ti/` – bir varlık *(Singular Noun \- Tekil İsim)*  
 - Plural: entities `/ˈen.tə.tiz/` – varlıklar *(Plural Noun \- Çoğul İsim)*  
@@ -1141,6 +1222,7 @@
 ---
 
 ### Noun 282: Equation `/ɪˈkweɪ.ʒən/` \- Denklem
+- Pronunciation: `ih-KWAY-zhuhn` *(English respelling)*
 
 - Singular: an equation `/ɪˈkweɪ.ʒən/` – bir denklem *(Singular Noun \- Tekil İsim)*  
 - Plural: equations `/ɪˈkweɪ.ʒənz/` – denklemler *(Plural Noun \- Çoğul İsim)*  
@@ -1155,6 +1237,7 @@
 ---
 
 ### Noun 283: Equipment `/ɪˈkwɪp.mənt/` \- Ekipman / Donanım (Sayılamayan)
+- Pronunciation: `ih-KWIHP-muhnt` *(English respelling)*
 
 - Singular / Base: equipment `/ɪˈkwɪp.mənt/` – ekipman *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: a piece of equipment – bir ekipman parçası *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1169,6 +1252,7 @@
 ---
 
 ### Noun 284: Estate `/ɪˈsteɪt/` \- Mülk / Gayrimenkul
+- Pronunciation: `ih-STAYT` *(English respelling)*
 
 - Singular: an estate `/ɪˈsteɪt/` – bir gayrimenkul *(Singular Noun \- Tekil İsim)*  
 - Plural: estates `/ɪˈsteɪts/` – mülkler *(Plural Noun \- Çoğul İsim)*  
@@ -1183,6 +1267,7 @@
 ---
 
 ### Noun 285: Exception `/ɪkˈsep.ʃən/` \- İstisna / Hata İstisnası
+- Pronunciation: `ihk-SEP-shuhn` *(English respelling)*
 
 - Singular: an exception `/ɪkˈsep.ʃən/` – bir istisna *(Singular Noun \- Tekil İsim)*  
 - Plural: exceptions `/ɪkˈsep.ʃənz/` – istisnalar *(Plural Noun \- Çoğul İsim)*  
@@ -1197,6 +1282,7 @@
 ---
 
 ### Noun 286: Execution `/ˌek.sɪˈkjuː.ʃən/` \- Yürütme / Çalıştırma (Sayılamayan)
+- Pronunciation: `ek-sih-KYOO-shuhn` *(English respelling)*
 
 - Singular / Base: execution `/ˌek.sɪˈkjuː.ʃən/` – yürütme *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: code execution – kod yürütme *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1211,6 +1297,7 @@
 ---
 
 ### Noun 287: Expectation `/ˌek.spekˈteɪ.ʃən/` \- Beklenti
+- Pronunciation: `ek-spek-TAY-shuhn` *(English respelling)*
 
 - Singular: an expectation `/ˌek.spekˈteɪ.ʃən/` – bir beklenti *(Singular Noun \- Tekil İsim)*  
 - Plural: expectations `/ˌek.spekˈteɪ.ʃənz/` – beklentiler *(Plural Noun \- Çoğul İsim)*  
@@ -1225,6 +1312,7 @@
 ---
 
 ### Noun 288: Expense `/ɪkˈspens/` \- Gider / Masraf
+- Pronunciation: `ihk-SPENS` *(English respelling)*
 
 - Singular: an expense `/ɪkˈspens/` – bir gider *(Singular Noun \- Tekil İsim)*  
 - Plural: expenses `/ɪkˈspen.sɪz/` – giderler *(Plural Noun \- Çoğul İsim)*  
@@ -1239,6 +1327,7 @@
 ---
 
 ### Noun 289: Experiment `/ɪkˈsper.ɪ.mənt/` \- Deney / Deneme
+- Pronunciation: `ihk-SPER-ih-muhnt` *(English respelling)*
 
 - Singular: an experiment `/ɪkˈsper.ɪ.mənt/` – bir deney *(Singular Noun \- Tekil İsim)*  
 - Plural: experiments `/ɪkˈsper.ɪ.mənts/` – deneyler *(Plural Noun \- Çoğul İsim)*  
@@ -1253,6 +1342,7 @@
 ---
 
 ### Noun 290: Explanation `/ˌek.spləˈneɪ.ʃən/` \- Açıklama / İzah
+- Pronunciation: `ek-spluh-NAY-shuhn` *(English respelling)*
 
 - Singular: an explanation `/ˌek.spləˈneɪ.ʃən/` – bir açıklama *(Singular Noun \- Tekil İsim)*  
 - Plural: explanations `/ˌek.spləˈneɪ.ʃənz/` – açıklamalar *(Plural Noun \- Çoğul İsim)*  
@@ -1267,6 +1357,7 @@
 ---
 
 ### Noun 291: Extension `/ɪkˈsten.ʃən/` \- Eklenti / Uzantı
+- Pronunciation: `ihk-STEN-shuhn` *(English respelling)*
 
 - Singular: an extension `/ɪkˈsten.ʃən/` – bir eklenti / uzantı *(Singular Noun \- Tekil İsim)*  
 - Plural: extensions `/ɪkˈsten.ʃənz/` – eklentiler *(Plural Noun \- Çoğul İsim)*  
@@ -1281,6 +1372,7 @@
 ---
 
 ### Noun 292: Factor `/ˈfæk.tər/` \- Faktör / Etken
+- Pronunciation: `FAK-tuhr` *(English respelling)*
 
 - Singular: a factor `/ˈfæk.tər/` – bir etken *(Singular Noun \- Tekil İsim)*  
 - Plural: factors `/ˈfæk.tərz/` – etkenler *(Plural Noun \- Çoğul İsim)*  
@@ -1295,6 +1387,7 @@
 ---
 
 ### Noun 293: Failure `/ˈfeɪ.ljər/` \- Arıza / Başarısızlık
+- Pronunciation: `FAY-lyuhr` *(English respelling)*
 
 - Singular: a failure `/ˈfeɪ.ljər/` – bir arıza *(Singular Noun \- Tekil İsim)*  
 - Plural: failures `/ˈfeɪ.ljərz/` – arızalar *(Plural Noun \- Çoğul İsim)*  
@@ -1309,6 +1402,7 @@
 ---
 
 ### Noun 294: Feedback `/ˈfiːd.bæk/` \- Geri Bildirim (Sayılamayan)
+- Pronunciation: `FEED-bak` *(English respelling)*
 
 - Singular / Base: feedback `/ˈfiːd.bæk/` – geri bildirim *(Uncountable Noun \- Sayılamayan İsim)*  
 - Partitive / Unit: user feedback – kullanıcı geri bildirimi *(Quantity Expression \- Parça / Birim Belirteci)*  
@@ -1323,6 +1417,7 @@
 ---
 
 ### Noun 295: Flow `/fləʊ/` \- Akış / İş Akışı
+- Pronunciation: `floh` *(English respelling)*
 
 - Singular: a flow `/fləʊ/` – bir akış *(Singular Noun \- Tekil İsim)*  
 - Plural: flows `/fləʊz/` – akışlar *(Plural Noun \- Çoğul İsim)*  
@@ -1337,6 +1432,7 @@
 ---
 
 ### Noun 296: Function `/ˈfʌŋk.ʃən/` \- Fonksiyon / İşlev
+- Pronunciation: `FUHNGK-shuhn` *(English respelling)*
 
 - Singular: a function `/ˈfʌŋk.ʃən/` – bir fonksiyon *(Singular Noun \- Tekil İsim)*  
 - Plural: functions `/ˈfʌŋk.ʃənz/` – fonksiyonlar *(Plural Noun \- Çoğul İsim)*  
@@ -1351,6 +1447,7 @@
 ---
 
 ### Noun 297: Goal `/ɡəʊl/` \- Hedef / Amaç
+- Pronunciation: `gohl` *(English respelling)*
 
 - Singular: a goal `/ɡəʊl/` – bir hedef *(Singular Noun \- Tekil İsim)*  
 - Plural: goals `/ɡəʊlz/` – hedefler *(Plural Noun \- Çoğul İsim)*  
@@ -1365,6 +1462,7 @@
 ---
 
 ### Noun 298: Interface `/ˈɪn.tə.feɪs/` \- Arayüz (Kullanıcı / Kod)
+- Pronunciation: `IHN-tuh-fays` *(English respelling)*
 
 - Singular: an interface `/ˈɪn.tə.feɪs/` – bir arayüz *(Singular Noun \- Tekil İsim)*  
 - Plural: interfaces `/ˈɪn.tə.feɪ.sɪz/` – arayüzler *(Plural Noun \- Çoğul İsim)*  
@@ -1379,6 +1477,7 @@
 ---
 
 ### Noun 299: Module `/ˈmɒdʒ.uːl/` \- Modül / Bağımsız Bölüm
+- Pronunciation: `MOJ-ool` *(English respelling)*
 
 - Singular: a module `/ˈmɒdʒ.uːl/` – bir modül *(Singular Noun \- Tekil İsim)*  
 - Plural: modules `/ˈmɒdʒ.uːlz/` – modüller *(Plural Noun \- Çoğul İsim)*  
@@ -1393,6 +1492,7 @@
 ---
 
 ### Noun 300: Strategy `/ˈstræt.ə.dʒi/` \- Strateji (Düzensiz \-ies)
+- Pronunciation: `STRAT-uh-jee` *(English respelling)*
 
 - Singular: a strategy `/ˈstræt.ə.dʒi/` – bir strateji *(Singular Noun \- Tekil İsim)*  
 - Plural: strategies `/ˈstræt.ə.dʒiz/` – stratejiler *(Plural Noun \- Çoğul İsim)*  

@@ -6,18 +6,18 @@ import type { ScenarioCategory } from '../constants/categories';
 
 /** Mivo — the app's language-explorer companion and AI conversation guide. */
 export const mivoImages = {
-  idle: require('../../assets/images/companion/mivo/mivo_idle.png'),
-  listening: require('../../assets/images/companion/mivo/mivo_listening.png'),
-  thinking: require('../../assets/images/companion/mivo/mivo_thinking.png'),
-  speaking: require('../../assets/images/companion/mivo/mivo_speaking.png'),
-  loading: require('../../assets/images/companion/mivo/mivo_loading_flip.png'),
-  success: require('../../assets/images/companion/mivo/mivo_success.png'),
+  idle: require('../../assets/images/companion/mivo/mivo_idle.webp'),
+  listening: require('../../assets/images/companion/mivo/mivo_listening.webp'),
+  thinking: require('../../assets/images/companion/mivo/mivo_thinking.webp'),
+  speaking: require('../../assets/images/companion/mivo/mivo_speaking.webp'),
+  loading: require('../../assets/images/companion/mivo/mivo_loading_flip.webp'),
+  success: require('../../assets/images/companion/mivo/mivo_success.webp'),
 } as const;
 
 /** Context-specific Mivo artwork for the Home experience. */
 export const mivoHomeImages = {
-  lessonGuide: require('../../assets/images/companion/mivo/mivo_lesson_guide.png'),
-  chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.png'),
+  lessonGuide: require('../../assets/images/companion/mivo/mivo_lesson_guide.webp'),
+  chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.webp'),
 } as const;
 
 /** Calm, rounded 3D icons for the Today learning roadmap. */
@@ -26,7 +26,7 @@ export const roadmapTaskImages = {
   vocab: require('../../assets/images/roadmap/vocabulary-soft.png'),
   listening: require('../../assets/images/roadmap/listening-soft.png'),
   reading: require('../../assets/images/roadmap/reading-soft.png'),
-  practice: require('../../assets/images/roadmap/speaking-soft.png'),
+  review: require('../../assets/images/roadmap/speaking-soft.png'),
 } as const;
 
 /**

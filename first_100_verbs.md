@@ -7,6 +7,7 @@
 ---
 
 ### Verb 1: Ask `/æsk/` \- Sormak
+- Pronunciation: `ask` *(English respelling)*
 
 - I ask – Sorarım *(Present Simple \- Geniş Zaman)*  
 - I am asking – Soruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -21,6 +22,7 @@
 ---
 
 ### Verb 2: Call `/kɔːl/` \- Aramak / Çağırmak
+- Pronunciation: `kawl` *(English respelling)*
 
 - I call – Ararım *(Present Simple \- Geniş Zaman)*  
 - I am calling – Arıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -35,6 +37,7 @@
 ---
 
 ### Verb 3: Come `/kʌm/` \- Gelmek
+- Pronunciation: `kuhm` *(English respelling)*
 
 - I come – Gelirim *(Present Simple \- Geniş Zaman)*  
 - I am coming – Geliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -49,6 +52,7 @@
 ---
 
 ### Verb 4: Do `/duː/` \- Yapmak
+- Pronunciation: `doo` *(English respelling)*
 
 - I do – Yaparım *(Present Simple \- Geniş Zaman)*  
 - I am doing – Yapıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -63,6 +67,7 @@
 ---
 
 ### Verb 5: Eat `/iːt/` \- Yemek
+- Pronunciation: `eet` *(English respelling)*
 
 - I eat – Yerim *(Present Simple \- Geniş Zaman)*  
 - I am eating – Yiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -77,6 +82,7 @@
 ---
 
 ### Verb 6: Find `/faɪnd/` \- Bulmak
+- Pronunciation: `fynd` *(English respelling)*
 
 - I find – Bulurum *(Present Simple \- Geniş Zaman)*  
 - I am finding – Buluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -91,6 +97,7 @@
 ---
 
 ### Verb 7: Get `/ɡet/` \- Almak / Edinmek
+- Pronunciation: `get` *(English respelling)*
 
 - I get – Alırım *(Present Simple \- Geniş Zaman)*  
 - I am geting – Alıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -105,6 +112,7 @@
 ---
 
 ### Verb 8: Give `/ɡɪv/` \- Vermek
+- Pronunciation: `gihv` *(English respelling)*
 
 - I give – Veririm *(Present Simple \- Geniş Zaman)*  
 - I am giving – Veriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -119,6 +127,7 @@
 ---
 
 ### Verb 9: Go `/ɡəʊ/` \- Gitmek
+- Pronunciation: `goh` *(English respelling)*
 
 - I go – Giderim *(Present Simple \- Geniş Zaman)*  
 - I am going – Gidiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -133,6 +142,7 @@
 ---
 
 ### Verb 10: Have `/hæv/` \- Sahip olmak
+- Pronunciation: `hav` *(English respelling)*
 
 - I have – Sahibim / Sahip olurum *(Present Simple \- Geniş Zaman)*  
 - I am having – Sahip oluyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -147,6 +157,7 @@
 ---
 
 ### Verb 11: Help `/help/` \- Yardım etmek
+- Pronunciation: `help` *(English respelling)*
 
 - I help – Yardım ederim *(Present Simple \- Geniş Zaman)*  
 - I am helping – Yardım ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -161,6 +172,7 @@
 ---
 
 ### Verb 12: Keep `/kiːp/` \- Tutmak / Saklamak
+- Pronunciation: `keep` *(English respelling)*
 
 - I keep – Tutarım / Saklarım *(Present Simple \- Geniş Zaman)*  
 - I am keeping – Tutuyorum / Saklıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -175,6 +187,7 @@
 ---
 
 ### Verb 13: Leave `/liːv/` \- Ayrılmak / Terk etmek
+- Pronunciation: `leev` *(English respelling)*
 
 - I leave – Ayrılırım *(Present Simple \- Geniş Zaman)*  
 - I am leaving – Ayrılıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -189,6 +202,7 @@
 ---
 
 ### Verb 14: Listen `/ˈlɪs.ən/` \- Dinlemek
+- Pronunciation: `LISS-uhn` *(English respelling)*
 
 - I listen – Dinlerim *(Present Simple \- Geniş Zaman)*  
 - I am listening – Dinliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -203,6 +217,7 @@
 ---
 
 ### Verb 15: Look `/lʊk/` \- Bakmak
+- Pronunciation: `luuk` *(English respelling)*
 
 - I look – Bakarım *(Present Simple \- Geniş Zaman)*  
 - I am looking – Bakıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -217,6 +232,7 @@
 ---
 
 ### Verb 16: Make `/meɪk/` \- Yapmak / Üretmek
+- Pronunciation: `mayk` *(English respelling)*
 
 - I make – Yaparım *(Present Simple \- Geniş Zaman)*  
 - I am making – Yapıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -231,6 +247,7 @@
 ---
 
 ### Verb 17: Move `/muːv/` \- Taşınmak / Hareket etmek
+- Pronunciation: `moov` *(English respelling)*
 
 - I move – Taşınırım / Hareket ederim *(Present Simple \- Geniş Zaman)*  
 - I am moving – Taşınıyorum / Hareket ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -245,6 +262,7 @@
 ---
 
 ### Verb 18: Open `/ˈəʊ.pən/` \- Açmak
+- Pronunciation: `OH-puhn` *(English respelling)*
 
 - I open – Açarım *(Present Simple \- Geniş Zaman)*  
 - I am opening – Açıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -259,6 +277,7 @@
 ---
 
 ### Verb 19: Play `/pleɪ/` \- Oynamak / Çalmak
+- Pronunciation: `play` *(English respelling)*
 
 - I play – Oynarım / Çalarım *(Present Simple \- Geniş Zaman)*  
 - I am playing – Oynuyorum / Çalıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -273,6 +292,7 @@
 ---
 
 ### Verb 20: Put `/pʊt/` \- Koymak / Yerleştirmek
+- Pronunciation: `puut` *(English respelling)*
 
 - I put – Koyarım *(Present Simple \- Geniş Zaman)*  
 - I am putting – Koyuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -287,6 +307,7 @@
 ---
 
 ### Verb 21: Read `/riːd/` \- Okumak
+- Pronunciation: `reed` *(English respelling)*
 
 - I read – Okurum *(Present Simple \- Geniş Zaman)*  
 - I am reading – Okuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -301,6 +322,7 @@
 ---
 
 ### Verb 22: Run `/rʌn/` \- Koşmak / Çalıştırmak
+- Pronunciation: `ruhn` *(English respelling)*
 
 - I run – Koşarım / Çalıştırırım *(Present Simple \- Geniş Zaman)*  
 - I am running – Koşuyorum / Çalıştırıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -315,6 +337,7 @@
 ---
 
 ### Verb 23: Say `/seɪ/` \- Söylemek
+- Pronunciation: `say` *(English respelling)*
 
 - I say – Söylerim *(Present Simple \- Geniş Zaman)*  
 - I am saying – Söylüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -329,6 +352,7 @@
 ---
 
 ### Verb 24: See `/siː/` \- Görmek
+- Pronunciation: `see` *(English respelling)*
 
 - I see – Görürüm *(Present Simple \- Geniş Zaman)*  
 - I am seeing – Görüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -343,6 +367,7 @@
 ---
 
 ### Verb 25: Send `/send/` \- Göndermek
+- Pronunciation: `send` *(English respelling)*
 
 - I send – Gönderirim *(Present Simple \- Geniş Zaman)*  
 - I am sending – Gönderiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -357,6 +382,7 @@
 ---
 
 ### Verb 26: Show `/ʃəʊ/` \- Göstermek
+- Pronunciation: `shoh` *(English respelling)*
 
 - I show – Gösteririm *(Present Simple \- Geniş Zaman)*  
 - I am showing – Gösteriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -371,6 +397,7 @@
 ---
 
 ### Verb 27: Sit `/sɪt/` \- Oturmak
+- Pronunciation: `siht` *(English respelling)*
 
 - I sit – Otururum *(Present Simple \- Geniş Zaman)*  
 - I am sitting – Oturuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -385,6 +412,7 @@
 ---
 
 ### Verb 28: Sleep `/sliːp/` \- Uyumak
+- Pronunciation: `sleep` *(English respelling)*
 
 - I sleep – Uyurum *(Present Simple \- Geniş Zaman)*  
 - I am sleeping – Uyuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -399,6 +427,7 @@
 ---
 
 ### Verb 29: Speak `/spiːk/` \- Konuşmak
+- Pronunciation: `speek` *(English respelling)*
 
 - I speak – Konuşurum *(Present Simple \- Geniş Zaman)*  
 - I am speaking – Konuşuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -413,6 +442,7 @@
 ---
 
 ### Verb 30: Stand `/stænd/` \- Ayakta durmak
+- Pronunciation: `stand` *(English respelling)*
 
 - I stand – Dururum *(Present Simple \- Geniş Zaman)*  
 - I am standing – Duruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -427,6 +457,7 @@
 ---
 
 ### Verb 31: Start `/stɑːt/` \- Başlamak
+- Pronunciation: `staht` *(English respelling)*
 
 - I start – Başlarım *(Present Simple \- Geniş Zaman)*  
 - I am starting – Başlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -441,6 +472,7 @@
 ---
 
 ### Verb 32: Stop `/stɒp/` \- Durmak / Durdurmak
+- Pronunciation: `stop` *(English respelling)*
 
 - I stop – Dururum / Durdururum *(Present Simple \- Geniş Zaman)*  
 - I am stopping – Duruyorum / Durduruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -455,6 +487,7 @@
 ---
 
 ### Verb 33: Study `/ˈstʌd.i/` \- Ders çalışmak
+- Pronunciation: `STUHD-ee` *(English respelling)*
 
 - I study – Çalışırım *(Present Simple \- Geniş Zaman)*  
 - I am studying – Çalışıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -469,6 +502,7 @@
 ---
 
 ### Verb 34: Take `/teɪk/` \- Almak / Götürmek
+- Pronunciation: `tayk` *(English respelling)*
 
 - I take – Alırım / Götürürüm *(Present Simple \- Geniş Zaman)*  
 - I am taking – Alıyorum / Götürüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -483,6 +517,7 @@
 ---
 
 ### Verb 35: Talk `/tɔːk/` \- Konuşmak / Sohbet etmek
+- Pronunciation: `tawk` *(English respelling)*
 
 - I talk – Konuşurum *(Present Simple \- Geniş Zaman)*  
 - I am talking – Konuşuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -497,6 +532,7 @@
 ---
 
 ### Verb 36: Teach `/tiːtʃ/` \- Öğretmek
+- Pronunciation: `teech` *(English respelling)*
 
 - I teach – Öğretirim *(Present Simple \- Geniş Zaman)*  
 - I am teaching – Öğretiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -511,6 +547,7 @@
 ---
 
 ### Verb 37: Tell `/tel/` \- Anlatmak / Söylemek
+- Pronunciation: `tel` *(English respelling)*
 
 - I tell – Anlatırım *(Present Simple \- Geniş Zaman)*  
 - I am telling – Anlatıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -525,6 +562,7 @@
 ---
 
 ### Verb 38: Try `/traɪ/` \- Denemek / Çabalamak
+- Pronunciation: `try` *(English respelling)*
 
 - I try – Denerim *(Present Simple \- Geniş Zaman)*  
 - I am trying – Deniyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -539,6 +577,7 @@
 ---
 
 ### Verb 39: Turn `/tɜːn/` \- Dönmek / Çevirmek
+- Pronunciation: `turn` *(English respelling)*
 
 - I turn – Dönerim / Çeviririm *(Present Simple \- Geniş Zaman)*  
 - I am turning – Dönüyorum / Çeviriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -553,6 +592,7 @@
 ---
 
 ### Verb 40: Use `/juːz/` \- Kullanmak
+- Pronunciation: `yooz` *(English respelling)*
 
 - I use – Kullanırım *(Present Simple \- Geniş Zaman)*  
 - I am using – Kullanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -567,6 +607,7 @@
 ---
 
 ### Verb 41: Wait `/weɪt/` \- Beklemek
+- Pronunciation: `wayt` *(English respelling)*
 
 - I wait – Beklerim *(Present Simple \- Geniş Zaman)*  
 - I am waiting – Bekliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -581,6 +622,7 @@
 ---
 
 ### Verb 42: Walk `/wɔːk/` \- Yürümek
+- Pronunciation: `wawk` *(English respelling)*
 
 - I walk – Yürürüm *(Present Simple \- Geniş Zaman)*  
 - I am walking – Yürüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -595,6 +637,7 @@
 ---
 
 ### Verb 43: Watch `/wɒtʃ/` \- İzlemek
+- Pronunciation: `woch` *(English respelling)*
 
 - I watch – İzlerim *(Present Simple \- Geniş Zaman)*  
 - I am watching – İzliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -609,6 +652,7 @@
 ---
 
 ### Verb 44: Write `/raɪt/` \- Yazmak
+- Pronunciation: `ryte` *(English respelling)*
 
 - I write – Yazarım *(Present Simple \- Geniş Zaman)*  
 - I am writing – Yazıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -623,6 +667,7 @@
 ---
 
 ### Verb 45: Bring `/brɪŋ/` \- Getirmek
+- Pronunciation: `brihng` *(English respelling)*
 
 - I bring – Getiririm *(Present Simple \- Geniş Zaman)*  
 - I am bringing – Getiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -637,6 +682,7 @@
 ---
 
 ### Verb 46: Build `/bɪld/` \- İnşa etmek / Kurmak
+- Pronunciation: `bihld` *(English respelling)*
 
 - I build – İnşa ederim *(Present Simple \- Geniş Zaman)*  
 - I am building – İnşa ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -651,6 +697,7 @@
 ---
 
 ### Verb 47: Buy `/baɪ/` \- Satın almak
+- Pronunciation: `by` *(English respelling)*
 
 - I buy – Satın alırım *(Present Simple \- Geniş Zaman)*  
 - I am buying – Satın alıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -665,6 +712,7 @@
 ---
 
 ### Verb 48: Catch `/kætʃ/` \- Yakalamak
+- Pronunciation: `kach` *(English respelling)*
 
 - I catch – Yakalırım *(Present Simple \- Geniş Zaman)*  
 - I am catching – Yakaliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -679,6 +727,7 @@
 ---
 
 ### Verb 49: Change `/tʃeɪndʒ/` \- Değiştirmek
+- Pronunciation: `chaynj` *(English respelling)*
 
 - I change – Değiştiririm *(Present Simple \- Geniş Zaman)*  
 - I am changing – Değiştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -693,6 +742,7 @@
 ---
 
 ### Verb 50: Clean `/kliːn/` \- Temizlemek
+- Pronunciation: `kleen` *(English respelling)*
 
 - I clean – Temizlerim *(Present Simple \- Geniş Zaman)*  
 - I am cleaning – Temizliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -707,6 +757,7 @@
 ---
 
 ### Verb 51: Close `/kləʊz/` \- Kapatmak
+- Pronunciation: `klohz` *(English respelling)*
 
 - I close – Kapatırım *(Present Simple \- Geniş Zaman)*  
 - I am closing – Kapatıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -721,6 +772,7 @@
 ---
 
 ### Verb 52: Cook `/kʊk/` \- Yemek pişirmek
+- Pronunciation: `kuuk` *(English respelling)*
 
 - I cook – Pişiririm *(Present Simple \- Geniş Zaman)*  
 - I am cooking – Pişiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -735,6 +787,7 @@
 ---
 
 ### Verb 53: Cut `/kʌt/` \- Kesmek
+- Pronunciation: `kuht` *(English respelling)*
 
 - I cut – Keserim *(Present Simple \- Geniş Zaman)*  
 - I am cutting – Kesiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -749,6 +802,7 @@
 ---
 
 ### Verb 54: Dance `/dɑːns/` \- Dans etmek
+- Pronunciation: `dahns` *(English respelling)*
 
 - I dance – Dans ederim *(Present Simple \- Geniş Zaman)*  
 - I am dancing – Dans ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -763,6 +817,7 @@
 ---
 
 ### Verb 55: Drink `/drɪŋk/` \- İçmek
+- Pronunciation: `drihngk` *(English respelling)*
 
 - I drink – İçerim *(Present Simple \- Geniş Zaman)*  
 - I am drinking – İçiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -777,6 +832,7 @@
 ---
 
 ### Verb 56: Drive `/draɪv/` \- Sürmek / Arabayla gitmek
+- Pronunciation: `dryv` *(English respelling)*
 
 - I drive – Sürerim *(Present Simple \- Geniş Zaman)*  
 - I am driving – Sürüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -791,6 +847,7 @@
 ---
 
 ### Verb 57: Fall `/fɔːl/` \- Düşmek
+- Pronunciation: `fawl` *(English respelling)*
 
 - I fall – Düşerim *(Present Simple \- Geniş Zaman)*  
 - I am falling – Düşüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -805,6 +862,7 @@
 ---
 
 ### Verb 58: Feed `/fiːd/` \- Beslemek
+- Pronunciation: `feed` *(English respelling)*
 
 - I feed – Beslerim *(Present Simple \- Geniş Zaman)*  
 - I am feeding – Besliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -819,6 +877,7 @@
 ---
 
 ### Verb 59: Fight `/faɪt/` \- Savaşmak / Mücadele etmek
+- Pronunciation: `fyt` *(English respelling)*
 
 - I fight – Savaşırım *(Present Simple \- Geniş Zaman)*  
 - I am fighting – Savaşıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -833,6 +892,7 @@
 ---
 
 ### Verb 60: Fix `/fɪks/` \- Tamir etmek / Düzeltmek
+- Pronunciation: `fihks` *(English respelling)*
 
 - I fix – Düzeltirim *(Present Simple \- Geniş Zaman)*  
 - I am fixing – Düzeltiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -847,6 +907,7 @@
 ---
 
 ### Verb 61: Fly `/flaɪ/` \- Uçmak
+- Pronunciation: `fly` *(English respelling)*
 
 - I fly – Uçarım *(Present Simple \- Geniş Zaman)*  
 - I am flying – Uçuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -861,6 +922,7 @@
 ---
 
 ### Verb 62: Forget `/fəˈɡet/` \- Unutmak
+- Pronunciation: `fuh-GET` *(English respelling)*
 
 - I forget – Unuturum *(Present Simple \- Geniş Zaman)*  
 - I am forgeting – Unutuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -875,6 +937,7 @@
 ---
 
 ### Verb 63: Grow `/ɡrəʊ/` \- Büyümek / Yetiştirmek
+- Pronunciation: `groh` *(English respelling)*
 
 - I grow – Büyürüm / Yetiştiririm *(Present Simple \- Geniş Zaman)*  
 - I am growing – Büyüyorum / Yetiştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -889,6 +952,7 @@
 ---
 
 ### Verb 64: Hang `/hæŋ/` \- Asmak / Takılmak
+- Pronunciation: `hang` *(English respelling)*
 
 - I hang – Asarım *(Present Simple \- Geniş Zaman)*  
 - I am hanging – Asıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -903,6 +967,7 @@
 ---
 
 ### Verb 65: Hear `/hɪər/` \- Duymak / İşitmek
+- Pronunciation: `heer` *(English respelling)*
 
 - I hear – Duyarım *(Present Simple \- Geniş Zaman)*  
 - I am hearing – Duyuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -917,6 +982,7 @@
 ---
 
 ### Verb 66: Hold `/həʊld/` \- Tutmak / Düzenlemek
+- Pronunciation: `hohld` *(English respelling)*
 
 - I hold – Tutarım / Düzenlerim *(Present Simple \- Geniş Zaman)*  
 - I am holding – Tutuyorum / Düzenliyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -931,6 +997,7 @@
 ---
 
 ### Verb 67: Jump `/dʒʌmp/` \- Zıplamak / Atlamak
+- Pronunciation: `juhmp` *(English respelling)*
 
 - I jump – Zıplarım *(Present Simple \- Geniş Zaman)*  
 - I am jumping – Zıplıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -945,6 +1012,7 @@
 ---
 
 ### Verb 68: Learn `/lɜːn/` \- Öğrenmek
+- Pronunciation: `lurn` *(English respelling)*
 
 - I learn – Öğrenirim *(Present Simple \- Geniş Zaman)*  
 - I am learning – Öğreniyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -959,6 +1027,7 @@
 ---
 
 ### Verb 69: Like `/laɪk/` \- Beğenmek / Hoşlanmak
+- Pronunciation: `lyk` *(English respelling)*
 
 - I like – Beğenirim *(Present Simple \- Geniş Zaman)*  
 - I am liking – Beğeniyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -973,6 +1042,7 @@
 ---
 
 ### Verb 70: Live `/lɪv/` \- Yaşamak
+- Pronunciation: `lihv` *(English respelling)*
 
 - I live – Yaşarım *(Present Simple \- Geniş Zaman)*  
 - I am living – Yaşıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -987,6 +1057,7 @@
 ---
 
 ### Verb 71: Love `/lʌv/` \- Sevmek
+- Pronunciation: `luhv` *(English respelling)*
 
 - I love – Severim *(Present Simple \- Geniş Zaman)*  
 - I am loving – Seviyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1001,6 +1072,7 @@
 ---
 
 ### Verb 72: Meet `/miːt/` \- Buluşmak / Tanışmak
+- Pronunciation: `meet` *(English respelling)*
 
 - I meet – Buluşurum / Tanışırım *(Present Simple \- Geniş Zaman)*  
 - I am meeting – Buluşuyorum / Tanışıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1015,6 +1087,7 @@
 ---
 
 ### Verb 73: Need `/niːd/` \- İhtiyaç duymak
+- Pronunciation: `need` *(English respelling)*
 
 - I need – İhtiyaç duyarım *(Present Simple \- Geniş Zaman)*  
 - I am needing – İhtiyaç duyuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1029,6 +1102,7 @@
 ---
 
 ### Verb 74: Pay `/peɪ/` \- Ödemek
+- Pronunciation: `pay` *(English respelling)*
 
 - I pay – Öderim *(Present Simple \- Geniş Zaman)*  
 - I am paying – Ödüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1043,6 +1117,7 @@
 ---
 
 ### Verb 75: Remember `/rɪˈmem.bər/` \- Hatırlamak
+- Pronunciation: `rih-MEM-buhr` *(English respelling)*
 
 - I remember – Hatırlarım *(Present Simple \- Geniş Zaman)*  
 - I am remembering – Hatırlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1057,6 +1132,7 @@
 ---
 
 ### Verb 76: Save `/seɪv/` \- Kaydetmek / Biriktirmek
+- Pronunciation: `sayv` *(English respelling)*
 
 - I save – Kaydederim *(Present Simple \- Geniş Zaman)*  
 - I am saving – Kaydediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1071,6 +1147,7 @@
 ---
 
 ### Verb 77: Sell `/sel/` \- Satmak
+- Pronunciation: `sel` *(English respelling)*
 
 - I sell – Satarım *(Present Simple \- Geniş Zaman)*  
 - I am selling – Satıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1085,6 +1162,7 @@
 ---
 
 ### Verb 78: Sing `/sɪŋ/` \- Şarkı söylemek
+- Pronunciation: `sihng` *(English respelling)*
 
 - I sing – Söylerim *(Present Simple \- Geniş Zaman)*  
 - I am singing – Söylüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1099,6 +1177,7 @@
 ---
 
 ### Verb 79: Smile `/smaɪl/` \- Gülümsemek
+- Pronunciation: `smyl` *(English respelling)*
 
 - I smile – Gülümserim *(Present Simple \- Geniş Zaman)*  
 - I am smiling – Gülümsüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1113,6 +1192,7 @@
 ---
 
 ### Verb 80: Spend `/spend/` \- Harcamak / Vakit geçirmek
+- Pronunciation: `spend` *(English respelling)*
 
 - I spend – Harcarım *(Present Simple \- Geniş Zaman)*  
 - I am spending – Harcıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1127,6 +1207,7 @@
 ---
 
 ### Verb 81: Swim `/swɪm/` \- Yüzmek
+- Pronunciation: `swihm` *(English respelling)*
 
 - I swim – Yüzerim *(Present Simple \- Geniş Zaman)*  
 - I am swimming – Yüzüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1141,6 +1222,7 @@
 ---
 
 ### Verb 82: Think `/θɪŋk/` \- Düşünmek
+- Pronunciation: `thihngk` *(English respelling)*
 
 - I think – Düşünürüm *(Present Simple \- Geniş Zaman)*  
 - I am thinking – Düşünüyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1155,6 +1237,7 @@
 ---
 
 ### Verb 83: Understand `/ˌʌn.dəˈstænd/` \- Anlamak
+- Pronunciation: `uhn-duh-STAND` *(English respelling)*
 
 - I understand – Anlarım *(Present Simple \- Geniş Zaman)*  
 - I am understanding – Anlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1169,6 +1252,7 @@
 ---
 
 ### Verb 84: Visit `/ˈvɪz.ɪt/` \- Ziyaret etmek
+- Pronunciation: `VIHZ-iht` *(English respelling)*
 
 - I visit – Ziyaret ederim *(Present Simple \- Geniş Zaman)*  
 - I am visiting – Ziyaret ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1183,6 +1267,7 @@
 ---
 
 ### Verb 85: Wash `/wɒʃ/` \- Yıkamak
+- Pronunciation: `wosh` *(English respelling)*
 
 - I wash – Yakarım *(Present Simple \- Geniş Zaman)*  
 - I am washing – Yıkıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1197,6 +1282,7 @@
 ---
 
 ### Verb 86: Wear `/weər/` \- Giymek / Takmak
+- Pronunciation: `wair` *(English respelling)*
 
 - I wear – Giyerim *(Present Simple \- Geniş Zaman)*  
 - I am wearing – Giyiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1211,6 +1297,7 @@
 ---
 
 ### Verb 87: Win `/wɪn/` \- Kazanmak
+- Pronunciation: `wihn` *(English respelling)*
 
 - I win – Kazanırım *(Present Simple \- Geniş Zaman)*  
 - I am winning – Kazanıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1225,6 +1312,7 @@
 ---
 
 ### Verb 88: Work `/wɜːk/` \- Çalışmak
+- Pronunciation: `wurk` *(English respelling)*
 
 - I work – Çalışırım *(Present Simple \- Geniş Zaman)*  
 - I am working – Çalışıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1239,6 +1327,7 @@
 ---
 
 ### Verb 89: Check `/tʃek/` \- Kontrol etmek
+- Pronunciation: `chek` *(English respelling)*
 
 - I check – Kontrol ederim *(Present Simple \- Geniş Zaman)*  
 - I am checking – Kontrol ediyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1253,6 +1342,7 @@
 ---
 
 ### Verb 90: Choose `/tʃuːz/` \- Seçmek
+- Pronunciation: `chooz` *(English respelling)*
 
 - I choose – Seçerim *(Present Simple \- Geniş Zaman)*  
 - I am choosing – Seçiyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1267,6 +1357,7 @@
 ---
 
 ### Verb 91: Create `/kriˈeɪt/` \- Oluşturmak / Yaratmak
+- Pronunciation: `kree-AYT` *(English respelling)*
 
 - I create – Oluştururum *(Present Simple \- Geniş Zaman)*  
 - I am creating – Oluşturuyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1281,6 +1372,7 @@
 ---
 
 ### Verb 92: Decide `/dɪˈsaɪd/` \- Karar vermek
+- Pronunciation: `dih-SYD` *(English respelling)*
 
 - I decide – Karar veririm *(Present Simple \- Geniş Zaman)*  
 - I am deciding – Karar veriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1295,6 +1387,7 @@
 ---
 
 ### Verb 93: Describe `/dɪˈskraɪb/` \- Tarif etmek / Tanımlamak
+- Pronunciation: `dih-SKRYB` *(English respelling)*
 
 - I describe – Tanımlarım *(Present Simple \- Geniş Zaman)*  
 - I am describing – Tanımlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1309,6 +1402,7 @@
 ---
 
 ### Verb 94: Explain `/ɪkˈspleɪn/` \- Açıklamak
+- Pronunciation: `ihk-SPLAYN` *(English respelling)*
 
 - I explain – Açıklarım *(Present Simple \- Geniş Zaman)*  
 - I am explaining – Açıklıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1323,6 +1417,7 @@
 ---
 
 ### Verb 95: Improve `/ɪmˈpruːv/` \- Geliştirmek / İyileştirmek
+- Pronunciation: `ihm-PROOV` *(English respelling)*
 
 - I improve – İyileştiririm *(Present Simple \- Geniş Zaman)*  
 - I am improving – İyileştiriyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1337,6 +1432,7 @@
 ---
 
 ### Verb 96: Install `/ɪnˈstɔːl/` \- Kurmak / Yüklemek
+- Pronunciation: `ihn-STAWL` *(English respelling)*
 
 - I install – Kurarım *(Present Simple \- Geniş Zaman)*  
 - I am installing – Kuruyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1351,6 +1447,7 @@
 ---
 
 ### Verb 97: Plan `/plæn/` \- Planlamak
+- Pronunciation: `plan` *(English respelling)*
 
 - I plan – Planlarım *(Present Simple \- Geniş Zaman)*  
 - I am planing – Planlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1365,6 +1462,7 @@
 ---
 
 ### Verb 98: Prepare `/prɪˈpeər/` \- Hazırlamak
+- Pronunciation: `prih-PAIR` *(English respelling)*
 
 - I prepare – Hazırlarım *(Present Simple \- Geniş Zaman)*  
 - I am preparing – Hazırlıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1379,6 +1477,7 @@
 ---
 
 ### Verb 99: Share `/ʃeər/` \- Paylaşmak
+- Pronunciation: `shair` *(English respelling)*
 
 - I share – Paylaşırım *(Present Simple \- Geniş Zaman)*  
 - I am sharing – Paylaşıyorum *(Present Continuous \- Şimdiki Zaman)*  
@@ -1393,6 +1492,7 @@
 ---
 
 ### Verb 100: Travel `/ˈtræv.əl/` \- Seyahat etmek
+- Pronunciation: `TRAV-uhl` *(English respelling)*
 
 - I travel – Seyahat ederim *(Present Simple \- Geniş Zaman)*  
 - I am traveling – Seyahat ediyorum *(Present Continuous \- Şimdiki Zaman)*  

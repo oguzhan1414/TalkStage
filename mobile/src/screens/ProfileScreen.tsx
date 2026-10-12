@@ -73,38 +73,9 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           <ContributionHeatmap progress={progress ?? []} dailyTargetMinutes={dailyTargetMinutes} />
         </View>
 
-        {/* Tüm özellikler — tek, düz liste (gruplara ayrılmıyor). */}
+        {/* İki başlık: ne yapacağını seç (Pratik yap) ve nasıl gittiğine bak (Gelişimim). */}
+        <Text style={styles.sectionTitle}>{t("Pratik Yap")}</Text>
         <View style={styles.featureList}>
-          <FeatureCard
-            title={t("Hata Defterim")}
-            desc={t("{{p0}} kayıt · Gramer kurallarını tekrar et", { p0: mistakes?.length ?? 0 })}
-            icon={minimalFeatureIcons.mistakesNotebook}
-            onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
-          />
-          <FeatureCard
-            title={t("Mivo'nun Hatırladıkları")}
-            desc={t("Sohbetlerden öğrendiği şeyleri gör, düzenle veya sil")}
-            icon={minimalFeatureIcons.mivoMemory}
-            onPress={() => navigation.navigate('MivoMemory')}
-          />
-          <FeatureCard
-            title={t("Kelime Kütüphanesi")}
-            desc={t("900 çekirdek kelime · İncele, sandığına ekle")}
-            icon={minimalFeatureIcons.vocabLibrary}
-            onPress={() => navigation.navigate('VocabLibrary')}
-          />
-          <FeatureCard
-            title={t("Kelime Klasörlerim")}
-            desc={t("Kendi başlıklarınla kelime grupla ve çalış")}
-            icon={minimalFeatureIcons.vocabFolders}
-            onPress={() => navigation.navigate('VocabDecks')}
-          />
-          <FeatureCard
-            title={t("Rozetlerim")}
-            desc={t("{{size}}/{{total}} kazanıldı · Başarılarını gör", { size: earnedBadgeIds.size, total: BADGES.length })}
-            icon={minimalFeatureIcons.badges}
-            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
-          />
           <FeatureCard
             title={t("Okuma & Hikayeler")}
             desc={t("A1'den C2'ye tüm hikayeleri gör, oku ve dinle")}
@@ -122,6 +93,28 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             desc={t("Sık yanlış söylenen kelimeleri düzelt")}
             icon={minimalFeatureIcons.pronunciation}
             onPress={() => navigation.navigate('MispronouncedWords')}
+          />
+        </View>
+
+        <Text style={[styles.sectionTitle, { marginTop: spacing.sm }]}>{t("Gelişimim")}</Text>
+        <View style={styles.featureList}>
+          <FeatureCard
+            title={t("Hata Defterim")}
+            desc={t("{{p0}} kayıt · Gramer kurallarını tekrar et", { p0: mistakes?.length ?? 0 })}
+            icon={minimalFeatureIcons.mistakesNotebook}
+            onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
+          />
+          <FeatureCard
+            title={t("Mivo'nun Hatırladıkları")}
+            desc={t("Sohbetlerden öğrendiği şeyleri gör, düzenle veya sil")}
+            icon={minimalFeatureIcons.mivoMemory}
+            onPress={() => navigation.navigate('MivoMemory')}
+          />
+          <FeatureCard
+            title={t("Rozetlerim")}
+            desc={t("{{size}}/{{total}} kazanıldı · Başarılarını gör", { size: earnedBadgeIds.size, total: BADGES.length })}
+            icon={minimalFeatureIcons.badges}
+            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
           />
         </View>
 

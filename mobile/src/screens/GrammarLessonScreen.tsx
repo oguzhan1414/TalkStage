@@ -14,6 +14,7 @@ import { findGrammarLesson, type GrammarQuizQuestion } from '@talkstage/shared-d
 import { PODCAST_EPISODES } from '../data/podcastData';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api } from '../lib/api';
+import { postQueued } from '../lib/outbox';
 import { setLearningFlag } from '../lib/learningFlags';
 import { isProUser } from '../lib/revenuecat';
 import type { GrammarLessonScreenProps } from '../navigation/types';
@@ -218,7 +219,7 @@ export function GrammarLessonScreen({ route, navigation }: GrammarLessonScreenPr
       setLearningFlag(`lesson_quiz_done_${lesson.code}`);
       if (correctCount === total) {
         showToast(t("🎉 Harika! {{total}}/{{total2}} Doğru — Gerçek XP kazandın ⚡", { total, total2: total }));
-        api.post('/progress/log-practice').then(() => {
+        postQueued('/progress/log-practice').then(() => {
           queryClient.invalidateQueries({ queryKey: ['me'] });
           queryClient.invalidateQueries({ queryKey: ['progress'] });
         }).catch(() => {});
@@ -666,32 +667,6 @@ export function GrammarLessonScreen({ route, navigation }: GrammarLessonScreenPr
             )}
           </View>
         ) : null}
-
-        {/* Canlı pratik köprüsü */}
-        <View style={[styles.bridgeCard, shadow.card]}>
-          <Image source={mivoHomeImages.chatInvite} style={styles.bridgeMivo} resizeMode="contain" />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.bridgeTitle}>{t("Şimdi Pratiğe Dök!")}</Text>
-            <Text style={styles.bridgeSub}>{t("Mivo ile bu kuralı kısa bir sohbette kullan.")}</Text>
-            <BouncyPressable
-              onPress={() =>
-                navigation.navigate('TextChat', {
-                  focusTopic: {
-                    topicCode: lesson.code,
-                    title: lesson.title,
-                    formula: matchingTopic?.formula ?? lesson.title,
-                  },
-                })
-              }
-              style={styles.bridgeBtn}
-              hapticType="success"
-              scaleTo={0.96}
-            >
-              <Text style={styles.bridgeBtnText}>{t("Mivo ile Konuş")}</Text>
-              <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-            </BouncyPressable>
-          </View>
-        </View>
 
         {relatedPodcast ? (
           <BouncyPressable

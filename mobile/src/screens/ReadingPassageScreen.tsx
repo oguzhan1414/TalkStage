@@ -1360,7 +1360,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   tooltipPhoneticText: {
-    fontFamily: fonts.mono,
+    // System font on purpose: the app fonts (JetBrains Mono) lack IPA glyphs (ə ː ˈ ɑ …) and garble them.
     fontSize: 11,
     color: '#38BDF8',
   },
