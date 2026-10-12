@@ -11,6 +11,7 @@ from app.api.routes import (
     profiles,
     progress,
     reading,
+    reports,
     scenarios,
     scene_play_session,
     sessions,
@@ -55,6 +56,7 @@ app.include_router(learning_flags.router)
 app.include_router(speech.router)
 app.include_router(memory.router)
 app.include_router(badges.router)
+app.include_router(reports.router)
 
 
 import os

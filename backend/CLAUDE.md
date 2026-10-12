@@ -352,3 +352,6 @@ Tüm REST endpoint'leri `Authorization: Bearer <supabase_access_token>` bekler.
 
 ### XP tablosu (2026-10-12)
 - `services/scorecard.py`: `ACTIVITY_XP=10`, `FIRST_PRACTICE_BONUS_XP=5`, `VOCAB_REVIEW_XP=1` (2'den indi: sınırsız tekrar → farm), `READING_COMPLETION_XP=15`. `POST /progress/log-practice` artık her çağrıda `ACTIVITY_XP` verir (eskiden günde yalnız ilk çağrıda 8); günün ilk pratiğinde `ACTIVITY_XP + FIRST_PRACTICE_BONUS_XP` + seri güncellemesi. Ortak yardımcı: `services/progress.award_xp` (vocab/reading/log-practice). Migration yok. Mobil karşılığı `mobile/src/constants/xp.ts`.
+
+### AI içerik bildirimleri (2026-10-13)
+- `POST /reports/ai-content` (204): kullanıcı kendi RLS kimliğiyle `ai_content_reports` tablosuna yazar (migration `0030_ai_content_reports.sql` — Studio'da çalıştırılmalı). Nedenler: harmful|hate|sexual|inaccurate|other. İnceleme Supabase Studio'dan.
