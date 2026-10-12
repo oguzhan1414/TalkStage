@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import { t } from '../i18n';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://www.spekvia.com/gizlilik';
+import { privacyUrl } from '../constants/legalLinks';
 
 export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
   return (
@@ -18,7 +18,7 @@ export function VoicePrivacyPrompt({ onContinue }: { onContinue: () => void }) {
       <Button label={t("Anladım, Devam Et")} onPress={onContinue} style={styles.button} />
       <Pressable
         onPress={() => {
-          void Linking.openURL(PRIVACY_URL);
+          void Linking.openURL(privacyUrl());
         }}
         accessibilityRole="link"
         accessibilityLabel={t("Gizlilik politikasını aç")}

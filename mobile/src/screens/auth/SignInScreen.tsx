@@ -19,6 +19,7 @@ import { AuthMivoHero } from '../../components/AuthMivoHero';
 import { AppleSignInButton } from '../../components/AppleSignInButton';
 import { BouncyPressable } from '../../components/BouncyPressable';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
+import { LegalConsentNote } from '../../components/LegalConsentNote';
 import { supabase } from '../../lib/supabase';
 import type { AuthStackScreenProps } from '../../navigation/types';
 import { colors, fonts, radii, shadow } from '../../theme/tokens';
@@ -180,6 +181,8 @@ export function SignInScreen({ navigation }: AuthStackScreenProps<'SignIn'>) {
                   <AppleSignInButton onError={setError} />
                   <GoogleSignInButton onError={setError} />
                 </View>
+
+                <LegalConsentNote />
 
                 {/* Bottom Switcher */}
                 <BouncyPressable

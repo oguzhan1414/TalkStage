@@ -8,6 +8,7 @@ import { useConversationSocket, type TurnPhase } from '../hooks/useConversationS
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import { MivoLoader } from './MivoLoader';
+import { ReportAiContentModal } from './ReportAiContentModal';
 import { getLocale, t, nativeFlag } from '../i18n';
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
@@ -369,6 +370,7 @@ function ChatBubble({
   onListen?: (text: string) => void;
 }) {
   const anim = useRef(new Animated.Value(0)).current;
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     Animated.timing(anim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
@@ -389,18 +391,30 @@ function ChatBubble({
             onWordPress={(w) => onWordPress(w, bubble.text)}
             textStyle={styles.bubbleTextAssistant}
           />
-          {onListen ? (
+          <View style={styles.bubbleActionsRow}>
+            {onListen ? (
+              <Pressable
+                onPress={() => onListen(bubble.text)}
+                hitSlop={8}
+                style={styles.bubbleListenBtn}
+                accessibilityRole="button"
+                accessibilityLabel={t("Dinle")}
+              >
+                <Ionicons name="volume-high-outline" size={16} color={colors.textMuted} />
+              </Pressable>
+            ) : null}
             <Pressable
-              onPress={() => onListen(bubble.text)}
+              onPress={() => setReportOpen(true)}
               hitSlop={8}
               style={styles.bubbleListenBtn}
               accessibilityRole="button"
-              accessibilityLabel={t("Dinle")}
+              accessibilityLabel={t("Yanıtı bildir")}
             >
-              <Ionicons name="volume-high-outline" size={16} color={colors.textMuted} />
+              <Ionicons name="flag-outline" size={15} color={colors.textMuted} />
             </Pressable>
-          ) : null}
+          </View>
         </View>
+        <ReportAiContentModal visible={reportOpen} text={bubble.text} onClose={() => setReportOpen(false)} />
       </Animated.View>
     );
   }
@@ -465,6 +479,7 @@ export const voiceRoomStyles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
   },
+  bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   bubbleListenBtn: { alignSelf: 'flex-start', marginTop: 6, padding: 2 },
   suggestionCard: {
     backgroundColor: '#FFFBEB',

@@ -28,7 +28,7 @@ import { getLocale, LOCALE_META, t } from '../i18n';
 import { LanguagePickerModal } from '../components/LanguagePickerModal';
 
 const SUPPORT_EMAIL = 'support@spekvia.com';
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || 'https://www.spekvia.com/gizlilik';
+import { privacyUrl } from '../constants/legalLinks';
 const APP_VERSION = '1.0.0';
 
 const AVATAR_LIST = [
@@ -383,7 +383,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
 
           <Pressable
             onPress={() => {
-              void Linking.openURL(PRIVACY_URL);
+              void Linking.openURL(privacyUrl());
             }}
             style={styles.settingRow}
             accessibilityRole="link"

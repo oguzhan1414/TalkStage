@@ -1,19 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Purchases, { PACKAGE_TYPE, type PurchasesPackage } from 'react-native-purchases';
 
+import { privacyUrl, termsUrl } from '../constants/legalLinks';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import { Button } from './Button';
 import { t } from '../i18n';
 
+// Only what Pro really unlocks (backend/app/services/entitlements.py + GrammarLessonScreen `isFree`): never list
+// features that are free for everyone or not built — store policies treat that as a misleading claim.
 const PRO_FEATURES = [
   t("Sınırsız canlı sesli konuşma pratiği"),
-  t("Tüm niş sahneler (Mülakat, Vize, B2B)"),
-  t("Anlık Türkçe açıklamalı gramer & fonetik koçu"),
-  t("Detaylı telaffuz ve hece analizi raporları"),
-  t("Kişiselleştirilmiş SM-2 kelime tekrar motoru"),
+  t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
+  t("Tüm gramer derslerinin kilidi açık"),
 ];
 
 type Plan = {
@@ -118,6 +119,15 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
         style={styles.ctaButton}
       />
       <Text style={styles.disclaimer}>{t("İstediğin zaman tek tıkla iptal et.")}</Text>
+      <View style={styles.legalRow}>
+        <Pressable onPress={() => void Linking.openURL(termsUrl())} hitSlop={8}>
+          <Text style={styles.legalLink}>{t("Kullanım Şartları")}</Text>
+        </Pressable>
+        <Text style={styles.legalLink}>·</Text>
+        <Pressable onPress={() => void Linking.openURL(privacyUrl())} hitSlop={8}>
+          <Text style={styles.legalLink}>{t("Gizlilik Politikası")}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -154,4 +164,6 @@ const styles = StyleSheet.create({
   planPeriod: { ...typography.caption },
   ctaButton: { width: '100%', marginTop: spacing.lg },
   disclaimer: { ...typography.caption, textAlign: 'center' },
+  legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: spacing.sm },
+  legalLink: { ...typography.caption, textDecorationLine: 'underline' },
 });

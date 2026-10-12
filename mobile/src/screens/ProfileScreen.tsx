@@ -139,8 +139,8 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             <Text style={styles.vipTitle}>{isPro ? t("Sınırsız Ayrıcalıklar") : t("Sınırsız Sahneye Çık")}</Text>
             <Text style={styles.vipDesc}>
               {isPro
-                ? t("Tüm mülakatlar, podcastler ve derin AI analizleri sınırsız kullanımında.")
-                : t("Günlük limitleri kaldır, 40 podcast ve tüm mülakatların kilidini aç.")}
+                ? t("Sınırsız sesli senaryo, 30 dakikaya kadar oturumlar ve tüm gramer dersleri hesabında açık.")
+                : t("Günlük sesli senaryo limitini kaldır ve tüm gramer derslerinin kilidini aç.")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={isPro ? '#10B981' : '#F59E0B'} />

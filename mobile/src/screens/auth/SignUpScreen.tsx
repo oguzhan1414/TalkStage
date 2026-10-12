@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { appLogoIcon, authWelcomeHeroBg } from '../../assets/images';
 import { AuthMivoHero } from '../../components/AuthMivoHero';
 import { BouncyPressable } from '../../components/BouncyPressable';
+import { LegalConsentNote } from '../../components/LegalConsentNote';
 import { supabase } from '../../lib/supabase';
 import type { AuthStackScreenProps } from '../../navigation/types';
 import { colors, fonts, radii, shadow } from '../../theme/tokens';
@@ -226,6 +227,8 @@ export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
                     </>
                   )}
                 </BouncyPressable>
+
+                <LegalConsentNote />
 
                 {/* Bottom Switcher */}
                 <BouncyPressable

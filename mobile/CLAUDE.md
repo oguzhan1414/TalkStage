@@ -636,3 +636,12 @@ Onboarding → Konuşma → Kelime Kaydı → Paywall akışının manuel/otomat
 - "Mivo ile dostluk" seviyeleri toplam XP'den türetilir (`xpLevelInfo`, 8 seviye: 0/100/300/600/1000/1600/2400/3500), sunucu durumu/migration yok. `XpLevelCard` Özellikler sekmesinin başında; gerçek seviye atlayınca AppHeader'da tek seferlik Alert (AsyncStorage `spekvia.xp_level_seen.v1`; ilk açılışta sadece kaydeder).
 - Deste çalışma ekranı XP vermiyordu: artık "Çalışılan kart sayısı" gösteriyor. `DailyLessonModal` hiçbir yerden kullanılmıyor (ölü kod, `xpReward` verisi gösterilmiyor).
 - Yapılmadı (bilerek, "sistemi yorma"): lig/sıralama, günlük XP hedefi, haftalık özet, XP ile harcama (Seri Koruyucu). İstenirse sonraki adım: günlük hedefi onboarding'deki günlük süreye bağlamak.
+
+### Yasal bağlantılar (2026-10-13)
+- `constants/legalLinks.ts`: gizlilik / kullanım şartları / hesap silme adresleri kullanıcının diline göre (landing'in yerelleştirilmiş slug'larıyla senkron tut). `EXPO_PUBLIC_PRIVACY_URL` artık kullanılmıyor. Pro ekranı (onboarding `PremiumScreen`) ve `PaywallContent` altında Kullanım Şartları + Gizlilik bağlantıları var.
+- Play için açık riskler ve Data safety cevap taslağı repo kökünde `PLAY_STORE_YASAL_KONTROL.md`. Önemli: üretken yapay zekâ içeriğini uygulama içinden bildirme özelliği YOK (Play AI-Generated Content politikası bekliyor); Pro ekranındaki "telaffuz ve hece analizi raporları" vaadi koddaki gerçek özelliklerle doğrulanamadı.
+
+### Yapay zekâ içeriğini bildirme + Pro metinleri (2026-10-13)
+- Mivo mesajının altında bayrak düğmesi (`VoiceRoomUI` → `ReportAiContentModal`) → `POST /reports/ai-content` (backend `routes/reports.py`, tablo `ai_content_reports`, migration 0030). Google Play AI-Generated Content politikası için.
+- Pro metinleri yalnızca doğrulanan şeyleri söylüyor: sınırsız sesli senaryo, 30 dk'ya kadar oturum (ücretsizde 5), tüm gramer dersleri (`PaywallContent`, `ProfileScreen` afişi). Pro'ya bağlı olmayan şeyleri (podcast, sahneler: CEFR seviyesine göre kilitli, kelime kartları) Pro vaadi olarak YAZMA.
+- `LegalConsentNote`: giriş/kayıt ekranlarında şartlar ve gizlilik bağlantılı kabul notu.

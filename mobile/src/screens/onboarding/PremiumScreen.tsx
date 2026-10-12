@@ -11,7 +11,7 @@ import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
 import { getLocale, t } from '../../i18n';
 
-const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL ?? 'https://www.spekvia.com/gizlilik';
+import { privacyUrl, termsUrl } from '../../constants/legalLinks';
 
 /**
  * Pro offer after the plan is ready. Turkish UI: full-screen Mivo poster with a bottom sheet (price, CTA, "Belki sonra").
@@ -80,9 +80,15 @@ export function PremiumScreen({ navigation }: OnboardingStackScreenProps<'Premiu
           <Text style={styles.laterTextDark}>{t("Belki sonra")}</Text>
         </Pressable>
 
-        <Pressable onPress={() => void Linking.openURL(PRIVACY_URL)} hitSlop={8}>
-          <Text style={styles.legal}>{t("Gizlilik Politikası")}</Text>
-        </Pressable>
+        <View style={styles.legalRow}>
+          <Pressable onPress={() => void Linking.openURL(termsUrl())} hitSlop={8}>
+            <Text style={styles.legal}>{t("Kullanım Şartları")}</Text>
+          </Pressable>
+          <Text style={styles.legal}>·</Text>
+          <Pressable onPress={() => void Linking.openURL(privacyUrl())} hitSlop={8}>
+            <Text style={styles.legal}>{t("Gizlilik Politikası")}</Text>
+          </Pressable>
+        </View>
       </LinearGradient>
     </ImageBackground>
   );
@@ -113,6 +119,7 @@ const styles = StyleSheet.create({
   later: { paddingVertical: 12, paddingHorizontal: 24 },
   laterTextDark: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: 'rgba(255,255,255,0.85)' },
   legal: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: 'rgba(233,213,255,0.6)', textDecorationLine: 'underline' },
+  legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 
   plainContainer: { flex: 1, backgroundColor: colors.background },
   plainContent: { padding: spacing.lg, gap: spacing.md, alignItems: 'center' },
