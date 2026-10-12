@@ -12,6 +12,7 @@ from app.schemas.vocab import (
     VocabReviewRequest,
 )
 from app.services.dictionary import lookup_word
+from app.services.progress import award_xp
 from app.services.scorecard import VOCAB_REVIEW_XP
 from app.services.sm2 import review_card
 
@@ -144,10 +145,5 @@ def review_vocab_card(
         .eq("id", card_id)
         .execute()
     )
-    _award_xp(ctx, VOCAB_REVIEW_XP)
+    award_xp(ctx, VOCAB_REVIEW_XP)
     return VocabCardOut(**result.data[0])
-
-
-def _award_xp(ctx: AuthContext, amount: int) -> None:
-    profile = ctx.db.table("profiles").select("xp").eq("id", ctx.user.id).single().execute().data
-    ctx.db.table("profiles").update({"xp": profile["xp"] + amount}).eq("id", ctx.user.id).execute()

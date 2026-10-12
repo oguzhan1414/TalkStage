@@ -618,3 +618,21 @@ Onboarding → Konuşma → Kelime Kaydı → Paywall akışının manuel/otomat
 
 ### i18n kalite kontrolü (2026-10-12)
 - `npm run i18n:check` (mobile klasöründen) tüm katalogları doğrular (ortak betik `landing/scripts/i18n-validate.js`): eksik, çevrilmemiş, `{{}}` uyuşmazlığı, kalan Türkçe harf. Yeni `t()` metni ekledikten sonra çalıştır. İngilizce kaynaklı anahtarlar (rozet adları vb.) `en`'de aranmaz. `node ../landing/scripts/i18n-punct.js src/i18n/catalog --fix` makine çevirisinin sondaki gereksiz noktalarını temizler (60 girdi düzeltildi).
+
+### Google girişi → Supabase OAuth (2026-10-12)
+- `components/GoogleSignInButton.tsx` artık native id-token akışı (`expo-auth-session/providers/google`) yerine Supabase'in kendi akışını kullanır: `signInWithOAuth({ provider: 'google', skipBrowserRedirect: true })` → `WebBrowser.openAuthSessionAsync` → dönen `?code=` → `exchangeCodeForSession`. `lib/supabase.ts` `flowType: 'pkce'`.
+- Nedeni: native akış her build için ayrı Android/iOS OAuth client (paket adı + SHA-1) ister, Expo Go ve webde çalışmaz. Bu akışta uygulamada Google client id YOK (`EXPO_PUBLIC_GOOGLE_*` kaldırıldı); tek Google **Web** client'ı Supabase paneline girilir.
+- `redirectTo = Linking.createURL('auth/callback')`: gerçek build'de `spekvia://auth/callback`, Expo Go'da `exp://<ip>:8081/--/auth/callback`. İkisi de Supabase → Authentication → URL Configuration → Redirect URLs listesinde olmalı (geliştirme için `exp://**`; yayından önce kaldır).
+- `expo-auth-session` paketi artık kullanılmıyor (package.json'da duruyor; istenirse `npm uninstall`).
+
+### Google girişi — yerel (uygulama içi) yol eklendi (2026-10-12)
+- `GoogleSignInButton` artık iki yollu: (1) YEREL — `@react-native-google-signin/google-signin` (v16) → `signInWithIdToken`; sadece development/production build'inde var (Expo Go ve webde yok), `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` + Google Cloud'da Android OAuth client (paket adı + SHA-1) ister. (2) TARAYICI — Supabase OAuth + PKCE (Expo Go/web). Yerel modül yoksa ya da yerel çağrı iptal DIŞINDA hata verirse otomatik tarayıcı akışına düşer (yapılandırma eksikken giriş kilitlenmesin).
+- `app.json`'a eklenti EKLEME (Firebase'siz kullanımda parametresiz eklenti `google-services.json` ister; iOS için ileride `["@react-native-google-signin/google-signin", {"iosUrlScheme": "com.googleusercontent.apps.<iOS client id>"}]`). Android'de eklenti gerekmez.
+- Android build adımları: `app.json` → `android.package` (örn. com.spekvia.app), EAS dev build, `eas credentials` ile SHA-1, Google Cloud'da Android OAuth client (paket + SHA-1). Supabase tarafı değişmez (aud = Web client id). Nonce hatası çıkarsa Supabase → Google provider → "Skip nonce checks" aç.
+
+### XP sistemi sadeleştirildi (2026-10-12)
+- Sorun: XP'yi sadece AppHeader gösteriyordu, hiçbir şeye bağlı değildi; ekranda yazan rakamlar (+10/adım, +5/+25 deste, "+5XP" çipi) sunucunun verdiğiyle uyuşmuyordu ve uygulama içi rehber "XP Seviye Raporu'nda görünür" diye yanlış söylüyordu.
+- Tek XP tablosu (backend `services/scorecard.py`): bir tamamlanan aktivite `ACTIVITY_XP=10` (her `POST /progress/log-practice` çağrısında; günün ilk pratiğinde gizli +5 ve seri güncellemesi), okuma 15 (bir kez), kelime kartı 1, canlı konuşma seansı 10–20. UI karşılığı `mobile/src/constants/xp.ts` (`ACTIVITY_XP`) — ikisini birlikte değiştir; sunucunun vermediği XP'yi ekranda ASLA yazma.
+- "Mivo ile dostluk" seviyeleri toplam XP'den türetilir (`xpLevelInfo`, 8 seviye: 0/100/300/600/1000/1600/2400/3500), sunucu durumu/migration yok. `XpLevelCard` Özellikler sekmesinin başında; gerçek seviye atlayınca AppHeader'da tek seferlik Alert (AsyncStorage `spekvia.xp_level_seen.v1`; ilk açılışta sadece kaydeder).
+- Deste çalışma ekranı XP vermiyordu: artık "Çalışılan kart sayısı" gösteriyor. `DailyLessonModal` hiçbir yerden kullanılmıyor (ölü kod, `xpReward` verisi gösterilmiyor).
+- Yapılmadı (bilerek, "sistemi yorma"): lig/sıralama, günlük XP hedefi, haftalık özet, XP ile harcama (Seri Koruyucu). İstenirse sonraki adım: günlük hedefi onboarding'deki günlük süreye bağlamak.

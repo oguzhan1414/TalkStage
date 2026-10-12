@@ -8,6 +8,7 @@ from app.api.deps import AuthContext, get_auth_context, get_locale
 from app.schemas.reading import ReadingPassageOut
 from app.services.content_i18n import overlay_translation
 from app.core.language import normalize_native_language
+from app.services.progress import award_xp
 from app.services.scorecard import READING_COMPLETION_XP
 from app.services.speaking_check import check_speaking_sync
 
@@ -82,10 +83,7 @@ def complete_passage(slug: str, ctx: AuthContext = Depends(get_auth_context)) ->
         on_conflict="user_id,reading_passage_id",
     ).execute()
     if not already_completed:
-        profile = ctx.db.table("profiles").select("xp").eq("id", ctx.user.id).single().execute().data
-        ctx.db.table("profiles").update({"xp": profile["xp"] + READING_COMPLETION_XP}).eq(
-            "id", ctx.user.id
-        ).execute()
+        award_xp(ctx, READING_COMPLETION_XP)
 
 
 class SpeakingCheckIn(BaseModel):

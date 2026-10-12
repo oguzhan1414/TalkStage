@@ -34,6 +34,7 @@ import {
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut, ScenarioOut, SessionOut } from '../types/api';
+import { ACTIVITY_XP } from '../constants/xp';
 import { t } from '../i18n';
 
 export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scenarios'>) {
@@ -531,7 +532,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                         <Text style={styles.cinemaStepPillText}>{t("{{stepCount}} adımlı interaktif diyalog", { stepCount })}</Text>
                       </View>
                       <View style={styles.cinemaXpMiniTag}>
-                        <Text style={styles.cinemaXpMiniText}>+{stepCount * 10}{" "}{t("XP")}</Text>
+                        <Text style={styles.cinemaXpMiniText}>+{ACTIVITY_XP}{" "}{t("XP")}</Text>
                       </View>
                     </View>
                   </View>
@@ -588,7 +589,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                         <View style={styles.cinemaLaunchButton}>
                           <Ionicons name="play-circle" size={18} color="#FFFFFF" />
                           <Text style={styles.cinemaLaunchButtonText}>
-                            {t("Canlı Sahneyi Oyna (+{{xp}} XP)", { xp: stepCount * 10 })}
+                            {t("Canlı Sahneyi Oyna (+{{xp}} XP)", { xp: ACTIVITY_XP })}
                           </Text>
                           <Ionicons name="arrow-forward" size={15} color="#FFFFFF" />
                         </View>

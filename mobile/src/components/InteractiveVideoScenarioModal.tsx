@@ -22,6 +22,7 @@ import { api } from '../lib/api';
 import { postQueued } from '../lib/outbox';
 import { resolveMediaUrl, resolveVideoUrl } from '../lib/media';
 import { companionImage, resolveScenarioCategoryFallback, scenarioCustomCovers } from '../assets/images';
+import { ACTIVITY_XP } from '../constants/xp';
 import { t, nativeFlag } from '../i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -179,14 +180,15 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   const handlePassStep = () => {
     haptics.success();
     stopPronunciation();
-    const newXp = earnedTotalXp + 10;
-    setEarnedTotalXp(newXp);
-
     const isLastStep = currentStepIndex >= steps.length - 1;
     if (!isLastStep) {
       setCurrentStepIndex((prev) => prev + 1);
       return;
     }
+
+    // XP is paid once, for the completed scenario — exactly what POST /progress/log-practice grants.
+    const newXp = ACTIVITY_XP;
+    setEarnedTotalXp(newXp);
 
     setPhase('success');
     // Record practice XP on server silently — once, for the completed scenario.
@@ -230,10 +232,12 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
           </View>
 
           <View style={styles.headerRightRow}>
-            <View style={styles.xpTag}>
-              <Ionicons name="sparkles" size={13} color="#F59E0B" />
-              <Text style={styles.xpTagText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
-            </View>
+            {earnedTotalXp > 0 ? (
+              <View style={styles.xpTag}>
+                <Ionicons name="sparkles" size={13} color="#F59E0B" />
+                <Text style={styles.xpTagText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
+              </View>
+            ) : null}
 
             <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
               <Ionicons name="close" size={22} color="#FFFFFF" />
@@ -296,7 +300,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   </View>
                   <View style={styles.previewMetaItem}>
                     <Ionicons name="sparkles-outline" size={14} color="#F59E0B" />
-                    <Text style={styles.previewMetaText}>+{steps.length * 10}{" "}{t("XP Başarı Puanı")}</Text>
+                    <Text style={styles.previewMetaText}>+{ACTIVITY_XP}{" "}{t("XP Başarı Puanı")}</Text>
                   </View>
                 </View>
 

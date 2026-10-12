@@ -18,6 +18,7 @@ import { isProUser } from '../lib/revenuecat';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut, ProfileOut, ProgressOut } from '../types/api';
+import { XpLevelCard } from '../components/XpLevelCard';
 import { t } from '../i18n';
 
 /**
@@ -67,6 +68,9 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Mivo ile dostluk: toplam XP'den türetilen seviye (constants/xp.ts). */}
+        <XpLevelCard xp={profile?.xp} />
+
         {/* Pratik Geçmişi — GitHub tarzı contribution heatmap, hep en üstte. */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("Pratik Geçmişi")}</Text>

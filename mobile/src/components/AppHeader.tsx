@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 
 import { avatarImages, stateImages } from '../assets/images';
+import { xpLevelInfo } from '../constants/xp';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +29,10 @@ const AVATAR_MAP: Record<string, ReturnType<typeof require>> = {
   adult_hobby: avatarImages.matureSenior,
   service: avatarImages.femaleEntrepreneur,
 };
+
+const LEVEL_SEEN_KEY = 'spekvia.xp_level_seen.v1';
+// Several AppHeaders are mounted at once (one per tab): only one of them may show the alert.
+let levelAlertShowing = false;
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -66,6 +73,32 @@ export function AppHeader() {
     (profile?.avatar_id && AVATAR_MAP[profile.avatar_id]) ||
     (profile?.persona_id && AVATAR_MAP[profile.persona_id]) ||
     avatarImages.studentYouth;
+
+  // Real level-ups only: the first run (nothing stored yet) just remembers the current level.
+  useEffect(() => {
+    if (profile?.xp == null) return;
+    const info = xpLevelInfo(profile.xp);
+    void (async () => {
+      try {
+        const stored = await AsyncStorage.getItem(LEVEL_SEEN_KEY);
+        if (info.level <= Number(stored ?? 0)) return;
+        await AsyncStorage.setItem(LEVEL_SEEN_KEY, String(info.level));
+        if (!stored || levelAlertShowing) return;
+        levelAlertShowing = true;
+        const done = () => {
+          levelAlertShowing = false;
+        };
+        Alert.alert(
+          t("Seviye atladın! 🎉"),
+          t("Mivo ile dostluk seviyen {{level}} oldu: {{name}}", { level: info.level, name: info.name }),
+          [{ text: t("Tamam"), onPress: done }],
+          { cancelable: true, onDismiss: done },
+        );
+      } catch {
+        // Storage can fail (private mode, cleared data): skipping a celebration is harmless.
+      }
+    })();
+  }, [profile?.xp]);
 
   const currentLevel = profile?.cefr_level ?? 'A1';
   const streak = profile?.streak_count ?? 1;

@@ -41,7 +41,7 @@ const ADVANCED_PATTERNS = [
   { regex: /\b(furthermore|moreover|in addition|subsequently)\b/i, label: t("C1 İleri Seviye Bağlaç 🚀"), color: '#6366F1' },
   { regex: /\b(however|nevertheless|on the other hand|in retrospect)\b/i, label: t("B2 Profesyonel Karşıtlık 🎯"), color: '#8B5CF6' },
   { regex: /\b(specifically|for instance|to illustrate|for example)\b/i, label: t("Somutlaştırma Başarısı 💡"), color: '#F59E0B' },
-  { regex: /\b(as a result|consequently|therefore|thus)\b/i, label: t("Sonuç Çıkarımı +5XP ⚡"), color: '#EC4899' },
+  { regex: /\b(as a result|consequently|therefore|thus)\b/i, label: t("Sonuç Çıkarımı ⚡"), color: '#EC4899' },
 ];
 
 // Below this, Deepgram likely misheard rather than just transcribed

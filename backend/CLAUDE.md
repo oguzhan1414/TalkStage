@@ -349,3 +349,6 @@ Tüm REST endpoint'leri `Authorization: Bearer <supabase_access_token>` bekler.
 
 ### Onboarding: isteğe bağlı cinsiyet + yaş aralığı (2026-10-12)
 - Migration `0029_profile_gender_age.sql` (`profiles.gender`, `profiles.age_range`, check kısıtlı, null olabilir). `OnboardingCompleteRequest` ve `ProfileOut` bu iki alanı taşır. `POST /onboarding/complete` kolon yoksa (migration uygulanmamış) önce `gender`, `age_range`, sonra `native_language` alanını düşürüp tekrar dener — eksik opsiyonel kolon onboarding'i asla bloklamaz. Kesin doğum tarihi tutulmaz (veri azaltma).
+
+### XP tablosu (2026-10-12)
+- `services/scorecard.py`: `ACTIVITY_XP=10`, `FIRST_PRACTICE_BONUS_XP=5`, `VOCAB_REVIEW_XP=1` (2'den indi: sınırsız tekrar → farm), `READING_COMPLETION_XP=15`. `POST /progress/log-practice` artık her çağrıda `ACTIVITY_XP` verir (eskiden günde yalnız ilk çağrıda 8); günün ilk pratiğinde `ACTIVITY_XP + FIRST_PRACTICE_BONUS_XP` + seri güncellemesi. Ortak yardımcı: `services/progress.award_xp` (vocab/reading/log-practice). Migration yok. Mobil karşılığı `mobile/src/constants/xp.ts`.

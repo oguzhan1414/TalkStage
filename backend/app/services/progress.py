@@ -36,6 +36,12 @@ def record_progress(ctx: AuthContext, duration_minutes: int) -> bool:
     return True
 
 
+def award_xp(ctx: AuthContext, amount: int) -> None:
+    """Adds XP to the profile without touching the streak (see `update_streak_and_xp` for the first-of-day path)."""
+    profile = ctx.db.table("profiles").select("xp").eq("id", ctx.user.id).single().execute().data
+    ctx.db.table("profiles").update({"xp": profile["xp"] + amount}).eq("id", ctx.user.id).execute()
+
+
 def update_streak_and_xp(ctx: AuthContext, xp_gained: int) -> None:
     profile = ctx.db.table("profiles").select("*").eq("id", ctx.user.id).single().execute().data
     last_practice_date = (

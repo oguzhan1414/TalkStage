@@ -37,9 +37,17 @@ def count_user_turns(transcript: list[TranscriptTurn]) -> int:
     return sum(1 for turn in transcript if turn.role == "user")
 
 
-#: Flat XP for reviewing a vocab card (any grade) — rewards daily engagement
-#: with the SM-2 queue independently of session-based XP.
-VOCAB_REVIEW_XP = 2
+# ---- XP table: single source of truth. The mobile app mirrors the numbers it shows in `src/constants/xp.ts`. ----
+#: One completed activity (lesson quiz aced, podcast lesson, topic chat, scene, 3D scenario).
+#: Granted by `POST /progress/log-practice` on EVERY call, so each activity pays out.
+ACTIVITY_XP = 10
+
+#: Hidden extra on the first practice of a day (not shown in the UI) — a small nudge to come back daily.
+FIRST_PRACTICE_BONUS_XP = 5
+
+#: Flat XP for reviewing a vocab card (any grade) — small on purpose: reviews are
+#: unlimited, so a bigger number would be farmable.
+VOCAB_REVIEW_XP = 1
 
 #: Flat XP for finishing a reading passage's scenes + speaking step, awarded
 #: once (the mobile completion celebration displays this same number, so it

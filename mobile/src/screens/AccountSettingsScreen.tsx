@@ -529,10 +529,10 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                     <Text style={styles.guideBlockTag}>{t("Kalıcı İlerleme")}</Text>
                   </View>
                 </View>
-                <Text style={styles.guideBlockBody}>{t("XP, Spekvia'ya verdiğin emeğin ve İngilizce seviyenin kalıcı kanıtıdır. Asla silinmez veya harcanamaz.")}</Text>
+                <Text style={styles.guideBlockBody}>{t("XP, pratik yaptıkça kazandığın puandır. Biriktikçe Mivo ile dostluk seviyen yükselir. Asla silinmez.")}</Text>
                 <View style={styles.guideBulletBox}>
                   <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Nasıl Kazanılır?")}</Text>{" "}{t("Canlı AI konuşmaları, okuma parçaları, kelime tekrarları ve günlük görevlerin tamamı XP kazandırır.")}</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Ne İşe Yarar?")}</Text>{" "}{t("Seviye İlerleme Raporu'nda görünür ve A1'den C2'ye gerçek ilerlemeni yansıtır.")}</Text>
+                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Ne İşe Yarar?")}</Text>{" "}{t("Mivo ile dostluk seviyeni belirler. İngilizce seviyeni (A1–C2) belirlemez; o ayrı ölçülür.")}</Text>
                 </View>
               </View>
 

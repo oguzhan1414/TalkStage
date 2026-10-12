@@ -237,9 +237,8 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
                   <Text style={styles.statLabel}>{t("Pekiştirilen")}</Text>
                 </View>
                 <View style={styles.statBox}>
-                  <Text style={[styles.statVal, { color: '#10B981' }]}>
-                    +{initialCount <= 1 ? '5' : '25'}{" "}{t("XP")}</Text>
-                  <Text style={styles.statLabel}>{t("Kazanılan")}</Text>
+                  <Text style={[styles.statVal, { color: '#10B981' }]}>{initialCount}</Text>
+                  <Text style={styles.statLabel}>{t("Çalışılan")}</Text>
                 </View>
               </View>
 

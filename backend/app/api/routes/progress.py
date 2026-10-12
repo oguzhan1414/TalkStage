@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import AuthContext, get_auth_context
 from app.schemas.progress import GrammarMistakeCreate, GrammarMistakeOut, ProgressOut
-from app.services.progress import record_progress, update_streak_and_xp
+from app.services.progress import award_xp, record_progress, update_streak_and_xp
+from app.services.scorecard import ACTIVITY_XP, FIRST_PRACTICE_BONUS_XP
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/progress", tags=["progress"])
 
-DAILY_TASK_XP = 8
 DAILY_TASK_MINUTES = 5
 
 
@@ -31,10 +31,13 @@ def list_progress(limit: int = 90, ctx: AuthContext = Depends(get_auth_context))
 
 @router.post("/log-practice", response_model=ProgressOut, status_code=201)
 def log_practice(ctx: AuthContext = Depends(get_auth_context)) -> ProgressOut:
-    """Generic 'meaningful practice happened today' signal."""
+    """One completed activity: logs today's practice and pays ACTIVITY_XP every time
+    (+ a small hidden bonus and the streak update on the first practice of the day)."""
     is_first_today = record_progress(ctx, DAILY_TASK_MINUTES)
     if is_first_today:
-        update_streak_and_xp(ctx, DAILY_TASK_XP)
+        update_streak_and_xp(ctx, ACTIVITY_XP + FIRST_PRACTICE_BONUS_XP)
+    else:
+        award_xp(ctx, ACTIVITY_XP)
     today = date.today().isoformat()
     row = (
         ctx.db.table("progress")
