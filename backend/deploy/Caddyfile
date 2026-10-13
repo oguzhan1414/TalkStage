@@ -1,0 +1,14 @@
+# Automatic HTTPS (Let's Encrypt). WebSocket upgrades (wss) work through reverse_proxy without extra config.
+{$API_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+	reverse_proxy api:8000 {
+		# do not buffer streamed TTS audio
+		flush_interval -1
+	}
+}

@@ -1,0 +1,49 @@
+# Run from backend/deploy on the server:  docker compose up -d --build
+# Needs: ../.env (backend secrets) and ./.env with API_DOMAIN=api.example.com (see README_DEPLOY.md)
+services:
+  api:
+    build:
+      context: ..
+    env_file:
+      - ../.env
+    environment:
+      ENVIRONMENT: production
+    restart: unless-stopped
+    # container hardening: no extra privileges/capabilities, bounded memory
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 4g
+    expose:
+      - "8000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in backend/deploy/.env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:

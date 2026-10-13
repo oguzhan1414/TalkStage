@@ -28,7 +28,15 @@ from app.core.observability import init_sentry
 
 init_sentry()
 
-app = FastAPI(title="Spekvia API", version="0.1.0")
+# In production the interactive API docs and the OpenAPI schema stay private.
+_is_prod = settings.environment == "production"
+app = FastAPI(
+    title="Spekvia API",
+    version="0.1.0",
+    docs_url=None if _is_prod else "/docs",
+    redoc_url=None if _is_prod else "/redoc",
+    openapi_url=None if _is_prod else "/openapi.json",
+)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*.log
+scripts/
+supabase/
+deploy/
+CLAUDE.md
