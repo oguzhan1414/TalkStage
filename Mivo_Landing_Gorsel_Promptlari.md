@@ -93,30 +93,30 @@ Görseller geldiğinde ben `webp`'e çevirip kodu bağlarım.
 
 ---
 
-## BÖLÜM C – Hero sahne görselleri (sağ panel)
+## BÖLÜM C – Hero görselleri (Mivo'lu, hayal gücü sahneleri)
 
-Hero'daki fotoğraf paneli masaüstünde yaklaşık 5:6 dikey, telefonda neredeyse kare görünür; üstüne metin balonları biner. Bu yüzden görseller **4:5 dikey** (en az 1600×2000) ve aşağıdaki güvenli alan kuralıyla üretilir.
+Gerçek hayat sahneleri (havalimanı, otel…) yerine Mivo'nun kendi sihirli dünyası: parlak, pastel, Mivo ana karakter. Hero'daki sağ panel masaüstünde yaklaşık 5:6 dikey, telefonda neredeyse kare görünür; üstüne metin balonları biner. Bu yüzden:
 
 **Kompozisyon kuralı (hepsi için)**
-- Karakter kadrajın **sağ yarısında**, göğüs-üstü ya da bel-üstü, doğrudan kameraya bakıyor, hafif öne eğilmiş, konuşmak üzere.
-- **Sol %40 sakin**: bulanık, düşük kontrastlı fon (balon buraya biner). Üst %15 de sakin (sahne etiketi buraya biner).
-- Kameranın yüksekliği göz hizasında, hafif geniş açı, fonda derinlik ve bokeh.
-- Karakterin yüzü ve elleri kadrajın dikey olarak orta %60'lık bandında kalsın (telefonda üst/alt kırpılıyor).
-- Mivo görselde **yok** (kartın üstünde zaten duruyor).
+- **4:5 dikey**, en az 1600×2000.
+- Mivo kadrajın **sağ yarısında**, büyük (kadrajın dikey olarak %60-70'i), yüzü ve elleri dikey olarak orta %60 bantta.
+- **Sol %40 sakin**: yumuşak, düşük kontrastlı, ayrıntısız (konuşma balonu buraya biner). Üst %15 de sakin.
+- **Ruh hali: aydınlık.** Koyu lacivert / gece yok. Pastel leylak, gökyüzü mavisi, şeftali ve altın parıltı. Marka renkleri: indigo-mor, camgöbeği, mercan, altın.
+- Görselin içinde **yazı yok**. Konuşma balonları varsa **boş** (metni biz koyuyoruz).
 
-**Stil kilidi (hepsine eklenecek)**
+**Stil kilidi (hepsine eklenecek; Mivo referans görselini her seferinde yükle)**
 ```text
-Premium 3D animated-film rendering, warm cinematic lighting, shallow depth of field, rich but soft colors, same art style as the reference images. Friendly, expressive, realistic proportions (not chibi). Portrait 4:5. The left 40% of the frame is a calm, softly blurred background with low contrast and no important details; the top 15% is also calm. No text, no logo, no watermark, no subtitles.
+Premium 3D animated-film rendering, bright airy pastel atmosphere (soft lilac, sky blue, peach and warm gold), luminous cinematic lighting, shallow depth of field, tiny floating sparkles. Mivo is the hero of the image: keep the exact identity, face, proportions, coral inner head accents, translucent cyan energy scarf, red-orange sash, brown satchel and gold chest translator from the reference image. Portrait 4:5. Mivo on the right half, large; the left 40% of the frame is a calm, softly blurred, low-contrast area; the top 15% is also calm. Bright mood, no dark navy, no night scene. No text, no letters, no logo, no watermark. Any speech bubbles must be empty.
 ```
-Referans olarak mevcut sahne görsellerinden birini (`landing/public/scenes/hotel-checkin.webp` gibi) stil referansı olarak yükle.
 
 | Dosya | Prompt (stil kilidi eklenir) |
 | :-- | :-- |
-| `hero-airport.webp` | `At a bright modern airport check-in desk, a friendly young woman airline agent in a navy uniform and neck scarf stands on the right, leaning slightly toward the camera with a welcoming smile, holding a boarding pass; blurred departure board and travelers on the left; golden morning light through tall windows.` |
-| `hero-hotel.webp` | `At the polished wooden reception desk of an elegant boutique hotel, a warm middle-aged male receptionist in a vest and tie stands on the right, one hand on a service bell, smiling at the camera; blurred lobby with chandelier and armchairs on the left; warm amber light.` |
-| `hero-interview.webp` | `In a sunny modern office with glass walls, a confident female recruiter in a blazer sits on the right across a desk, pen and notebook in hand, looking at the camera with an encouraging expression, as if asking a question; blurred city skyline and meeting room on the left; soft daylight.` |
-| `hero-cafe.webp` | `Behind the counter of a cozy specialty coffee shop, a cheerful barista in an apron stands on the right holding a paper cup and a marker, leaning toward the camera with a friendly smile; blurred shelves, plants and pastries on the left; warm morning light.` |
+| `hero-stage.webp` | `Mivo stands on a small glowing round stage under a warm golden spotlight, holding a tiny microphone and speaking with a confident warm smile; soft lilac-and-peach theatre curtains frame the scene; empty speech bubbles and cyan sound-wave ribbons float around, golden sparkles in the air.` |
+| `hero-portal.webp` | `Mivo steps toward a large glowing circular portal ringed with cyan energy; through the portal a sunlit cobblestone street with a cozy cafe terrace is visible in vivid detail; Mivo turns to the viewer with an inviting open hand, as if saying "come along"; floating colorful flashcards and sparkles around.` |
+| `hero-sky.webp` | `Mivo sits relaxed on a small floating island made of stacked storybooks and glowing lanterns, above a pastel sunrise sky with soft clouds; several empty speech bubbles in different shapes and little paper planes drift around; Mivo waves happily at the viewer.` |
+| `hero-listen.webp` | `Mivo wears large over-ear headphones in a cozy glowing treehouse studio filled with soft plants and warm string lights; one hand lifted to an ear, head tilted, delighted listening expression; translucent cyan sound-wave rings and floating music notes in light, a big round window with a bright pastel sky behind.` |
+| `hero-cheer.webp` *(isteğe bağlı, final bölümü ve başarı için)* | `Mivo jumps joyfully on a glowing stage with both arms raised, big smile, confetti in cyan, gold and coral, ribbons of light and sparkles, bright pastel background with soft beams of light.` |
 
-İsteğe bağlı 5.: `hero-doctor.webp` – `In a bright friendly clinic, a kind female doctor in a white coat with a stethoscope stands on the right, tablet in hand, gentle reassuring smile toward the camera; blurred waiting area on the left; soft white-and-teal light.`
+**Dosya:** `landing/public/hero/` altına. Ben webp'e çevirir, 1600 px'e küçültürüm.
 
-**Dosya:** 4:5 → `landing/public/hero/` altına (ben webp'e çevirir, 1600 px'e küçültürüm). Görseller gelince `heroTakes` içindeki metinleri (karakter adı, rol, replik, Türk konuşanların tipik hatası, Mivo notu) bu sahnelere göre yazıp 5 dile çeviririm.
+**Kodda ne olacak (görseller gelince):** panel bu 3-4 görsel arasında yumuşak geçişle döner. Metinler (Mivo'nun repliği, Türk konuşanların tipik hatası, düzeltme notu) hazır; Mivo bu sahnelerde karakteri "oynuyor" (örn. "Taksi şoförü · A2"). Kartın üstündeki ayrı Mivo'yu kaldırırım, görselde zaten var.
