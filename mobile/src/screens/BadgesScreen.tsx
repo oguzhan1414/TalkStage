@@ -10,7 +10,7 @@ import { useEarnedBadges } from '../hooks/useEarnedBadges';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import type { BadgesScreenProps } from '../navigation/types';
 import { MivoLoader } from '../components/MivoLoader';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
 
 export function BadgesScreen({ navigation }: BadgesScreenProps) {
   const { finishTransition } = useMivoTransition();
@@ -64,7 +64,7 @@ export function BadgesScreen({ navigation }: BadgesScreenProps) {
                   <Text style={[styles.badgeTitle, !earned && styles.badgeTitleLocked]}>{badge.title}</Text>
                   <Text style={styles.badgeCriteria}>{badge.criteriaText}</Text>
                   {earned && state?.earned_at ? (
-                    <Text style={styles.badgeDate}>{new Date(state.earned_at).toLocaleDateString()}</Text>
+                    <Text style={styles.badgeDate}>{new Date(state.earned_at).toLocaleDateString(getLocale())}</Text>
                   ) : state && state.target > 1 ? (
                     <View style={styles.badgeProgress}>
                       <View style={styles.badgeProgressTrack}>

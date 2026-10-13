@@ -1762,5 +1762,7 @@
   "eylem / yapma hali": "Verb / -ing-Form",
   "Serbest Sohbet (Sesli)": "Freies Gespräch (Sprache)",
   "Sohbeti bitirmen gerekiyor": "Du musst das Gespräch beenden",
-  "Birazdan": "Gleich"
+  "Birazdan": "Gleich",
+  "/ ay": "/ Monat",
+  "Durum {{n}}": "Fall {{n}}"
 }

@@ -14,7 +14,7 @@ import { api } from '../lib/api';
 import type { MistakesNotebookScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut } from '../types/api';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
 
 type Filter = 'all' | 'speaking' | 'quiz' | 'reading';
 
@@ -51,7 +51,7 @@ function timeLabel(iso?: string | null): string {
   if (days <= 0) return t("Bugün");
   if (days === 1) return t("Dün");
   if (days < 30) return t("{{n}} gün önce", { n: days });
-  return new Date(iso).toLocaleDateString();
+  return new Date(iso).toLocaleDateString(getLocale());
 }
 
 function shuffled<T>(items: T[]): T[] {

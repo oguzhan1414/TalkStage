@@ -1738,5 +1738,7 @@
   "eylem / yapma hali": "verb / -ing form",
   "Serbest Sohbet (Sesli)": "Free Chat (Voice)",
   "Sohbeti bitirmen gerekiyor": "You need to finish the chat",
-  "Birazdan": "Soon"
+  "Birazdan": "Soon",
+  "/ ay": "/ month",
+  "Durum {{n}}": "Case {{n}}"
 }

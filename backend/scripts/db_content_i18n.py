@@ -53,6 +53,9 @@ def extract() -> None:
             q = scene.get("question") or {}
             if q.get("explanation_tr"):
                 items.append(item(f"rd|{slug}|qe.{i}", q["explanation_tr"], "ui", "tr"))
+            ex = scene.get("exercise") or {}
+            if ex.get("explanation_tr"):
+                items.append(item(f"rd|{slug}|xe.{i}", ex["explanation_tr"], "ui", "tr"))
     WORK.mkdir(exist_ok=True)
     (WORK / "items_db.json").write_text(json.dumps(items, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(items)} items -> .i18n-work/items_db.json")
@@ -105,6 +108,10 @@ def build_translations(out: dict) -> tuple[dict, dict]:
                     if q2.get("explanation_tr"):
                         q2["explanation_tr"] = get(f"rd|{slug}|qe.{i}", lang, q2["explanation_tr"])
                     s2["question"] = q2
+                if scene.get("exercise") and scene["exercise"].get("explanation_tr"):
+                    x2 = dict(scene["exercise"])
+                    x2["explanation_tr"] = get(f"rd|{slug}|xe.{i}", lang, x2["explanation_tr"])
+                    s2["exercise"] = x2
                 scenes.append(s2)
             per[lang] = {"scenes": scenes}
         rd_tr[slug] = per

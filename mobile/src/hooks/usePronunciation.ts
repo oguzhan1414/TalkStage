@@ -4,14 +4,16 @@ import { Platform } from 'react-native';
 
 import { api } from '../lib/api';
 import { arrayBufferToBase64 } from '../lib/base64';
+import { getLocale } from '../i18n';
 
 // Aynı kelimeyi tekrar dinlemek her seferinde ağa gitmesin (flashcard'larda
 // sürekli tekrar ediliyor) — son 60 sentezlenmiş ses data-URI olarak tutulur.
 const AUDIO_CACHE = new Map<string, string>();
 const AUDIO_CACHE_MAX = 60;
 
+// ö/ü/ç also occur in German/Portuguese/French text, so outside the Turkish UI only the Turkish-only letters count.
 const looksTurkish = (t: string) =>
-  /[çğıöşüÇĞİÖŞÜ]/i.test(t) || /^(merhaba|selam|bugün|hangi|nasılsın)/i.test(t);
+  (getLocale() === 'tr' ? /[çğıöşüÇĞİÖŞÜ]/ : /[ğıİşŞ]/).test(t) || /^(merhaba|selam|bugün|hangi|nasılsın)/i.test(t);
 
 const IN_FLIGHT = new Map<string, Promise<string>>();
 
@@ -213,7 +215,7 @@ export function usePronunciation() {
         console.warn('Backend Cartesia TTS failed, using fallback:', err);
         // 3. Graceful fallback to Google Translate TTS if Cartesia backend is offline
         try {
-          const isTurkish = /[çğıöşüÇĞİÖŞÜ]/i.test(cleanText) || /^(merhaba|selam|bugün|hangi|nasılsın)/i.test(cleanText);
+          const isTurkish = looksTurkish(cleanText);
           const encoded = encodeURIComponent(cleanText.slice(0, 200));
           const streamUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${isTurkish ? 'tr' : 'en'}&q=${encoded}`;
           const player = createAudioPlayer({ uri: streamUrl });

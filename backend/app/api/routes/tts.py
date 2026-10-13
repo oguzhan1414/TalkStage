@@ -10,7 +10,8 @@ router = APIRouter(prefix="/tts", tags=["tts"])
 
 
 def _detect_language(text: str) -> str:
-    turkish_chars = set("çğıöşüÇĞİÖŞÜ")
+    # ö/ü/ç also occur in German/Portuguese/French, so only the Turkish-only letters decide.
+    turkish_chars = set("ğıİşŞ")
     if any(c in turkish_chars for c in text):
         return "tr"
     common_tr_words = {

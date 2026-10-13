@@ -334,7 +334,7 @@ export function GrammarLessonScreen({ route, navigation }: GrammarLessonScreenPr
             {tableViewMode === 'cards' ? (
               <View style={styles.ruleCards}>
                 {lesson.table.rows.map((row, rIdx) => {
-                  const tag = row[0] || `Durum ${rIdx + 1}`;
+                  const tag = row[0] || t("Durum {{n}}", { n: rIdx + 1 });
                   const formula = row[1] || '';
                   const example = row[2] || '';
                   const translation = row[3] || '';

@@ -660,3 +660,9 @@ Onboarding → Konuşma → Kelime Kaydı → Paywall akışının manuel/otomat
 - **Kural:** Overlay'e çeviri eklerken İngilizce şık/örnek/tablo hücresi **asla çevrilmez**; sadece Türkçe açıklama çevrilir. Denetim: aynı sorunun şıkları overlay'de tekrar etmemeli; `en` overlay değiştirmediği alanı başka dil değiştirmemeli.
 - **Kapanan açık:** 26 yeni A2 okuma hikâyesinin EN/ES/PT/DE çevirisi DB'ye yazıldı (`reading_passages.translations` 163/163, `scenarios` 27/27).
 - **Hata Defterim notu:** `grammar_mistakes` satırları kayıt anındaki dilde saklanır (açıklama + "Cevabın:/Doğrusu:" ibareleri); dil sonradan değişirse eski satırlar eski dilde kalır.
+
+### Çeviri denetimi 2 (2026-10-13)
+- **Bulunan/düzeltilen:** ödeme ekranında sabit "/ ay" (`PaywallContent`), `GrammarLessonScreen` "Durum N" yedek etiketi, rozet ve Hata Defterim tarihleri cihaz diliyle biçimleniyordu (artık `getLocale()`), seslendirme dili tespiti ö/ü/ç'yi Türkçe sanıyordu (Almanca/Portekizce metin Türkçe sese gidiyordu; artık Türkçe dışında yalnızca ğıİşŞ sayılır — hem `usePronunciation` hem backend `tts._detect_language`).
+- **Sahne hedef ipuçları** (`scenariosData.{de,es,pt}` `objectives.N.hint`): İngilizce kalıp hedef dile çevrilmişti (48 adet); artık `Etiket: "İngilizce cümle"` + alt satırda ana dildeki anlamı.
+- **Okuma alıştırmaları:** A1/A2 hikâyelerinde `exercise.explanation_tr` (65 metin) çeviri hattına girmiyordu, Türkçe kalıyordu; `db_content_i18n.py` artık `xe.N` kalemlerini çıkarıp yazıyor, DB'ye uygulandı.
+- **Hâlâ Türkçe kalan sabit (bilerek):** `lib/api.ts` geliştirici hata mesajı (.env eksik), ödeme yedek fiyatı `199 TL / 999 TL` (yalnızca mağaza fiyatı yüklenemezse görünür).

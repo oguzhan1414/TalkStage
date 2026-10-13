@@ -26,7 +26,7 @@ type Plan = {
 };
 
 export const STATIC_PLANS: Plan[] = [
-  { key: 'monthly', label: t("Aylık"), price: '199 TL', period: '/ ay' },
+  { key: 'monthly', label: t("Aylık"), price: '199 TL', period: t("/ ay") },
   { key: 'annual', label: t("Yıllık"), price: '999 TL', period: t("/ yıl"), badge: t("%58 Tasarruf") },
 ];
 
