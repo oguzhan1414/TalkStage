@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Spekvia",
-    "slug": "mobile",
+    "slug": "spekvia",
     "version": "1.0.0",
     "scheme": "spekvia",
     "orientation": "portrait",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "bundleIdentifier": "com.spekvia.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundImage": "./assets/android-icon-background.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.spekvia.app",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"

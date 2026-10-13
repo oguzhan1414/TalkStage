@@ -40,6 +40,9 @@ export const PRIVACY_DOC: LegalDoc = {
       paras: [
       tr("Hizmeti sunmak için gereken verileri toplarız:")
     ],
+    after: [
+      tr("Google ile giriş yaparsan Google'dan yalnızca adını, e-posta adresini ve (varsa) profil fotoğrafını alırız. Bu bilgileri sadece hesabını oluşturmak ve seni tanımak için kullanırız; satmayız, reklam için kullanmayız ve yapay zekâ modellerini eğitmek için kullanmayız. Spekvia'nın Google API'lerinden aldığı bilgileri kullanması ve başka bir uygulamaya aktarması, Sınırlı Kullanım (Limited Use) gereklilikleri dahil Google API Hizmetleri Kullanıcı Verileri Politikası'na uygundur. Google API'lerini hiçbir şekilde yapay zekâ ile oluşturulan rızasız cinsel içerikli görüntüler (NCII) için kullanmayız.")
+    ],
       list: [
       tr("Hesap bilgileri: e-posta adresin, varsa adın; Apple veya Google ile girişte bu sağlayıcıların paylaştığı kimlik ve e-posta bilgisi."),
       tr("Profil ve tercihler: görünen ad, ana dilin, hedefin, günlük çalışma süren, İngilizce seviyen ve avatarın. İsteğe bağlı olarak cinsiyet ve yaş aralığı da sorulur; vermek zorunda değilsin."),
