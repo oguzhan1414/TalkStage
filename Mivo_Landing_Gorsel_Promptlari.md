@@ -120,3 +120,24 @@ Premium 3D animated-film rendering, bright airy pastel atmosphere (soft lilac, s
 **Dosya:** `landing/public/hero/` altına. Ben webp'e çevirir, 1600 px'e küçültürüm.
 
 **Kodda ne olacak (görseller gelince):** panel bu 3-4 görsel arasında yumuşak geçişle döner. Metinler (Mivo'nun repliği, Türk konuşanların tipik hatası, düzeltme notu) hazır; Mivo bu sahnelerde karakteri "oynuyor" (örn. "Taksi şoförü · A2"). Kartın üstündeki ayrı Mivo'yu kaldırırım, görselde zaten var.
+
+---
+
+## BÖLÜM D – "Mivo seni hatırlar" bölümü (tek görsel)
+
+Bu görsel hafıza bölümünün sol yarısını doldurur (kartın kenarlarına kadar uzanır). Masaüstünde yaklaşık kare–hafif dikey, telefonda yatay kırpılır. Üstüne "Ad / Konu / Hedef" notları (çipler) binecek; bu yüzden görselde **boş cam kartlar** olacak, ben çipleri onların üstüne oturturum.
+
+**Kompozisyon:** 4:5 dikey, en az 1600×2000. Mivo sağ-orta, büyük (dikey olarak %60), bakışı izleyiciye, gülümsüyor, elinde parlayan küçük bir küre. Sol %55'te büyük, boş, yarı saydam cam kartlar (yazısız) dört farklı yükseklikte ve açıda süzülüyor; hepsi ince bir ışık ipliğiyle Mivo'nun küresine bağlı. Üst %10 sakin.
+
+**Dosya:** `mivo-memory` → `landing/public/hero/` altına.
+
+```text
+Premium 3D animated-film rendering, bright airy pastel atmosphere (soft lilac, sky blue, peach and warm gold), luminous cinematic lighting, shallow depth of field, tiny floating sparkles. Portrait 4:5.
+Mivo sits cross-legged on the right half of the frame, large, looking at the viewer with a warm knowing smile, holding a small glowing cyan-and-gold orb in one open hand, as if keeping a memory safe. Keep the exact identity, face, proportions, coral inner head accents, translucent cyan energy scarf, red-orange sash, brown satchel and gold chest translator from the reference image.
+On the left 55% of the frame, four large empty rounded glass cards (like translucent sticky notes, completely blank, no text, no icons) float at different heights and slight angles, each connected to Mivo's orb by a thin glowing line of light, softly blurred at the edges for depth. A dreamy soft pastel background of floating islands and clouds fills the rest, bright and calm.
+Bright mood, no dark navy, no night scene. No text, no letters, no logo, no watermark.
+```
+
+(Referans: `mivo_idle.png` ve istersen `mivo_stop_cards.png`.)
+
+Görsel gelince çipleri cam kartların konumuna göre hizalar, `hero-sky` yerine bunu koyarım.
