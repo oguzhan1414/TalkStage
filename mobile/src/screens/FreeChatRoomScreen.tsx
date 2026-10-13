@@ -183,7 +183,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
       const payload: VocabCardCreate = {
         term: word,
         example_sentence: sentence,
-        source_label: 'Serbest Sohbet (Sesli)',
+        source_label: t("Serbest Sohbet (Sesli)"),
       };
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
@@ -379,7 +379,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             </View>
           ) : null}
 
-          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} onListen={pronounce} />
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} onListen={pronounce} voice={voice} pronounce={pronounce} />
 
           <View style={styles.bottomDock}>
             <VoiceRoomControls voice={voice} aiName={aiName} pronounce={pronounce} />

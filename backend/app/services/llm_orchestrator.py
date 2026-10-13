@@ -42,7 +42,14 @@ _CORRECTION_GUIDANCE = (
     "when the mistake actually breaks or confuses the meaning. Correct one useful foundational error gently, for example "
     "I is a student -> I am a student; explain briefly in the learner's native language (see the NATIVE-LANGUAGE RULE). Avoid "
     "overwhelming the learner with multiple corrections. Apply the full guidance above (including register/"
-    "cultural nuance) more strictly from B1 upward."
+    "cultural nuance) more strictly from B1 upward.\n"
+    "NOISE RULES (apply at EVERY level): the learner's text comes from automatic speech recognition or fast typing. "
+    "Capitalization, punctuation, spacing, apostrophes, hyphens and the spelling of clearly misheard words are NEVER errors: "
+    "do not correct them and do not mention them. If the only difference between the learner's sentence and your "
+    "correction is capitalization or punctuation, set has_error to false. Prefer NO correction over a nitpick: set has_error "
+    "true only when (1) the grammar is wrong in a way a listener would notice, (2) the phrasing sounds clearly unnatural or "
+    "rude for this situation, or (3) the sentence is hard to understand. A good conversation carries a correction on only "
+    "some turns, never as a reflex."
 )
 
 #: A1/A2-only real-time nudge, distinct from `correction` (which only reacts
@@ -136,6 +143,11 @@ class TurnAnalysis(BaseModel):
     correction: Correction
     fluency_score: int = Field(ge=0, le=100)
     suggested_replies: list[str] = Field(default_factory=list, max_length=3)
+    suggested_replies_tr: list[str] = Field(
+        default_factory=list,
+        max_length=3,
+        description="Translation of each suggested_replies entry into the learner's native language, same order and length.",
+    )
     #: Driven by the objectives block in rag.py's `_build_objectives_block` —
     #: gives the voice scenario a real "done" signal instead of running
     #: open-ended forever (see backend CLAUDE.md Ek 32).
@@ -241,8 +253,11 @@ async def analyze_voice_turn(system_prompt: str, history: list[TurnMessage],
         system_prompt + _ANALYSIS_TASK_SUFFIX
         + "\nAlso return suggested_replies: 2 short English answers to the assistant's "
         "latest question, or the exact English practice phrase it invited the learner to say. "
+        "If the assistant quoted something another person says and asked what the learner would answer, the suggestions "
+        "must be natural English answers to THAT quoted line. "
+        "Also return suggested_replies_tr: the translation of each suggested reply into the learner's native language, same order. "
         "Do not invent mistakes in questions the learner asks in their native language. Do not grade pronunciation from text. "
-        "Correct at most ONE useful error, including basic subject/verb agreement at A1. "
+        "Correct at most ONE useful error, and only if it passes the NOISE RULES above (never capitalization, punctuation or spelling of speech-recognition text). "
         "Never call a correct alternative wrong. Explain the reason briefly in the learner's native language. "
         "Check the user's actual words; if the spoken reply made an inaccurate claim, "
         "do not copy that claim into the assessment."

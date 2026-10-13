@@ -144,6 +144,9 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
   const [pendingConfidence, setPendingConfidence] = useState<number | null>(null);
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [coachTipTr, setCoachTipTr] = useState<string | null>(null);
+  const [suggestedRepliesTr, setSuggestedRepliesTr] = useState<string[]>([]);
+  // The in-chat hint card (VoiceRoomThread) can be hidden with the bulb button in the dock.
+  const [hintVisible, setHintVisible] = useState(true);
 
   const [inputLanguage, setInputLanguage] = useState<string>('en');
   const inputLanguageRef = useRef(inputLanguage);
@@ -529,6 +532,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             setWaitingForReply(false);
             setIsAiReplyStreaming(false);
             setSuggestedReplies(message.suggested_replies ?? []);
+            setSuggestedRepliesTr(message.suggested_replies_tr ?? []);
             setCoachTipTr(message.coach_tip_tr ?? null);
             break;
           case 'scene.complete':
@@ -870,6 +874,9 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     pendingWords,
     pendingConfidence,
     suggestedReplies,
+    suggestedRepliesTr,
+    hintVisible,
+    setHintVisible,
     coachTipTr,
     stopAiAudio,
     replayAiAudio,

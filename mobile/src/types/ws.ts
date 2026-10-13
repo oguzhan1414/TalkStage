@@ -41,6 +41,8 @@ export type WsServerMessage =
       user_text: string;
       assistant_text: string;
       suggested_replies?: string[];
+      // Native-language translation of each suggested reply, same order.
+      suggested_replies_tr?: string[];
       // Proactive, A1/A2-only Turkish coaching hint pointing at the next
       // concrete thing to try saying — unlike `correction`, this isn't
       // reactive to a mistake. Null/absent at B1 and above by design.

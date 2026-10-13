@@ -484,7 +484,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {/* Chat Transcript — real chat-bubble thread instead of two
               separate "latest AI text" / "latest your text" boxes, so the
               conversation reads like a messaging app. */}
-          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} />
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} voice={voice} pronounce={pronounce} />
 
           {/* Collapsible secondary info — situation, starter phrases, target
               vocab, live telemetry. All real and useful, but shown on demand

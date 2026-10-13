@@ -17,21 +17,20 @@ export type DisplayBubble =
   | { key: string; kind: 'assistant'; text: string };
 
 
-export function VoiceRoomControls({ voice, aiName, pronounce }: {
+export function VoiceRoomControls({ voice, aiName }: {
   voice: ReturnType<typeof useConversationSocket>;
   aiName: string;
-  pronounce: (text: string) => unknown;
+  /** Kept for the callers; the hint card (with its listen button) now lives in the chat thread. */
+  pronounce?: (text: string) => unknown;
 }) {
   const { turnPhase, coachTipTr, hasReplayableAudio, replayAiAudio, suggestedReplies,
+    hintVisible, setHintVisible,
     micLevelDb, startTurn, stopTurn, pendingTranscript, pendingWords, pendingConfidence,
     confirmTranscript, redoTurn, stopAiAudio, retryLastTurn } = voice;
   const [editedTranscript, setEditedTranscript] = useState('');
   const [isEditingTranscript, setIsEditingTranscript] = useState(false);
   const [draft, setDraft] = useState('');
-  const [showHint, setShowHint] = useState(true);
-  const [hintIndex, setHintIndex] = useState(0);
   const [showKeyboard, setShowKeyboard] = useState(false);
-  useEffect(() => setHintIndex(0), [suggestedReplies]);
   useEffect(() => {
     setEditedTranscript(pendingTranscript ?? '');
     setIsEditingTranscript(false);
@@ -39,16 +38,6 @@ export function VoiceRoomControls({ voice, aiName, pronounce }: {
   return <View style={{ gap: 10 }}>
             {(turnPhase === 'thinking_time' || turnPhase === 'recording') && (
               <View style={styles.turnControlBlock}>
-                {turnPhase === 'thinking_time' && coachTipTr ? (
-                  <View style={styles.coachTipCard}>
-                    <Text style={styles.coachTipIcon}>🧑‍🏫</Text>
-                    <View style={styles.coachTipTextCol}>
-                      <Text style={styles.coachTipLabel}>{t("KOÇ İPUCU")}</Text>
-                      <Text style={styles.coachTipText}>{coachTipTr}</Text>
-                    </View>
-                  </View>
-                ) : null}
-
                 {turnPhase === 'thinking_time' && hasReplayableAudio ? (
                   <Pressable
                     onPress={replayAiAudio}
@@ -60,30 +49,6 @@ export function VoiceRoomControls({ voice, aiName, pronounce }: {
                     <Text style={styles.replayBtnText}>{t("{{aiName}} ne dedi? Tekrar Dinle", { aiName })}</Text>
                   </Pressable>
                 ) : null}
-
-                {turnPhase === 'thinking_time' && showHint && suggestedReplies.length > 0 && (
-                  <View style={styles.suggestionCard}>
-                    <View style={styles.suggestionCardHeader}>
-                      <Ionicons name="sparkles" size={13} color="#D97706" />
-                      <Text style={styles.suggestionCardHeaderText}>{t("Söylemeyi dene")}</Text>
-                      {suggestedReplies.length > 1 ? (
-                        <Pressable onPress={() => setHintIndex((i) => (i + 1) % suggestedReplies.length)} hitSlop={8}>
-                          <Text style={styles.suggestionCardCycle}>{t("→ başka örnek")}</Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
-                    <Text style={styles.suggestionCardSentence}>{suggestedReplies[hintIndex % suggestedReplies.length]}</Text>
-                    <Pressable
-                      onPress={() => pronounce(suggestedReplies[hintIndex % suggestedReplies.length])}
-                      style={styles.suggestionCardListen}
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Öneriyi dinle: {{reply}}", { reply: suggestedReplies[hintIndex % suggestedReplies.length] })}
-                    >
-                      <Ionicons name="volume-medium-outline" size={14} color={colors.brand} />
-                      <Text style={styles.suggestionCardListenText}>{t("Dinle")}</Text>
-                    </Pressable>
-                  </View>
-                )}
 
                 {turnPhase === 'recording' && (
                   <View style={styles.waveformContainer}>
@@ -104,17 +69,17 @@ export function VoiceRoomControls({ voice, aiName, pronounce }: {
                 )}
                 <View style={styles.dockRow}>
                   <Pressable
-                    onPress={() => setShowHint((v) => !v)}
-                    disabled={suggestedReplies.length === 0}
+                    onPress={() => setHintVisible((v) => !v)}
+                    disabled={suggestedReplies.length === 0 && !coachTipTr}
                     hitSlop={10}
                     style={styles.dockSideBtn}
                     accessibilityRole="button"
                     accessibilityLabel={t("Söylemeyi dene")}
                   >
                     <Ionicons
-                      name={showHint ? 'bulb' : 'bulb-outline'}
+                      name={hintVisible ? 'bulb' : 'bulb-outline'}
                       size={20}
-                      color={suggestedReplies.length === 0 ? '#CBD5E1' : '#D97706'}
+                      color={suggestedReplies.length === 0 && !coachTipTr ? '#CBD5E1' : '#D97706'}
                     />
                   </Pressable>
                   <Pressable
@@ -226,9 +191,63 @@ export function VoiceRoomBanner({ phase, aiName, aiRole }: { phase: TurnPhase; a
   </View>;
 }
 
-export function VoiceRoomThread({ bubbles, aiName, onWordPress, onListen }: {
+/**
+ * The hint as a chat message from Mivo (avatar + "Söylemeyi dene" card): the suggested sentence with its translation
+ * and a listen button, plus the A1/A2 coach tip. It sits at the end of the thread only while it is the student's turn
+ * and stays visible while they speak; it disappears once they have said something (the turn moves on to review/sending).
+ */
+function MivoHintMessage({ voice, pronounce }: {
+  voice: ReturnType<typeof useConversationSocket>;
+  pronounce?: (text: string) => unknown;
+}) {
+  const { turnPhase, hintVisible, suggestedReplies, suggestedRepliesTr, coachTipTr } = voice;
+  const [index, setIndex] = useState(0);
+  useEffect(() => setIndex(0), [suggestedReplies]);
+  // Stays while the student thinks AND while they speak; it goes away once they have said something (review / sent).
+  if ((turnPhase !== 'thinking_time' && turnPhase !== 'recording') || !hintVisible) return null;
+  const hasReplies = suggestedReplies.length > 0;
+  if (!hasReplies && !coachTipTr) return null;
+  const i = hasReplies ? index % suggestedReplies.length : 0;
+  const sentence = hasReplies ? suggestedReplies[i] : null;
+  const translation = hasReplies ? suggestedRepliesTr[i] : null;
+  return (
+    <View style={styles.hintRow}>
+      <Image source={mivoImages.idle} style={styles.hintAvatar} resizeMode="contain" />
+      <View style={[styles.suggestionCard, styles.hintCard]}>
+        <View style={styles.suggestionCardHeader}>
+          <Ionicons name="sparkles" size={13} color="#D97706" />
+          <Text style={styles.suggestionCardHeaderText}>{t("Söylemeyi dene")}</Text>
+          {suggestedReplies.length > 1 ? (
+            <Pressable onPress={() => setIndex((n) => (n + 1) % suggestedReplies.length)} hitSlop={8}>
+              <Text style={styles.suggestionCardCycle}>{t("→ başka örnek")}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+        {coachTipTr ? <Text style={styles.hintTip}>{coachTipTr}</Text> : null}
+        {sentence ? <Text style={styles.suggestionCardSentence}>{sentence}</Text> : null}
+        {translation ? <Text style={styles.hintTranslation}>{translation}</Text> : null}
+        {sentence && pronounce ? (
+          <Pressable
+            onPress={() => pronounce(sentence)}
+            style={styles.suggestionCardListen}
+            accessibilityRole="button"
+            accessibilityLabel={t("Öneriyi dinle: {{reply}}", { reply: sentence })}
+          >
+            <Ionicons name="volume-medium-outline" size={14} color={colors.brand} />
+            <Text style={styles.suggestionCardListenText}>{t("Dinle")}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function VoiceRoomThread({ bubbles, aiName, onWordPress, onListen, voice, pronounce }: {
   bubbles: DisplayBubble[]; aiName: string; onWordPress: (word: string, sentence: string) => void;
   onListen?: (text: string) => void;
+  /** Pass the voice session to show Mivo's hint card at the end of the thread. */
+  voice?: ReturnType<typeof useConversationSocket>;
+  pronounce?: (text: string) => unknown;
 }) {
   const list = useRef<FlatList<DisplayBubble>>(null);
   const atBottom = useRef(true);
@@ -242,6 +261,7 @@ export function VoiceRoomThread({ bubbles, aiName, onWordPress, onListen }: {
     onContentSizeChange={() => { if (atBottom.current) list.current?.scrollToEnd({ animated: false }); }}
     renderItem={({ item }) => <MemoChatBubble bubble={item} aiName={aiName} onWordPress={onWordPress} onListen={onListen} />}
     ListEmptyComponent={<Text style={styles.chatEmptyPlaceholder}>{t("Konuşmaya hazırsın. Mikrofona dokun veya mesaj yaz.")}</Text>}
+    ListFooterComponent={voice ? <MivoHintMessage voice={voice} pronounce={pronounce} /> : null}
   />;
 }
 
@@ -491,6 +511,11 @@ export const voiceRoomStyles = StyleSheet.create({
     gap: 6,
   },
   suggestionCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  hintRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 6 },
+  hintAvatar: { width: 40, height: 40 },
+  hintCard: { flex: 1 },
+  hintTip: { fontFamily: fonts.bodyRegular, fontSize: 13, color: '#78350F', lineHeight: 18 },
+  hintTranslation: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted },
   suggestionCardHeaderText: { flex: 1, fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#B45309' },
   suggestionCardCycle: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: colors.brand },
   suggestionCardSentence: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },

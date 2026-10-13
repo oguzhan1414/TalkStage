@@ -130,7 +130,9 @@ const PathNode = forwardRef<View, PathNodeProps>(function PathNode(
       )}
       {current && (
         <View style={styles.startBubble} pointerEvents="none">
-          <Text style={styles.startBubbleText}>{t("BAŞLA")}</Text>
+          <Text style={styles.startBubbleText} numberOfLines={1} maxFontSizeMultiplier={1.15}>
+            {t("BAŞLA")}
+          </Text>
           <View style={styles.startBubbleArrow} />
         </View>
       )}
@@ -666,7 +668,7 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                     </Text>
                     <View style={styles.bannerCtaRow}>
                       <View style={styles.bannerCta}>
-                        <Text style={styles.bannerCtaText}>{t("HEMEN BAŞLA")}</Text>
+                        <Text style={styles.bannerCtaText} numberOfLines={1} maxFontSizeMultiplier={1.15}>{t("HEMEN BAŞLA")}</Text>
                         <Ionicons name="arrow-forward" size={13} color={colors.brand} />
                       </View>
                       <View style={styles.bannerGoalChip}>
@@ -899,10 +901,10 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                       const labelOnLeft = cx - PATH_W / 2 > 20;
                       const nodeLeft = cx - NODE / 2;
                       const labelStyle = labelOnLeft
-                        ? { left: 0, width: Math.max(80, nodeLeft - 12), alignItems: 'flex-end' as const }
+                        ? { left: 0, width: Math.max(96, nodeLeft - 10), alignItems: 'flex-end' as const }
                         : {
-                            left: nodeLeft + NODE + 12,
-                            width: Math.max(80, PATH_W - (nodeLeft + NODE + 12)),
+                            left: nodeLeft + NODE + 10,
+                            width: Math.max(96, PATH_W - (nodeLeft + NODE + 10)),
                             alignItems: 'flex-start' as const,
                           };
                       const onPressTask = () => {
@@ -945,12 +947,20 @@ export function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                           />
 
                           <Pressable onPress={onPressTask} style={[styles.pathLabel, { top: cy - 26 }, labelStyle]}>
-                            <Text style={[styles.pathLabelKind, { color: isLocked ? '#94A3B8' : palette.dark }]}>
+                            <Text
+                              style={[styles.pathLabelKind, { color: isLocked ? '#94A3B8' : palette.dark }]}
+                              numberOfLines={1}
+                              adjustsFontSizeToFit
+                              minimumFontScale={0.75}
+                              maxFontSizeMultiplier={1.15}
+                            >
                               {task.type === 'listening' ? t("BONUS · İSTEĞE BAĞLI") : palette.label.toUpperCase()}
                             </Text>
                             <Text
                               style={[styles.pathLabelTitle, isLocked && styles.pathLabelTitleLocked]}
                               numberOfLines={2}
+                              ellipsizeMode="tail"
+                              maxFontSizeMultiplier={1.2}
                             >
                               {task.title}
                             </Text>
@@ -1601,15 +1611,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Wider than the node on purpose (the text must never be squeezed into 68px and wrap: "Başl a"); the
+  // bubble is centered on the node and sizes itself to the word in every language.
   startBubble: {
     position: 'absolute',
     top: -34,
-    left: 0,
-    right: 0,
+    left: -56,
+    right: -56,
     alignItems: 'center',
     zIndex: 5,
   },
   startBubbleText: {
+    flexShrink: 0,
     fontFamily: fonts.headingBold,
     fontSize: 11,
     letterSpacing: 0.8,
@@ -1676,11 +1689,11 @@ const styles = StyleSheet.create({
   },
   duoAddWordsText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.brand },
   pathLabelTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14.5,
-    lineHeight: 19,
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 13.5,
+    lineHeight: 17,
     color: colors.textHeading,
-    marginTop: 1,
+    marginTop: 2,
   },
   pathLabelTitleLocked: {
     color: '#94A3B8',

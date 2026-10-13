@@ -4,6 +4,7 @@ import logging
 import time
 
 from app.core.config import settings
+from app.services.correction_filter import drop_trivial_correction
 from app.services.llm_orchestrator import (
     TurnMessage, analyze_voice_turn, bounded_history,
     extract_complete_sentences, stream_voice_reply,
@@ -108,10 +109,13 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
             await speaker.flush()
             analysis = await analysis_task
         if analysis:
+            # Deterministic backstop for the prompt's NOISE RULES: case/punctuation-only "errors" never reach the learner.
+            analysis.correction = drop_trivial_correction(analysis.correction, text)
             await send_json({"type": "correction", "data": analysis.correction.model_dump()})
             await send_json({"type": "fluency_score", "value": analysis.fluency_score})
         await send_json({"type": "turn.complete", "user_text": text, "assistant_text": reply,
                          "suggested_replies": analysis.suggested_replies if analysis else [],
+                         "suggested_replies_tr": analysis.suggested_replies_tr if analysis else [],
                          "coach_tip_tr": analysis.coach_tip_tr if analysis else None})
         if analysis and allow_completion and analysis.is_scene_complete:
             await send_json({"type": "scene.complete", "summary_tr": analysis.completion_summary_tr})
