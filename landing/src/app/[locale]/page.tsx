@@ -1,7 +1,7 @@
 import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import SceneTicker from "@/components/SceneTicker";
+import FeatureTicker from "@/components/FeatureTicker";
 import HowItWorks from "@/components/HowItWorks";
 import MivoWalk from "@/components/MivoWalk";
 import Bento from "@/components/Bento";
@@ -46,7 +46,7 @@ export default async function Home({ params }: PageProps) {
       <Navbar />
       <main className="flex-1">
         <Hero />
-        <SceneTicker />
+        <FeatureTicker />
         <HowItWorks />
         <MivoWalk />
         <SceneShelf />

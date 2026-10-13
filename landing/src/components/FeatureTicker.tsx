@@ -1,15 +1,22 @@
 import { getT } from '@/i18n/server';
 import { tr } from '@/i18n/shared';
 
-const SCENES = [
-  tr("Otelde check-in"),
-  tr("Doktor muayenesi"),
-  tr("İş mülakatı"),
-  tr("Havalimanında check-in"),
-  tr("Bitpazarında pazarlık"),
-  tr("İstanbul şehir turu"),
-  tr("Londra’da taksi yolculuğu"),
-  tr("Spor salonunda antrenman"),
+const FEATURES = [
+  tr("Canlı sohbet et"),
+  tr("Hatalarını gör"),
+  tr("Anında düzeltme"),
+  tr("Telaffuzunu dinle"),
+  tr("Kendi dilinde açıklama"),
+  tr("Hata defterim"),
+  tr("Günlük yol"),
+];
+
+const PROMISES = [
+  tr("Mikrofona konuş"),
+  tr("Mivo hep yanında"),
+  tr("Hata yapmak serbest"),
+  tr("Kart gerekmez"),
+  tr("5 dilde açıklama"),
 ];
 
 function Star() {
@@ -20,11 +27,11 @@ function Star() {
   );
 }
 
-/** Two crossing bands of scene names: full-width rhythm between the hero and the story. */
-export default function SceneTicker() {
+/** Two crossing bands of what the app does and promises: full-width rhythm between the hero and the story. */
+export default function FeatureTicker() {
   const t = getT();
-  const scenes = SCENES.map((s) => t(s));
-  const steps = t("Konuş. Düzelt. Tekrar et.");
+  const features = FEATURES.map((s) => t(s));
+  const promises = PROMISES.map((s) => t(s));
 
   const row = (items: string[], outline: boolean, copy: boolean) => (
     <div className="flex shrink-0 items-center" aria-hidden={copy || undefined}>
@@ -47,14 +54,14 @@ export default function SceneTicker() {
     <section aria-hidden className="relative overflow-hidden bg-white py-14 sm:py-20">
       <div className="-mx-8 -rotate-[1.4deg] bg-slate-yellow py-4 text-heading shadow-[0_20px_40px_-24px_rgba(255,194,31,0.9)] sm:py-5">
         <div className="flex w-max motion-reduce:animate-none" style={{ animation: 'ticker 48s linear infinite' }}>
-          {row(scenes, true, false)}
-          {row(scenes, true, true)}
+          {row(features, true, false)}
+          {row(features, true, true)}
         </div>
       </div>
       <div className="-mx-8 mt-2 rotate-[1.4deg] bg-stage py-4 text-white sm:py-5">
         <div className="flex w-max motion-reduce:animate-none" style={{ animation: 'ticker 40s linear infinite reverse' }}>
-          {row(Array(6).fill(steps), false, false)}
-          {row(Array(6).fill(steps), false, true)}
+          {row([...promises, ...promises], false, false)}
+          {row([...promises, ...promises], false, true)}
         </div>
       </div>
     </section>
