@@ -9,15 +9,19 @@ export default function FinalCta() {
   const t = getT();
   return (
     <section id={anchorId("download", getLocale())} className="scroll-mt-24 px-4 pb-20 sm:px-6 sm:pb-28">
-      <Reveal className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[2.5rem] bg-paper shadow-lifted sm:rounded-[3.5rem]">
-        {/* the scene runs edge to edge; a light wash keeps the text readable */}
-        <Image src="/scenes/istanbul-tour.webp" alt="" fill sizes="100vw" className="object-cover object-[70%_50%]" />
-        <div aria-hidden className="absolute inset-0 bg-linear-to-t from-white via-white/85 to-white/20 lg:bg-linear-to-r lg:from-white lg:via-white/85 lg:to-transparent" />
+      <Reveal className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#efeaff] via-white to-[#e3f3ff] shadow-lifted sm:rounded-[3rem]">
+        {/* Mivo inviting you through the portal; the artwork fades into the card instead of washing over the text */}
+        <div
+          aria-hidden
+          className="relative h-[19rem] w-full [mask-image:linear-gradient(180deg,black_62%,transparent)] sm:h-[24rem] lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[56%] lg:[mask-image:linear-gradient(90deg,transparent,black_38%)]"
+        >
+          <Image src="/hero/hero-portal.webp" alt="" fill sizes="(max-width: 1024px) 100vw, 56vw" className="object-cover object-[60%_38%]" />
+        </div>
 
-        <div className="relative grid items-end gap-10 px-7 pb-14 pt-64 sm:px-14 sm:pb-20 sm:pt-72 lg:items-center lg:py-32">
+        <div className="relative px-7 pb-14 sm:px-14 sm:pb-20 lg:py-28">
           <div className="lg:max-w-[40rem]">
             <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-stage">{t("Sahne senin")}</p>
-            <h2 className="mt-4 text-balance font-display text-5xl font-extrabold leading-[0.96] tracking-[-0.04em] text-heading sm:text-7xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
+            <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1] tracking-[-0.035em] text-heading sm:text-6xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
             <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-heading/75">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
