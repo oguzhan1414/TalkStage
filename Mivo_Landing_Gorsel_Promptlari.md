@@ -90,3 +90,33 @@ landing/public/mivo/walk/mivo_walk_1.png … mivo_walk_6.png   (şeffaf, 1024×1
 landing/public/mivo/stops/mivo_stop_*.png                    (şeffaf, 1024×1280)
 ```
 Görseller geldiğinde ben `webp`'e çevirip kodu bağlarım.
+
+---
+
+## BÖLÜM C – Hero sahne görselleri (sağ panel)
+
+Hero'daki fotoğraf paneli masaüstünde yaklaşık 5:6 dikey, telefonda neredeyse kare görünür; üstüne metin balonları biner. Bu yüzden görseller **4:5 dikey** (en az 1600×2000) ve aşağıdaki güvenli alan kuralıyla üretilir.
+
+**Kompozisyon kuralı (hepsi için)**
+- Karakter kadrajın **sağ yarısında**, göğüs-üstü ya da bel-üstü, doğrudan kameraya bakıyor, hafif öne eğilmiş, konuşmak üzere.
+- **Sol %40 sakin**: bulanık, düşük kontrastlı fon (balon buraya biner). Üst %15 de sakin (sahne etiketi buraya biner).
+- Kameranın yüksekliği göz hizasında, hafif geniş açı, fonda derinlik ve bokeh.
+- Karakterin yüzü ve elleri kadrajın dikey olarak orta %60'lık bandında kalsın (telefonda üst/alt kırpılıyor).
+- Mivo görselde **yok** (kartın üstünde zaten duruyor).
+
+**Stil kilidi (hepsine eklenecek)**
+```text
+Premium 3D animated-film rendering, warm cinematic lighting, shallow depth of field, rich but soft colors, same art style as the reference images. Friendly, expressive, realistic proportions (not chibi). Portrait 4:5. The left 40% of the frame is a calm, softly blurred background with low contrast and no important details; the top 15% is also calm. No text, no logo, no watermark, no subtitles.
+```
+Referans olarak mevcut sahne görsellerinden birini (`landing/public/scenes/hotel-checkin.webp` gibi) stil referansı olarak yükle.
+
+| Dosya | Prompt (stil kilidi eklenir) |
+| :-- | :-- |
+| `hero-airport.webp` | `At a bright modern airport check-in desk, a friendly young woman airline agent in a navy uniform and neck scarf stands on the right, leaning slightly toward the camera with a welcoming smile, holding a boarding pass; blurred departure board and travelers on the left; golden morning light through tall windows.` |
+| `hero-hotel.webp` | `At the polished wooden reception desk of an elegant boutique hotel, a warm middle-aged male receptionist in a vest and tie stands on the right, one hand on a service bell, smiling at the camera; blurred lobby with chandelier and armchairs on the left; warm amber light.` |
+| `hero-interview.webp` | `In a sunny modern office with glass walls, a confident female recruiter in a blazer sits on the right across a desk, pen and notebook in hand, looking at the camera with an encouraging expression, as if asking a question; blurred city skyline and meeting room on the left; soft daylight.` |
+| `hero-cafe.webp` | `Behind the counter of a cozy specialty coffee shop, a cheerful barista in an apron stands on the right holding a paper cup and a marker, leaning toward the camera with a friendly smile; blurred shelves, plants and pastries on the left; warm morning light.` |
+
+İsteğe bağlı 5.: `hero-doctor.webp` – `In a bright friendly clinic, a kind female doctor in a white coat with a stethoscope stands on the right, tablet in hand, gentle reassuring smile toward the camera; blurred waiting area on the left; soft white-and-teal light.`
+
+**Dosya:** 4:5 → `landing/public/hero/` altına (ben webp'e çevirir, 1600 px'e küçültürüm). Görseller gelince `heroTakes` içindeki metinleri (karakter adı, rol, replik, Türk konuşanların tipik hatası, Mivo notu) bu sahnelere göre yazıp 5 dile çeviririm.
