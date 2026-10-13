@@ -38,3 +38,11 @@ export function pickShot(locale: Locale, slots: readonly ShotSlot[]): Shot {
 }
 
 export const SHOT_RATIO = { width: 720, height: 1280 } as const;
+
+const MARQUEE_ORDER: readonly ShotSlot[] = ["scenes", "chat", "today", "words", "mistakes", "pron", "listen", "progress"];
+
+/** Every visual the language has, in showcase order. */
+export function allShots(locale: Locale): Shot[] {
+  const dir = folder(locale);
+  return MARQUEE_ORDER.filter((s) => AVAILABLE[dir].includes(s)).map((s) => pickShot(locale, [s]));
+}

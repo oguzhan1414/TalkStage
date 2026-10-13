@@ -1,7 +1,11 @@
 import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import ShotMarquee from "@/components/ShotMarquee";
 import ScrollStory from "@/components/ScrollStory";
+import FeatureTabs from "@/components/FeatureTabs";
+import WhySpekvia from "@/components/WhySpekvia";
+import TrustStrip from "@/components/TrustStrip";
 import SceneShelf from "@/components/SceneShelf";
 import MivoSection from "@/components/MivoSection";
 import DailyPath from "@/components/DailyPath";
@@ -41,10 +45,14 @@ export default async function Home({ params }: PageProps) {
       <Navbar />
       <main className="flex-1">
         <Hero />
+        <ShotMarquee />
         <ScrollStory />
         <SceneShelf />
-        <MivoSection />
+        <FeatureTabs />
         <DailyPath />
+        <MivoSection />
+        <WhySpekvia />
+        <TrustStrip />
         <Pricing />
         <HomeFaq />
         <FinalCta />

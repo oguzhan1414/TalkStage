@@ -21,36 +21,6 @@ const LEVELS = [
   { code: 'C2', image: c2Level },
 ] as const;
 
-type Tile = { icon: string; title: string; text: string; className?: string };
-
-const TILES: Tile[] = [
-  {
-    icon: 'reading',
-    title: tr("Okuma"),
-    text: tr("A1–A2 hikâyelerinde dinle, boşluğu doldur, kelimeyi harf harf yaz, cümleyi sıraya diz; sonunda sahnedeki cümleyi sesli söyle."),
-  },
-  {
-    icon: 'podcasts',
-    title: tr("Podcast"),
-    text: tr("40 bölüm, iki dilli transkript. Bir cümleye dokununca ses oraya atlar; bölümü bitirince mini test gelir."),
-  },
-  {
-    icon: 'words',
-    title: tr("Kelimeler"),
-    text: tr("900 çekirdek kelime, aralıklı tekrarla (SM-2) tam unutmak üzereyken karşına çıkar."),
-  },
-  {
-    icon: 'mistakes',
-    title: tr("Hata defterim"),
-    text: tr("Konuşmalarda düzeltilen cümleler defterine düşer; geri dönüp çalışırsın."),
-  },
-  {
-    icon: 'pronunciation',
-    title: tr("Telaffuz"),
-    text: tr("Türkçe konuşanların zorlandığı kelimeleri tek tek dinle ve tekrar et."),
-  },
-];
-
 export default function DailyPath() {
   const t = getT();
   return (
@@ -62,7 +32,7 @@ export default function DailyPath() {
           <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Ne çalışacağını seçmek için vakit harcama. Bugün sekmesi sıradaki işi gösterir.")}</p>
         </Reveal>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-14">
           {/* Lead tile: the day-by-day road */}
           <Reveal className="lg:col-span-6">
             <div className="relative overflow-hidden rounded-[32px] border border-white/80 bg-linear-to-br from-[#efeaff] via-white to-[#e6f5ff] p-7 text-heading shadow-lifted sm:p-10">
@@ -87,18 +57,6 @@ export default function DailyPath() {
               </div>
             </div>
           </Reveal>
-
-          {TILES.map((tile, i) => (
-            <Reveal key={tile.icon} delay={i * 70} className={i < 2 ? 'lg:col-span-3' : 'lg:col-span-2'}>
-              <div className="flex h-full items-start gap-4 rounded-[28px] border border-white/80 bg-white/80 p-5 shadow-layered backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted sm:p-6">
-                <Image src={`/icons/${tile.icon}.webp`} alt="" width={96} height={96} className="h-16 w-16 shrink-0 object-contain" />
-                <div>
-                  <h3 className="font-display text-xl font-bold tracking-tight text-heading">{t(tile.title)}</h3>
-                  <p className="mt-1.5 text-[0.93rem] leading-relaxed text-body">{t(tile.text)}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
         </div>
 
         {/* Levels */}
