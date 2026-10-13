@@ -44,7 +44,7 @@ const COLUMNS = [
 ];
 
 const STORE_BTN =
-  "group inline-flex items-center gap-2.5 rounded-2xl bg-ink px-4 py-2.5 text-white shadow-[0_14px_28px_-14px_rgba(21,18,58,0.7)] transition-all hover:-translate-y-0.5 hover:bg-stage-deep";
+  "group inline-flex items-center gap-2.5 rounded-2xl bg-linear-to-r from-stage to-purple-pop px-4 py-2.5 text-white shadow-[0_14px_28px_-14px_rgba(79,70,229,0.7)] transition-all hover:-translate-y-0.5";
 
 export default function Footer() {
   const t = useT();

@@ -65,23 +65,23 @@ export default function DailyPath() {
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {/* Lead tile: the day-by-day road */}
           <Reveal className="lg:col-span-6">
-            <div className="relative overflow-hidden rounded-[32px] bg-linear-to-br from-stage via-[#5b4bf0] to-purple-pop p-7 text-white shadow-lifted sm:p-10">
-              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
-              <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-spot/25 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[32px] border border-white/80 bg-linear-to-br from-[#efeaff] via-white to-[#e6f5ff] p-7 text-heading shadow-lifted sm:p-10">
+              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-purple-pop/15 blur-2xl" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-spot/15 blur-3xl" />
               <div className="relative grid items-center gap-8 lg:grid-cols-[0.8fr_1.2fr]">
                 <div>
                   <Image src="/icons/today.webp" alt="" width={256} height={256} className="h-16 w-16" />
                   <h3 className="mt-4 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Bugün")}</h3>
-                  <p className="mt-3 max-w-md text-[1.02rem] leading-relaxed text-white/85">{t("Seviyene göre gün gün ilerleyen bir yol. Her gün birkaç küçük görev: konu anlatımı, okuma, podcast ve Mivo ile tekrar.")}</p>
+                  <p className="mt-3 max-w-md text-[1.02rem] leading-relaxed text-body">{t("Seviyene göre gün gün ilerleyen bir yol. Her gün birkaç küçük görev: konu anlatımı, okuma, podcast ve Mivo ile tekrar.")}</p>
                   <ol className="mt-6 flex flex-wrap gap-2 text-[0.78rem] font-semibold">
                     {[tr("Gün 1 · Öğren"), tr("Gün 2 · Oku ve dinle"), tr("Gün 3 · Mivo ile pekiştir")].map((step) => (
-                      <li key={step} className="rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 backdrop-blur">
+                      <li key={step} className="rounded-full border border-stage/15 bg-white px-3.5 py-1.5 text-stage shadow-layered">
                         {t(step)}
                       </li>
                     ))}
                   </ol>
                 </div>
-                <div className="rounded-3xl bg-white/95 p-4 shadow-lifted sm:p-6">
+                <div className="rounded-3xl border border-line bg-white p-4 shadow-layered sm:p-6">
                   <PathDraw />
                 </div>
               </div>

@@ -4,10 +4,9 @@ import { useGSAP } from '@gsap/react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 
-import PhoneFrame from '@/components/PhoneFrame';
-import { FixScreen, ReviewScreen, SpeakScreen } from '@/components/StoryScreens';
 import { gsap } from '@/components/motion/gsapClient';
-import { useT } from '@/i18n/client';
+import { pickShot, SHOT_RATIO, type ShotSlot } from '@/data/appShots';
+import { useLocale, useT } from '@/i18n/client';
 import { tr } from '@/i18n/shared';
 
 const STEPS = [
@@ -15,24 +14,21 @@ const STEPS = [
     n: '01',
     title: tr("Konuş"),
     text: tr("Havalimanında, otelde, mülakatta… Mivo sahnedeki karşı tarafı oynar, sen sesli konuşursun."),
-    Screen: SpeakScreen,
-    pose: '/mivo/listening.webp',
+    slots: ['chat', 'pron'] as ShotSlot[],
   },
   {
     n: '02',
     title: tr("Düzelt"),
     text: tr("Takıldığın cümle konuşma kesilmeden düzeltilir ve nedeni kendi dilinde, tek cümleyle anlatılır."),
-    Screen: FixScreen,
-    pose: '/mivo/success.webp',
+    slots: ['mistakes', 'progress'] as ShotSlot[],
   },
   {
     n: '03',
     title: tr("Tekrar et"),
     text: tr("Hataların Hata Defterim'e düşer. Hızlı sınavla pekiştirir, gün gün planınla ilerlersin."),
-    Screen: ReviewScreen,
-    pose: '/mivo/lesson-guide.webp',
+    slots: ['words'] as ShotSlot[],
   },
-] as const;
+];
 
 /**
  * "Konuş → Düzelt → Tekrar et". On large screens the section pins and the phone changes screen as you scroll
@@ -41,6 +37,8 @@ const STEPS = [
  */
 export default function ScrollStory() {
   const t = useT();
+  const locale = useLocale();
+  const shots = STEPS.map((s) => pickShot(locale, s.slots));
   const root = useRef<HTMLElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -105,31 +103,20 @@ export default function ScrollStory() {
         </div>
 
         <div className="relative">
-          <div aria-hidden className="absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.22),transparent_65%)] blur-2xl" />
-          <PhoneFrame className="relative">
-            {STEPS.map((s, i) => (
-              <div
-                key={s.n}
-                className={`absolute inset-0 transition-all duration-500 ${i === active ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
-                aria-hidden={i !== active}
-              >
-                <s.Screen />
-              </div>
-            ))}
-          </PhoneFrame>
-          <div className="pointer-events-none absolute -bottom-6 -left-24 w-44">
+          <div aria-hidden className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.22),transparent_65%)] blur-2xl" />
+          <div className="relative aspect-[9/16] w-[19rem] overflow-hidden rounded-[2rem] bg-white shadow-[0_50px_90px_-30px_rgba(54,45,148,0.5)] ring-1 ring-white/80 xl:w-[21rem]">
             {STEPS.map((s, i) => (
               <Image
-                key={s.pose}
-                src={s.pose}
-                alt=""
-                width={750}
-                height={900}
-                sizes="180px"
-                className={`absolute bottom-0 left-0 h-auto w-full drop-shadow-[0_22px_28px_rgba(21,18,58,0.3)] transition-all duration-500 ${i === active ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                key={s.n}
+                src={shots[i].src}
+                alt={i === active ? shots[i].alt : ''}
+                width={SHOT_RATIO.width}
+                height={SHOT_RATIO.height}
+                sizes="340px"
+                className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ${i === active ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
+                aria-hidden={i !== active}
               />
             ))}
-            <div className="invisible aspect-[5/6]" />
           </div>
         </div>
       </div>
@@ -142,9 +129,9 @@ export default function ScrollStory() {
         </div>
         {STEPS.map((s) => (
           <div key={s.n} className="flex flex-col items-center gap-6 text-center">
-            <PhoneFrame>
-              <s.Screen />
-            </PhoneFrame>
+            <div className="w-[16.5rem] overflow-hidden rounded-[1.75rem] bg-white shadow-[0_40px_70px_-28px_rgba(54,45,148,0.5)] ring-1 ring-white/80">
+              <Image src={shots[STEPS.indexOf(s)].src} alt={shots[STEPS.indexOf(s)].alt} width={SHOT_RATIO.width} height={SHOT_RATIO.height} sizes="264px" className="h-auto w-full" />
+            </div>
             <div>
               <span className="font-mono text-xs font-bold text-stage">{s.n}</span>
               <h3 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-heading">{t(s.title)}</h3>

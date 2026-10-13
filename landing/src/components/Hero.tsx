@@ -1,6 +1,6 @@
 import Link from '@/i18n/Link';
 import { ArrowDown, ArrowRight } from 'lucide-react';
-import HeroDevice from '@/components/HeroDevice';
+import HeroShots from '@/components/HeroShots';
 import HeroCtaTracker from '@/components/HeroCtaTracker';
 import CountUp from '@/components/motion/CountUp';
 import { getLocale, getT } from "@/i18n/server";
@@ -27,7 +27,7 @@ export default function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-white to-transparent" />
       </div>
 
-      <div className="mx-auto grid min-h-[100svh] w-full max-w-6xl items-center gap-10 px-5 pb-20 pt-28 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-6 lg:pb-16 lg:pt-24">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-10 pt-28 sm:px-8 lg:min-h-[90svh] lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pb-12 lg:pt-24">
         <div className="max-w-[38rem]">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-3.5 py-1.5 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-stage shadow-layered backdrop-blur-xl">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald" style={{ animation: 'pulse-dot 1.8s ease-in-out infinite' }} />
@@ -69,21 +69,22 @@ export default function Hero() {
           </div>
 
           <p className="mt-4 text-sm text-muted">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
-
-          <dl className="mt-6 grid max-w-[34rem] grid-cols-2 gap-3 sm:grid-cols-4">
-            {FACTS.map((fact) => (
-              <div key={fact.label} className="rounded-2xl border border-white/80 bg-white/60 px-3.5 py-3 shadow-layered backdrop-blur-xl">
-                <dt className="sr-only">{t(fact.label)}</dt>
-                <dd className="font-display text-2xl font-extrabold tracking-tight text-heading">
-                  <CountUp value={fact.value} suffix={fact.suffix} />
-                </dd>
-                <dd className="mt-0.5 text-[0.72rem] leading-tight text-muted">{t(fact.label)}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
-        <HeroDevice />
+        <HeroShots />
+      </div>
+      <div className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 sm:pb-20">
+        <dl className="grid grid-cols-2 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/75 shadow-layered backdrop-blur-xl sm:grid-cols-4 sm:divide-x sm:divide-line">
+          {FACTS.map((fact, i) => (
+            <div key={fact.label} className={`px-5 py-5 sm:px-7 sm:py-6 ${i % 2 === 1 ? 'border-l border-line sm:border-l-0' : ''} ${i > 1 ? 'border-t border-line sm:border-t-0' : ''}`}>
+              <dt className="sr-only">{t(fact.label)}</dt>
+              <dd className="font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
+                <CountUp value={fact.value} suffix={fact.suffix} />
+              </dd>
+              <dd className="mt-1 text-sm leading-tight text-muted">{t(fact.label)}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );

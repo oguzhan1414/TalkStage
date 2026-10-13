@@ -10,44 +10,44 @@ export default function FinalCta() {
   const t = getT();
   return (
     <section id={anchorId("download", getLocale())} className="scroll-mt-24 px-5 pb-24 sm:px-8 sm:pb-32">
-      <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[36px] bg-linear-to-br from-[#2a2299] via-stage to-[#7c5cff] px-7 py-14 text-white shadow-lifted sm:px-14 sm:py-20">
+      <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[36px] border border-white/80 bg-linear-to-br from-[#efeaff] via-white to-[#dff2ff] px-7 py-14 text-heading shadow-lifted sm:px-14 sm:py-20">
         {/* light: two soft colour pools + a faint grid, a glass frame inside */}
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-32 h-[28rem] w-[28rem] rounded-full bg-white/15 blur-3xl" style={{ animation: 'float 16s ease-in-out infinite' }} />
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-32 h-[28rem] w-[28rem] rounded-full bg-purple-pop/25 blur-3xl" style={{ animation: 'float 16s ease-in-out infinite' }} />
         <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/4 h-[26rem] w-[26rem] rounded-full bg-spot/30 blur-3xl" style={{ animation: 'float 19s ease-in-out -7s infinite' }} />
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-        <div aria-hidden className="pointer-events-none absolute inset-2 rounded-[30px] border border-white/15" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(79,70,229,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,0.05)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+        <div aria-hidden className="pointer-events-none absolute inset-2 rounded-[30px] border border-stage/10" />
 
         <div className="relative grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
-            <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/80">{t("Sahne senin")}</p>
+            <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-stage">{t("Sahne senin")}</p>
             <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-6xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
-            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-white/75">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
+            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-body">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a
                 href={iosStoreUrl}
-                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-ink shadow-[0_18px_40px_-18px_rgba(255,255,255,0.45)] ring-1 ring-white/60 transition-all hover:-translate-y-0.5 hover:bg-slate-yellow"
+                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-linear-to-r from-stage to-purple-pop px-7 py-4 text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_40px_-14px_rgba(79,70,229,0.8)]"
               >
                 <AppleMark />
                 <span className="text-left leading-tight">
-                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">{t("İndir")}</span>
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-white/60">{t("İndir")}</span>
                   <span className="block text-[0.95rem] font-bold">{t("App Store")}</span>
                 </span>
               </a>
               <a
                 href={androidStoreUrl}
-                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-ink shadow-[0_18px_40px_-18px_rgba(255,255,255,0.45)] ring-1 ring-white/60 transition-all hover:-translate-y-0.5 hover:bg-slate-yellow"
+                className="inline-flex min-w-[12.5rem] items-center justify-center gap-3 rounded-full bg-linear-to-r from-stage to-purple-pop px-7 py-4 text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_40px_-14px_rgba(79,70,229,0.8)]"
               >
                 <PlayMark />
                 <span className="text-left leading-tight">
-                  <span className="block text-[0.62rem] uppercase tracking-wider text-ink/55">{t("İndir")}</span>
+                  <span className="block text-[0.62rem] uppercase tracking-wider text-white/60">{t("İndir")}</span>
                   <span className="block text-[0.95rem] font-bold">{t("Google Play")}</span>
                 </span>
               </a>
             </div>
 
-            <p className="mt-5 text-sm font-medium text-white/80">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
-            <p className="mt-2 text-sm text-white/60">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-white underline decoration-white/60 underline-offset-4">{t("Web’den başla")}</Link>
+            <p className="mt-5 text-sm font-medium text-heading">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
+            <p className="mt-2 text-sm text-muted">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-stage underline decoration-stage/40 underline-offset-4">{t("Web’den başla")}</Link>
               .
             </p>
           </div>
