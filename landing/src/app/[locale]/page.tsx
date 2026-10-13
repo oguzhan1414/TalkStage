@@ -1,7 +1,6 @@
 import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import GoogleApiDisclosure from "@/components/GoogleApiDisclosure";
 import ScrollStory from "@/components/ScrollStory";
 import SceneShelf from "@/components/SceneShelf";
 import MivoSection from "@/components/MivoSection";
@@ -42,7 +41,6 @@ export default async function Home({ params }: PageProps) {
       <Navbar />
       <main className="flex-1">
         <Hero />
-        <GoogleApiDisclosure />
         <ScrollStory />
         <SceneShelf />
         <MivoSection />

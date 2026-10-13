@@ -40,9 +40,6 @@ export const PRIVACY_DOC: LegalDoc = {
       paras: [
       tr("Hizmeti sunmak için gereken verileri toplarız:")
     ],
-    after: [
-      tr("Google ile giriş yaparsan Google'dan yalnızca adını, e-posta adresini ve (varsa) profil fotoğrafını alırız. Bu bilgileri sadece hesabını oluşturmak ve seni tanımak için kullanırız; satmayız, reklam için kullanmayız ve yapay zekâ modellerini eğitmek için kullanmayız. Spekvia'nın Google API'lerinden aldığı bilgileri kullanması ve başka bir uygulamaya aktarması, Sınırlı Kullanım (Limited Use) gereklilikleri dahil Google API Hizmetleri Kullanıcı Verileri Politikası'na uygundur. Google API'lerini hiçbir şekilde yapay zekâ ile oluşturulan rızasız cinsel içerikli görüntüler (NCII) için kullanmayız.")
-    ],
       list: [
       tr("Hesap bilgileri: e-posta adresin, varsa adın; Apple veya Google ile girişte bu sağlayıcıların paylaştığı kimlik ve e-posta bilgisi."),
       tr("Profil ve tercihler: görünen ad, ana dilin, hedefin, günlük çalışma süren, İngilizce seviyen ve avatarın. İsteğe bağlı olarak cinsiyet ve yaş aralığı da sorulur; vermek zorunda değilsin."),
@@ -51,6 +48,23 @@ export const PRIVACY_DOC: LegalDoc = {
       tr("Bildirimler: bir yapay zekâ yanıtını bildirdiğinde, bildirdiğin yanıt metni, seçtiğin neden ve varsa notun."),
       tr("Abonelik durumu: aboneliğinin aktif olup olmadığı bilgisi (RevenueCat ve mağaza üzerinden). Kart veya banka bilgilerin bize ulaşmaz."),
       tr("Kullanım ve hata verileri: uygulamada yaptığın temel işlemler (örneğin bir sahnenin tamamlanması), cihaz modeli, işletim sistemi, uygulama sürümü ve hata raporları. Analitik, hesabına ait rastgele bir kimlikle ilişkilendirilir; e-posta adresin analitiğe gönderilmez.")
+    ],
+    },
+    {
+      id: "google",
+      title: tr("1.1 Google ile giriş ve Google kullanıcı verileri"),
+      paras: [
+      tr("Spekvia'da Google ile giriş yaparsan, Google'dan aşağıdaki verilere erişiriz ve bunları şu şekilde kullanırız:")
+    ],
+      list: [
+      tr("Eriştiğimiz veriler: yalnızca adın, e-posta adresin ve (varsa) profil fotoğrafın (Google'ın openid, email ve profile kapsamları). Google Drive, Gmail, Takvim, Fotoğraflar, YouTube veya başka hiçbir Google verisine erişmeyiz."),
+      tr("Kullanım amacı: yalnızca Spekvia hesabını oluşturmak, seni doğrulamak ve oturum açmanı sağlamak. Bu verileri reklam için, profil çıkarma için veya yapay zekâ modellerini eğitmek için kullanmayız."),
+      tr("Paylaşım: Google'dan aldığımız verileri satmayız, kiralamayız, reklam ağlarına veya veri aracılarına aktarmayız. Yalnızca hesabını barındıran ve kimliğini doğrulayan hizmet sağlayıcı (Supabase) tarafından, hizmeti sunmak için gereken ölçüde işlenir."),
+      tr("Saklama ve koruma: veriler hesabın açık kaldığı sürece Supabase üzerinde, şifreli bağlantılarla ve kullanıcı bazlı erişim kurallarıyla korunarak saklanır. Hesabını silersen bu veriler kalıcı olarak silinir."),
+      tr("Erişimi kaldırma: Spekvia'nın Google hesabına erişimini istediğin zaman Google Hesabı ayarlarındaki \"Üçüncü taraf uygulamalar ve hizmetler\" bölümünden kaldırabilirsin.")
+    ],
+    after: [
+      tr("Spekvia'nın Google API'lerinden aldığı bilgileri kullanması ve başka bir uygulamaya aktarması, Sınırlı Kullanım (Limited Use) gereklilikleri dahil Google API Hizmetleri Kullanıcı Verileri Politikası'na uygundur. Spekvia görüntü veya video üretmez ve Google API'lerini yapay zekâ ile oluşturulan rızasız cinsel içerikli görüntüler (NCII) için hiçbir şekilde kullanmaz.")
     ],
     },
     {
