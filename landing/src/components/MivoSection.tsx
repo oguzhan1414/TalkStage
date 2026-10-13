@@ -7,40 +7,38 @@ import { LOCALES, LOCALE_META } from "@/i18n/config";
 
 const LANGS = LOCALES.map((l) => LOCALE_META[l].label);
 
-/** Example memory notes pinned on Mivo's artwork, as if they sat inside the floating speech bubbles. */
+/** Memory notes sit exactly on the four glass cards of the artwork (positions are % of the 4:5 image). */
 const NOTES = [
-  { kind: tr("Ad"), text: "Ece", className: 'left-[7%] top-[9%]', delay: '0s' },
-  { kind: tr("Konu"), text: tr("İş mülakatı"), className: 'left-[30%] top-[22%]', delay: '-1.6s' },
-  { kind: tr("Hedef"), text: tr("Vize görüşmesi"), className: 'left-[6%] top-[38%]', delay: '-3.1s' },
-  { kind: tr("Konu"), text: tr("Havalimanı sohbeti"), className: 'left-[12%] top-[54%] hidden sm:flex', delay: '-4.4s' },
+  { kind: tr("Ad"), text: "Ece", x: 32, y: 15, tilt: '-rotate-[4deg]' },
+  { kind: tr("Konu"), text: tr("İş mülakatı"), x: 20.5, y: 32.5, tilt: '-rotate-[2deg]' },
+  { kind: tr("Hedef"), text: tr("Vize görüşmesi"), x: 21.5, y: 51, tilt: 'rotate-[1deg]' },
+  { kind: tr("Konu"), text: tr("Havalimanı sohbeti"), x: 27, y: 71, tilt: 'rotate-[2deg]' },
 ];
 
 export default function MivoSection() {
   const t = getT();
   return (
     <section id={anchorId("mivo", getLocale())} className="relative bg-white px-4 py-20 sm:px-6 sm:py-28">
-      <Reveal className="relative mx-auto grid max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#efeaff] via-white to-[#e3f3ff] shadow-lifted sm:rounded-[3rem] lg:grid-cols-[0.95fr_1.05fr]">
-        {/* Mivo's artwork runs to the card edges; memory notes float on top of it */}
-        <div className="relative h-[24rem] sm:h-[30rem] lg:h-auto lg:min-h-[40rem]">
+      <Reveal className="relative mx-auto grid max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#efeaff] via-white to-[#e3f3ff] shadow-lifted sm:rounded-[3rem] lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+        {/* Mivo's artwork runs to the card edges; the notes are written on its glass cards */}
+        <div className="relative aspect-[4/5] w-full">
           <Image
-            src="/hero/hero-sky.webp"
-            alt={t("Mivo el sallıyor")}
+            src="/hero/mivo-memory.webp"
+            alt={t("Mivo, anıları saklıyor")}
             fill
             sizes="(max-width: 1024px) 100vw, 46vw"
-            className="object-cover object-[62%_30%]"
+            className="object-cover"
           />
-          <div aria-hidden className="absolute inset-0 bg-linear-to-t from-white/30 via-transparent to-transparent lg:bg-linear-to-r lg:from-transparent lg:via-transparent lg:to-white/60" />
+          <div aria-hidden className="absolute inset-0 bg-linear-to-r from-transparent via-transparent to-white/40 lg:to-white/70" />
 
-          <p className="absolute right-5 top-5 rounded-full bg-white/90 px-3.5 py-1.5 font-mono text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-stage shadow-layered backdrop-blur sm:right-8 sm:top-8">{t("Mivo")}</p>
-
-          {NOTES.map((n) => (
+          {NOTES.map((n, i) => (
             <div
               key={n.text}
-              className={`animate-float absolute z-10 items-center whitespace-nowrap rounded-full border border-white bg-white/90 py-2 pl-3 pr-4 text-[0.88rem] font-semibold text-heading shadow-lifted backdrop-blur-xl ${n.className.includes('hidden') ? n.className : `flex ${n.className}`}`}
-              style={{ animationDelay: n.delay }}
+              className={`absolute z-10 w-[30%] -translate-x-1/2 -translate-y-1/2 text-center ${n.tilt}`}
+              style={{ left: `${n.x}%`, top: `${n.y}%`, animation: `stage-in 0.8s cubic-bezier(0.2,0.8,0.2,1) ${0.15 * i}s both` }}
             >
-              <span className="mr-2 rounded-md bg-stage/10 px-1.5 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider text-stage">{t(n.kind)}</span>
-              {t(n.text)}
+              <span className="block font-mono text-[0.5rem] font-bold uppercase tracking-[0.14em] text-stage sm:text-[0.62rem]">{t(n.kind)}</span>
+              <span className="mt-0.5 block font-display text-[0.8rem] font-extrabold leading-tight text-heading sm:text-lg">{t(n.text)}</span>
             </div>
           ))}
         </div>

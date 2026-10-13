@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Check, X } from 'lucide-react';
 
 import Reveal from './Reveal';
@@ -30,41 +31,56 @@ const ROWS = [
 export default function WhySpekvia() {
   const t = getT();
   return (
-    <section className="relative overflow-hidden bg-white px-5 py-24 sm:px-8 sm:py-32">
-      <div className="mx-auto max-w-5xl">
-        <Reveal className="mx-auto max-w-3xl text-center">
+    <section className="relative bg-white px-4 py-20 sm:px-6 sm:py-28">
+      <div className="mx-auto max-w-[88rem]">
+        <Reveal className="mx-auto max-w-3xl px-1 pb-12 text-center sm:pb-16">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Neden Spekvia")}</p>
-          <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Konuşmayı konuşarak öğrenirsin.")}</h2>
+          <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1] tracking-[-0.035em] text-heading sm:text-6xl">{t("Konuşmayı konuşarak öğrenirsin.")}</h2>
         </Reveal>
 
-        <Reveal className="mt-14">
-          <div className="overflow-hidden rounded-[2rem] border border-line bg-white shadow-layered">
-            <div className="hidden grid-cols-[8rem_1fr_1fr] border-b border-line bg-paper text-[0.78rem] font-semibold sm:grid">
-              <span className="px-6 py-4" />
-              <span className="px-6 py-4 text-muted">{t("Ders kitabı ve ezber")}</span>
-              <span className="bg-linear-to-r from-stage/10 to-purple-pop/10 px-6 py-4 text-stage">{t("Spekvia")}</span>
+        <div className="grid items-stretch gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:gap-5">
+          {/* the old way: flat and quiet */}
+          <Reveal>
+            <div className="h-full rounded-[2rem] bg-[#f1f0f6] p-6 sm:rounded-[2.5rem] sm:p-10">
+              <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-muted">{t("Ders kitabı ve ezber")}</p>
+              <ul className="mt-6 divide-y divide-heading/10">
+                {ROWS.map((r) => (
+                  <li key={r.label} className="py-5 first:pt-0 last:pb-0">
+                    <p className="font-display text-lg font-bold tracking-tight text-heading/55">{t(r.label)}</p>
+                    <p className="mt-1.5 flex items-start gap-2.5 text-[1rem] leading-relaxed text-heading/55">
+                      <X aria-hidden className="mt-1 h-4 w-4 shrink-0 text-coral" strokeWidth={3} />
+                      {t(r.old)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
-            {ROWS.map((r) => (
-              <div key={r.label} className="grid gap-3 border-b border-line px-5 py-5 last:border-b-0 sm:grid-cols-[8rem_1fr_1fr] sm:gap-0 sm:p-0">
-                <p className="font-display text-lg font-bold text-heading sm:px-6 sm:py-6">{t(r.label)}</p>
-                <p className="flex items-start gap-2.5 text-[0.95rem] leading-relaxed text-muted sm:px-6 sm:py-6">
-                  <X aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-coral" />
-                  <span>
-                    <span className="sr-only">{t("Ders kitabı ve ezber")}: </span>
-                    {t(r.old)}
-                  </span>
-                </p>
-                <p className="flex items-start gap-2.5 rounded-2xl bg-linear-to-r from-stage/[0.06] to-purple-pop/[0.06] p-3 text-[0.95rem] font-medium leading-relaxed text-heading sm:rounded-none sm:px-6 sm:py-6">
-                  <Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-emerald" strokeWidth={3} />
-                  <span>
-                    <span className="sr-only">{t("Spekvia")}: </span>
-                    {t(r.now)}
-                  </span>
-                </p>
+          </Reveal>
+
+          {/* Spekvia: loud, with Mivo celebrating */}
+          <Reveal delay={100}>
+            <div className="relative h-full overflow-hidden rounded-[2rem] bg-linear-to-br from-[#e1d9ff] via-[#eadfff] to-[#ffdbea] p-6 pb-40 shadow-lifted sm:rounded-[2.5rem] sm:p-10 sm:pb-10">
+              <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-white/60 blur-3xl" />
+              <p className="relative font-mono text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-stage">{t("Spekvia")}</p>
+              <ul className="relative mt-6 divide-y divide-heading/10 sm:pr-44 lg:pr-48">
+                {ROWS.map((r) => (
+                  <li key={r.label} className="py-5 first:pt-0 last:pb-0">
+                    <p className="font-display text-2xl font-extrabold tracking-[-0.02em] text-heading">{t(r.label)}</p>
+                    <p className="mt-1.5 flex items-start gap-2.5 text-[1.02rem] font-medium leading-relaxed text-heading">
+                      <span aria-hidden className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald text-white">
+                        <Check className="h-3 w-3" strokeWidth={4} />
+                      </span>
+                      {t(r.now)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <div aria-hidden className="pointer-events-none absolute -bottom-6 right-2 w-36 sm:right-4 sm:w-48 lg:w-56">
+                <Image src="/mivo/stops/mivo_stop_cheer.webp" alt="" width={640} height={800} sizes="224px" className="h-auto w-full drop-shadow-[0_24px_28px_rgba(21,18,58,0.3)]" />
               </div>
-            ))}
-          </div>
-        </Reveal>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
