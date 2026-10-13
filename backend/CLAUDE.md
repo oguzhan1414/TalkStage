@@ -355,3 +355,14 @@ Tüm REST endpoint'leri `Authorization: Bearer <supabase_access_token>` bekler.
 
 ### AI içerik bildirimleri (2026-10-13)
 - `POST /reports/ai-content` (204): kullanıcı kendi RLS kimliğiyle `ai_content_reports` tablosuna yazar (migration `0030_ai_content_reports.sql` — Studio'da çalıştırılmalı). Nedenler: harmful|hate|sexual|inaccurate|other. İnceleme Supabase Studio'dan.
+
+### Konuşma odası: Mivo yönlendirir, gereksiz düzeltme yok (2026-10-13)
+- **Düzeltme gürültüsü:** Konuşma metni ASR çıktısıdır → büyük/küçük harf, noktalama, apostrof "hata" değildir. `llm_orchestrator._CORRECTION_GUIDANCE`'a NOISE RULES eklendi (nitpick yerine düzeltme yok tercih edilir) + kod seviyesinde güvence `services/correction_filter.py` (`drop_trivial_correction`; `voice_turn.run_voice_turn` içinde uygulanır, tüm sesli yollar kapsanır: serbest sohbet + sahneler). Yalnız case/noktalama/kısaltma farkı olan düzeltme kartı kullanıcıya hiç gitmez.
+- **Serbest sohbette Mivo yönlendirir:** açılış artık "ne konuşalım?" değil; `services/free_chat_topics.py` seviyeye uygun bir durum seçer (14 konu: tanışma, kafe, adres tarifi, otel, restoran, alışveriş, telefonla randevu, mülakat, ödev sunumu, hafta sonu, seyahat, film/hobi, iade, günlük rutin; 5 dilde giriş cümlesi + Mivo'nun ilk İngilizce satırı) ve aynı kullanıcıya art arda aynı konuyu vermez. Sistem istemi (`_lead_rules`): her turda kısa tepki + akışı ilerlet, takılırsa kolaylaştır/iki seçenek sun, küçük hataları sözlü olarak düzeltme (recast), ~8-10 turdan sonra yeni bir durum öner. Odak/tekrar/konu-öğretim modları (`focus`) eski öğretmen davranışını korur.
+- **İpucu çevirisi:** `TurnAnalysis.suggested_replies_tr` + `turn.complete.suggested_replies_tr` (mobil ipucu kartında çeviri satırı).
+- Sahne öğretmen modu (A1/A2, `rag._build_beginner_teacher_block`): düzeltme artık "her turda bir tane" değil, yalnızca gerçekten önemli hata varsa.
+- Bilinen sınır: TTS dili tüm yanıt için `native` etiketiyle gidiyor (karışık dil); Mivo uzun İngilizce konuşursa cümle başına dil tespiti gerekebilir (yapılmadı).
+
+### Düzeltme: Mivo karakteri OYNAMAZ, öğretmen-rehberdir (2026-10-13, aynı gün)
+- Serbest sohbette Mivo karakter rolüne girmez; sahneyi anlatır: karşıdaki kişinin satırını kısa İngilizce alıntıyla söyler ve "Sen ne dersin?" diye sorar (A1–B1: anlatım öğrencinin ana dilinde, B2+: İngilizce). Açılış da böyle: selam + sahne cümlesi + karşıdakinin ilk İngilizce satırı (tırnak içinde) + soru. Tüm 5 dilde (tr/en/es/pt/de) giriş cümleleri ve soru var (`free_chat_topics.py`); ton: adım adım, eğlenceli, kısa (2-3 cümle), küçük hatalarda durdurmaz (`_lead_rules`).
+- İpucu önerileri bu yüzden "alıntılanan satıra doğal cevap" olacak şekilde istenir (`analyze_voice_turn` istemi).

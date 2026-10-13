@@ -645,3 +645,18 @@ Onboarding → Konuşma → Kelime Kaydı → Paywall akışının manuel/otomat
 - Mivo mesajının altında bayrak düğmesi (`VoiceRoomUI` → `ReportAiContentModal`) → `POST /reports/ai-content` (backend `routes/reports.py`, tablo `ai_content_reports`, migration 0030). Google Play AI-Generated Content politikası için.
 - Pro metinleri yalnızca doğrulanan şeyleri söylüyor: sınırsız sesli senaryo, 30 dk'ya kadar oturum (ücretsizde 5), tüm gramer dersleri (`PaywallContent`, `ProfileScreen` afişi). Pro'ya bağlı olmayan şeyleri (podcast, sahneler: CEFR seviyesine göre kilitli, kelime kartları) Pro vaadi olarak YAZMA.
 - `LegalConsentNote`: giriş/kayıt ekranlarında şartlar ve gizlilik bağlantılı kabul notu.
+
+### İpucu sohbetin içinde, Mivo'dan (2026-10-13)
+- "Söylemeyi dene" kartı + A1/A2 koç ipucu artık alt mikrofon alanında değil, sohbet akışının sonunda Mivo avatarıyla bir mesaj (`VoiceRoomUI.MivoHintMessage`, `VoiceRoomThread` `voice`/`pronounce` prop'ları): önerilen cümle + çevirisi (`suggestedRepliesTr`) + Dinle + "başka örnek". Yalnızca `turnPhase==='thinking_time'` iken görünür, kullanıcı konuşmaya başlayınca kaybolur. Ampul düğmesi `hintVisible` ile gösterir/gizler (state `useConversationSocket` içinde).
+- Referans uygulamadaki gibi harf harf okunuş (ken ay hev …) YOK: backend istemi bilerek fonetik yazım üretmiyor; istenirse ayrı bir alan olarak eklenir.
+- (Güncelleme) Sohbet içi ipucu kartı mikrofona basınca kaybolmaz: `thinking_time` ve `recording` boyunca görünür, kullanıcı konuşup gönderince (reviewing/ai_thinking) kaybolur.
+
+### Bugün yolunda metin taşması (2026-10-13)
+- "BAŞLA" balonu 68px'lik düğüm genişliğine sıkışıp "Başl a" diye kırılıyordu (başka dillerde daha uzun kelimeler daha kötü). `startBubble` düğümden geniş (left/right -56) ve metin tek satır; yan etiketler: tür satırı tek satır + `adjustsFontSizeToFit`, başlık 13.5px/2 satır, asgari etiket genişliği 96. Kural: sabit/dar genişlikli kapsayıcıdaki metne `numberOfLines` ver, kapsayıcıyı kelimeye göre değil kelimenin uzun halini düşünerek boyutla (5 dil, sistem yazı tipi büyütme).
+
+### İçerik çevirisi onarımı (2026-10-13)
+- **Sorun:** `packages/shared-data/i18n/grammarLessons.{de,es,pt}.json` içinde İngilizce içerik (test şıkları ~550, tablo hücreleri ~575, başlıklar, quiz sorusundaki İngilizce cümleler) hedef dile çevrilmişti: şıklar aynı kelimeye düşüp tekrarlıyordu ("Sei es SQL…" ×2), tablolarda "I" yerine "Ich" vardı. `en` overlay'i de birkaç yanlış şıkkı "düzeltmişti" (`We not are ready.` → doğru cümle). `scenariosData.*` video ipuçları (`userHint`) 4 dilde Türkçe talimat/parantez ("diye sor", "(Hâlâ çalışıyor mu?)") taşıyordu ve İngilizce cümle hedef dile çevrilmişti.
+- **Çözüm:** İngilizce içerik kaynaktan geri alındı (overlay'den anahtar silinerek; oracle = `en` overlay'in o alanı değiştirmemiş olması), quiz sorularındaki tırnaklı İngilizce cümleler kaynaktan yeniden yerleştirildi, Türkçe tamlama/ek kalıntıları (`(Geniş Zaman)`, `-meli/malı`, `-in, -ın`, "İster SQL ister NoSQL olsun" sorusu) 4 dilde elle düzeltildi. Video ipuçları `İngilizce cümle` + (de/es/pt) `\n(ana dilde anlamı)` biçiminde yeniden yazıldı (128 ipucu × 4 dil).
+- **Kural:** Overlay'e çeviri eklerken İngilizce şık/örnek/tablo hücresi **asla çevrilmez**; sadece Türkçe açıklama çevrilir. Denetim: aynı sorunun şıkları overlay'de tekrar etmemeli; `en` overlay değiştirmediği alanı başka dil değiştirmemeli.
+- **Kapanan açık:** 26 yeni A2 okuma hikâyesinin EN/ES/PT/DE çevirisi DB'ye yazıldı (`reading_passages.translations` 163/163, `scenarios` 27/27).
+- **Hata Defterim notu:** `grammar_mistakes` satırları kayıt anındaki dilde saklanır (açıklama + "Cevabın:/Doğrusu:" ibareleri); dil sonradan değişirse eski satırlar eski dilde kalır.
