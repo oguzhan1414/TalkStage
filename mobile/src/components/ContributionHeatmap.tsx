@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, radii } from '../theme/tokens';
 import type { ProgressOut } from '../types/api';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
 
 type Props = {
   progress: ProgressOut[];
@@ -15,9 +15,17 @@ type HeatDay = { iso: string; minutes: number; isFuture: boolean; isFirstOfMonth
 const TOTAL_WEEKS = 53;
 const CELL_SIZE = 11;
 const CELL_GAP = 3;
-const TR_MONTHS_SHORT = [
-  'Oca', t("Şub"), 'Mar', 'Nis', 'May', 'Haz', 'Tem', t("Ağu"), 'Eyl', 'Eki', 'Kas', 'Ara',
-];
+
+/** Short month names in the app language (Intl follows the app locale, not the device's). */
+function shortMonthNames(): string[] {
+  return Array.from({ length: 12 }, (_, m) => {
+    try {
+      return new Date(2024, m, 1).toLocaleDateString(getLocale(), { month: 'short' }).replace('.', '');
+    } catch {
+      return String(m + 1);
+    }
+  });
+}
 
 function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -87,6 +95,7 @@ function buildWeeks(progress: ProgressOut[]): { weeks: HeatDay[][]; activeDays: 
 export function ContributionHeatmap({ progress, dailyTargetMinutes }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const { weeks, activeDays } = useMemo(() => buildWeeks(progress), [progress]);
+  const monthNames = useMemo(shortMonthNames, []);
 
   return (
     <View style={styles.root}>
@@ -117,8 +126,8 @@ export function ContributionHeatmap({ progress, dailyTargetMinutes }: Props) {
                 return (
                   <View key={wi} style={styles.weekCol}>
                     {label ? (
-                      <Text style={styles.monthLabel}>
-                        {TR_MONTHS_SHORT[new Date(label.iso).getMonth()]}
+                      <Text style={styles.monthLabel} numberOfLines={1}>
+                        {monthNames[new Date(label.iso).getMonth()]}
                       </Text>
                     ) : null}
                   </View>
@@ -214,6 +223,7 @@ const styles = StyleSheet.create({
     width: CELL_SIZE + CELL_GAP,
   },
   monthLabel: {
+    width: 40, // wider than the 14px column so 3-4 letter month names are not clipped (next columns' labels are empty)
     fontFamily: fonts.bodyRegular,
     fontSize: 9,
     color: colors.textMuted,

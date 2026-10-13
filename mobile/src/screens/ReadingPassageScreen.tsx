@@ -286,7 +286,7 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
         prev && prev.clean === clean
           ? {
               ...prev,
-              meaning: localMeaning || (clean.endsWith('ing') ? 'eylem / yapma hali' : clean),
+              meaning: localMeaning || (clean.endsWith('ing') ? t("eylem / yapma hali") : clean),
               loading: false,
             }
           : prev

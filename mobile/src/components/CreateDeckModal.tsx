@@ -157,7 +157,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
                   scaleTo={0.92}
                 >
                   <Text style={[styles.levelChipText, selectedLevel === lvl && styles.levelChipTextSelected]}>
-                    {lvl}
+                    {lvl === 'Genel' ? t("Genel") : lvl}
                   </Text>
                 </BouncyPressable>
               ))}

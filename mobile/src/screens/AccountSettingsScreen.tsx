@@ -34,7 +34,7 @@ const APP_VERSION = '1.0.0';
 const AVATAR_LIST = [
   { id: 'student', name: t("Öğrenci"), source: avatarImages.studentYouth },
   { id: 'corporate', name: t("Kurumsal / Çalışan"), source: avatarImages.proDeveloper },
-  { id: 'traveler', name: 'Gezgin', source: avatarImages.travelerExplorer },
+  { id: 'traveler', name: t("Gezgin"), source: avatarImages.travelerExplorer },
   { id: 'adult_hobby', name: t("Hobi / Yetişkin"), source: avatarImages.matureSenior },
   { id: 'dev', name: t("Yazılımcı"), source: avatarImages.maleDev },
   { id: 'lead', name: 'Tech Lead', source: avatarImages.femaleLead },
@@ -720,7 +720,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                                 ? t("İlgili podcast bölümünü dinlemen gerekiyor")
                                 : firstMissingTask.type === 'reading'
                                   ? t("Smart Reading parçasını bitirmen gerekiyor")
-                                  : 'Sohbeti bitirmen gerekiyor';
+                                  : t("Sohbeti bitirmen gerekiyor");
                         return (
                           <Pressable
                             key={topic.code}

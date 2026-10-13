@@ -15,7 +15,7 @@ export function MicPermissionPrompt({
   onRequestPermission = () => {
     void Linking.openSettings();
   },
-  buttonLabel = 'Ayarlara Git',
+  buttonLabel = t("Ayarlara Git"),
 }: Props) {
   return (
     <View style={styles.container}>

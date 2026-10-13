@@ -591,7 +591,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                     {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => {
                       const sub =
                         grade === 'again'
-                          ? 'Birazdan'
+                          ? t("Birazdan")
                           : isRelearning
                             ? formatIntervalLabel(1)
                             : gradeForecastDays
