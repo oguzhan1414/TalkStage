@@ -26,7 +26,7 @@ export default function MivoSection() {
       <div aria-hidden className="pointer-events-none absolute -left-32 top-10 h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.22),transparent_65%)] blur-3xl" style={{ animation: 'float 15s ease-in-out infinite' }} />
       <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.16),transparent_65%)] blur-3xl" style={{ animation: 'float 18s ease-in-out -6s infinite' }} />
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
+      <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
         {/* Mivo + the notes it keeps */}
         <Reveal className="relative mx-auto aspect-[5/6] w-full max-w-[26rem] lg:max-w-[28rem]">
           <div

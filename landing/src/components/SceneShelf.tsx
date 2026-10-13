@@ -28,14 +28,19 @@ export default function SceneShelf() {
   return (
     <section id={anchorId("scenes", getLocale())} className="relative scroll-mt-24 overflow-hidden bg-white px-5 py-24 sm:px-8 sm:py-32">
       <div aria-hidden className="pointer-events-none absolute -right-40 top-20 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.14),transparent_65%)] blur-3xl" />
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Sahneler")}</p>
           <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Aynı sahne, her seferinde farklı bir sürpriz.")}</h2>
           <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: bir karışıklık, bitmiş bir ürün, aceleci bir görevli. Ezberlediğin cümle işe yaramaz; o an ne diyeceğini kendin bulmak zorundasın.")}</p>
         </Reveal>
 
-        <div className="mt-14 grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+        <Reveal className="mt-12">
+          <SceneRow scenes={SCENES} />
+          <p className="mt-2 text-sm text-muted">{t("Toplam 21 sahne, A1’den B2’ye.")}</p>
+        </Reveal>
+
+        <div className="mt-20 grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
           <Reveal>
             <TwistDemo />
           </Reveal>
@@ -64,11 +69,6 @@ export default function SceneShelf() {
             <p className="mt-8 rounded-2xl border border-line bg-paper px-5 py-4 text-[0.92rem] leading-relaxed text-body">{t("Seviyene uygun sahneler açık gelir, bir üst seviye “zor” etiketiyle denenebilir. Daha ilerisi, önceki seviyeyi bitirince açılır.")}</p>
           </Reveal>
         </div>
-
-        <Reveal className="mt-16">
-          <SceneRow scenes={SCENES} />
-          <p className="mt-2 text-sm text-muted">{t("Toplam 21 sahne, A1’den B2’ye.")}</p>
-        </Reveal>
       </div>
     </section>
   );

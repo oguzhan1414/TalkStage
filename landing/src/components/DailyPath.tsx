@@ -25,7 +25,7 @@ export default function DailyPath() {
   const t = getT();
   return (
     <section id={anchorId("path", getLocale())} className="relative scroll-mt-24 overflow-hidden bg-linear-to-b from-white via-paper to-white px-5 py-24 sm:px-8 sm:py-32">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Günlük yol")}</p>
           <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Her gün tek bir sonraki adım.")}</h2>

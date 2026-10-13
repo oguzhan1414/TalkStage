@@ -45,13 +45,13 @@ export default function SceneRow({ scenes }: { scenes: SceneCard[] }) {
     <div ref={wrap} className="no-scrollbar -mx-5 overflow-x-auto px-5 sm:-mx-8 sm:px-8 md:overflow-x-clip">
       <ul ref={track} className="flex w-max gap-4 pb-6 pt-2">
         {scenes.map((scene) => (
-          <li key={scene.slug} className="group w-[15.5rem] shrink-0 sm:w-[17rem]">
+          <li key={scene.slug} className="group w-[17rem] shrink-0 sm:w-[21rem]">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[1.6rem] bg-paper-deep shadow-layered transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-lifted">
               <Image
                 src={`/scenes/${scene.slug}.webp`}
                 alt=""
                 fill
-                sizes="272px"
+                sizes="336px"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
               />
               <div aria-hidden className="absolute inset-0 bg-linear-to-t from-ink/80 via-ink/10 to-transparent" />

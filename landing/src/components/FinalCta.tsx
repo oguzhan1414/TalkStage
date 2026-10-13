@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "@/i18n/Link";
 import Reveal from "./Reveal";
-import ParallaxLayer from "./motion/ParallaxLayer";
 import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 import { getLocale, getT } from "@/i18n/server";
 import { anchorId } from "@/i18n/paths";
@@ -9,19 +8,17 @@ import { anchorId } from "@/i18n/paths";
 export default function FinalCta() {
   const t = getT();
   return (
-    <section id={anchorId("download", getLocale())} className="scroll-mt-24 px-5 pb-24 sm:px-8 sm:pb-32">
-      <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[36px] border border-white/80 bg-linear-to-br from-[#efeaff] via-white to-[#dff2ff] px-7 py-14 text-heading shadow-lifted sm:px-14 sm:py-20">
-        {/* light: two soft colour pools + a faint grid, a glass frame inside */}
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-32 h-[28rem] w-[28rem] rounded-full bg-purple-pop/25 blur-3xl" style={{ animation: 'float 16s ease-in-out infinite' }} />
-        <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/4 h-[26rem] w-[26rem] rounded-full bg-spot/30 blur-3xl" style={{ animation: 'float 19s ease-in-out -7s infinite' }} />
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(79,70,229,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,0.05)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-        <div aria-hidden className="pointer-events-none absolute inset-2 rounded-[30px] border border-stage/10" />
+    <section id={anchorId("download", getLocale())} className="scroll-mt-24 px-4 pb-20 sm:px-6 sm:pb-28">
+      <Reveal className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[2.5rem] bg-paper shadow-lifted sm:rounded-[3.5rem]">
+        {/* the scene runs edge to edge; a light wash keeps the text readable */}
+        <Image src="/scenes/istanbul-tour.webp" alt="" fill sizes="100vw" className="object-cover object-[70%_50%]" />
+        <div aria-hidden className="absolute inset-0 bg-linear-to-t from-white via-white/85 to-white/20 lg:bg-linear-to-r lg:from-white lg:via-white/85 lg:to-transparent" />
 
-        <div className="relative grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-          <div>
+        <div className="relative grid items-end gap-10 px-7 pb-14 pt-64 sm:px-14 sm:pb-20 sm:pt-72 lg:items-center lg:py-32">
+          <div className="lg:max-w-[40rem]">
             <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-stage">{t("Sahne senin")}</p>
-            <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-6xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
-            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-body">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
+            <h2 className="mt-4 text-balance font-display text-5xl font-extrabold leading-[0.96] tracking-[-0.04em] text-heading sm:text-7xl">{t("Sahne hazır. İlk cümleni söyle.")}</h2>
+            <p className="mt-5 max-w-lg text-pretty text-lg leading-relaxed text-heading/75">{t("Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.")}</p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a
@@ -51,21 +48,6 @@ export default function FinalCta() {
               .
             </p>
           </div>
-
-          {/* Mivo floats over a soft glow */}
-          <ParallaxLayer speed={0.14} className="relative mx-auto w-full max-w-[18rem] lg:max-w-none">
-            <div aria-hidden className="absolute left-1/2 top-1/2 h-[90%] w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.35),transparent_65%)] blur-2xl" />
-            <div aria-hidden className="absolute -bottom-3 left-1/2 h-8 w-[70%] -translate-x-1/2 rounded-[50%] bg-ink/25 blur-xl" />
-            <Image
-              src="/mivo/success.webp"
-              alt={t("Sevinen Mivo")}
-              width={750}
-              height={900}
-              sizes="(max-width: 1024px) 60vw, 360px"
-              className="relative h-auto w-full drop-shadow-[0_30px_40px_rgba(21,18,58,0.45)]"
-              style={{ animation: 'float 7s ease-in-out infinite' }}
-            />
-          </ParallaxLayer>
         </div>
       </Reveal>
     </section>
