@@ -74,6 +74,7 @@ export default function Footer() {
                 <Logo />
               </Link>
               <p className="mt-5 text-[0.98rem] leading-relaxed text-body">{t("İngilizceyi gerçek hayat sahnelerinde sesli prova et. Mivo karşında, düzeltme anında.")}</p>
+              <p className="mt-3 max-w-xs text-[0.78rem] leading-relaxed text-muted">{t("Spekvia, yapay zekâ destekli bir İngilizce konuşma koçu uygulamasıdır. Google ile giriş yalnızca hesabını doğrulamak için kullanılır; Google API'leri yapay zekâ ile oluşturulan rızasız cinsel içerikli görüntüler (NCII) için asla kullanılmaz.")}</p>
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <a href={iosStoreUrl} className={STORE_BTN}>
