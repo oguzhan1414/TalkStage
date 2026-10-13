@@ -5,64 +5,70 @@ export type Segment = { text: string; bad?: boolean; fix?: string };
 export type Take = {
   scene: string;
   level: string;
-  twist: string;
   image: string;
   objectPosition: string;
-  character: string;
   role: string;
   line: string;
   said: Segment[];
   note: string;
 };
 
-/** Real mistakes Turkish speakers make, played inside real Spekvia scenes (levels/twists match the app). */
+/** Mivo plays the other person; the slips are ones Turkish speakers really make. One take per hero artwork. */
 export const TAKES: Take[] = [
   {
-    scene: tr("İstanbul şehir turu"),
-    level: 'A2',
-    twist: tr("Sohbet etmek istiyor"),
-    image: '/scenes/istanbul-tour.webp',
-    objectPosition: '70% 50%',
-    character: 'Elif',
-    role: tr("Şehir rehberi"),
-    line: 'Welcome to Istanbul! Is this your first time here?',
+    scene: tr("Kafede sipariş"),
+    level: 'A1',
+    image: '/hero/hero-portal.webp',
+    objectPosition: '62% 42%',
+    role: tr("Barista"),
+    line: 'Hi there! What can I get for you?',
     said: [
-      { text: 'No, I ' },
-      { text: 'am here', bad: true, fix: 'have been here' },
-      { text: ' since last year.' },
+      { text: '' },
+      { text: 'Give me a coffee', bad: true, fix: 'Could I have a coffee' },
+      { text: ', please.' },
     ],
-    note: tr("“Since” ile şimdiki zaman değil “have been” kullanılır."),
+    note: tr("Siparişte “Give me” sert durur; “Could I have…” daha nazik."),
   },
   {
-    scene: tr("Londra’da taksi yolculuğu"),
-    level: 'A2',
-    twist: tr("Acele var"),
-    image: '/scenes/taxi-ride.webp',
-    objectPosition: '75% 50%',
-    character: 'Tom',
-    role: tr("Taksi şoförü"),
-    line: 'Where to, mate? Traffic’s terrible today, so be quick!',
+    scene: tr("İş mülakatı"),
+    level: 'B1',
+    image: '/hero/hero-stage.webp',
+    objectPosition: '68% 40%',
+    role: tr("Mülakatçı"),
+    line: 'Tell me a little about yourself.',
     said: [
       { text: 'I ' },
-      { text: 'want go', bad: true, fix: 'want to go' },
-      { text: ' to Big Ben.' },
+      { text: 'have 28 years old', bad: true, fix: 'am 28 years old' },
+      { text: ' and I work as a designer.' },
     ],
-    note: tr("“Want” fiilinden sonra “to” gelir: want to go."),
+    note: tr("İngilizcede yaş “have” ile değil “be” ile söylenir: I am 28."),
   },
   {
-    scene: tr("Spor salonunda antrenman"),
-    level: 'A2',
-    twist: tr("Öneri iste"),
-    image: '/scenes/fitness-gym.webp',
-    objectPosition: '70% 50%',
-    character: 'Jake',
-    role: tr("Antrenör"),
-    line: 'What’s your goal — more strength or more cardio?',
+    scene: tr("Yeni biriyle sohbet"),
+    level: 'A1',
+    image: '/hero/hero-sky.webp',
+    objectPosition: '68% 38%',
+    role: tr("Yeni arkadaş"),
+    line: 'Do you like this city?',
     said: [
-      { text: 'I ' },
-      { text: 'am wanting to be strong', bad: true, fix: 'want to get stronger' },
+      { text: 'Yes, ' },
+      { text: 'I am agree', bad: true, fix: 'I agree' },
+      { text: ', it is beautiful.' },
+    ],
+    note: tr("“Agree” zaten fiildir; “am agree” denmez, “I agree” yeter."),
+  },
+  {
+    scene: tr("Otelde check-in"),
+    level: 'A1',
+    image: '/hero/hero-listen.webp',
+    objectPosition: '55% 45%',
+    role: tr("Resepsiyon görevlisi"),
+    line: 'Welcome! Do you have a reservation?',
+    said: [
+      { text: 'Yes, I have a reservation ' },
+      { text: 'on my name', bad: true, fix: 'under my name' },
       { text: '.' },
     ],
-    note: tr("“Want” durum fiilidir; “am wanting” denmez. Doğrusu: I want to get stronger."),
+    note: tr("Rezervasyon için “under my name” denir."),
   },
 ];

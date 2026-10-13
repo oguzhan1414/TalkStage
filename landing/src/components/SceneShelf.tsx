@@ -1,21 +1,9 @@
 import { Star } from 'lucide-react';
 import Reveal from './Reveal';
 import TwistDemo from './TwistDemo';
-import SceneRow from './SceneRow';
 import { getLocale, getT } from "@/i18n/server";
 import { anchorId } from "@/i18n/paths";
 import { tr } from "@/i18n/shared";
-
-const SCENES = [
-  { slug: 'hotel-checkin', title: tr("Otelde check-in"), level: 'A1', min: 6 },
-  { slug: 'restaurant-dinner', title: tr("İtalyan restoranında akşam yemeği"), level: 'A2', min: 7 },
-  { slug: 'taxi-ride', title: tr("Londra’da taksi yolculuğu"), level: 'A2', min: 7 },
-  { slug: 'doctor-visit', title: tr("Doktor muayenesi"), level: 'A2', min: 8 },
-  { slug: 'istanbul-tour', title: tr("İstanbul şehir turu"), level: 'A2', min: 10 },
-  { slug: 'job-interview', title: tr("İş mülakatı"), level: 'B1', min: 8 },
-  { slug: 'flea-market', title: tr("Bitpazarında pazarlık"), level: 'B1', min: 6 },
-  { slug: 'airport-travel', title: tr("Havalimanında check-in"), level: 'A1', min: 6 },
-];
 
 const STARS = [
   { n: 1, title: tr("Videoyu bitir"), text: tr("Sahnenin kısa videosunu izle, cümleleri sesli tekrar et.") },
@@ -35,12 +23,7 @@ export default function SceneShelf() {
           <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: bir karışıklık, bitmiş bir ürün, aceleci bir görevli. Ezberlediğin cümle işe yaramaz; o an ne diyeceğini kendin bulmak zorundasın.")}</p>
         </Reveal>
 
-        <Reveal className="mt-12">
-          <SceneRow scenes={SCENES} />
-          <p className="mt-2 text-sm text-muted">{t("Toplam 21 sahne, A1’den B2’ye.")}</p>
-        </Reveal>
-
-        <div className="mt-20 grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+        <div className="mt-14 grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
           <Reveal>
             <TwistDemo />
           </Reveal>

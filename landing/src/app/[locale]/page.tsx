@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import SceneTicker from "@/components/SceneTicker";
 import HowItWorks from "@/components/HowItWorks";
+import MivoWalk from "@/components/MivoWalk";
 import Bento from "@/components/Bento";
 import WhySpekvia from "@/components/WhySpekvia";
 import TrustStrip from "@/components/TrustStrip";
@@ -47,6 +48,7 @@ export default async function Home({ params }: PageProps) {
         <Hero />
         <SceneTicker />
         <HowItWorks />
+        <MivoWalk />
         <SceneShelf />
         <Bento />
         <DailyPath />
