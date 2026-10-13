@@ -216,7 +216,11 @@ export const TERMS_DOC: LegalDoc = {
       tr("Yasa dışı, tehditkâr, nefret içeren veya başkalarının haklarını ihlal eden içerik üretmek veya yaymak"),
       tr("Hizmeti, yapay zekâ sistemlerini veya diğer kullanıcıları kötüye kullanmak; otomatik araçlarla (bot) aşırı yük bindirmek"),
       tr("Güvenlik önlemlerini aşmaya, uygulamayı tersine mühendislikle çözmeye veya yetkisiz erişim sağlamaya çalışmak"),
-      tr("Hesabını veya içeriği izinsiz ticari amaçla kullanmak ya da yeniden satmak")
+      tr("Hesabını veya içeriği izinsiz ticari amaçla kullanmak ya da yeniden satmak"),
+      tr("Cinsel içerikli veya müstehcen materyal; reşit olmayanları içeren herhangi bir cinsel içerik; başkalarının rızası olmadan hazırlanmış cinsel içerikli görüntüler (yapay zekâ ile üretilenler dahil, NCII) oluşturmak, istemek veya paylaşmak")
+    ],
+    after: [
+      tr("Spekvia görüntü veya video üretmez; yalnızca metin ve ses tabanlı bir İngilizce konuşma pratiği sunar. Bu kuralları ihlal eden hesaplar uyarı yapılmadan kapatılabilir.")
     ],
     },
     {
