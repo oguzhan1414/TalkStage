@@ -18,7 +18,7 @@ const NOTES = [
 export default function MivoSection() {
   const t = getT();
   return (
-    <section id={anchorId("mivo", getLocale())} className="relative bg-white px-4 py-20 sm:px-6 sm:py-28">
+    <section id={anchorId("mivo", getLocale())} className="relative scroll-mt-24 bg-white px-4 py-20 sm:px-6 sm:py-28">
       <Reveal className="relative mx-auto grid max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#efeaff] via-white to-[#e3f3ff] shadow-lifted sm:rounded-[3rem] lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         {/* Mivo's artwork runs to the card edges; the notes are written on its glass cards */}
         <div className="relative aspect-[4/5] w-full">
