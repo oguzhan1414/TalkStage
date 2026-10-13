@@ -45,7 +45,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-6 max-w-[32rem] text-pretty text-lg leading-relaxed text-body sm:text-xl">
-            {t("Mivo, gerçek hayat sahnelerinde karşındaki karakteri oynar. Sen sesli konuşursun; takıldığın cümleyi anında, kendi dilinde açıklayarak düzeltir.")}
+            {t("Mivo havalimanındaki görevliyi, doktoru ya da mülakat yapan kişiyi oynar. Sen sesli konuşursun. Takıldığın cümleyi anında düzeltir ve nedenini kendi dilinde anlatır.")}
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -68,7 +68,9 @@ export default function Hero() {
             </Link>
           </div>
 
-          <dl className="mt-10 grid max-w-[34rem] grid-cols-2 gap-3 sm:grid-cols-4">
+          <p className="mt-4 text-sm text-muted">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
+
+          <dl className="mt-6 grid max-w-[34rem] grid-cols-2 gap-3 sm:grid-cols-4">
             {FACTS.map((fact) => (
               <div key={fact.label} className="rounded-2xl border border-white/80 bg-white/60 px-3.5 py-3 shadow-layered backdrop-blur-xl">
                 <dt className="sr-only">{t(fact.label)}</dt>

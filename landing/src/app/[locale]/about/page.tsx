@@ -58,13 +58,13 @@ export default async function AboutPage({ params }: PageProps) {
 
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Hakkımızda")}</p>
           <h1 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Anlıyorsun ama konuşamıyorsan, eksik olan bilgi değil prova.")}</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body sm:text-xl">{t("Yıllarca İngilizce öğrenip gerçek bir konuşmada donup kalmak çok yaygın. Sebep çoğu zaman gramer eksiği değil, hiç prova yapmamış olmak. Spekvia bu provayı güvenli bir sahneye taşır: kimse yargılamaz, hata yapmak serbest, her cümle bir sonrakinin ön hazırlığı.")}</p>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body sm:text-xl">{t("Yıllarca İngilizce çalışıp gerçek bir konuşmada donup kalmak çok yaygın. Çoğu zaman sebep gramer eksiği değil, hiç sesli prova yapmamış olmak. Spekvia bu provayı güvenli bir yerde yapmanı sağlar: kimse seni yargılamaz, hata yapman sorun olmaz.")}</p>
 
           <div className="mt-14 grid items-center gap-8 rounded-[28px] border border-line bg-white p-6 sm:grid-cols-[auto_1fr] sm:p-9">
             <Image src="/mivo/idle.webp" alt="Mivo" width={750} height={900} className="mx-auto h-48 w-auto sm:h-60" />
             <div>
               <h2 className="font-display text-2xl font-extrabold tracking-tight text-heading sm:text-3xl">{t("Nasıl çalışıyoruz?")}</h2>
-              <p className="mt-3 leading-relaxed text-body">{t("Bir sahne seçersin: otelde check-in, iş mülakatı, doktor muayenesi. Mivo karşındaki karakteri oynar, sen sesli konuşursun. Takıldığın cümle anında düzeltilir ve Hata Defterim’e eklenir. Aynı sahneyi tekrar oynadığında karşına başka bir durum çıkar. Günün geri kalanında kelime, okuma ve podcast çalışmaları seni aynı seviyede tutar.")}</p>
+              <p className="mt-3 leading-relaxed text-body">{t("Bir sahne seçersin: otelde check-in, iş mülakatı, doktor muayenesi. Mivo karşındaki karakteri oynar, sen sesli konuşursun. Takıldığın cümle anında düzeltilir ve Hata Defterim’e eklenir. Aynı sahneyi tekrar oynadığında karşına başka bir durum çıkar. Günün geri kalanında kelime, okuma ve podcast görevleri seviyene göre seni bekler.")}</p>
             </div>
           </div>
 

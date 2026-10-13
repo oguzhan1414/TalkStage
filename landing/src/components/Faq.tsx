@@ -93,8 +93,8 @@ export default function Faq() {
         <div className="mt-12 space-y-3.5">
           {filteredFaqs.length === 0 ? (
             <div className="rounded-3xl border border-line bg-white p-12 text-center shadow-xs">
-              <p className="text-base font-semibold text-heading">{t("Aramanızla eşleşen soru bulunamadı.")}</p>
-              <p className="mt-1 text-sm text-muted">{t("Farklı bir arama yapabilir veya doğrudan destek ekibimize yazabilirsiniz.")}</p>
+              <p className="text-base font-semibold text-heading">{t("Aramanla eşleşen soru bulunamadı.")}</p>
+              <p className="mt-1 text-sm text-muted">{t("Başka bir arama dene ya da doğrudan bize yaz.")}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -102,7 +102,7 @@ export default function Faq() {
                   setActiveCategory("Tümü");
                 }}
                 className="mt-4 rounded-full bg-indigo px-5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo/90"
-              >{t("Tüm Soruları Göster")}</button>
+              >{t("Tüm soruları göster")}</button>
             </div>
           ) : (
             filteredFaqs.map((faq) => {
@@ -154,14 +154,14 @@ export default function Faq() {
           <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo/10 text-xl font-bold text-indigo">
             💬
           </span>
-          <h3 className="mt-4 font-display text-2xl font-bold text-heading">{t("Cevabını bulamadığınız başka bir soru mu var?")}</h3>
+          <h3 className="mt-4 font-display text-2xl font-bold text-heading">{t("Cevabını bulamadığın bir soru mu var?")}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-body">{t("Bize yaz, mesajına e-postayla dönelim.")}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 rounded-full bg-stage px-7 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
             >
-              <span>{t("Bize Mesaj Gönder")}</span>
+              <span>{t("Bize yaz")}</span>
               <span>→</span>
             </Link>
             <a

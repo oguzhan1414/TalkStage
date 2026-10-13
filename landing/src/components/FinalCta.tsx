@@ -46,7 +46,8 @@ export default function FinalCta() {
               </a>
             </div>
 
-            <p className="mt-5 text-sm text-white/60">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-white underline decoration-white/60 underline-offset-4">{t("Web’den başla")}</Link>
+            <p className="mt-5 text-sm font-medium text-white/80">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
+            <p className="mt-2 text-sm text-white/60">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-white underline decoration-white/60 underline-offset-4">{t("Web’den başla")}</Link>
               .
             </p>
           </div>

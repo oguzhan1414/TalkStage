@@ -21,7 +21,7 @@ const STEPS = [
   {
     n: '02',
     title: tr("Düzelt"),
-    text: tr("Takıldığın cümle anında düzelir ve nedeni kendi dilinde açıklanır. Konuşman hiç bölünmez."),
+    text: tr("Takıldığın cümle konuşma kesilmeden düzeltilir ve nedeni kendi dilinde, tek cümleyle anlatılır."),
     Screen: FixScreen,
     pose: '/mivo/success.webp',
   },

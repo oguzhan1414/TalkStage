@@ -24,7 +24,7 @@ const faqs = [
   },
   {
     q: tr("Aboneliğimi istediğim zaman iptal edebilir miyim?"),
-    a: tr("Evet. App Store veya Google Play hesabınız üzerinden tek bir dokunuşla taahhütsüz ve anında iptal edebilirsiniz."),
+    a: tr("Evet. App Store veya Google Play hesabının abonelik ayarlarından istediğin zaman iptal edebilirsin."),
   },
 ];
 
@@ -34,7 +34,7 @@ export default function ContactClient() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: t("Genel Soru / Destek"),
+    subject: t("Genel soru ya da destek"),
     message: "",
   });
 
@@ -68,9 +68,9 @@ export default function ContactClient() {
           <div className="grid gap-12 lg:grid-cols-12">
             {/* Left Column: Info & Support Details */}
             <div className="lg:col-span-5">
-              <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">{t("Bize Ulaşın")}</span>
-              <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">{t("Sorularınız mı var?")}</h1>
-              <p className="mt-4 text-base leading-relaxed text-body">{t("Senaryo önerileri, kurumsal eğitim paketleri veya teknik destek için bize her zaman yazabilirsiniz.")}</p>
+              <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">{t("Bize ulaş")}</span>
+              <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">{t("Bir şey mi sormak istiyorsun?")}</h1>
+              <p className="mt-4 text-base leading-relaxed text-body">{t("Sahne önerisi, kurumsal paket ya da teknik destek için bize yazabilirsin.")}</p>
 
               <div className="mt-8 space-y-4">
                 <div className="rounded-2xl border border-line bg-porcelain p-5">
@@ -79,7 +79,7 @@ export default function ContactClient() {
                     href="mailto:support@spekvia.com"
                     className="mt-1 block font-display text-lg font-bold text-indigo hover:underline"
                   >support@spekvia.com</a>
-                  <span className="mt-1 block text-xs text-muted">{t("Kullanıcı desteği ve senaryo geri bildirimleri")}</span>
+                  <span className="mt-1 block text-xs text-muted">{t("Kullanıcı desteği ve sahne geri bildirimleri")}</span>
                 </div>
 
                 <div className="rounded-2xl border border-line bg-porcelain p-5">
@@ -111,7 +111,7 @@ export default function ContactClient() {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Adınız Soyadınız")}</label>
+                      <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Adın soyadın")}</label>
                       <input
                         id="contact-name"
                         type="text"
@@ -124,7 +124,7 @@ export default function ContactClient() {
                     </div>
 
                     <div>
-                      <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("E-posta Adresiniz")}</label>
+                      <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("E-posta adresin")}</label>
                       <input
                         id="contact-email"
                         type="email"
@@ -144,21 +144,21 @@ export default function ContactClient() {
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
                       >
-                        <option>{t("Genel Soru / Destek")}</option>
-                        <option>{t("Yeni Senaryo Önerisi")}</option>
-                        <option>{t("Abonelik / Ödeme Konusu")}</option>
-                        <option>{t("Kurumsal / B2B Görüşmesi")}</option>
-                        <option>{t("Hata Bildirimi")}</option>
+                        <option>{t("Genel soru ya da destek")}</option>
+                        <option>{t("Yeni sahne önerisi")}</option>
+                        <option>{t("Abonelik ya da ödeme")}</option>
+                        <option>{t("Kurumsal talep (B2B)")}</option>
+                        <option>{t("Hata bildirimi")}</option>
                       </select>
                     </div>
 
                     <div>
-                      <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Mesajınız")}</label>
+                      <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Mesajın")}</label>
                       <textarea
                         id="contact-message"
                         required
                         rows={4}
-                        placeholder={t("Mesajınızı veya merak ettiğiniz konuyu yazın...")}
+                        placeholder={t("Mesajını ya da merak ettiğin konuyu yaz...")}
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
@@ -178,7 +178,7 @@ export default function ContactClient() {
           {/* Quick FAQ Section */}
           <div className="mt-24 border-t border-line/80 pt-16">
             <div className="text-center">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-indigo">{t("Hızlı Yanıtlar")}</span>
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-indigo">{t("Hızlı yanıtlar")}</span>
               <h2 className="mt-2 font-display text-2xl font-bold text-heading sm:text-3xl">{t("Sıkça Sorulan Sorular")}</h2>
             </div>
 

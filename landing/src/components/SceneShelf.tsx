@@ -32,7 +32,7 @@ export default function SceneShelf() {
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Sahneler")}</p>
           <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Aynı sahne, her seferinde farklı bir sürpriz.")}</h2>
-          <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: karışıklık, bitmiş ürün, aceleci bir görevli. Ezber çalışmaz, o yüzden gerçekten konuşmayı öğrenirsin.")}</p>
+          <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: bir karışıklık, bitmiş bir ürün, aceleci bir görevli. Ezberlediğin cümle işe yaramaz; o an ne diyeceğini kendin bulmak zorundasın.")}</p>
         </Reveal>
 
         <div className="mt-14 grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">

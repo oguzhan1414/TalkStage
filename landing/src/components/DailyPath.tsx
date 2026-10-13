@@ -59,7 +59,7 @@ export default function DailyPath() {
         <Reveal className="max-w-3xl">
           <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Günlük yol")}</p>
           <h2 className="mt-4 text-balance font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-heading sm:text-6xl">{t("Her gün tek bir sonraki adım.")}</h2>
-          <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Ne çalışacağını seçmek için vakit harcama. Bugün sekmesi sıradaki işi gösterir; sahne, okuma ve kelimeler birbirini destekler.")}</p>
+          <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-body">{t("Ne çalışacağını seçmek için vakit harcama. Bugün sekmesi sıradaki işi gösterir.")}</p>
         </Reveal>
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
