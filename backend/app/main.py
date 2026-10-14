@@ -1,4 +1,7 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
@@ -25,14 +28,26 @@ from app.api.routes import (
 )
 from app.core.config import settings
 from app.core.observability import init_sentry
+from app.core.security import warm_up_jwks
+from app.core.supabase_client import warm_up
 
 init_sentry()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # Pay for the Supabase TLS handshake and the JWKS download once at boot, not on a user's first request.
+    await run_in_threadpool(warm_up_jwks)
+    await run_in_threadpool(warm_up)
+    yield
+
 
 # In production the interactive API docs and the OpenAPI schema stay private.
 _is_prod = settings.environment == "production"
 app = FastAPI(
     title="Spekvia API",
     version="0.1.0",
+    lifespan=lifespan,
     docs_url=None if _is_prod else "/docs",
     redoc_url=None if _is_prod else "/redoc",
     openapi_url=None if _is_prod else "/openapi.json",

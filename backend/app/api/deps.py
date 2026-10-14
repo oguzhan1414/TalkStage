@@ -1,17 +1,16 @@
 from dataclasses import dataclass
 
 from fastapi import Depends, Header
-from supabase import Client
 
 from app.core.language import normalize_native_language
 from app.core.security import CurrentUser, get_current_user
-from app.core.supabase_client import get_user_client
+from app.core.supabase_client import UserDb, get_user_client
 
 
 @dataclass
 class AuthContext:
     user: CurrentUser
-    db: Client
+    db: UserDb
 
 
 def get_auth_context(current_user: CurrentUser = Depends(get_current_user)) -> AuthContext:

@@ -1,4 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
 import { useOnboarding } from '../context/OnboardingContext';
@@ -8,9 +11,12 @@ import { ProfileLoadErrorScreen } from '../screens/ProfileLoadErrorScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
+import { colors } from '../theme/tokens';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const SPLASH_MAX_MS = 4000;
 
 /** Switches between Auth, Onboarding, and Main tabs based on session + onboarding state. */
 export function RootNavigator() {
@@ -25,8 +31,25 @@ export function RootNavigator() {
 
   useDeepLinking(Boolean(session) && onboardingComplete);
 
-  if (initializing || (session && onboardingLoading)) {
-    return null;
+  const ready = !initializing && !(session && onboardingLoading);
+
+  // The native splash covers the wait. It goes away as soon as the first screen is known, or after
+  // SPLASH_MAX_MS on a slow network, where the spinner below takes over instead of a frozen logo.
+  useEffect(() => {
+    if (ready) {
+      SplashScreen.hideAsync().catch(() => {});
+      return;
+    }
+    const timer = setTimeout(() => SplashScreen.hideAsync().catch(() => {}), SPLASH_MAX_MS);
+    return () => clearTimeout(timer);
+  }, [ready]);
+
+  if (!ready) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={colors.brand} />
+      </View>
+    );
   }
 
   if (session && onboardingLoadError) {
@@ -77,3 +100,7 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+});

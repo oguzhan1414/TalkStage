@@ -35,6 +35,8 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      // Keep unused answers for a day so the on-device snapshot (src/lib/queryPersist.ts) stays complete.
+      gcTime: 24 * 60 * 60 * 1000,
       // 4xx (e.g. GET /scenarios/recommended's 404 on an empty catalog) won't
       // succeed on retry — only retry on network errors (status 0) / 5xx, and just once.
       retry: (failureCount, error) =>
@@ -50,8 +52,10 @@ export default function App() {
 
   const fontsLoaded = jakartaLoaded && interLoaded && monoLoaded;
 
+  // With a working config the splash stays up until RootNavigator knows which screen to show
+  // (no blank frame between the splash and the first screen). Only the config-missing screen hides it here.
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && !isSupabaseConfigured) {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded]);

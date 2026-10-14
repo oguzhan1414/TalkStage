@@ -29,7 +29,24 @@ def _extract_bearer_token(authorization: str | None) -> str:
 def _jwks_client() -> PyJWKClient:
     # Supabase's current default for new projects: asymmetric signing keys (ES256),
     # verified via this public JWKS endpoint — no shared secret involved at all.
-    return PyJWKClient(f"{settings.supabase_url}/auth/v1/.well-known/jwks.json")
+    # Keys are cached for six hours (the default re-downloaded the key set every five minutes,
+    # stalling one request each time). An unknown key id still triggers an immediate refresh.
+    return PyJWKClient(
+        f"{settings.supabase_url}/auth/v1/.well-known/jwks.json",
+        cache_keys=True,
+        lifespan=6 * 60 * 60,
+        timeout=10,
+    )
+
+
+def warm_up_jwks() -> None:
+    """Downloads the signing keys at startup instead of during the first user request."""
+    if not settings.supabase_url:
+        return
+    try:
+        _jwks_client().get_signing_keys()
+    except Exception:
+        pass
 
 
 def decode_supabase_jwt(token: str) -> dict:

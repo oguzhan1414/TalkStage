@@ -1,11 +1,12 @@
-import type { Session } from '@supabase/supabase-js';
+import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { configureRevenueCat } from '../lib/revenuecat';
 import { api } from '../lib/api';
 import { clearLocalLearningData, reconcileLearningFlagOwner } from '../lib/learningFlags';
-import { supabase } from '../lib/supabase';
+import { clearQueryCacheStore, restoreQueryCache, startQueryCachePersistence } from '../lib/queryPersist';
+import { readStoredSession, supabase } from '../lib/supabase';
 import { useAnalytics } from '../lib/analytics';
 
 type AuthContextValue = {
@@ -42,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             queryClient.clear();
           }
           await reconcileLearningFlagOwner(nextId);
+          // First time this account resolves in this run: paint from the on-device snapshot, refresh behind it.
+          if (nextId && lastUserIdRef.current !== nextId) await restoreQueryCache(queryClient, nextId);
           if (nextId) lastUserIdRef.current = nextId;
         })
         .catch(() => {})
@@ -52,21 +55,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const initializeSession = async () => {
+      // 1) Who was signed in, straight from disk: lets the app open at once (and offline).
+      const stored = await readStoredSession();
+      if (stored && active) {
+        await applySession(stored);
+        if (active) setInitializing(false);
+      }
+      // 2) The verified session; refreshes an expired token over the network.
       try {
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
         if (active) await applySession(data.session);
-      } catch {
-        // A corrupt/expired local session or a temporary storage failure must
-        // not leave the app on an infinite blank loading screen. The auth
-        // listener can still recover if Supabase emits a later valid session.
-        if (active) setSession(null);
+      } catch (error) {
+        // A network failure while refreshing says nothing about the account: keep the stored
+        // session (requests retry later). Anything else — a corrupt or rejected local session —
+        // must not leave the app on an infinite loading screen, so it falls back to signed out;
+        // the auth listener can still recover if Supabase emits a valid session later.
+        if (active && !(stored && isAuthRetryableFetchError(error))) setSession(null);
       } finally {
         if (active) setInitializing(false);
       }
     };
 
     void initializeSession();
+    const stopPersisting = startQueryCachePersistence(queryClient, () => lastUserIdRef.current);
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       void applySession(nextSession);
@@ -74,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       active = false;
+      stopPersisting();
       subscription.subscription.unsubscribe();
     };
   }, []);
@@ -98,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
         lastUserIdRef.current = null;
         await clearLocalLearningData();
+        await clearQueryCacheStore();
         queryClient.clear();
       },
       deleteAccount: async () => {
@@ -109,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
         lastUserIdRef.current = null;
         await clearLocalLearningData();
+        await clearQueryCacheStore();
         queryClient.clear();
       },
     }),

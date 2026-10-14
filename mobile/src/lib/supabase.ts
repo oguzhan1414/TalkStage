@@ -1,6 +1,6 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type Session } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -46,4 +46,24 @@ if (Platform.OS !== 'web') {
       supabase.auth.stopAutoRefresh();
     }
   });
+}
+
+/**
+ * The session exactly as Supabase saved it on the device, read without any network call.
+ * `getSession()` first refreshes an expired access token (one round trip to Supabase), which
+ * would hold the whole start-up; the stored copy is enough to know who is signed in. Every API
+ * call still goes through `getSession()`, so requests always carry a valid token.
+ */
+export async function readStoredSession(): Promise<Session | null> {
+  if (!supabaseUrl) return null;
+  try {
+    const key = `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`;
+    const raw = await AsyncStorage.getItem(key);
+    if (!raw) return null;
+    const stored = JSON.parse(raw) as Partial<Session> | null;
+    if (!stored?.access_token || !stored.refresh_token || !stored.user?.id) return null;
+    return stored as Session;
+  } catch {
+    return null;
+  }
 }
