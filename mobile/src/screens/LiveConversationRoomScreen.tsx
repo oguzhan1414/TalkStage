@@ -50,6 +50,7 @@ const ADVANCED_PATTERNS = [
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
+  daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
   quota_exceeded: t("Bugünkü ücretsiz sahne hakkın doldu. Pro’ya geçerek sınırsız pratik yapabilirsin."),
   time_limit_reached: t("5 dakikalık ücretsiz süre doldu."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
@@ -429,7 +430,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
                 <Text style={styles.backLink}>{turns.length > 0 ? t("Karneni Gör") : t("Sahnelere dön")}</Text>
               </Pressable>
             </>
-          ) : turns.length === 0 && closeInfo?.reason !== 'time_limit_reached' ? (
+          ) : turns.length === 0 && closeInfo?.reason !== 'time_limit_reached' && closeInfo?.reason !== 'daily_voice_limit' ? (
             <>
               <Button label={t("Tekrar Bağlan")} onPress={reconnect} style={styles.upsellButton} />
               <Pressable onPress={finishSession}>

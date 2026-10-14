@@ -4,6 +4,7 @@ import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from postgrest.exceptions import APIError
 
+from app.services.usage_guard import rate_limit
 from app.api.deps import AuthContext, get_auth_context, get_locale
 from app.core.messages import msg
 from app.schemas.chat import ChatMessageRequest, ChatMessageResponse, TranscribeResponse
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
-@router.post("/message", response_model=ChatMessageResponse)
+@router.post("/message", response_model=ChatMessageResponse, dependencies=[Depends(rate_limit("chat_message", 30))])
 def send_message(
     payload: ChatMessageRequest, ctx: AuthContext = Depends(get_auth_context)
 ) -> ChatMessageResponse:
@@ -80,7 +81,7 @@ def send_message(
     return response
 
 
-@router.post("/transcribe", response_model=TranscribeResponse)
+@router.post("/transcribe", response_model=TranscribeResponse, dependencies=[Depends(rate_limit("chat_transcribe", 20))])
 async def transcribe_message(
     audio: UploadFile = File(...),
     ctx: AuthContext = Depends(get_auth_context),

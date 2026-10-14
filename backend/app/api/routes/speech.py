@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.api.deps import AuthContext, get_auth_context
 from app.services.stt import transcribe_audio
+from app.services.usage_guard import rate_limit
 
 router = APIRouter(prefix="/speech", tags=["speech"])
 
@@ -12,7 +13,7 @@ class TranscribeResult(BaseModel):
     transcript: str
 
 
-@router.post("/transcribe", response_model=TranscribeResult)
+@router.post("/transcribe", response_model=TranscribeResult, dependencies=[Depends(rate_limit("speech_transcribe", 20))])
 async def transcribe(
     audio: UploadFile = File(...),
     ctx: AuthContext = Depends(get_auth_context),

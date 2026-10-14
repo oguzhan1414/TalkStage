@@ -5,6 +5,7 @@ from app.api.deps import AuthContext, get_auth_context
 from app.core.config import settings
 from app.schemas.tts import PronounceRequest
 from app.services.tts_stream import synthesize_speech, tts_available
+from app.services.usage_guard import rate_limit
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 
@@ -25,7 +26,7 @@ def _detect_language(text: str) -> str:
     return "en"
 
 
-@router.post("/pronounce")
+@router.post("/pronounce", dependencies=[Depends(rate_limit("tts_pronounce", 30))])
 async def pronounce(payload: PronounceRequest, ctx: AuthContext = Depends(get_auth_context)) -> Response:
     """Single word/phrase -> spoken audio. Backs the vocab card pronunciation button
     (mobile Görev 12), Reading module tap-a-word, and Mivo's live coach voice."""

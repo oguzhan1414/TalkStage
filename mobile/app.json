@@ -51,7 +51,8 @@
         }
       ],
       "expo-localization",
-      "expo-video"
+      "expo-video",
+      "@sentry/react-native"
     ],
     "extra": {
       "eas": {

@@ -46,6 +46,7 @@ const AI_ROLE = t("Serbest Sohbet Koçun");
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
+  daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
@@ -340,7 +341,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           <Text style={styles.statusText}>
             {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
           </Text>
-          {turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason)) ? (
+          {closeInfo?.reason !== 'daily_voice_limit' && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
             <Pressable onPress={reconnect}>
               <Text style={styles.backLink}>{t("Tekrar Bağlan")}</Text>
             </Pressable>

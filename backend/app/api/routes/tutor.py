@@ -5,13 +5,14 @@ from app.core.messages import msg
 from app.api.deps import AuthContext, get_auth_context
 from app.schemas.tutor import TutorTurnRequest, TutorTurnResponse
 from app.services.tutor_engine import generate_tutor_turn
+from app.services.usage_guard import rate_limit
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tutor", tags=["tutor"])
 
 
-@router.post("/turn", response_model=TutorTurnResponse)
+@router.post("/turn", response_model=TutorTurnResponse, dependencies=[Depends(rate_limit("tutor_turn", 20))])
 async def tutor_turn(
     payload: TutorTurnRequest, ctx: AuthContext = Depends(get_auth_context)
 ) -> TutorTurnResponse:

@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts as usePlusJakartaSans, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold } from '@expo-google-fonts/plus-jakarta-sans';
 import { useFonts as useInter, Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
@@ -24,6 +25,18 @@ import { MivoTransitionProvider } from './src/components/MivoTransitionOverlay';
 import { BadgeCelebration } from './src/components/BadgeCelebration';
 import { OfflineBanner } from './src/components/OfflineBanner';
 import { startNetworkSync } from './src/lib/network';
+
+// Crash and error reports from real devices. Off until EXPO_PUBLIC_SENTRY_DSN is set; no personal data is attached.
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: __DEV__ ? 'development' : 'production',
+    sendDefaultPii: false,
+    tracesSampleRate: 0.05,
+    enableAutoSessionTracking: true,
+  });
+}
 
 // Online/focus signals for React Query + re-sending parked writes (see src/lib/network.ts).
 startNetworkSync();
@@ -45,7 +58,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
+function App() {
   const [jakartaLoaded] = usePlusJakartaSans({ PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold });
   const [interLoaded] = useInter({ Inter_400Regular, Inter_500Medium });
   const [monoLoaded] = useJetBrainsMono({ JetBrainsMono_400Regular });
@@ -100,3 +113,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
 });
+
+// Wrapping adds the React error boundary and native crash capture; it is a pass-through while Sentry is off.
+export default sentryDsn ? Sentry.wrap(App) : App;

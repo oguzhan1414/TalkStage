@@ -15,6 +15,7 @@ from websockets.asyncio.client import connect as ws_connect
 
 from app.core.language import DEEPGRAM_CODES, normalize_native_language
 from app.core.security import user_from_token
+from app.services.usage_guard import add_voice_seconds, voice_seconds_left
 from app.services.llm_orchestrator import TurnMessage
 from app.services.stt_stream import DEEPGRAM_LIVE_URL, FINALIZE_MESSAGE, deepgram_auth_headers, parse_transcript_event
 from app.services.voice_turn import SentenceSpeaker
@@ -187,6 +188,14 @@ async def serve_voice(websocket, user_id, opening, run_turn, *, language="tr", t
     if user_id in _active_users:
         await websocket.close(code=1008, reason="session_already_active")
         return
+    # Daily voice allowance (cost guard, applies to everyone): no seconds left -> no room; otherwise the
+    # room never outlives what is left of today's allowance.
+    seconds_left = await voice_seconds_left(user_id)
+    if seconds_left <= 0:
+        await websocket.close(code=1008, reason="daily_voice_limit")
+        return
+    max_seconds = min(max_seconds, seconds_left)
+    started_at = time.monotonic()
     _active_users.add(user_id)
     history = []
     send_lock = asyncio.Lock()
@@ -281,6 +290,7 @@ async def serve_voice(websocket, user_id, opening, run_turn, *, language="tr", t
             await asyncio.gather(turn_task, return_exceptions=True)
         await recognition.close()
         _active_users.discard(user_id)
+        await add_voice_seconds(user_id, time.monotonic() - started_at)
         try:
             await websocket.close()
         except RuntimeError:
