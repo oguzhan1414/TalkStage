@@ -9,7 +9,7 @@ Her dil için Play Console'da "Mağaza girişlerini yönet → Çeviri ekle" ile
 
 **Uygulama adı:** İngilizce Konuş: Spekvia
 
-**Kısa açıklama:** Mivo ile sahnelerde İngilizce konuş; takıldığın cümle anında düzelir.
+**Kısa açıklama:** Sahnelerde sesli İngilizce konuş, anında düzelt. Kelime, okuma, podcast da var.
 
 **Uzun açıklama:**
 İngilizceyi anlıyorsun ama konuşmaya gelince donup kalıyorsan, eksik olan bilgi değil prova. Spekvia, gerçek hayat sahnelerini sesli prova etmeni sağlar.
@@ -41,7 +41,7 @@ Destek: support@spekvia.com · www.spekvia.com
 
 **App name:** Speak English: Spekvia
 
-**Short description:** Practice real-life scenes out loud with Mivo; mistakes are fixed on the spot.
+**Short description:** Speak English in real-life scenes, fixed instantly. Words, reading and podcasts too.
 
 **Full description:**
 If you understand English but freeze when you have to speak, what’s missing isn’t knowledge, it’s rehearsal. Spekvia lets you rehearse real-life scenes out loud.
@@ -73,7 +73,7 @@ Support: support@spekvia.com · www.spekvia.com
 
 **Nombre de la app:** Habla inglés: Spekvia
 
-**Descripción breve:** Practica escenas reales en voz alta con Mivo; corrige tus errores al instante.
+**Descripción breve:** Habla inglés en escenas reales y corrige al instante. Con palabras, lectura y podcasts.
 
 **Descripción completa:**
 Si entiendes inglés pero te bloqueas al hablar, lo que falta no es conocimiento, es ensayo. Spekvia te deja ensayar escenas de la vida real en voz alta.
@@ -105,7 +105,7 @@ Soporte: support@spekvia.com · www.spekvia.com
 
 **Nome do app:** Fale inglês: Spekvia
 
-**Descrição curta:** Pratique cenas reais em voz alta com a Mivo; seus erros são corrigidos na hora.
+**Descrição curta:** Fale inglês em cenas reais, com correção na hora. Também palavras, leitura e podcasts.
 
 **Descrição completa:**
 Se você entende inglês mas trava na hora de falar, o que falta não é conhecimento, é ensaio. O Spekvia deixa você ensaiar cenas da vida real em voz alta.
@@ -137,7 +137,7 @@ Suporte: support@spekvia.com · www.spekvia.com
 
 **App-Name:** Englisch sprechen: Spekvia
 
-**Kurzbeschreibung:** Übe Szenen aus dem Alltag laut mit Mivo; Fehler werden sofort korrigiert.
+**Kurzbeschreibung:** Sprich Englisch in Alltagsszenen, sofort korrigiert. Dazu Wörter, Lesen und Podcasts.
 
 **Vollständige Beschreibung:**
 Wenn du Englisch verstehst, aber beim Sprechen erstarrst, fehlt dir nicht Wissen, sondern Übung. Mit Spekvia übst du Szenen aus dem echten Leben laut.
