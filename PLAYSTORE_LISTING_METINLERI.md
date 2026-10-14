@@ -41,7 +41,7 @@ Destek: support@spekvia.com · www.spekvia.com
 
 **App name:** Speak English: Spekvia
 
-**Short description:** Speak English in real-life scenes, fixed instantly. Words, reading and podcasts too.
+**Short description:** Speak English in real scenes, fixed instantly. Words, reading, podcasts too.
 
 **Full description:**
 If you understand English but freeze when you have to speak, what’s missing isn’t knowledge, it’s rehearsal. Spekvia lets you rehearse real-life scenes out loud.
@@ -73,7 +73,7 @@ Support: support@spekvia.com · www.spekvia.com
 
 **Nombre de la app:** Habla inglés: Spekvia
 
-**Descripción breve:** Habla inglés en escenas reales y corrige al instante. Con palabras, lectura y podcasts.
+**Descripción breve:** Habla inglés en escenas reales, con corrección al instante. Y más práctica.
 
 **Descripción completa:**
 Si entiendes inglés pero te bloqueas al hablar, lo que falta no es conocimiento, es ensayo. Spekvia te deja ensayar escenas de la vida real en voz alta.
@@ -105,7 +105,7 @@ Soporte: support@spekvia.com · www.spekvia.com
 
 **Nome do app:** Fale inglês: Spekvia
 
-**Descrição curta:** Fale inglês em cenas reais, com correção na hora. Também palavras, leitura e podcasts.
+**Descrição curta:** Fale inglês em cenas reais, com correção na hora. Mais palavras e podcasts.
 
 **Descrição completa:**
 Se você entende inglês mas trava na hora de falar, o que falta não é conhecimento, é ensaio. O Spekvia deixa você ensaiar cenas da vida real em voz alta.
@@ -137,7 +137,7 @@ Suporte: support@spekvia.com · www.spekvia.com
 
 **App-Name:** Englisch sprechen: Spekvia
 
-**Kurzbeschreibung:** Sprich Englisch in Alltagsszenen, sofort korrigiert. Dazu Wörter, Lesen und Podcasts.
+**Kurzbeschreibung:** Sprich Englisch in Alltagsszenen, sofort korrigiert. Dazu Wörter und Podcasts.
 
 **Vollständige Beschreibung:**
 Wenn du Englisch verstehst, aber beim Sprechen erstarrst, fehlt dir nicht Wissen, sondern Übung. Mit Spekvia übst du Szenen aus dem echten Leben laut.
