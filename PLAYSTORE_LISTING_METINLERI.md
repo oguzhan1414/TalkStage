@@ -7,7 +7,7 @@ Her dil için Play Console'da "Mağaza girişlerini yönet → Çeviri ekle" ile
 
 ## Türkçe (varsayılan)
 
-**Uygulama adı:** Spekvia: İngilizce Konuş
+**Uygulama adı:** İngilizce Konuş: Spekvia
 
 **Kısa açıklama:** Mivo ile sahnelerde İngilizce konuş; takıldığın cümle anında düzelir.
 
@@ -39,7 +39,7 @@ Destek: support@spekvia.com · www.spekvia.com
 
 ## English
 
-**App name:** Spekvia: Speak English
+**App name:** Speak English: Spekvia
 
 **Short description:** Practice real-life scenes out loud with Mivo; mistakes are fixed on the spot.
 
@@ -71,7 +71,7 @@ Support: support@spekvia.com · www.spekvia.com
 
 ## Español
 
-**Nombre de la app:** Spekvia: Habla inglés
+**Nombre de la app:** Habla inglés: Spekvia
 
 **Descripción breve:** Practica escenas reales en voz alta con Mivo; corrige tus errores al instante.
 
@@ -103,7 +103,7 @@ Soporte: support@spekvia.com · www.spekvia.com
 
 ## Português (Brasil)
 
-**Nome do app:** Spekvia: Fale inglês
+**Nome do app:** Fale inglês: Spekvia
 
 **Descrição curta:** Pratique cenas reais em voz alta com a Mivo; seus erros são corrigidos na hora.
 
@@ -135,7 +135,7 @@ Suporte: support@spekvia.com · www.spekvia.com
 
 ## Deutsch
 
-**App-Name:** Spekvia: Englisch sprechen
+**App-Name:** Englisch sprechen: Spekvia
 
 **Kurzbeschreibung:** Übe Szenen aus dem Alltag laut mit Mivo; Fehler werden sofort korrigiert.
 
