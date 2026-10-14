@@ -5,6 +5,7 @@ import time
 import httpx
 
 from app.core.config import settings
+from app.services.tts_cache import get_cached, put_cached
 
 logger = logging.getLogger(__name__)
 
@@ -123,8 +124,13 @@ async def synthesize_speech(
     global _cartesia_down_until
     fallback_ok = bool(settings.openai_api_key)
     if cartesia_configured() and time.monotonic() >= _cartesia_down_until:
+        cached = await get_cached("cartesia", voice_id, language, text)
+        if cached is not None:
+            return cached
         try:
-            return await _cartesia_tts(client, text, voice_id, language)
+            audio = await _cartesia_tts(client, text, voice_id, language)
+            await put_cached("cartesia", voice_id, language, text, audio)
+            return audio
         except httpx.HTTPStatusError as exc:
             code = exc.response.status_code
             if code in (401, 402, 403):

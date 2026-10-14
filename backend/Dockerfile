@@ -13,7 +13,8 @@ RUN pip install -r requirements.txt
 COPY app ./app
 COPY static ./static
 
-RUN useradd --system --no-create-home app && chown -R app /srv
+# /srv/tts_cache is a mounted volume in production (see deploy/docker-compose.yml): synthesized speech survives updates.
+RUN useradd --system --no-create-home app && mkdir -p /srv/tts_cache && chown -R app /srv
 USER app
 
 EXPOSE 8000
