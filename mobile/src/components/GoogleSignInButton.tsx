@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { Platform } from 'react-native';
 
+import { clearNativeGoogleAccount } from '../lib/googleSession';
 import { supabase } from '../lib/supabase';
 import { Button } from './Button';
 import { t } from '../i18n';
@@ -74,6 +75,8 @@ async function signInWithBrowser(onError: (message: string) => void) {
 /** Returns true when the attempt is finished (signed in, cancelled, or a Supabase error already reported). */
 async function signInNatively(google: NativeGoogle, onError: (message: string) => void): Promise<boolean> {
   try {
+    // Always show the account chooser: drop the account a previous sign-in left cached on the device.
+    await clearNativeGoogleAccount();
     const response = await google.GoogleSignin.signIn();
     if (response.type !== 'success') return true; // cancelled
     const idToken = response.data.idToken;

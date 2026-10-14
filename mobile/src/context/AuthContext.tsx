@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { configureRevenueCat } from '../lib/revenuecat';
 import { api } from '../lib/api';
 import { clearLocalLearningData, reconcileLearningFlagOwner } from '../lib/learningFlags';
+import { clearNativeGoogleAccount } from '../lib/googleSession';
 import { clearQueryCacheStore, restoreQueryCache, startQueryCachePersistence } from '../lib/queryPersist';
 import { readStoredSession, supabase } from '../lib/supabase';
 import { useAnalytics } from '../lib/analytics';
@@ -112,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         lastUserIdRef.current = null;
         await clearLocalLearningData();
         await clearQueryCacheStore();
+        await clearNativeGoogleAccount();
         queryClient.clear();
       },
       deleteAccount: async () => {
@@ -124,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         lastUserIdRef.current = null;
         await clearLocalLearningData();
         await clearQueryCacheStore();
+        await clearNativeGoogleAccount();
         queryClient.clear();
       },
     }),
