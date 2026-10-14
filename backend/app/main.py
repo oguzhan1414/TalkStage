@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -34,12 +35,19 @@ from app.core.supabase_client import warm_up
 init_sentry()
 
 
+async def _warm_up() -> None:
+    await run_in_threadpool(warm_up_jwks)
+    await run_in_threadpool(warm_up)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # Pay for the Supabase TLS handshake and the JWKS download once at boot, not on a user's first request.
-    await run_in_threadpool(warm_up_jwks)
-    await run_in_threadpool(warm_up)
+    # Runs in the background: uvicorn only opens its port after startup returns, and a slow or unreachable
+    # Supabase must never keep the API from answering /health.
+    warm = asyncio.create_task(_warm_up())
     yield
+    warm.cancel()
 
 
 # In production the interactive API docs and the OpenAPI schema stay private.
