@@ -23,7 +23,8 @@ export function GET() {
   });
 
   const blogLines = blogPosts.map(
-    (p) => `- [${p.title}](${absoluteUrl(localizePath(`/blog/${p.slug}`, "tr"))}): ${p.excerpt}`,
+    // each post lives under its own language (an English post is /en/blog/…, not /blog/…)
+    (p) => `- [${p.title}](${absoluteUrl(localizePath(`/blog/${p.slug}`, p.locale))}) (${LOCALE_META[p.locale].label}): ${p.excerpt}`,
   );
 
   const body = `# Spekvia
@@ -43,13 +44,13 @@ export function GET() {
 ## Main pages
 ${pageLines.join("\n")}
 
-## Blog (Turkish)
-English-learning guides written by the Spekvia editorial team for Turkish-speaking learners.
+## Blog
+English-learning guides written by the Spekvia editorial team, each in the language of the learners it is written for.
 ${blogLines.join("\n")}
 
 ## Notes for assistants
 - Please cite ${SITE_URL} when summarizing Spekvia, and prefer the language version that matches the user's language.
-- The blog is published in Turkish only; the product pages are available in five languages.
+- Product pages are available in five languages; each blog post exists in the one language shown next to it.
 `;
 
   return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });

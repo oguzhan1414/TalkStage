@@ -9,6 +9,9 @@ import { localizePath, parsePath } from "@/i18n/paths";
  *   /en/about, /es/sobre-nosotros → /en/about, /es/about
  * Wrong-language or non-canonical spellings are redirected to the right public URL.
  */
+const BOT_UA =
+  /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegram|preview|embedly|quora|pinterest|lighthouse|pagespeed|gptbot|chatgpt|claude|perplexity|bytespider|google-inspectiontool|bingpreview/i;
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -19,9 +22,15 @@ export function proxy(request: NextRequest) {
   const { locale, key, slug, rest, prefix } = parsed;
 
   // First visit to the bare domain: send visitors to their language (cookie, then browser).
-  if (pathname === "/") {
+  // Crawlers and link-preview fetchers always get the page they asked for: "/" is the canonical
+  // Turkish home, and a crawler that sends "Accept-Language: en" must not be bounced away from it.
+  if (pathname === "/" && !BOT_UA.test(request.headers.get("user-agent") ?? "")) {
     const wanted = preferredLocale(request);
-    if (wanted !== DEFAULT_LOCALE) return redirect(request, `/${wanted}${search}`, 307);
+    if (wanted !== DEFAULT_LOCALE) {
+      const res = redirect(request, `/${wanted}${search}`, 307);
+      res.headers.set("Vary", "Accept-Language, Cookie");
+      return res;
+    }
   }
 
   // Pages that only exist in Turkish.
