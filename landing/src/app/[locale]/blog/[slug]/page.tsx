@@ -258,65 +258,70 @@ export default async function BlogPostPage({ params }: Props) {
         ]}
       />
       <Navbar />
-      <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
-        <article className="mx-auto max-w-4xl px-6">
-          {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
-            <Link href="/" className="hover:text-indigo transition-colors">
-              {ui.homeLabel}
-            </Link>
-            <span>/</span>
-            <Link href="/blog" className="hover:text-indigo transition-colors">
-              {ui.blogLabel}
-            </Link>
-            <span>/</span>
-            <span className="text-heading font-semibold truncate max-w-xs sm:max-w-md">{post.title}</span>
-          </nav>
+      <main className="flex-1 bg-white pb-20 sm:pb-28">
+        <section className="px-4 pt-24 sm:px-6 sm:pt-28">
+          <div className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffdfe9] via-[#fff0f5] to-[#e9e4ff] p-7 sm:rounded-[3rem] sm:p-12 lg:p-16">
+            <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-white/60 blur-3xl" />
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="relative flex flex-wrap items-center gap-2 font-mono text-xs text-heading/55">
+              <Link href="/" className="transition-colors hover:text-stage">
+                {ui.homeLabel}
+              </Link>
+              <span>/</span>
+              <Link href="/blog" className="transition-colors hover:text-stage">
+                {ui.blogLabel}
+              </Link>
+              <span>/</span>
+              <span className="max-w-xs truncate font-semibold text-heading sm:max-w-md">{post.title}</span>
+            </nav>
 
-          {/* Article Header */}
-          <header className="mt-4">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono">
-              <span className="rounded-full bg-indigo/10 px-3 py-1 font-semibold text-indigo">{post.category}</span>
-              <span className="text-muted">{post.readTime}</span>
-              <span>•</span>
-              <time dateTime={post.datePublished} className="text-muted">
-                {post.date}
-              </time>
-            </div>
-
-            <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-[2.75rem] leading-[1.15]">
-              {post.title}
-            </h1>
-
-            <p className="mt-4 text-lg leading-relaxed text-body sm:text-xl">{post.excerpt}</p>
-
-            {/* Author + update date */}
-            <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-line/80 py-4">
-              <div className="relative h-10 w-10 overflow-hidden rounded-full ring-2 ring-line">
-                <Image src={post.author.avatar} alt={post.author.name} fill sizes="40px" className="object-cover" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-display text-sm font-bold text-heading">{post.author.name}</p>
-                <p className="text-xs text-muted">{post.author.role}</p>
-              </div>
-              <p className="text-xs text-muted">
-                {ui.lastUpdated}{" "}
-                <time dateTime={post.dateModified}>
+            {/* Article Header */}
+            <header className="relative mt-6 max-w-4xl">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
+                <span className="rounded-full bg-white px-3 py-1 font-semibold text-stage shadow-layered">{post.category}</span>
+                <span className="text-heading/60">{post.readTime}</span>
+                <span className="text-heading/40">•</span>
+                <time dateTime={post.datePublished} className="text-heading/60">
                   {post.date}
                 </time>
-              </p>
-            </div>
-          </header>
+              </div>
 
+              <h1 className="mt-5 text-balance font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-heading sm:text-5xl lg:text-6xl">
+                {post.title}
+              </h1>
+
+              <p className="mt-5 text-lg leading-relaxed text-heading/70 sm:text-xl">{post.excerpt}</p>
+
+              {/* Author + update date */}
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <div className="relative h-11 w-11 overflow-hidden rounded-full ring-2 ring-white">
+                  <Image src={post.author.avatar} alt={post.author.name} fill sizes="44px" className="object-cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm font-bold text-heading">{post.author.name}</p>
+                  <p className="text-xs text-heading/60">{post.author.role}</p>
+                </div>
+                <p className="text-xs text-heading/60">
+                  {ui.lastUpdated}{" "}
+                  <time dateTime={post.dateModified}>
+                    {post.date}
+                  </time>
+                </p>
+              </div>
+            </header>
+          </div>
+        </section>
+
+        <article className="mx-auto max-w-4xl px-6 pt-10">
           {/* Cover */}
-          <div className="my-10 relative overflow-hidden rounded-[28px] border border-line bg-porcelain p-2 shadow-[var(--shadow-lifted)] sm:p-4">
+          <div className="relative mb-10 overflow-hidden rounded-[2rem] bg-paper p-2 shadow-lifted sm:rounded-[2.5rem] sm:p-3">
             <Image
               src={post.coverImage}
               alt={post.coverAlt}
               width={1440}
               height={810}
               priority
-              className="h-auto w-full rounded-[22px] object-cover"
+              className="h-auto w-full rounded-[1.6rem] object-cover sm:rounded-[2.1rem]"
             />
           </div>
 
@@ -545,21 +550,23 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {/* CTA Banner */}
-          <div className="my-14 rounded-[28px] border border-indigo/20 bg-linear-to-br from-indigo/5 via-cyan/5 to-white p-8 text-center sm:p-10 shadow-sm">
-            <span aria-hidden className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo text-2xl text-white shadow-md">
-              🎙️
-            </span>
-            <h2 className="mt-4 font-display text-2xl font-bold text-heading">{ui.ctaTitle}</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-body">
-              {ui.ctaSubtitle}
-            </p>
-            <div className="mt-6 flex justify-center">
-              <Link
-                href="/#download"
-                className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo to-cyan px-8 py-3.5 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
-              >
-                <span>{ui.ctaButton}</span>
-              </Link>
+          <div className="relative my-14 overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffefc2] via-[#fff7e0] to-[#ffe6cf] sm:rounded-[3rem]">
+            <div className="grid items-end sm:grid-cols-[1fr_auto]">
+              <div className="p-7 sm:p-10">
+                <h2 className="font-display text-2xl font-extrabold tracking-[-0.025em] text-heading sm:text-3xl">{ui.ctaTitle}</h2>
+                <p className="mt-2 max-w-md text-[0.97rem] text-heading/70">{ui.ctaSubtitle}</p>
+                <div className="mt-6">
+                  <Link
+                    href="/#download"
+                    className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-stage to-purple-pop px-7 py-3.5 text-sm font-bold text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                  >
+                    <span>{ui.ctaButton}</span>
+                  </Link>
+                </div>
+              </div>
+              <div aria-hidden className="relative mx-auto hidden h-[14rem] w-[11.2rem] sm:mr-8 sm:block">
+                <Image src="/mivo/stops/mivo_stop_mic.webp" alt="" fill sizes="190px" className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(21,18,58,0.25)]" />
+              </div>
             </div>
           </div>
 
@@ -572,7 +579,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <Link
                     key={related.slug}
                     href={`/blog/${related.slug}`}
-                    className="group rounded-2xl border border-line bg-porcelain p-4 transition-all hover:border-indigo/30 hover:bg-white"
+                    className="group rounded-[1.5rem] bg-paper p-5 transition-all hover:-translate-y-1 hover:bg-paper-deep"
                   >
                     <span className="text-[0.7rem] font-semibold text-indigo">{related.category}</span>
                     <h3 className="mt-1 font-display text-sm font-bold text-heading group-hover:text-indigo transition-colors line-clamp-3">

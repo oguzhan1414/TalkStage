@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
+import PageHero from "@/components/PageHero";
 import Footer from "@/components/Footer";
 import { useT } from "@/i18n/client";
 import { tr } from "@/i18n/shared";
@@ -28,6 +27,10 @@ const faqs = [
   },
 ];
 
+const FIELD =
+  "mt-2 w-full rounded-2xl border border-transparent bg-white px-4 py-3.5 text-sm text-heading shadow-layered placeholder:text-muted focus:border-stage focus:outline-none focus:ring-3 focus:ring-stage/15";
+const FAQ_BG = ["bg-[#e6e0ff]", "bg-[#ffe6cf]", "bg-[#d8ecff]", "bg-[#ffdfe9]"];
+
 export default function ContactClient() {
   const t = useT();
   const [submitted, setSubmitted] = useState(false);
@@ -48,70 +51,49 @@ export default function ContactClient() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
-        <div className="mx-auto max-w-5xl px-6">
-          {/* Breadcrumb */}
-          <div className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
-            <Link href="/" className="hover:text-indigo transition-colors">{t("Ana Sayfa")}</Link>
-            <span>/</span>
-            <span className="text-heading font-semibold">{t("İletişim & Destek")}</span>
-          </div>
+      <main className="flex-1 bg-white pb-20 sm:pb-28">
+        <PageHero
+          crumbs={[{ label: t("Ana Sayfa"), href: "/" }, { label: t("İletişim & Destek") }]}
+          eyebrow={t("Bize ulaş")}
+          title={t("Bir şey mi sormak istiyorsun?")}
+          intro={t("Sahne önerisi, kurumsal paket ya da teknik destek için bize yazabilirsin.")}
+          art="mic"
+          tint="peach"
+        />
 
-          <div className="mb-12 flex items-center gap-5 rounded-[28px] border border-line bg-white p-5 shadow-layered sm:p-7">
-            <Image src="/mivo/lesson-guide.webp" alt="" width={750} height={900} className="h-24 w-auto shrink-0 sm:h-32" priority />
-            <div>
-              <p className="font-display text-xl font-extrabold tracking-tight text-heading sm:text-2xl">{t("Bir sorunun mu var?")}</p>
-              <p className="mt-1 text-sm leading-relaxed text-body sm:text-base">{t("Teknik destek, öneri ya da şirket lisansı için bize yaz; mesajına e-postayla dönelim.")}</p>
+        <div className="mx-auto mt-4 grid max-w-[88rem] gap-4 px-4 sm:mt-5 sm:gap-5 sm:px-6 lg:grid-cols-12">
+          {/* contact details */}
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-5 lg:grid-cols-1 lg:content-start">
+            <div className="rounded-[2rem] bg-[#e6e0ff] p-7 sm:rounded-[2.5rem] sm:p-9">
+              <span className="block font-mono text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-stage">{t("Destek & Genel İletişim")}</span>
+              <a href="mailto:support@spekvia.com" className="mt-3 block break-all font-display text-2xl font-extrabold tracking-[-0.02em] text-heading hover:text-stage sm:text-3xl">support@spekvia.com</a>
+              <span className="mt-2 block text-[0.92rem] text-heading/70">{t("Kullanıcı desteği ve sahne geri bildirimleri")}</span>
+            </div>
+            <div className="rounded-[2rem] bg-[#d6f4e4] p-7 sm:rounded-[2.5rem] sm:p-9">
+              <span className="block font-mono text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-heading/60">{t("Kurumsal & B2B Satış")}</span>
+              <a href="mailto:info@spekvia.com" className="mt-3 block break-all font-display text-2xl font-extrabold tracking-[-0.02em] text-heading hover:text-stage sm:text-3xl">info@spekvia.com</a>
+              <span className="mt-2 block text-[0.92rem] text-heading/70">{t("Yazılım ekipleri ve şirket toplu lisansları için")}</span>
             </div>
           </div>
 
-          <div className="grid gap-12 lg:grid-cols-12">
-            {/* Left Column: Info & Support Details */}
-            <div className="lg:col-span-5">
-              <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">{t("Bize ulaş")}</span>
-              <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">{t("Bir şey mi sormak istiyorsun?")}</h1>
-              <p className="mt-4 text-base leading-relaxed text-body">{t("Sahne önerisi, kurumsal paket ya da teknik destek için bize yazabilirsin.")}</p>
-
-              <div className="mt-8 space-y-4">
-                <div className="rounded-2xl border border-line bg-porcelain p-5">
-                  <span className="block text-xs font-mono font-bold uppercase tracking-wider text-muted">{t("Destek & Genel İletişim")}</span>
-                  <a
-                    href="mailto:support@spekvia.com"
-                    className="mt-1 block font-display text-lg font-bold text-indigo hover:underline"
-                  >support@spekvia.com</a>
-                  <span className="mt-1 block text-xs text-muted">{t("Kullanıcı desteği ve sahne geri bildirimleri")}</span>
+          {/* form */}
+          <div className="lg:col-span-7">
+            <div className="h-full rounded-[2rem] bg-paper p-6 sm:rounded-[2.5rem] sm:p-10">
+              {submitted ? (
+                <div className="py-12 text-center">
+                  <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald/15 text-2xl font-bold text-emerald">✓</span>
+                  <h3 className="mt-6 font-display text-2xl font-extrabold text-heading">{t("E-posta uygulaman açıldı")}</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-body">{rich(t("Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <b>support@spekvia.com</b> adresine yazabilirsin."), { b: (c) => <strong>{c}</strong> })}</p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="mt-6 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-heading shadow-layered hover:bg-paper-deep"
+                  >{t("Yeni mesaj yaz")}</button>
                 </div>
-
-                <div className="rounded-2xl border border-line bg-porcelain p-5">
-                  <span className="block text-xs font-mono font-bold uppercase tracking-wider text-muted">{t("Kurumsal & B2B Satış")}</span>
-                  <a
-                    href="mailto:info@spekvia.com"
-                    className="mt-1 block font-display text-lg font-bold text-heading hover:underline"
-                  >info@spekvia.com</a>
-                  <span className="mt-1 block text-xs text-muted">{t("Yazılım ekipleri ve şirket toplu lisansları için")}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Interactive Contact Form */}
-            <div className="lg:col-span-7">
-              <div className="glass-card rounded-[28px] border border-line bg-white p-8 shadow-[var(--shadow-layered)] sm:p-10">
-                {submitted ? (
-                  <div className="py-12 text-center">
-                    <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald/15 text-2xl font-bold text-emerald">
-                      ✓
-                    </span>
-                    <h3 className="mt-6 font-display text-2xl font-bold text-heading">{t("E-posta uygulaman açıldı")}</h3>
-                    <p className="mx-auto mt-2 max-w-sm text-sm text-body">{rich(t("Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <b>support@spekvia.com</b> adresine yazabilirsin."), { b: (c) => <strong>{c}</strong> })}</p>
-                    <button
-                      onClick={() => setSubmitted(false)}
-                      className="mt-6 rounded-full border border-line px-6 py-2 text-sm font-semibold text-heading hover:bg-slate-50"
-                    >{t("Yeni mesaj yaz")}</button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Adın soyadın")}</label>
+                      <label htmlFor="contact-name" className="block text-[0.8rem] font-bold text-heading">{t("Adın soyadın")}</label>
                       <input
                         id="contact-name"
                         type="text"
@@ -119,12 +101,11 @@ export default function ContactClient() {
                         placeholder={t("Örn: Ahmet Yılmaz")}
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
+                        className={FIELD}
                       />
                     </div>
-
                     <div>
-                      <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("E-posta adresin")}</label>
+                      <label htmlFor="contact-email" className="block text-[0.8rem] font-bold text-heading">{t("E-posta adresin")}</label>
                       <input
                         id="contact-email"
                         type="email"
@@ -132,68 +113,60 @@ export default function ContactClient() {
                         placeholder={t("ahmet@sirketiniz.com")}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
+                        className={FIELD}
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label htmlFor="contact-subject" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Konu")}</label>
-                      <select
-                        id="contact-subject"
-                        value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
-                      >
-                        <option>{t("Genel soru ya da destek")}</option>
-                        <option>{t("Yeni sahne önerisi")}</option>
-                        <option>{t("Abonelik ya da ödeme")}</option>
-                        <option>{t("Kurumsal talep (B2B)")}</option>
-                        <option>{t("Hata bildirimi")}</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label htmlFor="contact-subject" className="block text-[0.8rem] font-bold text-heading">{t("Konu")}</label>
+                    <select
+                      id="contact-subject"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className={FIELD}
+                    >
+                      <option>{t("Genel soru ya da destek")}</option>
+                      <option>{t("Yeni sahne önerisi")}</option>
+                      <option>{t("Abonelik ya da ödeme")}</option>
+                      <option>{t("Kurumsal talep (B2B)")}</option>
+                      <option>{t("Hata bildirimi")}</option>
+                    </select>
+                  </div>
 
-                    <div>
-                      <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-heading">{t("Mesajın")}</label>
-                      <textarea
-                        id="contact-message"
-                        required
-                        rows={4}
-                        placeholder={t("Mesajını ya da merak ettiğin konuyu yaz...")}
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="mt-2 w-full rounded-xl border border-line bg-porcelain/60 px-4 py-3 text-sm text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/20"
-                      />
-                    </div>
+                  <div>
+                    <label htmlFor="contact-message" className="block text-[0.8rem] font-bold text-heading">{t("Mesajın")}</label>
+                    <textarea
+                      id="contact-message"
+                      required
+                      rows={5}
+                      placeholder={t("Mesajını ya da merak ettiğin konuyu yaz...")}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className={FIELD}
+                    />
+                  </div>
 
-                    <button
-                      type="submit"
-                      className="w-full rounded-xl bg-linear-to-r from-indigo to-cyan py-3.5 text-base font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
-                    >{t("Mesajı Gönder")}</button>
-                  </form>
-                )}
-              </div>
+                  <button
+                    type="submit"
+                    className="w-full rounded-full bg-linear-to-r from-stage to-purple-pop py-4 text-base font-bold text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                  >{t("Mesajı Gönder")}</button>
+                </form>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Quick FAQ Section */}
-          <div className="mt-24 border-t border-line/80 pt-16">
-            <div className="text-center">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-indigo">{t("Hızlı yanıtlar")}</span>
-              <h2 className="mt-2 font-display text-2xl font-bold text-heading sm:text-3xl">{t("Sıkça Sorulan Sorular")}</h2>
-            </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {faqs.map((faq) => (
-                <div
-                  key={faq.q}
-                  className="rounded-2xl border border-line bg-porcelain/60 p-6"
-                >
-                  <h3 className="font-display text-base font-bold text-heading">
-                    {t(faq.q)}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-body">
-                    {t(faq.a)}
-                  </p>
+        {/* quick answers */}
+        <div className="mx-auto mt-4 max-w-[88rem] px-4 sm:mt-5 sm:px-6">
+          <div className="rounded-[2.25rem] bg-paper p-5 sm:rounded-[3rem] sm:p-10">
+            <p className="px-2 font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Hızlı yanıtlar")}</p>
+            <h2 className="mt-2 px-2 font-display text-3xl font-extrabold tracking-[-0.03em] text-heading sm:text-4xl">{t("Sıkça Sorulan Sorular")}</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5">
+              {faqs.map((faq, i) => (
+                <div key={faq.q} className={`rounded-[1.75rem] ${FAQ_BG[i % FAQ_BG.length]} p-6 sm:rounded-[2rem] sm:p-7`}>
+                  <h3 className="font-display text-lg font-bold tracking-tight text-heading">{t(faq.q)}</h3>
+                  <p className="mt-2 text-[0.95rem] leading-relaxed text-heading/70">{t(faq.a)}</p>
                 </div>
               ))}
             </div>

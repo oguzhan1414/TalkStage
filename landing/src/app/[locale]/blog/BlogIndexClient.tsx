@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "@/i18n/Link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
 import type { BlogPost } from "@/lib/blog-data";
 import type { Locale } from "@/i18n/config";
 
@@ -138,32 +139,18 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
   return (
     <>
       <Navbar />
-      <main className="flex-1 pt-36 pb-24 sm:pt-44 sm:pb-32 bg-white">
-        <div className="mx-auto max-w-6xl px-6">
-          {/* Breadcrumb */}
-          <div className="mb-6 flex items-center gap-2 text-xs font-mono text-muted">
-            <Link href="/" className="hover:text-indigo transition-colors">
-              {ui.homeLabel}
-            </Link>
-            <span>/</span>
-            <span className="text-heading font-semibold">{ui.blogLabel}</span>
-          </div>
-
-          {/* Page Header */}
-          <div className="max-w-2xl">
-            <span className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-indigo">
-              {ui.eyebrow}
-            </span>
-            <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
-              {ui.title}
-            </h1>
-            <p className="mt-4 text-lg leading-relaxed text-body">
-              {ui.subtitle}
-            </p>
-          </div>
-
+      <main className="flex-1 bg-white pb-20 sm:pb-28">
+        <PageHero
+          crumbs={[{ label: ui.homeLabel, href: "/" }, { label: ui.blogLabel }]}
+          eyebrow={ui.eyebrow}
+          title={ui.title}
+          intro={ui.subtitle}
+          art="headphones"
+          tint="pink"
+        />
+        <div className="mx-auto mt-4 max-w-[88rem] px-4 sm:mt-5 sm:px-6">
           {/* Live Search & Categories Filter */}
-          <div className="mt-12 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between border-y border-line/80 py-6">
+          <div className="flex flex-col gap-5 rounded-[2rem] bg-paper p-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:p-3 sm:pl-4">
             {/* Category Pills */}
             <div className="flex flex-wrap items-center gap-2">
               {ui.categories.map((cat) => {
@@ -175,8 +162,8 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                     onClick={() => setActiveCategory(cat)}
                     className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? "bg-heading text-white shadow-xs"
-                        : "border border-line bg-porcelain text-body hover:border-indigo/40 hover:text-heading"
+                        ? "bg-linear-to-r from-stage to-purple-pop text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.8)]"
+                        : "bg-white text-body hover:text-heading"
                     }`}
                   >
                     {cat}
@@ -192,7 +179,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                 placeholder={ui.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-line bg-porcelain px-4 py-2 pl-9 text-xs text-heading placeholder:text-muted focus:border-indigo focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo/15"
+                className="w-full rounded-full border border-transparent bg-white px-4 py-2.5 pl-9 text-xs text-heading placeholder:text-muted focus:border-stage focus:outline-none focus:ring-2 focus:ring-stage/20"
               />
               <svg
                 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
@@ -209,12 +196,12 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
 
           {/* Featured Hero Article (Only on All & No Search) */}
           {activeCategory === ui.allCategory && !searchQuery && featuredPost && (
-            <div className="mt-10">
+            <div className="mt-4 sm:mt-5">
               <Link
                 href={`/blog/${featuredPost.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-[28px] border border-line bg-porcelain p-4 shadow-[var(--shadow-layered)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lifted)] lg:flex-row lg:items-center lg:gap-10 lg:p-6"
+                className="group relative flex flex-col overflow-hidden rounded-[2.25rem] bg-[#e6e0ff] p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted sm:rounded-[3rem] sm:p-5 lg:flex-row lg:gap-8"
               >
-                <div className="relative h-64 w-full shrink-0 overflow-hidden rounded-2xl bg-white sm:h-80 lg:w-[48%]">
+                <div className="relative h-64 w-full shrink-0 overflow-hidden rounded-[1.75rem] bg-white sm:h-80 lg:h-auto lg:min-h-[22rem] lg:w-[52%] sm:rounded-[2.25rem]">
                   <Image
                     src={featuredPost.coverImage}
                     alt={featuredPost.coverAlt}
@@ -227,7 +214,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                   </span>
                 </div>
 
-                <div className="mt-6 flex flex-1 flex-col justify-center lg:mt-0">
+                <div className="mt-6 flex flex-1 flex-col justify-center px-2 pb-2 lg:mt-0 lg:pr-8">
                   <div className="flex items-center gap-3 text-xs text-muted">
                     <span className="font-semibold text-indigo">{featuredPost.category}</span>
                     <span>•</span>
@@ -244,7 +231,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                     {featuredPost.excerpt}
                   </p>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-line/60 pt-4">
+                  <div className="mt-6 flex items-center justify-between border-t border-heading/10 pt-4">
                     <div className="flex items-center gap-2.5">
                       <div className="relative h-7 w-7 overflow-hidden rounded-full ring-1 ring-line">
                         <Image
@@ -271,15 +258,15 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
 
           {/* Articles Grid */}
           {filteredPosts.length > 0 ? (
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {filteredPosts.map((post) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-[24px] border border-line bg-white p-3.5 shadow-2xs transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo/30 hover:shadow-[var(--shadow-layered)]"
+                  className="group flex flex-col overflow-hidden rounded-[2rem] bg-paper p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:bg-paper-deep hover:shadow-lifted"
                 >
                   {/* Card Cover Image */}
-                  <div className="relative h-48 w-full overflow-hidden rounded-xl bg-porcelain">
+                  <div className="relative h-52 w-full overflow-hidden rounded-[1.5rem] bg-white">
                     <Image
                       src={post.coverImage}
                       alt={post.coverAlt}
@@ -310,7 +297,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                       </p>
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-3">
+                    <div className="mt-5 flex items-center justify-between border-t border-heading/10 pt-3">
                       <span className="text-xs text-muted">{post.author.name}</span>
                       <span className="text-xs font-semibold text-indigo group-hover:translate-x-0.5 transition-transform">
                         {ui.readShort}
@@ -321,26 +308,29 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
               ))}
             </div>
           ) : (
-            <div className="mt-16 py-12 text-center border border-dashed border-line rounded-2xl">
+            <div className="mt-4 rounded-[2rem] bg-paper py-14 text-center">
               <p className="text-sm text-muted">{ui.emptyState}</p>
             </div>
           )}
 
-          {/* Bottom Call to Action */}
-          <div className="mt-20 rounded-[28px] border border-line bg-porcelain p-8 text-center sm:p-12">
-            <h3 className="font-display text-2xl font-bold text-heading sm:text-3xl">
-              {ui.ctaTitle}
-            </h3>
-            <p className="mx-auto mt-3 max-w-md text-sm text-body">
-              {ui.ctaSubtitle}
-            </p>
-            <div className="mt-6 flex justify-center">
-              <Link
-                href="/#download"
-                className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-indigo to-cyan px-8 py-3.5 text-sm font-semibold text-white shadow-md transition-transform hover:-translate-y-0.5"
-              >
-                <span>{ui.ctaButton}</span>
-              </Link>
+          {/* Bottom call to action */}
+          <div className="relative mt-4 overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffefc2] via-[#fff7e0] to-[#ffe6cf] sm:mt-5 sm:rounded-[3rem]">
+            <div className="grid items-end lg:grid-cols-[1.4fr_0.6fr]">
+              <div className="p-7 sm:p-12 lg:p-16">
+                <h3 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-heading sm:text-4xl">{ui.ctaTitle}</h3>
+                <p className="mt-3 max-w-md text-[1.02rem] text-heading/70">{ui.ctaSubtitle}</p>
+                <div className="mt-7">
+                  <Link
+                    href="/#download"
+                    className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-stage to-purple-pop px-8 py-4 text-sm font-bold text-white shadow-[0_22px_44px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                  >
+                    <span>{ui.ctaButton}</span>
+                  </Link>
+                </div>
+              </div>
+              <div aria-hidden className="relative mx-auto h-[12rem] w-[9.6rem] sm:h-[16rem] sm:w-[12.8rem] lg:mr-10 lg:h-[19rem] lg:w-[15.2rem]">
+                <Image src="/mivo/stops/mivo_stop_cards.webp" alt="" fill sizes="240px" className="object-contain object-bottom drop-shadow-[0_24px_28px_rgba(21,18,58,0.25)]" />
+              </div>
             </div>
           </div>
         </div>

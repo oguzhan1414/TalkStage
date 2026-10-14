@@ -20,10 +20,32 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import Logo from '@/components/Logo';
+import AuthShell from '@/components/AuthShell';
 import { useT } from "@/i18n/client";
 import { tr } from "@/i18n/shared";
 import { rich } from "@/i18n/rich";
+
+const ARTS = [
+  '/hero/hero-portal.webp',
+  '/hero/hero-stage.webp',
+  '/hero/hero-stage.webp',
+  '/hero/hero-sky.webp',
+  '/hero/hero-sky.webp',
+  '/hero/hero-listen.webp',
+  '/hero/hero-listen.webp',
+  '/hero/mivo-memory.webp',
+];
+
+const QUOTES = [
+  tr("Birkaç kısa soruyla sana uygun bir yol çizelim."),
+  tr("Önce seni tanıyayım. Sana nasıl hitap edeyim?"),
+  tr("Ne için İngilizce konuşmak istiyorsun? Sahneleri ona göre seçerim."),
+  tr("Seviyeni birlikte bulalım. Doğru basamaktan başlamak her şeyi kolaylaştırır."),
+  tr("Hedefini bilirsem sana doğru sahneleri gösterebilirim."),
+  tr("Günde ne kadar zaman ayırabileceğini söyle, planı ona göre kurayım."),
+  tr("Neredeyse bitti. Hesabını oluşturunca yolculuğun başlıyor."),
+  tr("Hazırsın. İlk sahneye geçelim!"),
+];
 
 // Personas matching mobile
 const PERSONAS = [
@@ -218,46 +240,41 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#F8FAFC] flex flex-col justify-between py-6 px-4 sm:px-6 font-sans">
-      {/* Ambient glow — same treatment as the homepage hero, toned down */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-linear-to-br from-indigo-200/35 via-cyan-200/25 to-transparent blur-3xl" />
-      </div>
-
-      {/* Top Bar: Logo & Step Progress Indicator */}
-      <header className="max-w-2xl w-full mx-auto flex items-center justify-between gap-4 pb-4">
-        <Link href="/" className="shrink-0 transition-transform hover:scale-105">
-          <Logo />
-        </Link>
-
-        {step > 1 && step < 8 && (
-          <div className="flex-1 max-w-xs space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-400">
-              <span>{t("Adım {{step}} / {{totalSteps}}", { step, totalSteps })}</span>
-              <span className="text-indigo-600">%{progressPercent}</span>
+    <AuthShell
+      art={ARTS[Math.min(step, ARTS.length) - 1]}
+      mivoLabel={t("Mivo")}
+      quote={t(QUOTES[Math.min(step, QUOTES.length) - 1])}
+      footer={t("© 2026 Spekvia. Web ve Mobil Tek Hesap Sistemi.")}
+      header={
+        <>
+          {step > 1 && step < 8 && (
+            <div className="flex-1 max-w-xs space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-mono font-bold text-muted">
+                <span>{t("Adım {{step}} / {{totalSteps}}", { step, totalSteps })}</span>
+                <span className="text-stage">%{progressPercent}</span>
+              </div>
+              <div className="w-full bg-line h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-linear-to-r from-stage to-purple-pop h-full rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-full rounded-full transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        <Link
-          href="/login"
-          className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          )}
+          <Link
+            href="/login"
+            className="text-sm font-semibold text-stage transition-colors hover:text-stage-deep"
         >{t("Giriş Yap")}</Link>
-      </header>
-
+        </>
+      }
+    >
       {/* Main Step Body */}
-      <main className="max-w-xl w-full mx-auto my-auto py-4">
+      <main className="w-full">
         {/* ======================================================== */}
         {/* STEP 1: WELCOME SCREEN                                   */}
         {/* ======================================================== */}
         {step === 1 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 text-center space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 text-center space-y-6">
             <div className="relative w-24 h-24 mx-auto">
               <Image
                 src="/mivo/chat-invite.webp"
@@ -269,24 +286,24 @@ export default function OnboardingPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-xs font-semibold text-indigo-700">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-stage/25 text-xs font-semibold text-stage-deep">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{t("Spekvia Konuşma Simülatörü")}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{t("Gramer Ezberlemeyi Bırak, Gerçek Sahnede Konuş 🚀")}</h1>
-              <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">{t("“İngilizceyi anlıyorum ama konuşamıyorum” diyenler için tasarlandı. Sabırlı yapay zeka koçun Mivo ile takıldığın anda Türkçe ipucu al, özgüvenle konuş.")}</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-heading tracking-tight">{t("İngilizceyi sahnede konuşarak öğren")}</h1>
+              <p className="text-xs sm:text-sm text-body max-w-md mx-auto leading-relaxed">{t("“Anlıyorum ama konuşamıyorum” diyenler için. Mivo karşında olur, takıldığın cümleyi anında kendi dilinde düzeltir.")}</p>
             </div>
 
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleNext}
-                className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+                className="w-full py-3.5 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-sm shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
               >
                 <span>{t("Kişisel Planımı Oluştur")}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <p className="text-[11px] text-slate-400">{t("Zaten hesabın var mı?")}{" "}<Link href="/login" className="text-indigo-600 font-bold hover:underline">{t("Giriş Yap")}</Link>
+              <p className="text-[11px] text-muted">{t("Zaten hesabın var mı?")}{" "}<Link href="/login" className="text-stage font-bold hover:underline">{t("Giriş Yap")}</Link>
               </p>
             </div>
           </div>
@@ -296,11 +313,11 @@ export default function OnboardingPage() {
         {/* STEP 2: NAME INPUT                                       */}
         {/* ======================================================== */}
         {step === 2 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 2 • Tanışma")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t("Sana nasıl hitap edelim? 👋")}</h2>
-              <p className="text-xs text-slate-500">{t("Konuşma seanslarında ve mülakat simülasyonlarında yapay zeka seni bu isimle karşılayacak.")}</p>
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 2 • Tanışma")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">{t("Sana nasıl hitap edelim? 👋")}</h2>
+              <p className="text-xs text-body">{t("Konuşma seanslarında ve mülakat simülasyonlarında yapay zeka seni bu isimle karşılayacak.")}</p>
             </div>
 
             {error && (
@@ -310,9 +327,9 @@ export default function OnboardingPage() {
             )}
 
             <div>
-              <label htmlFor="onboarding-name" className="block text-xs font-bold text-slate-700 mb-1">{t("Adınız & Soyadınız")}</label>
+              <label htmlFor="onboarding-name" className="block text-xs font-bold text-heading mb-1">{t("Adınız & Soyadınız")}</label>
               <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <User className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   id="onboarding-name"
                   type="text"
@@ -321,13 +338,13 @@ export default function OnboardingPage() {
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 text-sm bg-slate-50/50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-slate-900 font-semibold"
+                  className="w-full pl-10 pr-4 py-3 rounded-2xl border border-line text-sm bg-white focus:border-stage focus:ring-3 focus:ring-stage/15 outline-none transition-all text-heading font-semibold"
                 />
               </div>
             </div>
 
             {userName.trim() && (
-              <div className="p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-100 text-xs text-slate-700 flex items-center gap-2.5">
+              <div className="p-3.5 rounded-2xl bg-white border border-line text-xs text-heading flex items-center gap-2.5">
                 <span className="text-xl">☕</span>
                 <span>{rich(t("Harika, tanıştığımıza memnun oldum <b>{{name}}</b>! Hadi senin için en uygun senaryoları belirleyelim.", { name: userName }), { b: (c) => <strong>{c}</strong> })}</span>
               </div>
@@ -336,11 +353,11 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleBack}
-                className="px-4 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all"
+                className="px-4 py-3 rounded-2xl border border-line text-body hover:bg-paper text-xs font-bold transition-all"
               >{t("Geri")}</button>
               <button
                 onClick={handleNext}
-                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t("Devam Et")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -353,11 +370,11 @@ export default function OnboardingPage() {
         {/* STEP 3: PERSONA SELECTION                                */}
         {/* ======================================================== */}
         {step === 3 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 3 • Rol & Alan")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t("Hangi alanda İngilizceye odaklanıyorsun?")}</h2>
-              <p className="text-xs text-slate-500">{t("Sana özel mesleki ve günlük konuşma kalıplarını buna göre özelleştireceğiz.")}</p>
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 3 • Rol & Alan")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">{t("Hangi alanda İngilizceye odaklanıyorsun?")}</h2>
+              <p className="text-xs text-body">{t("Sana özel mesleki ve günlük konuşma kalıplarını buna göre özelleştireceğiz.")}</p>
             </div>
 
             <div className="space-y-3">
@@ -369,30 +386,30 @@ export default function OnboardingPage() {
                     onClick={() => setSelectedPersona(p.id)}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-indigo-50/60 border-indigo-600 shadow-sm'
-                        : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200/80'
+                        ? 'bg-white border-stage ring-3 ring-stage/15 shadow-layered'
+                        : 'bg-white hover:bg-white border-transparent shadow-layered'
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
+                      <div className="w-10 h-10 rounded-2xl bg-white border border-line flex items-center justify-center text-2xl shrink-0 shadow-xs">
                         {p.icon}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-slate-900 text-sm">{t(p.title)}</h3>
-                          <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                          <h3 className="font-bold text-heading text-sm">{t(p.title)}</h3>
+                          <span className="text-[10px] font-mono font-bold bg-line text-body px-1.5 py-0.5 rounded">
                             {t(p.badge)}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">{t(p.sub)}</p>
+                        <p className="text-xs text-body mt-0.5">{t(p.sub)}</p>
                       </div>
                     </div>
 
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         isSelected
-                          ? 'border-indigo-600 bg-indigo-600 text-white'
-                          : 'border-slate-300'
+                          ? 'border-stage bg-stage text-white'
+                          : 'border-line'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3" />}
@@ -405,11 +422,11 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleBack}
-                className="px-4 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all"
+                className="px-4 py-3 rounded-2xl border border-line text-body hover:bg-paper text-xs font-bold transition-all"
               >{t("Geri")}</button>
               <button
                 onClick={handleNext}
-                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t("Devam Et")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -422,11 +439,11 @@ export default function OnboardingPage() {
         {/* STEP 4: GOAL SELECTION                                   */}
         {/* ======================================================== */}
         {step === 4 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 4 • Ana Hedef")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t("En büyük konuşma hedefin nedir?")}</h2>
-              <p className="text-xs text-slate-500">{t("Günün ilk senaryosunu ve konuşma önceliklerini buna göre seçeceğiz.")}</p>
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 4 • Ana Hedef")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">{t("En büyük konuşma hedefin nedir?")}</h2>
+              <p className="text-xs text-body">{t("Günün ilk senaryosunu ve konuşma önceliklerini buna göre seçeceğiz.")}</p>
             </div>
 
             <div className="space-y-3">
@@ -438,25 +455,25 @@ export default function OnboardingPage() {
                     onClick={() => setSelectedGoal(g.id)}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-indigo-50/60 border-indigo-600 shadow-sm'
-                        : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200/80'
+                        ? 'bg-white border-stage ring-3 ring-stage/15 shadow-layered'
+                        : 'bg-white hover:bg-white border-transparent shadow-layered'
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-xl shrink-0 shadow-xs">
+                      <div className="w-10 h-10 rounded-2xl bg-white border border-line flex items-center justify-center text-xl shrink-0 shadow-xs">
                         {g.icon}
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900 text-sm">{t(g.title)}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">{t(g.desc)}</p>
+                        <h3 className="font-bold text-heading text-sm">{t(g.title)}</h3>
+                        <p className="text-xs text-body mt-0.5">{t(g.desc)}</p>
                       </div>
                     </div>
 
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         isSelected
-                          ? 'border-indigo-600 bg-indigo-600 text-white'
-                          : 'border-slate-300'
+                          ? 'border-stage bg-stage text-white'
+                          : 'border-line'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3" />}
@@ -469,11 +486,11 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleBack}
-                className="px-4 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all"
+                className="px-4 py-3 rounded-2xl border border-line text-body hover:bg-paper text-xs font-bold transition-all"
               >{t("Geri")}</button>
               <button
                 onClick={handleNext}
-                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t("Devam Et")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -486,11 +503,11 @@ export default function OnboardingPage() {
         {/* STEP 5: LEVEL SELECTION                                  */}
         {/* ======================================================== */}
         {step === 5 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 5 • CEFR Seviyesi")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t("Mevcut İngilizce seviyen nedir?")}</h2>
-              <p className="text-xs text-slate-500">{t("Yapay zekanın konuşma hızını ve kelime zenginliğini bu seviyeye kalibre edeceğiz.")}</p>
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 5 • CEFR Seviyesi")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">{t("Mevcut İngilizce seviyen nedir?")}</h2>
+              <p className="text-xs text-body">{t("Yapay zekanın konuşma hızını ve kelime zenginliğini bu seviyeye kalibre edeceğiz.")}</p>
             </div>
 
             <div className="space-y-2.5">
@@ -502,25 +519,25 @@ export default function OnboardingPage() {
                     onClick={() => setSelectedLevel(lvl.code)}
                     className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-indigo-50/60 border-indigo-600 shadow-sm'
-                        : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200/80'
+                        ? 'bg-white border-stage ring-3 ring-stage/15 shadow-layered'
+                        : 'bg-white hover:bg-white border-transparent shadow-layered'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-slate-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                      <span className="w-9 h-9 rounded-xl bg-heading text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
                         {lvl.code}
                       </span>
                       <div>
-                        <div className="font-bold text-slate-900 text-xs">{t(lvl.title)}</div>
-                        <div className="text-[11px] text-slate-500">{t(lvl.desc)}</div>
+                        <div className="font-bold text-heading text-xs">{t(lvl.title)}</div>
+                        <div className="text-[11px] text-body">{t(lvl.desc)}</div>
                       </div>
                     </div>
 
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         isSelected
-                          ? 'border-indigo-600 bg-indigo-600 text-white'
-                          : 'border-slate-300'
+                          ? 'border-stage bg-stage text-white'
+                          : 'border-line'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3" />}
@@ -533,11 +550,11 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleBack}
-                className="px-4 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all"
+                className="px-4 py-3 rounded-2xl border border-line text-body hover:bg-paper text-xs font-bold transition-all"
               >{t("Geri")}</button>
               <button
                 onClick={handleNext}
-                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t("Devam Et")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -550,11 +567,11 @@ export default function OnboardingPage() {
         {/* STEP 6: DAILY COMMITMENT                                 */}
         {/* ======================================================== */}
         {step === 6 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 6 • Günlük Hedef")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t("Günde kaç dakika pratik yapabilirsin?")}</h2>
-              <p className="text-xs text-slate-500">{t("Serini (Streak) korumak için günlük hedef süreni belirle.")}</p>
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 6 • Günlük Hedef")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">{t("Günde kaç dakika pratik yapabilirsin?")}</h2>
+              <p className="text-xs text-body">{t("Serini (Streak) korumak için günlük hedef süreni belirle.")}</p>
             </div>
 
             <div className="space-y-3">
@@ -566,28 +583,28 @@ export default function OnboardingPage() {
                     onClick={() => setSelectedDailyMin(d.minutes)}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-indigo-50/60 border-indigo-600 shadow-sm'
-                        : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200/80'
+                        ? 'bg-white border-stage ring-3 ring-stage/15 shadow-layered'
+                        : 'bg-white hover:bg-white border-transparent shadow-layered'
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
                       <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-mono font-bold text-xs shrink-0">{t("{{minutes}} dk", { minutes: d.minutes })}</div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-slate-900 text-sm">{t(d.title)}</h3>
-                          <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                          <h3 className="font-bold text-heading text-sm">{t(d.title)}</h3>
+                          <span className="text-[10px] font-mono font-bold bg-line text-body px-1.5 py-0.5 rounded">
                             {t(d.badge)}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">{t(d.desc)}</p>
+                        <p className="text-xs text-body mt-0.5">{t(d.desc)}</p>
                       </div>
                     </div>
 
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         isSelected
-                          ? 'border-indigo-600 bg-indigo-600 text-white'
-                          : 'border-slate-300'
+                          ? 'border-stage bg-stage text-white'
+                          : 'border-line'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3" />}
@@ -600,11 +617,11 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handleBack}
-                className="px-4 py-3 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all"
+                className="px-4 py-3 rounded-2xl border border-line text-body hover:bg-paper text-xs font-bold transition-all"
               >{t("Geri")}</button>
               <button
                 onClick={handleNext}
-                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t("Hesabımı Oluştur")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -617,13 +634,13 @@ export default function OnboardingPage() {
         {/* STEP 7: ACCOUNT CREATION / AUTH                          */}
         {/* ======================================================== */}
         {step === 7 && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-mono font-bold text-indigo-600 uppercase">{t("Adım 7 • Kayıt & Doğrulama")}</span>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <span className="text-xs font-mono font-bold text-stage uppercase">{t("Adım 7 • Kayıt & Doğrulama")}</span>
+              <h2 className="text-2xl font-extrabold text-heading tracking-tight">
                 {userName ? t("{{userName}}, Planını Kaydedelim 🔐", { userName }) : t("Hesabınızı Oluşturun 🔐")}
               </h2>
-              <p className="text-xs text-slate-500">{t("Aynı e-posta ve şifre ile hem web stüdyosunda hem de mobil uygulamada oturum açacaksınız.")}</p>
+              <p className="text-xs text-body">{t("Aynı e-posta ve şifre ile hem web stüdyosunda hem de mobil uygulamada oturum açacaksınız.")}</p>
             </div>
 
             {error && (
@@ -634,9 +651,9 @@ export default function OnboardingPage() {
 
             <form className="space-y-4" onSubmit={handleCreateAccount}>
               <div>
-                <label htmlFor="onboarding-signup-email" className="block text-xs font-bold text-slate-700 mb-1">{t("E-posta Adresi")}</label>
+                <label htmlFor="onboarding-signup-email" className="block text-xs font-bold text-heading mb-1">{t("E-posta Adresi")}</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     id="onboarding-signup-email"
                     type="email"
@@ -644,15 +661,15 @@ export default function OnboardingPage() {
                     placeholder={t("ornek@email.com")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-slate-50/50 focus:bg-white focus:border-indigo-500 outline-none transition-all text-slate-900"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line text-xs bg-white focus:border-stage outline-none transition-all text-heading"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="onboarding-signup-password" className="block text-xs font-bold text-slate-700 mb-1">{t("Şifre")}</label>
+                <label htmlFor="onboarding-signup-password" className="block text-xs font-bold text-heading mb-1">{t("Şifre")}</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     id="onboarding-signup-password"
                     type="password"
@@ -660,7 +677,7 @@ export default function OnboardingPage() {
                     placeholder={t("En az 6 karakter")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-slate-50/50 focus:bg-white focus:border-indigo-500 outline-none transition-all text-slate-900"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line text-xs bg-white focus:border-stage outline-none transition-all text-heading"
                   />
                 </div>
               </div>
@@ -668,7 +685,7 @@ export default function OnboardingPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+                className="w-full py-3.5 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
               >
                 <span>{loading ? t("Hesap Kaydediliyor...") : t("Hesabımı Oluştur & Devam Et")}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -677,17 +694,17 @@ export default function OnboardingPage() {
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200/80" />
+                <div className="w-full border-t border-line/80" />
               </div>
               <div className="relative flex justify-center text-[11px]">
-                <span className="bg-white px-2 text-slate-400 font-medium">{t("veya tek tıkla")}</span>
+                <span className="bg-white px-2 text-muted font-medium">{t("veya tek tıkla")}</span>
               </div>
             </div>
 
             <button
               type="button"
               onClick={signInWithGoogle}
-              className="w-full py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-xs"
+              className="w-full py-2.5 rounded-xl bg-white border border-line hover:bg-paper text-heading font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-xs"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -716,22 +733,22 @@ export default function OnboardingPage() {
         {/* STEP 8: READY BOARDING PASS (START STUDY)               */}
         {/* ======================================================== */}
         {step === 8 && needsEmailConfirmation && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-indigo-950/10 text-center space-y-6">
-            <div className="w-20 h-20 rounded-3xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center text-3xl mx-auto shadow-md">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 text-center space-y-6">
+            <div className="w-20 h-20 rounded-3xl bg-paper text-stage border border-stage/25 flex items-center justify-center text-3xl mx-auto shadow-md">
               <Mail className="w-8 h-8" />
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-xs font-mono font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full border border-indigo-200">{t("E-POSTANI ONAYLA")}</span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">{t("Neredeyse hazır,")}{" "}{userName || t("Öğrenci")}! 📬
+              <span className="text-xs font-mono font-bold bg-paper-deep text-stage-deep px-3 py-1 rounded-full border border-stage/25">{t("E-POSTANI ONAYLA")}</span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-heading tracking-tight mt-2">{t("Neredeyse hazır,")}{" "}{userName || t("Öğrenci")}! 📬
               </h1>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                <strong className="text-slate-700">{email}</strong>{" "}{t("adresine bir onay bağlantısı gönderdik. Planın kaydedildi — bağlantıya tıklayıp giriş yaptığın an stüdyon hazır olacak.")}</p>
+              <p className="text-xs text-body max-w-sm mx-auto">
+                <strong className="text-heading">{email}</strong>{" "}{t("adresine bir onay bağlantısı gönderdik. Planın kaydedildi — bağlantıya tıklayıp giriş yaptığın an stüdyon hazır olacak.")}</p>
             </div>
 
             <Link
               href="/login"
-              className="w-full inline-flex py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-xl shadow-indigo-600/30 transition-all items-center justify-center gap-2 transform hover:-translate-y-0.5"
+              className="w-full inline-flex py-4 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-black text-sm shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all items-center justify-center gap-2 transform hover:-translate-y-0.5"
             >
               <span>{t("Onayladım, Giriş Yapayım")}</span>
               <ArrowRight className="w-4 h-4" />
@@ -740,41 +757,41 @@ export default function OnboardingPage() {
         )}
 
         {step === 8 && !needsEmailConfirmation && (
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-indigo-950/10 text-center space-y-6">
+          <div className="rounded-[2rem] bg-paper p-6 sm:p-9 text-center space-y-6">
             <div className="w-20 h-20 rounded-3xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-3xl mx-auto shadow-md">
               🎉
             </div>
 
             <div className="space-y-1.5">
               <span className="text-xs font-mono font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200">{t("✓ PLANIN VE HESABIN HAZIRLANDI")}</span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">{t("Sahne Senin,")}{" "}{userName || t("Öğrenci")}! 🚀
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-heading tracking-tight mt-2">{t("Sahne Senin,")}{" "}{userName || t("Öğrenci")}! 🚀
               </h1>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">{t("{{title}} hedefin için {{code}} seviyesinde masaüstü çalışma stüdyon aktif edildi.", { title: t(currentPersonaObj.title), code: currentLevelObj.code })}</p>
+              <p className="text-xs text-body max-w-sm mx-auto">{t("{{title}} hedefin için {{code}} seviyesinde masaüstü çalışma stüdyon aktif edildi.", { title: t(currentPersonaObj.title), code: currentLevelObj.code })}</p>
             </div>
 
             {/* Boarding Pass Summary Card */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left space-y-2.5 text-xs">
-              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                <span className="text-slate-500">{t("Kullanıcı:")}</span>
-                <span className="font-bold text-slate-900">{userName || t("Öğrenci")} ({email})</span>
+            <div className="bg-white border border-line rounded-2xl p-4 text-left space-y-2.5 text-xs">
+              <div className="flex items-center justify-between border-b border-line/60 pb-2">
+                <span className="text-body">{t("Kullanıcı:")}</span>
+                <span className="font-bold text-heading">{userName || t("Öğrenci")} ({email})</span>
               </div>
-              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                <span className="text-slate-500">{t("Başlangıç Seviyesi:")}</span>
-                <span className="font-bold text-indigo-600">{currentLevelObj.code} • {t(currentLevelObj.title)}</span>
+              <div className="flex items-center justify-between border-b border-line/60 pb-2">
+                <span className="text-body">{t("Başlangıç Seviyesi:")}</span>
+                <span className="font-bold text-stage">{currentLevelObj.code} • {t(currentLevelObj.title)}</span>
               </div>
-              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                <span className="text-slate-500">{t("Öncelikli Odak:")}</span>
-                <span className="font-bold text-slate-800">{t(currentGoalObj.title)}</span>
+              <div className="flex items-center justify-between border-b border-line/60 pb-2">
+                <span className="text-body">{t("Öncelikli Odak:")}</span>
+                <span className="font-bold text-heading">{t(currentGoalObj.title)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-500">{t("Günlük Hedef:")}</span>
+                <span className="text-body">{t("Günlük Hedef:")}</span>
                 <span className="font-bold text-emerald-600">{t("{{selectedDailyMin}} Dakika / Gün", { selectedDailyMin })}</span>
               </div>
             </div>
 
             <button
               onClick={handleStartStudy}
-              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+              className="w-full py-4 rounded-full bg-linear-to-r from-stage to-purple-pop hover:brightness-110 text-white font-black text-sm shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
             >
               <span>{t("Masaüstü Çalışma Stüdyosuna Gir")}</span>
               <ArrowRight className="w-4 h-4" />
@@ -782,11 +799,6 @@ export default function OnboardingPage() {
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="text-center text-xs text-slate-400 py-2">
-        <span>{t("© 2026 Spekvia. Web ve Mobil Tek Hesap Sistemi.")}</span>
-      </footer>
-    </div>
+    </AuthShell>
   );
 }
