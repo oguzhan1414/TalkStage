@@ -60,7 +60,7 @@ async def revenuecat_webhook(request: Request, authorization: str | None = Heade
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid event")
 
     # Sandbox/TEST olayı üretimde hak vermez.
-    if event.get("environment") == "SANDBOX" and settings.environment == "production":
+    if event.get("environment") == "SANDBOX" and settings.environment == "production" and not settings.revenuecat_allow_sandbox:
         return {"status": "ignored", "reason": "sandbox"}
     now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
     new_status = decide_status(event, now_ms)

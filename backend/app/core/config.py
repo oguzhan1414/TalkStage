@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # Payments
     revenuecat_api_key: str = ""
     revenuecat_webhook_auth_header: str = ""
+    # Lets RevenueCat SANDBOX events (Play licence-tester purchases) grant access on a production server.
+    # Turn on only while testing the payment flow, then back off before the public launch.
+    revenuecat_allow_sandbox: bool = False
 
     # Cache
     redis_url: str = ""
