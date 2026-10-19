@@ -1,7 +1,7 @@
 import re
 import os
 
-root_dir = r"D:\ingilizce"
+root_dir = r"D:\ingilizce\content"
 files = ['a1_grammar_lessons.md', 'a2_grammar_lessons.md', 'b1_grammar_lessons.md', 'b2_grammar_lessons.md', 'c1_grammar_lessons.md', 'c2_grammar_lessons.md']
 
 all_maps = {}

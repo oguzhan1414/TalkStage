@@ -12,7 +12,7 @@ try:
 except Exception:
     pass
 
-CURRICULUM_PATH = r"D:\ingilizce\podcast_curriculum_lessons.md"
+CURRICULUM_PATH = r"D:\ingilizce\content\podcast_curriculum_lessons.md"
 AUDIO_OUTPUT_DIR = r"D:\ingilizce\mobile\assets\audio"
 BACKEND_STATIC_DIR = r"D:\ingilizce\backend\static\podcasts"
 DATA_TS_PATH = r"D:\ingilizce\mobile\src\data\podcastData.ts"

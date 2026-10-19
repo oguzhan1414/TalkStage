@@ -316,25 +316,25 @@ def parse_verbs(md_content: str, prefix="verb_") -> list[dict]:
 def generate_full_vocab_library():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
     
-    with open(os.path.join(base_dir, 'first_100_adjectives.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'first_100_adjectives.md'), 'r', encoding='utf-8') as f:
         adj_1 = parse_adjectives(f.read())
-    with open(os.path.join(base_dir, 'first_100_nouns.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'first_100_nouns.md'), 'r', encoding='utf-8') as f:
         noun_1 = parse_nouns(f.read())
-    with open(os.path.join(base_dir, 'first_100_verbs.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'first_100_verbs.md'), 'r', encoding='utf-8') as f:
         verb_1 = parse_verbs(f.read())
 
-    with open(os.path.join(base_dir, 'second_100_adjectives.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'second_100_adjectives.md'), 'r', encoding='utf-8') as f:
         adj_2 = parse_adjectives(f.read())
-    with open(os.path.join(base_dir, 'second_100_nouns.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'second_100_nouns.md'), 'r', encoding='utf-8') as f:
         noun_2 = parse_nouns(f.read())
-    with open(os.path.join(base_dir, 'second_100_verbs.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'second_100_verbs.md'), 'r', encoding='utf-8') as f:
         verb_2 = parse_verbs(f.read())
 
-    with open(os.path.join(base_dir, 'third_100_adjectives.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'third_100_adjectives.md'), 'r', encoding='utf-8') as f:
         adj_3 = parse_adjectives(f.read())
-    with open(os.path.join(base_dir, 'third_100_nouns.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'third_100_nouns.md'), 'r', encoding='utf-8') as f:
         noun_3 = parse_nouns(f.read())
-    with open(os.path.join(base_dir, 'third_100_verbs.md'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(base_dir, 'content', 'third_100_verbs.md'), 'r', encoding='utf-8') as f:
         verb_3 = parse_verbs(f.read())
 
     print(f"Adjectives: 100={len(adj_1)}, 200={len(adj_2)}, 300={len(adj_3)}")
@@ -343,7 +343,7 @@ def generate_full_vocab_library():
 
     ts_content = '''/**
  * Frekans bazlı "1. Paket (1-100)", "2. Paket (101-200)" ve "3. Paket (201-300)" kelime kütüphaneleri (sıfat/isim/fiil)
- * Kaynak: repo kökündeki first_100_*.md, second_100_*.md ve third_100_*.md dosyaları.
+ * Kaynak: content/ klasöründeki first_100_*.md, second_100_*.md ve third_100_*.md dosyaları.
  * Seviyeden bağımsız çekirdek kelime setleri — Kelime Kütüphanesi ekranında gösterilir,
  * tek dokunuşla SM-2 Kelime Sandığı'na eklenir.
  */

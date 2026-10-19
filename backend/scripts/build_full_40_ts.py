@@ -8,7 +8,7 @@ try:
 except Exception:
     pass
 
-CURRICULUM_PATH = r"D:\ingilizce\podcast_curriculum_lessons.md"
+CURRICULUM_PATH = r"D:\ingilizce\content\podcast_curriculum_lessons.md"
 TIMINGS_PATH = r"D:\ingilizce\backend\scripts\measured_40_timings.json"
 DATA_TS_PATH = r"D:\ingilizce\mobile\src\data\podcastData.ts"
 

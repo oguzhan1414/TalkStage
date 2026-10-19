@@ -8,7 +8,7 @@ try:
 except Exception:
     pass
 
-ROOT_DIR = r"D:\ingilizce"
+ROOT_DIR = r"D:\ingilizce\content"
 OUTPUT_TS = r"D:\ingilizce\mobile\src\data\grammarLessons.ts"
 
 FILES = [

@@ -1,6 +1,6 @@
 import re
 
-CURRICULUM_PATH = r"D:\ingilizce\podcast_curriculum_lessons.md"
+CURRICULUM_PATH = r"D:\ingilizce\content\podcast_curriculum_lessons.md"
 
 with open(CURRICULUM_PATH, 'r', encoding='utf-8') as f:
     content = f.read()
