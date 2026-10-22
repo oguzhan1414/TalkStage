@@ -109,9 +109,12 @@ def complete_onboarding(
         updates["gender"] = payload.gender
     if payload.age_range:
         updates["age_range"] = payload.age_range
-    # Migrations 0021 (native_language) / 0029 (gender, age_range) may not be applied on this environment yet —
-    # never let a missing optional column block onboarding itself: drop the optional fields one by one and retry.
-    optional_fields = ["gender", "age_range", "native_language"]
+    if payload.learning_plan:
+        updates["learning_plan"] = payload.learning_plan.model_dump()
+    # Migrations 0021 (native_language) / 0029 (gender, age_range) / 0031 (learning_plan) may not be applied on
+    # this environment yet — never let a missing optional column block onboarding itself: drop the optional
+    # fields one by one and retry.
+    optional_fields = ["learning_plan", "gender", "age_range", "native_language"]
     while True:
         try:
             result = ctx.db.table("profiles").update(updates).eq("id", ctx.user.id).execute()

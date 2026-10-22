@@ -1,7 +1,13 @@
 from pydantic import BaseModel, Field
 
 from app.core.language import NATIVE_LANGUAGE_PATTERN
-from app.schemas.profile import AGE_RANGE_PATTERN, GENDER_PATTERN, LEARNING_GOAL_PATTERN, PERSONA_PATTERN
+from app.schemas.profile import (
+    AGE_RANGE_PATTERN,
+    GENDER_PATTERN,
+    LEARNING_GOAL_PATTERN,
+    PERSONA_PATTERN,
+    LearningPlan,
+)
 
 
 class OnboardingCompleteRequest(BaseModel):
@@ -18,3 +24,5 @@ class OnboardingCompleteRequest(BaseModel):
     #: İsteğe bağlı (kullanıcı atlayabilir).
     gender: str | None = Field(default=None, pattern=GENDER_PATTERN)
     age_range: str | None = Field(default=None, pattern=AGE_RANGE_PATTERN)
+    #: Onboarding'deki "Odağın" adımı. Eski uygulama sürümleri göndermez.
+    learning_plan: LearningPlan | None = None

@@ -8,6 +8,7 @@ from functools import lru_cache
 from openai import AsyncOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
+from app.services.grammar_topics import topics_prompt_block
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -26,13 +27,16 @@ _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 #: friendly, lightly teasing explanation, never a clinical rule or anything
 #: that could read as mocking.
 _CORRECTION_GUIDANCE = (
-    "Look beyond grammar for anything worth correcting: also flag phrasing "
+    "Look beyond grammar for anything worth correcting: also flag an answer that "
+    "does not fit what was just asked or the situation (an off-target phrase, e.g. 'I know' in answer to 'What is "
+    "your favourite movie?') — set has_error true, put a natural answer in `corrected`, and say what was asked in "
+    "explanation_tr; also flag phrasing "
     "that's grammatically fine but socially off for the setting — too blunt "
     "or demanding, the wrong word for the specific context (e.g. 'big fries' "
     "instead of 'large' at a counter), or just not what a native speaker "
     "would actually say (e.g. 'Give me a burger' instead of the politer "
-    "'Can I get a burger?'). Write explanation_tr in a warm, lightly "
-    "playful, friendly tone — like a patient friend gently teasing you, "
+    "'Can I get a burger?'). Write explanation_tr in a warm, playful, honest tone — like a "
+    "close friend who may laugh with you ('Haha') and lightly tease, "
     "never a cold textbook rule and never harsh or mocking. When the issue "
     "is cultural/register rather than a grammar error, say so explicitly "
     "and explain the social nuance, don't just call it 'more correct.'\n"
@@ -46,10 +50,10 @@ _CORRECTION_GUIDANCE = (
     "NOISE RULES (apply at EVERY level): the learner's text comes from automatic speech recognition or fast typing. "
     "Capitalization, punctuation, spacing, apostrophes, hyphens and the spelling of clearly misheard words are NEVER errors: "
     "do not correct them and do not mention them. If the only difference between the learner's sentence and your "
-    "correction is capitalization or punctuation, set has_error to false. Prefer NO correction over a nitpick: set has_error "
-    "true only when (1) the grammar is wrong in a way a listener would notice, (2) the phrasing sounds clearly unnatural or "
-    "rude for this situation, or (3) the sentence is hard to understand. A good conversation carries a correction on only "
-    "some turns, never as a reflex."
+    "correction is capitalization or punctuation, set has_error to false. Skip pure nitpicks, but never let a real error "
+    "pass: set has_error true when (1) the grammar is wrong in a way a listener would notice, (2) the phrasing sounds "
+    "clearly unnatural or rude for this situation, (3) the sentence is hard to understand, or (4) the answer does not fit "
+    "the question. Learners come here to find their mistakes, so a turn with a real error always gets a correction."
 )
 
 #: A1/A2-only real-time nudge, distinct from `correction` (which only reacts
@@ -102,6 +106,13 @@ class Correction(BaseModel):
             "Warm, lightly playful explanation, in the learner's native language, of why the "
             "correction is better — never clinical, never harsh. If it's a "
             "cultural/register issue rather than a grammar error, say so."
+        ),
+    )
+    grammar_topic: str | None = Field(
+        default=None,
+        description=(
+            "Code of the ONE grammar topic from the TOPICS list in the prompt that best explains this mistake, "
+            "or null if it is not a grammar mistake or no topic fits."
         ),
     )
 
@@ -158,6 +169,14 @@ class TurnAnalysis(BaseModel):
     completion_summary_tr: str | None = Field(
         default=None,
         description="Short encouraging summary, in the learner's native language, of what the user did well — only set when is_scene_complete is true.",
+    )
+    conversation_ended: bool = Field(
+        default=False,
+        description=(
+            "True ONLY if the assistant's latest reply closes the conversation now: it says goodbye (or clearly wraps up "
+            "because the learner wants to stop) and asks the learner nothing further. False for every normal turn, and "
+            "false when the assistant offers or starts a new topic."
+        ),
     )
     coach_tip_tr: str | None = Field(
         default=None,
@@ -250,7 +269,7 @@ async def analyze_voice_turn(system_prompt: str, history: list[TurnMessage],
     """One optional call for corrections AND suggestions, after the spoken text."""
     client, model, is_openai = _async_client()
     prompt = (
-        system_prompt + _ANALYSIS_TASK_SUFFIX
+        system_prompt + _ANALYSIS_TASK_SUFFIX + topics_prompt_block()
         + "\nAlso return suggested_replies: 2 short English answers to the assistant's "
         "latest question, or the exact English practice phrase it invited the learner to say. "
         "If the assistant quoted something another person says and asked what the learner would answer, the suggestions "

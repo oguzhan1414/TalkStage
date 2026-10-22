@@ -1,10 +1,10 @@
 import hashlib
-from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from postgrest.exceptions import APIError
 
 from app.api.deps import AuthContext, get_auth_context, get_locale
+from app.core.clock import local_today
 from app.schemas.scenario import ScenarioOut
 from app.services.content_i18n import overlay_translation
 
@@ -61,7 +61,7 @@ def get_recommended_scenario(
         level_matched = [s for s in pool if s.get("cefr_level") == cefr_level]
         pool = level_matched or pool
 
-    seed = f"{ctx.user.id}:{date.today().isoformat()}"
+    seed = f"{ctx.user.id}:{local_today().isoformat()}"
     index = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(pool)
     return ScenarioOut(**overlay_translation(pool[index], locale))
 

@@ -6,6 +6,7 @@ from app.api.deps import AuthContext, get_auth_context
 from app.schemas.tutor import TutorTurnRequest, TutorTurnResponse
 from app.services.tutor_engine import generate_tutor_turn
 from app.services.usage_guard import rate_limit
+from app.services.mistake_log import correction_category, insert_mistake
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,8 @@ async def tutor_turn(
     # Best-effort logging of grammar mistakes into user's history
     if response.correction.has_error and response.correction.corrected:
         try:
-            ctx.db.table("grammar_mistakes").insert(
+            insert_mistake(
+                ctx.db,
                 {
                     "user_id": ctx.user.id,
                     "topic_code": payload.target_grammar_rule,
@@ -56,8 +58,9 @@ async def tutor_turn(
                     "corrected_text": response.correction.corrected,
                     "explanation_tr": response.correction.explanation_tr,
                     "source": "tutor_turn",
-                }
-            ).execute()
+                    "category": correction_category(response.correction),
+                },
+            )
         except Exception:
             pass
 

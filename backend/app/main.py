@@ -9,6 +9,7 @@ from app.api.routes import (
     badges,
     chat,
     freechat_session,
+    grammar,
     learning_flags,
     memory,
     onboarding,
@@ -20,13 +21,16 @@ from app.api.routes import (
     scene_play_session,
     sessions,
     speech,
+    subscriptions,
     tts,
     tutor,
     vocab,
     vocab_library,
     webhooks,
+    writing,
     ws_session,
 )
+from app.core.clock import UtcOffsetMiddleware
 from app.core.config import settings
 from app.core.observability import init_sentry
 from app.core.security import warm_up_jwks
@@ -61,6 +65,8 @@ app = FastAPI(
     openapi_url=None if _is_prod else "/openapi.json",
 )
 
+# The learner's calendar day (X-UTC-Offset) for quota, streak and review dates, see app/core/clock.py.
+app.add_middleware(UtcOffsetMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -78,6 +84,7 @@ app.include_router(progress.router)
 app.include_router(tts.router)
 app.include_router(sessions.router)
 app.include_router(webhooks.router)
+app.include_router(subscriptions.router)
 app.include_router(ws_session.router)
 app.include_router(freechat_session.router)
 app.include_router(scene_play_session.router)
@@ -88,6 +95,8 @@ app.include_router(speech.router)
 app.include_router(memory.router)
 app.include_router(badges.router)
 app.include_router(reports.router)
+app.include_router(writing.router)
+app.include_router(grammar.router)
 
 
 import os

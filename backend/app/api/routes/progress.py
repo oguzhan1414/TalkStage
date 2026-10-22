@@ -1,9 +1,9 @@
 import logging
-from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import AuthContext, get_auth_context
+from app.core.clock import local_today
 from app.schemas.progress import GrammarMistakeCreate, GrammarMistakeOut, ProgressOut
 from app.services.progress import award_xp, record_progress, update_streak_and_xp
 from app.services.scorecard import ACTIVITY_XP, FIRST_PRACTICE_BONUS_XP
@@ -38,7 +38,7 @@ def log_practice(ctx: AuthContext = Depends(get_auth_context)) -> ProgressOut:
         update_streak_and_xp(ctx, ACTIVITY_XP + FIRST_PRACTICE_BONUS_XP)
     else:
         award_xp(ctx, ACTIVITY_XP)
-    today = date.today().isoformat()
+    today = local_today().isoformat()
     row = (
         ctx.db.table("progress")
         .select("*")

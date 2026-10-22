@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from functools import lru_cache
 
@@ -7,6 +8,8 @@ from jwt import PyJWKClient
 from jwt.exceptions import PyJWKClientError
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -101,6 +104,24 @@ def user_from_token(token: str) -> CurrentUser:
             detail="Token missing subject claim",
         )
     return CurrentUser(id=user_id, email=payload.get("email"), access_token=token)
+
+
+def account_exists(user_id: str) -> bool:
+    """False only when Supabase Auth says the user is gone (deleted account). A JWT stays valid until it expires
+    (about an hour), so a deleted account's old token would still pass `user_from_token`. HTTP endpoints are safe
+    anyway (RLS finds no rows), but a voice room would run, and cost money, on such a token. Fails open: a lookup
+    error is not treated as a deleted account."""
+    from app.core.supabase_client import get_service_client
+
+    try:
+        result = get_service_client().auth.admin.get_user_by_id(user_id)
+        return bool(getattr(result, "user", None))
+    except Exception as exc:
+        text = str(exc).lower()
+        if getattr(exc, "status", None) == 404 or "not found" in text or "user_not_found" in text:
+            return False
+        logger.warning("Account existence check failed; allowing the session", exc_info=True)
+        return True
 
 
 def get_current_user(authorization: str | None = Header(default=None)) -> CurrentUser:

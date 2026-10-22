@@ -11,6 +11,7 @@ from app.schemas.chat import ChatMessageRequest, ChatMessageResponse, Transcribe
 from app.services.chat_memory import format_memory_context, load_memory
 from app.services.stt import transcribe_audio
 from app.services.text_chat import generate_chat_reply
+from app.services.mistake_log import correction_category, insert_mistake
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,8 @@ def send_message(
         # matching several other not-yet-applied migrations in this repo)
         # must never break the chat reply the user is waiting on.
         try:
-            ctx.db.table("grammar_mistakes").insert(
+            insert_mistake(
+                ctx.db,
                 {
                     "user_id": ctx.user.id,
                     "topic_code": payload.topic_code,
@@ -73,8 +75,9 @@ def send_message(
                     "corrected_text": response.correction.corrected,
                     "explanation_tr": response.correction.explanation_tr,
                     "source": "text_chat",
-                }
-            ).execute()
+                    "category": correction_category(response.correction),
+                },
+            )
         except Exception:
             logger.exception("Failed to log grammar mistake")
 

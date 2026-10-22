@@ -1,0 +1,190 @@
+[
+ {
+  "code": "A1_N01",
+  "target": "to be (am/is/are) olumlu ve olumsuz, özne zamirleri"
+ },
+ {
+  "code": "A1_N02",
+  "target": "a/an, this/that/these/those, tekil ve çoğul isim"
+ },
+ {
+  "code": "A1_N03",
+  "target": "my/your/his/her/our/their"
+ },
+ {
+  "code": "A1_N04",
+  "target": "to be soruları (Are you…? Is it…?), Wh- + be (Where is…? What is…?)"
+ },
+ {
+  "code": "A1_N05",
+  "target": "present simple, 3. tekil -s, do/does ile soru ve olumsuz"
+ },
+ {
+  "code": "A1_N06",
+  "target": "sıklık zarfları (always, usually, often, sometimes, never) ve yerleri"
+ },
+ {
+  "code": "A1_N07",
+  "target": "there is / there are, yer edatları"
+ },
+ {
+  "code": "A1_N08",
+  "target": "like / love / hate / enjoy + -ing"
+ },
+ {
+  "code": "A1_N09",
+  "target": "present continuous"
+ },
+ {
+  "code": "A1_N10",
+  "target": "can / can't (yetenek), Can I…? / Could you…? (izin ve rica)"
+ },
+ {
+  "code": "A1_N11",
+  "target": "sayılabilen ve sayılamayan isimler, some / any, how much / how many"
+ },
+ {
+  "code": "A1_N12",
+  "target": "was / were"
+ },
+ {
+  "code": "A1_N13",
+  "target": "past simple (düzenli ve düzensiz fiiller), did ile soru ve olumsuz"
+ },
+ {
+  "code": "A2_N14",
+  "target": "be going to, gelecek için present continuous"
+ },
+ {
+  "code": "A2_N15",
+  "target": "will (anlık karar, teklif, söz, tahmin)"
+ },
+ {
+  "code": "A2_N16",
+  "target": "comparative, superlative, as … as"
+ },
+ {
+  "code": "A2_N17",
+  "target": "should, must, have to"
+ },
+ {
+  "code": "A2_N18",
+  "target": "present perfect (ever / never, just / already / yet)"
+ },
+ {
+  "code": "A2_N19",
+  "target": "past continuous, when / while"
+ },
+ {
+  "code": "A2_N20",
+  "target": "sıfat ve zarf (quick / quickly, good / well)"
+ },
+ {
+  "code": "A2_N21",
+  "target": "a few / a little, a lot of, too much / too many"
+ },
+ {
+  "code": "A2_N22",
+  "target": "zero ve first conditional"
+ },
+ {
+  "code": "A2_N23",
+  "target": "sıralama ve bağlama (first, then, after that, because, so, but)"
+ },
+ {
+  "code": "B1_N24",
+  "target": "present perfect + for / since"
+ },
+ {
+  "code": "B1_N25",
+  "target": "present perfect continuous"
+ },
+ {
+  "code": "B1_N26",
+  "target": "used to, would (geçmiş alışkanlık)"
+ },
+ {
+  "code": "B1_N27",
+  "target": "past perfect"
+ },
+ {
+  "code": "B1_N28",
+  "target": "second conditional"
+ },
+ {
+  "code": "B1_N29",
+  "target": "must / might / could / can't (şimdi hakkında çıkarım)"
+ },
+ {
+  "code": "B1_N30",
+  "target": "defining relative clauses (who / which / that / where)"
+ },
+ {
+  "code": "B1_N31",
+  "target": "passive (present simple ve past simple)"
+ },
+ {
+  "code": "B1_N32",
+  "target": "reported speech (cümle ve soru)"
+ },
+ {
+  "code": "B1_N33",
+  "target": "A) dolaylı sorular · B) question tags"
+ },
+ {
+  "code": "B1_N34",
+  "target": "A) fiilden sonra -ing / to kalıpları · B) anlamı değiştirenler (remember, stop, try)"
+ },
+ {
+  "code": "B2_N35",
+  "target": "third conditional, mixed conditional"
+ },
+ {
+  "code": "B2_N36",
+  "target": "must have / might have / can't have / should have"
+ },
+ {
+  "code": "B2_N37",
+  "target": "future continuous, future perfect"
+ },
+ {
+  "code": "B2_N38",
+  "target": "have / get something done"
+ },
+ {
+  "code": "B2_N39",
+  "target": "reporting verbs (suggest, admit, deny, promise…)"
+ },
+ {
+  "code": "B2_N40",
+  "target": "non-defining relative clauses"
+ },
+ {
+  "code": "B2_N41",
+  "target": "although, despite / in spite of, whereas"
+ },
+ {
+  "code": "B2_N42",
+  "target": "olumsuz ve sınırlayıcı ifadelerden sonra devrik yapı (Never have I…, Not only…, Rarely…)"
+ },
+ {
+  "code": "C1_N43",
+  "target": "cleft sentences (What I need is… / It was… that…)"
+ },
+ {
+  "code": "C1_N44",
+  "target": "hedging (It seems / appears…, tend to, arguably, may well)"
+ },
+ {
+  "code": "C1_N45",
+  "target": "Should you…, Were we to…, Had I known…"
+ },
+ {
+  "code": "C1_N46",
+  "target": "nominalisation (decide → decision, the introduction of…)"
+ },
+ {
+  "code": "C2_N47",
+  "target": "söylem içinde ellipsis ve substitution (so, do, one), gönderim takibi (this, such, the former / the latter)"
+ }
+]

@@ -119,6 +119,9 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                          "coach_tip_tr": analysis.coach_tip_tr if analysis else None})
         if analysis and allow_completion and analysis.is_scene_complete:
             await send_json({"type": "scene.complete", "summary_tr": analysis.completion_summary_tr})
+        if analysis and analysis.conversation_ended:
+            # The goodbye has been said: the app closes the room and shows its summary once the audio has played.
+            await send_json({"type": "session.ending"})
         history.extend([TurnMessage(role="user", content=text), TurnMessage(role="assistant", content=reply)])
         history[:] = bounded_history(history)
         logger.info("voice_turn_ms=%d feedback=%s", (time.monotonic() - started) * 1000, analysis is not None)

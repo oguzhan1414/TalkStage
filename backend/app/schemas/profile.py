@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.language import NATIVE_LANGUAGE_PATTERN
 
@@ -7,6 +9,23 @@ PERSONA_PATTERN = "^(student|corporate|tech|traveler|adult_hobby|service)$"
 LEARNING_GOAL_PATTERN = "^(freeze_barrier|exams_school|work_career|travel_life|no_partner)$"
 GENDER_PATTERN = "^(female|male|other)$"
 AGE_RANGE_PATTERN = "^(u17|18_24|25_34|35_44|45_plus)$"
+
+LearningSkill = Literal["speaking", "vocab", "reading", "listening", "writing"]
+
+
+class LearningPlan(BaseModel):
+    """What the learner wants on their Bugün path (migration 0031)."""
+
+    preset: Literal["speaking", "balanced", "exam", "custom"]
+    skills: list[LearningSkill] = Field(min_length=1, max_length=5)
+    #: full = the topic-by-topic grammar path; mistakes = only short lessons suggested by their own
+    #: mistakes; off = no grammar tasks at all.
+    grammar_mode: Literal["full", "mistakes", "off"]
+
+    @field_validator("skills")
+    @classmethod
+    def _unique_skills(cls, skills: list[str]) -> list[str]:
+        return list(dict.fromkeys(skills))
 
 
 class ProfileOut(BaseModel):
@@ -27,9 +46,22 @@ class ProfileOut(BaseModel):
     #: Onboarding'de isteğe bağlı alınır (boş olabilir).
     gender: str | None = None
     age_range: str | None = None
+    #: null = plan not chosen yet (accounts from before the plan existed).
+    learning_plan: LearningPlan | None = None
     onboarding_completed_at: str | None = None
     created_at: str
     updated_at: str
+
+    @field_validator("learning_plan", mode="before")
+    @classmethod
+    def _tolerate_bad_plan(cls, value):
+        # A malformed stored plan must never break GET /me: treat it as "not chosen".
+        if value is None or isinstance(value, LearningPlan):
+            return value
+        try:
+            return LearningPlan.model_validate(value)
+        except Exception:
+            return None
 
 
 class ProfileUpdate(BaseModel):
@@ -49,3 +81,5 @@ class ProfileUpdate(BaseModel):
     study_days: list[int] | None = Field(default=None)
     #: Arayüz + açıklama dili (tr/en/es/pt/de).
     native_language: str | None = Field(default=None, pattern=NATIVE_LANGUAGE_PATTERN)
+    #: Kişisel öğrenme planı ("Planımı düzenle").
+    learning_plan: LearningPlan | None = None

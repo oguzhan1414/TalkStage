@@ -10,11 +10,11 @@ memory otherwise. A Redis outage never blocks a user: the guards fail open.
 import logging
 import time
 from collections import defaultdict, deque
-from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, status
 
 from app.api.deps import AuthContext, get_auth_context
+from app.core.clock import local_today
 from app.services.cache import get_redis_client
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,8 @@ _memory_hits: dict[str, deque] = defaultdict(deque)
 
 
 def _day() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    """The learner's day: the daily voice allowance renews at their midnight, not at 00:00 UTC."""
+    return local_today().isoformat()
 
 
 async def voice_seconds_left(user_id: str) -> int:

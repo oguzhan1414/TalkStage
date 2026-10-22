@@ -7,7 +7,9 @@ Tüm yazma/okuma yolları best-effort: hafıza hiçbir zaman bir sohbet turunu b
 """
 import json
 import logging
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
+
+from app.core.clock import local_today
 
 from pydantic import BaseModel, Field
 
@@ -183,7 +185,7 @@ def update_memory_sync(db, user_id: str, history: list[dict], native_language: s
     try:
         previous = load_memory(db, user_id)
         update = summarize_session_sync(history, previous, native_language)
-        today = date.today().isoformat()
+        today = local_today().isoformat()
         old_topics = [t for t in ((previous or {}).get("topics") or []) if isinstance(t, dict)]
         new_topics = [{"topic": t.strip()[:80], "at": today} for t in update.topics if t.strip()]
         topics = (new_topics + old_topics)[:MAX_TOPICS]

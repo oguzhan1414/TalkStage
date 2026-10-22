@@ -6,6 +6,7 @@ from fastapi import APIRouter, Header, HTTPException, Request, status
 
 from app.core.config import settings
 from app.core.supabase_client import get_service_client
+from app.services.subscription_sync import sync_from_revenuecat
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
@@ -62,6 +63,18 @@ async def revenuecat_webhook(request: Request, authorization: str | None = Heade
     # Sandbox/TEST olayı üretimde hak vermez.
     if event.get("environment") == "SANDBOX" and settings.environment == "production" and not settings.revenuecat_allow_sandbox:
         return {"status": "ignored", "reason": "sandbox"}
+    if event.get("type") == "TRANSFER":
+        # A restore moved the purchase between accounts ("Satın alımları geri yükle" on another account). The event has
+        # no expiry date, so both sides are re-read from RevenueCat.
+        moved = [*(event.get("transferred_to") or []), *(event.get("transferred_from") or [])]
+        for moved_id in {str(u) for u in moved if _is_uuid(u)}:
+            try:
+                await sync_from_revenuecat(moved_id)
+            except Exception as exc:
+                # Non-2xx makes RevenueCat deliver the event again later.
+                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Transfer sync failed") from exc
+        return {"status": "ok", "reason": "transfer"}
+
     now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
     new_status = decide_status(event, now_ms)
     if new_status is None:

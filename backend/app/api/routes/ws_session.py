@@ -14,6 +14,8 @@ from app.services.entitlements import FREE_SESSION_MAX_SECONDS, can_start_sessio
 from app.services.rag import build_enriched_system_prompt
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
 from app.services.voice_turn import run_voice_turn
+from app.services.grammar_topics import normalize_topic
+from app.services.mistake_log import correction_category, insert_mistake
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["voice"])
@@ -81,16 +83,18 @@ def _log_mistake_if_any(db, user_id: str, user_transcript: str, correction) -> N
     if not (correction.has_error and correction.corrected):
         return
     try:
-        db.table("grammar_mistakes").insert(
+        insert_mistake(
+            db,
             {
                 "user_id": user_id,
-                "topic_code": None,
+                "topic_code": normalize_topic(getattr(correction, "grammar_topic", None)),
                 "wrong_text": user_transcript,
                 "corrected_text": correction.corrected,
                 "explanation_tr": correction.explanation_tr,
                 "source": "voice_session",
-            }
-        ).execute()
+                "category": correction_category(correction),
+            },
+        )
     except Exception:
         logger.exception("Failed to log grammar mistake from voice session")
 

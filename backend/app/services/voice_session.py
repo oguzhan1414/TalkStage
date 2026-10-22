@@ -13,8 +13,9 @@ import httpx
 from fastapi import WebSocketDisconnect
 from websockets.asyncio.client import connect as ws_connect
 
+from app.core.clock import set_utc_offset
 from app.core.language import DEEPGRAM_CODES, normalize_native_language
-from app.core.security import user_from_token
+from app.core.security import account_exists, user_from_token
 from app.services.usage_guard import add_voice_seconds, voice_seconds_left
 from app.services.llm_orchestrator import TurnMessage
 from app.services.stt_stream import DEEPGRAM_LIVE_URL, FINALIZE_MESSAGE, deepgram_auth_headers, parse_transcript_event
@@ -25,6 +26,12 @@ MAX_TEXT_LENGTH = 2000
 MAX_AUDIO_BYTES = 16000 * 2 * 60
 MAX_SESSION_SECONDS = 30 * 60
 MAX_TURNS = 120
+#: Silence (no audio, no control frame) before the room closes itself. Long enough to read a hint and think.
+IDLE_SECONDS = 300
+#: Heads-up before the session limit, so the learner can finish their sentence.
+TIME_WARNING_SECONDS = 60
+#: At the session limit, a reply that is already being spoken may finish (instead of being cut mid-sentence).
+FINISH_GRACE_SECONDS = 30
 # Per-worker backstop. A distributed admission limit belongs at the gateway.
 _active_users: set[str] = set()
 
@@ -52,13 +59,28 @@ async def authenticate_voice(websocket):
             raise ValueError("auth_required")
         # Odalar auth mesajındaki ek alanları (ör. sahne bağlamı) okuyabilsin.
         websocket.state.auth_payload = data
-        return await asyncio.wait_for(asyncio.to_thread(user_from_token, token), 10)
+        # The learner's day for the daily voice allowance and the progress log (see app/core/clock.py).
+        if data.get("utc_offset") is not None:
+            set_utc_offset(data.get("utc_offset"))
+        user = await asyncio.wait_for(asyncio.to_thread(user_from_token, token), 10)
     except (Exception,):
         try:
             await websocket.close(code=1008, reason="auth_invalid")
         except RuntimeError:
             pass
         return None
+    # A deleted account's token is still signed and unexpired: refuse it before any paid service starts.
+    try:
+        exists = await asyncio.wait_for(asyncio.to_thread(account_exists, user.id), 10)
+    except Exception:
+        exists = True  # a slow or failing lookup never blocks a real user
+    if not exists:
+        try:
+            await websocket.close(code=1008, reason="account_deleted")
+        except RuntimeError:
+            pass
+        return None
+    return user
 
 
 class Recognition:
@@ -216,22 +238,39 @@ async def serve_voice(websocket, user_id, opening, run_turn, *, language="tr", t
                     async with asyncio.timeout(40):
                         await run_turn(websocket, http_client, history, text, send_json)
                 except Exception:
-                    logger.warning("Voice turn failed", exc_info=True)
+                    # Error level: the learner saw "Yanıt hazırlanamadı"; Sentry must record it as an event.
+                    logger.exception("Voice turn failed")
                     await send_json({"type": "error", "code": "voice_reply_failed",
                                      "message": "Yanıt hazırlanamadı. Tekrar deneyebilir veya yazabilirsin.",
                                      "retryable": True})
 
             async def receive():
                 nonlocal turn_task, turn_count, last_turn_at
-                async with asyncio.timeout(20):
-                    async with SentenceSpeaker(websocket, http_client, send_json, language) as speaker:
-                        if opening:
-                            await speaker.speak(opening)
-                            await speaker.flush()
-                            history.append(TurnMessage(role="assistant", content=opening))
-                await send_json({"type": "session.ready", "teacher_mode": teacher_mode})
+                ready_sent = False
+                # A slow opening voice must not end the room (its TimeoutError used to surface as "time limit reached").
+                try:
+                    async with asyncio.timeout(20):
+                        async with SentenceSpeaker(websocket, http_client, send_json, language) as speaker:
+                            if opening:
+                                await speaker.speak(opening)
+                                # The opening text is already on screen: open the room now and let its voice finish
+                                # streaming instead of keeping the learner on the "connecting" screen for the TTS.
+                                await send_json({"type": "session.ready", "teacher_mode": teacher_mode})
+                                ready_sent = True
+                                await speaker.flush()
+                except TimeoutError:
+                    logger.warning("Opening speech took too long; continuing without the rest of its audio")
+                if opening:
+                    history.append(TurnMessage(role="assistant", content=opening))
+                if not ready_sent:
+                    await send_json({"type": "session.ready", "teacher_mode": teacher_mode})
                 while True:
-                    message = await asyncio.wait_for(websocket.receive(), 180)
+                    try:
+                        message = await asyncio.wait_for(websocket.receive(), IDLE_SECONDS)
+                    except TimeoutError:
+                        # Silence is not the session limit: say so, so the app can offer to reconnect.
+                        await send_json({"type": "session.idle_closed"})
+                        return
                     if message["type"] == "websocket.disconnect":
                         return
                     busy = turn_task is not None and not turn_task.done()
@@ -273,17 +312,37 @@ async def serve_voice(websocket, user_id, opening, run_turn, *, language="tr", t
                         last_turn_at = now
                         turn_task = asyncio.create_task(perform_turn(text.strip()))
 
-            async with asyncio.timeout(min(max_seconds, MAX_SESSION_SECONDS)):
-                await receive()
+            limit = min(max_seconds, MAX_SESSION_SECONDS)
+
+            async def warn_before_limit():
+                await asyncio.sleep(max(0, limit - TIME_WARNING_SECONDS))
+                try:
+                    await send_json({"type": "session.time_warning", "seconds_left": TIME_WARNING_SECONDS})
+                except Exception:
+                    pass
+
+            warner = asyncio.create_task(warn_before_limit()) if limit > TIME_WARNING_SECONDS * 2 else None
+            try:
+                async with asyncio.timeout(limit):
+                    await receive()
+            finally:
+                if warner:
+                    warner.cancel()
     except (WebSocketDisconnect, SessionEnded):
         pass
     except TimeoutError:
+        # Let a reply that is already on its way finish before the room closes.
+        if turn_task and not turn_task.done():
+            try:
+                await asyncio.wait_for(asyncio.shield(turn_task), FINISH_GRACE_SECONDS)
+            except Exception:
+                pass
         await send_json({"type": "session.time_limit_reached"})
     except ValueError:
         await send_json({"type": "error", "code": "invalid_request",
                          "message": "İstek sınırı aşıldı. Odayı yeniden açabilirsin.", "retryable": False})
     except Exception:
-        logger.warning("Voice session ended unexpectedly", exc_info=True)
+        logger.exception("Voice session ended unexpectedly")
     finally:
         if turn_task:
             turn_task.cancel()

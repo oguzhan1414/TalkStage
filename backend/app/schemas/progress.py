@@ -25,5 +25,7 @@ class GrammarMistakeOut(BaseModel):
     corrected_text: str
     explanation_tr: Optional[str] = None
     source: Optional[str] = "text_chat"
+    #: grammar | vocabulary | register | spelling | pronunciation (migration 0031); null for older rows.
+    category: Optional[str] = None
     created_at: Optional[str] = None
 

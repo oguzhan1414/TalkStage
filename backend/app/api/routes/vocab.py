@@ -1,9 +1,8 @@
-from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from postgrest.exceptions import APIError
 
 from app.api.deps import AuthContext, get_auth_context, get_locale
+from app.core.clock import local_today
 from app.schemas.vocab import (
     VocabCardCreate,
     VocabCardOut,
@@ -34,7 +33,7 @@ def list_due_cards(all: bool = False, ctx: AuthContext = Depends(get_auth_contex
     dictionary & lifetime count), default returns only cards due for SM-2 review today."""
     query = ctx.db.table("vocab_cards").select("*").eq("user_id", ctx.user.id)
     if not all:
-        query = query.lte("next_review_date", date.today().isoformat())
+        query = query.lte("next_review_date", local_today().isoformat())
     result = query.order("created_at", desc=True).execute()
     return [VocabCardOut(**row) for row in result.data]
 

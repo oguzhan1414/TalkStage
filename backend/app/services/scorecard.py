@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+from app.core.clock import local_today
 from app.schemas.session import TranscriptTurn
 
 _WORD_RE = re.compile(r"[a-zA-Z']+")
@@ -73,7 +74,7 @@ def next_streak_state(
     last_practice_date: date | None,
     today: date | None = None,
 ) -> StreakUpdate:
-    today = today or date.today()
+    today = today or local_today()
 
     if last_practice_date == today:
         new_streak = current_streak  # already practiced today, no double-count

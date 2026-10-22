@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Literal
 
+from app.core.clock import local_today
+
 Grade = Literal["again", "good", "easy"]
 
 # Maps the 3-button mobile UI (Tekrar Gör / İyi / Kolay) onto the classic
@@ -28,7 +30,7 @@ def review_card(
     today: date | None = None,
 ) -> SM2State:
     """Classic SM-2 (SuperMemo 2) update, given the card's current state and a review grade."""
-    today = today or date.today()
+    today = today or local_today()
     quality = _GRADE_QUALITY[grade]
 
     if quality < 3:

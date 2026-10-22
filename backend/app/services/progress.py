@@ -1,13 +1,12 @@
-from datetime import date
-
 from app.api.deps import AuthContext
+from app.core.clock import local_today
 from app.services.scorecard import next_streak_state
 
 
 def record_progress(ctx: AuthContext, duration_minutes: int) -> bool:
     """Upserts today's practice row. Returns True if this was the first
     practice logged today, so callers can gate one-time daily rewards."""
-    today = date.today().isoformat()
+    today = local_today().isoformat()
     existing = (
         ctx.db.table("progress")
         .select("*")

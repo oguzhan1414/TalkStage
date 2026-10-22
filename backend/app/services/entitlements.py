@@ -1,7 +1,8 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 from supabase import Client
 
+from app.core.clock import local_day_start
 from app.core.config import settings
 
 FREE_DAILY_SESSION_LIMIT = 1
@@ -33,7 +34,7 @@ def is_pro(db: Client, user_id: str) -> bool:
 
 
 def free_sessions_used_today(db: Client, user_id: str) -> int:
-    today_start = f"{date.today().isoformat()}T00:00:00"
+    today_start = local_day_start().isoformat()
     result = (
         db.table("sessions")
         .select("id", count="exact")
