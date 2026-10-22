@@ -28,7 +28,7 @@ import {
   findGrammarLesson,
   type GrammarLesson,
   type GrammarQuizQuestion,
-} from '@talkstage/shared-data/grammarLessons';
+} from '@/data/legacyGrammarLessons';
 import { speakEnglish } from '@/lib/audio';
 import { completeLesson, getStudyStats, getSavedVocabCards } from '@/lib/storage';
 import { useAuth } from '@/context/AuthContext';

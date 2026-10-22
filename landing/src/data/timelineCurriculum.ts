@@ -6,7 +6,7 @@ import {
   C1_GRAMMAR_LESSONS,
   C2_GRAMMAR_LESSONS,
   type GrammarLesson,
-} from '@talkstage/shared-data/grammarLessons';
+} from '@/data/legacyGrammarLessons';
 
 export type TimelineNodeType = 'grammar' | 'reading' | 'scenario' | 'checkpoint';
 

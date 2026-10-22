@@ -30,7 +30,7 @@ import {
   type TimelineUnit,
   type LevelTimeline,
 } from '@/data/timelineCurriculum';
-import { A1_GRAMMAR_LESSONS, A2_GRAMMAR_LESSONS, B1_GRAMMAR_LESSONS, B2_GRAMMAR_LESSONS, C1_GRAMMAR_LESSONS, C2_GRAMMAR_LESSONS, type GrammarLesson } from '@talkstage/shared-data/grammarLessons';
+import { A1_GRAMMAR_LESSONS, A2_GRAMMAR_LESSONS, B1_GRAMMAR_LESSONS, B2_GRAMMAR_LESSONS, C1_GRAMMAR_LESSONS, C2_GRAMMAR_LESSONS, type GrammarLesson } from '@/data/legacyGrammarLessons';
 import { speakEnglish } from '@/lib/audio';
 import { SCENARIOS } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenario } from '@/components/InteractiveVideoScenario';
