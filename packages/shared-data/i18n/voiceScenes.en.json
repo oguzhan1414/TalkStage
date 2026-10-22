@@ -1,0 +1,469 @@
+{
+ "vs-a1-first-day": {
+  "titleTr": "First Day at Language Class",
+  "aiRole": "Your classmate",
+  "objectives.0.textTr": "Tell Sofia your name, where you are from and what you do, using am / is / are.",
+  "objectives.1.textTr": "Ask Sofia where she is from and what her job is.",
+  "keyPhrases.0.tr": "I'm Elif. I'm from Turkey.",
+  "keyPhrases.1.tr": "I'm a student.",
+  "keyPhrases.2.tr": "Where are you from?"
+ },
+ "vs-a1-gift-shop": {
+  "titleTr": "At the Gift Shop",
+  "aiRole": "Shop assistant",
+  "objectives.0.textTr": "Ask what things are using this, that, these and those (What's this? What are those?).",
+  "objectives.1.textTr": "Choose a present and say what you want with a / an and plurals (I'd like a mug and two postcards).",
+  "keyPhrases.0.tr": "What's this?",
+  "keyPhrases.1.tr": "How much are these?",
+  "keyPhrases.2.tr": "I'd like a mug, please."
+ },
+ "vs-a1-lost-property": {
+  "titleTr": "Lost and Found",
+  "aiRole": "Lost property clerk",
+  "objectives.0.textTr": "Say what you lost and describe it with my (It's my blue bag).",
+  "objectives.1.textTr": "Answer Tom's questions about which things are yours (Is this your phone?).",
+  "keyPhrases.0.tr": "It's my bag.",
+  "keyPhrases.1.tr": "Is this your phone?",
+  "keyPhrases.2.tr": "No, it isn't mine."
+ },
+ "vs-a1-hotel-desk": {
+  "titleTr": "At the Hotel Desk",
+  "aiRole": "Receptionist",
+  "objectives.0.textTr": "Ask three questions about the hotel with Is / Are / Where / What (Where is the breakfast room? Is the wifi free?).",
+  "objectives.1.textTr": "Answer Maria's questions about you (Are you here for work?).",
+  "keyPhrases.0.tr": "Where is the breakfast room?",
+  "keyPhrases.1.tr": "Is the wifi free?",
+  "keyPhrases.2.tr": "What time is check-out?"
+ },
+ "vs-a1-neighbour-chat": {
+  "titleTr": "Chat with Your Neighbour",
+  "aiRole": "Your neighbour",
+  "objectives.0.textTr": "Tell Ben about your day: what time you get up, where you work or study, when you go to bed (I get up at seven).",
+  "objectives.1.textTr": "Ask Ben about his day with Do you…? and What time do you…?",
+  "keyPhrases.0.tr": "I get up at seven.",
+  "keyPhrases.1.tr": "I work in an office.",
+  "keyPhrases.2.tr": "What time do you start work?"
+ },
+ "vs-a1-gym-signup": {
+  "titleTr": "Joining the Gym",
+  "aiRole": "Gym trainer",
+  "objectives.0.textTr": "Tell Mia how often you do things using always, usually, often, sometimes, never (I sometimes swim).",
+  "objectives.1.textTr": "Ask Mia how often she trains or does something (How often do you…?).",
+  "keyPhrases.0.tr": "I usually walk in the evening.",
+  "keyPhrases.1.tr": "I never run.",
+  "keyPhrases.2.tr": "How often do you train?"
+ },
+ "vs-a1-city-directions": {
+  "titleTr": "Lost in the City",
+  "aiRole": "A passer-by",
+  "objectives.0.textTr": "Ask if there is a place near here (Is there a pharmacy near here? Are there any banks?).",
+  "objectives.1.textTr": "Repeat the directions back to check (It's next to the bookshop, right?).",
+  "keyPhrases.0.tr": "Is there a pharmacy near here?",
+  "keyPhrases.1.tr": "Where is the station?",
+  "keyPhrases.2.tr": "It's next to the bank."
+ },
+ "vs-a1-party-hobbies": {
+  "titleTr": "Hobbies at a Party",
+  "aiRole": "Someone you meet at the party",
+  "objectives.0.textTr": "Tell Chloe two things you like or love doing and one you hate (I love cooking. I hate waiting).",
+  "objectives.1.textTr": "Ask Chloe what she enjoys doing (What do you enjoy doing?).",
+  "keyPhrases.0.tr": "I love cooking.",
+  "keyPhrases.1.tr": "I enjoy watching films.",
+  "keyPhrases.2.tr": "I hate waiting."
+ },
+ "vs-a1-phone-call": {
+  "titleTr": "A Phone Call with a Friend",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Say what you are doing right now and what is happening around you (I'm cooking. My brother is watching TV).",
+  "objectives.1.textTr": "Ask Leo what he is doing and suggest meeting later.",
+  "keyPhrases.0.tr": "I'm cooking dinner.",
+  "keyPhrases.1.tr": "My sister is watching TV.",
+  "keyPhrases.2.tr": "What are you doing?"
+ },
+ "vs-a1-flatshare": {
+  "titleTr": "Moving into a Shared Flat",
+  "aiRole": "Your flatmate",
+  "objectives.0.textTr": "Say two things you can do and one thing you can't (I can cook, but I can't drive).",
+  "objectives.1.textTr": "Ask politely for two things with Can I…? or Could you…? (Can I use the kitchen?).",
+  "keyPhrases.0.tr": "I can cook.",
+  "keyPhrases.1.tr": "Can I use your charger?",
+  "keyPhrases.2.tr": "Could you help me, please?"
+ },
+ "vs-a1-grocery": {
+  "titleTr": "At the Grocery Store",
+  "aiRole": "Grocery store assistant",
+  "objectives.0.textTr": "Ask for things you need with some and any (I need some tomatoes. Do you have any eggs?).",
+  "objectives.1.textTr": "Ask about price and quantity (How much is it? How many do I need?).",
+  "keyPhrases.0.tr": "Do you have any eggs?",
+  "keyPhrases.1.tr": "I need some milk.",
+  "keyPhrases.2.tr": "How much is this?"
+ },
+ "vs-a1-where-were-you": {
+  "titleTr": "Where Were You?",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Say where you were yesterday and how it was (I was at the cinema. It was great).",
+  "objectives.1.textTr": "Ask Emma where she was and who was with her (Where were you? Were you alone?).",
+  "keyPhrases.0.tr": "I was at home.",
+  "keyPhrases.1.tr": "It was great!",
+  "keyPhrases.2.tr": "Were you with your sister?"
+ },
+ "vs-a1-weekend-chat": {
+  "titleTr": "How Was Your Weekend?",
+  "aiRole": "Your colleague",
+  "objectives.0.textTr": "Tell Jack what you did at the weekend with at least three past verbs (I visited…, I went…, I saw…).",
+  "objectives.1.textTr": "Ask Jack two questions with did (Did you…?).",
+  "keyPhrases.0.tr": "I visited my family.",
+  "keyPhrases.1.tr": "We went to the cinema.",
+  "keyPhrases.2.tr": "Did you watch the match?"
+ },
+ "vs-a2-weekend-trip": {
+  "titleTr": "Planning a Weekend Trip",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Say what you are going to do on the trip (I'm going to visit the old town).",
+  "objectives.1.textTr": "Agree on a time and a place with the present continuous (We're meeting at the station at ten).",
+  "keyPhrases.0.tr": "I'm going to take lots of photos.",
+  "keyPhrases.1.tr": "We're leaving on Friday evening.",
+  "keyPhrases.2.tr": "What are you going to do there?"
+ },
+ "vs-a2-helping-move": {
+  "titleTr": "Helping a Friend Move",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Offer to help with two things using I'll… (I'll carry the boxes).",
+  "objectives.1.textTr": "Make a promise and a prediction (I'll be there at nine. It won't take long).",
+  "keyPhrases.0.tr": "I'll help you with the boxes.",
+  "keyPhrases.1.tr": "Don't worry, I'll be there at nine.",
+  "keyPhrases.2.tr": "I think it will be easy."
+ },
+ "vs-a2-phone-shop": {
+  "titleTr": "Choosing a Phone",
+  "aiRole": "Sales assistant",
+  "objectives.0.textTr": "Compare the two phones with comparatives (The Titan is faster than the Nova).",
+  "objectives.1.textTr": "Choose one phone and say why, with a superlative or as … as (It's the best for me).",
+  "keyPhrases.0.tr": "Which one is cheaper?",
+  "keyPhrases.1.tr": "This one is better than that one.",
+  "keyPhrases.2.tr": "It's the most expensive phone."
+ },
+ "vs-a2-doctor-visit": {
+  "titleTr": "A Visit to the Doctor",
+  "aiRole": "Doctor",
+  "objectives.0.textTr": "Describe your problem and ask for advice (What should I do?).",
+  "objectives.1.textTr": "Say what you have to do this week and ask what you must or mustn't do (I have to work on Friday).",
+  "keyPhrases.0.tr": "I have a headache and a sore throat.",
+  "keyPhrases.1.tr": "What should I do?",
+  "keyPhrases.2.tr": "I have to work tomorrow."
+ },
+ "vs-a2-have-you-ever": {
+  "titleTr": "Have You Ever…?",
+  "aiRole": "A traveller at the hostel",
+  "objectives.0.textTr": "Ask Tara two 'Have you ever…?' questions.",
+  "objectives.1.textTr": "Tell Tara things you have done and never done (I've been to Italy. I've never tried sushi).",
+  "keyPhrases.0.tr": "Have you ever been to Japan?",
+  "keyPhrases.1.tr": "I've never tried sushi.",
+  "keyPhrases.2.tr": "I've already seen the old town."
+ },
+ "vs-a2-who-ate-the-cake": {
+  "titleTr": "Who Ate the Cake?",
+  "aiRole": "Your flatmate",
+  "objectives.0.textTr": "Say what you were doing yesterday at 3 pm and at 5 pm (I was reading at three).",
+  "objectives.1.textTr": "Use when and while to tell your story (I was cooking while my brother was watching TV).",
+  "keyPhrases.0.tr": "I was studying at three.",
+  "keyPhrases.1.tr": "I was cooking when you called.",
+  "keyPhrases.2.tr": "What were you doing?"
+ },
+ "vs-a2-driving-lesson": {
+  "titleTr": "Driving Lesson",
+  "aiRole": "Driving instructor",
+  "objectives.0.textTr": "Say how you do things with adverbs (I drive carefully. I speak slowly).",
+  "objectives.1.textTr": "Ask for feedback and answer (Did I drive well?).",
+  "keyPhrases.0.tr": "I drive carefully.",
+  "keyPhrases.1.tr": "Did I do it well?",
+  "keyPhrases.2.tr": "Can you speak more slowly?"
+ },
+ "vs-a2-party-plan": {
+  "titleTr": "Planning a Party",
+  "aiRole": "Your flatmate",
+  "objectives.0.textTr": "Say what you have and what you need with a lot of, a few and a little (We have a lot of snacks. We need a few chairs).",
+  "objectives.1.textTr": "Point out a problem with too much / too many (There are too many balloons).",
+  "keyPhrases.0.tr": "We need a few more chairs.",
+  "keyPhrases.1.tr": "There's too much juice.",
+  "keyPhrases.2.tr": "We have a lot of snacks."
+ },
+ "vs-a2-picnic-plans": {
+  "titleTr": "Picnic Plans",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Make plans for different weather with if (If it rains, we'll go to the museum).",
+  "objectives.1.textTr": "Ask and answer 'What will you do if…?' and say a general truth (If I'm tired, I stay at home).",
+  "keyPhrases.0.tr": "If it rains, we'll stay home.",
+  "keyPhrases.1.tr": "What will you do if it's cold?",
+  "keyPhrases.2.tr": "If I'm hungry, I eat."
+ },
+ "vs-a2-why-late": {
+  "titleTr": "Why Were You Late?",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Tell what happened in order with first, then, after that and finally.",
+  "objectives.1.textTr": "Explain reasons and results with because, so and but (I missed the bus, so I walked).",
+  "keyPhrases.0.tr": "First, I missed the bus.",
+  "keyPhrases.1.tr": "Then I walked, but it was far.",
+  "keyPhrases.2.tr": "I'm late because there was traffic."
+ },
+ "vs-b1-job-interview": {
+  "titleTr": "Job Interview",
+  "aiRole": "Interviewer",
+  "objectives.0.textTr": "Say how long you have done things using for and since (I've worked in retail since 2021).",
+  "objectives.1.textTr": "Answer the probing question about your short job or gap and justify it.",
+  "objectives.2.textTr": "Ask two good questions about the team or the job at the end.",
+  "keyPhrases.0.tr": "I've worked as a designer for three years.",
+  "keyPhrases.1.tr": "I've lived in this city since 2019.",
+  "keyPhrases.2.tr": "How long has the team been together?"
+ },
+ "vs-b1-catching-up": {
+  "titleTr": "Catching Up",
+  "aiRole": "An old friend",
+  "objectives.0.textTr": "Describe what you have been doing lately with the present perfect continuous (I've been studying a lot).",
+  "objectives.1.textTr": "Explain how you feel because of it (I've been working late, so I'm exhausted).",
+  "objectives.2.textTr": "Respond to Daniel's request for a place to stay: decide and give your reasons.",
+  "keyPhrases.0.tr": "I've been working a lot lately.",
+  "keyPhrases.1.tr": "I've been trying to learn the guitar.",
+  "keyPhrases.2.tr": "How long have you been living there?"
+ },
+ "vs-b1-old-neighbourhood": {
+  "titleTr": "The Old Neighbourhood",
+  "aiRole": "A journalist friend",
+  "objectives.0.textTr": "Describe how things used to be (There used to be a cinema here).",
+  "objectives.1.textTr": "Talk about childhood habits with used to and would (We would play outside until dark).",
+  "objectives.2.textTr": "Compare then and now and say whether the change is good, with a reason.",
+  "keyPhrases.0.tr": "We used to play football in the street.",
+  "keyPhrases.1.tr": "There didn't use to be so much traffic.",
+  "keyPhrases.2.tr": "Every summer we would go to the lake."
+ },
+ "vs-b1-missed-flight": {
+  "titleTr": "Missed Flight",
+  "aiRole": "Airline agent",
+  "objectives.0.textTr": "Explain what had already happened before you arrived (When I got there, the gate had closed).",
+  "objectives.1.textTr": "Give the reasons in order, mixing the past perfect and the past simple.",
+  "objectives.2.textTr": "Negotiate a solution: ask for the best option and decide.",
+  "keyPhrases.0.tr": "By the time I got there, the gate had closed.",
+  "keyPhrases.1.tr": "I had left on time, but the bus had broken down.",
+  "keyPhrases.2.tr": "Is there any way to change my ticket for free?"
+ },
+ "vs-b1-radio-phone-in": {
+  "titleTr": "Radio Phone-In",
+  "aiRole": "Radio host",
+  "objectives.0.textTr": "Answer two 'What would you do if…?' questions with the full second conditional.",
+  "objectives.1.textTr": "Ask Jamie a hypothetical question of your own (If you could…, what would you…?).",
+  "objectives.2.textTr": "Defend one of your answers when Jamie challenges it.",
+  "keyPhrases.0.tr": "If I won the lottery, I would travel the world.",
+  "keyPhrases.1.tr": "If I were the mayor, I'd build more parks.",
+  "keyPhrases.2.tr": "What would you do if you were me?"
+ },
+ "vs-b1-mystery-bag": {
+  "titleTr": "The Mystery Bag",
+  "aiRole": "Your colleague",
+  "objectives.0.textTr": "Make deductions with must, might, could and can't (It must be Mike's; it can't be Marta's).",
+  "objectives.1.textTr": "Ask Alex questions to get more clues.",
+  "objectives.2.textTr": "Agree on what to do with the bag and why.",
+  "keyPhrases.0.tr": "It must be Mike's bag.",
+  "keyPhrases.1.tr": "It can't be Marta's. She's on holiday.",
+  "keyPhrases.2.tr": "It might belong to a visitor."
+ },
+ "vs-b1-hardware-store": {
+  "titleTr": "I Don't Know the Word",
+  "aiRole": "Hardware store clerk",
+  "objectives.0.textTr": "Ask for three things by describing them (It's something that you use to hang pictures).",
+  "objectives.1.textTr": "Describe a place or a person with who or where (It's a shop where you can…).",
+  "objectives.2.textTr": "Check you have the right item and explain what you will use it for.",
+  "keyPhrases.0.tr": "It's a thing that you use to hang pictures.",
+  "keyPhrases.1.tr": "I'm looking for a tool which cuts metal.",
+  "keyPhrases.2.tr": "Do you mean the one that has a long handle?"
+ },
+ "vs-b1-factory-tour": {
+  "titleTr": "Factory Tour",
+  "aiRole": "Tour guide",
+  "objectives.0.textTr": "Ask three questions with the passive (How is it made? When was it built?).",
+  "objectives.1.textTr": "Explain how a traditional food or product from your country is made, using the passive (First the dough is rolled).",
+  "objectives.2.textTr": "Sum up what you learned in two or three sentences (It is exported to forty countries).",
+  "keyPhrases.0.tr": "How is the chocolate made?",
+  "keyPhrases.1.tr": "When was the factory built?",
+  "keyPhrases.2.tr": "First the dough is rolled out."
+ },
+ "vs-b1-what-did-she-say": {
+  "titleTr": "What Did She Say?",
+  "aiRole": "Your friend",
+  "objectives.0.textTr": "Report what your manager said and asked (She said that…, She asked me if…).",
+  "objectives.1.textTr": "Report what she told you to do (She told me to…, She asked me not to…).",
+  "objectives.2.textTr": "Report your own answer and how it ended (I told her that…).",
+  "keyPhrases.0.tr": "She said that the project was finished.",
+  "keyPhrases.1.tr": "He asked me if I could stay late.",
+  "keyPhrases.2.tr": "She told me to call the client."
+ },
+ "vs-b1-tourist-office": {
+  "titleTr": "Tourist Information",
+  "aiRole": "Tourist office clerk",
+  "objectives.0.textTr": "Ask three polite indirect questions (Could you tell me…? Do you know if…?).",
+  "objectives.1.textTr": "Check information with question tags (The museum opens at nine, doesn't it?).",
+  "objectives.2.textTr": "Plan a half-day programme with Hugo and confirm the final plan.",
+  "keyPhrases.0.tr": "Could you tell me where the museum is?",
+  "keyPhrases.1.tr": "Do you know what time it closes?",
+  "keyPhrases.2.tr": "It's quite close, isn't it?"
+ },
+ "vs-b1-habit-coach": {
+  "titleTr": "Habit Coach",
+  "aiRole": "Life coach",
+  "objectives.0.textTr": "Talk about habits you want to start or stop with verb + -ing / to (I want to start running; I should give up eating late).",
+  "objectives.1.textTr": "Use remember, stop or try with a clear difference in meaning (I stopped to drink water / I stopped drinking coffee).",
+  "objectives.2.textTr": "Make a three-step plan and promise it to Dana.",
+  "keyPhrases.0.tr": "I'd like to give up eating sweets.",
+  "keyPhrases.1.tr": "I've decided to start swimming.",
+  "keyPhrases.2.tr": "I always forget to drink water."
+ },
+ "vs-b2-no-regrets": {
+  "titleTr": "No Regrets?",
+  "aiRole": "An old friend",
+  "objectives.0.textTr": "Talk about a past regret with the third conditional (If I had studied harder, I would have passed).",
+  "objectives.1.textTr": "Link a past decision with your life today, using a mixed conditional (If I had moved, I'd be living there now).",
+  "objectives.2.textTr": "Advise Leila on her decision using what you learned from your own choices.",
+  "keyPhrases.0.tr": "If I had known, I would have acted differently.",
+  "keyPhrases.1.tr": "If I hadn't moved, I wouldn't have met my partner.",
+  "keyPhrases.2.tr": "If I were you, I wouldn't hesitate."
+ },
+ "vs-b2-post-mortem": {
+  "titleTr": "Post-Mortem Meeting",
+  "aiRole": "Your manager",
+  "objectives.0.textTr": "Speculate about causes (The email might have gone to spam; he can't have received it).",
+  "objectives.1.textTr": "Say what should or shouldn't have been done (We should have confirmed the date).",
+  "objectives.2.textTr": "Agree on two lessons learned with Olivia.",
+  "keyPhrases.0.tr": "He must have forgotten to call.",
+  "keyPhrases.1.tr": "We should have checked the date.",
+  "keyPhrases.2.tr": "It can't have been her fault."
+ },
+ "vs-b2-handover": {
+  "titleTr": "Handover Before the Trip",
+  "aiRole": "Your colleague",
+  "objectives.0.textTr": "Say what you will be doing at key moments (On Monday morning I'll be sitting in a meeting).",
+  "objectives.1.textTr": "Say what will have been finished by each deadline (By Friday I'll have sent the report).",
+  "objectives.2.textTr": "Negotiate Marcus's request for an earlier file and agree a deal.",
+  "keyPhrases.0.tr": "This time next week I'll be flying to Tokyo.",
+  "keyPhrases.1.tr": "By Friday, I'll have finished the report.",
+  "keyPhrases.2.tr": "Will you be available on Thursday?"
+ },
+ "vs-b2-renovation-quote": {
+  "titleTr": "Renovation Quote",
+  "aiRole": "Contractor",
+  "objectives.0.textTr": "Say what you want to have done (I'd like to have the kitchen painted).",
+  "objectives.1.textTr": "Ask about time and cost (How long will it take to get the windows replaced?).",
+  "objectives.2.textTr": "Decide what to do yourself and what to have done before the party, and agree the deal.",
+  "keyPhrases.0.tr": "I'd like to have the walls painted.",
+  "keyPhrases.1.tr": "How much would it cost to get the roof repaired?",
+  "keyPhrases.2.tr": "I'll paint it myself, but I'll have the windows fixed."
+ },
+ "vs-b2-witness-at-work": {
+  "titleTr": "Witness at Work",
+  "aiRole": "HR officer",
+  "objectives.0.textTr": "Report what colleagues said with reporting verbs (He admitted breaking it; she denied taking the file).",
+  "objectives.1.textTr": "Stay precise about what you heard and what you assume (I'm not sure whether…, as far as I know).",
+  "objectives.2.textTr": "Suggest a fair solution (I suggest talking to them together).",
+  "keyPhrases.0.tr": "He admitted breaking the printer.",
+  "keyPhrases.1.tr": "She denied taking the file.",
+  "keyPhrases.2.tr": "I suggest talking to them together."
+ },
+ "vs-b2-introducing-guests": {
+  "titleTr": "Introducing the Guests",
+  "aiRole": "Event host",
+  "objectives.0.textTr": "Introduce three people with extra information in non-defining clauses (This is Marta, who works at a hospital).",
+  "objectives.1.textTr": "Describe a place or an event with which or where (We met in Lisbon, which is my favourite city).",
+  "objectives.2.textTr": "Add one surprising fact about a guest with whose (Jonas, whose band is famous, will play later).",
+  "keyPhrases.0.tr": "This is Marta, who I've known for ten years.",
+  "keyPhrases.1.tr": "We stayed in Lisbon, which was amazing.",
+  "keyPhrases.2.tr": "Her brother, whose band is famous, will play later."
+ },
+ "vs-b2-two-offers": {
+  "titleTr": "Two Job Offers",
+  "aiRole": "Your mentor",
+  "objectives.0.textTr": "Compare the two offers with whereas and while (Job A is stable, whereas Job B is risky).",
+  "objectives.1.textTr": "Concede a point and still argue your case with although, despite or in spite of (Although it pays less, I'd choose it).",
+  "objectives.2.textTr": "Defend your final decision when Rosa pushes back.",
+  "keyPhrases.0.tr": "Although it pays less, it's more flexible.",
+  "keyPhrases.1.tr": "Despite the long commute, I'd take it.",
+  "keyPhrases.2.tr": "Job A is stable, whereas Job B is risky."
+ },
+ "vs-b2-hotel-manager": {
+  "titleTr": "The Hotel Manager",
+  "aiRole": "Hotel manager",
+  "objectives.0.textTr": "Make a strong complaint using at least two inversions (Never have I stayed in such a dirty room; Not only was it noisy, but…).",
+  "objectives.1.textTr": "Refuse weak apologies firmly but politely (Under no circumstances will I accept that).",
+  "objectives.2.textTr": "Negotiate fair compensation and agree what happens next.",
+  "keyPhrases.0.tr": "Never have I seen such a mess.",
+  "keyPhrases.1.tr": "Not only was the room noisy, but it was also dirty.",
+  "keyPhrases.2.tr": "Under no circumstances will I pay for this."
+ },
+ "vs-c1-investor-pitch": {
+  "titleTr": "The Investor Pitch",
+  "aiRole": "Investor",
+  "objectives.0.textTr": "Stress your key points with what-clefts (What sets us apart is our support).",
+  "objectives.1.textTr": "Correct Victoria's misunderstanding with an it-cleft (It wasn't the price; it was the delivery that put people off).",
+  "objectives.2.textTr": "Close by asking for a concrete next step and answering her final challenge.",
+  "keyPhrases.0.tr": "What we need is a bigger market.",
+  "keyPhrases.1.tr": "It was the timing that caused the problem.",
+  "keyPhrases.2.tr": "What sets us apart is the support we offer."
+ },
+ "vs-c1-science-interview": {
+  "titleTr": "The Science Interview",
+  "aiRole": "Journalist",
+  "objectives.0.textTr": "Answer with calibrated claims (The results appear to suggest…; it tends to…; it may well be that…).",
+  "objectives.1.textTr": "Resist the pressure for a headline claim without losing credibility.",
+  "objectives.2.textTr": "Separate what the evidence shows from what is only speculation.",
+  "keyPhrases.0.tr": "The results appear to suggest a link.",
+  "keyPhrases.1.tr": "It may well be the case, but we can't be sure.",
+  "keyPhrases.2.tr": "That is arguably the strongest finding."
+ },
+ "vs-c1-contract-talks": {
+  "titleTr": "Contract Negotiation",
+  "aiRole": "Procurement director",
+  "objectives.0.textTr": "Make formal offers without if (Should you require changes, we would be glad to discuss them).",
+  "objectives.1.textTr": "Explore concessions with hypotheticals (Were we to extend the deadline, would you accept the price?).",
+  "objectives.2.textTr": "Settle the three points and express regret or responsibility diplomatically (Had we been informed earlier…).",
+  "keyPhrases.0.tr": "Should you have any concerns, please let us know.",
+  "keyPhrases.1.tr": "Were we to extend the deadline, would you reconsider?",
+  "keyPhrases.2.tr": "Had we known earlier, we would have adjusted the plan."
+ },
+ "vs-c1-board-report": {
+  "titleTr": "Board Presentation",
+  "aiRole": "Board member",
+  "objectives.0.textTr": "Summarise results with nominalisation (The introduction of the new system led to a reduction in delays).",
+  "objectives.1.textTr": "Explain a cause-and-effect chain concisely in a formal register.",
+  "objectives.2.textTr": "Restate it in plain verbs when asked and say which version is clearer for this audience.",
+  "keyPhrases.0.tr": "The introduction of the app led to an increase in sales.",
+  "keyPhrases.1.tr": "There has been a significant decline in complaints.",
+  "keyPhrases.2.tr": "In other words, we fixed the process and delays fell."
+ },
+ "vs-c2-panel-debate": {
+  "titleTr": "Panel Debate",
+  "aiRole": "Fellow panellist",
+  "objectives.0.textTr": "Avoid repetition with ellipsis and substitution (I think so, and so does she; I'd say they do).",
+  "objectives.1.textTr": "Keep your references clear with this, such and the former / the latter.",
+  "objectives.2.textTr": "Answer rapid challenges and keep the floor without being interrupted.",
+  "keyPhrases.0.tr": "I'd say so, and so would most experts.",
+  "keyPhrases.1.tr": "The former is cheaper; the latter is more reliable.",
+  "keyPhrases.2.tr": "Such an approach rarely works."
+ },
+ "vs-c2-three-tones": {
+  "titleTr": "One Message, Three Tones",
+  "aiRole": "Your rehearsal partner",
+  "objectives.0.textTr": "Tell your friend casually, with contractions and relaxed phrasing (Hey, so my flight got cancelled).",
+  "objectives.1.textTr": "Tell the hotel receptionist politely and clearly, asking for what you need (I'd like to move my booking).",
+  "objectives.2.textTr": "Tell the conference office formally and precisely, with the exact facts (I regret to inform you that…).",
+  "keyPhrases.0.tr": "Hey, so my flight got cancelled.",
+  "keyPhrases.1.tr": "I'm afraid I won't be able to arrive until Friday.",
+  "keyPhrases.2.tr": "I regret to inform you that my arrival will be delayed."
+ },
+ "vs-c2-saying-no": {
+  "titleTr": "Saying No Diplomatically",
+  "aiRole": "Long-standing client",
+  "objectives.0.textTr": "Decline clearly without a blunt no (I'm afraid that won't be possible).",
+  "objectives.1.textTr": "Explain your constraints and offer a real alternative (What I can offer instead is…).",
+  "objectives.2.textTr": "Hold your position under emotional pressure while protecting the relationship.",
+  "keyPhrases.0.tr": "I'm afraid that isn't something we can commit to.",
+  "keyPhrases.1.tr": "What I can offer instead is a phased delivery.",
+  "keyPhrases.2.tr": "I value our partnership, which is why I'm being honest."
+ }
+}

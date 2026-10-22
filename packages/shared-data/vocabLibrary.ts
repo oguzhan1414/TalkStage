@@ -25837,12 +25837,14 @@ const VERBS_300_RAW: LibraryWordEntry[] = [
 ] as LibraryWordEntry[];
 
 // ---- Çok dilli içerik: i18n/vocabLibrary.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
-const OVERLAYS: Record<string, Overlay | undefined> = {
-  en: require('./i18n/vocabLibrary.en.json'),
-  es: require('./i18n/vocabLibrary.es.json'),
-  pt: require('./i18n/vocabLibrary.pt.json'),
-  de: require('./i18n/vocabLibrary.de.json'),
+// Yalnızca etkin dilin çevirisi yüklenir: diğer dillerin dosyaları hiç değerlendirilmez (açılışı hızlandırır).
+const OVERLAY_LOADERS: Record<string, () => Overlay> = {
+  en: () => require('./i18n/vocabLibrary.en.json'),
+  es: () => require('./i18n/vocabLibrary.es.json'),
+  pt: () => require('./i18n/vocabLibrary.pt.json'),
+  de: () => require('./i18n/vocabLibrary.de.json'),
 };
+const OVERLAYS: Record<string, Overlay | undefined> = { [getDataLocale()]: OVERLAY_LOADERS[getDataLocale()]?.() };
 const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
 export const ADJECTIVES_100: LibraryWordEntry[] = localizeList(ADJECTIVES_100_RAW, (e) => e.id, ACTIVE_OVERLAY);
 export const ADJECTIVES_200: LibraryWordEntry[] = localizeList(ADJECTIVES_200_RAW, (e) => e.id, ACTIVE_OVERLAY);

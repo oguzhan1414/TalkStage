@@ -18,6 +18,7 @@
  * CEFR-filtered reading list) instead of a guessed slug.
  */
 
+import { buildCurriculumV2 } from './grammarV2';
 import { getDataLocale, localizeList, localizeRecord, type Overlay } from './i18nOverlay';
 
 export type CurriculumTopic = {
@@ -29,6 +30,8 @@ export type CurriculumTopic = {
   examples: { en: string; tr: string }[];
   targetWords: string[];
   moduleType: 'speaking' | 'reading' | 'vocab';
+  /** Yeni müfredat: konunun kendi sesli sahnesi (null = sahne yok). Eski müfredatta tanımsız; sahneler sırayla dağıtılır. */
+  sceneId?: string | null;
 };
 
 /** A "Bölüm" (unit/chapter) grouping of consecutive topic codes within a
@@ -841,14 +844,24 @@ const CEFR_CURRICULUM_RAW: Record<string, LevelCurriculum> = {
  * per level. */
 
 // ---- Çok dilli içerik: i18n/curriculumData.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
-const OVERLAYS: Record<string, Overlay | undefined> = {
-  en: require('./i18n/curriculumData.en.json'),
-  es: require('./i18n/curriculumData.es.json'),
-  pt: require('./i18n/curriculumData.pt.json'),
-  de: require('./i18n/curriculumData.de.json'),
+// Yalnızca etkin dilin çevirisi yüklenir: diğer dillerin dosyaları hiç değerlendirilmez (açılışı hızlandırır).
+const OVERLAY_LOADERS: Record<string, () => Overlay> = {
+  en: () => require('./i18n/curriculumData.en.json'),
+  es: () => require('./i18n/curriculumData.es.json'),
+  pt: () => require('./i18n/curriculumData.pt.json'),
+  de: () => require('./i18n/curriculumData.de.json'),
 };
+const OVERLAYS: Record<string, Overlay | undefined> = { [getDataLocale()]: OVERLAY_LOADERS[getDataLocale()]?.() };
 const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
-export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = localizeRecord(CEFR_CURRICULUM_RAW, ACTIVE_OVERLAY);
+/** Yeni gramer müfredatı mobil uygulamanın 5 dilinde açık (çevirileri i18n/grammarV2.<dil>.json);
+ * dil ayarlanmamış ortamlarda (landing) eskisi kalır. */
+const APP_LOCALE = (globalThis as { __TS_LOCALE__?: string }).__TS_LOCALE__;
+export const GRAMMAR_V2_ACTIVE =
+  APP_LOCALE === 'tr' || APP_LOCALE === 'en' || APP_LOCALE === 'es' || APP_LOCALE === 'pt' || APP_LOCALE === 'de';
+
+export const CEFR_CURRICULUM: Record<string, LevelCurriculum> = GRAMMAR_V2_ACTIVE
+  ? buildCurriculumV2(CEFR_CURRICULUM_RAW)
+  : localizeRecord(CEFR_CURRICULUM_RAW, ACTIVE_OVERLAY);
 
 export const ALL_SPEAKING_TOPIC_CODES = Object.values(CEFR_CURRICULUM).flatMap((lvl) =>
   lvl.topics.filter((t) => t.moduleType === 'speaking').map((t) => t.code)

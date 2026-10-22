@@ -70,9 +70,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Ask if the vintage item is still functional and learn its backstory.',
-        textTr: 'Vintage ürünün çalışır durumda olup olmadığını ve hikayesini sor.',
-        hint: 'Kalıp: "Is this camera still functional, or is it decorative?"',
+        text: 'Make guesses about an item (It must be… / It might be… / It can\'t be…).',
+        textTr: 'Bir eşya hakkında tahmin yürüt (It must be… / It might be… / It can\'t be…).',
+        hint: 'Kalıp: "It must be from the seventies. It might be broken. It can\'t be real."',
       },
       {
         id: 'obj_2',
@@ -184,9 +184,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Request an eSIM or prepaid data SIM for your trip.',
-        textTr: 'Seyahatin için ön ödemeli bir eSIM veya internet hattı talep et.',
-        hint: 'Kalıp: "I need a prepaid data SIM or eSIM for my phone."',
+        text: 'Ask a polite indirect question (Could you tell me how much…?).',
+        textTr: 'Kibar bir dolaylı soru sor (Could you tell me how much…?).',
+        hint: 'Kalıp: "Could you tell me how much the data package costs? Do you know if it includes roaming?"',
       },
       {
         id: 'obj_2',
@@ -298,9 +298,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Comment on the sunset view and introduce your travel timeline.',
-        textTr: 'Gün batımı manzarası hakkında konuş ve seyahat süreni tanıt.',
-        hint: 'Kalıp: "The sunset is breathtaking. I arrived three days ago."',
+        text: 'Say what you have been doing lately (I\'ve been travelling / working on…).',
+        textTr: 'Son zamanlarda ne yaptığını anlat (I\'ve been travelling / working on…).',
+        hint: 'Kalıp: "I\'ve been travelling around Europe lately. I\'ve been working on a small project."',
       },
       {
         id: 'obj_2',
@@ -412,9 +412,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Compliment the apartment and ask about utility bills.',
-        textTr: 'Daireyi öv ve faturaların kiraya dahil olup olmadığını sor.',
-        hint: 'Kalıp: "The living room looks spacious. Are utilities included in the rent?"',
+        text: 'Describe the home you want with relative clauses (a flat that has… / a place where…).',
+        textTr: 'Aradığın evi tarif et (a flat that has… / a place where…).',
+        hint: 'Kalıp: "I need a flat that has a balcony. I want a place where it is quiet."',
       },
       {
         id: 'obj_2',
@@ -526,9 +526,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Share your weekend activities using the past tense.',
-        textTr: 'Geçmiş zaman kullanarak hafta sonu aktivitelerini paylaş.',
-        hint: 'Kalıp: "I watched a great movie and went for a bike ride."',
+        text: 'Tell what you did at the weekend in the past simple (I went… / I didn\'t…).',
+        textTr: 'Hafta sonu ne yaptığını geçmiş zamanla anlat (I went… / I didn\'t…).',
+        hint: 'Kalıp: "I went to the cinema on Saturday. I didn\'t do much on Sunday."',
       },
       {
         id: 'obj_2',
@@ -640,9 +640,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Confirm your reservation and car category.',
-        textTr: 'Rezervasyonunu ve araç kategorini doğrula.',
-        hint: 'Kalıp: "Hello! Yes, I booked a compact car under my name."',
+        text: 'Ask about the conditions with the first conditional (If I return it late, …? / Unless…).',
+        textTr: 'Koşulları sor (If I return it late, …? / Unless…).',
+        hint: 'Kalıp: "What happens if I return the car late? Unless I add insurance, I pay the full price."',
       },
       {
         id: 'obj_2',
@@ -754,9 +754,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Order a burger meal with your preferred drink.',
-        textTr: 'İçecek tercihinle birlikte burger menüsü sipariş et.',
-        hint: 'Kalıp: "I would like a cheeseburger combo meal, please."',
+        text: 'Make a polite request with \'Can I have…?\' or \'Could you…?\'.',
+        textTr: 'Kibar bir rica yap (Can I have…? / Could you…?).',
+        hint: 'Kalıp: "Can I have a cheeseburger meal, please? Could you leave out the onions?"',
       },
       {
         id: 'obj_2',
@@ -868,9 +868,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Ask where an item is located politely.',
-        textTr: 'Kibarca bir ürünün nerede olduğunu sor.',
-        hint: 'Kalıp: "Excuse me, where is the milk, please?"',
+        text: 'Say how much or how many you need (some, any, how much, how many).',
+        textTr: 'Ne kadar ya da kaç tane istediğini söyle (some, any, how much, how many).',
+        hint: 'Kalıp: "How much is the milk? Do you have any fresh bread? I need some apples."',
       },
       {
         id: 'obj_2',
@@ -982,9 +982,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Ask for directions to the nearest metro station.',
-        textTr: 'En yakın metro istasyonunun yerini sor.',
-        hint: 'Kalıp: "Excuse me, where is the nearest metro station?"',
+        text: 'Ask what is nearby with \'Is there a…?\' and \'Are there any…?\'.',
+        textTr: 'Yakında ne olduğunu sor (Is there a…? / Are there any…?).',
+        hint: 'Kalıp: "Is there a metro station near here? Are there any cafés on this street?"',
       },
       {
         id: 'obj_2',
@@ -1096,9 +1096,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Request a round-trip ticket to your destination.',
-        textTr: 'Gideceğin yere gidiş-dönüş bilet iste.',
-        hint: 'Kalıp: "One ticket to Oxford, please. A round-trip return ticket, please."',
+        text: 'Talk about tomorrow\'s plan with \'going to\' and the present continuous (I\'m going to visit… / I\'m leaving at…).',
+        textTr: 'Yarınki planını anlat (I\'m going to visit… / I\'m leaving at…).',
+        hint: 'Kalıp: "I\'m going to visit my sister. I\'m leaving tomorrow at nine."',
       },
       {
         id: 'obj_2',
@@ -1210,9 +1210,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Introduce yourself with your name and country.',
-        textTr: 'Adını ve ülkini söyleyerek kendini tanıt.',
-        hint: 'Kalıp: "Hello Mivo! My name is... and I am from Turkey."',
+        text: 'Introduce yourself with your name, where you are from and your job, using the verb \'to be\'.',
+        textTr: 'Adını, nereli olduğunu ve mesleğini söyleyerek kendini tanıt (to be).',
+        hint: 'Kalıp: "I\'m Elif. I\'m from Turkey. I\'m a nurse."',
       },
       {
         id: 'obj_2',
@@ -1324,9 +1324,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Check in at the desk with your ticket and documents.',
-        textTr: 'Kontuarda bilet ve belgelerini göstererek check-in yap.',
-        hint: 'Kalıp: "Here is my ticket and travel document."',
+        text: 'Make an instant decision with \'will\' (I\'ll take the window seat.).',
+        textTr: 'Anında karar ver (I\'ll take the window seat.).',
+        hint: 'Kalıp: "I\'ll take the window seat. I\'ll check in one bag."',
       },
       {
         id: 'obj_2',
@@ -1440,9 +1440,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Introduce yourself and confirm you moved in today.',
-        textTr: 'Kendini tanıt ve bugün taşındığını belirt.',
-        hint: 'Kalıp: "Hello! Yes, I just moved in today."',
+        text: 'Describe your daily routine in the present simple (I get up at… / I work…).',
+        textTr: 'Günlük rutinini geniş zamanla anlat (I get up at… / I work…).',
+        hint: 'Kalıp: "I get up at seven. I work from home. I usually cook dinner at six."',
       },
       {
         id: 'obj_2',
@@ -1556,9 +1556,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Confirm your reservation at the front desk.',
-        textTr: 'Resepsiyonda rezervasyonunu teyit et.',
-        hint: 'Kalıp: "Yes, I have a reservation under my name."',
+        text: 'Ask three questions about your stay with \'to be\' questions (Is breakfast included? Where is…?).',
+        textTr: 'Konaklaman hakkında üç soru sor (Is breakfast included? Where is…?).',
+        hint: 'Kalıp: "Is breakfast included? Where is the lift? What time is check-out?"',
       },
       {
         id: 'obj_2',
@@ -1672,9 +1672,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Tell the driver your destination clearly.',
-        textTr: 'Şoföre varış noktanızı net olarak belirtin.',
-        hint: 'Kalıp: "Could you please take me to the British Museum?"',
+        text: 'Tell your last week in order (first, then, after that, because, so).',
+        textTr: 'Geçen haftanı sırayla anlat (first, then, after that, because, so).',
+        hint: 'Kalıp: "First I missed the bus, so I took a taxi. After that I had a long day."',
       },
       {
         id: 'obj_2',
@@ -1788,9 +1788,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Request a table politely for your dinner.',
-        textTr: 'Akşam yemeği için kibarca bir masa talep et.',
-        hint: 'Kalıp: "Good evening! A table for one by the window, please."',
+        text: 'Comment on the food with \'too\', \'enough\' and \'so\' (It\'s too salty / not hot enough / so good).',
+        textTr: 'Yemek hakkında yorum yap (It\'s too salty / not hot enough / so good).',
+        hint: 'Kalıp: "The soup is too salty. The pasta isn\'t hot enough. The dessert is so good!"',
       },
       {
         id: 'obj_2',
@@ -1905,9 +1905,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Explain your symptoms (headache and sore throat) clearly.',
-        textTr: 'Şikayetlerini (baş ve boğaz ağrısı) açıkça ifade et.',
-        hint: 'Kalıp: "I have had a terrible headache and a sore throat since yesterday."',
+        text: 'Repeat the doctor\'s advice and rules, separating \'mustn\'t\' from \'don\'t have to\'.',
+        textTr: 'Doktorun tavsiyesini ve kuralları tekrar et; yasak ile zorunlu olmayanı ayır (I mustn\'t… / I don\'t have to…).',
+        hint: 'Kalıp: "I should rest. I mustn\'t drive. I don\'t have to stay in bed all day."',
       },
       {
         id: 'obj_2',
@@ -2022,9 +2022,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Introduce your professional background and current field clearly.',
-        textTr: 'Mesleki geçmişinizi ve uzmanlık alanınızı net şekilde tanıtın.',
-        hint: 'Kalıp: "I have a background in technology and project coordination."',
+        text: 'Describe your experience with \'for\' and \'since\' (I\'ve worked there for… / since…).',
+        textTr: 'Deneyimini anlat (I\'ve worked there for… / since…).',
+        hint: 'Kalıp: "I\'ve worked in sales for four years. I\'ve managed a small team since 2022."',
       },
       {
         id: 'obj_2',
@@ -2138,9 +2138,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'State your fitness goals (building strength and stamina).',
-        textTr: 'Fitness hedeflerinizi (güç kazanmak ve kondisyon) belirtin.',
-        hint: 'Kalıp: "I want to build strength and improve my stamina."',
+        text: 'Say how often you exercise with adverbs of frequency (always, usually, never).',
+        textTr: 'Ne sıklıkla spor yaptığını söyle (always, usually, never).',
+        hint: 'Kalıp: "I usually train three times a week. I never skip the warm-up."',
       },
       {
         id: 'obj_2',
@@ -2254,9 +2254,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'State what clothing item and size you are looking for.',
-        textTr: 'Hangi kıyafeti ve bedeni aradığınızı belirtin.',
-        hint: 'Kalıp: "I am looking for a warm jacket, and I usually wear medium."',
+        text: 'Compare two items with comparatives (This one is cheaper / nicer than…).',
+        textTr: 'İki ürünü karşılaştır (This one is cheaper / nicer than…).',
+        hint: 'Kalıp: "This jacket is cheaper than that one, but that one is more comfortable."',
       },
       {
         id: 'obj_2',
@@ -2370,9 +2370,9 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
     objectives: [
       {
         id: 'obj_1',
-        text: 'Describe the Bosphorus, seagulls, and historic ferry views.',
-        textTr: 'Boğaz manzarasını, martıları ve tarihi vapurları tarif edin.',
-        hint: 'Kalıp: "The view of the Bosphorus and seagulls is incredible!"',
+        text: 'Talk about your experiences with the present perfect (I\'ve never been… / Have you ever…?).',
+        textTr: 'Deneyimlerinden bahset (I\'ve never been… / Have you ever…?).',
+        hint: 'Kalıp: "I\'ve never been to Istanbul before. Have you ever tried Turkish tea?"',
       },
       {
         id: 'obj_2',
@@ -2729,11 +2729,13 @@ const SCENARIOS_RAW: ScenarioEntry[] = [
 ];
 
 // ---- Çok dilli içerik: i18n/scenariosData.<dil>.json çevirileri (bkz. i18nOverlay.ts) ----
-const OVERLAYS: Record<string, Overlay | undefined> = {
-  en: require('./i18n/scenariosData.en.json'),
-  es: require('./i18n/scenariosData.es.json'),
-  pt: require('./i18n/scenariosData.pt.json'),
-  de: require('./i18n/scenariosData.de.json'),
+// Yalnızca etkin dilin çevirisi yüklenir: diğer dillerin dosyaları hiç değerlendirilmez (açılışı hızlandırır).
+const OVERLAY_LOADERS: Record<string, () => Overlay> = {
+  en: () => require('./i18n/scenariosData.en.json'),
+  es: () => require('./i18n/scenariosData.es.json'),
+  pt: () => require('./i18n/scenariosData.pt.json'),
+  de: () => require('./i18n/scenariosData.de.json'),
 };
+const OVERLAYS: Record<string, Overlay | undefined> = { [getDataLocale()]: OVERLAY_LOADERS[getDataLocale()]?.() };
 
 export const SCENARIOS: ScenarioEntry[] = localizeList(SCENARIOS_RAW, (e) => e.id, OVERLAYS[getDataLocale()]);

@@ -11,8 +11,7 @@ node_modules/
 
 # Python
 backend/venv/
-backend/__pycache__/
-backend/**/__pycache__/
+__pycache__/
 backend/*.egg-info/
 backend/.pytest_cache/
 

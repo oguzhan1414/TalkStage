@@ -1,0 +1,2124 @@
+[
+ {
+  "id": "vs-a1-first-day",
+  "topicCode": "A1_N01",
+  "level": "A1",
+  "emoji": "🎒",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty",
+   "mixup"
+  ],
+  "title": "First Day at Language Class",
+  "titleTr": "Kursta İlk Gün",
+  "aiName": "Sofia",
+  "aiRole": "Sınıf arkadaşın",
+  "situation": "You are Sofia, a friendly student on the first day of an English course. You sit next to the learner and have never met them. You are from Spain and you work as a graphic designer. Ask their name, where they are from and what they do. Share your own details only when they ask you.",
+  "opening": "Hi! I'm Sofia. I'm new here too. What's your name?",
+  "objectives": [
+   {
+    "text": "Tell Sofia your name, where you are from and what you do, using am / is / are.",
+    "textTr": "Sofia'ya adını, nereli olduğunu ve ne iş yaptığını söyle (am / is / are)."
+   },
+   {
+    "text": "Ask Sofia where she is from and what her job is.",
+    "textTr": "Sofia'ya nereli olduğunu ve mesleğini sor."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'm Elif. I'm from Turkey.",
+    "tr": "Ben Elif. Türkiyeliyim."
+   },
+   {
+    "en": "I'm a student.",
+    "tr": "Öğrenciyim."
+   },
+   {
+    "en": "Where are you from?",
+    "tr": "Sen nerelisin?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-gift-shop",
+  "topicCode": "A1_N02",
+  "level": "A1",
+  "emoji": "🎁",
+  "durationMin": 4,
+  "twistIds": [
+   "unavailable",
+   "recommend",
+   "chatty"
+  ],
+  "title": "At the Gift Shop",
+  "titleTr": "Hediyelik Eşya Dükkânında",
+  "aiName": "Lucy",
+  "aiRole": "Dükkân çalışanı",
+  "situation": "You are Lucy, a shop assistant in a small gift shop in London. The learner is a tourist who wants a present for a friend. Point at things on the shelves (a mug, an umbrella, postcards, magnets, a scarf) and ask 'Do you like this one or that one?'. Say what things are and their price when asked (3 to 15 pounds). Use this, that, these, those and a / an naturally.",
+  "opening": "Hello! Welcome to our shop. Can I help you?",
+  "objectives": [
+   {
+    "text": "Ask what things are using this, that, these and those (What's this? What are those?).",
+    "textTr": "This, that, these, those ile eşyaların ne olduğunu sor (What's this? What are those?)."
+   },
+   {
+    "text": "Choose a present and say what you want with a / an and plurals (I'd like a mug and two postcards).",
+    "textTr": "Bir hediye seç ve a / an ile çoğul kullanarak ne istediğini söyle (I'd like a mug and two postcards)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "What's this?",
+    "tr": "Bu ne?"
+   },
+   {
+    "en": "How much are these?",
+    "tr": "Bunlar ne kadar?"
+   },
+   {
+    "en": "I'd like a mug, please.",
+    "tr": "Bir kupa rica ederim."
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-lost-property",
+  "topicCode": "A1_N03",
+  "level": "A1",
+  "emoji": "🧳",
+  "durationMin": 4,
+  "twistIds": [
+   "mixup",
+   "chatty"
+  ],
+  "title": "Lost and Found",
+  "titleTr": "Kayıp Eşya Bürosu",
+  "aiName": "Tom",
+  "aiRole": "Kayıp eşya görevlisi",
+  "situation": "You are Tom, a clerk at the lost property office of a train station. The learner lost something (a bag, a phone or keys). On your desk you have a black bag, a blue phone, a red umbrella and some keys. Hold up an item and ask 'Is this your bag?'. Make the learner use my and your. When you talk about other people's things, use his, her, our and their ('This is her phone').",
+  "opening": "Hello! Lost and found. Can I help you?",
+  "objectives": [
+   {
+    "text": "Say what you lost and describe it with my (It's my blue bag).",
+    "textTr": "Neyi kaybettiğini söyle ve my ile tarif et (It's my blue bag)."
+   },
+   {
+    "text": "Answer Tom's questions about which things are yours (Is this your phone?).",
+    "textTr": "Tom'un hangi eşyaların senin olduğuna dair sorularını yanıtla (Is this your phone?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It's my bag.",
+    "tr": "Bu benim çantam."
+   },
+   {
+    "en": "Is this your phone?",
+    "tr": "Bu senin telefonun mu?"
+   },
+   {
+    "en": "No, it isn't mine.",
+    "tr": "Hayır, benim değil."
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-hotel-desk",
+  "topicCode": "A1_N04",
+  "level": "A1",
+  "emoji": "🏨",
+  "durationMin": 4,
+  "twistIds": [
+   "mixup",
+   "unavailable",
+   "chatty"
+  ],
+  "title": "At the Hotel Desk",
+  "titleTr": "Otel Resepsiyonunda",
+  "aiName": "Maria",
+  "aiRole": "Resepsiyonist",
+  "situation": "You are Maria, a receptionist at a small hotel. The learner has just arrived as a guest. Answer their questions about the hotel (breakfast is from 7 to 10 in the cafe on the first floor, the wifi is free, the pool is closed today, check-out is at 11). Also ask them simple questions: 'Are you here for work?', 'Is this your first visit?'. Let the learner ask the questions with Is, Are, Where, What and What time.",
+  "opening": "Good evening! Welcome to the Sun Hotel. How can I help you?",
+  "objectives": [
+   {
+    "text": "Ask three questions about the hotel with Is / Are / Where / What (Where is the breakfast room? Is the wifi free?).",
+    "textTr": "Otel hakkında Is / Are / Where / What ile üç soru sor (Where is the breakfast room? Is the wifi free?)."
+   },
+   {
+    "text": "Answer Maria's questions about you (Are you here for work?).",
+    "textTr": "Maria'nın sana yönelttiği soruları yanıtla (Are you here for work?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Where is the breakfast room?",
+    "tr": "Kahvaltı salonu nerede?"
+   },
+   {
+    "en": "Is the wifi free?",
+    "tr": "Wifi ücretsiz mi?"
+   },
+   {
+    "en": "What time is check-out?",
+    "tr": "Check-out saat kaçta?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-neighbour-chat",
+  "topicCode": "A1_N05",
+  "level": "A1",
+  "emoji": "🏠",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Chat with Your Neighbour",
+  "titleTr": "Komşunla Sohbet",
+  "aiName": "Ben",
+  "aiRole": "Komşun",
+  "situation": "You are Ben, a friendly neighbour on the same floor. You meet the learner in the lift in the morning. You work in a bakery, get up at 5, start work at 6, finish at 2 and go to bed early. Ask about their daily routine (what time they get up, where they work, what they do in the evening) and answer when they ask about yours. When you talk about your family use he / she: 'My wife works at a school.'",
+  "opening": "Good morning! You're my new neighbour, right? I'm Ben.",
+  "objectives": [
+   {
+    "text": "Tell Ben about your day: what time you get up, where you work or study, when you go to bed (I get up at seven).",
+    "textTr": "Ben'e gününü anlat: kaçta kalkarsın, nerede çalışır ya da okursun, ne zaman yatarsın (I get up at seven)."
+   },
+   {
+    "text": "Ask Ben about his day with Do you…? and What time do you…?",
+    "textTr": "Ben'e günü hakkında Do you…? ve What time do you…? ile sor."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I get up at seven.",
+    "tr": "Yedide kalkarım."
+   },
+   {
+    "en": "I work in an office.",
+    "tr": "Bir ofiste çalışırım."
+   },
+   {
+    "en": "What time do you start work?",
+    "tr": "İşe saat kaçta başlarsın?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-gym-signup",
+  "topicCode": "A1_N06",
+  "level": "A1",
+  "emoji": "💪",
+  "durationMin": 4,
+  "twistIds": [
+   "recommend",
+   "chatty"
+  ],
+  "title": "Joining the Gym",
+  "titleTr": "Spor Salonuna Kayıt",
+  "aiName": "Mia",
+  "aiRole": "Antrenör",
+  "situation": "You are Mia, a trainer at FitLife Gym. The learner wants to join. Ask how often they exercise and what they usually do (walk, swim, run). Say what you do yourself: you always train in the morning, you often swim on Sundays, you never eat sweets before training. Use always, usually, often, sometimes and never in your sentences so the learner hears them.",
+  "opening": "Hi! Welcome to FitLife Gym. I'm Mia. Do you exercise a lot?",
+  "objectives": [
+   {
+    "text": "Tell Mia how often you do things using always, usually, often, sometimes, never (I sometimes swim).",
+    "textTr": "Mia'ya bir şeyi ne sıklıkla yaptığını always, usually, often, sometimes, never ile söyle (I sometimes swim)."
+   },
+   {
+    "text": "Ask Mia how often she trains or does something (How often do you…?).",
+    "textTr": "Mia'ya ne sıklıkla antrenman yaptığını ya da bir şey yaptığını sor (How often do you…?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I usually walk in the evening.",
+    "tr": "Genellikle akşamları yürürüm."
+   },
+   {
+    "en": "I never run.",
+    "tr": "Hiç koşmam."
+   },
+   {
+    "en": "How often do you train?",
+    "tr": "Ne sıklıkla antrenman yaparsın?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-city-directions",
+  "topicCode": "A1_N07",
+  "level": "A1",
+  "emoji": "🗺️",
+  "durationMin": 4,
+  "twistIds": [
+   "mixup",
+   "chatty"
+  ],
+  "title": "Lost in the City",
+  "titleTr": "Şehirde Yolunu Sor",
+  "aiName": "Omar",
+  "aiRole": "Yoldan geçen biri",
+  "situation": "You are Omar, a local walking near the main square. The learner is a tourist looking for a pharmacy, a bank or the station. The pharmacy is next to the bookshop, opposite the park. The bank is between the cafe and the post office. There are public toilets behind the museum. The station is straight ahead, then on the left. Give short directions with next to, opposite, behind, between. Ask 'Is there anything else?'.",
+  "opening": "Hello! You look lost. Can I help you?",
+  "objectives": [
+   {
+    "text": "Ask if there is a place near here (Is there a pharmacy near here? Are there any banks?).",
+    "textTr": "Yakınlarda bir yer var mı diye sor (Is there a pharmacy near here? Are there any banks?)."
+   },
+   {
+    "text": "Repeat the directions back to check (It's next to the bookshop, right?).",
+    "textTr": "Yol tarifini doğrulamak için tekrar et (It's next to the bookshop, right?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Is there a pharmacy near here?",
+    "tr": "Yakınlarda eczane var mı?"
+   },
+   {
+    "en": "Where is the station?",
+    "tr": "İstasyon nerede?"
+   },
+   {
+    "en": "It's next to the bank.",
+    "tr": "Bankanın yanında."
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-party-hobbies",
+  "topicCode": "A1_N08",
+  "level": "A1",
+  "emoji": "🎉",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Hobbies at a Party",
+  "titleTr": "Partide Hobiler",
+  "aiName": "Chloe",
+  "aiRole": "Partide tanıştığın biri",
+  "situation": "You are Chloe, at a friend's birthday party. You have just met the learner. You love cooking, you enjoy dancing, you hate waiting in queues and you like watching old films. Ask the learner what they like and hate doing. React with short comments ('Me too!', 'Really?').",
+  "opening": "Hi! I'm Chloe. Do you know many people here?",
+  "objectives": [
+   {
+    "text": "Tell Chloe two things you like or love doing and one you hate (I love cooking. I hate waiting).",
+    "textTr": "Chloe'ye sevdiğin ya da çok sevdiğin iki şeyi ve nefret ettiğin bir şeyi söyle (I love cooking. I hate waiting)."
+   },
+   {
+    "text": "Ask Chloe what she enjoys doing (What do you enjoy doing?).",
+    "textTr": "Chloe'ye yapmaktan keyif aldığı şeyleri sor (What do you enjoy doing?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I love cooking.",
+    "tr": "Yemek yapmayı çok severim."
+   },
+   {
+    "en": "I enjoy watching films.",
+    "tr": "Film izlemekten keyif alırım."
+   },
+   {
+    "en": "I hate waiting.",
+    "tr": "Beklemekten nefret ederim."
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-phone-call",
+  "topicCode": "A1_N09",
+  "level": "A1",
+  "emoji": "📞",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "A Phone Call with a Friend",
+  "titleTr": "Bir Arkadaşla Telefon",
+  "aiName": "Leo",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Leo, the learner's friend, calling by phone. You are at the park with your dog and it is raining a little. Ask what the learner is doing right now, who is with them and whether they want to meet later. Say what is happening around you: 'The dog is running. It's raining.' Use the present continuous.",
+  "opening": "Hi! It's Leo. What are you doing right now?",
+  "objectives": [
+   {
+    "text": "Say what you are doing right now and what is happening around you (I'm cooking. My brother is watching TV).",
+    "textTr": "Şu an ne yaptığını ve çevrende neler olduğunu söyle (I'm cooking. My brother is watching TV)."
+   },
+   {
+    "text": "Ask Leo what he is doing and suggest meeting later.",
+    "textTr": "Leo'ya ne yaptığını sor ve daha sonra buluşmayı öner."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'm cooking dinner.",
+    "tr": "Akşam yemeği yapıyorum."
+   },
+   {
+    "en": "My sister is watching TV.",
+    "tr": "Kız kardeşim televizyon izliyor."
+   },
+   {
+    "en": "What are you doing?",
+    "tr": "Ne yapıyorsun?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-flatshare",
+  "topicCode": "A1_N10",
+  "level": "A1",
+  "emoji": "🔑",
+  "durationMin": 4,
+  "twistIds": [
+   "unavailable",
+   "chatty"
+  ],
+  "title": "Moving into a Shared Flat",
+  "titleTr": "Ortak Eve Taşınma",
+  "aiName": "Sam",
+  "aiRole": "Ev arkadaşın",
+  "situation": "You are Sam, who shares a flat. The learner is the new flatmate arriving today. Show them the flat. Ask what they can do (can you cook? can you play the guitar?). Say you can play the guitar but you can't cook. Wait for them to ask politely for things (using the kitchen, a charger, the wifi password) and answer with 'Sure, you can' or 'Sorry, you can't, because...'.",
+  "opening": "Hi! Welcome to the flat. I'm Sam. Come in!",
+  "objectives": [
+   {
+    "text": "Say two things you can do and one thing you can't (I can cook, but I can't drive).",
+    "textTr": "Yapabildiğin iki şeyi ve yapamadığın bir şeyi söyle (I can cook, but I can't drive)."
+   },
+   {
+    "text": "Ask politely for two things with Can I…? or Could you…? (Can I use the kitchen?).",
+    "textTr": "Can I…? ya da Could you…? ile kibarca iki şey iste (Can I use the kitchen?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I can cook.",
+    "tr": "Yemek yapabilirim."
+   },
+   {
+    "en": "Can I use your charger?",
+    "tr": "Şarj aletini kullanabilir miyim?"
+   },
+   {
+    "en": "Could you help me, please?",
+    "tr": "Bana yardım eder misin, lütfen?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-grocery",
+  "topicCode": "A1_N11",
+  "level": "A1",
+  "emoji": "🛒",
+  "durationMin": 4,
+  "twistIds": [
+   "unavailable",
+   "recommend",
+   "mixup"
+  ],
+  "title": "At the Grocery Store",
+  "titleTr": "Marketten Alışveriş",
+  "aiName": "Nora",
+  "aiRole": "Market çalışanı",
+  "situation": "You are Nora, who works in a small grocery store. The learner is cooking dinner for friends and needs ingredients (for example pasta, tomatoes, eggs, milk, cheese, rice). Today you have no eggs and only a little milk. Say where things are and give prices ('The tomatoes are two euros a kilo.'). Ask 'How many do you need?' and 'Do you need any bread?'.",
+  "opening": "Hello! Are you looking for something?",
+  "objectives": [
+   {
+    "text": "Ask for things you need with some and any (I need some tomatoes. Do you have any eggs?).",
+    "textTr": "İhtiyacın olan şeyleri some ve any ile iste (I need some tomatoes. Do you have any eggs?)."
+   },
+   {
+    "text": "Ask about price and quantity (How much is it? How many do I need?).",
+    "textTr": "Fiyatı ve miktarı sor (How much is it? How many do I need?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Do you have any eggs?",
+    "tr": "Hiç yumurtanız var mı?"
+   },
+   {
+    "en": "I need some milk.",
+    "tr": "Biraz süte ihtiyacım var."
+   },
+   {
+    "en": "How much is this?",
+    "tr": "Bu ne kadar?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-where-were-you",
+  "topicCode": "A1_N12",
+  "level": "A1",
+  "emoji": "🎶",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Where Were You?",
+  "titleTr": "Dün Neredeydin?",
+  "aiName": "Emma",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Emma, the learner's friend. You called them yesterday evening but nobody answered. You were at a concert with your sister and it was amazing: the tickets were cheap and the singer was great. Ask where they were, how it was and who was with them. Use was and were in your questions and answers.",
+  "opening": "Hey! I called you yesterday. Where were you?",
+  "objectives": [
+   {
+    "text": "Say where you were yesterday and how it was (I was at the cinema. It was great).",
+    "textTr": "Dün nerede olduğunu ve nasıl geçtiğini söyle (I was at the cinema. It was great)."
+   },
+   {
+    "text": "Ask Emma where she was and who was with her (Where were you? Were you alone?).",
+    "textTr": "Emma'ya nerede olduğunu ve yanında kimin olduğunu sor (Where were you? Were you alone?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I was at home.",
+    "tr": "Evdeydim."
+   },
+   {
+    "en": "It was great!",
+    "tr": "Harikaydı!"
+   },
+   {
+    "en": "Were you with your sister?",
+    "tr": "Kız kardeşinle miydin?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a1-weekend-chat",
+  "topicCode": "A1_N13",
+  "level": "A1",
+  "emoji": "☀️",
+  "durationMin": 4,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "How Was Your Weekend?",
+  "titleTr": "Hafta Sonun Nasıldı?",
+  "aiName": "Jack",
+  "aiRole": "İş arkadaşın",
+  "situation": "You are Jack, a colleague, chatting at the coffee machine on Monday morning. At the weekend you visited your parents, cooked a big dinner and watched a football match. Ask the learner what they did, then ask short follow-up questions ('Did you go alone?', 'Did you like it?'). Use the past simple with regular and irregular verbs.",
+  "opening": "Good morning! How was your weekend?",
+  "objectives": [
+   {
+    "text": "Tell Jack what you did at the weekend with at least three past verbs (I visited…, I went…, I saw…).",
+    "textTr": "Jack'e hafta sonu ne yaptığını en az üç geçmiş zaman fiiliyle anlat (I visited…, I went…, I saw…)."
+   },
+   {
+    "text": "Ask Jack two questions with did (Did you…?).",
+    "textTr": "Jack'e did ile iki soru sor (Did you…?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I visited my family.",
+    "tr": "Ailemi ziyaret ettim."
+   },
+   {
+    "en": "We went to the cinema.",
+    "tr": "Sinemaya gittik."
+   },
+   {
+    "en": "Did you watch the match?",
+    "tr": "Maçı izledin mi?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-weekend-trip",
+  "topicCode": "A2_N14",
+  "level": "A2",
+  "emoji": "🧭",
+  "durationMin": 5,
+  "twistIds": [
+   "unavailable",
+   "recommend",
+   "mixup"
+  ],
+  "title": "Planning a Weekend Trip",
+  "titleTr": "Hafta Sonu Gezisi Planı",
+  "aiName": "Lara",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Lara, the learner's friend. You are planning a weekend trip together. You have not decided the city (maybe Prague or Lisbon). Ask where they are going to go, what they are going to do and when. Fix details: 'I'm meeting my sister on Saturday morning, so I'm taking the train at two.' Use be going to for plans and the present continuous for fixed arrangements.",
+  "opening": "Hi! Are you free this weekend? Let's plan our trip!",
+  "objectives": [
+   {
+    "text": "Say what you are going to do on the trip (I'm going to visit the old town).",
+    "textTr": "Gezide ne yapacağını söyle (I'm going to visit the old town)."
+   },
+   {
+    "text": "Agree on a time and a place with the present continuous (We're meeting at the station at ten).",
+    "textTr": "Present continuous ile bir saat ve yer üzerinde anlaş (We're meeting at the station at ten)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'm going to take lots of photos.",
+    "tr": "Bol bol fotoğraf çekeceğim."
+   },
+   {
+    "en": "We're leaving on Friday evening.",
+    "tr": "Cuma akşamı yola çıkıyoruz."
+   },
+   {
+    "en": "What are you going to do there?",
+    "tr": "Orada ne yapacaksın?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-helping-move",
+  "topicCode": "A2_N15",
+  "level": "A2",
+  "emoji": "📦",
+  "durationMin": 5,
+  "twistIds": [
+   "mixup",
+   "chatty"
+  ],
+  "title": "Helping a Friend Move",
+  "titleTr": "Taşınan Arkadaşa Yardım",
+  "aiName": "Nina",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Nina, moving to a new flat tomorrow. You are stressed: boxes everywhere, no car, a heavy sofa and the van is not booked. React happily to every offer ('Oh, thank you!'). Ask 'Can you come at nine?' and 'Do you think it will rain?'. Let the learner offer, decide and promise with will and won't.",
+  "opening": "Oh hi! I'm so tired. I'm moving tomorrow and nothing is ready!",
+  "objectives": [
+   {
+    "text": "Offer to help with two things using I'll… (I'll carry the boxes).",
+    "textTr": "I'll… ile iki konuda yardım teklif et (I'll carry the boxes)."
+   },
+   {
+    "text": "Make a promise and a prediction (I'll be there at nine. It won't take long).",
+    "textTr": "Bir söz ver ve bir tahminde bulun (I'll be there at nine. It won't take long)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'll help you with the boxes.",
+    "tr": "Kolilerde sana yardım ederim."
+   },
+   {
+    "en": "Don't worry, I'll be there at nine.",
+    "tr": "Merak etme, dokuzda orada olacağım."
+   },
+   {
+    "en": "I think it will be easy.",
+    "tr": "Bence kolay olacak."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-phone-shop",
+  "topicCode": "A2_N16",
+  "level": "A2",
+  "emoji": "📱",
+  "durationMin": 5,
+  "twistIds": [
+   "recommend",
+   "unavailable"
+  ],
+  "title": "Choosing a Phone",
+  "titleTr": "Telefon Seçimi",
+  "aiName": "Ryan",
+  "aiRole": "Satış danışmanı",
+  "situation": "You are Ryan, a salesperson in a phone shop. You have two phones. The Nova is cheaper (300 euros), lighter and smaller, with a good camera. The Titan is more expensive (600 euros), faster and has the best battery. Do not choose for the learner: describe both and ask what is more important to them. Let them compare. Use comparatives and superlatives yourself.",
+  "opening": "Hi there! Are you looking for a new phone?",
+  "objectives": [
+   {
+    "text": "Compare the two phones with comparatives (The Titan is faster than the Nova).",
+    "textTr": "İki telefonu karşılaştırma yapılarıyla karşılaştır (The Titan is faster than the Nova)."
+   },
+   {
+    "text": "Choose one phone and say why, with a superlative or as … as (It's the best for me).",
+    "textTr": "Bir telefon seç ve nedenini en üstünlük ya da as … as ile söyle (It's the best for me)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Which one is cheaper?",
+    "tr": "Hangisi daha ucuz?"
+   },
+   {
+    "en": "This one is better than that one.",
+    "tr": "Bu şundan daha iyi."
+   },
+   {
+    "en": "It's the most expensive phone.",
+    "tr": "En pahalı telefon bu."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-doctor-visit",
+  "topicCode": "A2_N17",
+  "level": "A2",
+  "emoji": "🩺",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "A Visit to the Doctor",
+  "titleTr": "Doktor Randevusu",
+  "aiName": "Dr. Evans",
+  "aiRole": "Doktor",
+  "situation": "You are Dr. Evans, a calm doctor. The learner has had a cold and a sore throat for three days and feels tired. Ask about symptoms, then give advice and rules: 'You should stay at home and drink water. You must take the medicine twice a day. You mustn't go to work tomorrow.' Ask whether they have to travel or work this week.",
+  "opening": "Hello, please sit down. What's the problem?",
+  "objectives": [
+   {
+    "text": "Describe your problem and ask for advice (What should I do?).",
+    "textTr": "Sorununu anlat ve tavsiye iste (What should I do?)."
+   },
+   {
+    "text": "Say what you have to do this week and ask what you must or mustn't do (I have to work on Friday).",
+    "textTr": "Bu hafta neler yapmak zorunda olduğunu söyle ve neleri yapman ya da yapmaman gerektiğini sor (I have to work on Friday)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I have a headache and a sore throat.",
+    "tr": "Başım ağrıyor ve boğazım yanıyor."
+   },
+   {
+    "en": "What should I do?",
+    "tr": "Ne yapmalıyım?"
+   },
+   {
+    "en": "I have to work tomorrow.",
+    "tr": "Yarın çalışmak zorundayım."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-have-you-ever",
+  "topicCode": "A2_N18",
+  "level": "A2",
+  "emoji": "✈️",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty",
+   "recommend"
+  ],
+  "title": "Have You Ever…?",
+  "titleTr": "Hiç … Yaptın mı?",
+  "aiName": "Tara",
+  "aiRole": "Hostel'de tanıştığın gezgin",
+  "situation": "You are Tara, a backpacker the learner meets in a hostel kitchen. You have been to Japan and Peru, you have tried bungee jumping and you have never eaten snails. You have just arrived and have not seen the city yet. Ask 'Have you ever...?' questions and react with surprise. Use ever, never, just, already and yet.",
+  "opening": "Hi! I've just arrived. Have you been here long?",
+  "objectives": [
+   {
+    "text": "Ask Tara two 'Have you ever…?' questions.",
+    "textTr": "Tara'ya iki tane 'Have you ever…?' sorusu sor."
+   },
+   {
+    "text": "Tell Tara things you have done and never done (I've been to Italy. I've never tried sushi).",
+    "textTr": "Tara'ya yaptığın ve hiç yapmadığın şeyleri anlat (I've been to Italy. I've never tried sushi)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Have you ever been to Japan?",
+    "tr": "Hiç Japonya'ya gittin mi?"
+   },
+   {
+    "en": "I've never tried sushi.",
+    "tr": "Hiç suşi denemedim."
+   },
+   {
+    "en": "I've already seen the old town.",
+    "tr": "Eski şehri zaten gördüm."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-who-ate-the-cake",
+  "topicCode": "A2_N19",
+  "level": "A2",
+  "emoji": "🍰",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Who Ate the Cake?",
+  "titleTr": "Pastayı Kim Yedi?",
+  "aiName": "Zoe",
+  "aiRole": "Ev arkadaşın",
+  "situation": "You are Zoe, a flatmate. The last piece of chocolate cake is gone and you pretend to be a detective. Ask the learner what they were doing at 3 pm, at 5 pm and when the cake disappeared ('What were you doing when...?'). Say what you were doing yourself ('I was studying while you were out'). In the end decide whether you believe them. Keep it playful.",
+  "opening": "Excuse me, detective Zoe here. Someone ate the last piece of cake!",
+  "objectives": [
+   {
+    "text": "Say what you were doing yesterday at 3 pm and at 5 pm (I was reading at three).",
+    "textTr": "Dün saat üçte ve beşte ne yapıyor olduğunu söyle (I was reading at three)."
+   },
+   {
+    "text": "Use when and while to tell your story (I was cooking while my brother was watching TV).",
+    "textTr": "Hikâyeni anlatırken when ve while kullan (I was cooking while my brother was watching TV)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I was studying at three.",
+    "tr": "Saat üçte ders çalışıyordum."
+   },
+   {
+    "en": "I was cooking when you called.",
+    "tr": "Sen aradığında yemek yapıyordum."
+   },
+   {
+    "en": "What were you doing?",
+    "tr": "Ne yapıyordun?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-driving-lesson",
+  "topicCode": "A2_N20",
+  "level": "A2",
+  "emoji": "🚗",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Driving Lesson",
+  "titleTr": "Direksiyon Dersi",
+  "aiName": "Mark",
+  "aiRole": "Sürüş eğitmeni",
+  "situation": "You are Mark, a patient driving instructor in the car with the learner. Give feedback on how they drive: 'You drive carefully but too slowly. Turn left quickly now.' Ask how they feel and how they did. Use adjectives and adverbs: quick / quickly, good / well, careful / carefully, slow / slowly, bad / badly.",
+  "opening": "Okay, let's start. Are you ready? Drive slowly, please.",
+  "objectives": [
+   {
+    "text": "Say how you do things with adverbs (I drive carefully. I speak slowly).",
+    "textTr": "Bir şeyi nasıl yaptığını zarflarla söyle (I drive carefully. I speak slowly)."
+   },
+   {
+    "text": "Ask for feedback and answer (Did I drive well?).",
+    "textTr": "Geri bildirim iste ve yanıtla (Did I drive well?)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I drive carefully.",
+    "tr": "Dikkatli sürerim."
+   },
+   {
+    "en": "Did I do it well?",
+    "tr": "İyi yaptım mı?"
+   },
+   {
+    "en": "Can you speak more slowly?",
+    "tr": "Daha yavaş konuşabilir misin?"
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-party-plan",
+  "topicCode": "A2_N21",
+  "level": "A2",
+  "emoji": "🎈",
+  "durationMin": 5,
+  "twistIds": [
+   "mixup",
+   "chatty"
+  ],
+  "title": "Planning a Party",
+  "titleTr": "Parti Hazırlığı",
+  "aiName": "Priya",
+  "aiRole": "Ev arkadaşın",
+  "situation": "You are Priya, planning a housewarming party with the learner. You have a lot of snacks and drinks, a few chairs, a little ice and too many balloons. You still need cups. Ask what you still need and how many people are coming. Point out when something is too much or too many ('We have too much juice').",
+  "opening": "OK, the party is on Saturday! What do we need?",
+  "objectives": [
+   {
+    "text": "Say what you have and what you need with a lot of, a few and a little (We have a lot of snacks. We need a few chairs).",
+    "textTr": "Neyin olduğunu ve neye ihtiyaç olduğunu a lot of, a few ve a little ile söyle (We have a lot of snacks. We need a few chairs)."
+   },
+   {
+    "text": "Point out a problem with too much / too many (There are too many balloons).",
+    "textTr": "too much / too many ile bir sorunu belirt (There are too many balloons)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "We need a few more chairs.",
+    "tr": "Birkaç sandalyeye daha ihtiyacımız var."
+   },
+   {
+    "en": "There's too much juice.",
+    "tr": "Çok fazla meyve suyu var."
+   },
+   {
+    "en": "We have a lot of snacks.",
+    "tr": "Bir sürü atıştırmalığımız var."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-picnic-plans",
+  "topicCode": "A2_N22",
+  "level": "A2",
+  "emoji": "🧺",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Picnic Plans",
+  "titleTr": "Piknik Planı",
+  "aiName": "Max",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Max, the learner's friend. You want a picnic on Sunday but the forecast says it might rain, so you worry a little. Ask 'What will we do if it rains?' and 'What do you do if you feel hungry on a picnic?'. Share your own ideas with if ('If it rains, we'll go to a cafe.'). Accept good ideas.",
+  "opening": "Hey! Are we still doing the picnic on Sunday? Look at the sky!",
+  "objectives": [
+   {
+    "text": "Make plans for different weather with if (If it rains, we'll go to the museum).",
+    "textTr": "Farklı havalar için if ile plan yap (If it rains, we'll go to the museum)."
+   },
+   {
+    "text": "Ask and answer 'What will you do if…?' and say a general truth (If I'm tired, I stay at home).",
+    "textTr": "'What will you do if…?' sor ve yanıtla, bir de genel doğru söyle (If I'm tired, I stay at home)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "If it rains, we'll stay home.",
+    "tr": "Yağmur yağarsa evde kalırız."
+   },
+   {
+    "en": "What will you do if it's cold?",
+    "tr": "Hava soğuk olursa ne yapacaksın?"
+   },
+   {
+    "en": "If I'm hungry, I eat.",
+    "tr": "Acıkırsam yerim."
+   }
+  ]
+ },
+ {
+  "id": "vs-a2-why-late",
+  "topicCode": "A2_N23",
+  "level": "A2",
+  "emoji": "⏰",
+  "durationMin": 5,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Why Were You Late?",
+  "titleTr": "Neden Geç Kaldın?",
+  "aiName": "Kate",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Kate, waiting at a cafe for the learner, who is 30 minutes late. You are a bit annoyed but curious and kind. Ask what happened and say 'And then?' to get a full story. React to details ('Oh no!', 'Really?'). Do not accept 'I was late' as a full answer; ask for the order of events and the reasons.",
+  "opening": "There you are! You're late. What happened?",
+  "objectives": [
+   {
+    "text": "Tell what happened in order with first, then, after that and finally.",
+    "textTr": "Olanları first, then, after that ve finally ile sırasıyla anlat."
+   },
+   {
+    "text": "Explain reasons and results with because, so and but (I missed the bus, so I walked).",
+    "textTr": "Nedenleri ve sonuçları because, so ve but ile açıkla (I missed the bus, so I walked)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "First, I missed the bus.",
+    "tr": "Önce otobüsü kaçırdım."
+   },
+   {
+    "en": "Then I walked, but it was far.",
+    "tr": "Sonra yürüdüm ama çok uzaktı."
+   },
+   {
+    "en": "I'm late because there was traffic.",
+    "tr": "Trafik vardı, bu yüzden geç kaldım."
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-job-interview",
+  "topicCode": "B1_N24",
+  "level": "B1",
+  "emoji": "💼",
+  "durationMin": 6,
+  "twistIds": [
+   "hurry",
+   "chatty",
+   "complaint"
+  ],
+  "title": "Job Interview",
+  "titleTr": "İş Mülakatı",
+  "aiName": "Ms. Clarke",
+  "aiRole": "Mülakatçı",
+  "situation": "You are Ms. Clarke, an HR manager interviewing the learner for a marketing assistant job at a travel company. Ask how long they have worked, studied, used English and lived in their city (for / since). Probe a weak point once: 'You have only been at your last job for six months. Why?'. Be polite but direct, speak at a natural pace, and never fill the silence for them.",
+  "opening": "Good morning, please have a seat. Thank you for coming. Let's start with you: how long have you been working in your current field?",
+  "objectives": [
+   {
+    "text": "Say how long you have done things using for and since (I've worked in retail since 2021).",
+    "textTr": "for ve since ile bir şeyi ne kadar zamandır yaptığını söyle (I've worked in retail since 2021)."
+   },
+   {
+    "text": "Answer the probing question about your short job or gap and justify it.",
+    "textTr": "Kısa süren işle ya da boşlukla ilgili zorlayıcı soruyu yanıtla ve gerekçelendir."
+   },
+   {
+    "text": "Ask two good questions about the team or the job at the end.",
+    "textTr": "Sonunda ekip ya da iş hakkında iki iyi soru sor."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I've worked as a designer for three years.",
+    "tr": "Üç yıldır tasarımcı olarak çalışıyorum."
+   },
+   {
+    "en": "I've lived in this city since 2019.",
+    "tr": "2019'dan beri bu şehirde yaşıyorum."
+   },
+   {
+    "en": "How long has the team been together?",
+    "tr": "Ekip ne zamandır bir arada?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-catching-up",
+  "topicCode": "B1_N25",
+  "level": "B1",
+  "emoji": "☕",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "price",
+   "mixup"
+  ],
+  "title": "Catching Up",
+  "titleTr": "Uzun Süre Sonra Buluşma",
+  "aiName": "Daniel",
+  "aiRole": "Eski arkadaşın",
+  "situation": "You are Daniel, an old friend the learner has not seen for a year. You meet in a cafe. You have been learning to surf, working night shifts and looking for a flat because your lease ends next month. Ask what the learner has been doing lately and why they look tired or excited. Late in the chat ask a favour: could you stay at the learner's place for two months? Do not push; let the learner decide and give reasons.",
+  "opening": "Hey, there you are! It's been ages. You look different. What have you been up to?",
+  "objectives": [
+   {
+    "text": "Describe what you have been doing lately with the present perfect continuous (I've been studying a lot).",
+    "textTr": "Son zamanlarda neler yaptığını present perfect continuous ile anlat (I've been studying a lot)."
+   },
+   {
+    "text": "Explain how you feel because of it (I've been working late, so I'm exhausted).",
+    "textTr": "Bunun yüzünden nasıl hissettiğini açıkla (I've been working late, so I'm exhausted)."
+   },
+   {
+    "text": "Respond to Daniel's request for a place to stay: decide and give your reasons.",
+    "textTr": "Daniel'in kalacak yer isteğine karar verip nedenlerini söyleyerek yanıt ver."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I've been working a lot lately.",
+    "tr": "Son zamanlarda çok çalışıyorum."
+   },
+   {
+    "en": "I've been trying to learn the guitar.",
+    "tr": "Gitar öğrenmeye çalışıyorum."
+   },
+   {
+    "en": "How long have you been living there?",
+    "tr": "Ne zamandır orada yaşıyorsun?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-old-neighbourhood",
+  "topicCode": "B1_N26",
+  "level": "B1",
+  "emoji": "🏘️",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "hurry"
+  ],
+  "title": "The Old Neighbourhood",
+  "titleTr": "Eski Mahalle",
+  "aiName": "Marco",
+  "aiRole": "Gazeteci arkadaşın",
+  "situation": "You are Marco, a local journalist and an old school friend of the learner. You are writing an article called 'How our neighbourhood has changed'. Interview the learner: what did the area use to look like, where did they use to play, what would they do every summer? Then ask whether the changes are good or bad and push for a reason. Use used to and would yourself.",
+  "opening": "Hey! Thanks for meeting me. I'm writing about how our neighbourhood has changed. What was it like when you were a kid?",
+  "objectives": [
+   {
+    "text": "Describe how things used to be (There used to be a cinema here).",
+    "textTr": "Eskiden işlerin nasıl olduğunu anlat (There used to be a cinema here)."
+   },
+   {
+    "text": "Talk about childhood habits with used to and would (We would play outside until dark).",
+    "textTr": "Çocukluk alışkanlıklarını used to ve would ile anlat (We would play outside until dark)."
+   },
+   {
+    "text": "Compare then and now and say whether the change is good, with a reason.",
+    "textTr": "Eskiyle bugünü karşılaştır ve değişimin iyi olup olmadığını nedeniyle söyle."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "We used to play football in the street.",
+    "tr": "Sokakta futbol oynardık."
+   },
+   {
+    "en": "There didn't use to be so much traffic.",
+    "tr": "Eskiden bu kadar trafik yoktu."
+   },
+   {
+    "en": "Every summer we would go to the lake.",
+    "tr": "Her yaz göle giderdik."
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-missed-flight",
+  "topicCode": "B1_N27",
+  "level": "B1",
+  "emoji": "🛫",
+  "durationMin": 6,
+  "twistIds": [
+   "price",
+   "hurry",
+   "complaint"
+  ],
+  "title": "Missed Flight",
+  "titleTr": "Kaçırılan Uçuş",
+  "aiName": "Helen",
+  "aiRole": "Havayolu görevlisi",
+  "situation": "You are Helen, a firm but fair airline desk agent. The learner has missed their flight. Ask what happened step by step: 'When you arrived, had the check-in already closed? Why had you left so late?'. Rules: a new seat on tomorrow's 6 a.m. flight costs an 80 euro change fee; a travel voucher is free but valid only for six months. Only offer a free change if the learner explains the problem clearly and asks politely.",
+  "opening": "Good afternoon. I see you missed the 2 o'clock flight to Rome. What happened?",
+  "objectives": [
+   {
+    "text": "Explain what had already happened before you arrived (When I got there, the gate had closed).",
+    "textTr": "Vardığında neyin çoktan olmuş olduğunu anlat (When I got there, the gate had closed)."
+   },
+   {
+    "text": "Give the reasons in order, mixing the past perfect and the past simple.",
+    "textTr": "Nedenleri sırasıyla, past perfect ve past simple'ı karıştırarak ver."
+   },
+   {
+    "text": "Negotiate a solution: ask for the best option and decide.",
+    "textTr": "Çözüm için pazarlık et: en iyi seçeneği iste ve karar ver."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "By the time I got there, the gate had closed.",
+    "tr": "Oraya vardığımda kapı kapanmıştı."
+   },
+   {
+    "en": "I had left on time, but the bus had broken down.",
+    "tr": "Zamanında çıkmıştım ama otobüs bozulmuştu."
+   },
+   {
+    "en": "Is there any way to change my ticket for free?",
+    "tr": "Biletimi ücretsiz değiştirmenin bir yolu var mı?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-radio-phone-in",
+  "topicCode": "B1_N28",
+  "level": "B1",
+  "emoji": "📻",
+  "durationMin": 6,
+  "twistIds": [
+   "hurry",
+   "chatty"
+  ],
+  "title": "Radio Phone-In",
+  "titleTr": "Radyo Canlı Yayını",
+  "aiName": "Jamie",
+  "aiRole": "Radyo sunucusu",
+  "situation": "You are Jamie, the host of a lively morning radio show with a phone-in. The learner is a caller. Ask hypothetical questions: 'If you won a million, what would you do?', 'If you could live anywhere, where would you live?', 'What would you do if you were mayor for a day?'. Challenge their answers once or twice ('But wouldn't that be expensive?'). Keep the energy up and speak naturally.",
+  "opening": "You're live on Morning Wake-Up! Who's this calling? Welcome! Let's start with a fun one: what would you do if you won a million pounds tomorrow?",
+  "objectives": [
+   {
+    "text": "Answer two 'What would you do if…?' questions with the full second conditional.",
+    "textTr": "İki tane 'What would you do if…?' sorusunu tam second conditional ile yanıtla."
+   },
+   {
+    "text": "Ask Jamie a hypothetical question of your own (If you could…, what would you…?).",
+    "textTr": "Jamie'ye kendi varsayımsal sorunu sor (If you could…, what would you…?)."
+   },
+   {
+    "text": "Defend one of your answers when Jamie challenges it.",
+    "textTr": "Jamie itiraz edince cevaplarından birini savun."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "If I won the lottery, I would travel the world.",
+    "tr": "Piyangoyu kazansam dünyayı gezerdim."
+   },
+   {
+    "en": "If I were the mayor, I'd build more parks.",
+    "tr": "Belediye başkanı olsam daha çok park yapardım."
+   },
+   {
+    "en": "What would you do if you were me?",
+    "tr": "Sen benim yerimde olsan ne yapardın?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-mystery-bag",
+  "topicCode": "B1_N29",
+  "level": "B1",
+  "emoji": "🎒",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "hurry"
+  ],
+  "title": "The Mystery Bag",
+  "titleTr": "Sahipsiz Çanta",
+  "aiName": "Alex",
+  "aiRole": "İş arkadaşın",
+  "situation": "You are Alex, a colleague. You and the learner find an unattended black bag in the office lobby. Give clues one at a time, only when asked or after a pause: a gym towel, a French novel, a coffee cup from the cafe next door, a torn name tag that starts with 'M'. Colleagues who might own it: Marta (on holiday), Mike (tall, plays squash), Monique (French, new). Do not solve it for the learner; react to their guesses and ask for their reasons.",
+  "opening": "Look at this. Somebody left a bag in the lobby, and nobody's around. Who do you think it belongs to?",
+  "objectives": [
+   {
+    "text": "Make deductions with must, might, could and can't (It must be Mike's; it can't be Marta's).",
+    "textTr": "must, might, could ve can't ile çıkarım yap (It must be Mike's; it can't be Marta's)."
+   },
+   {
+    "text": "Ask Alex questions to get more clues.",
+    "textTr": "Daha fazla ipucu almak için Alex'e sorular sor."
+   },
+   {
+    "text": "Agree on what to do with the bag and why.",
+    "textTr": "Çantayla ne yapılacağı konusunda anlaş ve nedenini söyle."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It must be Mike's bag.",
+    "tr": "Mike'ın çantası olmalı."
+   },
+   {
+    "en": "It can't be Marta's. She's on holiday.",
+    "tr": "Marta'nın olamaz. Tatilde."
+   },
+   {
+    "en": "It might belong to a visitor.",
+    "tr": "Bir ziyaretçiye ait olabilir."
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-hardware-store",
+  "topicCode": "B1_N30",
+  "level": "B1",
+  "emoji": "🔧",
+  "durationMin": 6,
+  "twistIds": [
+   "unavailable",
+   "recommend",
+   "hurry"
+  ],
+  "title": "I Don't Know the Word",
+  "titleTr": "Kelimeyi Bilmiyorum",
+  "aiName": "Gary",
+  "aiRole": "Hırdavatçı",
+  "situation": "You are Gary, a hardware store clerk. The learner needs several things but does not know their English names, so they must describe them (for example a tool for hanging pictures, something that cuts metal, a thing that stops a door from banging). Guess what they mean out loud ('Do you mean the one that has a long handle?') and only name the item when the description is clear. One item is out of stock; offer an alternative.",
+  "opening": "Hi there! Can I help you find something?",
+  "objectives": [
+   {
+    "text": "Ask for three things by describing them (It's something that you use to hang pictures).",
+    "textTr": "Üç şeyi adını bilmeden tarif ederek iste (It's something that you use to hang pictures)."
+   },
+   {
+    "text": "Describe a place or a person with who or where (It's a shop where you can…).",
+    "textTr": "who ya da where ile bir yeri ya da kişiyi tarif et (It's a shop where you can…)."
+   },
+   {
+    "text": "Check you have the right item and explain what you will use it for.",
+    "textTr": "Doğru ürünü aldığından emin ol ve ne için kullanacağını açıkla."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It's a thing that you use to hang pictures.",
+    "tr": "Tabloları asmak için kullanılan bir şey."
+   },
+   {
+    "en": "I'm looking for a tool which cuts metal.",
+    "tr": "Metal kesen bir alet arıyorum."
+   },
+   {
+    "en": "Do you mean the one that has a long handle?",
+    "tr": "Uzun saplı olanı mı kastediyorsun?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-factory-tour",
+  "topicCode": "B1_N31",
+  "level": "B1",
+  "emoji": "🏭",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "hurry"
+  ],
+  "title": "Factory Tour",
+  "titleTr": "Fabrika Gezisi",
+  "aiName": "Elena",
+  "aiRole": "Rehber",
+  "situation": "You are Elena, a guide on a tour of a small chocolate factory founded in 1925. Explain in the passive voice ('The beans are roasted, then they are ground') but let the learner ask the questions: how it is made, when it was built, where it is exported. Share facts only when asked. Later ask how a traditional food or product from the learner's country is made and listen for steps.",
+  "opening": "Welcome to the Sweet Valley chocolate factory! I'm Elena, and I'll be your guide today. Feel free to ask me anything as we walk.",
+  "objectives": [
+   {
+    "text": "Ask three questions with the passive (How is it made? When was it built?).",
+    "textTr": "Edilgen yapıyla üç soru sor (How is it made? When was it built?)."
+   },
+   {
+    "text": "Explain how a traditional food or product from your country is made, using the passive (First the dough is rolled).",
+    "textTr": "Ülkenden geleneksel bir yiyeceğin ya da ürünün nasıl yapıldığını edilgenle anlat (First the dough is rolled)."
+   },
+   {
+    "text": "Sum up what you learned in two or three sentences (It is exported to forty countries).",
+    "textTr": "Öğrendiklerini iki üç cümleyle özetle (It is exported to forty countries)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "How is the chocolate made?",
+    "tr": "Çikolata nasıl yapılıyor?"
+   },
+   {
+    "en": "When was the factory built?",
+    "tr": "Fabrika ne zaman yapıldı?"
+   },
+   {
+    "en": "First the dough is rolled out.",
+    "tr": "Önce hamur açılır."
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-what-did-she-say",
+  "topicCode": "B1_N32",
+  "level": "B1",
+  "emoji": "🗨️",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "hurry"
+  ],
+  "title": "What Did She Say?",
+  "titleTr": "Ne Dedi?",
+  "aiName": "Nora",
+  "aiRole": "Arkadaşın",
+  "situation": "You are Nora, the learner's curious friend. The learner had an important meeting with their manager yesterday and you could not be there. Ask what happened: 'What did she say? What did she ask you? Did she tell you to do anything?'. The learner invents the details. Make them report speech rather than quote: if they quote directly, ask 'So what did she say exactly?' and let them rephrase. React with surprise and ask follow-ups.",
+  "opening": "Finally! I've been waiting all day. How did the meeting with your manager go? What did she say?",
+  "objectives": [
+   {
+    "text": "Report what your manager said and asked (She said that…, She asked me if…).",
+    "textTr": "Yöneticinin ne söylediğini ve ne sorduğunu aktar (She said that…, She asked me if…)."
+   },
+   {
+    "text": "Report what she told you to do (She told me to…, She asked me not to…).",
+    "textTr": "Sana ne yapmanı söylediğini aktar (She told me to…, She asked me not to…)."
+   },
+   {
+    "text": "Report your own answer and how it ended (I told her that…).",
+    "textTr": "Kendi cevabını ve nasıl bittiğini aktar (I told her that…)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "She said that the project was finished.",
+    "tr": "Projenin bittiğini söyledi."
+   },
+   {
+    "en": "He asked me if I could stay late.",
+    "tr": "Geç saate kadar kalabilir miyim diye sordu."
+   },
+   {
+    "en": "She told me to call the client.",
+    "tr": "Müşteriyi aramamı söyledi."
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-tourist-office",
+  "topicCode": "B1_N33",
+  "level": "B1",
+  "emoji": "🧭",
+  "durationMin": 6,
+  "twistIds": [
+   "unavailable",
+   "price",
+   "recommend"
+  ],
+  "title": "Tourist Information",
+  "titleTr": "Turizm Danışma",
+  "aiName": "Hugo",
+  "aiRole": "Turizm danışmanı",
+  "situation": "You are Hugo, a clerk at a city tourist office. The learner has half a day in town. Details you know: the museum opens at nine and closes at five (free on Sundays), the old castle is closed for repairs, the boat tour costs 18 euros and leaves at two, the market is on the main square until noon. Answer indirect questions ('Could you tell me where...?'), and sometimes use question tags yourself ('It's a lovely day, isn't it?') to see if the learner answers naturally.",
+  "opening": "Good morning! Welcome to the tourist office. How can I help you?",
+  "objectives": [
+   {
+    "text": "Ask three polite indirect questions (Could you tell me…? Do you know if…?).",
+    "textTr": "Üç kibar dolaylı soru sor (Could you tell me…? Do you know if…?)."
+   },
+   {
+    "text": "Check information with question tags (The museum opens at nine, doesn't it?).",
+    "textTr": "Bilgiyi question tag ile doğrula (The museum opens at nine, doesn't it?)."
+   },
+   {
+    "text": "Plan a half-day programme with Hugo and confirm the final plan.",
+    "textTr": "Hugo ile yarım günlük bir program yap ve son planı doğrula."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Could you tell me where the museum is?",
+    "tr": "Müzenin nerede olduğunu söyleyebilir misiniz?"
+   },
+   {
+    "en": "Do you know what time it closes?",
+    "tr": "Kaçta kapandığını biliyor musunuz?"
+   },
+   {
+    "en": "It's quite close, isn't it?",
+    "tr": "Oldukça yakın, değil mi?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b1-habit-coach",
+  "topicCode": "B1_N34",
+  "level": "B1",
+  "emoji": "🌱",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "complaint"
+  ],
+  "title": "Habit Coach",
+  "titleTr": "Alışkanlık Koçu",
+  "aiName": "Dana",
+  "aiRole": "Yaşam koçu",
+  "situation": "You are Dana, a friendly but demanding life coach. In a first session, ask the learner what they want to start, stop or give up (exercise, sugar, phone use), what they enjoy doing, what they keep forgetting to do. Pick up on verb patterns: 'Do you remember to...?', 'Did you stop to...?' versus 'Did you stop...-ing?', 'Have you tried...-ing?'. End by asking them to make a three-step plan and to promise it.",
+  "opening": "Hi, I'm Dana. Great to meet you! Let's start with the big question: what would you like to change in your daily life?",
+  "objectives": [
+   {
+    "text": "Talk about habits you want to start or stop with verb + -ing / to (I want to start running; I should give up eating late).",
+    "textTr": "Başlamak ya da bırakmak istediğin alışkanlıkları fiil + -ing / to ile anlat (I want to start running; I should give up eating late)."
+   },
+   {
+    "text": "Use remember, stop or try with a clear difference in meaning (I stopped to drink water / I stopped drinking coffee).",
+    "textTr": "remember, stop ya da try'ı anlam farkını belli ederek kullan (I stopped to drink water / I stopped drinking coffee)."
+   },
+   {
+    "text": "Make a three-step plan and promise it to Dana.",
+    "textTr": "Üç adımlı bir plan yap ve Dana'ya söz ver."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'd like to give up eating sweets.",
+    "tr": "Tatlı yemeyi bırakmak istiyorum."
+   },
+   {
+    "en": "I've decided to start swimming.",
+    "tr": "Yüzmeye başlamaya karar verdim."
+   },
+   {
+    "en": "I always forget to drink water.",
+    "tr": "Hep su içmeyi unutuyorum."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-no-regrets",
+  "topicCode": "B2_N35",
+  "level": "B2",
+  "emoji": "🔄",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "complaint"
+  ],
+  "title": "No Regrets?",
+  "titleTr": "Pişmanlık Var mı?",
+  "aiName": "Leila",
+  "aiRole": "Eski arkadaşın",
+  "situation": "You are Leila, an old friend, at a reunion dinner. You are deciding whether to quit a safe job and study abroad next autumn, and you are scared. Ask the learner about their biggest turning point and what would have happened if they had chosen differently. Challenge with 'But would you really have been happier?'. Ask the learner for honest advice about your decision and react as someone who is really torn.",
+  "opening": "It's so good to see you! You know, I've been thinking a lot about choices lately. Do you ever wonder how your life would be different?",
+  "objectives": [
+   {
+    "text": "Talk about a past regret with the third conditional (If I had studied harder, I would have passed).",
+    "textTr": "Geçmişteki bir pişmanlığı third conditional ile anlat (If I had studied harder, I would have passed)."
+   },
+   {
+    "text": "Link a past decision with your life today, using a mixed conditional (If I had moved, I'd be living there now).",
+    "textTr": "Geçmişteki bir kararı bugünkü hayatınla bağla, karma koşul kullan (If I had moved, I'd be living there now)."
+   },
+   {
+    "text": "Advise Leila on her decision using what you learned from your own choices.",
+    "textTr": "Kendi seçimlerinden öğrendiklerinle Leila'ya kararı konusunda tavsiye ver."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "If I had known, I would have acted differently.",
+    "tr": "Bilseydim farklı davranırdım."
+   },
+   {
+    "en": "If I hadn't moved, I wouldn't have met my partner.",
+    "tr": "Taşınmasaydım eşimle tanışmazdım."
+   },
+   {
+    "en": "If I were you, I wouldn't hesitate.",
+    "tr": "Senin yerinde olsam tereddüt etmezdim."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-post-mortem",
+  "topicCode": "B2_N36",
+  "level": "B2",
+  "emoji": "📉",
+  "durationMin": 6,
+  "twistIds": [
+   "hurry",
+   "complaint",
+   "price"
+  ],
+  "title": "Post-Mortem Meeting",
+  "titleTr": "Ne Ters Gitti Toplantısı",
+  "aiName": "Olivia",
+  "aiRole": "Yöneticin",
+  "situation": "You are Olivia, a manager, in a post-mortem meeting after a client cancelled a big event. Facts: the invoice was never sent, the confirmation email may have gone to spam, the venue called twice but nobody answered, and the system showed no errors. Do not blame anyone directly. Ask the learner what must have, might have or can't have happened, and what should have been done. Push for specifics, and finish by asking for two lessons learned.",
+  "opening": "Thanks for coming in. As you know, the client cancelled yesterday. I want to understand what went wrong. What's your view?",
+  "objectives": [
+   {
+    "text": "Speculate about causes (The email might have gone to spam; he can't have received it).",
+    "textTr": "Nedenler hakkında tahmin yürüt (The email might have gone to spam; he can't have received it)."
+   },
+   {
+    "text": "Say what should or shouldn't have been done (We should have confirmed the date).",
+    "textTr": "Neyin yapılması ya da yapılmaması gerektiğini söyle (We should have confirmed the date)."
+   },
+   {
+    "text": "Agree on two lessons learned with Olivia.",
+    "textTr": "Olivia ile çıkarılan iki dersi belirle."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "He must have forgotten to call.",
+    "tr": "Aramayı unutmuş olmalı."
+   },
+   {
+    "en": "We should have checked the date.",
+    "tr": "Tarihi kontrol etmeliydik."
+   },
+   {
+    "en": "It can't have been her fault.",
+    "tr": "Onun suçu olamaz."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-handover",
+  "topicCode": "B2_N37",
+  "level": "B2",
+  "emoji": "🧳",
+  "durationMin": 6,
+  "twistIds": [
+   "hurry",
+   "price",
+   "complaint"
+  ],
+  "title": "Handover Before the Trip",
+  "titleTr": "Yola Çıkmadan Devir Teslim",
+  "aiName": "Marcus",
+  "aiRole": "İş arkadaşın",
+  "situation": "You are Marcus, the colleague who will cover the learner's work while they are away for three weeks starting next Monday. Ask what the learner will be doing at key moments ('Will you be working on the report on Thursday?') and what will have been finished by each deadline ('Will the budget have been approved by Friday?'). Then say you need one file earlier than planned (Wednesday instead of Friday) and make the learner negotiate a deal.",
+  "opening": "Hi! Thanks for finding time. Before you leave, let's go through the plan so I know exactly where everything stands.",
+  "objectives": [
+   {
+    "text": "Say what you will be doing at key moments (On Monday morning I'll be sitting in a meeting).",
+    "textTr": "Belirli anlarda ne yapıyor olacağını söyle (On Monday morning I'll be sitting in a meeting)."
+   },
+   {
+    "text": "Say what will have been finished by each deadline (By Friday I'll have sent the report).",
+    "textTr": "Her son tarihe kadar nelerin bitmiş olacağını söyle (By Friday I'll have sent the report)."
+   },
+   {
+    "text": "Negotiate Marcus's request for an earlier file and agree a deal.",
+    "textTr": "Marcus'un dosyayı daha erken isteme talebini pazarlıkla çöz ve anlaş."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "This time next week I'll be flying to Tokyo.",
+    "tr": "Haftaya bu saatlerde Tokyo'ya uçuyor olacağım."
+   },
+   {
+    "en": "By Friday, I'll have finished the report.",
+    "tr": "Cumaya kadar raporu bitirmiş olacağım."
+   },
+   {
+    "en": "Will you be available on Thursday?",
+    "tr": "Perşembe günü müsait olacak mısın?"
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-renovation-quote",
+  "topicCode": "B2_N38",
+  "level": "B2",
+  "emoji": "🏗️",
+  "durationMin": 6,
+  "twistIds": [
+   "price",
+   "unavailable",
+   "hurry"
+  ],
+  "title": "Renovation Quote",
+  "titleTr": "Tadilat Teklifi",
+  "aiName": "Ray",
+  "aiRole": "Müteahhit",
+  "situation": "You are Ray, a contractor visiting the learner's flat to quote for a renovation: painting the walls (400 euros), fixing the kitchen tap (80), replacing the windows (2,000, six weeks), fitting new shelves (150). The learner is having a party in three weeks, so you cannot finish everything. Ask what they want done and what they would rather do themselves. Prices are fixed, but you can bundle jobs for a 10 percent discount if they commit today.",
+  "opening": "Morning! Thanks for having me. Let's walk through the flat. What exactly are you thinking of having done?",
+  "objectives": [
+   {
+    "text": "Say what you want to have done (I'd like to have the kitchen painted).",
+    "textTr": "Neyin yaptırılmasını istediğini söyle (I'd like to have the kitchen painted)."
+   },
+   {
+    "text": "Ask about time and cost (How long will it take to get the windows replaced?).",
+    "textTr": "Süre ve maliyeti sor (How long will it take to get the windows replaced?)."
+   },
+   {
+    "text": "Decide what to do yourself and what to have done before the party, and agree the deal.",
+    "textTr": "Partiden önce neyi kendin yapacağına, neyi yaptıracağına karar ver ve anlaşmayı bitir."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'd like to have the walls painted.",
+    "tr": "Duvarların boyatılmasını istiyorum."
+   },
+   {
+    "en": "How much would it cost to get the roof repaired?",
+    "tr": "Çatıyı onartmak ne kadara mal olur?"
+   },
+   {
+    "en": "I'll paint it myself, but I'll have the windows fixed.",
+    "tr": "Boyayı kendim yaparım ama pencereleri yaptırırım."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-witness-at-work",
+  "topicCode": "B2_N39",
+  "level": "B2",
+  "emoji": "📋",
+  "durationMin": 6,
+  "twistIds": [
+   "complaint",
+   "hurry"
+  ],
+  "title": "Witness at Work",
+  "titleTr": "İş Yerinde Tanık",
+  "aiName": "Ms. Reed",
+  "aiRole": "İK uzmanı",
+  "situation": "You are Ms. Reed from HR, interviewing the learner as a witness to a small office dispute last week: a colleague (Mark) broke the shared printer, and another (Karen) was blamed. The learner invents the details. Ask what Mark admitted or denied, what Karen threatened or suggested, who promised or refused to do what. Make them report with reporting verbs rather than quotes. Stay neutral and ask them to be careful about what they actually heard.",
+  "opening": "Thank you for agreeing to speak with me. This is a confidential conversation. Can you tell me what happened at the printer last Thursday?",
+  "objectives": [
+   {
+    "text": "Report what colleagues said with reporting verbs (He admitted breaking it; she denied taking the file).",
+    "textTr": "Meslektaşlarının söylediklerini aktarma fiilleriyle aktar (He admitted breaking it; she denied taking the file)."
+   },
+   {
+    "text": "Stay precise about what you heard and what you assume (I'm not sure whether…, as far as I know).",
+    "textTr": "Neyi duyduğun, neyi varsaydığın konusunda net ol (I'm not sure whether…, as far as I know)."
+   },
+   {
+    "text": "Suggest a fair solution (I suggest talking to them together).",
+    "textTr": "Adil bir çözüm öner (I suggest talking to them together)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "He admitted breaking the printer.",
+    "tr": "Yazıcıyı kırdığını kabul etti."
+   },
+   {
+    "en": "She denied taking the file.",
+    "tr": "Dosyayı almadığını söyledi."
+   },
+   {
+    "en": "I suggest talking to them together.",
+    "tr": "Onlarla birlikte konuşmayı öneririm."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-introducing-guests",
+  "topicCode": "B2_N40",
+  "level": "B2",
+  "emoji": "🥂",
+  "durationMin": 6,
+  "twistIds": [
+   "chatty",
+   "hurry"
+  ],
+  "title": "Introducing the Guests",
+  "titleTr": "Konukları Tanıtma",
+  "aiName": "Chris",
+  "aiRole": "Etkinlik sunucusu",
+  "situation": "You are Chris, the host of a friend's anniversary party. The learner has been asked to give a short, warm introduction of three guests to a group (the learner invents them: friends, relatives, colleagues). Help them prepare: ask about each person and push for extra details, ('And where does she live?', 'Anything special about their family?'). Listen for non-defining relative clauses with who, which, where and whose, and keep the tone friendly and a little humorous.",
+  "opening": "Okay, big night! You're introducing three guests, so let's rehearse. Who's the first person, and how do you know them?",
+  "objectives": [
+   {
+    "text": "Introduce three people with extra information in non-defining clauses (This is Marta, who works at a hospital).",
+    "textTr": "Üç kişiyi ek bilgili, virgüllü ilgi cümleleriyle tanıt (This is Marta, who works at a hospital)."
+   },
+   {
+    "text": "Describe a place or an event with which or where (We met in Lisbon, which is my favourite city).",
+    "textTr": "which ya da where ile bir yeri ya da olayı anlat (We met in Lisbon, which is my favourite city)."
+   },
+   {
+    "text": "Add one surprising fact about a guest with whose (Jonas, whose band is famous, will play later).",
+    "textTr": "whose ile bir konuk hakkında şaşırtıcı bir bilgi ekle (Jonas, whose band is famous, will play later)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "This is Marta, who I've known for ten years.",
+    "tr": "Bu Marta, onu on yıldır tanıyorum."
+   },
+   {
+    "en": "We stayed in Lisbon, which was amazing.",
+    "tr": "Lizbon'da kaldık, ki harikaydı."
+   },
+   {
+    "en": "Her brother, whose band is famous, will play later.",
+    "tr": "Grubu ünlü olan erkek kardeşi birazdan çalacak."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-two-offers",
+  "topicCode": "B2_N41",
+  "level": "B2",
+  "emoji": "⚖️",
+  "durationMin": 6,
+  "twistIds": [
+   "complaint",
+   "hurry"
+  ],
+  "title": "Two Job Offers",
+  "titleTr": "İki İş Teklifi",
+  "aiName": "Rosa",
+  "aiRole": "Mentörün",
+  "situation": "You are Rosa, the learner's experienced mentor. The learner has two offers. Job A: 20 percent more pay, stable big company, but a 90-minute commute and long hours. Job B: lower pay, a start-up with risk, flexible hours, remote work two days a week and faster growth. Play devil's advocate: whatever the learner leans towards, argue the other side politely ('But the salary is so much lower...'). Make them concede points and still defend their choice.",
+  "opening": "Congratulations on the two offers! Now comes the hard part. Talk me through them: how do they compare?",
+  "objectives": [
+   {
+    "text": "Compare the two offers with whereas and while (Job A is stable, whereas Job B is risky).",
+    "textTr": "İki teklifi whereas ve while ile karşılaştır (Job A is stable, whereas Job B is risky)."
+   },
+   {
+    "text": "Concede a point and still argue your case with although, despite or in spite of (Although it pays less, I'd choose it).",
+    "textTr": "Bir noktayı kabul ederek yine de görüşünü although, despite ya da in spite of ile savun (Although it pays less, I'd choose it)."
+   },
+   {
+    "text": "Defend your final decision when Rosa pushes back.",
+    "textTr": "Rosa karşı çıktığında son kararını savun."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Although it pays less, it's more flexible.",
+    "tr": "Daha az ödese de daha esnek."
+   },
+   {
+    "en": "Despite the long commute, I'd take it.",
+    "tr": "Uzun yola rağmen kabul ederdim."
+   },
+   {
+    "en": "Job A is stable, whereas Job B is risky.",
+    "tr": "A işi güvenli, B işi ise riskli."
+   }
+  ]
+ },
+ {
+  "id": "vs-b2-hotel-manager",
+  "topicCode": "B2_N42",
+  "level": "B2",
+  "emoji": "🏨",
+  "durationMin": 6,
+  "twistIds": [
+   "price",
+   "complaint",
+   "hurry"
+  ],
+  "title": "The Hotel Manager",
+  "titleTr": "Otel Müdürü",
+  "aiName": "Mr. Hale",
+  "aiRole": "Otel müdürü",
+  "situation": "You are Mr. Hale, a defensive hotel manager. The learner stayed two nights and wants to complain strongly: noise from a party until 3 a.m., a dirty bathroom, no hot water on the second morning. At first you give weak, polite excuses ('These things happen'). Only offer real compensation (a refund of one night or a free upgrade next time) after the learner is firm and clear. Do not apologise easily.",
+  "opening": "Good morning. I understand you wished to speak to me. How can I help?",
+  "objectives": [
+   {
+    "text": "Make a strong complaint using at least two inversions (Never have I stayed in such a dirty room; Not only was it noisy, but…).",
+    "textTr": "En az iki devrik yapı kullanarak sert bir şikâyette bulun (Never have I stayed in such a dirty room; Not only was it noisy, but…)."
+   },
+   {
+    "text": "Refuse weak apologies firmly but politely (Under no circumstances will I accept that).",
+    "textTr": "Zayıf özürleri kararlı ama kibarca reddet (Under no circumstances will I accept that)."
+   },
+   {
+    "text": "Negotiate fair compensation and agree what happens next.",
+    "textTr": "Adil bir tazminat için pazarlık et ve sonraki adımda anlaş."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Never have I seen such a mess.",
+    "tr": "Hiç böyle bir dağınıklık görmedim."
+   },
+   {
+    "en": "Not only was the room noisy, but it was also dirty.",
+    "tr": "Oda sadece gürültülü değil, aynı zamanda kirliydi."
+   },
+   {
+    "en": "Under no circumstances will I pay for this.",
+    "tr": "Hiçbir koşulda bunun parasını ödemeyeceğim."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-investor-pitch",
+  "topicCode": "C1_N43",
+  "level": "C1",
+  "emoji": "📈",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "price",
+   "complaint",
+   "chatty"
+  ],
+  "title": "The Investor Pitch",
+  "titleTr": "Yatırımcı Sunumu",
+  "aiName": "Victoria",
+  "aiRole": "Yatırımcı",
+  "situation": "You are Victoria, a sharp, sceptical investor hearing a five-minute pitch for the learner's startup (they invent the product). Interrupt politely, challenge vague claims, and deliberately misunderstand one point ('So the design was the problem?') so the learner must correct you. Ask 'What exactly makes you different?' and 'What do you need from me?'. Be impressed only by precise, well-emphasised answers. End by deciding whether to schedule a follow-up meeting.",
+  "opening": "I have about ten minutes. I've read your summary, but I'd rather hear it from you. Convince me.",
+  "objectives": [
+   {
+    "text": "Stress your key points with what-clefts (What sets us apart is our support).",
+    "textTr": "Ana noktalarını what ile başlayan vurgu yapılarıyla öne çıkar (What sets us apart is our support)."
+   },
+   {
+    "text": "Correct Victoria's misunderstanding with an it-cleft (It wasn't the price; it was the delivery that put people off).",
+    "textTr": "Victoria'nın yanlış anlamasını it ile başlayan vurgu yapısıyla düzelt (It wasn't the price; it was the delivery that put people off)."
+   },
+   {
+    "text": "Close by asking for a concrete next step and answering her final challenge.",
+    "textTr": "Somut bir sonraki adımı isteyerek bitir ve onun son itirazını yanıtla."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "What we need is a bigger market.",
+    "tr": "İhtiyacımız olan şey daha büyük bir pazar."
+   },
+   {
+    "en": "It was the timing that caused the problem.",
+    "tr": "Soruna yol açan şey zamanlamaydı."
+   },
+   {
+    "en": "What sets us apart is the support we offer.",
+    "tr": "Bizi farklı kılan sunduğumuz destek."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-science-interview",
+  "topicCode": "C1_N44",
+  "level": "C1",
+  "emoji": "🎙️",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "complaint",
+   "chatty"
+  ],
+  "title": "The Science Interview",
+  "titleTr": "Bilim Röportajı",
+  "aiName": "Sam",
+  "aiRole": "Gazeteci",
+  "situation": "You are Sam Rowe, a radio journalist interviewing the learner, a researcher (they invent the study: for example whether a four-day week raises productivity). Press for headline claims: 'So does it work? Yes or no?'. Try to put words in their mouth ('So you're saying it will definitely...'). Reward careful, calibrated answers; become sharper if they overclaim or if they hedge so much that they say nothing.",
+  "opening": "Thanks for joining us. Your study is making headlines. Let's cut to the chase: does it work?",
+  "objectives": [
+   {
+    "text": "Answer with calibrated claims (The results appear to suggest…; it tends to…; it may well be that…).",
+    "textTr": "Ölçülü iddialarla yanıtla (The results appear to suggest…; it tends to…; it may well be that…)."
+   },
+   {
+    "text": "Resist the pressure for a headline claim without losing credibility.",
+    "textTr": "Manşetlik bir iddia için gelen baskıya inandırıcılığını kaybetmeden direnç göster."
+   },
+   {
+    "text": "Separate what the evidence shows from what is only speculation.",
+    "textTr": "Kanıtın gösterdiğiyle yalnızca spekülasyon olanı birbirinden ayır."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "The results appear to suggest a link.",
+    "tr": "Sonuçlar bir bağlantıya işaret ediyor gibi görünüyor."
+   },
+   {
+    "en": "It may well be the case, but we can't be sure.",
+    "tr": "Öyle olabilir, ama emin olamayız."
+   },
+   {
+    "en": "That is arguably the strongest finding.",
+    "tr": "Bu, tartışmasız en güçlü bulgu denebilir."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-contract-talks",
+  "topicCode": "C1_N45",
+  "level": "C1",
+  "emoji": "📑",
+  "durationMin": 7,
+  "twistIds": [
+   "price",
+   "hurry",
+   "complaint"
+  ],
+  "title": "Contract Negotiation",
+  "titleTr": "Sözleşme Pazarlığı",
+  "aiName": "Mr. Adler",
+  "aiRole": "Satın alma müdürü",
+  "situation": "You are Mr. Adler, a formal procurement director on a conference call to finalise a supply contract with the learner's company (they invent the product). Open points: delivery deadline (you want 30 days, they can do 45), price (you want a 10 percent discount), and a penalty clause for delays. Keep a courteous but firm, formal register. Use formal conditionals yourself ('Should the delivery be delayed, ...') and expect the same level of language back. Do not accept casual phrasing without a polite remark.",
+  "opening": "Good morning. Thank you for making the time. Let us go through the three outstanding points in the draft, starting with delivery.",
+  "objectives": [
+   {
+    "text": "Make formal offers without if (Should you require changes, we would be glad to discuss them).",
+    "textTr": "if kullanmadan resmî teklifler yap (Should you require changes, we would be glad to discuss them)."
+   },
+   {
+    "text": "Explore concessions with hypotheticals (Were we to extend the deadline, would you accept the price?).",
+    "textTr": "Varsayımsal ifadelerle taviz seçeneklerini araştır (Were we to extend the deadline, would you accept the price?)."
+   },
+   {
+    "text": "Settle the three points and express regret or responsibility diplomatically (Had we been informed earlier…).",
+    "textTr": "Üç maddeyi sonuçlandır ve pişmanlığı ya da sorumluluğu diplomatik biçimde ifade et (Had we been informed earlier…)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Should you have any concerns, please let us know.",
+    "tr": "Herhangi bir endişeniz olursa lütfen bize bildirin."
+   },
+   {
+    "en": "Were we to extend the deadline, would you reconsider?",
+    "tr": "Süreyi uzatsak, yeniden düşünür müydünüz?"
+   },
+   {
+    "en": "Had we known earlier, we would have adjusted the plan.",
+    "tr": "Daha önce bilseydik planı değiştirirdik."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-board-report",
+  "topicCode": "C1_N46",
+  "level": "C1",
+  "emoji": "🧾",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "complaint"
+  ],
+  "title": "Board Presentation",
+  "titleTr": "Yönetim Kurulu Sunumu",
+  "aiName": "Ms. Okafor",
+  "aiRole": "Yönetim kurulu üyesi",
+  "situation": "You are Ms. Okafor, a senior board member listening to the learner present last year's results (they invent them: for example a new process reduced delays and complaints). Expect concise, formal language with nominalisation ('The introduction of the new process led to a reduction in delays'). Interrupt once with 'In plain words, what happened?' to see whether they can switch back to clear verb-based language, and ask for the single most important cause. Be efficient and slightly impatient.",
+  "opening": "We have fifteen minutes. Please summarise last year's results and tell us what drove them.",
+  "objectives": [
+   {
+    "text": "Summarise results with nominalisation (The introduction of the new system led to a reduction in delays).",
+    "textTr": "Sonuçları isimleştirmeyle özetle (The introduction of the new system led to a reduction in delays)."
+   },
+   {
+    "text": "Explain a cause-and-effect chain concisely in a formal register.",
+    "textTr": "Bir neden-sonuç zincirini resmî dille kısa ve net anlat."
+   },
+   {
+    "text": "Restate it in plain verbs when asked and say which version is clearer for this audience.",
+    "textTr": "İstenince aynı şeyi sade fiillerle yeniden söyle ve bu dinleyici için hangi anlatımın daha net olduğunu belirt."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "The introduction of the app led to an increase in sales.",
+    "tr": "Uygulamanın devreye girmesi satışlarda artışa yol açtı."
+   },
+   {
+    "en": "There has been a significant decline in complaints.",
+    "tr": "Şikâyetlerde belirgin bir düşüş yaşandı."
+   },
+   {
+    "en": "In other words, we fixed the process and delays fell.",
+    "tr": "Yani süreci düzelttik ve gecikmeler azaldı."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-panel-debate",
+  "topicCode": "C2_N47",
+  "level": "C2",
+  "emoji": "🎤",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "complaint",
+   "chatty"
+  ],
+  "title": "Panel Debate",
+  "titleTr": "Panel Tartışması",
+  "aiName": "Dr. Hartmann",
+  "aiRole": "Panel konuğu",
+  "situation": "You are Dr. Hartmann, a quick-witted fellow panellist at a public debate on whether cities should ban cars from their centres. Speak fast, use ellipsis and substitution yourself ('I think so, and so do most residents'), refer back with the former / the latter, this and such. Challenge the learner at pace, take the floor back if they hesitate, and never repeat a full phrase when a short reference would do. Expect them to keep up and to keep their references clear.",
+  "opening": "Shall we begin? I'll be blunt: banning cars from city centres sounds appealing, but I don't think it works. Where do you stand?",
+  "objectives": [
+   {
+    "text": "Avoid repetition with ellipsis and substitution (I think so, and so does she; I'd say they do).",
+    "textTr": "Eksiltme ve yerine koymayla tekrardan kaçın (I think so, and so does she; I'd say they do)."
+   },
+   {
+    "text": "Keep your references clear with this, such and the former / the latter.",
+    "textTr": "this, such ve the former / the latter ile göndermelerini net tut."
+   },
+   {
+    "text": "Answer rapid challenges and keep the floor without being interrupted.",
+    "textTr": "Hızlı itirazlara yanıt ver ve sözünü kesilmeden söz hakkını koru."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'd say so, and so would most experts.",
+    "tr": "Bence öyle, çoğu uzman da aynısını söylerdi."
+   },
+   {
+    "en": "The former is cheaper; the latter is more reliable.",
+    "tr": "Birincisi daha ucuz, ikincisi daha güvenilir."
+   },
+   {
+    "en": "Such an approach rarely works.",
+    "tr": "Böyle bir yaklaşım nadiren işe yarar."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-three-tones",
+  "topicCode": "C2_U1",
+  "level": "C2",
+  "emoji": "🎚️",
+  "durationMin": 7,
+  "twistIds": [
+   "chatty",
+   "complaint"
+  ],
+  "title": "One Message, Three Tones",
+  "titleTr": "Aynı Mesaj, Üç Ton",
+  "aiName": "Hannah",
+  "aiRole": "İletişim partnerin",
+  "situation": "You are Hannah, a communications coach who rehearses difficult messages with the learner by playing the listeners. The news: the learner's flight was cancelled, so they will arrive two days late for a conference. Rehearse three calls in turn: first you play Leo, a close friend (casual); then Mr. Patel, the hotel receptionist who must change the booking (polite service register); then Ms. Lindqvist from the conference office (formal, precise). Say 'OK, I'm Leo now' before each. React in character to tone: tease if they are too stiff with the friend, cool down if they are too casual with the official. Keep the facts identical in all three.",
+  "opening": "Okay, you need to tell three different people the same news. Let's rehearse. I'll start as your friend Leo. Ring ring! Hey, what's up?",
+  "objectives": [
+   {
+    "text": "Tell your friend casually, with contractions and relaxed phrasing (Hey, so my flight got cancelled).",
+    "textTr": "Arkadaşına rahat anlat: kısaltmalar ve gündelik bir dille (Hey, so my flight got cancelled)."
+   },
+   {
+    "text": "Tell the hotel receptionist politely and clearly, asking for what you need (I'd like to move my booking).",
+    "textTr": "Otel resepsiyonistine kibarca ve net anlat, ihtiyacını iste (I'd like to move my booking)."
+   },
+   {
+    "text": "Tell the conference office formally and precisely, with the exact facts (I regret to inform you that…).",
+    "textTr": "Konferans ofisine resmî ve kesin bilgilerle anlat (I regret to inform you that…)."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "Hey, so my flight got cancelled.",
+    "tr": "Hey, uçuşum iptal oldu."
+   },
+   {
+    "en": "I'm afraid I won't be able to arrive until Friday.",
+    "tr": "Maalesef cumaya kadar gelemeyeceğim."
+   },
+   {
+    "en": "I regret to inform you that my arrival will be delayed.",
+    "tr": "Varışımın gecikeceğini üzülerek bildiririm."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-saying-no",
+  "topicCode": "C2_U2",
+  "level": "C2",
+  "emoji": "🕊️",
+  "durationMin": 7,
+  "twistIds": [
+   "complaint",
+   "hurry",
+   "price"
+  ],
+  "title": "Saying No Diplomatically",
+  "titleTr": "Diplomatik Bir Hayır",
+  "aiName": "Mr. Okonkwo",
+  "aiRole": "Uzun süreli müşterin",
+  "situation": "You are Mr. Okonkwo, a long-standing and influential client of the learner's company. You are friendly, but you ask for something the learner cannot give: deliver a large project in half the agreed time at no extra cost, because your own boss is putting pressure on you. Use charm, the history of the partnership, and mild disappointment ('I thought we were more than a supplier'). Accept a no only if it is clear, respectful and comes with a real alternative. Never become hostile.",
+  "opening": "Thank you for taking my call. I'll be honest, I'm in a difficult position, and you're the first person I thought of.",
+  "objectives": [
+   {
+    "text": "Decline clearly without a blunt no (I'm afraid that won't be possible).",
+    "textTr": "Düz bir hayır demeden net biçimde reddet (I'm afraid that won't be possible)."
+   },
+   {
+    "text": "Explain your constraints and offer a real alternative (What I can offer instead is…).",
+    "textTr": "Kısıtlarını açıkla ve gerçek bir alternatif sun (What I can offer instead is…)."
+   },
+   {
+    "text": "Hold your position under emotional pressure while protecting the relationship.",
+    "textTr": "Duygusal baskı altında tutumunu koru ve ilişkiyi de koru."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'm afraid that isn't something we can commit to.",
+    "tr": "Maalesef buna söz veremeyiz."
+   },
+   {
+    "en": "What I can offer instead is a phased delivery.",
+    "tr": "Onun yerine aşamalı teslim önerebilirim."
+   },
+   {
+    "en": "I value our partnership, which is why I'm being honest.",
+    "tr": "Ortaklığımıza değer veriyorum, bu yüzden dürüst oluyorum."
+   }
+  ]
+ }
+]

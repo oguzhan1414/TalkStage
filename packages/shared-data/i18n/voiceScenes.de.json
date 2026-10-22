@@ -1,0 +1,469 @@
+{
+ "vs-a1-first-day": {
+  "titleTr": "Erster Tag im Sprachkurs",
+  "aiRole": "Deine Kurskollegin",
+  "objectives.0.textTr": "Sag Sofia deinen Namen, woher du kommst und was du machst (am / is / are).",
+  "objectives.1.textTr": "Frag Sofia, woher sie kommt und was sie beruflich macht.",
+  "keyPhrases.0.tr": "Ich bin Elif. Ich komme aus der Türkei.",
+  "keyPhrases.1.tr": "Ich bin Student/in.",
+  "keyPhrases.2.tr": "Woher kommst du?"
+ },
+ "vs-a1-gift-shop": {
+  "titleTr": "Im Geschenkeladen",
+  "aiRole": "Verkäuferin",
+  "objectives.0.textTr": "Frag mit this, that, these und those, was die Dinge sind (What's this? What are those?).",
+  "objectives.1.textTr": "Such ein Geschenk aus und sag mit a / an und dem Plural, was du möchtest (I'd like a mug and two postcards).",
+  "keyPhrases.0.tr": "Was ist das?",
+  "keyPhrases.1.tr": "Wie viel kosten diese?",
+  "keyPhrases.2.tr": "Ich möchte eine Tasse, bitte."
+ },
+ "vs-a1-lost-property": {
+  "titleTr": "Fundbüro",
+  "aiRole": "Mitarbeiter im Fundbüro",
+  "objectives.0.textTr": "Sag, was du verloren hast, und beschreibe es mit my (It's my blue bag).",
+  "objectives.1.textTr": "Beantworte Toms Fragen, welche Dinge dir gehören (Is this your phone?).",
+  "keyPhrases.0.tr": "Das ist meine Tasche.",
+  "keyPhrases.1.tr": "Ist das dein Handy?",
+  "keyPhrases.2.tr": "Nein, das gehört mir nicht."
+ },
+ "vs-a1-hotel-desk": {
+  "titleTr": "An der Hotelrezeption",
+  "aiRole": "Rezeptionistin",
+  "objectives.0.textTr": "Stell drei Fragen zum Hotel mit Is / Are / Where / What (Where is the breakfast room? Is the wifi free?).",
+  "objectives.1.textTr": "Beantworte Marias Fragen über dich (Are you here for work?).",
+  "keyPhrases.0.tr": "Wo ist der Frühstücksraum?",
+  "keyPhrases.1.tr": "Ist das WLAN kostenlos?",
+  "keyPhrases.2.tr": "Wann ist Check-out?"
+ },
+ "vs-a1-neighbour-chat": {
+  "titleTr": "Gespräch mit dem Nachbarn",
+  "aiRole": "Dein Nachbar",
+  "objectives.0.textTr": "Erzähl Ben von deinem Tag: wann du aufstehst, wo du arbeitest oder lernst, wann du schlafen gehst (I get up at seven).",
+  "objectives.1.textTr": "Frag Ben nach seinem Tag mit Do you…? und What time do you…?",
+  "keyPhrases.0.tr": "Ich stehe um sieben auf.",
+  "keyPhrases.1.tr": "Ich arbeite in einem Büro.",
+  "keyPhrases.2.tr": "Wann fängst du mit der Arbeit an?"
+ },
+ "vs-a1-gym-signup": {
+  "titleTr": "Anmeldung im Fitnessstudio",
+  "aiRole": "Trainerin",
+  "objectives.0.textTr": "Sag Mia mit always, usually, often, sometimes, never, wie oft du etwas machst (I sometimes swim).",
+  "objectives.1.textTr": "Frag Mia, wie oft sie trainiert oder etwas macht (How often do you…?).",
+  "keyPhrases.0.tr": "Ich gehe abends meistens spazieren.",
+  "keyPhrases.1.tr": "Ich laufe nie.",
+  "keyPhrases.2.tr": "Wie oft trainierst du?"
+ },
+ "vs-a1-city-directions": {
+  "titleTr": "Verloren in der Stadt",
+  "aiRole": "Ein Passant",
+  "objectives.0.textTr": "Frag, ob es in der Nähe einen Ort gibt (Is there a pharmacy near here? Are there any banks?).",
+  "objectives.1.textTr": "Wiederhole die Wegbeschreibung zur Kontrolle (It's next to the bookshop, right?).",
+  "keyPhrases.0.tr": "Gibt es hier in der Nähe eine Apotheke?",
+  "keyPhrases.1.tr": "Wo ist der Bahnhof?",
+  "keyPhrases.2.tr": "Es ist neben der Bank."
+ },
+ "vs-a1-party-hobbies": {
+  "titleTr": "Hobbys auf einer Party",
+  "aiRole": "Jemand von der Party",
+  "objectives.0.textTr": "Sag Chloe zwei Dinge, die du gern oder sehr gern machst, und eins, das du hasst (I love cooking. I hate waiting).",
+  "objectives.1.textTr": "Frag Chloe, was ihr Spaß macht (What do you enjoy doing?).",
+  "keyPhrases.0.tr": "Ich koche sehr gern.",
+  "keyPhrases.1.tr": "Ich schaue gern Filme.",
+  "keyPhrases.2.tr": "Ich hasse Warten."
+ },
+ "vs-a1-phone-call": {
+  "titleTr": "Ein Telefonat mit einem Freund",
+  "aiRole": "Dein Freund",
+  "objectives.0.textTr": "Sag, was du gerade machst und was um dich herum passiert (I'm cooking. My brother is watching TV).",
+  "objectives.1.textTr": "Frag Leo, was er macht, und schlag ein Treffen später vor.",
+  "keyPhrases.0.tr": "Ich koche gerade das Abendessen.",
+  "keyPhrases.1.tr": "Meine Schwester schaut fern.",
+  "keyPhrases.2.tr": "Was machst du gerade?"
+ },
+ "vs-a1-flatshare": {
+  "titleTr": "Einzug in die WG",
+  "aiRole": "Dein Mitbewohner",
+  "objectives.0.textTr": "Sag zwei Dinge, die du kannst, und eins, das du nicht kannst (I can cook, but I can't drive).",
+  "objectives.1.textTr": "Bitte höflich um zwei Dinge mit Can I…? oder Could you…? (Can I use the kitchen?).",
+  "keyPhrases.0.tr": "Ich kann kochen.",
+  "keyPhrases.1.tr": "Kann ich dein Ladegerät benutzen?",
+  "keyPhrases.2.tr": "Könntest du mir bitte helfen?"
+ },
+ "vs-a1-grocery": {
+  "titleTr": "Im Supermarkt",
+  "aiRole": "Mitarbeiterin im Supermarkt",
+  "objectives.0.textTr": "Bitte um das, was du brauchst, mit some und any (I need some tomatoes. Do you have any eggs?).",
+  "objectives.1.textTr": "Frag nach Preis und Menge (How much is it? How many do I need?).",
+  "keyPhrases.0.tr": "Haben Sie Eier?",
+  "keyPhrases.1.tr": "Ich brauche etwas Milch.",
+  "keyPhrases.2.tr": "Wie viel kostet das?"
+ },
+ "vs-a1-where-were-you": {
+  "titleTr": "Wo warst du?",
+  "aiRole": "Deine Freundin",
+  "objectives.0.textTr": "Sag, wo du gestern warst und wie es war (I was at the cinema. It was great).",
+  "objectives.1.textTr": "Frag Emma, wo sie war und wer dabei war (Where were you? Were you alone?).",
+  "keyPhrases.0.tr": "Ich war zu Hause.",
+  "keyPhrases.1.tr": "Es war toll!",
+  "keyPhrases.2.tr": "Warst du mit deiner Schwester da?"
+ },
+ "vs-a1-weekend-chat": {
+  "titleTr": "Wie war dein Wochenende?",
+  "aiRole": "Dein Kollege",
+  "objectives.0.textTr": "Erzähl Jack, was du am Wochenende gemacht hast, mit mindestens drei Verben in der Vergangenheit (I visited…, I went…, I saw…).",
+  "objectives.1.textTr": "Stell Jack zwei Fragen mit did (Did you…?).",
+  "keyPhrases.0.tr": "Ich habe meine Familie besucht.",
+  "keyPhrases.1.tr": "Wir waren im Kino.",
+  "keyPhrases.2.tr": "Hast du das Spiel gesehen?"
+ },
+ "vs-a2-weekend-trip": {
+  "titleTr": "Wochenendtrip planen",
+  "aiRole": "Deine Freundin",
+  "objectives.0.textTr": "Sag, was du auf der Reise machen wirst (I'm going to visit the old town).",
+  "objectives.1.textTr": "Vereinbart mit dem Present Continuous Zeit und Ort (We're meeting at the station at ten).",
+  "keyPhrases.0.tr": "Ich werde viele Fotos machen.",
+  "keyPhrases.1.tr": "Wir fahren am Freitagabend los.",
+  "keyPhrases.2.tr": "Was wirst du dort machen?"
+ },
+ "vs-a2-helping-move": {
+  "titleTr": "Einer Freundin beim Umzug helfen",
+  "aiRole": "Deine Freundin",
+  "objectives.0.textTr": "Biete bei zwei Dingen deine Hilfe mit I'll… an (I'll carry the boxes).",
+  "objectives.1.textTr": "Gib ein Versprechen und eine Vorhersage ab (I'll be there at nine. It won't take long).",
+  "keyPhrases.0.tr": "Ich helfe dir mit den Kisten.",
+  "keyPhrases.1.tr": "Keine Sorge, ich bin um neun da.",
+  "keyPhrases.2.tr": "Ich glaube, es wird leicht."
+ },
+ "vs-a2-phone-shop": {
+  "titleTr": "Ein Handy aussuchen",
+  "aiRole": "Verkäufer",
+  "objectives.0.textTr": "Vergleiche die beiden Handys mit dem Komparativ (The Titan is faster than the Nova).",
+  "objectives.1.textTr": "Such ein Handy aus und begründe es mit dem Superlativ oder as … as (It's the best for me).",
+  "keyPhrases.0.tr": "Welches ist günstiger?",
+  "keyPhrases.1.tr": "Dieses ist besser als jenes.",
+  "keyPhrases.2.tr": "Es ist das teuerste Handy."
+ },
+ "vs-a2-doctor-visit": {
+  "titleTr": "Beim Arzt",
+  "aiRole": "Ärztin",
+  "objectives.0.textTr": "Beschreibe dein Problem und bitte um Rat (What should I do?).",
+  "objectives.1.textTr": "Sag, was du diese Woche tun musst, und frag, was du tun oder lassen musst (I have to work on Friday).",
+  "keyPhrases.0.tr": "Ich habe Kopf- und Halsschmerzen.",
+  "keyPhrases.1.tr": "Was soll ich tun?",
+  "keyPhrases.2.tr": "Ich muss morgen arbeiten."
+ },
+ "vs-a2-have-you-ever": {
+  "titleTr": "Hast du schon mal…?",
+  "aiRole": "Eine Reisende im Hostel",
+  "objectives.0.textTr": "Stell Tara zwei Fragen mit 'Have you ever…?'.",
+  "objectives.1.textTr": "Erzähl Tara, was du schon gemacht und noch nie gemacht hast (I've been to Italy. I've never tried sushi).",
+  "keyPhrases.0.tr": "Warst du schon mal in Japan?",
+  "keyPhrases.1.tr": "Ich habe noch nie Sushi probiert.",
+  "keyPhrases.2.tr": "Die Altstadt habe ich schon gesehen."
+ },
+ "vs-a2-who-ate-the-cake": {
+  "titleTr": "Wer hat den Kuchen gegessen?",
+  "aiRole": "Deine Mitbewohnerin",
+  "objectives.0.textTr": "Sag, was du gestern um 15 und um 17 Uhr gemacht hast (I was reading at three).",
+  "objectives.1.textTr": "Benutze when und while, um deine Geschichte zu erzählen (I was cooking while my brother was watching TV).",
+  "keyPhrases.0.tr": "Um drei Uhr habe ich gelernt.",
+  "keyPhrases.1.tr": "Ich habe gekocht, als du angerufen hast.",
+  "keyPhrases.2.tr": "Was hast du gemacht?"
+ },
+ "vs-a2-driving-lesson": {
+  "titleTr": "Fahrstunde",
+  "aiRole": "Fahrlehrer",
+  "objectives.0.textTr": "Sag mit Adverbien, wie du Dinge machst (I drive carefully. I speak slowly).",
+  "objectives.1.textTr": "Bitte um Feedback und antworte (Did I drive well?).",
+  "keyPhrases.0.tr": "Ich fahre vorsichtig.",
+  "keyPhrases.1.tr": "Habe ich es gut gemacht?",
+  "keyPhrases.2.tr": "Kannst du langsamer sprechen?"
+ },
+ "vs-a2-party-plan": {
+  "titleTr": "Eine Party planen",
+  "aiRole": "Deine Mitbewohnerin",
+  "objectives.0.textTr": "Sag mit a lot of, a few und a little, was ihr habt und was ihr braucht (We have a lot of snacks. We need a few chairs).",
+  "objectives.1.textTr": "Weise mit too much / too many auf ein Problem hin (There are too many balloons).",
+  "keyPhrases.0.tr": "Wir brauchen noch ein paar Stühle.",
+  "keyPhrases.1.tr": "Es gibt zu viel Saft.",
+  "keyPhrases.2.tr": "Wir haben viele Snacks."
+ },
+ "vs-a2-picnic-plans": {
+  "titleTr": "Picknick-Pläne",
+  "aiRole": "Dein Freund",
+  "objectives.0.textTr": "Mach mit if Pläne für verschiedenes Wetter (If it rains, we'll go to the museum).",
+  "objectives.1.textTr": "Frag und antworte 'What will you do if…?' und nenne eine allgemeine Wahrheit (If I'm tired, I stay at home).",
+  "keyPhrases.0.tr": "Wenn es regnet, bleiben wir zu Hause.",
+  "keyPhrases.1.tr": "Was machst du, wenn es kalt ist?",
+  "keyPhrases.2.tr": "Wenn ich Hunger habe, esse ich."
+ },
+ "vs-a2-why-late": {
+  "titleTr": "Warum bist du zu spät?",
+  "aiRole": "Deine Freundin",
+  "objectives.0.textTr": "Erzähl der Reihe nach, was passiert ist, mit first, then, after that und finally.",
+  "objectives.1.textTr": "Erkläre Gründe und Folgen mit because, so und but (I missed the bus, so I walked).",
+  "keyPhrases.0.tr": "Zuerst habe ich den Bus verpasst.",
+  "keyPhrases.1.tr": "Dann bin ich gelaufen, aber es war weit.",
+  "keyPhrases.2.tr": "Ich bin spät, weil Stau war."
+ },
+ "vs-b1-job-interview": {
+  "titleTr": "Vorstellungsgespräch",
+  "aiRole": "Interviewerin",
+  "objectives.0.textTr": "Sag mit for und since, wie lange du etwas schon machst (I've worked in retail since 2021).",
+  "objectives.1.textTr": "Beantworte die kritische Frage zu deiner kurzen Stelle oder Lücke und begründe sie.",
+  "objectives.2.textTr": "Stell am Ende zwei gute Fragen zum Team oder zur Stelle.",
+  "keyPhrases.0.tr": "Ich arbeite seit drei Jahren als Designer.",
+  "keyPhrases.1.tr": "Ich wohne seit 2019 in dieser Stadt.",
+  "keyPhrases.2.tr": "Wie lange gibt es das Team schon?"
+ },
+ "vs-b1-catching-up": {
+  "titleTr": "Wiedersehen nach langer Zeit",
+  "aiRole": "Ein alter Freund",
+  "objectives.0.textTr": "Beschreibe mit dem Present Perfect Continuous, was du in letzter Zeit gemacht hast (I've been studying a lot).",
+  "objectives.1.textTr": "Erkläre, wie du dich deshalb fühlst (I've been working late, so I'm exhausted).",
+  "objectives.2.textTr": "Antworte auf Daniels Bitte um eine Unterkunft: entscheide dich und begründe es.",
+  "keyPhrases.0.tr": "Ich habe in letzter Zeit viel gearbeitet.",
+  "keyPhrases.1.tr": "Ich versuche gerade, Gitarre zu lernen.",
+  "keyPhrases.2.tr": "Wie lange wohnst du schon dort?"
+ },
+ "vs-b1-old-neighbourhood": {
+  "titleTr": "Das alte Viertel",
+  "aiRole": "Ein befreundeter Journalist",
+  "objectives.0.textTr": "Beschreibe, wie es früher war (There used to be a cinema here).",
+  "objectives.1.textTr": "Erzähle mit used to und would von Gewohnheiten aus deiner Kindheit (We would play outside until dark).",
+  "objectives.2.textTr": "Vergleiche früher und heute und sage mit Begründung, ob die Veränderung gut ist.",
+  "keyPhrases.0.tr": "Wir haben früher auf der Straße Fußball gespielt.",
+  "keyPhrases.1.tr": "Früher gab es nicht so viel Verkehr.",
+  "keyPhrases.2.tr": "Jeden Sommer sind wir an den See gefahren."
+ },
+ "vs-b1-missed-flight": {
+  "titleTr": "Verpasster Flug",
+  "aiRole": "Mitarbeiterin der Fluglinie",
+  "objectives.0.textTr": "Erkläre, was schon passiert war, bevor du ankamst (When I got there, the gate had closed).",
+  "objectives.1.textTr": "Nenne die Gründe der Reihe nach und mische dabei Past Perfect und Past Simple.",
+  "objectives.2.textTr": "Verhandle eine Lösung: bitte um die beste Option und entscheide dich.",
+  "keyPhrases.0.tr": "Als ich ankam, war das Gate schon geschlossen.",
+  "keyPhrases.1.tr": "Ich war pünktlich losgefahren, aber der Bus hatte eine Panne.",
+  "keyPhrases.2.tr": "Kann ich mein Ticket irgendwie kostenlos umbuchen?"
+ },
+ "vs-b1-radio-phone-in": {
+  "titleTr": "Radio-Call-in",
+  "aiRole": "Radiomoderator",
+  "objectives.0.textTr": "Beantworte zwei 'What would you do if…?'-Fragen mit dem vollständigen Second Conditional.",
+  "objectives.1.textTr": "Stell Jamie eine eigene hypothetische Frage (If you could…, what would you…?).",
+  "objectives.2.textTr": "Verteidige eine deiner Antworten, wenn Jamie sie infrage stellt.",
+  "keyPhrases.0.tr": "Wenn ich im Lotto gewänne, würde ich um die Welt reisen.",
+  "keyPhrases.1.tr": "Wäre ich Bürgermeister, würde ich mehr Parks bauen.",
+  "keyPhrases.2.tr": "Was würdest du an meiner Stelle tun?"
+ },
+ "vs-b1-mystery-bag": {
+  "titleTr": "Die geheimnisvolle Tasche",
+  "aiRole": "Dein Kollege",
+  "objectives.0.textTr": "Ziehe mit must, might, could und can't Schlüsse (It must be Mike's; it can't be Marta's).",
+  "objectives.1.textTr": "Stell Alex Fragen, um mehr Hinweise zu bekommen.",
+  "objectives.2.textTr": "Einigt euch darauf, was ihr mit der Tasche macht, und sagt warum.",
+  "keyPhrases.0.tr": "Das muss Mikes Tasche sein.",
+  "keyPhrases.1.tr": "Das kann nicht Martas sein. Sie ist im Urlaub.",
+  "keyPhrases.2.tr": "Sie könnte einem Besucher gehören."
+ },
+ "vs-b1-hardware-store": {
+  "titleTr": "Mir fällt das Wort nicht ein",
+  "aiRole": "Verkäufer im Baumarkt",
+  "objectives.0.textTr": "Frag nach drei Dingen, indem du sie beschreibst (It's something that you use to hang pictures).",
+  "objectives.1.textTr": "Beschreibe mit who oder where einen Ort oder eine Person (It's a shop where you can…).",
+  "objectives.2.textTr": "Vergewissere dich, dass es der richtige Artikel ist, und erkläre, wofür du ihn brauchst.",
+  "keyPhrases.0.tr": "Das ist etwas, womit man Bilder aufhängt.",
+  "keyPhrases.1.tr": "Ich suche ein Werkzeug, das Metall schneidet.",
+  "keyPhrases.2.tr": "Meinst du das mit dem langen Griff?"
+ },
+ "vs-b1-factory-tour": {
+  "titleTr": "Betriebsführung",
+  "aiRole": "Führerin",
+  "objectives.0.textTr": "Stell drei Fragen im Passiv (How is it made? When was it built?).",
+  "objectives.1.textTr": "Erkläre im Passiv, wie ein traditionelles Essen oder Produkt aus deinem Land hergestellt wird (First the dough is rolled).",
+  "objectives.2.textTr": "Fasse in zwei, drei Sätzen zusammen, was du gelernt hast (It is exported to forty countries).",
+  "keyPhrases.0.tr": "Wie wird die Schokolade hergestellt?",
+  "keyPhrases.1.tr": "Wann wurde die Fabrik gebaut?",
+  "keyPhrases.2.tr": "Zuerst wird der Teig ausgerollt."
+ },
+ "vs-b1-what-did-she-say": {
+  "titleTr": "Was hat sie gesagt?",
+  "aiRole": "Deine Freundin",
+  "objectives.0.textTr": "Berichte, was deine Chefin gesagt und gefragt hat (She said that…, She asked me if…).",
+  "objectives.1.textTr": "Berichte, was sie dir aufgetragen hat (She told me to…, She asked me not to…).",
+  "objectives.2.textTr": "Berichte deine eigene Antwort und wie es ausging (I told her that…).",
+  "keyPhrases.0.tr": "Sie sagte, das Projekt sei fertig.",
+  "keyPhrases.1.tr": "Er fragte mich, ob ich länger bleiben könne.",
+  "keyPhrases.2.tr": "Sie sagte mir, ich solle den Kunden anrufen."
+ },
+ "vs-b1-tourist-office": {
+  "titleTr": "Touristeninformation",
+  "aiRole": "Mitarbeiter der Touristeninformation",
+  "objectives.0.textTr": "Stell drei höfliche indirekte Fragen (Could you tell me…? Do you know if…?).",
+  "objectives.1.textTr": "Überprüfe Informationen mit Question Tags (The museum opens at nine, doesn't it?).",
+  "objectives.2.textTr": "Plane mit Hugo ein Halbtagesprogramm und bestätige den endgültigen Plan.",
+  "keyPhrases.0.tr": "Könnten Sie mir sagen, wo das Museum ist?",
+  "keyPhrases.1.tr": "Wissen Sie, wann es schließt?",
+  "keyPhrases.2.tr": "Es ist ziemlich nah, oder?"
+ },
+ "vs-b1-habit-coach": {
+  "titleTr": "Gewohnheits-Coach",
+  "aiRole": "Life-Coach",
+  "objectives.0.textTr": "Sprich über Gewohnheiten, die du anfangen oder lassen willst, mit Verb + -ing / to (I want to start running; I should give up eating late).",
+  "objectives.1.textTr": "Benutze remember, stop oder try mit klarem Bedeutungsunterschied (I stopped to drink water / I stopped drinking coffee).",
+  "objectives.2.textTr": "Mach einen Plan in drei Schritten und versprich ihn Dana.",
+  "keyPhrases.0.tr": "Ich möchte aufhören, Süßes zu essen.",
+  "keyPhrases.1.tr": "Ich habe beschlossen, mit dem Schwimmen anzufangen.",
+  "keyPhrases.2.tr": "Ich vergesse immer, Wasser zu trinken."
+ },
+ "vs-b2-no-regrets": {
+  "titleTr": "Keine Reue?",
+  "aiRole": "Eine alte Freundin",
+  "objectives.0.textTr": "Sprich mit dem Third Conditional über ein Bedauern aus der Vergangenheit (If I had studied harder, I would have passed).",
+  "objectives.1.textTr": "Verbinde eine frühere Entscheidung mit deinem heutigen Leben durch einen gemischten Konditionalsatz (If I had moved, I'd be living there now).",
+  "objectives.2.textTr": "Berate Leila bei ihrer Entscheidung mit dem, was du aus deinen eigenen Entscheidungen gelernt hast.",
+  "keyPhrases.0.tr": "Hätte ich es gewusst, hätte ich anders gehandelt.",
+  "keyPhrases.1.tr": "Wäre ich nicht umgezogen, hätte ich meinen Partner nicht kennengelernt.",
+  "keyPhrases.2.tr": "An deiner Stelle würde ich nicht zögern."
+ },
+ "vs-b2-post-mortem": {
+  "titleTr": "Fehleranalyse",
+  "aiRole": "Deine Chefin",
+  "objectives.0.textTr": "Spekuliere über die Ursachen (The email might have gone to spam; he can't have received it).",
+  "objectives.1.textTr": "Sag, was hätte getan oder nicht getan werden sollen (We should have confirmed the date).",
+  "objectives.2.textTr": "Einigt euch mit Olivia auf zwei Erkenntnisse.",
+  "keyPhrases.0.tr": "Er muss vergessen haben anzurufen.",
+  "keyPhrases.1.tr": "Wir hätten das Datum prüfen sollen.",
+  "keyPhrases.2.tr": "Es kann nicht ihre Schuld gewesen sein."
+ },
+ "vs-b2-handover": {
+  "titleTr": "Übergabe vor der Reise",
+  "aiRole": "Dein Kollege",
+  "objectives.0.textTr": "Sag, was du zu bestimmten Zeitpunkten gerade tun wirst (On Monday morning I'll be sitting in a meeting).",
+  "objectives.1.textTr": "Sag, was bis zu jeder Frist erledigt sein wird (By Friday I'll have sent the report).",
+  "objectives.2.textTr": "Verhandle Marcus' Wunsch nach der früheren Datei und einigt euch auf eine Lösung.",
+  "keyPhrases.0.tr": "Nächste Woche um diese Zeit fliege ich nach Tokio.",
+  "keyPhrases.1.tr": "Bis Freitag habe ich den Bericht fertig.",
+  "keyPhrases.2.tr": "Bist du am Donnerstag erreichbar?"
+ },
+ "vs-b2-renovation-quote": {
+  "titleTr": "Renovierungsangebot",
+  "aiRole": "Bauunternehmer",
+  "objectives.0.textTr": "Sag, was du machen lassen möchtest (I'd like to have the kitchen painted).",
+  "objectives.1.textTr": "Frag nach Dauer und Kosten (How long will it take to get the windows replaced?).",
+  "objectives.2.textTr": "Entscheide, was du selbst machst und was du vor der Party machen lässt, und schließt den Deal ab.",
+  "keyPhrases.0.tr": "Ich möchte die Wände streichen lassen.",
+  "keyPhrases.1.tr": "Was würde es kosten, das Dach reparieren zu lassen?",
+  "keyPhrases.2.tr": "Streichen mache ich selbst, aber die Fenster lasse ich reparieren."
+ },
+ "vs-b2-witness-at-work": {
+  "titleTr": "Zeuge am Arbeitsplatz",
+  "aiRole": "Personalreferentin",
+  "objectives.0.textTr": "Berichte mit Verben der indirekten Rede, was Kollegen gesagt haben (He admitted breaking it; she denied taking the file).",
+  "objectives.1.textTr": "Bleibe genau bei dem, was du gehört und was du nur vermutest (I'm not sure whether…, as far as I know).",
+  "objectives.2.textTr": "Schlage eine faire Lösung vor (I suggest talking to them together).",
+  "keyPhrases.0.tr": "Er gab zu, den Drucker kaputt gemacht zu haben.",
+  "keyPhrases.1.tr": "Sie bestritt, die Datei genommen zu haben.",
+  "keyPhrases.2.tr": "Ich schlage vor, mit beiden gemeinsam zu sprechen."
+ },
+ "vs-b2-introducing-guests": {
+  "titleTr": "Die Gäste vorstellen",
+  "aiRole": "Moderator der Feier",
+  "objectives.0.textTr": "Stelle drei Personen mit Zusatzinformationen in nicht-definierenden Relativsätzen vor (This is Marta, who works at a hospital).",
+  "objectives.1.textTr": "Beschreibe mit which oder where einen Ort oder ein Ereignis (We met in Lisbon, which is my favourite city).",
+  "objectives.2.textTr": "Füge mit whose eine überraschende Tatsache über einen Gast hinzu (Jonas, whose band is famous, will play later).",
+  "keyPhrases.0.tr": "Das ist Marta, die ich seit zehn Jahren kenne.",
+  "keyPhrases.1.tr": "Wir waren in Lissabon, was fantastisch war.",
+  "keyPhrases.2.tr": "Ihr Bruder, dessen Band berühmt ist, spielt später."
+ },
+ "vs-b2-two-offers": {
+  "titleTr": "Zwei Jobangebote",
+  "aiRole": "Deine Mentorin",
+  "objectives.0.textTr": "Vergleiche die beiden Angebote mit whereas und while (Job A is stable, whereas Job B is risky).",
+  "objectives.1.textTr": "Räume einen Punkt ein und vertritt trotzdem deine Position mit although, despite oder in spite of (Although it pays less, I'd choose it).",
+  "objectives.2.textTr": "Verteidige deine endgültige Entscheidung, wenn Rosa dagegenhält.",
+  "keyPhrases.0.tr": "Obwohl es weniger zahlt, ist es flexibler.",
+  "keyPhrases.1.tr": "Trotz des langen Arbeitswegs würde ich es nehmen.",
+  "keyPhrases.2.tr": "Job A ist stabil, während Job B riskant ist."
+ },
+ "vs-b2-hotel-manager": {
+  "titleTr": "Der Hoteldirektor",
+  "aiRole": "Hoteldirektor",
+  "objectives.0.textTr": "Beschwere dich deutlich mit mindestens zwei Inversionen (Never have I stayed in such a dirty room; Not only was it noisy, but…).",
+  "objectives.1.textTr": "Weise schwache Entschuldigungen bestimmt, aber höflich zurück (Under no circumstances will I accept that).",
+  "objectives.2.textTr": "Verhandle eine angemessene Entschädigung und vereinbart, wie es weitergeht.",
+  "keyPhrases.0.tr": "Noch nie habe ich so ein Chaos gesehen.",
+  "keyPhrases.1.tr": "Das Zimmer war nicht nur laut, sondern auch schmutzig.",
+  "keyPhrases.2.tr": "Auf keinen Fall werde ich dafür bezahlen."
+ },
+ "vs-c1-investor-pitch": {
+  "titleTr": "Der Investoren-Pitch",
+  "aiRole": "Investorin",
+  "objectives.0.textTr": "Betone deine Kernpunkte mit what-Spaltsätzen (What sets us apart is our support).",
+  "objectives.1.textTr": "Korrigiere Victorias Missverständnis mit einem it-Spaltsatz (It wasn't the price; it was the delivery that put people off).",
+  "objectives.2.textTr": "Schließe, indem du um einen konkreten nächsten Schritt bittest und ihre letzte Herausforderung beantwortest.",
+  "keyPhrases.0.tr": "Was wir brauchen, ist ein größerer Markt.",
+  "keyPhrases.1.tr": "Es war das Timing, das das Problem verursacht hat.",
+  "keyPhrases.2.tr": "Was uns unterscheidet, ist der Support, den wir bieten."
+ },
+ "vs-c1-science-interview": {
+  "titleTr": "Das Wissenschaftsinterview",
+  "aiRole": "Journalist",
+  "objectives.0.textTr": "Antworte mit abgewogenen Aussagen (The results appear to suggest…; it tends to…; it may well be that…).",
+  "objectives.1.textTr": "Widerstehe dem Druck, eine Schlagzeilen-Aussage zu machen, ohne an Glaubwürdigkeit zu verlieren.",
+  "objectives.2.textTr": "Trenne, was die Belege zeigen, von dem, was nur Spekulation ist.",
+  "keyPhrases.0.tr": "Die Ergebnisse deuten auf einen Zusammenhang hin.",
+  "keyPhrases.1.tr": "Das mag durchaus zutreffen, sicher sind wir aber nicht.",
+  "keyPhrases.2.tr": "Das ist wohl der stärkste Befund."
+ },
+ "vs-c1-contract-talks": {
+  "titleTr": "Vertragsverhandlung",
+  "aiRole": "Einkaufsleiter",
+  "objectives.0.textTr": "Mache formelle Angebote ohne if (Should you require changes, we would be glad to discuss them).",
+  "objectives.1.textTr": "Lote Zugeständnisse mit hypothetischen Formulierungen aus (Were we to extend the deadline, would you accept the price?).",
+  "objectives.2.textTr": "Klärt die drei Punkte und äußere Bedauern oder Verantwortung diplomatisch (Had we been informed earlier…).",
+  "keyPhrases.0.tr": "Sollten Sie Bedenken haben, teilen Sie sie uns bitte mit.",
+  "keyPhrases.1.tr": "Würden wir die Frist verlängern, würden Sie es dann überdenken?",
+  "keyPhrases.2.tr": "Hätten wir es früher gewusst, hätten wir den Plan angepasst."
+ },
+ "vs-c1-board-report": {
+  "titleTr": "Vorstandspräsentation",
+  "aiRole": "Vorstandsmitglied",
+  "objectives.0.textTr": "Fasse die Ergebnisse mit Nominalisierung zusammen (The introduction of the new system led to a reduction in delays).",
+  "objectives.1.textTr": "Erkläre eine Ursache-Wirkungs-Kette knapp und formell.",
+  "objectives.2.textTr": "Formuliere es auf Nachfrage mit einfachen Verben um und sage, welche Version für dieses Publikum klarer ist.",
+  "keyPhrases.0.tr": "Die Einführung der App führte zu einem Umsatzanstieg.",
+  "keyPhrases.1.tr": "Die Beschwerden sind deutlich zurückgegangen.",
+  "keyPhrases.2.tr": "Anders gesagt: Wir haben den Prozess repariert, und die Verzögerungen sanken."
+ },
+ "vs-c2-panel-debate": {
+  "titleTr": "Podiumsdiskussion",
+  "aiRole": "Podiumsgast",
+  "objectives.0.textTr": "Vermeide Wiederholungen durch Ellipse und Ersetzung (I think so, and so does she; I'd say they do).",
+  "objectives.1.textTr": "Halte deine Bezüge mit this, such und the former / the latter klar.",
+  "objectives.2.textTr": "Beantworte schnelle Einwände und behalte das Wort, ohne unterbrochen zu werden.",
+  "keyPhrases.0.tr": "Das würde ich sagen, und die meisten Experten auch.",
+  "keyPhrases.1.tr": "Ersteres ist günstiger, Letzteres zuverlässiger.",
+  "keyPhrases.2.tr": "Ein solcher Ansatz funktioniert selten."
+ },
+ "vs-c2-three-tones": {
+  "titleTr": "Eine Nachricht, drei Töne",
+  "aiRole": "Deine Gesprächspartnerin",
+  "objectives.0.textTr": "Sag es deinem Freund locker, mit Kurzformen und entspannter Sprache (Hey, so my flight got cancelled).",
+  "objectives.1.textTr": "Sag es dem Hotelrezeptionisten höflich und klar und bitte um das, was du brauchst (I'd like to move my booking).",
+  "objectives.2.textTr": "Teile es dem Konferenzbüro formell und präzise mit den genauen Fakten mit (I regret to inform you that…).",
+  "keyPhrases.0.tr": "Hey, mein Flug wurde gestrichen.",
+  "keyPhrases.1.tr": "Leider kann ich erst am Freitag anreisen.",
+  "keyPhrases.2.tr": "Ich muss Ihnen leider mitteilen, dass sich meine Ankunft verzögert."
+ },
+ "vs-c2-saying-no": {
+  "titleTr": "Diplomatisch Nein sagen",
+  "aiRole": "Dein langjähriger Kunde",
+  "objectives.0.textTr": "Lehne klar ab, ohne ein schroffes Nein (I'm afraid that won't be possible).",
+  "objectives.1.textTr": "Erkläre deine Grenzen und biete eine echte Alternative an (What I can offer instead is…).",
+  "objectives.2.textTr": "Bleibe unter emotionalem Druck bei deiner Haltung und schütze dabei die Beziehung.",
+  "keyPhrases.0.tr": "Das können wir leider nicht zusagen.",
+  "keyPhrases.1.tr": "Stattdessen kann ich eine gestaffelte Lieferung anbieten.",
+  "keyPhrases.2.tr": "Unsere Partnerschaft ist mir wichtig, deshalb bin ich ehrlich."
+ }
+}
