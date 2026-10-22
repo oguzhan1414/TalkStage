@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -72,41 +72,14 @@ export function SceneAudioHero({ playing, paused, onPress, slow, onToggleSlow }:
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'stretch', gap: 10 },
-  hero: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    minHeight: 76,
-    paddingHorizontal: 14,
-    borderRadius: 22,
-    backgroundColor: colors.brand,
-    borderBottomWidth: 5,
-    borderBottomColor: '#3730A3',
-  },
+  hero: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingHorizontal: 12, borderRadius: 22, backgroundColor: colors.brand, borderBottomWidth: 5, borderBottomColor: '#3730A3' },
   heroPlaying: { backgroundColor: '#4338CA' },
   heroPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 3 },
-  iconWrap: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center' },
-  ring: { position: 'absolute', width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFFFFF' },
-  iconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  iconWrap: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  ring: { position: 'absolute', width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFFFFF' },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   title: { flex: 1, fontFamily: fonts.headingBold, fontSize: 19, color: '#FFFFFF' },
-  speed: {
-    width: 76,
-    borderRadius: 22,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 2,
-    borderColor: '#C7D2FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
+  speed: { width: 70, borderRadius: 22, backgroundColor: '#EEF2FF', borderWidth: 2, borderColor: '#C7D2FE', alignItems: 'center', justifyContent: 'center', gap: 1 },
   speedSlow: { backgroundColor: '#FEF3C7', borderColor: '#FCD34D' },
   speedEmoji: { fontSize: 20 },
   speedText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.brand },

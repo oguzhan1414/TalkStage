@@ -1,10 +1,12 @@
 import { VoiceRoomBanner, VoiceRoomControls, VoiceRoomThread, voiceRoomStyles, type DisplayBubble } from '../components/VoiceRoomUI';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,6 +22,7 @@ import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { MicPermissionPrompt } from '../components/MicPermissionPrompt';
 import { VoicePrivacyPrompt } from '../components/VoicePrivacyPrompt';
 import { TappableWords } from '../components/TappableWords';
+import { VoiceSessionSummary, type SessionEndReason, type SessionNote } from '../components/VoiceSessionSummary';
 import { Toast } from '../components/Toast';
 import { Waveform } from '../components/Waveform';
 import { useFreeChatSocket, type TurnPhase } from '../hooks/useFreeChatSocket';
@@ -51,10 +54,13 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
   auth_invalid: t("Oturumunun süresi dolmuş. Lütfen yeniden giriş yap."),
+  account_deleted: t("Bu hesap silinmiş. Lütfen çıkış yapıp yeni bir hesapla giriş yap."),
   voice_reply_failed: t("AI yanıtı oluşturulamadı. Birkaç saniye sonra tekrar konuşabilirsin."),
   session_error: t("Canlı konuşma bağlantısında beklenmeyen bir hata oluştu."),
   microphone_start_failed: t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."),
   app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak yeni bir konuşma başlatabilirsin."),
+  time_limit_reached: t("Bu sohbetin süresi doldu."),
+  idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
 };
 
 /** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
@@ -80,6 +86,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const twistTitle = route.params?.twistTitle;
   const twistEmoji = route.params?.twistEmoji;
   const twistHint = route.params?.twistHint;
+  const sceneHints = route.params?.sceneHints;
   const focusTopic = route.params?.focusTopic;
   const reviewTopics = route.params?.reviewTopics;
   const reviewId = route.params?.reviewId;
@@ -139,6 +146,8 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     endSession,
     reconnect,
     sceneCompleteSummary,
+    conversationEnded,
+    timeWarning,
     correctionsCount,
   } = voice;
 
@@ -146,15 +155,18 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const { pronounce } = usePronunciation();
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [hintsOpen, setHintsOpen] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState('');
   const [isEditingTranscript, setIsEditingTranscript] = useState(false);
   const chatScrollRef = useRef<ScrollView>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exitingRef = useRef(false);
+  const hintUsedRef = useRef(false);
 
   useEffect(() => {
-    if (!voicePrivacyLoading && status !== 'connecting') finishTransition();
-  }, [finishTransition, status, voicePrivacyLoading]);
+    // The room shows its own moving Mivo while it connects: release the full-screen transition right away.
+    finishTransition();
+  }, [finishTransition]);
 
   useEffect(() => {
     if (status !== 'open') return;
@@ -172,6 +184,24 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
       setIsEditingTranscript(false);
     }
   }, [pendingTranscript]);
+
+  const openHints = () => {
+    haptics.selection();
+    if (sceneHints?.costsStar && !hintUsedRef.current) {
+      Alert.alert(t("İpucu kullanılsın mı?"), t("İpucu kullanırsan bu sahneden en fazla 2 yıldız kazanırsın."), [
+        { text: t("Vazgeç"), style: 'cancel' },
+        {
+          text: t("İpucunu göster"),
+          onPress: () => {
+            hintUsedRef.current = true;
+            setHintsOpen(true);
+          },
+        },
+      ]);
+      return;
+    }
+    setHintsOpen(true);
+  };
 
   const showToast = (message: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -220,14 +250,25 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   // 3★ = hedefler tamamlandı ve en fazla 2 düzeltme aldı). Yıldız bayrakları `/learning-flags` ile senkron.
   const [resultStars, setResultStars] = useState<0 | 2 | 3 | null>(null);
 
-  const handleExit = () => {
+  // How the room ended (null while it runs): drives the summary card.
+  const [endReason, setEndReason] = useState<SessionEndReason | null>(null);
+  const notes: SessionNote[] = turns.flatMap((turn) =>
+    turn.role === 'user' && turn.correction?.has_error && turn.correction.corrected
+      ? [{ wrong: turn.text, corrected: turn.correction.corrected, explanation: turn.correction.explanation_tr }]
+      : []
+  );
+
+  /** The one way out of the room: stops the session, then shows the stars (scene) or the summary card. */
+  const finish = (reason: SessionEndReason) => {
     if (exitingRef.current) return;
     exitingRef.current = true;
     endSession();
     if (scene) {
       const userTurns = turns.filter((turn) => turn.role === 'user').length;
       const completed = sceneCompleteSummary != null;
-      const earned = completed && correctionsCount <= 2 ? 3 : completed || userTurns >= 4 ? 2 : 0;
+      let earned: 0 | 2 | 3 = completed && correctionsCount <= 2 ? 3 : completed || userTurns >= 4 ? 2 : 0;
+      // Orta aşamada ipucu kullanıldıysa en fazla 2 yıldız.
+      if (hintUsedRef.current && sceneHints?.costsStar && earned === 3) earned = 2;
       if (earned >= 2) {
         setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
         if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
@@ -237,8 +278,29 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         return;
       }
     }
+    if (turns.some((turn) => turn.role === 'user')) {
+      setEndReason(reason);
+      return;
+    }
     navigation.goBack();
   };
+  const handleExit = () => finish('user');
+
+  // Mivo said goodbye: close the room once that reply has been heard (the phase returns to the learner).
+  useEffect(() => {
+    if (!conversationEnded || turnPhase !== 'thinking_time' || exitingRef.current) return;
+    const timer = setTimeout(() => finish('goodbye'), 900);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationEnded, turnPhase]);
+
+  // The server closed the room (session limit or long silence) after a real conversation: show the summary.
+  useEffect(() => {
+    if (status !== 'closed' || exitingRef.current) return;
+    const reason = closeInfo?.reason === 'time_limit_reached' ? 'time' : closeInfo?.reason === 'idle_timeout' ? 'idle' : null;
+    if (reason && turns.some((turn) => turn.role === 'user')) finish(reason);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, closeInfo]);
 
   // Leaving mid-conversation asks first (X button, Android back, iOS swipe-back).
   const hasConversation = turns.some((turn) => turn.role === 'user');
@@ -352,7 +414,13 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         </View>
       ) : (
         <View style={styles.mainLayout}>
-          <VoiceRoomBanner phase={turnPhase} aiName={aiName} aiRole={aiRole} />
+          <VoiceRoomBanner
+            phase={turnPhase}
+            aiName={aiName}
+            aiRole={aiRole}
+            onReplay={voice.hasReplayableAudio ? voice.replayAiAudio : undefined}
+            timeWarning={timeWarning}
+          />
 
           {scene && twistTitle ? (
             <View style={styles.twistStrip}>
@@ -362,6 +430,18 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
                 {twistHint ? <Text style={styles.twistHint}>{twistHint}</Text> : null}
               </View>
             </View>
+          ) : null}
+
+          {scene && sceneHints ? (
+            <Pressable
+              onPress={openHints}
+              accessibilityRole="button"
+              accessibilityLabel={t("İpucu")}
+              style={styles.hintBtn}
+            >
+              <Ionicons name="bulb-outline" size={16} color="#B45309" />
+              <Text style={styles.hintBtnText}>{t("İpucu")}</Text>
+            </Pressable>
           ) : null}
 
           {scene && sceneCompleteSummary ? (
@@ -388,7 +468,60 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         </View>
       )}
 
+      {sceneHints ? (
+        <Modal visible={hintsOpen} transparent animationType="slide" onRequestClose={() => setHintsOpen(false)}>
+          <Pressable style={styles.hintBackdrop} onPress={() => setHintsOpen(false)}>
+            <Pressable style={styles.hintSheet} onPress={() => {}}>
+              <View style={styles.hintGrab} />
+              <Text style={styles.hintTitle}>{t("Bu sahnede yapacakların")}</Text>
+              {sceneHints.goals.map((goal, i) => (
+                <View key={i} style={styles.hintGoalRow}>
+                  <Text style={styles.hintGoalNo}>{i + 1}</Text>
+                  <Text style={styles.hintGoalText}>{goal}</Text>
+                </View>
+              ))}
+              <Text style={styles.hintSubTitle}>{t("İşine yarayacak cümleler")}</Text>
+              {sceneHints.phrases.map((ph) => (
+                <Pressable key={ph.en} onPress={() => pronounce(ph.en)} style={styles.hintPhrase} accessibilityRole="button">
+                  <Ionicons name="volume-medium-outline" size={18} color={colors.brand} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.hintPhraseEn}>{ph.en}</Text>
+                    <Text style={styles.hintPhraseTr}>{ph.tr}</Text>
+                  </View>
+                </Pressable>
+              ))}
+              <Pressable onPress={() => setHintsOpen(false)} style={styles.hintClose}>
+                <Text style={styles.hintCloseText}>{t("Tamam")}</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      ) : null}
+
       {toast ? <Toast message={toast} /> : null}
+
+      <VoiceSessionSummary
+        visible={endReason !== null}
+        reason={endReason ?? 'user'}
+        seconds={elapsedSeconds}
+        sentences={turns.filter((turn) => turn.role === 'user').length}
+        notes={notes}
+        onClose={() => navigation.goBack()}
+        onOpenMistakes={() => {
+          setEndReason(null);
+          navigation.replace('MistakesNotebook');
+        }}
+        onReconnect={
+          endReason === 'idle'
+            ? () => {
+                setEndReason(null);
+                exitingRef.current = false;
+                setElapsedSeconds(0);
+                reconnect();
+              }
+            : undefined
+        }
+      />
 
       {resultStars ? (
         <View style={styles.resultOverlay}>
@@ -414,6 +547,59 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 }
 
 const styles = StyleSheet.create({
+  hintBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: 6,
+    marginRight: spacing.md,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  hintBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
+  hintBackdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.5)', justifyContent: 'flex-end' },
+  hintSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+    gap: 10,
+  },
+  hintGrab: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: '#CBD5E1', marginBottom: 4 },
+  hintTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
+  hintGoalRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  hintGoalNo: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.brand,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 22,
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    overflow: 'hidden',
+  },
+  hintGoalText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 20, color: colors.textBody },
+  hintSubTitle: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textMuted, marginTop: 6 },
+  hintPhrase: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: radii.lg,
+    backgroundColor: '#EEF2FF',
+  },
+  hintPhraseEn: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading },
+  hintPhraseTr: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  hintClose: { alignSelf: 'center', marginTop: 6, paddingHorizontal: 28, paddingVertical: 10, borderRadius: 999, backgroundColor: colors.brand },
+  hintCloseText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF' },
   twistStrip: {
     flexDirection: 'row',
     alignItems: 'center',

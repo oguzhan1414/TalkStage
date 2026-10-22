@@ -1,14 +1,16 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BouncyPressable } from '../components/BouncyPressable';
 import { CreateDeckModal } from '../components/CreateDeckModal';
 import { DeckStudyModal } from '../components/DeckStudyModal';
 import { Toast } from '../components/Toast';
+import { minimalFeatureIcons } from '../assets/images';
+import { ScreenHeader } from '../components/ScreenHeader';
 import {
   deleteCustomDeck,
   getDeckMasteredWordIds,
@@ -126,7 +128,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
     const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
 
     return (
-      <View key={deck.id} style={[styles.deckCard, shadow.card, { borderColor: deck.color }]}>
+      <View key={deck.id} style={[styles.deckCard, shadow.card, { borderBottomColor: deck.color }]}>
         <View style={styles.deckCardTop}>
           <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
             <Text style={styles.deckEmoji}>{deck.emoji}</Text>
@@ -164,7 +166,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
 
         <BouncyPressable
           onPress={() => setSelectedStudyDeck(deck)}
-          style={[styles.deckStartBtn, { backgroundColor: deck.color }, shadow.card]}
+          style={[styles.deckStartBtn, { backgroundColor: deck.color }]}
           hapticType="medium"
           scaleTo={0.96}
         >
@@ -176,32 +178,36 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
-        </Pressable>
-        <View style={styles.headerTitleCol}>
-          <Text style={styles.headerTitle}>{t("Kelime Klasörlerim")}</Text>
-          <Text style={styles.headerSub}>{t("{{length}}/{{MAX_CUSTOM_DECKS}} klasör · Kendi başlıklarınla grupla", { length: customDecks.length, MAX_CUSTOM_DECKS })}</Text>
-        </View>
-        <BouncyPressable
-          onPress={handleOpenCreateDeck}
-          style={[styles.createBtn, shadow.card, isCapReached && styles.createBtnDisabled]}
-          hapticType="medium"
-          scaleTo={0.94}
-        >
-          <Ionicons name="add" size={15} color="#FFFFFF" style={{ marginRight: 4 }} />
-          <Text style={styles.createBtnText}>{t("Yeni Klasör")}</Text>
-        </BouncyPressable>
-      </View>
+      <ScreenHeader
+        title={t("Klasörler")}
+        subtitle={t("{{length}}/{{MAX_CUSTOM_DECKS}} klasör · Kendi başlıklarınla grupla", { length: customDecks.length, MAX_CUSTOM_DECKS })}
+        icon={minimalFeatureIcons.vocabFolders}
+        onBack={() => navigation.goBack()}
+        right={
+          <BouncyPressable
+            onPress={handleOpenCreateDeck}
+            style={[styles.createBtn, isCapReached && styles.createBtnDisabled]}
+            hapticType="medium"
+            scaleTo={0.94}
+          >
+            <Ionicons name="add" size={16} color="#FFFFFF" />
+            <Text style={styles.createBtnText}>{t("Yeni Klasör")}</Text>
+          </BouncyPressable>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {customDecks.length > 0 ? (
           <View style={styles.decksGrid}>{customDecks.map(renderDeckCard)}</View>
         ) : (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyEmoji}>📁</Text>
-            <Text style={styles.emptyText}>{t("Henüz klasörün yok. Ör. \"Mülakat Terimlerim\" gibi kendi temanı oluşturup istediğin kelimeleri içine topla.")}</Text>
+            <Image source={minimalFeatureIcons.vocabFolders} style={styles.emptyArt} resizeMode="contain" />
+            <Text style={styles.emptyTitle}>{t("Henüz klasörün yok")}</Text>
+            <Text style={styles.emptyText}>{t("Ör. \"Mülakat Terimlerim\" gibi kendi temanı oluşturup istediğin kelimeleri içine topla.")}</Text>
+            <BouncyPressable onPress={handleOpenCreateDeck} style={[styles.emptyCta, isCapReached && styles.createBtnDisabled]} hapticType="medium" scaleTo={0.95}>
+              <Ionicons name="add" size={18} color="#FFFFFF" />
+              <Text style={styles.emptyCtaText}>{t("Yeni Klasör")}</Text>
+            </BouncyPressable>
           </View>
         )}
       </ScrollView>
@@ -236,82 +242,38 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  emptyCtaText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: '#FFFFFF' },
+  emptyCta: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.brand, borderRadius: radii.pill, paddingVertical: 13, paddingHorizontal: 26, marginTop: 8, borderBottomWidth: 4, borderBottomColor: '#3730A3' },
+  emptyTitle: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
+  emptyArt: { width: 150, height: 150, marginBottom: 4 },
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleCol: { flex: 1, marginLeft: 12, marginRight: 8 },
-  headerTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
-  headerSub: { fontFamily: fonts.bodyRegular, fontSize: 11, color: colors.textMuted, marginTop: 1 },
-  createBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.brand,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-  },
+  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, paddingLeft: 10, paddingRight: 14, paddingVertical: 9, borderRadius: radii.pill, borderBottomWidth: 3, borderBottomColor: '#3730A3' },
   createBtnDisabled: { backgroundColor: '#CBD5E1' },
-  createBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 11, color: '#FFFFFF' },
-  content: { padding: spacing.md, paddingBottom: 60 },
-  decksGrid: { gap: 12 },
-  emptyBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderStyle: 'dashed',
-    padding: 24,
-    alignItems: 'center',
-  },
-  emptyEmoji: { fontSize: 36, marginBottom: 8 },
-  emptyText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: '#64748B',
-    lineHeight: 18,
-    textAlign: 'center',
-  },
-  deckCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, borderWidth: 1.5 },
+  createBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
+  content: { paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 60 },
+  decksGrid: { gap: 14 },
+  emptyBox: { backgroundColor: '#FFFFFF', borderRadius: 28, borderWidth: 1, borderColor: '#EEF2FF', paddingVertical: 28, paddingHorizontal: 22, alignItems: 'center', gap: 8, marginTop: 6 },
+  emptyText: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: '#64748B', lineHeight: 20, textAlign: 'center' },
+  deckCard: { backgroundColor: '#FFFFFF', borderRadius: 26, padding: 18, borderWidth: 1, borderColor: '#F1F5F9', borderBottomWidth: 5 },
   deckCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  deckEmojiBadge: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  deckEmoji: { fontSize: 24 },
-  deckTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: '#0F172A' },
-  deckSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: '#64748B', marginTop: 2 },
-  deckLevelPill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  deckEmojiBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  deckEmoji: { fontSize: 28 },
+  deckTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: '#0F172A' },
+  deckSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#64748B', marginTop: 2 },
+  deckLevelPill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 9 },
   deckLevelPillText: { fontFamily: fonts.mono, fontSize: 10, fontWeight: 'bold', color: '#FFFFFF' },
   deckDeleteBtn: { padding: 6, marginLeft: 6 },
-  deckProgressArea: { marginVertical: 12 },
+  deckProgressArea: { marginTop: 14, marginBottom: 14 },
   deckProgressLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 6,
   },
-  deckWordCount: { fontFamily: fonts.headingSemiBold, fontSize: 11, color: '#475569' },
+  deckWordCount: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#475569' },
   deckPercent: { fontFamily: fonts.mono, fontSize: 10.5, color: '#64748B' },
-  deckBarTrack: { height: 6, backgroundColor: '#F1F5F9', borderRadius: 3, overflow: 'hidden' },
-  deckBarFill: { height: '100%', borderRadius: 3 },
-  deckStartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 12,
-  },
-  deckStartBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#FFFFFF' },
+  deckBarTrack: { height: 9, backgroundColor: '#F1F5F9', borderRadius: 5, overflow: 'hidden' },
+  deckBarFill: { height: '100%', borderRadius: 5 },
+  deckStartBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 13, borderRadius: radii.pill },
+  deckStartBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF', letterSpacing: 0.3 },
 });

@@ -1,21 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  Modal,
-  PanResponder,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useEffect, useRef, useState } from 'react';
+import { Image, Animated, Modal, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  markWordAsMasteredInDeck,
-  type VocabDeck,
-  type VocabDeckWord,
-} from '../data/vocabDecks';
+import { markWordAsMasteredInDeck, type VocabDeck, type VocabDeckWord } from '../data/vocabDecks';
+import { minimalFeatureIcons, stateImages } from '../assets/images';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { colors, fonts, radii, shadow } from '../theme/tokens';
 import { BouncyPressable } from './BouncyPressable';
@@ -209,7 +198,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
         {initialCount === 0 ? (
           <View style={styles.completedContainer}>
             <View style={[styles.celebrationCard, shadow.porcelain]}>
-              <Text style={styles.celebrationEmoji}>📦</Text>
+              <Image source={minimalFeatureIcons.vocabFolders} style={styles.celebrationArt} resizeMode="contain" />
               <Text style={styles.celebrationTitle}>{t("Bu Klasör Henüz Boş")}</Text>
               <Text style={styles.celebrationDesc}>{t("\"{{title}}\" klasöründe henüz kelime bulunmuyor. Kelime ekleyerek desteni zenginleştirebilirsin.", { title: deck.title })}</Text>
               <BouncyPressable onPress={onClose} style={[styles.restartBtn, shadow.card]} hapticType="light" scaleTo={0.96}>
@@ -221,7 +210,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
           /* 4. Completed Celebration (Adaptive to 1 word vs many words) */
           <View style={styles.completedContainer}>
             <View style={[styles.celebrationCard, shadow.porcelain]}>
-              <Text style={styles.celebrationEmoji}>{initialCount <= 1 ? '✨' : '🏆'}</Text>
+              <Image source={stateImages.goalCelebration} style={styles.celebrationArt} resizeMode="contain" />
               <Text style={styles.celebrationTitle}>
                 {initialCount <= 1 ? t("Kelime Gözden Geçirildi") : t("Deste Tamamlandı!")}
               </Text>
@@ -413,6 +402,7 @@ export function DeckStudyModal({ visible, deck, onClose, onDeckCompleted, savedT
 }
 
 const styles = StyleSheet.create({
+  celebrationArt: { width: 150, height: 150, marginBottom: 4 },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -424,19 +414,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
-  closeBtn: {
-    padding: 6,
-    borderRadius: radii.pill,
-    backgroundColor: '#E2E8F0',
-  },
+  closeBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
   headerCenter: {
     alignItems: 'center',
   },
-  deckEmojiTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
-    color: '#0F172A',
-  },
+  deckEmojiTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: '#0F172A' },
   deckProgressSubtitle: {
     fontFamily: fonts.bodyRegular,
     fontSize: 12,
@@ -457,19 +439,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4F46E5',
   },
-
-  /* Progress Bar */
-  progressBarTrack: {
-    height: 5,
-    backgroundColor: '#E2E8F0',
-    width: '100%',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 2.5,
-  },
-
-  /* Card Area */
+  progressBarTrack: { height: 12, backgroundColor: '#E2E8F0', borderRadius: 6, marginHorizontal: 20, overflow: 'hidden' },
+  progressBarFill: { height: '100%', borderRadius: 6 },
   cardArea: {
     flex: 1,
     alignItems: 'center',
@@ -477,15 +448,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
-  flashcard: {
-    width: '100%',
-    height: '75%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    overflow: 'hidden',
-  },
+  flashcard: { width: '100%', height: '78%', backgroundColor: '#FFFFFF', borderRadius: 30, borderWidth: 2, borderBottomWidth: 6, borderColor: '#DDE3FF', overflow: 'hidden' },
   cardInner: {
     flex: 1,
     padding: 24,
@@ -536,20 +499,12 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     backgroundColor: '#EEF2FF',
   },
-
-  /* Front */
   frontBody: {
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 20,
   },
-  wordTerm: {
-    fontFamily: fonts.headingBold,
-    fontSize: 34,
-    color: '#0F172A',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
+  wordTerm: { fontFamily: fonts.headingBold, fontSize: 42, lineHeight: 48, color: '#0F172A', textAlign: 'center', marginBottom: 8 },
   wordPhonetic: {
     // System font on purpose: the app fonts (JetBrains Mono) lack IPA glyphs (ə ː ˈ ɑ …) and garble them.
     fontSize: 16,
@@ -571,8 +526,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4F46E5',
   },
-
-  /* Back */
   backBody: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -622,7 +575,6 @@ const styles = StyleSheet.create({
     color: '#64748B',
     lineHeight: 16,
   },
-
   cardBottomGuide: {
     alignItems: 'center',
   },
@@ -631,8 +583,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94A3B8',
   },
-
-  /* Swipe Stamps */
   swipeStamp: {
     position: 'absolute',
     top: 24,
@@ -664,57 +614,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#DC2626',
   },
-
-  /* Action Controls */
-  actionControlsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: 18,
-    gap: 10,
-  },
-  actionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 16,
-    gap: 6,
-  },
-  actionBtnAgain: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1.5,
-    borderColor: '#FECACA',
-  },
+  actionControlsRow: { flexDirection: 'row', gap: 10, width: '100%', marginTop: 14 },
+  actionBtn: { flex: 1, borderRadius: 20, paddingVertical: 12, alignItems: 'center', justifyContent: 'center', gap: 2, borderWidth: 2, borderBottomWidth: 5, minHeight: 70 },
+  actionBtnAgain: { backgroundColor: '#FEF2F2', borderColor: '#FECACA' },
   actionBtnAgainText: {
     fontFamily: fonts.headingBold,
     fontSize: 12.5,
     color: '#DC2626',
   },
-  actionBtnFlip: {
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-  },
+  actionBtnFlip: { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' },
   actionBtnFlipText: {
     fontFamily: fonts.headingBold,
     fontSize: 12.5,
     color: '#4338CA',
   },
-  actionBtnKnow: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1.5,
-    borderColor: '#BBF7D0',
-  },
+  actionBtnKnow: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
   actionBtnKnowText: {
     fontFamily: fonts.headingBold,
     fontSize: 12.5,
     color: '#059669',
   },
-
-  /* Completed State */
   completedContainer: {
     flex: 1,
     alignItems: 'center',
@@ -729,10 +648,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
-  },
-  celebrationEmoji: {
-    fontSize: 54,
-    marginBottom: 12,
   },
   celebrationTitle: {
     fontFamily: fonts.headingBold,

@@ -1,3 +1,4 @@
+import type { LearningPlan } from '../lib/learningPlan';
 /**
  * Mirrors `backend/app/schemas/*.py`. Keep these in sync manually — there's
  * no shared codegen between the two repos. See `backend/CLAUDE.md`'s
@@ -22,6 +23,8 @@ export type ProfileOut = {
   native_language?: string;
   gender?: string | null;
   age_range?: string | null;
+  /** Kişisel öğrenme planı (migration 0031); null = henüz seçilmemiş. */
+  learning_plan?: LearningPlan | null;
   onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -36,6 +39,7 @@ export type ProfileUpdate = Partial<{
   learning_goal: string;
   daily_target_minutes: number;
   native_language: string;
+  learning_plan: LearningPlan;
 }>;
 
 /** Body for `POST /onboarding/complete` — see backend `schemas/onboarding.py`. */
@@ -48,6 +52,7 @@ export type OnboardingCompleteRequest = {
   native_language?: string;
   gender?: string;
   age_range?: string;
+  learning_plan?: LearningPlan;
 };
 
 export type ScenarioObjective = {
@@ -286,6 +291,8 @@ export type GrammarMistakeOut = {
   corrected_text: string;
   explanation_tr?: string | null;
   source?: string | null;
+  /** grammar | vocabulary | register | spelling | pronunciation (migration 0031); null for older rows. */
+  category?: string | null;
   created_at?: string | null;
 };
 

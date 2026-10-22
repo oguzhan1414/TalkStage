@@ -1,476 +1,197 @@
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { appLogoIcon, authWelcomeHeroBg } from '../../assets/images';
-import { AuthMivoHero } from '../../components/AuthMivoHero';
+import { AppleSignInButton } from '../../components/AppleSignInButton';
+import { AuthField } from '../../components/auth/AuthField';
+import { AuthShell } from '../../components/auth/AuthShell';
 import { BouncyPressable } from '../../components/BouncyPressable';
+import { Button } from '../../components/Button';
+import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { LegalConsentNote } from '../../components/LegalConsentNote';
+import { friendlyAuthError, looksLikeEmail } from '../../lib/authErrors';
 import { supabase } from '../../lib/supabase';
 import type { AuthStackScreenProps } from '../../navigation/types';
-import { colors, fonts, radii, shadow } from '../../theme/tokens';
+import { colors, fonts } from '../../theme/tokens';
 import { t } from '../../i18n';
+
+const MIN_PASSWORD = 6;
+const RESEND_SECONDS = 45;
 
 export function SignUpScreen({ navigation }: AuthStackScreenProps<'SignUp'>) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [resent, setResent] = useState(false);
+  const submitting = useRef(false);
+
+  const passwordOk = password.length >= MIN_PASSWORD;
+  const canSubmit = looksLikeEmail(email) && passwordOk;
+
+  // Counts down after a confirmation mail was sent, so "send again" cannot be spammed.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const handleSignUp = async () => {
-    if (!email.trim() || password.length < 6) return;
+    if (!canSubmit || submitting.current) return;
+    submitting.current = true;
     setError(null);
     setLoading(true);
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-      });
-
+      const { data, error: signUpError } = await supabase.auth.signUp({ email: email.trim(), password });
       if (signUpError) {
-        setError(signUpError.message);
+        setError(friendlyAuthError(signUpError.message));
         return;
       }
       // No session yet + no error means Supabase is waiting on email confirmation.
       if (!data.session) {
         setConfirmationSent(true);
+        setCooldown(RESEND_SECONDS);
       }
     } catch {
       setError(t("Hesap oluşturulamadı. İnternet bağlantını kontrol edip tekrar dene."));
     } finally {
+      submitting.current = false;
       setLoading(false);
     }
   };
 
-  /* Confirmation Sent Screen */
+  const resend = async () => {
+    if (cooldown > 0) return;
+    setCooldown(RESEND_SECONDS);
+    setResent(false);
+    try {
+      const { error: resendError } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
+      if (resendError) setError(friendlyAuthError(resendError.message));
+      else setResent(true);
+    } catch {
+      setError(t("İnternet bağlantını kontrol edip tekrar dene."));
+    }
+  };
+
+  const onChange = (set: (value: string) => void) => (value: string) => {
+    set(value);
+    if (error) setError(null);
+  };
+
   if (confirmationSent) {
     return (
-      <View style={styles.root}>
-        <ImageBackground
-          source={authWelcomeHeroBg}
-          style={styles.heroBackground}
-          resizeMode="cover"
-        >
-          <AuthMivoHero />
-          <SafeAreaView style={styles.safeArea}>
-            <View style={styles.confirmationContainer}>
-              <View style={[styles.confirmCard, shadow.porcelain]}>
-                <View style={styles.confirmIconCircle}>
-                  <Ionicons name="mail-unread" size={34} color={colors.brand} />
-                </View>
-                <Text style={styles.confirmTitle}>{t("E-Postanı Kontrol Et ✉️")}</Text>
-                <Text style={styles.confirmDesc}>
-                  {t("{{email}} adresine bir onay bağlantısı gönderdik. Bağlantıya tıklayarak Mivo ile sahneye adım atabilirsin.", { email })}
-                </Text>
-
-                <BouncyPressable
-                  onPress={() => navigation.navigate('SignIn')}
-                  style={[styles.primaryLoginBtn, shadow.card]}
-                  hapticType="medium"
-                  scaleTo={0.97}
-                >
-                  <Ionicons name="arrow-back" size={17} color="#FFFFFF" style={{ marginRight: 6 }} />
-                  <Text style={styles.primaryLoginBtnText}>{t("Giriş Ekranına Dön")}</Text>
-                </BouncyPressable>
-              </View>
-            </View>
-          </SafeAreaView>
-        </ImageBackground>
-      </View>
+      <AuthShell title={t("E-Postanı Kontrol Et ✉️")}>
+        <Text style={styles.confirmText}>
+          {t("{{email}} adresine bir onay bağlantısı gönderdik. Bağlantıya tıklayarak Mivo ile sahneye adım atabilirsin.", { email: email.trim() })}
+        </Text>
+        <Text style={styles.confirmHint}>{t("Gelmediyse gereksiz (spam) klasörüne de bak.")}</Text>
+        {error ? (
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle" size={18} color="#EF4444" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
+        <Button label={t("Giriş Ekranına Dön")} variant="chunky" onPress={() => navigation.navigate('SignIn')} />
+        <BouncyPressable onPress={resend} disabled={cooldown > 0} style={styles.resendRow} hapticType="light" scaleTo={0.96}>
+          <Text style={[styles.resendText, cooldown > 0 && styles.resendDisabled]}>
+            {resent && cooldown > 0
+              ? t("Tekrar gönderildi ✓")
+              : cooldown > 0
+                ? t("Tekrar gönder ({{s}} sn)", { s: cooldown })
+                : t("E-posta gelmedi mi? Tekrar gönder")}
+          </Text>
+        </BouncyPressable>
+      </AuthShell>
     );
   }
 
   return (
-    <View style={styles.root}>
-      {/* 1. Full-Height 3D Mivo Mascot Hero Backdrop */}
-      <ImageBackground
-        source={authWelcomeHeroBg}
-        style={styles.heroBackground}
-        resizeMode="cover"
-      >
-        <AuthMivoHero />
-        <SafeAreaView style={styles.safeArea}>
-          <KeyboardAvoidingView
-            style={styles.keyboardView}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          >
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              bounces={false}
-            >
-              {/* 2. Clean Top Brand Logo */}
-              <View style={styles.topSection}>
-                <View style={[styles.brandCapsule, shadow.card]}>
-                  <Image source={appLogoIcon} style={styles.brandLogoImg} resizeMode="contain" />
-                  <Text style={styles.brandName}>{t("Spekvia")}</Text>
-                </View>
-              </View>
+    <AuthShell title={t("Sahneni Oluştur")} subtitle={t("Birkaç saniyede ücretsiz hesabını aç")}>
+      <View style={styles.social}>
+        <AppleSignInButton onError={setError} />
+        <GoogleSignInButton onError={(message) => setError(friendlyAuthError(message))} />
+      </View>
 
-              {/* 3. Spacious Gap so Mivo is 100% Unobstructed in Middle Viewport */}
-              <View style={styles.heroSpacer} />
+      <View style={styles.divider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>{t("veya e-posta ile")}</Text>
+        <View style={styles.dividerLine} />
+      </View>
 
-              {/* 4. Sleek Bottom Porcelain Sheet Form */}
-              <View style={[styles.bottomSheet, shadow.porcelain]}>
-                <View style={styles.sheetHeader}>
-                  <Text style={styles.sheetTitle}>{t("Sahneni Oluştur")}</Text>
-                  <Text style={styles.sheetSub}>{t("Birkaç saniyede ücretsiz hesabını aç")}</Text>
-                </View>
+      <AuthField
+        icon="mail-outline"
+        value={email}
+        onChangeText={onChange(setEmail)}
+        placeholder={t("E-posta adresin")}
+        keyboardType="email-address"
+        autoComplete="email"
+        returnKeyType="next"
+      />
+      <View style={styles.passwordBlock}>
+        <AuthField
+          icon="lock-closed-outline"
+          value={password}
+          onChangeText={onChange(setPassword)}
+          placeholder={t("Şifren")}
+          secure
+          autoComplete="new-password"
+          returnKeyType="go"
+          onSubmitEditing={handleSignUp}
+        />
+        <View style={styles.ruleRow}>
+          <Ionicons name={passwordOk ? 'checkmark-circle' : 'ellipse-outline'} size={15} color={passwordOk ? '#059669' : '#94A3B8'} />
+          <Text style={[styles.ruleText, passwordOk && styles.ruleOk]}>{t("En az 6 karakter")}</Text>
+        </View>
+      </View>
 
-                {/* Email Input */}
-                <View style={styles.inputGroup}>
-                  <View style={styles.inputWrapper}>
-                    <Ionicons name="mail-outline" size={19} color="#64748B" style={styles.inputIcon} />
-                    <TextInput
-                      style={styles.textInput}
-                      placeholder={t("E-posta adresin")}
-                      placeholderTextColor="#94A3B8"
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                      autoComplete="email"
-                      autoCorrect={false}
-                      value={email}
-                      onChangeText={(t) => {
-                        setEmail(t);
-                        if (error) setError(null);
-                      }}
-                    />
-                  </View>
-                </View>
+      {error ? (
+        <View style={styles.errorBox} accessibilityLiveRegion="polite">
+          <Ionicons name="alert-circle" size={18} color="#EF4444" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
 
-                {/* Password Input */}
-                <View style={styles.inputGroup}>
-                  <View style={styles.inputWrapper}>
-                    <Ionicons name="lock-closed-outline" size={19} color="#64748B" style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.textInput, { paddingRight: 38 }]}
-                      placeholder={t("Şifren (en az 6 karakter)")}
-                      placeholderTextColor="#94A3B8"
-                      secureTextEntry={!showPassword}
-                      autoCapitalize="none"
-                      autoComplete="new-password"
-                      value={password}
-                      onChangeText={(t) => {
-                        setPassword(t);
-                        if (error) setError(null);
-                      }}
-                    />
-                    <BouncyPressable
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={styles.eyeToggleBtn}
-                      hapticType="light"
-                      scaleTo={0.92}
-                    >
-                      <Ionicons
-                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={19}
-                        color="#64748B"
-                      />
-                    </BouncyPressable>
-                  </View>
-                </View>
+      <Button label={t("Hesabımı Oluştur")} variant="chunky" loading={loading} disabled={!canSubmit} onPress={handleSignUp} />
 
-                {/* Feature Highlight Mini Chips */}
-                <View style={styles.featureChipsRow}>
-                  <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>{t("🛡️ Gizli & Güvenli")}</Text>
-                  </View>
-                  <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>{t("⚡ Anında Başla")}</Text>
-                  </View>
-                  <View style={styles.featureChip}>
-                    <Text style={styles.featureChipText}>{t("🎁 Ücretsiz Seviye")}</Text>
-                  </View>
-                </View>
+      <LegalConsentNote />
 
-                {/* Error Banner */}
-                {error && (
-                  <View style={styles.errorBox}>
-                    <Ionicons name="alert-circle" size={16} color="#EF4444" />
-                    <Text style={styles.errorText}>{error}</Text>
-                  </View>
-                )}
-
-                {/* Primary Action Button */}
-                <BouncyPressable
-                  onPress={handleSignUp}
-                  disabled={loading || !email.trim() || password.length < 6}
-                  style={[
-                    styles.primaryLoginBtn,
-                    (!email.trim() || password.length < 6) && styles.primaryBtnDisabled,
-                    shadow.card,
-                  ]}
-                  hapticType="medium"
-                  scaleTo={0.97}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
-                  ) : (
-                    <>
-                      <Text style={styles.primaryLoginBtnText}>{t("Hesabımı Oluştur")}</Text>
-                      <Ionicons name="arrow-forward" size={17} color="#FFFFFF" style={{ marginLeft: 6 }} />
-                    </>
-                  )}
-                </BouncyPressable>
-
-                <LegalConsentNote />
-
-                {/* Bottom Switcher */}
-                <BouncyPressable
-                  onPress={() => navigation.navigate('SignIn')}
-                  style={styles.switchRow}
-                  hapticType="light"
-                  scaleTo={0.96}
-                >
-                  <Text style={styles.switchTextNormal}>{t("Zaten bir hesabın var mı?")}{" "}</Text>
-                  <Text style={styles.switchTextBold}>{t("Giriş Yap ➔")}</Text>
-                </BouncyPressable>
-              </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-      </ImageBackground>
-    </View>
+      <BouncyPressable onPress={() => navigation.navigate('SignIn')} style={styles.switchRow} hapticType="light" scaleTo={0.96}>
+        <Text style={styles.switchText}>{t("Zaten bir hesabın var mı?")}{" "}</Text>
+        <Text style={styles.switchLink}>{t("Giriş Yap ➔")}</Text>
+      </BouncyPressable>
+    </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#F7EDE2',
-  },
-  heroBackground: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-
-  /* 2. Top Header Section */
-  topSection: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    alignItems: 'center',
-  },
-  brandCapsule: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: 16,
-    paddingVertical: 7,
-    borderRadius: radii.pill,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.9)',
-  },
-  brandLogoImg: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  brandName: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: '#0F172A',
-    letterSpacing: 0.5,
-  },
-
-  /* Spacer so Mivo is fully visible */
-  heroSpacer: {
-    height: 180,
-  },
-
-  /* 4. Sleek Bottom Porcelain Sheet */
-  bottomSheet: {
-    backgroundColor: 'rgba(255, 255, 255, 0.97)',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: 22,
-    paddingTop: 18,
-    paddingBottom: 26,
-    borderWidth: 1.5,
-    borderBottomWidth: 0,
-    borderColor: '#FFFFFF',
-  },
-  sheetHeader: {
-    marginBottom: 14,
-  },
-  sheetTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 20,
-    color: '#0F172A',
-  },
-  sheetSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: '#64748B',
-    marginTop: 2,
-  },
-
-  /* Form Fields */
-  inputGroup: {
-    marginBottom: 10,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.2,
-    borderColor: '#E2E8F0',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    height: 46,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  textInput: {
-    flex: 1,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 13.5,
-    color: '#0F172A',
-    height: '100%',
-  },
-  eyeToggleBtn: {
-    padding: 4,
-  },
-
-  /* Feature Chips */
-  featureChipsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    marginTop: 2,
-  },
-  featureChip: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  featureChipText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 10,
-    color: '#475569',
-  },
-
-  /* Error Box */
+  social: { gap: 10 },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#E2E8F0' },
+  dividerText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: '#94A3B8' },
+  passwordBlock: { gap: 8 },
+  ruleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingLeft: 4 },
+  ruleText: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#94A3B8' },
+  ruleOk: { color: '#059669' },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
     backgroundColor: '#FEF2F2',
     borderWidth: 1,
     borderColor: '#FECACA',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginBottom: 10,
-    gap: 6,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  errorText: {
-    flex: 1,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: '#DC2626',
-  },
-
-  /* Primary Button */
-  primaryLoginBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.brand,
-    height: 48,
-    borderRadius: 14,
-    marginTop: 4,
-  },
-  primaryBtnDisabled: {
-    opacity: 0.5,
-  },
-  primaryLoginBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14.5,
-    color: '#FFFFFF',
-  },
-
-  /* Switch Row */
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 14,
-    paddingVertical: 4,
-  },
-  switchTextNormal: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: '#64748B',
-  },
-  switchTextBold: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.brand,
-  },
-
-  /* Confirmation */
-  confirmationContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  confirmCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.96)',
-    borderRadius: 28,
-    padding: 24,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  confirmIconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
-  confirmTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 19,
-    color: '#0F172A',
-    marginBottom: 6,
-  },
-  confirmDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12.5,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 18,
-  },
+  errorText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#DC2626' },
+  confirmText: { fontFamily: fonts.bodyRegular, fontSize: 15, lineHeight: 22, color: '#334155' },
+  confirmHint: { fontFamily: fonts.bodyRegular, fontSize: 13, lineHeight: 18, color: '#64748B' },
+  resendRow: { alignItems: 'center', paddingVertical: 6 },
+  resendText: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.brand },
+  resendDisabled: { color: '#94A3B8' },
+  switchRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 4 },
+  switchText: { fontFamily: fonts.bodyRegular, fontSize: 14, color: '#64748B' },
+  switchLink: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.brand },
 });

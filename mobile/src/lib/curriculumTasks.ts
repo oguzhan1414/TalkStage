@@ -1,9 +1,9 @@
 import type { CurriculumTopic } from '@talkstage/shared-data/curriculumData';
-import { findGrammarLesson } from '@talkstage/shared-data/grammarLessons';
-import { PODCAST_EPISODES, type PodcastEpisode } from '../data/podcastData';
+import { voiceSceneForTopic } from '@talkstage/shared-data/voiceScenes';
 import { t } from '../i18n';
+import { effectivePlan, hasSkill, type LearningPlan } from './learningPlan';
 
-export type CurriculumTaskType = 'listening' | 'lesson' | 'vocab' | 'reading' | 'review';
+export type CurriculumTaskType = 'listening' | 'lesson' | 'vocab' | 'reading' | 'review' | 'scene' | 'writing';
 
 export type CurriculumTask = {
   id: string;
@@ -12,15 +12,14 @@ export type CurriculumTask = {
   title: string;
   subtitle: string;
   done: boolean;
-  /** Konu bloğu içindeki gün (1 = öğren, ortadakiler = oku/dinle, son = pekiştir). */
-  day: number;
-  /** Bu konunun bloğu kaç gün sürüyor. */
-  daysInTopic: number;
-  podcastEpisode?: PodcastEpisode;
   /** Okuma görevinde hedef hikaye (Ana Sayfa doğrudan bu hikayeyi açar). */
   readingSlug?: string;
   /** Konu tekrarı görevinde, Mivo ile konuşulacak konu(lar). */
   reviewTopics?: CurriculumTopic[];
+  /** Sesli sahne görevi: açılacak sahnenin id'si (Sahneler sekmesinde `openSceneId`). */
+  sceneId?: string;
+  /** "Gerçek mesaj yaz" görevi: yazma görevinin id'si. */
+  writingTaskId?: string;
 };
 
 /** Minimal shape needed from a real reading passage — callers pass their
@@ -30,18 +29,25 @@ export type CurriculumTask = {
 export type ReadingPassageSignal = { slug: string; title: string };
 
 export type CurriculumTaskSignals = {
-  /** Artık görevleri etkilemiyor (kelime ekleme ayrı bir görev değil); eski çağıranlar uyumlu kalsın diye duruyor. */
+  /** Artık görevleri etkilemiyor (kelimeler Bugün'deki günlük kelime kartında); eski çağıranlar uyumlu kalsın diye duruyor. */
   savedWordsLower?: Set<string>;
   lessonQuizDoneCodes: Set<string>;
   /** `topic_chat_completed_<id>` bayrakları; konu tekrarının id'si `<topicCode>_review`. */
   chatCompletedTopicCodes: Set<string>;
-  completedPodcastEpisodeIds: Set<string>;
+  /** Artık görevleri etkilemiyor (podcast yolda değil, Özellikler'de); eski çağıranlar uyumlu kalsın diye duruyor. */
+  completedPodcastEpisodeIds?: Set<string>;
   readingPassagesForLevel: ReadingPassageSignal[];
   completedReadingSlugs: Set<string>;
+  /** Kişisel plan (null = plan seçilmemiş, bugünkü "Dengeli" yol). */
+  plan?: LearningPlan | null;
+  /** Bu seviyenin hazır sesli sahneleri, sırayla (konulara birer birer dağıtılır). */
+  scenesForLevel?: { id: string; title: string }[];
+  /** Canlı Mivo sahnesi oynanmış sahneler (en az 2 yıldız). */
+  playedSceneIds?: Set<string>;
+  /** Bu seviyenin "Gerçek mesaj yaz" görevleri; her konunun kendi görevleri (slot sırasıyla). */
+  writingTasksForLevel?: { id: string; title: string; topicCode: string }[];
+  completedWritingIds?: Set<string>;
 };
-
-const allEpisodes = PODCAST_EPISODES;
-const podcastById = new Map(allEpisodes.map((ep) => [ep.id, ep]));
 
 /** Topic title without the Turkish name in parentheses: "Present Simple Tense (Geniş Zaman)" -> "Present Simple Tense". */
 export function shortTopicTitle(topic: CurriculumTopic): string {
@@ -66,131 +72,131 @@ function readingSizes(count: number, topics: number): number[] {
   return Array.from({ length: topics }, (_, i) => base + (i < extra ? 1 : 0));
 }
 
-/** One podcast per topic where possible: the lesson's own related episode first, then any unused episode of the level. */
-function assignPodcasts(topics: CurriculumTopic[], level: string): (PodcastEpisode | undefined)[] {
-  const prefix = `podcast_${level.toLowerCase()}_`;
-  const levelEpisodes = allEpisodes.filter((ep) => ep.id.startsWith(prefix));
-  const used = new Set<string>();
-  const result: (PodcastEpisode | undefined)[] = topics.map((topic) => {
-    const relatedId = findGrammarLesson(topic.code)?.relatedPodcastId;
-    const ep = relatedId ? podcastById.get(relatedId) : undefined;
-    if (ep && ep.id.startsWith(prefix) && !used.has(ep.id)) {
-      used.add(ep.id);
-      return ep;
-    }
-    return undefined;
-  });
-  return result.map((ep) => {
-    if (ep) return ep;
-    const free = levelEpisodes.find((e) => !used.has(e.id));
-    if (free) used.add(free.id);
-    return free;
-  });
-}
-
 /**
- * Turns a level into a day-by-day path. Every topic is a block of days:
- *  - Day 1 (learn):       grammar lesson + mini test, then that day's reading
- *  - Middle days (explore): the next reading(s), the first one together with the topic's podcast (bonus)
- *  - Last day (consolidate): the last reading when the topic has 3 or more, then "Mivo ile Konu Tekrarı"
- *                            (a short recap of Day 1's rule, then the student builds sentences)
+ * Turns a level into a path of topics, each a short ordered list of steps (no days):
+ *  - grammar lesson + mini test, then the topic's readings, the voice scene, "Mivo ile Konu Tekrarı", and
+ *    the "Gerçek mesaj yaz" task (the written twin of the voice scene).
  * Target words are NOT a task: they are shown in the topic info card, with an optional "add to my chest" button.
  * All of a level's readings are spread over its topics (see `readingSizes`), so nothing is left unused.
- * Steps unlock in order (`isTaskLocked`); the podcast is bonus.
+ * Steps unlock in order (`isTaskLocked`). Every step on the path is required: nothing optional sits on it
+ * (podcasts live in Özellikler for whoever wants them).
  */
+/** Rough minutes per task (shown on a topic's step list). */
+export const TASK_MINUTES: Record<CurriculumTaskType, number> = {
+  lesson: 8,
+  reading: 5,
+  scene: 6,
+  writing: 7,
+  review: 5,
+  listening: 0, // not on the path any more
+  vocab: 1,
+};
+
 export function buildTaskQueueForLevel(
   topics: CurriculumTopic[],
   signals: CurriculumTaskSignals,
-  levelCode?: string
+  _levelCode?: string
 ): CurriculumTask[] {
+  const plan = effectivePlan(signals.plan);
+  const fullGrammar = plan.grammar_mode === 'full';
+  const wantsReading = hasSkill(plan, 'reading');
+  const wantsSpeaking = hasSkill(plan, 'speaking');
+  const wantsWriting = hasSkill(plan, 'writing');
+  // Speaking focus: one story per topic is enough next to the scene; the rest stay in the reading library.
+  const readingsPerTopic = plan.preset === 'speaking' ? 1 : Infinity;
+  const writings = signals.writingTasksForLevel ?? [];
+
   const queue: CurriculumTask[] = [];
-  const level = levelCode ?? topics[0]?.code.split('_')[0] ?? 'A1';
-  const readings = signals.readingPassagesForLevel;
+  const readings = wantsReading ? signals.readingPassagesForLevel : [];
   const sizes = readingSizes(readings.length, Math.max(1, topics.length));
-  const podcasts = assignPodcasts(topics, level);
   let readingCursor = 0;
 
   topics.forEach((topic, topicIdx) => {
-    const own = readings.slice(readingCursor, readingCursor + sizes[topicIdx]);
+    const own = readings.slice(readingCursor, readingCursor + sizes[topicIdx]).slice(0, readingsPerTopic);
     readingCursor += sizes[topicIdx];
 
-    const first = own[0];
-    const hasThree = own.length >= 3;
-    const middle = hasThree ? own.slice(1, own.length - 1) : own.slice(1);
-    const closing = hasThree ? own[own.length - 1] : undefined;
-    const perDay = middle.length > 3 ? 2 : 1;
-    const middleDays: (typeof own)[] = [];
-    for (let i = 0; i < middle.length; i += perDay) middleDays.push(middle.slice(i, i + perDay));
-    const episode = podcasts[topicIdx];
-    if (episode && middleDays.length === 0) middleDays.push([]);
-
-    const daysInTopic = 2 + middleDays.length;
     let readingNo = 0;
-    const readingTask = (passage: ReadingPassageSignal, day: number): CurriculumTask => ({
+    const readingTask = (passage: ReadingPassageSignal): CurriculumTask => ({
       id: `${topic.code}_reading_${++readingNo}`,
       topic,
       type: 'reading',
       title: passage.title,
-      subtitle: t("Smart Reading — hikaye & ses sahnesi"),
+      subtitle: t("Hikaye — dinle ve cümleleri tamamla"),
       done: signals.completedReadingSlugs.has(passage.slug),
-      day,
-      daysInTopic,
       readingSlug: passage.slug,
     });
-
-    // Day 1 — learn
-    queue.push({
-      id: `${topic.code}_lesson`,
-      topic,
-      type: 'lesson',
-      title: shortTopicTitle(topic),
-      subtitle: t("Kuralı incele ve testi başarıyla çöz"),
-      done: signals.lessonQuizDoneCodes.has(topic.code),
-      day: 1,
-      daysInTopic,
-    });
-    if (first) queue.push(readingTask(first, 1));
-
-    // Middle days — read (+ listen)
-    middleDays.forEach((dayReadings, i) => {
-      const day = 2 + i;
-      dayReadings.forEach((p) => queue.push(readingTask(p, day)));
-      if (i === 0 && episode) {
-        queue.push({
-          id: `${topic.code}_listening`,
+    const lesson: CurriculumTask | undefined = fullGrammar
+      ? {
+          id: `${topic.code}_lesson`,
           topic,
-          type: 'listening',
-          title: episode.title,
-          subtitle: episode.subtitle,
-          done: signals.completedPodcastEpisodeIds.has(episode.id),
-          day,
-          daysInTopic,
-          podcastEpisode: episode,
-        });
-      }
+          type: 'lesson',
+          title: shortTopicTitle(topic),
+          subtitle: t("Kuralı incele ve testi başarıyla çöz"),
+          done: signals.lessonQuizDoneCodes.has(topic.code),
+        }
+      : undefined;
+    // Every topic has its own voice scene (independent of the video scenes).
+    const voiceScene = voiceSceneForTopic(topic.code);
+    const sceneEntry = wantsSpeaking && voiceScene ? { id: voiceScene.id, title: voiceScene.titleTr } : undefined;
+    const scene: CurriculumTask | undefined = sceneEntry
+      ? {
+          id: `${topic.code}_scene`,
+          topic,
+          type: 'scene',
+          title: sceneEntry.title,
+          subtitle: t("Sesli sahne — canlı konuşma provası"),
+          done: signals.playedSceneIds?.has(sceneEntry.id) ?? false,
+          sceneId: sceneEntry.id,
+        }
+      : undefined;
+    // The Mivo topic review closes the grammar path; without it, it stands in for speaking practice
+    // when this level has no scene left for the topic (C1/C2, or more topics than scenes).
+    const reviewId = reviewIdForTopic(topic.code);
+    const review: CurriculumTask | undefined =
+      fullGrammar || (wantsSpeaking && !sceneEntry)
+        ? {
+            id: reviewId,
+            topic,
+            type: 'review',
+            title: fullGrammar
+              ? t("Tekrar: {{topic}}", { topic: shortTopicTitle(topic) })
+              : t("Mivo ile sohbet: {{topic}}", { topic: shortTopicTitle(topic) }),
+            subtitle: t("Kuralı birlikte hatırla, sonra kendi cümlelerini kur"),
+            done: signals.chatCompletedTopicCodes.has(reviewId),
+            reviewTopics: [topic],
+          }
+        : undefined;
+
+    const readingTasks = own.map(readingTask);
+    // Order of the core steps: grammar first on the grammar path; otherwise the scene opens the topic.
+    const ordered: (CurriculumTask | undefined)[] = fullGrammar
+      ? [lesson, readingTasks[0], readingTasks[1], scene, ...readingTasks.slice(2), review]
+      : [scene, ...readingTasks, review];
+    const core = ordered.filter((tk): tk is CurriculumTask => Boolean(tk));
+
+    // Writing closes the topic: the topic's own tasks (the real-message twin of its voice scene, plus the
+    // stage review on the last topic of a stage) in order.
+    const templates = wantsWriting ? writings.filter((w) => w.topicCode === topic.code) : [];
+    templates.forEach((entry, i) => {
+      core.push({
+        id: `${topic.code}_writing_${i + 1}`,
+        topic,
+        type: 'writing',
+        title: entry.title,
+        subtitle: t("Gerçek mesaj yaz — Mivo dilini ve tonunu değerlendirir"),
+        done: signals.completedWritingIds?.has(entry.id) ?? false,
+        writingTaskId: entry.id,
+      });
     });
 
-    // Last day — consolidate (reading first, then the Mivo conversation as the finale)
-    if (closing) queue.push(readingTask(closing, daysInTopic));
-    const reviewId = reviewIdForTopic(topic.code);
-    queue.push({
-      id: reviewId,
-      topic,
-      type: 'review',
-      title: t("Tekrar: {{topic}}", { topic: shortTopicTitle(topic) }),
-      subtitle: t("Kuralı birlikte hatırla, sonra kendi cümlelerini kur"),
-      done: signals.chatCompletedTopicCodes.has(reviewId),
-      day: daysInTopic,
-      daysInTopic,
-      reviewTopics: [topic],
-    });
+    queue.push(...core);
   });
 
   return queue;
 }
 
-/** Core tasks (konu anlatımı + mini test, okuma, Mivo konu tekrarı) drive progression.
- * Only the podcast is "bonus": it never holds the next day, topic or level back. */
+/** Every step on the path counts toward progression (the path holds no optional steps). Kept as a function so
+ * old callers keep working. */
 export function isCoreTask(task: CurriculumTask): boolean {
   return task.type !== 'listening';
 }
@@ -198,47 +204,6 @@ export function isCoreTask(task: CurriculumTask): boolean {
 /** What the Bugün banner suggests next: the first unfinished core task, in path order. */
 export function nextSuggestedTask(queue: CurriculumTask[]): CurriculumTask | undefined {
   return queue.find((t) => !t.done && isCoreTask(t));
-}
-
-/** One numbered day of the level path: all tasks of one day of one topic block. */
-export type CurriculumDay = {
-  key: string;
-  /** 1-based and continuous over the whole level ("Gün 1" … "Gün 36"). */
-  no: number;
-  topic: CurriculumTopic;
-  tasks: CurriculumTask[];
-  /** All core tasks of the day are done (the bonus podcast does not count). */
-  done: boolean;
-};
-
-/** Groups the flat queue into numbered days, keeping queue order. */
-export function groupTasksIntoDays(queue: CurriculumTask[]): CurriculumDay[] {
-  const days: CurriculumDay[] = [];
-  let last: CurriculumDay | undefined;
-  for (const task of queue) {
-    const key = `${task.topic.code}_d${task.day}`;
-    if (!last || last.key !== key) {
-      last = { key, no: days.length + 1, topic: task.topic, tasks: [], done: false };
-      days.push(last);
-    }
-    last.tasks.push(task);
-  }
-  for (const day of days) {
-    const core = day.tasks.filter(isCoreTask);
-    day.done = (core.length > 0 ? core : day.tasks).every((t) => t.done);
-  }
-  return days;
-}
-
-/** What a day contains, in words ("Konu anlatımı · Okuma"). */
-export function daySummary(day: CurriculumDay): string {
-  const readings = day.tasks.filter((tk) => tk.type === 'reading').length;
-  const parts: string[] = [];
-  if (day.tasks.some((tk) => tk.type === 'lesson')) parts.push(t("Konu anlatımı"));
-  if (readings > 0) parts.push(readings > 1 ? t("{{n}} okuma", { n: readings }) : t("Okuma"));
-  if (day.tasks.some((tk) => tk.type === 'listening')) parts.push(t("Podcast"));
-  if (day.tasks.some((tk) => tk.type === 'review')) parts.push(t("Mivo sohbeti"));
-  return parts.join(' · ');
 }
 
 /** A topic counts as done for progression once its core tasks are done. */
@@ -254,7 +219,7 @@ export function isLevelCoreDone(queue: CurriculumTask[]): boolean {
 }
 
 /** Step lock: a step opens once every CORE step before it (also across topics) is done, so the path is
- * walked in order. The podcast is bonus: it never blocks the steps after it.
+ * walked in order.
  * `isReviewLevel` (the user's real placement is above this level) bypasses the gate entirely — review
  * levels are optional, not a fresh unlock-by-mastery ladder. */
 export function isTaskLocked(queue: CurriculumTask[], task: CurriculumTask, isReviewLevel: boolean): boolean {

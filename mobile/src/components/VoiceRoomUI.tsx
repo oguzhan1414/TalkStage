@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
-import { memo, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { mivoImages } from '../assets/images';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { mivoVoiceImages } from '../assets/images';
 import { TappableWords } from './TappableWords';
 import { Waveform } from './Waveform';
 import { useConversationSocket, type TurnPhase } from '../hooks/useConversationSocket';
@@ -9,7 +9,8 @@ import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import { MivoLoader } from './MivoLoader';
 import { ReportAiContentModal } from './ReportAiContentModal';
-import { getLocale, t, nativeFlag } from '../i18n';
+import { haptics } from '../lib/haptics';
+import { t } from '../i18n';
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 export type DisplayBubble =
@@ -17,13 +18,89 @@ export type DisplayBubble =
   | { key: string; kind: 'assistant'; text: string };
 
 
+const MIC_SIZE = 84;
+const HALO = 118;
+/** Silence before the hint card opens by itself: the learner gets a real chance to answer alone first. */
+const HINT_AUTO_OPEN_MS = 10000;
+
+/**
+ * The big talk button. Idle: indigo with a slow breathing halo. Recording: red, with a halo that grows with the
+ * voice level so the learner can SEE that the phone hears them, and a "stop" icon. Pressing sinks the button
+ * (and vibrates) so a tap is felt.
+ */
+function MicButton({ recording, levelDb, onPress, accessibilityLabel }: {
+  recording: boolean;
+  levelDb: number;
+  onPress: () => void;
+  accessibilityLabel: string;
+}) {
+  const breathe = useRef(new Animated.Value(0)).current;
+  const level = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(breathe, { toValue: 1, duration: 1300, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(breathe, { toValue: 0, duration: 1300, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [breathe]);
+
+  useEffect(() => {
+    const target = recording ? Math.max(0, Math.min(1, (levelDb + 55) / 45)) : 0;
+    Animated.timing(level, { toValue: target, duration: 90, useNativeDriver: true }).start();
+  }, [levelDb, recording, level]);
+
+  const tint = recording ? colors.error : colors.brand;
+  return (
+    <View style={styles.micWrap}>
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.micHalo,
+          { backgroundColor: tint },
+          {
+            opacity: recording
+              ? level.interpolate({ inputRange: [0, 1], outputRange: [0.14, 0.34] })
+              : breathe.interpolate({ inputRange: [0, 1], outputRange: [0.16, 0] }),
+            transform: [
+              {
+                scale: recording
+                  ? level.interpolate({ inputRange: [0, 1], outputRange: [0.78, 1] })
+                  : breathe.interpolate({ inputRange: [0, 1], outputRange: [0.78, 1] }),
+              },
+            ],
+          },
+        ]}
+      />
+      <Pressable
+        onPress={() => {
+          haptics.medium();
+          onPress();
+        }}
+        style={({ pressed }) => [
+          styles.dockMic,
+          recording && styles.dockMicActive,
+          pressed && styles.dockMicPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+      >
+        <Ionicons name={recording ? 'stop' : 'mic'} size={40} color="#FFFFFF" />
+      </Pressable>
+    </View>
+  );
+}
+
 export function VoiceRoomControls({ voice, aiName }: {
   voice: ReturnType<typeof useConversationSocket>;
   aiName: string;
   /** Kept for the callers; the hint card (with its listen button) now lives in the chat thread. */
   pronounce?: (text: string) => unknown;
 }) {
-  const { turnPhase, coachTipTr, hasReplayableAudio, replayAiAudio, suggestedReplies,
+  const { turnPhase, coachTipTr, suggestedReplies,
     hintVisible, setHintVisible,
     micLevelDb, startTurn, stopTurn, pendingTranscript, pendingWords, pendingConfidence,
     confirmTranscript, redoTurn, stopAiAudio, retryLastTurn } = voice;
@@ -35,61 +112,43 @@ export function VoiceRoomControls({ voice, aiName }: {
     setEditedTranscript(pendingTranscript ?? '');
     setIsEditingTranscript(false);
   }, [pendingTranscript]);
+  const hasHint = suggestedReplies.length > 0 || !!coachTipTr;
+  // Teacher first, answer key later: the hint opens by itself only after a stretch of silence.
+  useEffect(() => {
+    if (turnPhase !== 'thinking_time' || !hasHint || hintVisible) return;
+    const timer = setTimeout(() => setHintVisible(true), HINT_AUTO_OPEN_MS);
+    return () => clearTimeout(timer);
+  }, [turnPhase, hasHint, hintVisible, setHintVisible]);
   return <View style={{ gap: 10 }}>
             {(turnPhase === 'thinking_time' || turnPhase === 'recording') && (
               <View style={styles.turnControlBlock}>
-                {turnPhase === 'thinking_time' && hasReplayableAudio ? (
-                  <Pressable
-                    onPress={replayAiAudio}
-                    style={styles.replayBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
-                  >
-                    <Ionicons name="play-circle-outline" size={15} color={colors.brand} />
-                    <Text style={styles.replayBtnText}>{t("{{aiName}} ne dedi? Tekrar Dinle", { aiName })}</Text>
-                  </Pressable>
-                ) : null}
-
                 {turnPhase === 'recording' && (
                   <View style={styles.waveformContainer}>
                     <Waveform meteringDb={micLevelDb} active={true} />
                   </View>
                 )}
 
-                {turnPhase === 'thinking_time' && getLocale() !== 'en' && (
-                  <View style={styles.suggestionsRow}>
-                    {['en', getLocale()].map((language) => (
-                      <Pressable key={language} onPress={() => voice.setInputLanguage(language)}
-                        accessibilityRole="button" accessibilityState={{ selected: voice.inputLanguage === language }}
-                        style={[styles.suggestionChip, voice.inputLanguage === language && { borderColor: colors.brand, backgroundColor: '#EEF2FF' }]}>
-                        <Text style={styles.suggestionChipText}>{language === 'en' ? t("İngilizce pratik") : t("Türkçe sor")}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                )}
                 <View style={styles.dockRow}>
                   <Pressable
-                    onPress={() => setHintVisible((v) => !v)}
-                    disabled={suggestedReplies.length === 0 && !coachTipTr}
+                    onPress={() => {
+                      haptics.light();
+                      setHintVisible((v) => !v);
+                    }}
+                    disabled={!hasHint}
                     hitSlop={10}
-                    style={styles.dockSideBtn}
+                    style={[styles.dockSideBtn, hasHint && styles.dockHintBtn, hintVisible && styles.dockHintBtnOn]}
                     accessibilityRole="button"
-                    accessibilityLabel={t("Söylemeyi dene")}
+                    accessibilityLabel={t("İpucu")}
                   >
-                    <Ionicons
-                      name={hintVisible ? 'bulb' : 'bulb-outline'}
-                      size={20}
-                      color={suggestedReplies.length === 0 && !coachTipTr ? '#CBD5E1' : '#D97706'}
-                    />
+                    <Ionicons name={hintVisible ? 'bulb' : 'bulb-outline'} size={21} color={hasHint ? '#D97706' : '#CBD5E1'} />
+                    {hasHint && !hintVisible ? <View style={styles.dockHintDot} /> : null}
                   </Pressable>
-                  <Pressable
+                  <MicButton
+                    recording={turnPhase === 'recording'}
+                    levelDb={micLevelDb}
                     onPress={turnPhase === 'recording' ? stopTurn : startTurn}
-                    style={[styles.dockMic, turnPhase === 'recording' && styles.dockMicActive]}
-                    accessibilityRole="button"
                     accessibilityLabel={turnPhase === 'recording' ? t("Kaydı bitir ve gönder") : t("Konuşmak için mikrofona dokun")}
-                  >
-                    <Ionicons name={turnPhase === 'recording' ? 'stop' : 'mic'} size={28} color="#FFFFFF" />
-                  </Pressable>
+                  />
                   <Pressable
                     onPress={() => setShowKeyboard((v) => !v)}
                     hitSlop={10}
@@ -100,12 +159,8 @@ export function VoiceRoomControls({ voice, aiName }: {
                     <Ionicons name="keypad-outline" size={20} color={showKeyboard ? colors.brand : colors.textMuted} />
                   </Pressable>
                 </View>
-                <Text style={styles.dockHint}>
-                  {turnPhase === 'recording'
-                    ? t("Dinliyorum… bitirince tekrar dokun")
-                    : voice.inputLanguage !== 'en'
-                      ? t("Konuşmak için dokun · Türkçe sor")
-                      : t("Konuşmak için mikrofona dokun")}
+                <Text style={[styles.dockHint, turnPhase === 'recording' && styles.dockHintRecording]} maxFontSizeMultiplier={1.1}>
+                  {turnPhase === 'recording' ? t("Dinliyorum… bitirince tekrar dokun") : t("Dokun ve konuş")}
                 </Text>
               </View>
             )}
@@ -174,21 +229,52 @@ export function VoiceRoomControls({ voice, aiName }: {
   </View>;
 }
 
-export function VoiceRoomBanner({ phase, aiName, aiRole }: { phase: TurnPhase; aiName: string; aiRole: string }) {
+export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning }: {
+  phase: TurnPhase;
+  aiName: string;
+  aiRole: string;
+  /** "Listen again" for Mivo's last reply; shown while it is the learner's turn. */
+  onReplay?: () => void;
+  /** Seconds left before the session limit (server warning); shows a small strip under the banner. */
+  timeWarning?: number | null;
+}) {
   const recording = phase === 'recording';
   const labels: Record<TurnPhase, string> = {
     thinking_time: t("Sıra sende"), recording: t("Seni dinliyorum"), reviewing: t("Söylediklerini kontrol et"),
     ai_thinking: t("Yanıt hazırlanıyor"), ai_speaking: t("{{aiName}} konuşuyor", { aiName }), error: t("Yeniden deneyelim"),
   };
-  const pose = recording ? 'listening' : phase === 'ai_speaking' ? 'speaking' : phase === 'ai_thinking' ? 'thinking' : 'idle';
-  return <View style={[styles.turnBanner, { borderColor: recording ? '#A7F3D0' : '#E0E7FF', backgroundColor: '#FFFFFF' }]}>
-    <Image source={mivoImages[pose]} style={{ width: 56, height: 56 }} resizeMode="contain" />
+  const pose = recording ? 'listen' : phase === 'ai_speaking' ? 'speak' : phase === 'ai_thinking' ? 'think' : 'wait';
+  return <>
+  <View style={[styles.turnBanner, recording && styles.turnBannerRecording]}>
+    <Image source={mivoVoiceImages[pose]} style={styles.turnBannerAvatar} resizeMode="contain" />
     <View style={styles.turnBannerTextCol}>
-      <Text style={[styles.turnBannerLabel, { color: colors.textHeading }]} accessibilityLiveRegion="polite">{labels[phase]}</Text>
-      <Text style={styles.turnBannerSub}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : t("{{aiRole}} · Mikrofon kapalı", { aiRole })}</Text>
+      <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
+      <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
     </View>
-    <Ionicons name={recording ? 'mic' : 'mic-off-outline'} size={18} color={recording ? '#059669' : colors.textMuted} />
-  </View>;
+    {phase === 'thinking_time' && onReplay ? (
+      <Pressable
+        onPress={onReplay}
+        hitSlop={8}
+        style={styles.replayBtn}
+        accessibilityRole="button"
+        accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
+      >
+        <Ionicons name="play-circle" size={16} color={colors.brand} />
+        <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
+      </Pressable>
+    ) : (
+      <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
+        <Ionicons name={recording ? 'mic' : 'mic-off-outline'} size={15} color={recording ? '#059669' : colors.textMuted} />
+      </View>
+    )}
+  </View>
+  {timeWarning ? (
+    <View style={styles.timeStrip} accessibilityLiveRegion="polite">
+      <Ionicons name="hourglass-outline" size={14} color="#B45309" />
+      <Text style={styles.timeStripText}>{t("Son 1 dakika: cümleni tamamla.")}</Text>
+    </View>
+  ) : null}
+  </>;
 }
 
 /**
@@ -196,9 +282,11 @@ export function VoiceRoomBanner({ phase, aiName, aiRole }: { phase: TurnPhase; a
  * and a listen button, plus the A1/A2 coach tip. It sits at the end of the thread only while it is the student's turn
  * and stays visible while they speak; it disappears once they have said something (the turn moves on to review/sending).
  */
-function MivoHintMessage({ voice, pronounce }: {
+function MivoHintMessage({ voice, pronounce, onShown }: {
   voice: ReturnType<typeof useConversationSocket>;
   pronounce?: (text: string) => unknown;
+  /** Called when the card lays out (appears or changes size) so the thread can scroll it into view. */
+  onShown?: () => void;
 }) {
   const { turnPhase, hintVisible, suggestedReplies, suggestedRepliesTr, coachTipTr } = voice;
   const [index, setIndex] = useState(0);
@@ -211,8 +299,8 @@ function MivoHintMessage({ voice, pronounce }: {
   const sentence = hasReplies ? suggestedReplies[i] : null;
   const translation = hasReplies ? suggestedRepliesTr[i] : null;
   return (
-    <View style={styles.hintRow}>
-      <Image source={mivoImages.idle} style={styles.hintAvatar} resizeMode="contain" />
+    <View style={styles.hintRow} onLayout={onShown}>
+      <Image source={mivoVoiceImages.wait} style={styles.hintAvatar} resizeMode="contain" />
       <View style={[styles.suggestionCard, styles.hintCard]}>
         <View style={styles.suggestionCardHeader}>
           <Ionicons name="sparkles" size={13} color="#D97706" />
@@ -250,18 +338,54 @@ export function VoiceRoomThread({ bubbles, aiName, onWordPress, onListen, voice,
   pronounce?: (text: string) => unknown;
 }) {
   const list = useRef<FlatList<DisplayBubble>>(null);
-  const atBottom = useRef(true);
+  // Follow the conversation until the learner scrolls away by hand; any new message starts following again.
+  const follow = useRef(true);
+  const viewportH = useRef(0);
+  const heights = useRef(new Map<string, number>());
+  const bubblesRef = useRef(bubbles);
+  bubblesRef.current = bubbles;
+  const count = bubbles.length;
+  useEffect(() => {
+    follow.current = true;
+  }, [count]);
+
+  /** Shows the newest message: a long Mivo reply is pinned at its first line (read top-down), anything else scrolls to the end. */
+  const reveal = useCallback((animated: boolean) => {
+    const all = bubblesRef.current;
+    const last = all.length - 1;
+    if (last < 0) return;
+    const height = heights.current.get(all[last].key) ?? 0;
+    if (all[last].kind === 'assistant' && viewportH.current > 0 && height > viewportH.current - 24) {
+      list.current?.scrollToIndex({ index: last, viewPosition: 0, viewOffset: 8, animated });
+    } else {
+      list.current?.scrollToEnd({ animated });
+    }
+  }, []);
+
   return <FlatList ref={list} data={bubbles} keyExtractor={(item) => item.key}
     style={styles.chatScrollView} contentContainerStyle={styles.chatScrollContent}
     initialNumToRender={12} windowSize={5} keyboardShouldPersistTaps="handled"
-    onScroll={(event) => {
+    onScrollBeginDrag={() => { follow.current = false; }}
+    onScrollEndDrag={(event) => {
       const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-      atBottom.current = contentSize.height - contentOffset.y - layoutMeasurement.height < 100;
-    }} scrollEventThrottle={100}
-    onContentSizeChange={() => { if (atBottom.current) list.current?.scrollToEnd({ animated: false }); }}
-    renderItem={({ item }) => <MemoChatBubble bubble={item} aiName={aiName} onWordPress={onWordPress} onListen={onListen} />}
+      follow.current = contentSize.height - contentOffset.y - layoutMeasurement.height < 60;
+    }}
+    onContentSizeChange={() => { if (follow.current) reveal(false); }}
+    onScrollToIndexFailed={() => list.current?.scrollToEnd({ animated: false })}
+    renderItem={({ item }) => (
+      <View onLayout={(e) => {
+        heights.current.set(item.key, e.nativeEvent.layout.height);
+        if (follow.current && item.key === bubblesRef.current[bubblesRef.current.length - 1]?.key) reveal(false);
+      }}>
+        <MemoChatBubble bubble={item} aiName={aiName} onWordPress={onWordPress} onListen={onListen} />
+      </View>
+    )}
     ListEmptyComponent={<Text style={styles.chatEmptyPlaceholder}>{t("Konuşmaya hazırsın. Mikrofona dokun veya mesaj yaz.")}</Text>}
-    ListFooterComponent={voice ? <MivoHintMessage voice={voice} pronounce={pronounce} /> : null}
+    onLayout={(e) => {
+      viewportH.current = e.nativeEvent.layout.height;
+      if (follow.current) reveal(false);
+    }}
+    ListFooterComponent={voice ? <MivoHintMessage voice={voice} pronounce={pronounce} onShown={() => list.current?.scrollToEnd({ animated: true })} /> : null}
   />;
 }
 
@@ -378,6 +502,77 @@ function TranscriptReviewCard({
   );
 }
 
+type TextPart = { quote: boolean; text: string };
+
+/** Splits Mivo's message into narration and the English lines she quotes ("..." or “...”). */
+function splitQuotes(text: string): TextPart[] {
+  const parts: TextPart[] = [];
+  const re = /["“]([^"“”]{2,}?)["”]/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    if (m.index > last) parts.push({ quote: false, text: text.slice(last, m.index) });
+    parts.push({ quote: true, text: m[1].trim() });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push({ quote: false, text: text.slice(last) });
+  return parts
+    .map((p) => ({ ...p, text: p.text.trim() }))
+    .filter((p) => p.text && (p.quote || /[\p{L}\p{N}]/u.test(p.text)));
+}
+
+/**
+ * Mivo's turn. When she narrates and quotes the other person ("Film seven biri sana şöyle diyor: "I love movies!""),
+ * the quoted English line becomes its own card with a listen button, and the narration stays plain text.
+ */
+function AssistantText({ text, onWordPress, onListen }: {
+  text: string;
+  onWordPress: (word: string, sentence: string) => void;
+  onListen?: (text: string) => void;
+}) {
+  const parts = splitQuotes(text);
+  const quoteIdx = parts.flatMap((p, i) => (p.quote ? [i] : []));
+  if (quoteIdx.length === 0) {
+    return <TappableWords text={text} onWordPress={(w) => onWordPress(w, text)} textStyle={styles.bubbleTextAssistant} />;
+  }
+  // The card goes to the line the learner has to answer or say: the last quoted question, else the last quote.
+  const cardAt = [...quoteIdx].reverse().find((i) => parts[i].text.includes('?')) ?? quoteIdx[quoteIdx.length - 1];
+  const card = parts[cardAt];
+  const paragraph = (list: TextPart[], key: string) =>
+    list.length ? (
+      <Text key={key} style={styles.bubbleTextAssistant} maxFontSizeMultiplier={1.2}>
+        {list.map((p, i) => (
+          <Text key={i} style={p.quote ? styles.inlineQuote : undefined}>
+            {p.quote ? `“${p.text}”` : p.text}
+            {i < list.length - 1 ? ' ' : ''}
+          </Text>
+        ))}
+      </Text>
+    ) : null;
+  return (
+    <View style={styles.assistantParts}>
+      {paragraph(parts.slice(0, cardAt), 'before')}
+      <View style={styles.quoteCard}>
+        <View style={styles.quoteBody}>
+          <TappableWords text={card.text} onWordPress={(w) => onWordPress(w, card.text)} textStyle={styles.quoteText} />
+        </View>
+        {onListen ? (
+          <Pressable
+            onPress={() => onListen(card.text)}
+            hitSlop={8}
+            style={styles.quoteListen}
+            accessibilityRole="button"
+            accessibilityLabel={t("Dinle")}
+          >
+            <Ionicons name="volume-medium" size={16} color={colors.brand} />
+          </Pressable>
+        ) : null}
+      </View>
+      {paragraph(parts.slice(cardAt + 1), 'after')}
+    </View>
+  );
+}
+
 function ChatBubble({
   bubble,
   aiName,
@@ -406,11 +601,7 @@ function ChatBubble({
       <Animated.View style={[styles.bubbleWrap, styles.bubbleWrapAssistant, animatedStyle]}>
         <Text style={styles.bubbleSenderLabel}>{aiName}</Text>
         <View style={[styles.bubble, styles.bubbleAssistant]}>
-          <TappableWords
-            text={bubble.text}
-            onWordPress={(w) => onWordPress(w, bubble.text)}
-            textStyle={styles.bubbleTextAssistant}
-          />
+          <AssistantText text={bubble.text} onWordPress={onWordPress} onListen={onListen} />
           <View style={styles.bubbleActionsRow}>
             {onListen ? (
               <Pressable
@@ -454,11 +645,24 @@ function ChatBubble({
       </View>
       {bubble.correction?.has_error ? (
         <View style={styles.inlineCorrection}>
-          <Ionicons name="sparkles" size={12} color="#6366F1" />
-          <View style={styles.inlineCorrectionTextCol}>
-            <Text style={styles.inlineCorrectionMain}>{bubble.correction.corrected}</Text>
-            <Text style={styles.inlineCorrectionExplain}>{nativeFlag()} {bubble.correction.explanation_tr}</Text>
+          <View style={styles.inlineCorrectionHead}>
+            <Image source={mivoVoiceImages.note} style={styles.inlineCorrectionAvatar} resizeMode="contain" />
+            <Text style={styles.inlineCorrectionLabel}>{t("Mivo'nun notu")}</Text>
+            {onListen && bubble.correction.corrected ? (
+              <Pressable
+                onPress={() => onListen(bubble.correction?.corrected ?? '')}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t("Dinle")}
+              >
+                <Ionicons name="volume-medium" size={16} color="#6366F1" />
+              </Pressable>
+            ) : null}
           </View>
+          <Text style={styles.inlineCorrectionMain}>{bubble.correction.corrected}</Text>
+          {bubble.correction.explanation_tr ? (
+            <Text style={styles.inlineCorrectionExplain}>{bubble.correction.explanation_tr}</Text>
+          ) : null}
         </View>
       ) : null}
     </Animated.View>
@@ -482,23 +686,35 @@ export const voiceRoomStyles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F8FAFC',
   },
+  micWrap: { width: HALO, height: MIC_SIZE + 24, alignItems: 'center', justifyContent: 'center' },
+  micHalo: { position: 'absolute', width: HALO, height: HALO, borderRadius: HALO / 2 },
   dockMic: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: MIC_SIZE,
+    height: MIC_SIZE,
+    borderRadius: MIC_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.brand,
-    borderBottomWidth: 4,
+    borderBottomWidth: 6,
     borderBottomColor: '#3730A3',
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  dockMicActive: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
+  dockMicActive: { backgroundColor: colors.error, borderBottomColor: '#9F1239', shadowColor: colors.error },
+  dockMicPressed: { transform: [{ translateY: 4 }, { scale: 0.96 }], borderBottomWidth: 2 },
+  dockHintBtn: { backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A' },
+  dockHintBtnOn: { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' },
+  dockHintDot: { position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#F59E0B', borderWidth: 1.5, borderColor: '#FFFFFF' },
   dockHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12.5,
     color: colors.textMuted,
     textAlign: 'center',
   },
+  dockHintRecording: { fontFamily: fonts.headingBold, color: colors.error },
   bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   bubbleListenBtn: { alignSelf: 'flex-start', marginTop: 6, padding: 2 },
   suggestionCard: {
@@ -512,7 +728,7 @@ export const voiceRoomStyles = StyleSheet.create({
   },
   suggestionCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   hintRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 6 },
-  hintAvatar: { width: 40, height: 40 },
+  hintAvatar: { width: 46, height: 46 },
   hintCard: { flex: 1 },
   hintTip: { fontFamily: fonts.bodyRegular, fontSize: 13, color: '#78350F', lineHeight: 18 },
   hintTranslation: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted },
@@ -628,33 +844,62 @@ export const voiceRoomStyles = StyleSheet.create({
   turnBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    margin: spacing.md,
-    marginBottom: 0,
-    padding: 10,
-    borderRadius: radii.xl,
-    borderWidth: 1.5,
+    gap: 10,
+    marginHorizontal: spacing.md,
+    marginTop: 8,
+    paddingVertical: 6,
+    paddingLeft: 8,
+    paddingRight: 12,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
+  turnBannerRecording: { borderColor: '#A7F3D0', backgroundColor: '#F0FDF9' },
+  turnBannerAvatar: { width: 48, height: 48 },
   turnBannerTextCol: {
     flex: 1,
   },
   turnBannerLabel: {
     fontFamily: fonts.headingBold,
-    fontSize: 13.5,
+    fontSize: 14,
+    color: colors.textHeading,
   },
   turnBannerSub: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 11,
+    fontSize: 11.5,
     color: colors.textMuted,
     marginTop: 1,
   },
+  turnBannerMic: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F1F5F9',
+  },
+  turnBannerMicOn: { backgroundColor: '#D1FAE5' },
+  timeStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginHorizontal: spacing.md,
+    marginTop: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: '#FEF3C7',
+  },
+  timeStripText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12, color: '#92400E' },
   chatScrollView: {
     flex: 1,
   },
   chatScrollContent: {
-    padding: spacing.md,
-    gap: spacing.sm,
-    paddingBottom: 24,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    gap: 10,
+    paddingBottom: 20,
   },
   chatEmptyPlaceholder: {
     fontFamily: fonts.bodyRegular,
@@ -665,7 +910,7 @@ export const voiceRoomStyles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   bubbleWrap: {
-    maxWidth: '86%',
+    maxWidth: '94%',
     gap: 4,
   },
   bubbleWrapUser: {
@@ -683,9 +928,9 @@ export const voiceRoomStyles = StyleSheet.create({
     marginLeft: 4,
   },
   bubble: {
-    borderRadius: radii.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   bubbleUser: {
     backgroundColor: '#EEF2FF',
@@ -701,56 +946,83 @@ export const voiceRoomStyles = StyleSheet.create({
     fontFamily: fonts.bodyMedium,
     fontSize: 15,
     color: colors.textHeading,
-    lineHeight: 23,
+    lineHeight: 21,
   },
   bubbleTextAssistant: {
-    fontFamily: fonts.bodyMedium,
+    fontFamily: fonts.bodyRegular,
     fontSize: 15,
     color: colors.textHeading,
-    lineHeight: 23,
+    lineHeight: 21,
+  },
+  assistantParts: { gap: 8, alignSelf: 'stretch' },
+  quoteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#EEF2FF',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.brand,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingLeft: 12,
+    paddingRight: 8,
+  },
+  quoteBody: { flex: 1 },
+  inlineQuote: { fontFamily: fonts.headingSemiBold, color: '#4338CA' },
+  quoteText: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, lineHeight: 22, color: '#312E81' },
+  quoteListen: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
   inlineCorrection: {
-    flexDirection: 'row',
-    gap: 6,
+    alignSelf: 'stretch',
+    gap: 4,
     backgroundColor: '#F5F3FF',
-    borderRadius: radii.md,
-    padding: 8,
-    maxWidth: '100%',
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    borderRadius: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
-  inlineCorrectionTextCol: {
-    flex: 1,
-    gap: 2,
-  },
+  inlineCorrectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  inlineCorrectionAvatar: { width: 30, height: 30 },
+  inlineCorrectionLabel: { flex: 1, fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.3, color: '#6D28D9' },
   inlineCorrectionMain: {
     fontFamily: fonts.headingSemiBold,
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 19,
     color: colors.textHeading,
   },
   inlineCorrectionExplain: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 12,
+    fontSize: 12.5,
     color: '#475569',
-    lineHeight: 14,
+    lineHeight: 18,
   },
   turnControlBlock: {
-    gap: 10,
+    gap: 8,
   },
   replayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
     alignSelf: 'center',
+    gap: 5,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: radii.pill,
     backgroundColor: '#EEF2FF',
   },
   replayBtnText: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
+    fontFamily: fonts.headingSemiBold,
+    fontSize: 12.5,
     color: colors.brand,
   },
+
   coachTipCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -785,7 +1057,8 @@ export const voiceRoomStyles = StyleSheet.create({
   suggestionsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    alignItems: 'center',
+    gap: 8,
     justifyContent: 'center',
   },
   suggestionChip: {
@@ -966,7 +1239,9 @@ export const voiceRoomStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: 12,
+    paddingBottom: 10,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     gap: 8,

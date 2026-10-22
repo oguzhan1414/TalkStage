@@ -1,21 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-  Platform,
-  ActivityIndicator,
-  ScrollView,
-  Image,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Modal, View, Text, Pressable, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import type { ScenarioEntry, ScenarioVideoStep } from '@talkstage/shared-data/scenariosData';
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
+import { colors, fonts, radii } from '../theme/tokens';
 import { haptics } from '../lib/haptics';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { api } from '../lib/api';
@@ -25,20 +15,16 @@ import { companionImage, resolveScenarioCategoryFallback, scenarioCustomCovers }
 import { ACTIVITY_XP } from '../constants/xp';
 import { t, nativeFlag } from '../i18n';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 type Props = {
   visible: boolean;
   scenario: ScenarioEntry | null;
   onClose: () => void;
   onComplete?: (earnedXp: number) => void;
-  /** Shown on the finished screen: continue straight into the live Mivo version of this scene. */
-  onPlayLive?: () => void;
 };
 
 type InteractionPhase = 'preview' | 'playing' | 'waiting_user' | 'success' | 'completed';
 
-export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onComplete, onPlayLive }: Props) {
+export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onComplete }: Props) {
   // NOTE: this component must call the exact same Hooks on every render,
   // regardless of whether `scenario` is null — the parent always keeps this
   // component mounted and just flips `scenario`/`visible` as props (it's
@@ -56,6 +42,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   const [videoStatus, setVideoStatus] = useState<'idle' | 'loading' | 'readyToPlay' | 'error'>('idle');
 
   const { pronounce, stop: stopPronunciation, isPlaying: isAudioPlaying } = usePronunciation();
+  const insets = useSafeAreaInsets();
 
   const currentStep: ScenarioVideoStep | null = steps[currentStepIndex] ?? steps[0] ?? null;
   const videoUrl =
@@ -207,915 +194,350 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
     return null;
   }
 
+  const speaker = scenario.aiName || t("Mivo");
+  const inPreview = phase === 'preview';
+  const inCompleted = phase === 'completed';
+  const inVideoPhase = !inPreview && !inCompleted;
+
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="fullScreen"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* 1. Header Bar */}
-        <View style={styles.headerBar}>
-          <View style={styles.headerTitleRow}>
-            <Text style={styles.scenarioEmoji}>{scenario.icon || '☕'}</Text>
-            <View style={styles.headerTitleTextCol}>
-              <Text style={styles.headerTitle} numberOfLines={1}>
-                {scenario.titleTr}
-              </Text>
-              <Text style={styles.headerSubtitle} numberOfLines={1}>
-                {phase === 'preview'
-                  ? t("3D Canlı Önizleme & Hazırlık")
-                  : t("{{title}} • Adım {{p1}} / {{length}}", { title: currentStep.title, p1: currentStepIndex + 1, length: steps.length })}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.headerRightRow}>
-            {earnedTotalXp > 0 ? (
-              <View style={styles.xpTag}>
-                <Ionicons name="sparkles" size={13} color="#F59E0B" />
-                <Text style={styles.xpTagText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
-              </View>
-            ) : null}
-
-            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-              <Ionicons name="close" size={22} color="#FFFFFF" />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* 2. Step Progress Segments */}
-        <View style={styles.progressBarWrapper}>
-          {steps.map((s, idx) => (
-            <View
-              key={s.step}
-              style={[
-                styles.progressSegment,
-                idx < currentStepIndex && styles.progressSegmentDone,
-                idx === currentStepIndex && phase !== 'preview' && styles.progressSegmentCurrent,
-                phase === 'preview' && styles.progressSegmentPreview,
-              ]}
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
+      <View style={styles.root}>
+        {/* ---------- Sahne alanı ---------- */}
+        {inPreview ? (
+          <View style={styles.stage}>
+            <Image source={coverSource} style={styles.cover} resizeMode="cover" onError={() => setImgError(true)} />
+            <LinearGradient
+              colors={['rgba(9,13,22,0.35)', 'rgba(9,13,22,0.15)', 'rgba(9,13,22,0.82)', 'rgba(9,13,22,0.98)']}
+              locations={[0, 0.3, 0.68, 1]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
             />
-          ))}
-        </View>
-
-        {/* 3. Stage Screen: Preview Cover OR Video + Subtitle Overlay OR Victory Screen */}
-        <View style={styles.mainStage}>
-          {phase === 'preview' ? (
-            <View style={styles.previewContainer}>
-              <Image
-                source={coverSource}
-                style={styles.previewCoverImage}
-                resizeMode="cover"
-                onError={() => setImgError(true)}
-              />
-              <View style={styles.previewOverlay} />
-
-              <View style={styles.previewCard}>
-                <View style={styles.previewBadgeRow}>
-                  <View style={styles.threeDTag}>
-                    <Ionicons name="sparkles" size={11} color="#F59E0B" />
-                    <Text style={styles.threeDTagText}>{t("3D PİXAR CANLI ETKİLEŞİM")}</Text>
-                  </View>
-                  <View style={styles.levelTag}>
-                    <Text style={styles.levelTagText}>{scenario.level || 'A1'}</Text>
-                  </View>
+            <ScrollView
+              style={styles.previewScroll}
+              contentContainerStyle={[styles.previewContent, { paddingBottom: insets.bottom + 18 }]}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              <View style={styles.metaRow}>
+                <View style={styles.metaPill}>
+                  <Ionicons name="film-outline" size={13} color="#C7D2FE" />
+                  <Text style={styles.metaPillText}>{t("{{length}} adım", { length: steps.length })}</Text>
                 </View>
-
-                <Text style={styles.previewTitle}>{scenario.titleTr}</Text>
-                <Text style={styles.previewDesc}>{scenario.description}</Text>
-
-                <View style={styles.personaBanner}>
-                  <Text style={styles.personaBannerEmoji}>🤖</Text>
-                  <Text style={styles.personaBannerText}>
-                    {scenario.aiName || t("Mivo")} • {scenario.aiRole || t("3D Konuşma Partnerin")}
-                  </Text>
+                <View style={styles.metaPill}>
+                  <Ionicons name="time-outline" size={13} color="#C7D2FE" />
+                  <Text style={styles.metaPillText}>{t("{{durationMin}} dk", { durationMin: scenario.durationMin })}</Text>
                 </View>
-
-                <View style={styles.previewMetaRow}>
-                  <View style={styles.previewMetaItem}>
-                    <Ionicons name="videocam-outline" size={14} color="#818CF8" />
-                    <Text style={styles.previewMetaText}>{t("{{length}} Video Sahnesi", { length: steps.length })}</Text>
-                  </View>
-                  <View style={styles.previewMetaItem}>
-                    <Ionicons name="sparkles-outline" size={14} color="#F59E0B" />
-                    <Text style={styles.previewMetaText}>+{ACTIVITY_XP}{" "}{t("XP Başarı Puanı")}</Text>
-                  </View>
-                </View>
-
-                <Pressable onPress={handleStartPlayback} style={styles.previewStartBtn}>
-                  <Ionicons name="play" size={18} color="#FFFFFF" />
-                  <Text style={styles.previewStartBtnText}>{t("3D Canlı Sahneyi Başlat")}</Text>
-                  <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-                </Pressable>
-              </View>
-            </View>
-          ) : phase !== 'completed' ? (
-            <View style={styles.videoContainer}>
-              {/* Native Video Player */}
-              <VideoView
-                player={player}
-                style={styles.videoView}
-                contentFit="contain"
-                nativeControls={false}
-              />
-
-              {phase === 'playing' && videoStatus === 'loading' && (
-                <View style={styles.videoLoadingOverlay} pointerEvents="none">
-                  <ActivityIndicator color="#FFFFFF" size="large" />
-                </View>
-              )}
-
-              {videoStatus === 'error' && (
-                <View style={styles.videoErrorOverlay}>
-                  <Ionicons name="cloud-offline-outline" size={28} color="#F87171" />
-                  <Text style={styles.videoErrorText}>{t("Video şu an yüklenemedi.")}</Text>
-                  <Pressable onPress={handleVideoEnded} style={styles.videoErrorBtn}>
-                    <Text style={styles.videoErrorBtnText}>{t("Devam Et")}</Text>
-                    <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-                  </Pressable>
-                </View>
-              )}
-
-              {/* Subtitle Card (Glassmorphism Overlay) */}
-              <View style={styles.subtitleCard}>
-                <View style={styles.subtitleTopRow}>
-                  <View style={styles.speakerBadge}>
-                    <Text style={styles.speakerName}>{scenario.aiName || t("Mivo")}</Text>
-                    <View style={styles.speakerRoleTag}>
-                      <Text style={styles.speakerRoleText}>{t("3D Partner")}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.subtitleActions}>
-                    <Pressable
-                      onPress={() => pronounce(currentStep.aiSpeech)}
-                      style={styles.actionIconBtn}
-                      hitSlop={8}
-                    >
-                      <Ionicons
-                        name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'}
-                        size={16}
-                        color={isAudioPlaying ? colors.brand : '#CBD5E1'}
-                      />
-                    </Pressable>
-
-                    <Pressable
-                      onPress={() => setShowTranslation((prev) => !prev)}
-                      style={styles.actionIconBtn}
-                      hitSlop={8}
-                    >
-                      <Ionicons
-                        name={showTranslation ? 'eye-off-outline' : 'eye-outline'}
-                        size={16}
-                        color="#CBD5E1"
-                      />
-                      <Text style={styles.actionIconLabel}>
-                        {showTranslation ? t("Gizle") : t("Türkçe")}
-                      </Text>
-                    </Pressable>
-
-                    <Pressable onPress={handleReplayVideo} style={styles.actionIconBtn} hitSlop={8}>
-                      <Ionicons name="reload-outline" size={16} color="#CBD5E1" />
-                    </Pressable>
-                  </View>
-                </View>
-
-                {/* AI Dialogue text */}
-                <Text style={styles.speechText}>&ldquo;{currentStep.aiSpeech}&rdquo;</Text>
-
-                {showTranslation && (
-                  <Text style={styles.translationText}>{nativeFlag()} {currentStep.aiSpeechTr}</Text>
-                )}
-              </View>
-            </View>
-          ) : (
-            /* Celebration Screen */
-            <View style={styles.celebrationWrapper}>
-              <View style={styles.trophyCircle}>
-                <Text style={styles.trophyEmoji}>🏆</Text>
-              </View>
-
-              <Text style={styles.celebrationTitle}>{t("Harika Bir Konuşma Yaptın!")}</Text>
-              <Text style={styles.celebrationDesc}>{t("“{{titleTr}}” senaryosunda", { titleTr: scenario.titleTr })}{" "}{scenario.aiName || t("AI partnerin")}{" "}{t("ile {{length}} adımlık canlı 3D diyaloğu başarıyla tamamladın.", { length: steps.length })}</Text>
-
-              <View style={styles.statsCardRow}>
-                <View style={styles.statBox}>
-                  <Text style={styles.statBoxVal}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
-                  <Text style={styles.statBoxLbl}>{t("Kazanılan Puan")}</Text>
-                </View>
-                <View style={styles.statBox}>
-                  <Text style={styles.statBoxVal}>{steps.length} / {steps.length}</Text>
-                  <Text style={styles.statBoxLbl}>{t("Diyalog Başarısı")}</Text>
+                <View style={styles.metaPill}>
+                  <Ionicons name="sparkles" size={13} color="#FBBF24" />
+                  <Text style={styles.metaPillText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp: ACTIVITY_XP })}</Text>
                 </View>
               </View>
 
-              {onPlayLive ? (
-                <Pressable onPress={onPlayLive} style={styles.playLiveBtn}>
-                  <Text style={styles.playLiveEmoji}>🎭</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.playLiveTitle}>{t("Şimdi sen oyna!")}</Text>
-                    <Text style={styles.playLiveSub}>{t("Mivo bu sahnede karakteri oynar, her seferinde farklı bir sürprizle")}</Text>
-                  </View>
-                  <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-                </Pressable>
-              ) : null}
+              <Text style={styles.previewTitle}>{scenario.titleTr}</Text>
 
-              <View style={styles.celebrationButtons}>
-                <Pressable
-                  onPress={() => {
-                    setCurrentStepIndex(0);
-                    setPhase('preview');
-                    setEarnedTotalXp(0);
-                  }}
-                  style={styles.replayAllBtn}
-                >
-                  <Ionicons name="reload" size={16} color="#E2E8F0" />
-                  <Text style={styles.replayAllText}>{t("Tekrar Oyna")}</Text>
-                </Pressable>
-
-                <Pressable onPress={onClose} style={styles.finishCatalogBtn}>
-                  <Text style={styles.finishCatalogText}>{t("Kataloğa Dön")}</Text>
-                  <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* 4. Bottom Interactive Panel */}
-        {phase !== 'completed' && (
-          <View style={styles.bottomControlPanel}>
-            {phase === 'preview' ? (
-              <View style={styles.previewBottomBar}>
-                <Ionicons name="headset-outline" size={18} color="#818CF8" />
-                <Text style={styles.previewBottomText}>{t("Hazır olduğunda yukarıdaki butona bas. Mivo konuşunca dinle, sonra yüksek sesle tekrar edip devam et.")}</Text>
-              </View>
-            ) : phase === 'waiting_user' ? (
-              <View style={styles.waitingContainer}>
-                {/* Target Prompt Box */}
-                <View style={styles.userPromptCard}>
-                  <View style={styles.promptHeader}>
-                    <View style={styles.pulsingDot} />
-                    <Text style={styles.promptHeaderTitle}>{t("SIRA SENDE")}</Text>
-                  </View>
-
-                  <Text style={styles.userHintText}>💡 {currentStep.userHint}</Text>
-                  <Text style={styles.expectedResponseText}>
-                    &ldquo;{currentStep.expectedUserResponse}&rdquo;
-                  </Text>
-
-                  {/* Audio Pronunciation Guide */}
-                  <Pressable
-                    onPress={() => pronounce(currentStep.expectedUserResponse)}
-                    style={styles.pronounceGuideBtn}
-                  >
-                    <Ionicons name="volume-high" size={14} color={colors.brand} />
-                    <Text style={styles.pronounceGuideText}>{t("Örnek Telaffuzu Dinle")}</Text>
-                  </Pressable>
+              <View style={styles.characterRow}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarEmoji}>{scenario.icon || '🎬'}</Text>
                 </View>
-
-                {/* Real mic + STT keyword verification was tried here and
-                    reverted — the record/transcribe/match round-trip kept
-                    producing confusing "Tam yakalayamadım" failures (a
-                    start/stop race, plus no visibility into what was even
-                    heard) for what's fundamentally a "repeat this scripted
-                    line out loud" shadowing exercise, not a real
-                    conversation — verifying it was never worth the
-                    complexity. One honest, single button: the user says it
-                    out loud, taps when done, moves on. */}
-                <Pressable onPress={handlePassStep} style={styles.saidItBtn}>
-                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                  <Text style={styles.saidItBtnText}>{t("Yüksek Sesle Söyledim, Devam Et")}</Text>
-                </Pressable>
-              </View>
-            ) : phase === 'success' ? (
-              <View style={styles.successBanner}>
-                <View style={styles.successRow}>
-                  <Ionicons name="checkmark-circle" size={22} color="#10B981" />
-                  <Text style={styles.successTitle}>{t("Harika! Diyaloğu Tamamladın ✨")}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.characterName}>{speaker}</Text>
+                  {scenario.aiRole ? (
+                    <Text style={styles.characterRole} numberOfLines={1}>
+                      {scenario.aiRole}
+                    </Text>
+                  ) : null}
                 </View>
-                <Text style={styles.successSub}>{t("Karnen hazırlanıyor...")}</Text>
               </View>
-            ) : (
-              /* Phase is 'playing' */
-              <View style={styles.playingIndicatorRow}>
-                <View style={styles.playingLeft}>
-                  <View style={styles.audioWaveDot} />
-                  <Text style={styles.playingText}>{t("Mivo konuşuyor, dikkatle dinle...")}</Text>
-                </View>
 
-                <Pressable onPress={handleVideoEnded} hitSlop={10}>
-                  <Text style={styles.skipToSpeakText}>{t("Konuşma Adımına Geç ➔")}</Text>
+              <Text style={styles.previewDesc} numberOfLines={5}>
+                {scenario.description}
+              </Text>
+
+              <Pressable onPress={handleStartPlayback} style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                <Ionicons name="play" size={18} color="#FFFFFF" />
+                <Text style={styles.primaryBtnText}>{t("BAŞLA")}</Text>
+              </Pressable>
+              <Text style={styles.previewHowTo}>{t("Karakteri izle, dinle, sonra cevabını yüksek sesle söyle.")}</Text>
+            </ScrollView>
+          </View>
+        ) : inVideoPhase ? (
+          <View style={styles.stage}>
+            <VideoView player={player} style={styles.videoView} contentFit="contain" nativeControls={false} />
+
+            {phase === 'playing' && videoStatus === 'loading' && (
+              <View style={styles.videoOverlay} pointerEvents="none">
+                <ActivityIndicator color="#FFFFFF" size="large" />
+              </View>
+            )}
+
+            {videoStatus === 'error' && (
+              <View style={[styles.videoOverlay, { backgroundColor: 'rgba(9,13,22,0.88)', gap: 10 }]}>
+                <Ionicons name="cloud-offline-outline" size={30} color="#F87171" />
+                <Text style={styles.videoErrorText}>{t("Video şu an yüklenemedi.")}</Text>
+                <Pressable onPress={handleVideoEnded} style={styles.videoErrorBtn}>
+                  <Text style={styles.videoErrorBtnText}>{t("Devam Et")}</Text>
+                  <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
                 </Pressable>
               </View>
             )}
           </View>
+        ) : (
+          /* ---------- Tamamlandı ---------- */
+          <LinearGradient colors={['#1E1B4B', '#0F172A', '#090D16']} style={[styles.stage, styles.celebration, { paddingTop: insets.top + 56, paddingBottom: insets.bottom + 20 }]}>
+            <View style={styles.trophyCircle}>
+              <Text style={styles.trophyEmoji}>🏆</Text>
+            </View>
+            <Text style={styles.celebrationTitle}>{t("Harika Bir Konuşma Yaptın!")}</Text>
+            <Text style={styles.celebrationDesc}>
+              {scenario.titleTr} · {t("{{length}} adımlık sahneyi tamamladın.", { length: steps.length })}
+            </Text>
+
+            <View style={styles.statsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statVal}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp })}</Text>
+                <Text style={styles.statLbl}>{t("Kazanılan Puan")}</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statVal}>
+                  {steps.length}/{steps.length}
+                </Text>
+                <Text style={styles.statLbl}>{t("Diyalog Başarısı")}</Text>
+              </View>
+            </View>
+
+            <View style={{ flex: 1 }} />
+
+            <Pressable onPress={onClose} style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+              <Text style={styles.primaryBtnText}>{t("Sahnelere dön")}</Text>
+              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setCurrentStepIndex(0);
+                setPhase('preview');
+                setEarnedTotalXp(0);
+              }}
+              style={styles.ghostBtn}
+              accessibilityRole="button"
+            >
+              <Ionicons name="reload" size={15} color="#CBD5E1" />
+              <Text style={styles.ghostBtnText}>{t("Tekrar izle")}</Text>
+            </Pressable>
+          </LinearGradient>
         )}
-      </SafeAreaView>
+
+        {/* ---------- Üst katman: ilerleme + kapat ---------- */}
+        <View style={[styles.topOverlay, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+          {inVideoPhase ? (
+            <View style={styles.progressRow}>
+              {steps.map((st, idx) => (
+                <View
+                  key={st.step}
+                  style={[styles.progressSeg, idx < currentStepIndex && styles.progressSegDone, idx === currentStepIndex && styles.progressSegCurrent]}
+                />
+              ))}
+            </View>
+          ) : null}
+          <View style={styles.topRow} pointerEvents="box-none">
+            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+              <Ionicons name="close" size={20} color="#FFFFFF" />
+            </Pressable>
+            {inVideoPhase ? (
+              <View style={styles.stepPill}>
+                <Text style={styles.stepPillText} numberOfLines={1}>
+                  {t("Adım {{p1}}/{{length}}", { p1: currentStepIndex + 1, length: steps.length })} · {currentStep.title}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        </View>
+
+        {/* ---------- Alt panel ---------- */}
+        {inVideoPhase ? (
+          <View style={[styles.panel, { paddingBottom: insets.bottom + 14 }]}>
+            {phase === 'playing' ? (
+              <>
+                <View style={styles.speakerRow}>
+                  <View style={styles.avatarSmall}>
+                    <Text style={styles.avatarSmallEmoji}>{scenario.icon || '🎬'}</Text>
+                  </View>
+                  <Text style={styles.speakerName} numberOfLines={1}>
+                    {speaker}
+                  </Text>
+                  <View style={{ flex: 1 }} />
+                  <Pressable onPress={() => pronounce(currentStep.aiSpeech)} style={styles.iconBtn} hitSlop={8} accessibilityRole="button">
+                    <Ionicons name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'} size={18} color={isAudioPlaying ? '#A5B4FC' : '#CBD5E1'} />
+                  </Pressable>
+                  <Pressable onPress={() => setShowTranslation((prev) => !prev)} style={styles.chipBtn} hitSlop={8} accessibilityRole="button">
+                    <Ionicons name={showTranslation ? 'eye-off-outline' : 'eye-outline'} size={15} color="#CBD5E1" />
+                    <Text style={styles.chipBtnText}>{showTranslation ? t("Gizle") : t("Türkçe")}</Text>
+                  </Pressable>
+                  <Pressable onPress={handleReplayVideo} style={styles.iconBtn} hitSlop={8} accessibilityRole="button">
+                    <Ionicons name="reload-outline" size={18} color="#CBD5E1" />
+                  </Pressable>
+                </View>
+
+                <Text style={styles.speechText}>&ldquo;{currentStep.aiSpeech}&rdquo;</Text>
+                {showTranslation ? (
+                  <Text style={styles.translationText}>
+                    {nativeFlag()} {currentStep.aiSpeechTr}
+                  </Text>
+                ) : null}
+
+                <View style={styles.statusRow}>
+                  <View style={styles.liveDot} />
+                  <Text style={styles.statusText} numberOfLines={1}>
+                    {t("{{name}} konuşuyor, dikkatle dinle...", { name: speaker })}
+                  </Text>
+                  <Pressable onPress={handleVideoEnded} hitSlop={10}>
+                    <Text style={styles.skipText}>{t("Konuşma Adımına Geç ➔")}</Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : phase === 'waiting_user' ? (
+              <>
+                <Text style={styles.lastLine} numberOfLines={2}>
+                  {speaker}: &ldquo;{currentStep.aiSpeech}&rdquo;
+                </Text>
+                <View style={styles.turnHeader}>
+                  <View style={styles.turnDot} />
+                  <Text style={styles.turnTitle}>{t("SIRA SENDE")}</Text>
+                  <View style={{ flex: 1 }} />
+                  <Pressable onPress={() => pronounce(currentStep.expectedUserResponse)} style={styles.chipBtn} hitSlop={8} accessibilityRole="button">
+                    <Ionicons name="volume-high" size={15} color="#A5B4FC" />
+                    <Text style={[styles.chipBtnText, { color: '#C7D2FE' }]}>{t("Örnek Telaffuzu Dinle")}</Text>
+                  </Pressable>
+                </View>
+                <Text style={styles.hintText}>💡 {currentStep.userHint}</Text>
+                <View style={styles.targetCard}>
+                  <Text style={styles.targetText}>&ldquo;{currentStep.expectedUserResponse}&rdquo;</Text>
+                </View>
+                {/* Real mic + STT keyword verification was tried here and reverted: it kept producing confusing
+                    "couldn't catch that" failures for what is just a shadowing exercise (repeat the line out loud). */}
+                <Pressable onPress={handlePassStep} style={({ pressed }) => [styles.doneBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                  <Text style={styles.primaryBtnText}>
+                    {currentStepIndex >= steps.length - 1 ? t("Bitir") : t("Söyledim")}
+                  </Text>
+                  <Ionicons name={currentStepIndex >= steps.length - 1 ? 'checkmark' : 'arrow-forward'} size={20} color="#FFFFFF" />
+                </Pressable>
+              </>
+            ) : (
+              <View style={styles.successBox}>
+                <Ionicons name="checkmark-circle" size={30} color="#34D399" />
+                <Text style={styles.successTitle}>{t("Harika! Diyaloğu Tamamladın ✨")}</Text>
+                <Text style={styles.successSub}>{t("Karnen hazırlanıyor...")}</Text>
+              </View>
+            )}
+          </View>
+        ) : null}
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  playLiveBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#6366F1',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 12,
-  },
-  playLiveEmoji: { fontSize: 26 },
-  playLiveTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
-  playLiveSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: '#E0E7FF', marginTop: 2 },
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#090D16',
-  },
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
-    backgroundColor: '#0F172A',
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-    // Leaves breathing room before the XP tag / close button so a long
-    // title/subtitle truncates instead of pushing into them — RN views
-    // don't shrink by default, so this needed an explicit cap.
-    marginRight: 10,
-  },
-  scenarioEmoji: {
-    fontSize: 22,
-  },
-  // Without `flex: 1` here, this column sizes to its own text content and
-  // ignores headerTitleRow's `flex: 1` entirely (RN's default flexShrink is
-  // 0) — on a long scenario title or step name this pushed past the middle
-  // of the header and overlapped the XP tag/close button on the right.
-  headerTitleTextCol: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 14,
-    fontFamily: fonts.headingBold,
-    color: '#F8FAFC',
-  },
-  headerSubtitle: {
-    fontSize: 11,
-    fontFamily: fonts.bodyMedium,
-    color: '#94A3B8',
-    marginTop: 1,
-  },
-  headerRightRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flexShrink: 0,
-  },
-  xpTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.3)',
-  },
-  xpTagText: {
-    fontSize: 12,
-    fontFamily: fonts.headingBold,
-    color: '#A5B4FC',
-  },
-  closeBtn: {
-    padding: 6,
-    borderRadius: radii.md,
-    backgroundColor: '#1E293B',
-  },
-  progressBarWrapper: {
-    flexDirection: 'row',
-    height: 3,
-    backgroundColor: '#1E293B',
-  },
-  progressSegment: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  progressSegmentCurrent: {
-    backgroundColor: '#6366F1',
-  },
-  progressSegmentDone: {
-    backgroundColor: '#10B981',
-  },
-  progressSegmentPreview: {
-    backgroundColor: '#334155',
-  },
-  mainStage: {
-    flex: 1,
-    backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  previewContainer: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  previewCoverImage: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
-  previewOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(9, 13, 22, 0.5)',
-  },
-  previewCard: {
-    width: '90%',
-    maxWidth: 380,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.4)',
-    padding: 20,
-    gap: 12,
-    alignItems: 'center',
-    ...shadow.card,
-  },
-  previewBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  threeDTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-  },
-  threeDTagText: {
-    fontSize: 10,
-    fontFamily: fonts.headingBold,
-    color: '#F59E0B',
-    letterSpacing: 0.5,
-  },
-  levelTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.4)',
-  },
-  levelTagText: {
-    fontSize: 10,
-    fontFamily: fonts.mono,
-    color: '#C7D2FE',
-  },
-  previewTitle: {
-    fontSize: 18,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  previewDesc: {
-    fontSize: 12,
-    fontFamily: fonts.bodyRegular,
-    color: '#94A3B8',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  personaBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.3)',
-  },
-  personaBannerEmoji: {
-    fontSize: 14,
-  },
-  personaBannerText: {
-    fontSize: 11,
-    fontFamily: fonts.headingSemiBold,
-    color: '#A5B4FC',
-  },
-  previewMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingVertical: 4,
-  },
-  previewMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  previewMetaText: {
-    fontSize: 11,
-    fontFamily: fonts.headingSemiBold,
-    color: '#E2E8F0',
-  },
-  previewStartBtn: {
+  root: { flex: 1, backgroundColor: '#090D16' },
+  stage: { flex: 1, backgroundColor: '#000000' },
+  cover: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  videoView: { flex: 1, width: '100%' },
+  videoOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
+  videoErrorText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: '#E2E8F0' },
+  videoErrorBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#4F46E5', borderRadius: radii.pill, paddingHorizontal: 16, paddingVertical: 9 },
+  videoErrorBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#FFFFFF' },
+
+  topOverlay: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: 14, gap: 10 },
+  progressRow: { flexDirection: 'row', gap: 4 },
+  progressSeg: { flex: 1, height: 3.5, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.28)' },
+  progressSegDone: { backgroundColor: '#FFFFFF' },
+  progressSegCurrent: { backgroundColor: '#A5B4FC' },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  closeBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(15,23,42,0.62)', alignItems: 'center', justifyContent: 'center' },
+  stepPill: { flexShrink: 1, backgroundColor: 'rgba(15,23,42,0.62)', borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  stepPillText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#F1F5F9' },
+
+  previewScroll: { flex: 1 },
+  previewContent: { flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 120, gap: 14 },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  metaPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(15,23,42,0.62)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  metaPillText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#E2E8F0' },
+  previewTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: '#FFFFFF' },
+  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.4)' },
+  avatarEmoji: { fontSize: 22 },
+  characterName: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
+  characterRole: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#CBD5E1', marginTop: 1 },
+  previewDesc: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 21, color: '#CBD5E1' },
+  previewHowTo: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 18, color: '#94A3B8', textAlign: 'center' },
+
+  primaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: radii.xl,
-    backgroundColor: colors.brand,
-    marginTop: 6,
-    ...shadow.glow,
-  },
-  previewStartBtnText: {
-    fontSize: 14,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-  },
-  previewBottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  previewBottomText: {
-    fontSize: 11,
-    fontFamily: fonts.bodyMedium,
-    color: '#94A3B8',
-    flex: 1,
-    lineHeight: 16,
-  },
-  videoContainer: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  videoView: {
-    width: '100%',
-    height: '100%',
-  },
-  videoLoadingOverlay: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-  },
-  videoErrorOverlay: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(9, 13, 22, 0.92)',
-    paddingHorizontal: 32,
-  },
-  videoErrorText: {
-    fontSize: 13,
-    fontFamily: fonts.bodyMedium,
-    color: '#E2E8F0',
-    textAlign: 'center',
-  },
-  videoErrorBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: radii.lg,
-    backgroundColor: colors.brand,
-    marginTop: 4,
-  },
-  videoErrorBtnText: {
-    fontSize: 12.5,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-  },
-  subtitleCard: {
-    position: 'absolute',
-    bottom: 16,
-    left: 14,
-    right: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.88)',
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(51, 65, 85, 0.8)',
-    padding: 14,
-    gap: 8,
-    ...shadow.card,
-  },
-  subtitleTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
-    paddingBottom: 6,
-  },
-  speakerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  speakerName: {
-    fontSize: 12,
-    fontFamily: fonts.headingBold,
-    color: '#818CF8',
-  },
-  speakerRoleTag: {
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 4,
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
-  },
-  speakerRoleText: {
-    fontSize: 9,
-    fontFamily: fonts.mono,
-    color: '#A5B4FC',
-  },
-  subtitleActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  actionIconBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-  },
-  actionIconLabel: {
-    fontSize: 10,
-    fontFamily: fonts.bodyMedium,
-    color: '#CBD5E1',
-  },
-  speechText: {
-    fontSize: 14,
-    fontFamily: fonts.headingSemiBold,
-    color: '#FFFFFF',
-    lineHeight: 20,
-    letterSpacing: 0.2,
-  },
-  translationText: {
-    fontSize: 12,
-    fontFamily: fonts.bodyMedium,
-    color: '#FDE047',
-    fontStyle: 'italic',
-  },
-  bottomControlPanel: {
-    padding: 16,
-    backgroundColor: '#0F172A',
-    borderTopWidth: 1,
-    borderTopColor: '#1E293B',
-  },
-  waitingContainer: {
-    gap: 12,
-  },
-  userPromptCard: {
-    backgroundColor: '#1E293B',
-    borderRadius: radii.lg,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#334155',
-    gap: 6,
-  },
-  promptHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  pulsingDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
-  promptHeaderTitle: {
-    fontSize: 10,
-    fontFamily: fonts.headingBold,
-    color: '#818CF8',
-    letterSpacing: 0.5,
-  },
-  userHintText: {
-    fontSize: 12,
-    fontFamily: fonts.bodyMedium,
-    color: '#E2E8F0',
-  },
-  expectedResponseText: {
-    fontSize: 12,
-    fontFamily: fonts.mono,
-    color: '#C7D2FE',
-    fontStyle: 'italic',
-  },
-  pronounceGuideBtn: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
-    borderWidth: 1,
-    borderColor: '#334155',
-    marginTop: 2,
-  },
-  pronounceGuideText: {
-    fontSize: 11,
-    fontFamily: fonts.headingSemiBold,
-    color: colors.brand,
-  },
-  // Same "chunky 3D" depth language as the rest of the app's primary CTAs.
-  saidItBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    backgroundColor: '#4F46E5',
+    borderRadius: radii.pill,
     paddingVertical: 15,
-    borderRadius: radii.lg,
-    backgroundColor: colors.brand,
+    paddingHorizontal: 20,
     borderBottomWidth: 4,
     borderBottomColor: '#3730A3',
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
   },
-  saidItBtnText: {
-    fontSize: 14,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-  },
-  successBanner: {
-    padding: 12,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    alignItems: 'center',
-    gap: 4,
-  },
-  successRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  successTitle: {
-    fontSize: 13,
-    fontFamily: fonts.headingBold,
-    color: '#10B981',
-  },
-  successSub: {
-    fontSize: 11,
-    fontFamily: fonts.bodyMedium,
-    color: '#A7F3D0',
-  },
-  playingIndicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  playingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  audioWaveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#6366F1',
-  },
-  playingText: {
-    fontSize: 11,
-    fontFamily: fonts.bodyMedium,
-    color: '#94A3B8',
-  },
-  skipToSpeakText: {
-    fontSize: 11,
-    fontFamily: fonts.headingBold,
-    color: '#818CF8',
-  },
-  celebrationWrapper: {
-    padding: 24,
-    alignItems: 'center',
-    gap: 14,
-    maxWidth: 340,
-  },
-  trophyCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  trophyEmoji: {
-    fontSize: 36,
-  },
-  celebrationTitle: {
-    fontSize: 18,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  celebrationDesc: {
-    fontSize: 12,
-    fontFamily: fonts.bodyMedium,
-    color: '#94A3B8',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  statsCardRow: {
-    flexDirection: 'row',
+  primaryBtnText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF', letterSpacing: 0.3 },
+  ghostBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingVertical: 14 },
+  ghostBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: '#CBD5E1' },
+
+  panel: {
+    backgroundColor: '#0F172A',
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    borderTopWidth: 1,
+    borderColor: '#1E293B',
+    paddingHorizontal: 18,
+    paddingTop: 16,
     gap: 12,
-    width: '100%',
-    padding: 12,
-    backgroundColor: '#1E293B',
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: '#334155',
   },
-  statBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statBoxVal: {
-    fontSize: 18,
-    fontFamily: fonts.mono,
-    fontWeight: 'bold',
-    color: '#10B981',
-  },
-  statBoxLbl: {
-    fontSize: 10,
-    fontFamily: fonts.bodyMedium,
-    color: '#94A3B8',
-    marginTop: 2,
-  },
-  celebrationButtons: {
+  speakerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  avatarSmall: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#1E293B', alignItems: 'center', justifyContent: 'center' },
+  avatarSmallEmoji: { fontSize: 15 },
+  speakerName: { fontFamily: fonts.headingBold, fontSize: 14, color: '#F8FAFC', maxWidth: 140 },
+  iconBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#1E293B', alignItems: 'center', justifyContent: 'center' },
+  chipBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#1E293B', borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 8 },
+  chipBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#CBD5E1' },
+  speechText: { fontFamily: fonts.headingSemiBold, fontSize: 19, lineHeight: 27, color: '#FFFFFF' },
+  translationText: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: '#A5B4FC' },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 4 },
+  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#34D399' },
+  statusText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: '#94A3B8' },
+  skipText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#A5B4FC' },
+
+  lastLine: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 18, color: '#64748B' },
+  turnHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  turnDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#34D399' },
+  turnTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: '#34D399' },
+  hintText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 20, color: '#CBD5E1' },
+  targetCard: { backgroundColor: 'rgba(99,102,241,0.14)', borderRadius: radii.lg, borderWidth: 1.5, borderColor: 'rgba(129,140,248,0.45)', padding: 14 },
+  targetText: { fontFamily: fonts.headingBold, fontSize: 18, lineHeight: 26, color: '#FFFFFF' },
+  doneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginTop: 6,
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#10B981',
+    borderRadius: radii.pill,
+    paddingVertical: 15,
+    borderBottomWidth: 4,
+    borderBottomColor: '#047857',
   },
-  replayAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: radii.lg,
-    backgroundColor: '#1E293B',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  replayAllText: {
-    fontSize: 12,
-    fontFamily: fonts.headingBold,
-    color: '#E2E8F0',
-  },
-  finishCatalogBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: radii.lg,
-    backgroundColor: colors.brand,
-  },
-  finishCatalogText: {
-    fontSize: 12,
-    fontFamily: fonts.headingBold,
-    color: '#FFFFFF',
-  },
+  successBox: { alignItems: 'center', gap: 6, paddingVertical: 10 },
+  successTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: '#F8FAFC', textAlign: 'center' },
+  successSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#94A3B8' },
+
+  celebration: { paddingHorizontal: 22, alignItems: 'stretch' },
+  trophyCircle: { alignSelf: 'center', width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(251,191,36,0.14)', borderWidth: 2, borderColor: 'rgba(251,191,36,0.5)', alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
+  trophyEmoji: { fontSize: 46 },
+  celebrationTitle: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 30, color: '#FFFFFF', textAlign: 'center' },
+  celebrationDesc: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 21, color: '#94A3B8', textAlign: 'center', marginTop: 8, marginBottom: 22 },
+  statsRow: { flexDirection: 'row', gap: 12 },
+  statBox: { flex: 1, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: radii.lg, paddingVertical: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  statVal: { fontFamily: fonts.headingBold, fontSize: 22, color: '#FFFFFF' },
+  statLbl: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: '#94A3B8', marginTop: 3 },
 });

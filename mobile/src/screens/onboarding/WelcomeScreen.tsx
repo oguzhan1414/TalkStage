@@ -117,7 +117,7 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
       </View>
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
-        <Button label={t("Başlayalım ➔")} variant="chunky" onPress={() => navigation.navigate('Name')} />
+        <Button label={t("Başlayalım ➔")} variant="chunky" onPress={() => navigation.navigate('Chat')} />
       </View>
     </View>
   );

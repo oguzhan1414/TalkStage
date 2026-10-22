@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -22,6 +22,7 @@ import { Toast } from '../components/Toast';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PODCAST_EPISODES, type PodcastEpisode } from '../data/podcastData';
 import { api, ApiError } from '../lib/api';
+import { episodeLabel } from '../lib/podcastLabels';
 import { postQueued } from '../lib/outbox';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -34,8 +35,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'PodcastPlayer'>;
 
 /** Bölümü "dinlenmiş" saymak için gereken oran. */
 const LISTEN_THRESHOLD = 0.85;
-/** Mini testten geçmek için doğru oranı. */
-const QUIZ_PASS_RATIO = 0.6;
 const LOAD_TIMEOUT_MS = 12000;
 
 function formatSeconds(totalSec: number): string {
@@ -45,7 +44,7 @@ function formatSeconds(totalSec: number): string {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-type QuizQuestion = { prompt: string; hintTr: string; options: string[]; answer: string };
+type QuizQuestion = { prompt: string; hintTr: string; options: string[]; answer: string; example: string };
 
 /** Anahtar kelimelerin gerçek cümlelerinden boşluk doldurma soruları üretir (yazım gerektirmez). */
 function buildQuiz(episode: PodcastEpisode): QuizQuestion[] {
@@ -69,6 +68,7 @@ function buildQuiz(episode: PodcastEpisode): QuizQuestion[] {
       hintTr: vocab.meaningTr,
       options: rotated,
       answer: vocab.term,
+      example: vocab.example,
     });
   });
   return questions.slice(0, 5);
@@ -94,6 +94,8 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
   const [listenedRatio, setListenedRatio] = useState(0);
   const [followTranscript, setFollowTranscript] = useState(true);
   const [quizOpen, setQuizOpen] = useState(false);
+  // Mini test isteğe bağlı: sonucu (doğru/toplam) cihazda tutulur, kart "tamamlandı" halinde kalır.
+  const [quizScore, setQuizScore] = useState<{ correct: number; total: number } | null>(null);
 
   const playerRef = useRef<AudioPlayer | null>(null);
   const loadedRef = useRef(false);
@@ -195,6 +197,20 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
     };
   }, [episode.id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(`podcast_quiz_${episode.id}`)
+      .then((raw) => {
+        if (cancelled || !raw) return;
+        const parsed = JSON.parse(raw) as { correct: number; total: number };
+        if (typeof parsed?.correct === 'number' && typeof parsed?.total === 'number') setQuizScore(parsed);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [episode.id]);
+
   const logPracticeOnce = () => {
     if (practiceLoggedRef.current) return;
     practiceLoggedRef.current = true;
@@ -291,12 +307,40 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
     }
   };
 
+  // Bölümü yeterince dinleyince ders kendiliğinden tamamlanır: düğmeye basmak, teste girmek zorunlu değil.
   const finishLesson = () => {
     setIsCompleted(true);
-    setQuizOpen(false);
     setLearningFlag(`podcast_completed_${episode.id}`);
     logPracticeOnce();
-    showToast(t("🎉 Tebrikler! Podcast dersini tamamladın"));
+    showToast(t("Bölüm tamamlandı"));
+  };
+
+  useEffect(() => {
+    if (!isCompleted && listenedRatio >= LISTEN_THRESHOLD) finishLesson();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listenedRatio, isCompleted]);
+
+  /** Mini test bitince: sonuç saklanır, kaçırılan kelimeler sessizce sandığa eklenir. */
+  const handleQuizFinished = async (correct: number, total: number, missed: QuizQuestion[]) => {
+    const score = { correct, total };
+    setQuizScore(score);
+    AsyncStorage.setItem(`podcast_quiz_${episode.id}`, JSON.stringify(score)).catch(() => {});
+    if (missed.length === 0) return;
+    const results = await Promise.allSettled(
+      missed.map((q) =>
+        api.post('/vocab-cards', {
+          term: q.answer,
+          example_sentence: q.example,
+          translation: q.hintTr,
+          source_label: `${episode.title} (Podcast)`,
+        } satisfies VocabCardCreate)
+      )
+    );
+    const added = results.filter((r) => r.status === 'fulfilled').length;
+    if (added > 0) {
+      queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      showToast(t("{{count}} kelime sandığına eklendi", { count: added }));
+    }
   };
 
   const activeTurnId = useMemo(() => {
@@ -325,6 +369,16 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
   const listenedEnough = isCompleted || listenedRatio >= LISTEN_THRESHOLD;
   const listenedPercent = Math.round(Math.min(1, listenedRatio / LISTEN_THRESHOLD) * 100);
 
+  // Dersin üç adımı: dinle -> çalış (kelime + transkript) -> mini test. Hangi adımda olduğun her an görünür.
+  const stepIndex = quizScore ? 3 : quizOpen ? 2 : listenedEnough ? 1 : 0;
+  const STEP_LABELS = [t("Dinle"), t("Çalış"), t("Mini test")];
+  const STEP_TIPS = [
+    t("Önce transkripte bakmadan dinle. Takılırsan 5 sn geri sar ya da hızı yavaşlat."),
+    t("Satırın yanındaki ▶ ile o cümleye atla, bilmediğin kelimeye dokunup sandığına ekle. İstersen sonda mini testle pekiştir."),
+    t("Boşlukları bölümde duyduğun cümlelerle doldur. Kelimenin anlamı ipucu olarak yazıyor."),
+    t("Tamam! Kaçırdığın kelimeler sandığına eklendi. İstediğin zaman tekrar dinleyebilirsin."),
+  ];
+
   return (
     <View style={styles.container}>
       <ImageBackground source={podcastStudioWallpaper} style={styles.backgroundImage} resizeMode="cover">
@@ -336,14 +390,19 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
               <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
             </Pressable>
             <View style={styles.headerTitleCol}>
-              <Text style={styles.headerLevel}>{episode.levelLabel}</Text>
+              <Text style={styles.headerLevel}>{episodeLabel(episode)}</Text>
               <Text style={styles.headerTitle} numberOfLines={1}>
                 {episode.title}
               </Text>
             </View>
-            <View style={styles.headerRightBadge}>
-              <Text style={styles.headerRightText}>{isCompleted ? t("✓ Tamamlandı") : t("🎙️ Dinleme")}</Text>
-            </View>
+            {isCompleted ? (
+              <View style={styles.headerRightBadge}>
+                <Ionicons name="checkmark" size={13} color="#6EE7B7" />
+                <Text style={styles.headerRightText}>{t("Tamamlandı")}</Text>
+              </View>
+            ) : (
+              <View style={{ width: 38 }} />
+            )}
           </View>
 
           <ScrollView
@@ -352,6 +411,29 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
             showsVerticalScrollIndicator={false}
             onScrollBeginDrag={() => setFollowTranscript(false)}
           >
+            {/* Adımlar + o adıma özel ipucu */}
+            <View style={styles.stepsCard}>
+              <View style={styles.stepsRow}>
+                {STEP_LABELS.map((label, i) => {
+                  const done = i < stepIndex;
+                  const cur = i === stepIndex;
+                  return (
+                    <View key={label} style={styles.stepItem}>
+                      {i > 0 ? <View style={[styles.stepLine, (done || cur) && styles.stepLineOn]} /> : null}
+                      <View style={[styles.stepCircle, done && styles.stepCircleDone, cur && styles.stepCircleCur]}>
+                        {done ? <Ionicons name="checkmark" size={14} color="#FFFFFF" /> : <Text style={styles.stepNum}>{i + 1}</Text>}
+                      </View>
+                      <Text style={[styles.stepLabel, (done || cur) && styles.stepLabelOn]}>{label}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+              <View style={styles.tipRow}>
+                <Ionicons name="bulb" size={16} color="#FBBF24" />
+                <Text style={styles.tipText}>{STEP_TIPS[stepIndex]}</Text>
+              </View>
+            </View>
+
             {/* 1. Oynatıcı kartı */}
             <View style={[styles.playerCard, shadow.card]}>
               <View style={styles.playerTopRow}>
@@ -443,14 +525,11 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
                   <Text style={styles.listenMeterText}>{listenedEnough ? '✓' : `${listenedPercent}%`}</Text>
                 </View>
               </View>
-              <Text style={styles.listenHint}>
-                {listenedEnough ? t("Bölümü dinledin — mini teste geçebilirsin") : t("Mini test için bölümü sonuna kadar dinle")}
-              </Text>
             </View>
 
             {/* 2. Anahtar kelimeler */}
             <View style={styles.vocabSection}>
-              <Text style={styles.sectionHeader}>{t("🎯 Bu Bölümün Anahtar Kelimeleri")}</Text>
+              <Text style={styles.sectionHeader}>{t("Anahtar kelimeler")}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.vocabCardsRow}>
                 {episode.keyVocab.map((vocab, vIdx) => (
                   <View key={vIdx} style={[styles.vocabCard, shadow.card]}>
@@ -485,7 +564,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
               <View style={styles.transcriptHeaderRow}>
                 <View style={{ flex: 1, marginRight: 8 }}>
                   <Text style={styles.sectionHeader}>
-                    {t("💬 Transkript ({{length}} Cümle)", { length: episode.dialogue.length })}
+                    {t("Transkript")}
                   </Text>
                   <Text style={styles.transcriptTip}>{t("▶ ile o cümleye atla • Bir kelimeye dokun, sandığına ekle")}</Text>
                 </View>
@@ -567,7 +646,7 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
                         hitSlop={4}
                       >
                         <Text style={[styles.trToggleBtnText, isTrRevealed && styles.trToggleBtnTextActive]}>
-                          {isTrRevealed ? t("✓ Çeviri açık") : t("💡 Çeviriyi gör")}
+                          {isTrRevealed ? t("Çeviriyi Gizle") : t("Çeviriyi Göster")}
                         </Text>
                       </Pressable>
 
@@ -582,44 +661,27 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
               </View>
             </View>
 
-            {/* 4. Mini test + tamamlama */}
-            {quizOpen && !isCompleted && quiz.length > 0 ? (
-              <PodcastQuiz questions={quiz} onPassed={finishLesson} onClose={() => setQuizOpen(false)} />
+            {/* 4. Mini test: isteğe bağlı pekiştirme */}
+            {quizOpen && quiz.length > 0 ? (
+              <PodcastQuiz questions={quiz} onFinished={handleQuizFinished} onClose={() => setQuizOpen(false)} />
+            ) : quiz.length > 0 ? (
+              <View style={styles.miniTestRow}>
+                <View style={[styles.miniTestIcon, quizScore && styles.miniTestIconDone]}>
+                  <Ionicons name={quizScore ? 'checkmark' : 'school-outline'} size={20} color={quizScore ? '#FFFFFF' : '#A5B4FC'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.miniTestTitle}>{quizScore ? t("Mini test tamamlandı") : t("Mini test")}</Text>
+                  <Text style={styles.miniTestSub}>
+                    {quizScore
+                      ? t("{{correct}}/{{total}} doğru", { correct: quizScore.correct, total: quizScore.total })
+                      : t("{{count}} soru · isteğe bağlı", { count: quiz.length })}
+                  </Text>
+                </View>
+                <Pressable onPress={() => setQuizOpen(true)} style={styles.miniTestBtn} accessibilityRole="button">
+                  <Text style={styles.miniTestBtnText}>{quizScore ? t("Tekrar çöz") : t("Başla")}</Text>
+                </Pressable>
+              </View>
             ) : null}
-
-            <Pressable
-              onPress={() => {
-                if (isCompleted) {
-                  togglePlayPause();
-                  return;
-                }
-                if (!listenedEnough) {
-                  showToast(t("Önce bölümü sonuna kadar dinle 🎧"));
-                  return;
-                }
-                if (quiz.length === 0) {
-                  finishLesson();
-                  return;
-                }
-                setQuizOpen(true);
-              }}
-              style={[
-                styles.completeLessonBtn,
-                shadow.card,
-                !listenedEnough && !isCompleted && styles.completeLessonBtnLocked,
-                isCompleted && styles.completeLessonBtnDone,
-              ]}
-            >
-              <Text style={styles.completeLessonBtnText}>
-                {isCompleted
-                  ? t("✓ Ders Tamamlandı")
-                  : !listenedEnough
-                    ? t("🔒 Mini test: önce dinle")
-                    : quiz.length > 0
-                      ? t("📝 Mini Testi Başlat & Dersi Tamamla ➔")
-                      : t("🎉 Dersi Tamamla ➔")}
-              </Text>
-            </Pressable>
           </ScrollView>
 
           {toast ? <Toast message={toast} /> : null}
@@ -629,33 +691,35 @@ export function PodcastPlayerScreen({ route, navigation }: Props) {
   );
 }
 
-/** 3-5 soruluk boşluk doldurma: bölümün gerçek cümleleri, çeldiriciler aynı bölümün anahtar kelimeleri. */
+/** 3-5 soruluk boşluk doldurma (isteğe bağlı): bölümün gerçek cümleleri, çeldiriciler aynı bölümün anahtar kelimeleri. */
 function PodcastQuiz({
   questions,
-  onPassed,
+  onFinished,
   onClose,
 }: {
   questions: QuizQuestion[];
-  onPassed: () => void;
+  onFinished: (correct: number, total: number, missed: QuizQuestion[]) => void;
   onClose: () => void;
 }) {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
+  const [missed, setMissed] = useState<QuizQuestion[]>([]);
   const [finished, setFinished] = useState(false);
 
   const q = questions[index];
-  const passNeeded = Math.ceil(questions.length * QUIZ_PASS_RATIO);
 
   const choose = (option: string) => {
     if (picked) return;
     setPicked(option);
     if (option === q.answer) setCorrectCount((c) => c + 1);
+    else setMissed((m) => [...m, q]);
   };
 
   const next = () => {
     if (index + 1 >= questions.length) {
       setFinished(true);
+      onFinished(correctCount, questions.length, missed);
     } else {
       setIndex((i) => i + 1);
       setPicked(null);
@@ -666,32 +730,36 @@ function PodcastQuiz({
     setIndex(0);
     setPicked(null);
     setCorrectCount(0);
+    setMissed([]);
     setFinished(false);
   };
 
   if (finished) {
-    const passed = correctCount >= passNeeded;
+    const allRight = missed.length === 0;
     return (
       <View style={[styles.quizCard, shadow.card]}>
-        <Image source={passed ? mivoImages.success : mivoImages.thinking} style={styles.quizMivo} resizeMode="contain" />
-        <Text style={styles.quizTitle}>
-          {passed ? t("Harika! Testi geçtin 🎉") : t("Biraz daha dinleyip tekrar dene")}
-        </Text>
-        <Text style={styles.quizSub}>
-          {t("{{correct}}/{{total}} doğru", { correct: correctCount, total: questions.length })}
-        </Text>
-        {passed ? (
-          <Pressable onPress={onPassed} style={styles.quizPrimary}>
-            <Text style={styles.quizPrimaryText}>{t("Dersi Tamamla & XP Kazan ➔")}</Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={restart} style={styles.quizPrimary}>
-            <Text style={styles.quizPrimaryText}>{t("Testi Tekrarla")}</Text>
-          </Pressable>
+        <Image source={allRight ? mivoImages.success : mivoImages.idle} style={styles.quizMivo} resizeMode="contain" />
+        <Text style={styles.quizTitle}>{allRight ? t("Hepsi doğru!") : t("{{correct}}/{{total}} doğru", { correct: correctCount, total: questions.length })}</Text>
+        {allRight ? null : (
+          <View style={styles.missedBox}>
+            <Text style={styles.missedTitle}>{t("Kaçırdığın kelimeler")}</Text>
+            {missed.map((m) => (
+              <View key={m.answer} style={styles.missedRow}>
+                <Text style={styles.missedTerm}>{m.answer}</Text>
+                <Text style={styles.missedMeaning}>{m.hintTr}</Text>
+              </View>
+            ))}
+            <Text style={styles.missedNote}>{t("Bu kelimeler sandığına eklendi.")}</Text>
+          </View>
         )}
-        <Pressable onPress={onClose} hitSlop={8}>
-          <Text style={styles.quizClose}>{t("Kapat")}</Text>
-        </Pressable>
+        <View style={styles.quizActions}>
+          <Pressable onPress={restart} hitSlop={8}>
+            <Text style={styles.quizLink}>{t("Tekrar çöz")}</Text>
+          </Pressable>
+          <Pressable onPress={onClose} style={styles.quizPrimary}>
+            <Text style={styles.quizPrimaryText}>{t("Kapat")}</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
@@ -699,7 +767,7 @@ function PodcastQuiz({
   return (
     <View style={[styles.quizCard, shadow.card]}>
       <View style={styles.quizHeader}>
-        <Text style={styles.quizTitle}>{t("Mini Test")}</Text>
+        <Text style={styles.quizTitle}>{t("Mini test")}</Text>
         <Text style={styles.quizSub}>
           {index + 1}/{questions.length}
         </Text>
@@ -714,11 +782,7 @@ function PodcastQuiz({
             key={option}
             disabled={Boolean(picked)}
             onPress={() => choose(option)}
-            style={[
-              styles.quizOption,
-              picked && isAnswer && styles.quizOptionRight,
-              isPicked && !isAnswer && styles.quizOptionWrong,
-            ]}
+            style={[styles.quizOption, picked && isAnswer && styles.quizOptionRight, isPicked && !isAnswer && styles.quizOptionWrong]}
           >
             <Text style={styles.quizOptionText}>{option}</Text>
             {picked && isAnswer ? <Ionicons name="checkmark-circle" size={20} color="#059669" /> : null}
@@ -726,18 +790,49 @@ function PodcastQuiz({
           </Pressable>
         );
       })}
-      {picked ? (
-        <Pressable onPress={next} style={styles.quizPrimary}>
-          <Text style={styles.quizPrimaryText}>
-            {index + 1 >= questions.length ? t("Sonucu Gör") : t("Sonraki ➔")}
-          </Text>
+      <View style={styles.quizActions}>
+        <Pressable onPress={onClose} hitSlop={8}>
+          <Text style={styles.quizLink}>{t("Vazgeç")}</Text>
         </Pressable>
-      ) : null}
+        {picked ? (
+          <Pressable onPress={next} style={styles.quizPrimary}>
+            <Text style={styles.quizPrimaryText}>{index + 1 >= questions.length ? t("Sonucu Gör") : t("Sonraki ➔")}</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  missedNote: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted },
+  missedMeaning: { flex: 1, textAlign: 'right', fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody },
+  missedTerm: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.brand },
+  missedRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 },
+  missedTitle: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
+  missedBox: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 12, gap: 8 },
+  quizLink: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textMuted, textDecorationLine: 'underline' },
+  quizActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 6 },
+  miniTestBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#C7D2FE' },
+  miniTestBtn: { borderRadius: radii.pill, borderWidth: 2, borderColor: 'rgba(165,180,252,0.6)', paddingHorizontal: 16, paddingVertical: 8 },
+  miniTestSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: 'rgba(255,255,255,0.65)', marginTop: 1 },
+  miniTestTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
+  miniTestIconDone: { backgroundColor: '#10B981' },
+  miniTestIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(99,102,241,0.25)', alignItems: 'center', justifyContent: 'center' },
+  miniTestRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(15,23,42,0.58)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', padding: 14 },
+  tipText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 19, color: '#FDE68A' },
+  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: 'rgba(251,191,36,0.12)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10 },
+  stepLabelOn: { color: '#FFFFFF' },
+  stepLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: 'rgba(255,255,255,0.55)' },
+  stepNum: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
+  stepCircleCur: { backgroundColor: '#6366F1' },
+  stepCircleDone: { backgroundColor: '#10B981' },
+  stepCircle: { width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
+  stepLineOn: { backgroundColor: '#10B981' },
+  stepLine: { flex: 1, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 2 },
+  stepItem: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 7 },
+  stepsRow: { flexDirection: 'row', alignItems: 'center' },
+  stepsCard: { backgroundColor: 'rgba(15,23,42,0.58)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', padding: 14, gap: 12 },
   container: {
     flex: 1,
     backgroundColor: '#0F172A',
@@ -790,17 +885,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
   },
-  headerRightBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: radii.pill,
-  },
-  headerRightText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: '#CBD5E1',
-  },
+  headerRightBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.18)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: radii.pill },
+  headerRightText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#6EE7B7' },
   scrollContent: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xs,
@@ -1157,19 +1243,6 @@ const styles = StyleSheet.create({
   },
 
   /* Complete Lesson Button */
-  completeLessonBtn: {
-    backgroundColor: '#10B981',
-    paddingVertical: 14,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  completeLessonBtnText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
 
   /* Yükleme / hata */
   errorBox: {
@@ -1201,13 +1274,6 @@ const styles = StyleSheet.create({
   /* Dinleme oranı */
   listenMeter: { alignItems: 'center', justifyContent: 'center', width: 44 },
   listenMeterText: { fontFamily: fonts.mono, fontSize: 10, color: '#CBD5E1', marginTop: 1 },
-  listenHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: '#94A3B8',
-    textAlign: 'center',
-    marginTop: 10,
-  },
 
   /* Transkript araçları */
   transcriptTools: { flexDirection: 'row', gap: 8, marginBottom: 10, flexWrap: 'wrap' },
@@ -1223,8 +1289,6 @@ const styles = StyleSheet.create({
   jumpBtnActive: { backgroundColor: '#10B981' },
 
   /* Tamamlama düğmesi durumları */
-  completeLessonBtnLocked: { backgroundColor: '#475569' },
-  completeLessonBtnDone: { backgroundColor: '#059669' },
 
   /* Mini test */
   quizCard: {

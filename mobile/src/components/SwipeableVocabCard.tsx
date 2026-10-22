@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRef, useState } from 'react';
 import {
   Animated,
@@ -118,6 +118,7 @@ export function SwipeableVocabCard({ card, onGrade, onPronounce, pronouncing }: 
           <Text style={styles.stampAgainText}>{t("TEKRAR ↺")}</Text>
         </Animated.View>
 
+        <View style={styles.blob} pointerEvents="none" />
         <Pressable style={styles.flipTouchArea} onPress={() => setIsFlipped((f) => !f)}>
           {/* Üst şerit: seviye + tür + (varsa) kaynak */}
           <View style={styles.cardHeaderRow}>
@@ -203,8 +204,8 @@ export function SwipeableVocabCard({ card, onGrade, onPronounce, pronouncing }: 
           )}
 
           <View style={styles.swipeHintRow}>
-            <Text style={styles.swipeHintText}>{t("← Tekrar")}</Text>
-            <Text style={styles.swipeHintText}>{t("Bildim →")}</Text>
+            <Text style={[styles.swipeHintText, { color: '#F87171' }]}>{t("← Tekrar")}</Text>
+            <Text style={[styles.swipeHintText, { color: '#34D399' }]}>{t("Bildim →")}</Text>
           </View>
         </Pressable>
       </Animated.View>
@@ -213,24 +214,14 @@ export function SwipeableVocabCard({ card, onGrade, onPronounce, pronouncing }: 
 }
 
 const styles = StyleSheet.create({
+  blob: { position: 'absolute', right: -50, top: -50, width: 170, height: 170, borderRadius: 85, backgroundColor: 'rgba(99,102,241,0.07)' },
   cardWrapper: {
     width: '100%',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 16,
-    width: '100%',
-    flex: 1,
-    minHeight: 230,
-    borderWidth: 1.5,
-    borderBottomWidth: 5,
-    borderColor: '#E0E7FF',
-    position: 'relative',
-  },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 30, padding: 20, width: '100%', flex: 1, minHeight: 320, borderWidth: 2, borderBottomWidth: 6, borderColor: '#DDE3FF', position: 'relative', overflow: 'hidden' },
   stampBox: {
     position: 'absolute',
     top: 44,
@@ -272,23 +263,14 @@ const styles = StyleSheet.create({
     gap: 6,
     minHeight: 24,
   },
-  levelPill: {
-    backgroundColor: colors.brand,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
+  levelPill: { backgroundColor: colors.brand, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 9 },
   levelPillText: {
     fontFamily: fonts.mono,
     fontSize: 10,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  posPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
+  posPill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 9 },
   posPillText: {
     fontFamily: fonts.headingBold,
     fontSize: 10,
@@ -300,33 +282,9 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: colors.textMuted,
   },
-
-  /* Ön yüz */
-  frontBody: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 18,
-  },
-  termBig: {
-    fontFamily: fonts.headingBold,
-    fontSize: 36,
-    letterSpacing: -0.5,
-    color: colors.textHeading,
-    textAlign: 'center',
-    paddingHorizontal: 8,
-  },
-  soundButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
-    borderWidth: 2,
-    borderBottomWidth: 4,
-    borderColor: '#C7D2FE',
-  },
+  frontBody: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 22 },
+  termBig: { fontFamily: fonts.headingBold, fontSize: 42, lineHeight: 48, letterSpacing: -0.6, color: colors.textHeading, textAlign: 'center', paddingHorizontal: 8 },
+  soundButton: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF', borderWidth: 2, borderBottomWidth: 5, borderColor: '#C7D2FE' },
   soundButtonActive: {
     backgroundColor: colors.brand,
     borderColor: '#4338CA',
@@ -339,22 +297,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#EEF2FF',
   },
-  flipPromptPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(79, 70, 229, 0.06)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    gap: 6,
-  },
-  flipPromptText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 11.5,
-    color: colors.brand,
-  },
-
-  /* Arka yüz */
+  flipPromptPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(79, 70, 229, 0.08)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radii.pill, gap: 6 },
+  flipPromptText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
   backBody: {
     flex: 1,
     justifyContent: 'center',
@@ -366,19 +310,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
-  backTerm: {
-    flex: 1,
-    fontFamily: fonts.headingBold,
-    fontSize: 22,
-    color: colors.textHeading,
-  },
-  translationBox: {
-    backgroundColor: '#ECFDF5',
-    borderRadius: 14,
-    padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#10B981',
-  },
+  backTerm: { flex: 1, fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
+  translationBox: { backgroundColor: '#ECFDF5', borderRadius: 18, padding: 14, borderLeftWidth: 5, borderLeftColor: '#10B981' },
   translationLabel: {
     fontFamily: fonts.mono,
     fontSize: 9.5,
@@ -386,18 +319,8 @@ const styles = StyleSheet.create({
     color: '#059669',
     marginBottom: 2,
   },
-  translationText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 18,
-    color: colors.textHeading,
-  },
-  exampleBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.brand,
-  },
+  translationText: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading },
+  exampleBox: { backgroundColor: '#F8FAFC', borderRadius: 18, padding: 14, borderLeftWidth: 5, borderLeftColor: colors.brand },
   exampleLabel: {
     fontFamily: fonts.mono,
     fontSize: 9.5,
@@ -405,15 +328,7 @@ const styles = StyleSheet.create({
     color: colors.brand,
     marginBottom: 2,
   },
-  exampleSentence: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 13,
-    color: colors.textHeading,
-    fontStyle: 'italic',
-    lineHeight: 19,
-  },
-
-  /* Alt ipucu */
+  exampleSentence: { fontFamily: fonts.bodyRegular, fontSize: 14, color: colors.textHeading, fontStyle: 'italic', lineHeight: 21 },
   swipeHintRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -422,9 +337,5 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
     paddingTop: 8,
   },
-  swipeHintText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-  },
+  swipeHintText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textMuted },
 });

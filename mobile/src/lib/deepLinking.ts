@@ -6,7 +6,11 @@ import * as Linking from 'expo-linking';
  * Landing's Smart Deep-Link Router should point at the same paths — see
  * `landing/CLAUDE.md`'s `NEXT_PUBLIC_APP_SCHEME` note.
  */
-export type DeepLinkTarget = { type: 'scenario'; slug: string } | { type: 'reading'; slug: string };
+export type DeepLinkTarget =
+  | { type: 'scenario'; slug: string }
+  | { type: 'reading'; slug: string }
+  // `spekvia://next` (home-screen widget): start the learner's next step on the path.
+  | { type: 'next' };
 
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,80}$/i;
 
@@ -24,6 +28,7 @@ export function parseDeepLink(url: string): DeepLinkTarget | null {
   const isCustomScheme = !parsed.scheme || (parsed.scheme !== 'http' && parsed.scheme !== 'https');
   const joined = [isCustomScheme ? parsed.hostname : null, parsed.path].filter(Boolean).join('/');
   const [resource, rawSlug] = joined.split('/').filter(Boolean);
+  if (resource === 'next') return { type: 'next' };
   if (!resource || !rawSlug) return null;
 
   let slug: string;

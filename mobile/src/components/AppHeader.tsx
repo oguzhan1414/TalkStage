@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -43,7 +42,7 @@ function getTimeGreeting(): string {
 }
 
 /**
- * Shared top identity bar — avatar/greeting/streak/XP — reused at the top of
+ * Shared top identity bar — avatar/greeting/XP — reused at the top of
  * every main tab (Home, Scenarios, Vocab, Profile/"Özellikler") so the user's
  * identity and quick stats stay visible everywhere, not just Home. Tapping
  * the avatar opens `AccountSettingsScreen` (the actual account/settings
@@ -101,7 +100,6 @@ export function AppHeader() {
   }, [profile?.xp]);
 
   const currentLevel = profile?.cefr_level ?? 'A1';
-  const streak = profile?.streak_count ?? 1;
 
   return (
     <View style={styles.header}>
@@ -130,11 +128,6 @@ export function AppHeader() {
       </View>
 
       <View style={styles.headerStatsRow}>
-        <View style={[styles.headerStatPill, styles.headerStreakPill]}>
-          <Ionicons name="flame" size={13} color="#C2410C" />
-          <Text style={styles.headerStreakText}>{streak}</Text>
-        </View>
-
         <BouncyPressable
           onPress={() => navigation.navigate('Badges')}
           style={[styles.headerStatPill, styles.headerXpPill]}
@@ -177,17 +170,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: radii.pill,
     borderWidth: 1.5,
-  },
-  headerStreakPill: {
-    backgroundColor: '#FFF7ED',
-    borderColor: '#FED7AA',
-    gap: 4,
-  },
-  headerStreakText: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#C2410C',
   },
   headerXpPill: {
     backgroundColor: '#FFFBEB',

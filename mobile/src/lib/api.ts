@@ -11,12 +11,22 @@ export class ApiError extends Error {
   }
 }
 
+/** Minutes east of UTC on this phone right now (Turkey: 180). */
+export function utcOffsetMinutes(): number {
+  return -new Date().getTimezoneOffset();
+}
+
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new ApiError(401, t("Oturum bulunamadı"));
   // Backend overlays translated content (scenarios, reading) by this header.
-  return { Authorization: `Bearer ${token}`, 'X-App-Locale': getLocale() };
+  // X-UTC-Offset: the learner's calendar day for daily quota, streak and review dates (backend app/core/clock.py).
+  return {
+    Authorization: `Bearer ${token}`,
+    'X-App-Locale': getLocale(),
+    'X-UTC-Offset': String(utcOffsetMinutes()),
+  };
 }
 
 /** Normal calls give up after 20 s, uploads (audio forms) after 60 s — a dead connection must not hang a screen forever. */

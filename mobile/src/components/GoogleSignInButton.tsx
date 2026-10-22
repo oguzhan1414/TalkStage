@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 
 import { clearNativeGoogleAccount } from '../lib/googleSession';
 import { supabase } from '../lib/supabase';
+import { GoogleGlyph } from './auth/GoogleGlyph';
 import { Button } from './Button';
 import { t } from '../i18n';
 
@@ -109,5 +110,13 @@ export function GoogleSignInButton({ onError }: Props) {
     }
   };
 
-  return <Button label={t("Google ile devam et")} variant="secondary" loading={loading} onPress={handlePress} />;
+  return (
+    <Button
+      label={t("Google ile devam et")}
+      variant="secondary"
+      loading={loading}
+      onPress={handlePress}
+      icon={<GoogleGlyph size={20} />}
+    />
+  );
 }

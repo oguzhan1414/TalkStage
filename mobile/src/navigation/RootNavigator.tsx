@@ -84,8 +84,9 @@ export function RootNavigator() {
           <Stack.Screen name="ReadingPassage" getComponent={() => require('../screens/ReadingPassageScreen').ReadingPassageScreen} />
           <Stack.Screen name="Badges" getComponent={() => require('../screens/BadgesScreen').BadgesScreen} />
           <Stack.Screen name="AccountSettings" getComponent={() => require('../screens/AccountSettingsScreen').AccountSettingsScreen} />
-          <Stack.Screen name="GrammarLesson" getComponent={() => require('../screens/GrammarLessonScreen').GrammarLessonScreen} />
+          <Stack.Screen name="GrammarLesson" getComponent={() => require('../screens/GrammarLessonV2Screen').GrammarLessonV2Screen} />
           <Stack.Screen name="MistakesNotebook" getComponent={() => require('../screens/MistakesNotebookScreen').MistakesNotebookScreen} />
+          <Stack.Screen name="WritingTask" getComponent={() => require('../screens/WritingTaskScreen').WritingTaskScreen} />
           <Stack.Screen name="MivoMemory" getComponent={() => require('../screens/MivoMemoryScreen').MivoMemoryScreen} />
           <Stack.Screen name="VocabLibrary" getComponent={() => require('../screens/VocabLibraryScreen').VocabLibraryScreen} />
           <Stack.Screen name="VocabDecks" getComponent={() => require('../screens/VocabDecksScreen').VocabDecksScreen} />

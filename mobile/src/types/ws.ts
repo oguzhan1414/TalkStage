@@ -51,6 +51,12 @@ export type WsServerMessage =
   | { type: 'scene.complete'; summary_tr: string | null }
   | { type: 'session.ready'; teacher_mode?: boolean; cefr_level?: string | null }
   | { type: 'session.time_limit_reached' }
+  // The assistant just said goodbye: the room closes itself once that audio has played.
+  | { type: 'session.ending' }
+  // About a minute before the session limit.
+  | { type: 'session.time_warning'; seconds_left: number }
+  // The room closed after a long silence (not the session limit).
+  | { type: 'session.idle_closed' }
   | { type: 'audio.unavailable' }
   | { type: 'error'; code: string; message: string; retryable: boolean };
 

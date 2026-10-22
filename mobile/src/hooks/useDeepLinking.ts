@@ -3,13 +3,18 @@ import { useEffect, useRef } from 'react';
 
 import { parseDeepLink, type DeepLinkTarget } from '../lib/deepLinking';
 import { navigationRef } from '../navigation/navigationRef';
+import { requestOpenNextStep } from '../widget/homeWidget';
 
 // `ready` = signed in and onboarded. The navigator itself can be ready while
 // still on the Auth/Onboarding stack, where these routes don't exist yet, so
 // readiness of the container alone is not enough to consume a link.
 function navigateToTarget(target: DeepLinkTarget, ready: boolean): boolean {
   if (!ready || !navigationRef.isReady()) return false;
-  if (target.type === 'scenario') {
+  if (target.type === 'next') {
+    // Home knows the next step; it starts it as soon as its data is in.
+    navigationRef.navigate('Main', { screen: 'Home' });
+    requestOpenNextStep();
+  } else if (target.type === 'scenario') {
     navigationRef.navigate('LiveConversationRoom', { scenarioSlug: target.slug });
   } else {
     navigationRef.navigate('ReadingPassage', { slug: target.slug });

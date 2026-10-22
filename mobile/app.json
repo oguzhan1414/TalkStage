@@ -55,7 +55,26 @@
       ],
       "expo-localization",
       "expo-video",
-      "@sentry/react-native"
+      "@sentry/react-native",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "SpekviaToday",
+              "label": "Spekvia",
+              "description": "Mivo, serin ve bugünkü adımın",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "previewImage": "./assets/images/widget/widget_preview.png",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -275,39 +275,13 @@ export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttem
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: 12 },
+  wrap: { gap: 9 },
   prompt: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading, textAlign: 'center' },
-  slotsCard: {
-    minHeight: 96,
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    padding: 12,
-    justifyContent: 'center',
-    gap: 8,
-  },
+  slotsCard: { minHeight: 74, backgroundColor: '#FFFFFF', borderRadius: radii.lg, borderWidth: 1.5, borderColor: '#E2E8F0', padding: 10, justifyContent: 'center', gap: 6 },
   slotsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  slotEmpty: {
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#CBD5E1',
-    borderStyle: 'dashed',
-    backgroundColor: '#F8FAFC',
-  },
-  bankRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center', minHeight: 54 },
-  chip: {
-    minHeight: 46,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    borderBottomWidth: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  slotEmpty: { height: 42, borderRadius: 12, borderWidth: 2, borderColor: '#CBD5E1', borderStyle: 'dashed', backgroundColor: '#F8FAFC' },
+  bankRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center', minHeight: 48 },
+  chip: { minHeight: 42, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#FFFFFF', borderWidth: 2, borderColor: '#E2E8F0', borderBottomWidth: 4, alignItems: 'center', justifyContent: 'center' },
   bankChip: { borderColor: '#C7D2FE' },
   chipPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
   chipLocked: { backgroundColor: '#ECFDF5', borderColor: '#6EE7B7' },
@@ -318,15 +292,7 @@ const styles = StyleSheet.create({
   chipTextWrong: { color: '#BE123C' },
   wrongText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.error },
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  toolBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 999,
-    backgroundColor: '#F1F5F9',
-  },
+  toolBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#F1F5F9' },
   toolBtnOn: { backgroundColor: '#E0E7FF' },
   toolBtnHint: { backgroundColor: '#FFFBEB' },
   toolFlag: { fontSize: 16 },

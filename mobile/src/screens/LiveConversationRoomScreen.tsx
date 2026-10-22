@@ -1,5 +1,5 @@
 import { VoiceRoomBanner, VoiceRoomControls, VoiceRoomThread, voiceRoomStyles, type DisplayBubble } from '../components/VoiceRoomUI';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -53,6 +53,7 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
   quota_exceeded: t("Bugünkü ücretsiz sahne hakkın doldu. Pro’ya geçerek sınırsız pratik yapabilirsin."),
   time_limit_reached: t("5 dakikalık ücretsiz süre doldu."),
+  idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
   app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak sahneyi baştan oynayabilirsin."),
@@ -64,6 +65,7 @@ const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_e
 Object.assign(CLOSE_REASON_MESSAGES, {
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
   auth_invalid: t("Oturumunun süresi dolmuş. Lütfen yeniden giriş yap."),
+  account_deleted: t("Bu hesap silinmiş. Lütfen çıkış yapıp yeni bir hesapla giriş yap."),
   scenario_not_found: t("Bu konuşma sahnesi artık bulunamıyor."),
   voice_reply_failed: t("AI yanıtı oluşturulamadı. Birkaç saniye sonra tekrar konuşabilirsin."),
   session_error: t("Canlı konuşma bağlantısında beklenmeyen bir hata oluştu."),
@@ -306,6 +308,15 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
     void finishSession();
   };
 
+  // The character said goodbye: once that line has been heard, go straight to the scorecard.
+  const conversationEnded = voice.conversationEnded;
+  useEffect(() => {
+    if (!conversationEnded || turnPhase !== 'thinking_time' || leavingRef.current) return;
+    const timer = setTimeout(handleExit, 900);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationEnded, turnPhase]);
+
   // Leaving mid-conversation asks first (X button, Android back, iOS swipe-back).
   const hasConversation = turns.some((turn) => turn.role === 'user');
   const leaveCopy = {
@@ -453,7 +464,13 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {/* Turn-state banner — always visible, impossible to miss. The mic
               genuinely isn't transmitted outside "listening" (see
               useConversationSocket's handleBuffer), this just finally says so. */}
-          <VoiceRoomBanner phase={turnPhase} aiName={aiName} aiRole={aiRole} />
+          <VoiceRoomBanner
+            phase={turnPhase}
+            aiName={aiName}
+            aiRole={aiRole}
+            onReplay={voice.hasReplayableAudio ? voice.replayAiAudio : undefined}
+            timeWarning={voice.timeWarning}
+          />
 
           {/* Soft "you can wrap up now" nudge — the model judged the
               scenario's objectives meaningfully covered (backend Ek 32).
@@ -485,7 +502,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {/* Chat Transcript — real chat-bubble thread instead of two
               separate "latest AI text" / "latest your text" boxes, so the
               conversation reads like a messaging app. */}
-          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} voice={voice} pronounce={pronounce} />
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} onListen={pronounce} voice={voice} pronounce={pronounce} />
 
           {/* Collapsible secondary info — situation, starter phrases, target
               vocab, live telemetry. All real and useful, but shown on demand

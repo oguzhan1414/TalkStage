@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { ScenarioEntry } from '@talkstage/shared-data/scenariosData';
+import type { VoiceScene } from '@talkstage/shared-data/voiceScenes';
 
 import { t } from '../i18n';
 
@@ -115,8 +116,10 @@ export function getTwists(level: string): SceneTwist[] {
 const lastTwistKey = (sceneId: string) => `scene_last_twist_${sceneId}`;
 
 /** Her oynayışta farklı bir komplikasyon: son oynananı atlayıp rastgele seçer (ilk canlı oyun hep "klasik"). */
-export async function pickTwist(scene: ScenarioEntry): Promise<SceneTwist> {
-  const pool = getTwists(scene.level);
+export async function pickTwist(scene: { id: string; level: string; twistIds?: string[] }): Promise<SceneTwist> {
+  const all = getTwists(scene.level);
+  // Sesli sahnelerde yalnızca o sahnede doğal duran sürprizler (klasik her zaman var).
+  const pool = scene.twistIds ? all.filter((tw) => tw.id === 'classic' || scene.twistIds!.includes(tw.id)) : all;
   let last: string | null = null;
   try {
     last = await AsyncStorage.getItem(lastTwistKey(scene.id));
@@ -134,6 +137,34 @@ export async function pickTwist(scene: ScenarioEntry): Promise<SceneTwist> {
   return next;
 }
 
+/** Karşıdaki karakterin o oynayıştaki huyu: aynı sahne her seferinde biraz farklı hissettirir (modele İngilizce gider). */
+const BEGINNER_PERSONAS = [
+  "Personality this time: warm and encouraging. Praise the learner's effort in one or two words.",
+  'Personality this time: cheerful and a little talkative, but always in short sentences.',
+  'Personality this time: calm and gentle. Speak slowly and leave the learner plenty of time.',
+  'Personality this time: curious. Ask one extra friendly question about what the learner says.',
+];
+
+const INTERMEDIATE_PERSONAS = [
+  'Personality this time: brisk and direct. Ask short follow-up questions and expect clear, specific answers.',
+  'Personality this time: sceptical. Ask the learner to justify what they say ("Why do you think so?").',
+  'Personality this time: friendly but a bit vague. Leave details out so the learner has to ask for them.',
+  'Personality this time: slightly impatient. Speak at a natural, quick pace and politely ask the learner to get to the point.',
+];
+
+const ADVANCED_PERSONAS = [
+  'Personality this time: formal and exacting. Notice register and precision, and politely point out vague or casual wording in character.',
+  'Personality this time: warm but immovable. Stay friendly, yet do not give way unless the learner makes a genuinely good case.',
+  'Personality this time: quick and interrupting. Cut in politely to challenge vague claims and make the learner defend them.',
+  'Personality this time: dry and ironic. Use understatement, idioms and subtle humour, and see whether the learner picks up the implied meaning.',
+];
+
+export function pickPersona(level: string): string {
+  const pool =
+    level === 'A1' || level === 'A2' ? BEGINNER_PERSONAS : level === 'B1' || level === 'B2' ? INTERMEDIATE_PERSONAS : ADVANCED_PERSONAS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export function buildScenePayload(scene: ScenarioEntry, twist: SceneTwist): ScenePlayPayload {
   return {
     id: scene.id,
@@ -147,4 +178,33 @@ export function buildScenePayload(scene: ScenarioEntry, twist: SceneTwist): Scen
     objectives: scene.objectives.map((o) => o.text),
     key_phrases: scene.keyPhrases.map((k) => k.en),
   };
+}
+
+/** Sesli sahne (videodan bağımsız): modele giden bağlam. Sürpriz ve kişilik gizlidir, oyuncuya duyurulmaz. */
+export function buildVoiceScenePayload(scene: VoiceScene, twist: SceneTwist): ScenePlayPayload {
+  const twistText = [twist.id === 'classic' ? '' : twist.instruction, pickPersona(scene.level)].filter(Boolean).join(' ');
+  return {
+    id: scene.id,
+    title: scene.title,
+    level: scene.level,
+    ai_name: scene.aiName,
+    ai_role: scene.aiRole,
+    situation: scene.situation,
+    opening: scene.opening,
+    twist: twistText,
+    objectives: scene.objectives.map((o) => o.text),
+    key_phrases: scene.keyPhrases.map((k) => k.en),
+  };
+}
+
+/** Odada gösterilen ipucu: hedefler (kullanıcının dilinde) + anahtar ifadeler. Başlangıç aşamasında serbest. */
+export type SceneHints = {
+  goals: string[];
+  phrases: { en: string; tr: string }[];
+  /** Orta aşama: ipucu kullanılırsa sahneden en fazla 2 yıldız alınır. */
+  costsStar?: boolean;
+};
+
+export function buildSceneHints(scene: VoiceScene, costsStar = false): SceneHints {
+  return { goals: scene.objectives.map((o) => o.textTr), phrases: scene.keyPhrases, costsStar };
 }

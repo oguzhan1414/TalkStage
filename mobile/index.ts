@@ -1,4 +1,5 @@
 import { createElement, useEffect, useState, type ComponentType } from 'react';
+import { Platform } from 'react-native';
 import { registerRootComponent } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -40,3 +41,15 @@ function Root() {
 }
 
 registerRootComponent(Root);
+
+// Android home-screen widget: its headless task draws the widget even when the app is closed. Loaded inside a
+// try because a build made before the widget module was added throws when the library is imported.
+if (Platform.OS === 'android') {
+  try {
+    const { registerWidgetTaskHandler } = require('react-native-android-widget');
+    const { widgetTaskHandler } = require('./src/widget/widgetTaskHandler');
+    registerWidgetTaskHandler(widgetTaskHandler);
+  } catch {
+    // No widget support in this build.
+  }
+}

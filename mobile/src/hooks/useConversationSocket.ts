@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import { utcOffsetMinutes } from '../lib/api';
 import { arrayBufferToBase64 } from '../lib/base64';
 import { useVoiceStream } from './useVoiceStream';
 import type {
@@ -134,6 +135,10 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
   // real "pronunciation" radar axis (was fabricated from fluency before).
   const [confidenceHistory, setConfidenceHistory] = useState<number[]>([]);
   const [sceneCompleteSummary, setSceneCompleteSummary] = useState<string | null>(null);
+  /** The assistant said goodbye (`session.ending`): the room wraps up once that reply has been heard. */
+  const [conversationEnded, setConversationEnded] = useState(false);
+  /** Seconds left when the server warned that the session limit is close; null otherwise. */
+  const [timeWarning, setTimeWarning] = useState<number | null>(null);
   const [liveError, setLiveError] = useState<string | null>(null);
   const [connectionAttempt, setConnectionAttempt] = useState(0);
   const [voicePrivacyAcknowledged, setVoicePrivacyAcknowledged] = useState<boolean | null>(null);
@@ -145,8 +150,9 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [coachTipTr, setCoachTipTr] = useState<string | null>(null);
   const [suggestedRepliesTr, setSuggestedRepliesTr] = useState<string[]>([]);
-  // The in-chat hint card (VoiceRoomThread) can be hidden with the bulb button in the dock.
-  const [hintVisible, setHintVisible] = useState(true);
+  // The in-chat hint card (VoiceRoomThread) stays closed so the learner tries first: the bulb opens it, and the
+  // room opens it by itself after a while of silence (VoiceRoomControls). Every new reply closes it again.
+  const [hintVisible, setHintVisible] = useState(false);
 
   const [inputLanguage, setInputLanguage] = useState<string>('en');
   const inputLanguageRef = useRef(inputLanguage);
@@ -378,6 +384,8 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     setIsReviewing(false);
     setIsRecording(false);
     setAudioNotice(null);
+    setConversationEnded(false);
+    setTimeWarning(null);
     lastReplyAudioUrisRef.current = [];
     setHasReplayableAudio(false);
 
@@ -400,6 +408,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
           JSON.stringify({
             type: 'auth',
             access_token: tokenRef.current,
+            utc_offset: utcOffsetMinutes(),
             ...(sceneRef.current ? { scene: sceneRef.current } : {}),
             ...(focusRef.current ? { focus: focusRef.current } : {}),
           })
@@ -534,6 +543,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             setSuggestedReplies(message.suggested_replies ?? []);
             setSuggestedRepliesTr(message.suggested_replies_tr ?? []);
             setCoachTipTr(message.coach_tip_tr ?? null);
+            setHintVisible(false);
             break;
           case 'scene.complete':
             // Soft nudge, not a forced end — the model judged the scenario's
@@ -545,6 +555,15 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             break;
           case 'session.time_limit_reached':
             setCloseInfo({ code: 0, reason: 'time_limit_reached' });
+            break;
+          case 'session.ending':
+            setConversationEnded(true);
+            break;
+          case 'session.time_warning':
+            setTimeWarning(message.seconds_left);
+            break;
+          case 'session.idle_closed':
+            setCloseInfo({ code: 0, reason: 'idle_timeout' });
             break;
           case 'error':
             if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
@@ -860,6 +879,8 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
     wpmHistory,
     confidenceHistory,
     sceneCompleteSummary,
+    conversationEnded,
+    timeWarning,
     liveError,
     aiReplyText,
     correction,

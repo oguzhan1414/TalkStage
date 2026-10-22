@@ -1,20 +1,39 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { ALL_TOPIC_CODES, CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
+import { VOICE_SCENES } from '@talkstage/shared-data/voiceScenes';
 import { avatarImages, cefrLevelImages, stateImages } from '../assets/images';
 import { Button } from '../components/Button';
 import { useAuth } from '../context/AuthContext';
-import { PODCAST_EPISODES } from '../data/podcastData';
 import { useDailyReminder } from '../hooks/useDailyReminder';
 import { TIME_PRESETS } from '../lib/notifications';
 import { api } from '../lib/api';
-import { buildTaskQueueForLevel, isCoreTask, isTopicCoreDone, reviewIdsForTopics } from '../lib/curriculumTasks';
+import { isCoreTask, isTopicCoreDone, reviewIdsForTopics } from '../lib/curriculumTasks';
+import { loadSceneStars, type SceneStars } from '../lib/sceneProgress';
+import { loadCompletedWritingIds, playedSceneIds, READY_SCENES } from '../lib/planSignals';
+import {
+  buildStageQueue,
+  firstLevelOf,
+  STAGE_COLOR,
+  STAGE_IDS,
+  STAGE_LEVELS,
+  stageCurriculum,
+  stageOfLevel,
+  stageRange,
+  stageTitle,
+  type StageId,
+} from '../lib/stages';
+import { MivoTip } from '../components/MivoTip';
+import { useRestorePurchases } from '../hooks/useRestorePurchases';
+import { PlanEditorModal } from '../components/PlanEditorModal';
+import { planFeatureTitles } from '../components/PlanFeatureGrid';
+import { useLearningPlan } from '../lib/learningPlanStore';
 import { isProUser } from '../lib/revenuecat';
 import type { AccountSettingsScreenProps } from '../navigation/types';
 import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
@@ -43,14 +62,21 @@ const AVATAR_LIST = [
   { id: 'entrepreneur', name: t("Girişimci"), source: avatarImages.femaleEntrepreneur },
 ];
 
-const CEFR_LEVELS = [
-  { code: 'A1', title: t("Başlangıç"), enTitle: t("Beginner"), desc: t("Temel hayatta kalma, tanışma & acil durumlar"), color: '#10B981', targetDays: 30 },
-  { code: 'A2', title: t("Temel"), enTitle: t("Elementary"), desc: t("Günlük rutinler, seyahat, restoran & alışveriş"), color: '#0EA5E9', targetDays: 45 },
-  { code: 'B1', title: t("Orta Düzey"), enTitle: t("Intermediate"), desc: t("İş toplantıları, teknik standuplar & mülakatlar"), color: '#6366F1', targetDays: 60 },
-  { code: 'B2', title: t("İyi Düzey"), enTitle: t("Upper-Intermediate"), desc: t("Akıcı tartışma, mimari tartışmalar & teknik sunum"), color: '#8B5CF6', targetDays: 75 },
-  { code: 'C1', title: t("İleri Düzey"), enTitle: t("Advanced"), desc: t("Liderlik, strateji, B2B müzakere & ikna"), color: '#EC4899', targetDays: 90 },
-  { code: 'C2', title: t("Ustalık"), enTitle: t("Mastery"), desc: t("Ana dili akıcılığı, derin nüanslar & deyimler"), color: '#F59E0B', targetDays: 120 },
-];
+const STAGE_DESC: Record<StageId, string> = {
+  baslangic: t("Tanışma, günlük hayat, seyahat ve alışveriş"),
+  orta: t("Deneyimler, planlar, fikir belirtme ve sohbeti yönetme"),
+  ileri: t("Vurgu, resmî dil ve akıcı söylem"),
+};
+
+/** The three stages of the journey; the CEFR range is only a small tag next to the name. */
+const STAGES = STAGE_IDS.map((id) => ({
+  code: id,
+  title: stageTitle(id),
+  range: stageRange(id),
+  desc: STAGE_DESC[id],
+  color: STAGE_COLOR[id],
+  targetDays: stageCurriculum(id).targetDays,
+}));
 
 /**
  * Account/settings screen — reached by tapping the avatar in the shared
@@ -86,6 +112,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
     queryFn: isProUser,
     staleTime: 60_000,
   });
+  const { restore: restorePurchases, restoring } = useRestorePurchases();
 
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [guideModalVisible, setGuideModalVisible] = useState(false);
@@ -96,7 +123,10 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
   const [nameInput, setNameInput] = useState('');
   const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
   const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
-  const [completedPodcastEpisodeIds, setCompletedPodcastEpisodeIds] = useState<Set<string>>(new Set());
+  const [sceneStars, setSceneStars] = useState<SceneStars>({});
+  const [completedWritingIds, setCompletedWritingIds] = useState<Set<string>>(new Set());
+  const [planEditorOpen, setPlanEditorOpen] = useState(false);
+  const { plan: learningPlan, applyPlan } = useLearningPlan(profile);
   const [signingOut, setSigningOut] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -162,11 +192,11 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
           new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
         );
       });
-      AsyncStorage.multiGet(PODCAST_EPISODES.map((ep) => `podcast_completed_${ep.id}`)).then((pairs) => {
-        if (cancelled) return;
-        setCompletedPodcastEpisodeIds(
-          new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('podcast_completed_', '')))
-        );
+      loadSceneStars([...READY_SCENES.map((sc) => sc.id), ...VOICE_SCENES.map((sc) => sc.id)]).then((stars) => {
+        if (!cancelled) setSceneStars(stars);
+      });
+      loadCompletedWritingIds().then((ids) => {
+        if (!cancelled) setCompletedWritingIds(ids);
       });
       return () => {
         cancelled = true;
@@ -220,34 +250,41 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
   } = useDailyReminder(displayName);
 
   const currentLevel = profile?.cefr_level ?? 'A1';
+  const currentStage = stageOfLevel(currentLevel);
   const levelShield =
     cefrLevelImages[currentLevel as keyof typeof cefrLevelImages] ?? cefrLevelImages.A1;
-  const currentLevelObj =
-    CEFR_LEVELS.find((l) => l.code === currentLevel) ?? CEFR_LEVELS[0];
+  const currentLevelObj = STAGES.find((l) => l.code === currentStage) ?? STAGES[0];
 
   const savedWordsLower = new Set((vocabAll ?? []).map((c) => c.term.trim().toLowerCase()));
-  const activeCurriculum = CEFR_CURRICULUM[currentLevel] ?? CEFR_CURRICULUM.A1;
+  const activeCurriculum = stageCurriculum(currentStage);
   const completedReadingSlugSetForLevel = new Set(completedReadingSlugs ?? []);
-  const readingPassagesForLevel = (readingPassages ?? [])
-    .filter((p) => (p.cefr_level ?? 'A1') === currentLevel)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((p) => ({ slug: p.slug, title: p.title }));
-  const taskQueue = buildTaskQueueForLevel(activeCurriculum.topics, {
-    savedWordsLower,
-    lessonQuizDoneCodes,
-    chatCompletedTopicCodes: chatCompletedCodes,
-    completedPodcastEpisodeIds,
-    readingPassagesForLevel,
-    completedReadingSlugs: completedReadingSlugSetForLevel,
-  });
+  const readingPassagesForLevel = (level: string) =>
+    (readingPassages ?? [])
+      .filter((p) => (p.cefr_level ?? 'A1') === level)
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((p) => ({ slug: p.slug, title: p.title }));
+  const taskQueue = buildStageQueue(
+    currentStage,
+    currentLevel,
+    {
+      savedWordsLower,
+      lessonQuizDoneCodes,
+      chatCompletedTopicCodes: chatCompletedCodes,
+      completedReadingSlugs: completedReadingSlugSetForLevel,
+      plan: learningPlan,
+      playedSceneIds: playedSceneIds(sceneStars),
+      completedWritingIds,
+    },
+    readingPassagesForLevel
+  );
   const remainingTopics = activeCurriculum.topics.filter((t) => !isTopicCoreDone(taskQueue, t.code));
   const completedTopicsCount = activeCurriculum.topics.length - remainingTopics.length;
   const levelCompletionPercent = activeCurriculum.topics.length
     ? Math.round((completedTopicsCount / activeCurriculum.topics.length) * 100)
     : 0;
   const isLevelComplete = remainingTopics.length === 0;
-  const currentLevelIdx = CEFR_LEVELS.findIndex((l) => l.code === currentLevel);
-  const nextLevelObj = CEFR_LEVELS[currentLevelIdx + 1] ?? null;
+  const currentLevelIdx = STAGES.findIndex((l) => l.code === currentStage);
+  const nextLevelObj = STAGES[currentLevelIdx + 1] ?? null;
   const estimatedDaysRemaining = Math.max(
     0,
     Math.round(activeCurriculum.targetDays * (remainingTopics.length / activeCurriculum.topics.length))
@@ -267,6 +304,12 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <MivoTip
+          tipKey="settings"
+          text={t("Öğrenme planını, hatırlatma saatini ve uygulama dilini buradan değiştirebilirsin ⚙️")}
+          style={{ marginBottom: 14 }}
+        />
+
         {/* Identity row */}
         <View style={[styles.identityCard, shadow.card]}>
           <Pressable
@@ -313,8 +356,34 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
           <Pressable onPress={() => setLevelModalVisible(true)} style={styles.settingRow}>
             <Ionicons name="school-outline" size={20} color={colors.brand} />
             <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Öğrenme Seviyesi (CEFR)")}</Text>
-              <Text style={styles.settingDesc}>{t("{{currentLevel}} • {{completedTopicsCount}}/{{length}} konu (%{{levelCompletionPercent}})", { currentLevel, completedTopicsCount, length: activeCurriculum.topics.length, levelCompletionPercent })}</Text>
+              <Text style={styles.settingLabel}>{t("Öğrenme Aşaması")}</Text>
+              <Text style={styles.settingDesc}>{t("{{stage}} • {{completedTopicsCount}}/{{length}} konu (%{{levelCompletionPercent}})", { stage: currentLevelObj.title, completedTopicsCount, length: activeCurriculum.topics.length, levelCompletionPercent })}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </Pressable>
+
+          <View style={styles.settingDivider} />
+
+          <Pressable onPress={() => setPlanEditorOpen(true)} style={styles.settingRow}>
+            <Ionicons name="options-outline" size={20} color={colors.brand} />
+            <View style={styles.settingTextCol}>
+              <Text style={styles.settingLabel}>{t("Öğrenme Planım")}</Text>
+              <Text style={styles.settingDesc}>
+                {learningPlan ? planFeatureTitles(learningPlan).join(', ') : t("Henüz seçilmedi")}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </Pressable>
+
+          <View style={styles.settingDivider} />
+
+          <Pressable onPress={() => void restorePurchases()} disabled={restoring} style={styles.settingRow} accessibilityRole="button">
+            <Ionicons name="refresh-circle-outline" size={20} color={colors.brand} />
+            <View style={styles.settingTextCol}>
+              <Text style={styles.settingLabel}>{t("Satın alımları geri yükle")}</Text>
+              <Text style={styles.settingDesc}>
+                {restoring ? t("Kontrol ediliyor…") : t("Telefon değiştirdiysen ya da uygulamayı yeniden kurduysan")}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </Pressable>
@@ -436,6 +505,12 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
 
       {/* Avatar picker modal */}
       <LanguagePickerModal visible={languageModalVisible} onClose={() => setLanguageModalVisible(false)} />
+      <PlanEditorModal
+        visible={planEditorOpen}
+        plan={learningPlan}
+        onClose={() => setPlanEditorOpen(false)}
+        onSaved={applyPlan}
+      />
 
       <Modal
         visible={avatarModalVisible}
@@ -611,8 +686,8 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
           <View style={styles.levelModalCard}>
             <View style={styles.guideModalHeader}>
               <View>
-                <Text style={styles.guideModalTitle}>{t("CEFR Seviye & Yol Haritası 🎓")}</Text>
-                <Text style={styles.guideModalSub}>{t("Uluslararası standartlarda İngilizce yetkinlik haritan")}</Text>
+                <Text style={styles.guideModalTitle}>{t("Aşama & Yol Haritası 🎓")}</Text>
+                <Text style={styles.guideModalSub}>{t("İngilizce yolculuğunun üç aşaması")}</Text>
               </View>
               <Pressable
                 onPress={() => setLevelModalVisible(false)}
@@ -631,7 +706,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                 <Text
                   style={[styles.levelModalTabText, levelModalTab === 'PROGRESS' && styles.levelModalTabTextActive]}
                   numberOfLines={1}
-                >{t("📊 {{currentLevel}} İlerlemem (%{{levelCompletionPercent}})", { currentLevel, levelCompletionPercent })}</Text>
+                >{t("📊 {{stage}} İlerlemem (%{{levelCompletionPercent}})", { stage: currentLevelObj.title, levelCompletionPercent })}</Text>
               </Pressable>
 
               <Pressable
@@ -641,7 +716,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                 <Text
                   style={[styles.levelModalTabText, levelModalTab === 'ALL_LEVELS' && styles.levelModalTabTextActive]}
                   numberOfLines={1}
-                >{t("🗺️ Tüm Seviyeler")}</Text>
+                >{t("🗺️ Tüm Aşamalar")}</Text>
               </Pressable>
             </View>
 
@@ -658,9 +733,9 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                     <View style={styles.levelReportHeroContent}>
                       <View style={styles.levelOptionBadgeRow}>
                         <Text style={[styles.levelOptionCode, { color: currentLevelObj.color }]}>
-                          {currentLevelObj.code}
+                          {currentLevelObj.title}
                         </Text>
-                        <Text style={styles.levelOptionTitle}>• {currentLevelObj.title} ({currentLevelObj.enTitle})</Text>
+                        <Text style={styles.levelOptionTitle}>• {currentLevelObj.range}</Text>
                       </View>
                       <Text style={styles.levelOptionDesc}>{currentLevelObj.desc}</Text>
                       <Text style={styles.levelTargetDays}>{t("🎯 Müfredat: ~{{targetDays}} Günlük Plan", { targetDays: currentLevelObj.targetDays })}</Text>
@@ -689,19 +764,19 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
 
                   {isLevelComplete && nextLevelObj ? (
                     <View style={styles.levelUpBox}>
-                      <Text style={styles.levelUpTitle}>{t("🎉 {{currentLevel}} seviyesini tamamladın!", { currentLevel })}</Text>
-                      <Text style={styles.levelUpDesc}>{t("Tüm konuları bitirdin. Artık {{code}} seviyesine geçebilirsin.", { code: nextLevelObj.code })}</Text>
+                      <Text style={styles.levelUpTitle}>{t("🎉 {{stage}} aşamasını tamamladın!", { stage: currentLevelObj.title })}</Text>
+                      <Text style={styles.levelUpDesc}>{t("Tüm konuları bitirdin. Artık {{stage}} aşamasına geçebilirsin.", { stage: nextLevelObj.title })}</Text>
                       <Button
-                        label={levelMutation.isPending ? t("Geçiliyor...") : t("{{code}} Seviyesine Geç ➔", { code: nextLevelObj.code })}
+                        label={levelMutation.isPending ? t("Geçiliyor...") : t("{{stage}} Aşamasına Geç ➔", { stage: nextLevelObj.title })}
                         loading={levelMutation.isPending}
-                        onPress={() => levelMutation.mutate(nextLevelObj.code)}
+                        onPress={() => levelMutation.mutate(firstLevelOf(nextLevelObj.code))}
                         style={{ marginTop: spacing.sm }}
                       />
                     </View>
                   ) : isLevelComplete ? (
                     <View style={styles.levelUpBox}>
                       <Text style={styles.levelUpTitle}>{t("🏆 Zirvedesin!")}</Text>
-                      <Text style={styles.levelUpDesc}>{t("C2 müfredatının tamamını bitirdin — Spekvia'nın sunduğu en üst seviyedesin.")}</Text>
+                      <Text style={styles.levelUpDesc}>{t("Tüm aşamaları bitirdin — Spekvia'nın sunduğu en üst seviyedesin.")}</Text>
                     </View>
                   ) : (
                     <>
@@ -719,7 +794,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                               : firstMissingTask.type === 'listening'
                                 ? t("İlgili podcast bölümünü dinlemen gerekiyor")
                                 : firstMissingTask.type === 'reading'
-                                  ? t("Smart Reading parçasını bitirmen gerekiyor")
+                                  ? t("Hikayeyi bitirmen gerekiyor")
                                   : t("Sohbeti bitirmen gerekiyor");
                         return (
                           <Pressable
@@ -755,12 +830,12 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                 </>
               ) : (
                 <View style={styles.allLevelsContainer}>
-                  <Text style={styles.allLevelsIntro}>{t("Yolculuğun boyunca göreceğin tüm seviyeler — her biri bir öncekini gerçekten tamamlayınca açılır.")}</Text>
-                  {CEFR_LEVELS.map((lvl) => {
-                    const isCurrent = currentLevel === lvl.code;
-                    const lvlIdx = CEFR_LEVELS.findIndex((l) => l.code === lvl.code);
+                  <Text style={styles.allLevelsIntro}>{t("Yolculuğun boyunca göreceğin üç aşama — her biri bir öncekini tamamlayınca açılır.")}</Text>
+                  {STAGES.map((lvl) => {
+                    const isCurrent = currentStage === lvl.code;
+                    const lvlIdx = STAGES.findIndex((l) => l.code === lvl.code);
                     const isLocked = lvlIdx > currentLevelIdx;
-                    const shield = cefrLevelImages[lvl.code as keyof typeof cefrLevelImages];
+                    const shield = cefrLevelImages[STAGE_LEVELS[lvl.code][0] as keyof typeof cefrLevelImages];
                     return (
                       <View
                         key={lvl.code}
@@ -774,14 +849,14 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                         <View style={styles.levelGalleryLeft}>
                           <Image source={shield} style={styles.levelGalleryShield} resizeMode="contain" />
                           <View style={[styles.levelGalleryBadge, { backgroundColor: lvl.color }]}>
-                            <Text style={styles.levelGalleryBadgeText}>{lvl.code}</Text>
+                            <Text style={styles.levelGalleryBadgeText}>{lvl.range}</Text>
                           </View>
                         </View>
 
                         <View style={styles.levelGalleryContent}>
                           <View style={styles.levelGalleryHeaderRow}>
                             <Text style={styles.levelGalleryTitle}>
-                              {lvl.code} • {lvl.title}
+                              {lvl.title}
                             </Text>
                             {isCurrent ? (
                               <View style={styles.levelGalleryActivePill}>
@@ -791,7 +866,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                               <Ionicons name="lock-closed" size={14} color="#94A3B8" />
                             ) : null}
                           </View>
-                          <Text style={styles.levelGalleryEnTitle}>{lvl.enTitle}</Text>
+                          <Text style={styles.levelGalleryEnTitle}>{lvl.range}</Text>
                           <Text style={styles.levelGalleryDesc}>{lvl.desc}</Text>
                           <View style={styles.levelGalleryMetaRow}>
                             <Text style={styles.levelGalleryDays}>{t("⏳ Plan: ~{{targetDays}} Gün", { targetDays: lvl.targetDays })}</Text>

@@ -5178,12 +5178,14 @@ const PODCAST_EPISODES_RAW: PodcastEpisode[] = [
 ];
 
 // ---- Çok dilli içerik: i18n/podcastData.<dil>.json çevirileri (bkz. shared-data/i18nOverlay.ts) ----
-const OVERLAYS: Record<string, Overlay | undefined> = {
-  en: require('@talkstage/shared-data/i18n/podcastData.en.json'),
-  es: require('@talkstage/shared-data/i18n/podcastData.es.json'),
-  pt: require('@talkstage/shared-data/i18n/podcastData.pt.json'),
-  de: require('@talkstage/shared-data/i18n/podcastData.de.json'),
+// Yalnızca etkin dilin çevirisi yüklenir: diğer dillerin dosyaları hiç değerlendirilmez (açılışı hızlandırır).
+const OVERLAY_LOADERS: Record<string, () => Overlay> = {
+  en: () => require('@talkstage/shared-data/i18n/podcastData.en.json'),
+  es: () => require('@talkstage/shared-data/i18n/podcastData.es.json'),
+  pt: () => require('@talkstage/shared-data/i18n/podcastData.pt.json'),
+  de: () => require('@talkstage/shared-data/i18n/podcastData.de.json'),
 };
+const OVERLAYS: Record<string, Overlay | undefined> = { [getDataLocale()]: OVERLAY_LOADERS[getDataLocale()]?.() };
 
 /** Bölümleri klonlamadan (görsel/ses kaynakları korunur) çevrilmiş alanları üstüne yazar. */
 function localizeEpisode(ep: PodcastEpisode, ov: Record<string, string | null> | undefined): PodcastEpisode {

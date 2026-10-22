@@ -1,17 +1,20 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { MivoTip } from '../components/MivoTip';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { stateImages } from '../assets/images';
+import { minimalFeatureIcons, stateImages } from '../assets/images';
 import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
-import { MivoAvatar } from '../components/MivoAvatar';
+
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { SwipeableVocabCard } from '../components/SwipeableVocabCard';
+import { ScreenHeader } from '../components/ScreenHeader';
 import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import {
@@ -101,7 +104,8 @@ function getChestProgress(total: number) {
   return { nextMilestone, progressInTier: Math.min(1, Math.max(0, progressInTier)) };
 }
 
-type TabViewMode = 'flashcards' | 'dictionary';
+/** home = panel, practice = full-screen flashcard session, collection = "Sandığım" (saved words). */
+type VocabMode = 'home' | 'practice' | 'collection';
 
 export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const { finishTransition } = useMivoTransition();
@@ -130,11 +134,8 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     }, [allLoading, dueLoading, finishTransition])
   );
 
-  // Defaults to the SM-2 review queue (Akıllı Pratik) — "what should I
-  // actually do today" is the one job most visits to this tab have, so it's
-  // the implicit home view now instead of one of 3 equal-weight tabs (see
-  // the 2026-10 "Kelimeler sekmesi karışık" simplification pass).
-  const [activeTab, setActiveTab] = useState<TabViewMode>('flashcards');
+  // The tab is a small dashboard; the flashcard session and the saved-words list open full screen (tab bar hidden).
+  const [mode, setMode] = useState<VocabMode>('home');
   const [queue, setQueue] = useState<VocabCardOut[]>([]);
   const [reviewedCount, setReviewedCount] = useState(0);
   const [reviewError, setReviewError] = useState<string | null>(null);
@@ -176,6 +177,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   const [formPos, setFormPos] = useState<string>('noun');
   const [formLevel, setFormLevel] = useState<string>('A2');
   const [isSaving, setIsSaving] = useState(false);
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   // Action Menu Bottom Sheet State (Long Press)
   const [actionCard, setActionCard] = useState<VocabCardOut | null>(null);
@@ -222,11 +224,10 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
   // Sıradaki iki kartın sesini önceden indir — "Dinle"ye basınca bekleme olmasın.
   const nextTermsKey = `${queue[0]?.term ?? ''}|${queue[1]?.term ?? ''}`;
   useEffect(() => {
-    if (activeTab !== 'flashcards') return;
     prefetchPronunciation(queue[0]?.term);
     prefetchPronunciation(queue[1]?.term);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nextTermsKey, activeTab]);
+  }, [nextTermsKey]);
 
   // Real forecast per grade for the card on top of the queue — classic SM-2
   // only tells "good" and "easy" apart from the 3rd successful review
@@ -448,226 +449,248 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
     setPosFilter(null);
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <AppHeader />
-      <View style={styles.innerContainer}>
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>{t("Kelime Sandığı")}</Text>
-          <Pressable onPress={openCreateModal} style={styles.addWordHeaderButton}>
-            <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.addWordHeaderButtonText}>{t("Kelime Ekle")}</Text>
-          </Pressable>
-        </View>
+  // ---- Mode plumbing: hide the floating tab bar outside the dashboard, Android back returns to it ----
+  useLayoutEffect(() => {
+    navigation.setOptions({ tabBarStyle: mode === 'home' ? undefined : { display: 'none' } });
+  }, [mode, navigation]);
 
-        {/* Sandık ilerlemesi + bugünün tekrar sayısı */}
-        <View style={[styles.chestHeader, shadow.card]}>
-          <Image source={stateImages.emptyChest} style={styles.chestIcon} resizeMode="contain" />
-          <View style={styles.chestTextCol}>
-            <View style={styles.chestLabelRow}>
-              <Text style={styles.chestLabel}>{t("Sandık Hedefi")}</Text>
-              <Text style={styles.chestCountText}>
-                {totalCardsInChest} / {chestProgress.nextMilestone}
-              </Text>
-            </View>
-            <View style={styles.chestBarTrack}>
-              <View
-                style={[
-                  styles.chestBarFill,
-                  { width: `${Math.max(6, chestProgress.progressInTier * 100)}%` },
-                ]}
-              />
-            </View>
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (mode !== 'home') {
+          setMode('home');
+          return true;
+        }
+        return false;
+      });
+      return () => {
+        sub.remove();
+      };
+    }, [mode])
+  );
+
+  // Leaving the tab always puts it back on the dashboard.
+  useFocusEffect(
+    useCallback(() => {
+      return () => setMode('home');
+    }, [])
+  );
+
+  const startPractice = () => {
+    setReviewedCount(0);
+    setReviewError(null);
+    setMode('practice');
+  };
+
+  const startFreePractice = () => {
+    handleRestartPractice();
+    setMode('practice');
+  };
+
+  const chestPct = Math.max(6, chestProgress.progressInTier * 100);
+
+  // ---------------------------------------------------------------- Dashboard
+  const homeView = (
+    <ScrollView contentContainerStyle={styles.homeScroll} showsVerticalScrollIndicator={false}>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>{t("Kelimeler")}</Text>
+        <Pressable onPress={openCreateModal} style={styles.addPill} accessibilityRole="button">
+          <Ionicons name="add" size={18} color={colors.brand} />
+          <Text style={styles.addPillText}>{t("Kelime Ekle")}</Text>
+        </Pressable>
+      </View>
+
+      <MivoTip
+        tipKey="vocab_home"
+        text={t("Derslerde ve sohbetlerde dokunduğun kelimeler buraya gelir, ben de unutmadan tekrar ettiririm 🃏")}
+        style={{ marginBottom: 14 }}
+      />
+
+      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, shadow.card]}>
+        <View style={styles.heroBlobA} />
+        <View style={styles.heroBlobB} />
+        <Image source={stateImages.xpBolt} style={styles.heroArt} resizeMode="contain" />
+
+        {dueLoading && !dueCards ? (
+          <View style={{ alignItems: 'center', paddingVertical: 24 }}>
+            <MivoLoader size={90} />
           </View>
-          <View style={[styles.duePill, dueCount === 0 && styles.duePillDone]}>
-            <Text style={[styles.duePillNum, dueCount === 0 && styles.duePillNumDone]}>
-              {dueCount}
-            </Text>
-            <Text style={[styles.duePillLabel, dueCount === 0 && styles.duePillNumDone]}>{t("bugün")}</Text>
-          </View>
-        </View>
-
-        {/* Kütüphane ve klasörler: kelime ile ilgili her şey bu sekmede */}
-        <View style={styles.vocabLinks}>
-          <Pressable
-            onPress={() => navigation.navigate('VocabLibrary')}
-            style={styles.vocabLink}
-            accessibilityRole="button"
-            accessibilityLabel={t("Kelime Kütüphanesi")}
-          >
-            <Ionicons name="library-outline" size={16} color={colors.brand} />
-            <Text style={styles.vocabLinkText} numberOfLines={1}>{t("Kelime Kütüphanesi")}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('VocabDecks')}
-            style={styles.vocabLink}
-            accessibilityRole="button"
-            accessibilityLabel={t("Kelime Klasörlerim")}
-          >
-            <Ionicons name="folder-open-outline" size={16} color={colors.brand} />
-            <Text style={styles.vocabLinkText} numberOfLines={1}>{t("Kelime Klasörlerim")}</Text>
-          </Pressable>
-        </View>
-
-        {/* İki görünüm: bugün ne tekrar edeceğim / tüm kelimelerim */}
-        <View style={styles.segmentWrap}>
-          {(
-            [
-              { id: 'flashcards', label: t("Akıllı Pratik"), on: 'flash', off: 'flash-outline' },
-              { id: 'dictionary', label: t("Sözlüğüm"), on: 'book', off: 'book-outline' },
-            ] as const
-          ).map((seg) => {
-            const active = activeTab === seg.id;
-            return (
-              <Pressable
-                key={seg.id}
-                onPress={() => setActiveTab(seg.id)}
-                style={[styles.segment, active && styles.segmentActive]}
-              >
-                <Ionicons
-                  name={active ? seg.on : seg.off}
-                  size={15}
-                  color={active ? '#FFFFFF' : colors.textMuted}
-                />
-                <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
-                  {seg.label}
-                </Text>
-                {seg.id === 'flashcards' && dueCount > 0 && !active ? (
-                  <View style={styles.segmentBadge}>
-                    <Text style={styles.segmentBadgeText}>{dueCount}</Text>
-                  </View>
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* ======================================================== */}
-        {/* SEKMELER: 1. AKILLI FLASHCARD PRATİĞİ (SM-2)             */}
-        {/* ======================================================== */}
-        {activeTab === 'flashcards' && (
-          <ScrollView
-            contentContainerStyle={styles.practiceScrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {dueLoading && !dueCards ? (
-              <View style={[styles.emptyBox, shadow.card, { paddingVertical: 36, alignItems: 'center' }]}>
-                <MivoLoader size={130} />
-                <Text style={{ fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading, marginTop: 14 }}>{t("Kelimelerin Hazırlanıyor…")}</Text>
-              </View>
-            ) : currentCard ? (
-              <View style={styles.contentWrap}>
-                <View style={styles.sessionRow}>
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.sessionTrack}>
-                      <View style={[styles.sessionFill, { width: `${Math.max(4, sessionPct)}%` }]} />
-                    </View>
-                    <Text style={styles.progressText}>{t("{{reviewedCount}} / {{sessionTotal}} kart", { reviewedCount, sessionTotal })}{isRelearning ? t("  ·  🔁 tekrar turu") : ''}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() => setActionCard(currentCard)}
-                    hitSlop={10}
-                    style={styles.cardMenuDotsButton}
-                  >
-                    <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
-                  </Pressable>
-                </View>
-
-                <View style={styles.cardArea}>
-                  <SwipeableVocabCard
-                    key={currentCard.id}
-                    card={currentCard}
-                    onGrade={handleGrade}
-                    onPronounce={handlePronounce}
-                    pronouncing={isPlaying}
-                  />
-                </View>
-
-                {reviewError ? <Text style={styles.errorText}>{reviewError}</Text> : null}
-
-                <View style={styles.gradeContainer}>
-                  <View style={styles.gradeRow}>
-                    {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => {
-                      const sub =
-                        grade === 'again'
-                          ? t("Birazdan")
-                          : isRelearning
-                            ? formatIntervalLabel(1)
-                            : gradeForecastDays
-                              ? formatIntervalLabel(gradeForecastDays[grade])
-                              : '';
-                      return (
-                        <Pressable
-                          key={grade}
-                          style={({ pressed }) => [
-                            styles.gradeButton,
-                            { borderColor, backgroundColor: bgColor },
-                            pressed && styles.gradeButtonPressed,
-                          ]}
-                          onPress={() => handleGrade(grade)}
-                        >
-                          <View style={styles.gradeButtonHeaderRow}>
-                            <Ionicons name={iconName} size={16} color={color} />
-                            <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
-                          </View>
-                          <Text style={[styles.gradeButtonSub, { color }]}>{sub}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                </View>
-              </View>
+        ) : (
+          <View style={styles.heroText}>
+            <View style={styles.heroChip}>
+              <Ionicons name="flash" size={12} color="#FDE68A" />
+              <Text style={styles.heroChipText}>{t("BUGÜNKÜ TEKRAR")}</Text>
+            </View>
+            {dueCount > 0 ? (
+              <>
+                <Text style={styles.heroTitle}>{t("{{count}} kelime seni bekliyor", { count: dueCount })}</Text>
+                <Pressable onPress={startPractice} style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]} accessibilityRole="button">
+                  <Text style={styles.heroBtnText}>{t("TEKRARA BAŞLA")}</Text>
+                  <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+                </Pressable>
+              </>
+            ) : totalCardsInChest > 0 ? (
+              <>
+                <Text style={styles.heroTitle}>{t("Bugünlük bitti 🎉")}</Text>
+                <Text style={styles.heroSub}>{t("Yeni kelimeler keşfetmek için Kütüphane'ye göz at.")}</Text>
+                <Pressable onPress={() => navigation.navigate('VocabLibrary')} style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]} accessibilityRole="button">
+                  <Text style={styles.heroBtnText}>{t("Kütüphaneyi aç")}</Text>
+                  <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+                </Pressable>
+                <Pressable onPress={startFreePractice} hitSlop={8} style={styles.heroLink} accessibilityRole="button">
+                  <Text style={styles.heroLinkText}>{t("Serbest pratik")}</Text>
+                </Pressable>
+              </>
             ) : (
-              /* Empty State / Completed Review State */
-              <View style={[styles.emptyBox, shadow.card]}>
-                <Image
-                  source={stateImages.emptyChest}
-                  style={styles.emptyImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.emptyTitle}>
-                  {reviewedCount === 1
-                    ? t("1 Kelime Gözden Geçirildi ✨")
-                    : reviewedCount > 1
-                      ? t("Günlük Tekrar Tamamlandı 🎉")
-                      : totalCardsInChest > 0
-                        ? t("Bugün İçin Planlı Kart Yok ✅")
-                        : t("Kelime Sandığın Henüz Boş 📦")}
-                </Text>
-                <Text style={styles.emptySub}>
-                  {reviewedCount > 0
-                    ? t("{{reviewedCount}} kelimeyi başarıyla hafızana aldın. SM-2 aralıklı tekrar algoritmasıyla kalıcı hafızan güçleniyor!", { reviewedCount })
-                    : totalCardsInChest > 0
-                      ? t("SM-2 algoritmasına göre bugün tekrarı gelen kart yok — harika gidiyorsun! Dilersen tüm kelimelerinle serbest pratik yapabilirsin.")
-                      : t("Dilediğin kelimeyi manuel ekleyebilir veya canlı sahnelerde kelimelere dokunarak sandığını doldurabilirsin.")}
-                </Text>
-
-                <View style={styles.emptyActionRow}>
-                  {totalCardsInChest > 0 ? (
-                    <Button
-                      label={t("🔄 Tüm Kelimelerle Serbest Pratik Yap")}
-                      onPress={handleRestartPractice}
-                      style={styles.emptyButton}
-                    />
-                  ) : (
-                    <Button
-                      label={t("✍️ Hemen Yeni Kelime Ekle")}
-                      onPress={openCreateModal}
-                      style={styles.emptyButton}
-                    />
-                  )}
-                </View>
-
-              </View>
+              <>
+                <Text style={styles.heroTitle}>{t("Sandığın henüz boş")}</Text>
+                <Text style={styles.heroSub}>{t("Kütüphaneden kelime ekle ya da kendi kelimeni yaz.")}</Text>
+                <Pressable onPress={() => navigation.navigate('VocabLibrary')} style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]} accessibilityRole="button">
+                  <Text style={styles.heroBtnText}>{t("Kütüphaneyi aç")}</Text>
+                  <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+                </Pressable>
+              </>
             )}
-          </ScrollView>
+          </View>
         )}
+      </LinearGradient>
 
-        {/* ======================================================== */}
-        {/* SEKMELER: 2. TÜM KELİMELERİM SÖZLÜĞÜ (Katalog & Filtre) */}
-        {/* ======================================================== */}
-        {activeTab === 'dictionary' && (
+      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.chestCard, shadow.card, pressed && { opacity: 0.94 }]} accessibilityRole="button">
+        <Image source={stateImages.emptyChest} style={styles.chestArt} resizeMode="contain" />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.chestTitle}>{t("Sandığım")}</Text>
+          <Text style={styles.chestCount}>{t("{{count}} kelime", { count: totalCardsInChest })}</Text>
+          <View style={styles.chestTrack}>
+            <View style={[styles.chestFill, { width: `${chestPct}%` }]} />
+          </View>
+          <Text style={styles.chestNext}>{t("Sonraki hedef: {{count}} kelime", { count: chestProgress.nextMilestone })}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+      </Pressable>
+
+      <View style={styles.tileRow}>
+        <Pressable onPress={() => navigation.navigate('VocabLibrary')} style={({ pressed }) => [styles.tileWrap, shadow.card, pressed && { opacity: 0.94 }]} accessibilityRole="button">
+          <LinearGradient colors={['#E0E7FF', '#FFFFFF']} start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 1 }} style={styles.tile}>
+            <Image source={minimalFeatureIcons.vocabLibrary} style={styles.tileArt} resizeMode="contain" />
+            <View style={{ flex: 1 }} />
+            <Text style={styles.tileTitle}>{t("Kütüphane")}</Text>
+            <Text style={styles.tileSub} numberOfLines={2}>{t("Seviyene göre hazır listeler")}</Text>
+          </LinearGradient>
+        </Pressable>
+        <Pressable onPress={() => navigation.navigate('VocabDecks')} style={({ pressed }) => [styles.tileWrap, shadow.card, pressed && { opacity: 0.94 }]} accessibilityRole="button">
+          <LinearGradient colors={['#DBEAFE', '#FFFFFF']} start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 1 }} style={styles.tile}>
+            <Image source={minimalFeatureIcons.vocabFolders} style={styles.tileArt} resizeMode="contain" />
+            <View style={{ flex: 1 }} />
+            <Text style={styles.tileTitle}>{t("Klasörler")}</Text>
+            <Text style={styles.tileSub} numberOfLines={2}>
+              {customDecks.length > 0 ? t("{{count}} liste", { count: customDecks.length }) : t("Kendi listeni kur")}
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+
+  // ---------------------------------------------------------------- Flashcard session (full screen)
+  const practiceView = (
+    <View style={styles.practiceRoot}>
+      <View style={styles.practiceTop}>
+        <Pressable onPress={() => setMode('home')} style={styles.practiceClose} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+          <Ionicons name="close" size={22} color={colors.textHeading} />
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <View style={styles.sessionTrack}>
+            <View style={[styles.sessionFill, { width: `${Math.max(5, sessionPct)}%` }]} />
+          </View>
+        </View>
+        <Text style={styles.practiceCount}>
+          {reviewedCount}/{sessionTotal}
+        </Text>
+        {currentCard ? (
+          <Pressable onPress={() => setActionCard(currentCard)} hitSlop={10} style={styles.cardMenuDotsButton} accessibilityRole="button">
+            <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      {currentCard ? (
+        <ScrollView contentContainerStyle={styles.practiceScrollContent} showsVerticalScrollIndicator={false}>
+          {isRelearning ? (
+            <View style={styles.relearnPill}>
+              <Ionicons name="repeat" size={13} color="#B45309" />
+              <Text style={styles.relearnPillText}>{t("Tekrar turu")}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.cardArea}>
+            <SwipeableVocabCard key={currentCard.id} card={currentCard} onGrade={handleGrade} onPronounce={handlePronounce} pronouncing={isPlaying} />
+          </View>
+
+          {reviewError ? <Text style={styles.errorText}>{reviewError}</Text> : null}
+
+          <View style={styles.gradeContainer}>
+            <View style={styles.gradeRow}>
+              {GRADE_BUTTONS.map(({ grade, label, iconName, color, bgColor, borderColor }) => {
+                const sub =
+                  grade === 'again'
+                    ? t("Birazdan")
+                    : isRelearning
+                      ? formatIntervalLabel(1)
+                      : gradeForecastDays
+                        ? formatIntervalLabel(gradeForecastDays[grade])
+                        : '';
+                return (
+                  <Pressable
+                    key={grade}
+                    style={({ pressed }) => [styles.gradeButton, { borderColor, backgroundColor: bgColor }, pressed && styles.gradeButtonPressed]}
+                    onPress={() => handleGrade(grade)}
+                  >
+                    <View style={styles.gradeButtonHeaderRow}>
+                      <Ionicons name={iconName} size={16} color={color} />
+                      <Text style={[styles.gradeButtonLabel, { color }]}>{label}</Text>
+                    </View>
+                    <Text style={[styles.gradeButtonSub, { color }]}>{sub}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      ) : (
+        <View style={styles.practiceDone}>
+          <Image source={stateImages.goalCelebration} style={styles.emptyImage} resizeMode="contain" />
+          <Text style={styles.emptyTitle}>
+            {reviewedCount === 1
+              ? t("1 Kelime Gözden Geçirildi ✨")
+              : reviewedCount > 1
+                ? t("Günlük Tekrar Tamamlandı 🎉")
+                : t("Bugün İçin Planlı Kart Yok ✅")}
+          </Text>
+          {reviewedCount > 0 ? (
+            <Text style={styles.emptySub}>
+              {t("{{reviewedCount}} kelimeyi başarıyla hafızana aldın. SM-2 aralıklı tekrar algoritmasıyla kalıcı hafızan güçleniyor!", { reviewedCount })}
+            </Text>
+          ) : null}
+          <Button label={t("Bitir")} onPress={() => setMode('home')} style={styles.emptyButton} />
+        </View>
+      )}
+    </View>
+  );
+
+  // ---------------------------------------------------------------- "Sandığım" (saved words, full screen)
+  const collectionView = (
+    <View style={styles.collectionRoot}>
+      <ScreenHeader
+        title={t("Sandığım")}
+        subtitle={t("{{count}} kelime", { count: totalCardsInChest })}
+        icon={stateImages.emptyChest}
+        onBack={() => setMode('home')}
+        right={
+          <Pressable onPress={openCreateModal} style={styles.addCircle} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
+            <Ionicons name="add" size={22} color="#FFFFFF" />
+          </Pressable>
+        }
+      />
           <View style={styles.dictionaryContainer}>
             <View style={styles.searchRow}>
               <View style={[styles.searchBarBox, { flex: 1, marginBottom: 0 }]}>
@@ -795,6 +818,7 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
                         pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
                       ]}
                     >
+                      <View style={[styles.dictStrip, { backgroundColor: posItem ? posItem.color : colors.brand }]} />
                       <View style={styles.dictTopRow}>
                         <View style={{ flex: 1 }}>
                           <Text style={styles.dictTerm} numberOfLines={1}>
@@ -867,8 +891,13 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               </View>
             )}
           </View>
-        )}
-      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {mode === 'home' ? <AppHeader /> : null}
+      {mode === 'home' ? homeView : mode === 'practice' ? practiceView : collectionView}
 
       {/* ======================================================== */}
       {/* ✍️ MODAL: KELİME EKLE & DÜZENLE                         */}
@@ -881,33 +910,40 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            {/* Modal Header */}
+            <View style={styles.modalGrab} />
             <View style={styles.modalHeaderRow}>
-              <View>
-                <Text style={styles.modalTitle}>
-                  {editingCardId ? t("Kelimeyi Düzenle ✏️") : t("Yeni Kelime Ekle ✍️")}
-                </Text>
+              <Image source={editingCardId ? stateImages.editPencil : minimalFeatureIcons.vocabLibrary} style={styles.modalIcon} resizeMode="contain" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>{editingCardId ? t("Kelimeyi Düzenle") : t("Yeni Kelime Ekle")}</Text>
                 <Text style={styles.modalSub}>
                   {editingCardId
                     ? t("Kelimenin seviye, tür ve anlamını güncelle")
                     : t("Tür ve seviye belirleyerek sandığına kaydet")}
                 </Text>
               </View>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                hitSlop={12}
-                style={styles.closeModalButton}
-              >
-                <Ionicons name="close" size={22} color={colors.textMuted} />
+              <Pressable onPress={() => setModalVisible(false)} hitSlop={12} style={styles.closeModalButton}>
+                <Ionicons name="close" size={20} color={colors.textMuted} />
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <View style={[styles.previewWord, { borderLeftColor: POS_OPTIONS.find((p) => p.id === formPos)?.color ?? colors.brand }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.previewWordTerm} numberOfLines={1}>{formTerm.trim() || t("Kelime…")}</Text>
+                  <Text style={styles.previewWordTr} numberOfLines={1}>{formTranslation.trim() || t("Anlam…")}</Text>
+                </View>
+                <View style={styles.previewWordLevel}>
+                  <Text style={styles.previewWordLevelText}>{formLevel}</Text>
+                </View>
+              </View>
+
               {/* 1. English Word */}
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>{t("İNGİLİZCE KELİME VEYA DEYİM *")}</Text>
                 <TextInput
-                  style={styles.textInput}
+                  style={[styles.textInput, focusedInput === 'term' && styles.textInputFocused]}
+                  onFocus={() => setFocusedInput('term')}
+                  onBlur={() => setFocusedInput(null)}
                   placeholder={t("Örn: resilient, nail down, breakthrough")}
                   placeholderTextColor={colors.textMuted}
                   value={formTerm}
@@ -976,7 +1012,9 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>{t("TÜRKÇE ANLAMI")}</Text>
                 <TextInput
-                  style={styles.textInput}
+                  style={[styles.textInput, focusedInput === 'meaning' && styles.textInputFocused]}
+                  onFocus={() => setFocusedInput('meaning')}
+                  onBlur={() => setFocusedInput(null)}
                   placeholder={t("Örn: Dayanıklı, toparlanabilen")}
                   placeholderTextColor={colors.textMuted}
                   value={formTranslation}
@@ -988,7 +1026,9 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>{t("CÜMLE İÇİNDE KULLANIMI")}</Text>
                 <TextInput
-                  style={[styles.textInput, styles.textArea]}
+                  style={[styles.textInput, styles.textArea, focusedInput === 'example' && styles.textInputFocused]}
+                  onFocus={() => setFocusedInput('example')}
+                  onBlur={() => setFocusedInput(null)}
                   placeholder={t("Örn: The engineering team built a highly resilient backend.")}
                   placeholderTextColor={colors.textMuted}
                   value={formExample}
@@ -1038,18 +1078,17 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 
               {/* Action Buttons */}
               <View style={styles.modalActionsRow}>
-                <Button
-                  label={
-                    isSaving
-                      ? t("Kaydediliyor...")
-                      : editingCardId
-                        ? t("💾 Değişiklikleri Güncelle")
-                        : t("💾 Sandığıma Kaydet")
-                  }
+                <Pressable
                   onPress={handleSaveWord}
                   disabled={isSaving}
-                  style={{ flex: 1 }}
-                />
+                  style={({ pressed }) => [styles.saveBtn, isSaving && { opacity: 0.6 }, pressed && styles.saveBtnPressed]}
+                  accessibilityRole="button"
+                >
+                  <Ionicons name={editingCardId ? 'checkmark-circle' : 'archive'} size={19} color="#FFFFFF" />
+                  <Text style={styles.saveBtnText}>
+                    {isSaving ? t("Kaydediliyor...") : editingCardId ? t("Güncelle") : t("Sandığıma Kaydet")}
+                  </Text>
+                </Pressable>
               </View>
             </ScrollView>
           </View>
@@ -1248,15 +1287,60 @@ export function VocabScreen({ navigation }: MainTabScreenProps<'Vocab'>) {
 }
 
 const styles = StyleSheet.create({
+  saveBtnText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF', letterSpacing: 0.3 },
+  saveBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand, borderRadius: radii.pill, paddingVertical: 15, borderBottomWidth: 4, borderBottomColor: '#3730A3' },
+  textInputFocused: { borderColor: colors.brand, backgroundColor: '#FFFFFF' },
+  previewWordLevelText: { fontFamily: fonts.mono, fontSize: 11, fontWeight: 'bold', color: '#FFFFFF' },
+  previewWordLevel: { backgroundColor: colors.brand, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 9 },
+  previewWordTr: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textMuted, marginTop: 1 },
+  previewWordTerm: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  previewWord: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFC', borderRadius: 18, borderLeftWidth: 6, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 16, borderWidth: 1, borderColor: '#EEF2FF' },
+  modalIcon: { width: 52, height: 52 },
+  modalGrab: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E8F0', marginBottom: 12 },
+  dictStrip: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 6 },
+  relearnPillText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#B45309' },
+  relearnPill: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FEF3C7', borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 5, marginBottom: 8 },
+  practiceCount: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textMuted, minWidth: 40, textAlign: 'right' },
+  tileArt: { width: 92, height: 92, alignSelf: 'flex-end', marginRight: -4, marginTop: -4 },
+  tileWrap: { flex: 1, borderRadius: 24, backgroundColor: '#FFFFFF' },
+  chestNext: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 5 },
+  chestFill: { height: '100%', borderRadius: 4, backgroundColor: '#F59E0B' },
+  chestTrack: { height: 8, borderRadius: 4, backgroundColor: '#FEF3C7', overflow: 'hidden', marginTop: 10 },
+  chestCount: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textMuted, marginTop: 1 },
+  chestTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
+  chestArt: { width: 84, height: 84 },
+  chestCard: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#FFFFFF', borderRadius: 24, padding: 14, borderWidth: 1, borderColor: '#F1F5F9' },
+  heroBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
+  heroChipText: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 0.8, color: '#E0E7FF' },
+  heroChip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  heroText: { paddingRight: 70, gap: 10 },
+  heroArt: { position: 'absolute', right: -6, top: 6, width: 118, height: 118 },
+  heroBlobB: { position: 'absolute', width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.06)', left: -30, bottom: -40 },
+  heroBlobA: { position: 'absolute', width: 190, height: 190, borderRadius: 95, backgroundColor: 'rgba(255,255,255,0.08)', right: -50, top: -60 },
+  addPillText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  addPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#EEF2FF', borderRadius: radii.pill, paddingLeft: 10, paddingRight: 14, paddingVertical: 8 },
+  homeScroll: { paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 130, gap: 14 },
+  addCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  hero: { borderRadius: 28, padding: 20, overflow: 'hidden', minHeight: 176, justifyContent: 'center' },
+  heroTitle: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: '#FFFFFF' },
+  heroSub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 20, color: '#E0E7FF' },
+  heroBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: radii.pill, paddingVertical: 13, paddingHorizontal: 22, borderBottomWidth: 4, borderBottomColor: '#C7D2FE', marginTop: 2 },
+  heroBtnText: { fontFamily: fonts.headingBold, fontSize: 14.5, letterSpacing: 0.4, color: colors.brand },
+  heroLink: { alignSelf: 'flex-start', paddingVertical: 2 },
+  heroLinkText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: '#E0E7FF', textDecorationLine: 'underline' },
+  tileRow: { flexDirection: 'row', gap: 12 },
+  tile: { minHeight: 168, borderRadius: 24, padding: 16, borderWidth: 1, borderColor: '#EEF2FF' },
+  tileTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
+  tileSub: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: colors.textMuted, marginTop: 2 },
+  practiceRoot: { flex: 1, backgroundColor: '#F8FAFC' },
+  practiceTop: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 10 },
+  practiceClose: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  practiceDone: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.lg, gap: 10 },
+  collectionRoot: { flex: 1 },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
-  },
-  innerContainer: {
-    flex: 1,
-    paddingHorizontal: spacing.md,
-    paddingTop: 0,
-    paddingBottom: 96,
   },
   headerRow: {
     flexDirection: 'row',
@@ -1269,22 +1353,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: colors.textHeading,
   },
-  subtitle: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  addWordHeaderButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.brand,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    gap: 4,
-  },
-
   deckPillLevel: {
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -1296,115 +1364,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  addWordHeaderButtonText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: '#FFFFFF',
-  },
-
-  /* Secondary quick-links row — small, auto-width pills (not equal-weight
-     boxed tabs) so the 3 alternate views + the library read as "optional
-     side destinations", not as 4 equally important systems. */
-
-  /* Chest Header */
-  chestHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-  },
-  chestIcon: {
-    width: 32,
-    height: 32,
-    marginRight: 10,
-  },
-  chestTextCol: {
-    flex: 1,
-  },
-  chestLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  chestLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
-  chestCountText: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: colors.brand,
-  },
-  chestBarTrack: {
-    height: 7,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  chestBarFill: {
-    height: '100%',
-    backgroundColor: colors.brand,
-    borderRadius: 4,
-  },
-  contentWrap: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  progressText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
   cardMenuDotsButton: {
     padding: 4,
   },
-  cardArea: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 2,
-    minHeight: 250,
-  },
-  gradeContainer: {
-    marginTop: 8,
-  },
-  gradeRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  gradeButton: {
-    flex: 1,
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderBottomWidth: 4,
-    minHeight: 54,
-  },
-  gradeButtonHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  gradeButtonLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-  },
-  gradeButtonSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 9.5,
-    marginTop: 2,
-    opacity: 0.9,
-  },
+  cardArea: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 6, minHeight: 340 },
+  gradeContainer: { marginTop: 14 },
+  gradeRow: { flexDirection: 'row', gap: 10 },
+  gradeButton: { flex: 1, borderRadius: 20, paddingVertical: 12, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderBottomWidth: 5, minHeight: 70 },
+  gradeButtonHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  gradeButtonLabel: { fontFamily: fonts.headingBold, fontSize: 15 },
+  gradeButtonSub: { fontFamily: fonts.bodyMedium, fontSize: 11, marginTop: 3, opacity: 0.9 },
   errorText: {
     fontFamily: fonts.bodyRegular,
     fontSize: 11,
@@ -1412,64 +1381,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
-  emptyBox: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    marginTop: 4,
-  },
-  emptyImage: {
-    width: 90,
-    height: 90,
-    marginBottom: 10,
-  },
-  emptyTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
-    color: colors.textHeading,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  emptySub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textBody,
-    textAlign: 'center',
-    lineHeight: 16,
-    marginBottom: spacing.md,
-  },
-  emptyActionRow: {
-    width: '100%',
-    gap: 8,
-  },
+  emptyImage: { width: 160, height: 160, marginBottom: 6 },
+  emptyTitle: { fontFamily: fonts.headingBold, fontSize: 21, lineHeight: 27, color: colors.textHeading, textAlign: 'center' },
+  emptySub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: colors.textBody, textAlign: 'center', lineHeight: 20, marginBottom: spacing.md },
   emptyButton: {
     width: '100%',
   },
-  emptyButtonGhost: {
-    width: '100%',
-  },
-
-  /* Dictionary Tab */
-  dictionaryContainer: {
-    flex: 1,
-  },
-  searchBarBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.md,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    gap: 8,
-    marginBottom: 6,
-  },
+  dictionaryContainer: { flex: 1, paddingHorizontal: spacing.md },
+  searchBarBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: '#E2E8F0', gap: 8 },
   searchBarInput: {
     flex: 1,
     fontFamily: fonts.bodyRegular,
@@ -1499,10 +1418,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(226, 232, 240, 0.8)',
   },
-  posFilterChipActive: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
-  },
   filterChipText: {
     fontFamily: fonts.headingBold,
     fontSize: 10,
@@ -1529,65 +1444,29 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.error,
   },
-  dictionaryList: {
-    gap: 8,
-    paddingBottom: 20,
-    marginTop: 2,
-  },
-  dictWordCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.md,
-    padding: 12,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-  },
+  dictionaryList: { gap: 10, paddingBottom: 30, marginTop: 4 },
+  dictWordCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingRight: 14, paddingLeft: 20, gap: 8, borderWidth: 1, borderColor: '#F1F5F9', overflow: 'hidden' },
   dictBadgesRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  dictLevelPill: {
-    backgroundColor: colors.brand,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
+  dictLevelPill: { backgroundColor: colors.brand, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   dictLevelPillText: {
     fontFamily: fonts.mono,
     fontSize: 9,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  dictPosPill: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
+  dictPosPill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   dictPosPillText: {
     fontFamily: fonts.headingBold,
     fontSize: 9,
     textTransform: 'uppercase',
   },
-  dictSoundButton: {
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dictTerm: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
-    color: colors.textHeading,
-  },
-  dictTranslation: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 13,
-    color: colors.textBody,
-    marginTop: 1,
-  },
+  dictSoundButton: { backgroundColor: '#EEF2FF', width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  dictTerm: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  dictTranslation: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 1 },
   dictExample: {
     fontFamily: fonts.bodyRegular,
     fontSize: 11.5,
@@ -1607,77 +1486,30 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
   },
-
-  /* Library Quick Link Banner */
-
-  /* Modal */
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.65)',
     justifyContent: 'flex-end',
   },
-  modalCard: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: radii.lg,
-    borderTopRightRadius: radii.lg,
-    padding: spacing.lg,
-    maxHeight: '90%',
-  },
-  modalHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    paddingBottom: spacing.sm,
-  },
-  modalTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 18,
-    color: colors.textHeading,
-  },
-  modalSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-  closeModalButton: {
-    padding: 4,
-  },
+  modalCard: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: spacing.lg, paddingTop: 10, maxHeight: '92%' },
+  modalHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
+  modalTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
+  modalSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  closeModalButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
   inputGroup: {
     marginBottom: spacing.md,
   },
-  inputLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.brand,
-    marginBottom: 6,
-    letterSpacing: 0.5,
-  },
+  inputLabel: { fontFamily: fonts.headingBold, fontSize: 11, color: '#475569', marginBottom: 7, letterSpacing: 0.6 },
   levelSelectorRow: {
     flexDirection: 'row',
     gap: 6,
   },
-  levelSelectPill: {
-    flex: 1,
-    paddingVertical: 7,
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
-  },
+  levelSelectPill: { flex: 1, paddingVertical: 10, alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 14, borderWidth: 2, borderColor: '#E2E8F0' },
   levelSelectPillActive: {
     backgroundColor: colors.brand,
     borderColor: colors.brand,
   },
-  levelSelectText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: colors.textHeading,
-  },
+  levelSelectText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
   levelSelectTextActive: {
     color: '#FFFFFF',
   },
@@ -1686,47 +1518,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
   },
-  posSelectPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: '#F8FAFC',
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
-  },
-  posSelectPillActive: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
-  },
-  posSelectText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: colors.textHeading,
-  },
+  posSelectPill: { paddingHorizontal: 14, paddingVertical: 9, backgroundColor: '#F8FAFC', borderRadius: radii.pill, borderWidth: 2, borderColor: '#E2E8F0' },
+  posSelectText: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.textHeading },
   posSelectTextActive: {
     color: '#FFFFFF',
   },
-  textInput: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
-    borderRadius: radii.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 14,
-    color: colors.textHeading,
-  },
-  textArea: {
-    height: 60,
-    textAlignVertical: 'top',
-  },
-  modalActionsRow: {
-    marginTop: spacing.xs,
-    marginBottom: spacing.lg,
-  },
-
-  /* Action Sheet Modal */
+  textInput: { backgroundColor: '#F8FAFC', borderWidth: 2, borderColor: '#E2E8F0', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, fontFamily: fonts.bodyRegular, fontSize: 14.5, color: colors.textHeading },
+  textArea: { height: 78, textAlignVertical: 'top' },
+  modalActionsRow: { marginTop: spacing.xs, marginBottom: spacing.lg },
   actionSheetOverlay: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.6)',
@@ -1761,14 +1560,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
   },
-  actionIconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: radii.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
   actionTextCol: {
     flex: 1,
   },
@@ -1799,8 +1590,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textHeading,
   },
-
-  /* Delete Confirmation Modal */
   confirmOverlay: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.7)',
@@ -1815,15 +1604,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     maxWidth: 340,
-  },
-  confirmIconWrap: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#FEF2F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
   },
   confirmTitle: {
     fontFamily: fonts.headingBold,
@@ -1896,20 +1676,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#FFFFFF',
   },
-
-  /* 📁 Target Deck Picker Chips (In Create Modal) */
   deckSelectScroll: {
     paddingVertical: 4,
     gap: 8,
   },
-  deckSelectChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: radii.pill,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1.2,
-    borderColor: '#CBD5E1',
-  },
+  deckSelectChip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: radii.pill, backgroundColor: '#F8FAFC', borderWidth: 2, borderColor: '#E2E8F0' },
   deckSelectChipActive: {
     backgroundColor: '#EEF2FF',
     borderColor: colors.brand,
@@ -1923,8 +1694,6 @@ const styles = StyleSheet.create({
     color: colors.brand,
     fontWeight: 'bold',
   },
-
-  /* 📁 Assign Deck Modal Styles */
   assignModalContainer: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -1979,135 +1748,13 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 2,
   },
-
-  /* Active Practice Scroll Content */
-  practiceScrollContent: {
-    flexGrow: 1,
-    paddingBottom: 8,
-  },
-
-  /* Sandık özeti */
-  duePill: {
-    marginLeft: 10,
-    minWidth: 46,
-    alignItems: 'center',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: '#FFF1F2',
-    borderWidth: 1.5,
-    borderColor: '#FECDD3',
-  },
-  duePillDone: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
-  },
-  duePillNum: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    lineHeight: 17,
-    color: '#E11D48',
-  },
-  duePillNumDone: {
-    color: '#059669',
-  },
-  duePillLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 9.5,
-    color: '#E11D48',
-  },
-
-  /* Segmentli sekme */
-  vocabLinks: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  vocabLink: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    backgroundColor: '#FFFFFF',
-  },
-  vocabLinkText: {
-    fontFamily: fonts.headingSemiBold,
-    fontSize: 12.5,
-    color: colors.brand,
-  },
-  segmentWrap: {
-    flexDirection: 'row',
-    backgroundColor: '#EEF2F7',
-    borderRadius: radii.pill,
-    padding: 3,
-    marginBottom: 8,
-  },
-  segment: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 7,
-    borderRadius: radii.pill,
-  },
-  segmentActive: {
-    backgroundColor: colors.brand,
-  },
-  segmentText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.textMuted,
-  },
-  segmentTextActive: {
-    color: '#FFFFFF',
-  },
-  segmentBadge: {
-    minWidth: 18,
-    paddingHorizontal: 5,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F43F5E',
-  },
-  segmentBadgeText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: '#FFFFFF',
-  },
-
-  /* Pratik oturumu */
-  sessionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  sessionTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E2E8F0',
-    overflow: 'hidden',
-    marginBottom: 4,
-  },
-  sessionFill: {
-    height: '100%',
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
+  practiceScrollContent: { flexGrow: 1, paddingHorizontal: spacing.md, paddingBottom: 16 },
+  sessionTrack: { height: 14, borderRadius: 7, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  sessionFill: { height: '100%', borderRadius: 7, backgroundColor: '#10B981' },
   gradeButtonPressed: {
     transform: [{ translateY: 2 }],
     borderBottomWidth: 2,
   },
-
-  /* Sözlük */
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',

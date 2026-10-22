@@ -14,10 +14,21 @@ export const mivoImages = {
   success: require('../../assets/images/companion/mivo/mivo_success.webp'),
 } as const;
 
+/** Round-friendly Mivo busts for the voice rooms (status strip, hint card, correction card). */
+export const mivoVoiceImages = {
+  wait: require('../../assets/images/companion/mivo/mivo_voice_wait.webp'),
+  listen: require('../../assets/images/companion/mivo/mivo_voice_listen.webp'),
+  think: require('../../assets/images/companion/mivo/mivo_voice_think.webp'),
+  speak: require('../../assets/images/companion/mivo/mivo_voice_speak.webp'),
+  note: require('../../assets/images/companion/mivo/mivo_voice_note.webp'),
+} as const;
+
 /** Context-specific Mivo artwork for the Home experience. */
 export const mivoHomeImages = {
   lessonGuide: require('../../assets/images/companion/mivo/mivo_lesson_guide.webp'),
   chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.webp'),
+  /** Portrait for Home's round chat button: big face, wave, heart bubble (readable at ~60 px). */
+  fab: require('../../assets/images/companion/mivo/mivo_fab.webp'),
 } as const;
 
 /** Calm, rounded 3D icons for the Today learning roadmap. */
@@ -25,8 +36,10 @@ export const roadmapTaskImages = {
   lesson: require('../../assets/images/roadmap/grammar-soft.png'),
   vocab: require('../../assets/images/roadmap/vocabulary-soft.png'),
   listening: require('../../assets/images/roadmap/listening-soft.png'),
-  reading: require('../../assets/images/roadmap/reading-soft.png'),
+  reading: require('../../assets/images/roadmap/reading-soft.webp'),
   review: require('../../assets/images/roadmap/speaking-soft.png'),
+  scene: require('../../assets/images/roadmap/speaking-soft.png'),
+  writing: require('../../assets/images/states/edit-pencil-minimal.webp'),
 } as const;
 
 /**
@@ -43,7 +56,6 @@ export const yankiGreetingImage = mivoHomeImages.chatInvite;
 /** Full-screen Pro offer poster (941x1672, Turkish text + price baked in -> only shown for the Turkish UI).
  * `mivo_final_days_999` and `mivo_special_offer_999` also exist in assets/images/paywall but claim urgency / a
  * personal discount: use them only for real campaigns. */
-export const paywallPoster = require('../../assets/images/paywall/mivo_365_journey_999.webp');
 
 /** Waving Mivo for the Welcome screen (transparent WebP). */
 export const mivoWaveImage = require('../../assets/images/companion/mivo/mivo_wave.webp');
@@ -67,28 +79,28 @@ export const minimalFeatureIcons = {
   badges: require('../../assets/images/premium/badges-minimal.webp'),
 } as const;
 
-export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.jpg');
+export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.webp');
 
 export const podcastCovers = {
-  a1Cafe: require('../../assets/images/podcast_cover_a1_cafe.jpg'),
-  a1Routines: require('../../assets/images/podcast_cover_a1_routines.jpg'),
-  a1City: require('../../assets/images/podcast_cover_a1_city.jpg'),
-  a1Bistro: require('../../assets/images/podcast_cover_a1_bistro.jpg'),
-  a1Picnic: require('../../assets/images/podcast_cover_a1_picnic.jpg'),
-  a2Airport: require('../../assets/images/podcast_cover_a2_airport.jpg'),
-  a2Hotel: require('../../assets/images/podcast_cover_a2_hotel.jpg'),
-  a2Shopping: require('../../assets/images/podcast_cover_a2_shopping.jpg'),
-  a2Doctor: require('../../assets/images/podcast_cover_a2_home.jpg'),
-  a2Cinema: require('../../assets/images/podcast_cover_b1_interview.jpg'),
-  b1Interview: require('../../assets/images/podcast_cover_b1_interview.jpg'),
-  b1Apartment: require('../../assets/images/podcast_cover_a2_hotel.jpg'),
-  b1Luggage: require('../../assets/images/podcast_cover_a2_airport.jpg'),
-  b1AI: require('../../assets/images/podcast_cover_b2_tech.jpg'),
-  b1Green: require('../../assets/images/podcast_cover_a1_picnic.jpg'),
-  cafeA1: require('../../assets/images/podcast_cover_a1_cafe.jpg'),
-  homeA2: require('../../assets/images/podcast_cover_a2_home.jpg'),
-  interviewB1: require('../../assets/images/podcast_cover_b1_interview.jpg'),
-  techB2: require('../../assets/images/podcast_cover_b2_tech.jpg'),
+  a1Cafe: require('../../assets/images/podcast_cover_a1_cafe.webp'),
+  a1Routines: require('../../assets/images/podcast_cover_a1_routines.webp'),
+  a1City: require('../../assets/images/podcast_cover_a1_city.webp'),
+  a1Bistro: require('../../assets/images/podcast_cover_a1_bistro.webp'),
+  a1Picnic: require('../../assets/images/podcast_cover_a1_picnic.webp'),
+  a2Airport: require('../../assets/images/podcast_cover_a2_airport.webp'),
+  a2Hotel: require('../../assets/images/podcast_cover_a2_hotel.webp'),
+  a2Shopping: require('../../assets/images/podcast_cover_a2_shopping.webp'),
+  a2Doctor: require('../../assets/images/podcast_cover_a2_home.webp'),
+  a2Cinema: require('../../assets/images/podcast_cover_b1_interview.webp'),
+  b1Interview: require('../../assets/images/podcast_cover_b1_interview.webp'),
+  b1Apartment: require('../../assets/images/podcast_cover_a2_hotel.webp'),
+  b1Luggage: require('../../assets/images/podcast_cover_a2_airport.webp'),
+  b1AI: require('../../assets/images/podcast_cover_b2_tech.webp'),
+  b1Green: require('../../assets/images/podcast_cover_a1_picnic.webp'),
+  cafeA1: require('../../assets/images/podcast_cover_a1_cafe.webp'),
+  homeA2: require('../../assets/images/podcast_cover_a2_home.webp'),
+  interviewB1: require('../../assets/images/podcast_cover_b1_interview.webp'),
+  techB2: require('../../assets/images/podcast_cover_b2_tech.webp'),
 };
 
 /** Chunky 3D Bottom Navigation Icons */
@@ -104,9 +116,9 @@ export const scenarioCategoryImages: Record<ScenarioCategory, ReturnType<typeof 
   tech: require('../../assets/images/premium/scenarios/tech-editorial.jpg'),
   career: require('../../assets/images/premium/scenarios/career-editorial.jpg'),
   visa: require('../../assets/images/premium/scenarios/visa-editorial.jpg'),
-  b2b: require('../../assets/images/premium/scenarios/b2b-editorial.jpg'),
-  travel: require('../../assets/images/premium/scenarios/travel-editorial.jpg'),
-  daily: require('../../assets/images/premium/scenarios/daily-editorial.jpg'),
+  b2b: require('../../assets/images/premium/scenarios/b2b-editorial.webp'),
+  travel: require('../../assets/images/premium/scenarios/travel-editorial.webp'),
+  daily: require('../../assets/images/premium/scenarios/daily-editorial.webp'),
 };
 
 /**
@@ -128,27 +140,27 @@ export function resolveScenarioCategoryFallback(category: string): ReturnType<ty
 /** Dedicated custom cover images for 3D Video Scenarios */
 export const scenarioCustomCovers: Record<string, ReturnType<typeof require>> = {
   // A1 Scenarios
-  'fastfood-burger': require('../../assets/images/scenarios/fastfood-burger.jpg'),
-  'supermarket-checkout': require('../../assets/images/scenarios/supermarket-checkout.jpg'),
-  'street-directions': require('../../assets/images/scenarios/street-directions.jpg'),
-  'train-ticket': require('../../assets/images/scenarios/train-ticket.jpg'),
-  'cafe-meetup': require('../../assets/images/scenarios/cafe-meetup.jpg'),
-  'airport-travel': require('../../assets/images/scenarios/airport-travel.jpg'),
+  'fastfood-burger': require('../../assets/images/scenarios/fastfood-burger.webp'),
+  'supermarket-checkout': require('../../assets/images/scenarios/supermarket-checkout.webp'),
+  'street-directions': require('../../assets/images/scenarios/street-directions.webp'),
+  'train-ticket': require('../../assets/images/scenarios/train-ticket.webp'),
+  'cafe-meetup': require('../../assets/images/scenarios/cafe-meetup.webp'),
+  'airport-travel': require('../../assets/images/scenarios/airport-travel.webp'),
   'hotel-checkin': require('../../assets/images/scenarios/hotel-checkin.jpg'),
   'neighbor-meetup': require('../../assets/images/scenarios/neighbor-meetup.jpg'),
   // A2 & B1 Scenarios
-  'flea-market': require('../../assets/images/scenarios/flea-market.jpg'),
-  'local-sim-card': require('../../assets/images/scenarios/local-sim-card.jpg'),
-  'rooftop-social': require('../../assets/images/scenarios/rooftop-social.jpg'),
-  'apartment-viewing': require('../../assets/images/scenarios/apartment-viewing.jpg'),
-  'colleague-break': require('../../assets/images/scenarios/colleague-break.jpg'),
-  'car-rental': require('../../assets/images/scenarios/car-rental.jpg'),
+  'flea-market': require('../../assets/images/scenarios/flea-market.webp'),
+  'local-sim-card': require('../../assets/images/scenarios/local-sim-card.webp'),
+  'rooftop-social': require('../../assets/images/scenarios/rooftop-social.webp'),
+  'apartment-viewing': require('../../assets/images/scenarios/apartment-viewing.webp'),
+  'colleague-break': require('../../assets/images/scenarios/colleague-break.webp'),
+  'car-rental': require('../../assets/images/scenarios/car-rental.webp'),
   'clothing-boutique': require('../../assets/images/scenarios/clothing-boutique.jpg'),
   'doctor-visit': require('../../assets/images/scenarios/doctor-visit.jpg'),
   'fitness-gym': require('../../assets/images/scenarios/fitness-gym.jpg'),
-  'istanbul-tour': require('../../assets/images/scenarios/istanbul-tour.jpg'),
+  'istanbul-tour': require('../../assets/images/scenarios/istanbul-tour.webp'),
   'restaurant-dinner': require('../../assets/images/scenarios/restaurant-dinner.jpg'),
-  'taxi-ride': require('../../assets/images/scenarios/taxi-ride.jpg'),
+  'taxi-ride': require('../../assets/images/scenarios/taxi-ride.webp'),
   'job-interview': require('../../assets/images/scenarios/job-interview.jpg'),
 };
 
@@ -170,24 +182,24 @@ export const cefrLevelImages: Record<string, ReturnType<typeof require>> = {
   B1: require('../../assets/images/levels/b1-rounded.png'),
   B2: require('../../assets/images/levels/b2-rounded.png'),
   C1: require('../../assets/images/levels/c1-rounded.png'),
-  C2: require('../../assets/images/levels/c2-rounded.png'),
+  C2: require('../../assets/images/levels/c2-rounded.webp'),
 };
 
 /** 3D User Personas / Avatars (58 - 63) */
 export const avatarImages = {
-  maleDev: require('../../assets/images/avatars/male_dev.png'),
-  femaleLead: require('../../assets/images/avatars/female_lead.png'),
-  maleTraveler: require('../../assets/images/avatars/male_traveler.png'),
-  femaleDesigner: require('../../assets/images/avatars/female_designer.png'),
-  maleEngineer: require('../../assets/images/avatars/male_engineer.png'),
-  femaleEntrepreneur: require('../../assets/images/avatars/female_entrepreneur.png'),
+  maleDev: require('../../assets/images/avatars/male_dev.webp'),
+  femaleLead: require('../../assets/images/avatars/female_lead.webp'),
+  maleTraveler: require('../../assets/images/avatars/male_traveler.webp'),
+  femaleDesigner: require('../../assets/images/avatars/female_designer.webp'),
+  maleEngineer: require('../../assets/images/avatars/male_engineer.webp'),
+  femaleEntrepreneur: require('../../assets/images/avatars/female_entrepreneur.webp'),
   // Dedicated onboarding persona portraits (2026-08-26) — replace the emoji-badge
   // fallback the onboarding Persona screen used for personas that had no genuinely
   // matching photo among the 6 career avatars above.
-  studentYouth: require('../../assets/images/avatars/student_youth.jpg'),
-  travelerExplorer: require('../../assets/images/avatars/traveler_explorer.jpg'),
-  matureSenior: require('../../assets/images/avatars/mature_senior.jpg'),
-  proDeveloper: require('../../assets/images/avatars/pro_developer.jpg'),
+  studentYouth: require('../../assets/images/avatars/student_youth.webp'),
+  travelerExplorer: require('../../assets/images/avatars/traveler_explorer.webp'),
+  matureSenior: require('../../assets/images/avatars/mature_senior.webp'),
+  proDeveloper: require('../../assets/images/avatars/pro_developer.webp'),
 };
 
 /** 3D App States & Micro-Delights (53 - 57) */
@@ -203,7 +215,7 @@ export const stateImages = {
 };
 
 export const calibrationImages = {
-  micOrb: require('../../assets/images/nav/voice.png'),
+  micOrb: require('../../assets/images/nav/voice.webp'),
   micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
 };
 
@@ -227,12 +239,12 @@ export const readingSceneImages: Record<string, ReturnType<typeof require>> = {
   b2b: scenarioCategoryImages.b2b,
   companion: companionImage,
   celebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
-  avatar_dev: require('../../assets/images/avatars/male_dev.png'),
-  avatar_lead: require('../../assets/images/avatars/female_lead.png'),
-  avatar_traveler: require('../../assets/images/avatars/male_traveler.png'),
-  avatar_designer: require('../../assets/images/avatars/female_designer.png'),
-  avatar_engineer: require('../../assets/images/avatars/male_engineer.png'),
-  avatar_entrepreneur: require('../../assets/images/avatars/female_entrepreneur.png'),
+  avatar_dev: require('../../assets/images/avatars/male_dev.webp'),
+  avatar_lead: require('../../assets/images/avatars/female_lead.webp'),
+  avatar_traveler: require('../../assets/images/avatars/male_traveler.webp'),
+  avatar_designer: require('../../assets/images/avatars/female_designer.webp'),
+  avatar_engineer: require('../../assets/images/avatars/male_engineer.webp'),
+  avatar_entrepreneur: require('../../assets/images/avatars/female_entrepreneur.webp'),
 };
 
 /**
@@ -272,5 +284,5 @@ export const badgeImages = {
 } as const;
 
 /** Auth & Welcome 3D Hero Artwork */
-export const authWelcomeHeroBg = require('../../assets/images/auth_welcome_hero_bg.jpg');
-export const appLogoIcon = require('../../assets/icon.png');
+/** Horizontal "spekvia" logo (purple lettering with the gold spark), cropped tight; aspect ratio 3.62:1. */
+export const spekviaWordmark = require('../../assets/images/brand/spekvia_wordmark.webp');

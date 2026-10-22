@@ -1,5 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
@@ -7,6 +8,7 @@ import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Tex
 
 import { companionImage, readingSceneImages, stateImages } from '../assets/images';
 import { Button } from '../components/Button';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { SceneAudioHero } from '../components/reading/SceneAudioHero';
 import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { MicPermissionPrompt } from '../components/MicPermissionPrompt';
@@ -156,6 +158,11 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
     queryKey: ['reading', slug],
     queryFn: () => api.get<ReadingPassageOut>(`/reading/${slug}`),
   });
+
+  const { finishTransition } = useMivoTransition();
+  useEffect(() => {
+    if (!isLoading) finishTransition();
+  }, [finishTransition, isLoading]);
 
   const scenes = passage?.scenes ?? [];
   const activeScene = scenes[sceneIdx];
@@ -452,23 +459,31 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top Header */}
+      {/* Top header + story progress (one segment per scene, last one is the speaking step) */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.headerBackBtn}>
-          <Ionicons name="chevron-back" size={24} color={colors.textHeading} />
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.headerBackBtn} accessibilityRole="button" accessibilityLabel={t("Geri")}>
+          <Ionicons name="chevron-back" size={22} color={colors.textHeading} />
         </Pressable>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>
             {passage.title}
           </Text>
           <Text style={styles.headerLevel}>
-            {passage.cefr_level ? `${passage.cefr_level} • ` : ''}{t("⏱️ {{estimated_minutes}} Dk", { estimated_minutes: passage.estimated_minutes })}</Text>
+            {t("{{count}} dk", { count: passage.estimated_minutes })}
+          </Text>
         </View>
         <View style={styles.stepIndicatorPill}>
           <Text style={styles.stepIndicatorText}>
             {currentStep === 'scene' ? t("Sahne {{p0}}/{{length}}", { p0: sceneIdx + 1, length: scenes.length }) : t("Mivo Ses")}
           </Text>
         </View>
+      </View>
+      <View style={styles.segRow}>
+        {Array.from({ length: scenes.length + 1 }).map((_, i) => {
+          const done = currentStep === 'speaking' ? i < scenes.length : i < sceneIdx;
+          const cur = currentStep === 'speaking' ? i === scenes.length : i === sceneIdx;
+          return <View key={i} style={[styles.seg, done && styles.segDone, cur && styles.segCur]} />;
+        })}
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -484,8 +499,9 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 style={styles.sceneImage}
                 resizeMode={sceneImage === companionImage ? 'contain' : 'cover'}
               />
+              <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.72)']} style={styles.sceneShade} pointerEvents="none" />
               <View style={styles.sceneBadge}>
-                <Text style={styles.sceneBadgeText}>{activeScene.title}</Text>
+                <Text style={styles.sceneBadgeText} numberOfLines={2}>{activeScene.title}</Text>
               </View>
             </View>
 
@@ -544,8 +560,9 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
                 style={styles.sceneImage}
                 resizeMode={sceneImage === companionImage ? 'contain' : 'cover'}
               />
+              <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.72)']} style={styles.sceneShade} pointerEvents="none" />
               <View style={styles.sceneBadge}>
-                <Text style={styles.sceneBadgeText}>{activeScene.title}</Text>
+                <Text style={styles.sceneBadgeText} numberOfLines={2}>{activeScene.title}</Text>
               </View>
             </View>
 
@@ -850,6 +867,11 @@ export function ReadingPassageScreen({ route, navigation }: ReadingPassageScreen
 }
 
 const styles = StyleSheet.create({
+  sceneShade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 110 },
+  segCur: { backgroundColor: colors.brand },
+  segDone: { backgroundColor: '#10B981' },
+  seg: { flex: 1, height: 6, borderRadius: 3, backgroundColor: '#E2E8F0' },
+  segRow: { flexDirection: 'row', gap: 5, paddingHorizontal: spacing.md, paddingBottom: 8 },
   spellWrap: { gap: 12, alignItems: 'center' },
   spellBoxes: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 },
   spellBox: {
@@ -897,46 +919,16 @@ const styles = StyleSheet.create({
   speakChecking: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
   speakCheckingText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textBody },
   speakSkip: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted, textAlign: 'center', textDecorationLine: 'underline' },
-  readCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    padding: spacing.md,
-    gap: 10,
-  },
+  readCard: { backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: '#F1F5F9', padding: 14 },
   readHidden: { color: colors.textMuted, fontFamily: fonts.bodyRegular, fontSize: 15 },
-  readParagraph: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 17,
-    lineHeight: 28,
-    color: colors.textHeading,
-  },
-  questionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    padding: spacing.md,
-    gap: 8,
-  },
-  questionLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.brand },
-  questionText: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading, marginBottom: 2 },
-  optionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#F8FAFC',
-  },
+  readParagraph: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 26, color: colors.textHeading },
+  questionCard: { backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 2, borderColor: '#E0E7FF', padding: 14, gap: 8 },
+  questionLabel: { alignSelf: 'flex-start', fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.6, color: colors.brand, backgroundColor: '#EEF2FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radii.pill, overflow: 'hidden' },
+  questionText: { fontFamily: fonts.headingBold, fontSize: 18, lineHeight: 24, color: colors.textHeading, marginBottom: 2 },
+  optionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 18, borderWidth: 2, borderBottomWidth: 4, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
   optionBtnCorrect: { borderColor: '#10B981', backgroundColor: '#ECFDF5' },
   optionBtnWrong: { borderColor: colors.error, backgroundColor: '#FEF2F2' },
-  optionText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textHeading },
+  optionText: { flex: 1, fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textHeading },
   optionTextCorrect: { color: '#047857' },
   optionTextWrong: { color: '#BE123C' },
   container: {
@@ -960,78 +952,19 @@ const styles = StyleSheet.create({
     color: colors.brand,
     marginTop: 8,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(226, 232, 240, 0.8)',
-  },
-  headerBackBtn: {
-    padding: 4,
-  },
-  headerCenter: {
-    flex: 1,
-    marginHorizontal: 8,
-  },
-  headerTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: colors.textHeading,
-  },
-  headerLevel: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  stepIndicatorPill: {
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-  },
-  stepIndicatorText: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.brand,
-  },
-  scrollContent: {
-    padding: spacing.md,
-    paddingBottom: 40,
-  },
-  stepContainer: {
-    gap: 12,
-  },
-  sceneImageCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    position: 'relative',
-  },
-  sceneImage: {
-    width: '100%',
-    height: 180,
-  },
-  sceneBadge: {
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  sceneBadgeText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 8 },
+  headerBackBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  headerCenter: { flex: 1 },
+  headerTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
+  headerLevel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted, marginTop: 1 },
+  stepIndicatorPill: { backgroundColor: '#EEF2FF', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.pill },
+  stepIndicatorText: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.brand },
+  scrollContent: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 2, paddingBottom: 14 },
+  stepContainer: { flexGrow: 1, gap: 10 },
+  sceneImageCard: { flex: 1, minHeight: 100, maxHeight: 240, backgroundColor: '#E2E8F0', borderRadius: 26, overflow: 'hidden', position: 'relative' },
+  sceneImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  sceneBadge: { position: 'absolute', bottom: 12, left: 16, right: 16 },
+  sceneBadgeText: { fontFamily: fonts.headingBold, fontSize: 17, lineHeight: 22, color: '#FFFFFF' },
 
   /* Audio Controls Row */
   audioControlsRow: {
@@ -1342,12 +1275,7 @@ const styles = StyleSheet.create({
   },
 
   /* Tooltip inside card */
-  wordTooltipBox: {
-    backgroundColor: '#0F172A',
-    borderRadius: radii.md,
-    padding: 10,
-    marginTop: 10,
-  },
+  wordTooltipBox: { backgroundColor: '#FFFFFF', borderRadius: 20, borderWidth: 2, borderColor: '#C7D2FE', padding: 14, gap: 10 },
   tooltipHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1421,24 +1349,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#CBD5E1',
   },
-  nextSceneContainer: {
-    marginTop: 4,
-  },
+  nextSceneContainer: { marginTop: 0 },
 
   /* Speaking Step */
-  speakingCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-  },
-  yankiAvatar: {
-    width: 72,
-    height: 72,
-    marginBottom: 10,
-  },
+  speakingCard: { backgroundColor: '#FFFFFF', borderRadius: 28, padding: spacing.lg, alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9' },
+  yankiAvatar: { width: 112, height: 112, marginBottom: 6 },
   yankiAskTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 16,
@@ -1478,18 +1393,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
   },
-  micBigButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.brand,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: radii.pill,
-    gap: 8,
-    width: '100%',
-    marginTop: 8,
-  },
+  micBigButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand, paddingHorizontal: 20, paddingVertical: 15, borderRadius: radii.pill, gap: 8, width: '100%', marginTop: 10, borderBottomWidth: 4, borderBottomColor: '#3730A3' },
   micBigButtonActive: {
     backgroundColor: colors.error,
   },
@@ -1507,14 +1411,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing.lg,
   },
-  celebrationCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 340,
-  },
+  celebrationCard: { backgroundColor: '#FFFFFF', borderRadius: 32, padding: spacing.lg, alignItems: 'center', width: '100%', maxWidth: 350 },
   celebrationImage3D: {
     width: 96,
     height: 96,

@@ -1,9 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Purchases, { PACKAGE_TYPE, type PurchasesPackage } from 'react-native-purchases';
 
 import { privacyUrl, termsUrl } from '../constants/legalLinks';
+import { useRestorePurchases } from '../hooks/useRestorePurchases';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import { Button } from './Button';
@@ -75,6 +76,7 @@ export function usePaywall(onPurchased: () => void) {
 
 export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentProps) {
   const { selected, setSelected, purchasing, packageFor, handlePurchase } = usePaywall(onPurchased);
+  const { restore, restoring } = useRestorePurchases(onPurchased);
 
   return (
     <View style={styles.root}>
@@ -128,6 +130,9 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
           <Text style={styles.legalLink}>{t("Gizlilik Politikası")}</Text>
         </Pressable>
       </View>
+      <Pressable onPress={() => void restore()} disabled={restoring} hitSlop={8} style={styles.restoreBtn} accessibilityRole="button">
+        <Text style={styles.restoreText}>{restoring ? t("Kontrol ediliyor…") : t("Satın alımları geri yükle")}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -166,4 +171,6 @@ const styles = StyleSheet.create({
   disclaimer: { ...typography.caption, textAlign: 'center' },
   legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: spacing.sm },
   legalLink: { ...typography.caption, textDecorationLine: 'underline' },
+  restoreBtn: { marginTop: spacing.sm, paddingVertical: 6 },
+  restoreText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.brand },
 });

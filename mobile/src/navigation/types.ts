@@ -1,4 +1,4 @@
-import type { ScenePlayPayload } from '../lib/sceneTwists';
+import type { SceneHints, ScenePlayPayload } from '../lib/sceneTwists';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -15,28 +15,11 @@ export type AuthStackScreenProps<T extends keyof AuthStackParamList> = NativeSta
   T
 >;
 
-/**
- * New 8-step onboarding flow (V2.0, ported from the design spec at
- * `landing/src/app/onboarding/page.tsx`). No route params — every screen
- * reads/writes the in-progress answers via `useOnboarding()`'s `draft`
- * instead of threading ever-growing params through 8 screens.
- */
+/** Onboarding: Welcome, then one chat with Mivo. Answers live in `useOnboarding()`'s `draft`, not in params. */
 export type OnboardingStackParamList = {
   Welcome: undefined;
-  Name: undefined;
-  Goal: undefined;
-  // Voice mini-demo beat (revived `/onboarding/calibrate`, see `backend/CLAUDE.md`
-  // Ek 23/Ek 1) — `MicPermission` explains + requests mic access, `Calibration`
-  // records 2 short answers and estimates CEFR level. `Level` is no longer on
-  // the main path; it's the fallback both of these can drop into (denied
-  // permission, skipped, or a calibration API failure).
-  Level: undefined;
-  DailyTime: undefined;
-  Reminder: undefined;
-  Premium: undefined;
-  Microphone: undefined;
-  Preparing: undefined;
-  Ready: undefined;
+  /** The whole onboarding as one chat with Mivo (screens/onboarding/OnboardingChatScreen.tsx). */
+  Chat: undefined;
 };
 
 export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList> = NativeStackScreenProps<
@@ -74,6 +57,8 @@ export type RootStackParamList = {
         twistTitle?: string;
         twistEmoji?: string;
         twistHint?: string;
+        // Sesli sahne ipucu (Başlangıç): hedefler + anahtar ifadeler; yoksa ipucu düğmesi görünmez.
+        sceneHints?: SceneHints;
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
         // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
         // corrections and the "practice done" flag to the topic.
@@ -98,6 +83,8 @@ export type RootStackParamList = {
   // itself, no need to pass a flag here).
   GrammarLesson: { code: string };
   MistakesNotebook: undefined;
+  /** "Gerçek mesaj yaz" görevi (data/writingTasks.ts). */
+  WritingTask: { taskId: string };
   MivoMemory: undefined;
   VocabLibrary: undefined;
   VocabDecks: undefined;
@@ -141,6 +128,8 @@ export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackPara
 
 
 export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;
+
+export type WritingTaskScreenProps = NativeStackScreenProps<RootStackParamList, 'WritingTask'>;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

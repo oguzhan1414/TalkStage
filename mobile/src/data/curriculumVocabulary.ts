@@ -313,12 +313,14 @@ const CURRICULUM_VOCABULARY_RAW: Record<string, CefrVocabPool> = {
 };
 
 // ---- Çok dilli içerik: kelime anlamı/örnek çevirisi (bkz. shared-data/i18nOverlay.ts) ----
-const OVERLAYS: Record<string, Overlay | undefined> = {
-  en: require('@talkstage/shared-data/i18n/curriculumVocabulary.en.json'),
-  es: require('@talkstage/shared-data/i18n/curriculumVocabulary.es.json'),
-  pt: require('@talkstage/shared-data/i18n/curriculumVocabulary.pt.json'),
-  de: require('@talkstage/shared-data/i18n/curriculumVocabulary.de.json'),
+// Yalnızca etkin dilin çevirisi yüklenir: diğer dillerin dosyaları hiç değerlendirilmez (açılışı hızlandırır).
+const OVERLAY_LOADERS: Record<string, () => Overlay> = {
+  en: () => require('@talkstage/shared-data/i18n/curriculumVocabulary.en.json'),
+  es: () => require('@talkstage/shared-data/i18n/curriculumVocabulary.es.json'),
+  pt: () => require('@talkstage/shared-data/i18n/curriculumVocabulary.pt.json'),
+  de: () => require('@talkstage/shared-data/i18n/curriculumVocabulary.de.json'),
 };
+const OVERLAYS: Record<string, Overlay | undefined> = { [getDataLocale()]: OVERLAY_LOADERS[getDataLocale()]?.() };
 const ACTIVE_OVERLAY = OVERLAYS[getDataLocale()];
 
 function localizePool(pool: CefrVocabPool): CefrVocabPool {

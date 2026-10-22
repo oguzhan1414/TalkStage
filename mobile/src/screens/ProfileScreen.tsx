@@ -1,7 +1,8 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Image, type ImageSourcePropType, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   minimalFeatureIcons,
@@ -22,12 +23,10 @@ import { XpLevelCard } from '../components/XpLevelCard';
 import { t } from '../i18n';
 
 /**
- * "Özellikler" tab — one flat list of practice-tool cards (no section
- * headers, no horizontal-scroll rows) matching the reference layout the user
- * supplied: title + short description on the left, icon on the right.
- * Account info (name, avatar, CEFR level report, reminders, privacy, sign
- * out, delete account) lives in `AccountSettingsScreen`, reached by tapping
- * the avatar in the shared `AppHeader` above.
+ * "Özellikler" tab: the dashboard of practice tools. Two sections ("Pratik Yap", "Gelişimim"), each a small bento:
+ * two colourful tiles side by side and one wide card below. Account info (name, avatar, CEFR level report,
+ * reminders, privacy, sign out, delete account) lives in `AccountSettingsScreen`, reached by tapping the avatar
+ * in the shared `AppHeader` above.
  */
 export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { transitionTo } = useMivoTransition();
@@ -52,138 +51,168 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { earnedBadgeIds } = useEarnedBadges();
 
   const dailyTargetMinutes = profile?.daily_target_minutes ?? 15;
+  const mistakeCount = mistakes?.length ?? 0;
+  const badgePct = BADGES.length > 0 ? Math.round((earnedBadgeIds.size / BADGES.length) * 100) : 0;
 
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader />
 
-      <View style={styles.topHeader}>
-        <View style={styles.topHeaderCol}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.topHeader}>
           <Text style={styles.topHeaderTitle}>{t("Özellikler")}</Text>
           <Text style={styles.topHeaderSub}>{t("Pratik araçların tek bir yerde")}</Text>
         </View>
-      </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
         {/* Mivo ile dostluk: toplam XP'den türetilen seviye (constants/xp.ts). */}
         <XpLevelCard xp={profile?.xp} />
 
-        {/* Pratik Geçmişi — GitHub tarzı contribution heatmap, hep en üstte. */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("Pratik Geçmişi")}</Text>
+        {/* Pratik Geçmişi: GitHub tarzı contribution heatmap. */}
+        <View style={[styles.heatCard, shadow.card]}>
+          <Text style={styles.heatTitle}>{t("Pratik Geçmişi")}</Text>
           <ContributionHeatmap progress={progress ?? []} dailyTargetMinutes={dailyTargetMinutes} />
         </View>
 
-        {/* İki başlık: ne yapacağını seç (Pratik yap) ve nasıl gittiğine bak (Gelişimim). */}
-        <Text style={styles.sectionTitle}>{t("Pratik Yap")}</Text>
-        <View style={styles.featureList}>
-          <FeatureCard
-            title={t("Okuma & Hikayeler")}
-            desc={t("A1'den C2'ye tüm hikayeleri gör, oku ve dinle")}
+        {/* ---------------- Pratik Yap ---------------- */}
+        <SectionHead title={t("Pratik Yap")} caption={t("Okumadan telaffuza, günlük araçların")} />
+        <View style={styles.tileRow}>
+          <FeatureTile
+            title={t("Hikayeler")}
+            desc={t("Dinle, cümleleri kur, sonra Mivo'ya sesli anlat")}
             icon={minimalFeatureIcons.reading}
+            tint="#DBEAFE"
             onPress={() => navigation.navigate('ReadingList')}
           />
-          <FeatureCard
+          <FeatureTile
             title={t("Podcastler")}
-            desc={t("Dinleme ve telaffuz pratiği yap")}
+            desc={t("Gerçek diyalogları dinle, takip et, mini testle pekiştir")}
             icon={minimalFeatureIcons.podcasts}
+            tint="#E0E7FF"
             onPress={() => navigation.navigate('PodcastList')}
           />
-          <FeatureCard
-            title={t("Telaffuz")}
-            desc={t("Sık yanlış söylenen kelimeleri düzelt")}
-            icon={minimalFeatureIcons.pronunciation}
-            onPress={() => navigation.navigate('MispronouncedWords')}
-          />
         </View>
+        <FeatureWide
+          title={t("Telaffuz")}
+          desc={t("Sık yanlış söylenen kelimeleri düzelt")}
+          icon={minimalFeatureIcons.pronunciation}
+          tint="#FFE4E6"
+          onPress={() => navigation.navigate('MispronouncedWords')}
+        />
 
-        <Text style={[styles.sectionTitle, { marginTop: spacing.sm }]}>{t("Gelişimim")}</Text>
-        <View style={styles.featureList}>
-          <FeatureCard
+        {/* ---------------- Gelişimim ---------------- */}
+        <SectionHead title={t("Gelişimim")} caption={t("Nasıl gittiğine bak")} />
+        <View style={styles.tileRow}>
+          <FeatureTile
             title={t("Hata Defterim")}
-            desc={t("{{p0}} kayıt · Gramer kurallarını tekrar et", { p0: mistakes?.length ?? 0 })}
+            desc={t("{{p0}} kayıt · Gramer kurallarını tekrar et", { p0: mistakeCount })}
             icon={minimalFeatureIcons.mistakesNotebook}
+            tint="#E0F2FE"
+            badge={mistakeCount > 0 ? String(mistakeCount) : undefined}
             onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
           />
-          <FeatureCard
-            title={t("Mivo'nun Hatırladıkları")}
-            desc={t("Sohbetlerden öğrendiği şeyleri gör, düzenle veya sil")}
-            icon={minimalFeatureIcons.mivoMemory}
-            onPress={() => navigation.navigate('MivoMemory')}
-          />
-          <FeatureCard
+          <FeatureTile
             title={t("Rozetlerim")}
             desc={t("{{size}}/{{total}} kazanıldı · Başarılarını gör", { size: earnedBadgeIds.size, total: BADGES.length })}
             icon={minimalFeatureIcons.badges}
+            tint="#FEF3C7"
+            progress={badgePct}
             onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
           />
         </View>
+        <FeatureWide
+          title={t("Mivo'nun Hatırladıkları")}
+          desc={t("Sohbetlerden öğrendiği şeyleri gör, düzenle veya sil")}
+          icon={minimalFeatureIcons.mivoMemory}
+          tint="#EDE9FE"
+          onPress={() => navigation.navigate('MivoMemory')}
+        />
 
-        {/* VIP Spekvia Pro — kasıtlı olarak farklı, promosyon stili korunuyor. */}
-        <BouncyPressable
-          onPress={() => navigation.navigate('Paywall')}
-          style={[styles.vipBanner, shadow.card]}
-          hapticType="medium"
-          scaleTo={0.97}
-        >
-          <Image
-            source={stateImages.vipPass}
-            style={styles.vipPassImage}
-            resizeMode="contain"
-          />
-          <View style={styles.vipContent}>
-            <Text style={styles.vipBadge}>{isPro ? t("PRO ÜYELİĞİN AKTİF 🌟") : t("SPEKVIA PRO")}</Text>
-            <Text style={styles.vipTitle}>{isPro ? t("Sınırsız Ayrıcalıklar") : t("Sınırsız Sahneye Çık")}</Text>
-            <Text style={styles.vipDesc}>
-              {isPro
-                ? t("Sınırsız sesli senaryo, 30 dakikaya kadar oturumlar ve tüm gramer dersleri hesabında açık.")
-                : t("Günlük sesli senaryo limitini kaldır ve tüm gramer derslerinin kilidini aç.")}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={isPro ? '#10B981' : '#F59E0B'} />
+        {/* VIP Spekvia Pro: kasıtlı olarak farklı, promosyon stili. */}
+        <BouncyPressable onPress={() => navigation.navigate('Paywall')} style={[styles.vipWrap, shadow.card]} hapticType="medium" scaleTo={0.97}>
+          <LinearGradient colors={['#0F172A', '#312E81']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vipBanner}>
+            <View style={styles.vipGlow} />
+            <Image source={stateImages.vipPass} style={styles.vipPassImage} resizeMode="contain" />
+            <View style={styles.vipContent}>
+              <Text style={styles.vipBadge}>{isPro ? t("PRO ÜYELİĞİN AKTİF 🌟") : t("SPEKVIA PRO")}</Text>
+              <Text style={styles.vipTitle}>{isPro ? t("Sınırsız Ayrıcalıklar") : t("Sınırsız Sahneye Çık")}</Text>
+              <Text style={styles.vipDesc}>
+                {isPro
+                  ? t("Sınırsız sesli senaryo, 30 dakikaya kadar oturumlar ve tüm gramer dersleri hesabında açık.")
+                  : t("Günlük sesli senaryo limitini kaldır ve tüm gramer derslerinin kilidini aç.")}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={isPro ? '#34D399' : '#FBBF24'} />
+          </LinearGradient>
         </BouncyPressable>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-/** One uniform practice-tool card — title + description on the left, an
- * icon (illustration if one exists, otherwise an Ionicons glyph) on the
- * right. Used for every entry in the flat "Özellikler" list below. */
-function FeatureCard({
-  title,
-  desc,
-  onPress,
-  icon,
-  iconName,
-}: {
+function SectionHead({ title, caption }: { title: string; caption: string }) {
+  return (
+    <View style={styles.sectionHead}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionCaption}>{caption}</Text>
+    </View>
+  );
+}
+
+type FeatureProps = {
   title: string;
   desc: string;
+  icon: ImageSourcePropType;
+  /** Soft background colour that matches the 3D icon. */
+  tint: string;
   onPress: () => void;
-  icon?: ReturnType<typeof require>;
-  iconName?: keyof typeof Ionicons.glyphMap;
-}) {
+};
+
+/** Half-width tile: big 3D icon at the top right, title and short description at the bottom. */
+function FeatureTile({ title, desc, icon, tint, onPress, badge, progress }: FeatureProps & { badge?: string; progress?: number }) {
   return (
-    <BouncyPressable
-      onPress={onPress}
-      style={[styles.featureCard, shadow.card]}
-      hapticType="light"
-      scaleTo={0.97}
-    >
-      <View style={styles.featureCardTextCol}>
-        <Text style={styles.featureCardTitle}>{title}</Text>
-        <Text style={styles.featureCardDesc}>{desc}</Text>
-      </View>
-      <View style={styles.featureCardIconBox}>
-        {icon ? (
-          <Image source={icon} style={styles.featureCardIconImage} resizeMode="contain" />
-        ) : (
-          <Ionicons name={iconName ?? 'sparkles-outline'} size={28} color={colors.brand} />
-        )}
-      </View>
+    <BouncyPressable onPress={onPress} style={[styles.tileWrap, shadow.card]} hapticType="light" scaleTo={0.96}>
+      <LinearGradient colors={[tint, '#FFFFFF']} start={{ x: 0, y: 0 }} end={{ x: 0.7, y: 1 }} style={styles.tile}>
+        <View style={styles.tileTop}>
+          {badge ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{badge}</Text>
+            </View>
+          ) : (
+            <View />
+          )}
+          <Image source={icon} style={styles.tileArt} resizeMode="contain" />
+        </View>
+        <View style={{ flex: 1 }} />
+        <Text style={styles.tileTitle} numberOfLines={2}>
+          {title}
+        </Text>
+        <Text style={styles.tileDesc} numberOfLines={3}>
+          {desc}
+        </Text>
+        {progress !== undefined ? (
+          <View style={styles.tileTrack}>
+            <View style={[styles.tileFill, { width: `${Math.max(4, progress)}%` }]} />
+          </View>
+        ) : null}
+      </LinearGradient>
+    </BouncyPressable>
+  );
+}
+
+/** Full-width card: 3D icon on the left, title and description in the middle, chevron on the right. */
+function FeatureWide({ title, desc, icon, tint, onPress }: FeatureProps) {
+  return (
+    <BouncyPressable onPress={onPress} style={[styles.wideWrap, shadow.card]} hapticType="light" scaleTo={0.97}>
+      <LinearGradient colors={[tint, '#FFFFFF']} start={{ x: 0, y: 0 }} end={{ x: 0.8, y: 1 }} style={styles.wide}>
+        <Image source={icon} style={styles.wideArt} resizeMode="contain" />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.wideTitle}>{title}</Text>
+          <Text style={styles.wideDesc} numberOfLines={2}>
+            {desc}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+      </LinearGradient>
     </BouncyPressable>
   );
 }
@@ -193,121 +222,208 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  topHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  scrollContent: {
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingBottom: 130,
+    gap: 12,
   },
-  topHeaderCol: {
-    flex: 1,
+  topHeader: {
+    paddingTop: 2,
+    paddingBottom: 2,
   },
   topHeaderTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 18,
+    fontSize: 28,
+    lineHeight: 34,
     color: colors.textHeading,
   },
   topHeaderSub: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 11,
+    fontSize: 13,
     color: colors.textMuted,
     marginTop: 1,
   },
-  scrollContent: {
-    padding: spacing.md,
-    paddingTop: 0,
-    paddingBottom: 80,
-  },
 
-  section: {
-    marginBottom: spacing.md,
+  heatCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    gap: 10,
   },
-  sectionTitle: {
+  heatTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 15,
     color: colors.textHeading,
-    marginBottom: spacing.xs,
   },
 
-  /* Flat feature card list */
-  featureList: {
-    gap: 12,
-    marginBottom: spacing.md,
+  sectionHead: {
+    marginTop: 10,
+    marginBottom: -2,
   },
-  featureCard: {
+  sectionTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 20,
+    color: colors.textHeading,
+  },
+  sectionCaption: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12.5,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+
+  /* Half-width tiles */
+  tileRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  tileWrap: {
+    flex: 1,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+  },
+  tile: {
+    minHeight: 186,
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2FF',
+  },
+  tileTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  tileArt: {
+    width: 84,
+    height: 84,
+    marginRight: -6,
+    marginTop: -6,
+  },
+  badge: {
+    minWidth: 26,
+    height: 26,
+    borderRadius: 13,
+    paddingHorizontal: 8,
+    backgroundColor: '#F43F5E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
+  tileTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 16,
+    lineHeight: 20,
+    color: colors.textHeading,
+  },
+  tileDesc: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textMuted,
+    marginTop: 3,
+  },
+  tileTrack: {
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#FDE68A',
+    overflow: 'hidden',
+    marginTop: 10,
+  },
+  tileFill: {
+    height: '100%',
+    borderRadius: 4,
+    backgroundColor: '#F59E0B',
+  },
+
+  /* Wide cards */
+  wideWrap: {
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+  },
+  wide: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#DDD6FE',
-    paddingVertical: 16,
-    paddingHorizontal: 18,
     gap: 14,
+    borderRadius: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2FF',
   },
-  featureCardTextCol: {
-    flex: 1,
-    gap: 4,
+  wideArt: {
+    width: 64,
+    height: 64,
   },
-  featureCardTitle: {
+  wideTitle: {
     fontFamily: fonts.headingBold,
     fontSize: 16,
     color: colors.textHeading,
   },
-  featureCardDesc: {
+  wideDesc: {
     fontFamily: fonts.bodyRegular,
     fontSize: 12.5,
-    color: colors.textMuted,
     lineHeight: 17,
-  },
-  featureCardIconBox: {
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureCardIconImage: {
-    width: 52,
-    height: 52,
+    color: colors.textMuted,
+    marginTop: 2,
   },
 
-  /* VIP Spekvia Pro Banner */
+  /* VIP Spekvia Pro banner */
+  vipWrap: {
+    borderRadius: 24,
+    marginTop: 4,
+  },
   vipBanner: {
-    backgroundColor: '#0F172A',
-    borderRadius: 18,
-    padding: spacing.md,
+    borderRadius: 24,
+    padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+  },
+  vipGlow: {
+    position: 'absolute',
+    right: -40,
+    top: -50,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: 'rgba(251, 191, 36, 0.14)',
   },
   vipPassImage: {
-    width: 44,
-    height: 44,
-    marginRight: 10,
+    width: 60,
+    height: 60,
+    marginRight: 12,
   },
   vipContent: {
     flex: 1,
-    paddingRight: 6,
+    paddingRight: 8,
   },
   vipBadge: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#F59E0B',
-    marginBottom: 2,
+    fontFamily: fonts.headingBold,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    color: '#FBBF24',
+    marginBottom: 3,
   },
   vipTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFFFFF',
   },
   vipDesc: {
     fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: '#94A3B8',
-    marginTop: 1,
+    fontSize: 12,
+    lineHeight: 17,
+    color: '#A5B4FC',
+    marginTop: 2,
   },
 });
+

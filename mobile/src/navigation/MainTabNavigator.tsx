@@ -52,7 +52,9 @@ export function MainTabNavigator() {
           elevation: 12,
         },
       }}
-      tabBar={({ state, descriptors, navigation }) => (
+      tabBar={({ state, descriptors, navigation }) =>
+        // A screen can hide the bar (full-screen sessions) with `navigation.setOptions({ tabBarStyle: { display: 'none' } })`.
+        (descriptors[state.routes[state.index].key].options.tabBarStyle as { display?: string } | undefined)?.display === 'none' ? null : (
         <View style={[styles.floatingBar, { bottom: bottomMargin }]}>
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;
@@ -99,7 +101,8 @@ export function MainTabNavigator() {
             );
           })}
         </View>
-      )}
+        )
+      }
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Scenarios" component={ScenariosScreen} />

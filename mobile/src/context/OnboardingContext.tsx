@@ -6,6 +6,8 @@ import type { OnboardingCompleteRequest, ProfileOut } from '../types/api';
 import { useAuth } from './AuthContext';
 import { useAnalytics } from '../lib/analytics';
 import { getLocale, t } from '../i18n';
+import { planFromPreset, presetForAnswers, type LearningPlan, type Struggle } from '../lib/learningPlan';
+import { saveLocalPlan } from '../lib/learningPlanStore';
 
 export type OnboardingDraft = {
   displayName: string;
@@ -20,6 +22,10 @@ export type OnboardingDraft = {
   gender: string | null;
   /** Optional age bracket id (see AGE_OPTIONS), null = skipped. */
   ageRange: string | null;
+  /** "En çok neyi zor buluyorsun?" (onboarding chat); with the goal it picks the suggested plan. */
+  struggle: Struggle | null;
+  /** Set only when the learner changed the suggested plan by hand; null = the suggestion from goal + struggle. */
+  learningPlan: LearningPlan | null;
 };
 
 /** Matches the design prototype's own defaults (`landing/src/app/onboarding/page.tsx`)
@@ -28,12 +34,14 @@ export type OnboardingDraft = {
 const DEFAULT_DRAFT: OnboardingDraft = {
   displayName: '',
   personaId: 'student',
-  learningGoal: t("freeze_barrier"),
+  learningGoal: 'freeze_barrier',
   cefrLevel: 'A2',
   cefrSource: null,
   dailyTargetMinutes: 10,
   gender: null,
   ageRange: null,
+  struggle: null,
+  learningPlan: null,
 };
 
 type OnboardingContextValue = {
@@ -55,7 +63,7 @@ type OnboardingContextValue = {
    * the Onboarding stack to Main on its own. Called from the `Ready` screen's
    * final CTA so the celebratory screen is never skipped by an automatic
    * navigator swap firing the instant the backend call itself succeeds. */
-  finishOnboarding: () => void;
+  finishOnboarding: (profile?: ProfileOut) => void;
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | undefined>(undefined);
@@ -115,6 +123,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     // completion writes. All callers share the same in-flight request.
     if (completionPromiseRef.current) return completionPromiseRef.current;
 
+    const chosenPlan = draft.learningPlan ?? planFromPreset(presetForAnswers(draft.learningGoal, draft.struggle));
     const request = api
       .post<ProfileOut>('/onboarding/complete', {
         display_name: draft.displayName.trim() || t("Konuşmacı"),
@@ -125,10 +134,14 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         native_language: getLocale(),
         ...(draft.gender ? { gender: draft.gender } : {}),
         ...(draft.ageRange ? { age_range: draft.ageRange } : {}),
+        learning_plan: chosenPlan,
       } satisfies OnboardingCompleteRequest)
-      .then((updated) => {
-        setCompletedProfile(updated);
-        return updated;
+      .then(async (updated) => {
+        // The path must follow the plan even if the server could not store it yet.
+        await saveLocalPlan(updated.learning_plan ?? chosenPlan);
+        const withPlan = { ...updated, learning_plan: updated.learning_plan ?? chosenPlan };
+        setCompletedProfile(withPlan);
+        return withPlan;
       })
       .finally(() => {
         if (completionPromiseRef.current === request) {
@@ -140,13 +153,19 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     return request;
   };
 
-  const finishOnboarding = () => {
-    if (completedProfile) {
-      queryClient.setQueryData(['me'], completedProfile);
+  /** `profile`: the result of `completeOnboarding()` when called right after it (state is not updated yet then). */
+  const finishOnboarding = (profile?: ProfileOut) => {
+    const done = profile ?? completedProfile;
+    if (done) {
+      queryClient.setQueryData(['me'], done);
       analytics.track('onboarding_completed', {
-        persona_id: completedProfile.persona_id,
-        learning_goal: completedProfile.learning_goal,
-        cefr_level: completedProfile.cefr_level,
+        persona_id: done.persona_id,
+        learning_goal: done.learning_goal,
+        cefr_level: done.cefr_level,
+        struggle: draft.struggle,
+        plan_preset: done.learning_plan?.preset ?? null,
+        plan_grammar_mode: done.learning_plan?.grammar_mode ?? null,
+        plan_skills: done.learning_plan?.skills.join(',') ?? null,
       });
     }
   };

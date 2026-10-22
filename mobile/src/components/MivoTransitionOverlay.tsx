@@ -21,18 +21,26 @@ export const useMivoTransition = () => useContext(TransitionContext);
 
 type ProviderProps = { children: React.ReactNode };
 
-const MIN_VISIBLE_MS = 1450;
-const MAX_VISIBLE_MS = 8000;
-const NAVIGATE_AFTER_MS = 320;
+/**
+ * Mivo is a fallback, not a toll: we navigate at once and the overlay only appears when the destination is still
+ * not ready after SHOW_DELAY_MS. A fast screen never shows it; a slow one gets a moving Mivo instead of a frozen UI.
+ */
+const SHOW_DELAY_MS = 350;
+/** Once shown, stay at least this long so it does not flash. */
+const MIN_VISIBLE_MS = 600;
+/** Safety net for a destination that never reports ready. */
+const MAX_PENDING_MS = 6000;
 
-/** Full-screen transition that stays visible until the destination reports ready. */
+/** Full-screen transition: navigates immediately, covers the screen only while the destination is genuinely loading. */
 export function MivoTransitionProvider({ children }: ProviderProps) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState(t("Hazırlanıyor…"));
   const fade = useRef(new Animated.Value(0)).current;
+  /** A transition is in progress (destination has not reported ready yet), shown or not. */
+  const pendingRef = useRef(false);
   const visibleRef = useRef(false);
-  const startedAtRef = useRef(0);
-  const navigateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shownAtRef = useRef(0);
+  const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,21 +57,23 @@ export function MivoTransitionProvider({ children }: ProviderProps) {
   }, [visible, slide]);
 
   const clearTimers = useCallback(() => {
-    if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current);
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
-    navigateTimerRef.current = null;
+    showTimerRef.current = null;
     closeTimerRef.current = null;
     safetyTimerRef.current = null;
   }, []);
 
   const closeTransition = useCallback(() => {
-    if (!visibleRef.current) return;
-    Animated.timing(fade, {
-      toValue: 0,
-      duration: 260,
-      useNativeDriver: true,
-    }).start(() => {
+    pendingRef.current = false;
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
+    showTimerRef.current = null;
+    if (!visibleRef.current) {
+      clearTimers();
+      return;
+    }
+    Animated.timing(fade, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
       visibleRef.current = false;
       setVisible(false);
       clearTimers();
@@ -71,41 +81,42 @@ export function MivoTransitionProvider({ children }: ProviderProps) {
   }, [clearTimers, fade]);
 
   const finishTransition = useCallback(() => {
-    if (!visibleRef.current) return;
-    const elapsed = Date.now() - startedAtRef.current;
-    const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    if (!pendingRef.current) return;
+    if (!visibleRef.current) {
+      // Ready before the overlay ever appeared: nothing to hide, the user saw no delay at all.
+      closeTransition();
+      return;
+    }
+    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - shownAtRef.current));
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     closeTimerRef.current = setTimeout(closeTransition, remaining);
   }, [closeTransition]);
 
   const transitionTo = useCallback(
     (callback: () => void, customMessage?: string) => {
-      if (visibleRef.current) return;
+      if (pendingRef.current) return;
       clearTimers();
-      visibleRef.current = true;
-      startedAtRef.current = Date.now();
+      pendingRef.current = true;
       setMessage(customMessage ?? t("Hazırlanıyor…"));
-      setVisible(true);
-      fade.setValue(0);
 
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 220,
-        useNativeDriver: true,
-      }).start();
+      showTimerRef.current = setTimeout(() => {
+        if (!pendingRef.current) return;
+        visibleRef.current = true;
+        shownAtRef.current = Date.now();
+        fade.setValue(0);
+        setVisible(true);
+        Animated.timing(fade, { toValue: 1, duration: 180, useNativeDriver: true }).start();
+      }, SHOW_DELAY_MS);
+      safetyTimerRef.current = setTimeout(closeTransition, MAX_PENDING_MS);
 
-      navigateTimerRef.current = setTimeout(() => {
-        try {
-          callback();
-        } catch (error) {
-          console.warn('[MivoTransition] Navigation failed:', error);
-          finishTransition();
-        }
-      }, NAVIGATE_AFTER_MS);
-
-      safetyTimerRef.current = setTimeout(closeTransition, MAX_VISIBLE_MS);
+      try {
+        callback();
+      } catch (error) {
+        console.warn('[MivoTransition] Navigation failed:', error);
+        closeTransition();
+      }
     },
-    [clearTimers, closeTransition, fade, finishTransition]
+    [clearTimers, closeTransition, fade]
   );
 
   useEffect(() => clearTimers, [clearTimers]);

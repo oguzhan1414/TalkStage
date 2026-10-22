@@ -1,11 +1,13 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Toast } from '../components/Toast';
+import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { ScreenHeader } from '../components/ScreenHeader';
 import {
   ADJECTIVES_100,
   ADJECTIVES_200,
@@ -561,19 +563,18 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn} accessibilityRole="button" accessibilityLabel={t("Geri")}>
-          <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
-        </Pressable>
-        <View style={styles.headerTitleCol}>
-          <Text style={styles.headerTitle}>{t("Kelime Kütüphanesi")}</Text>
-          <Text style={styles.headerSub}>{t("En Sık Kullanılan 900 Çekirdek Kelime")}</Text>
-        </View>
-        <Pressable onPress={() => navigation.navigate('Main', { screen: 'Vocab' })} style={styles.chestBtn} accessibilityRole="button">
-          <Ionicons name="archive" size={15} color={colors.brand} />
-          <Text style={styles.chestBtnText}>{t("Sandığım")}</Text>
-        </Pressable>
-      </View>
+      <ScreenHeader
+        title={t("Kütüphane")}
+        subtitle={t("En Sık Kullanılan 900 Çekirdek Kelime")}
+        icon={minimalFeatureIcons.vocabLibrary}
+        onBack={() => navigation.goBack()}
+        right={
+          <Pressable onPress={() => navigation.navigate('Main', { screen: 'Vocab' })} style={styles.chestBtn} accessibilityRole="button">
+            <Image source={stateImages.emptyChest} style={styles.chestBtnIcon} resizeMode="contain" />
+            <Text style={styles.chestBtnText}>{t("Sandığım")}</Text>
+          </Pressable>
+        }
+      />
 
       <FlatList
         data={data}
@@ -611,35 +612,13 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  chestBtnIcon: { width: 26, height: 26 },
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  backBtn: { width: 36, height: 36, borderRadius: radii.pill, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
-  headerTitleCol: { flex: 1, marginLeft: 12 },
-  headerTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
-  headerSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
-  chestBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    backgroundColor: '#EEF2FF',
-  },
-  chestBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.brand },
-
+  chestBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 6, paddingRight: 12, paddingVertical: 5, borderRadius: radii.pill, backgroundColor: '#FFF7E0', borderWidth: 1, borderColor: '#FDE68A' },
+  chestBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
   listContent: { paddingBottom: 120 },
   listHeader: { paddingHorizontal: spacing.md, paddingTop: spacing.md, gap: 12 },
-
-  summaryCard: { borderRadius: radii.lg, padding: 18 },
+  summaryCard: { borderRadius: 26, padding: 20 },
   summaryTop: { flexDirection: 'row', alignItems: 'center' },
   summaryLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: 'rgba(255,255,255,0.8)', letterSpacing: 0.4 },
   summaryValue: { fontFamily: fonts.headingBold, fontSize: 34, color: '#FFFFFF', marginTop: 2 },
@@ -649,24 +628,12 @@ const styles = StyleSheet.create({
   summaryBadgeText: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
   summaryTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', marginTop: 14, overflow: 'hidden' },
   summaryFill: { height: '100%', borderRadius: 4, backgroundColor: '#FFFFFF' },
-
   catRow: { flexDirection: 'row', gap: 10 },
-  catCard: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 3,
-    paddingVertical: 12,
-    paddingHorizontal: 6,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-  },
+  catCard: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 14, paddingHorizontal: 6, borderRadius: 20, borderWidth: 2, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
   catLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
   catCount: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted },
   catTrack: { height: 4, alignSelf: 'stretch', marginTop: 4, borderRadius: 2, backgroundColor: '#E2E8F0', overflow: 'hidden' },
   catFill: { height: '100%', borderRadius: 2 },
-
   packRow: { flexDirection: 'row', gap: 8 },
   packChip: {
     flex: 1,
@@ -684,7 +651,6 @@ const styles = StyleSheet.create({
   packRangeActive: { color: '#FFFFFF' },
   packPct: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: colors.textMuted },
   packPctActive: { color: 'rgba(255,255,255,0.85)' },
-
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -704,24 +670,16 @@ const styles = StyleSheet.create({
   filterText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
   filterTextActive: { color: '#FFFFFF' },
   filterCount: { fontFamily: fonts.bodyMedium, color: colors.textMuted },
-
-  wordCard: {
-    flexDirection: 'row',
-    marginHorizontal: spacing.md,
-    marginTop: 12,
-    borderRadius: radii.md,
-    backgroundColor: '#FFFFFF',
-    overflow: 'hidden',
-  },
+  wordCard: { flexDirection: 'row', marginHorizontal: spacing.md, marginTop: 12, borderRadius: 22, backgroundColor: '#FFFFFF', overflow: 'hidden', borderWidth: 1, borderColor: '#F1F5F9' },
   wordCardDone: { backgroundColor: '#FAFFFC' },
-  cardAccent: { width: 5 },
-  cardBody: { flex: 1, padding: 14, gap: 8 },
+  cardAccent: { width: 6 },
+  cardBody: { flex: 1, padding: 16, gap: 8 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   wordLine: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 },
   wordTerm: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
   wordRespelling: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
   meaningText: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textBody, marginTop: 3 },
-  soundBtn: { width: 38, height: 38, borderRadius: radii.pill, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  soundBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   tag: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radii.pill },
   tagText: { fontFamily: fonts.headingSemiBold, fontSize: 11 },
@@ -739,29 +697,10 @@ const styles = StyleSheet.create({
   formSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted },
   moreBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
   moreBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
-
   actionsRow: { flexDirection: 'row', gap: 10, marginTop: 2 },
-  knownBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 11,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-  },
+  knownBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderRadius: radii.pill, backgroundColor: '#F1F5F9', borderBottomWidth: 3, borderBottomColor: '#E2E8F0' },
   knownBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
-  addBtn: {
-    flex: 1.2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 11,
-    borderRadius: radii.pill,
-    backgroundColor: colors.brand,
-  },
+  addBtn: { flex: 1.2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderRadius: radii.pill, backgroundColor: colors.brand, borderBottomWidth: 3, borderBottomColor: '#3730A3' },
   addBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#FFFFFF' },
   pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
@@ -770,7 +709,6 @@ const styles = StyleSheet.create({
   statusPillMuted: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   statusPillMutedText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
   undoText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.brand },
-
   emptyBox: { alignItems: 'center', gap: 8, paddingVertical: 40, paddingHorizontal: spacing.lg },
   emptyEmoji: { fontSize: 34 },
   emptyTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: colors.textHeading, textAlign: 'center' },
