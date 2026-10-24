@@ -94,6 +94,9 @@ export type RootStackParamList = {
   /** "Kelime Odaları" (data/wordRooms.ts). */
   WordRooms: undefined;
   WordRoom: { roomId: string };
+  /** New learning path (docs/yeni-ogrenme-yolu.md): a reading lesson and a vocabulary section. */
+  PathLesson: { stepId: string };
+  PathVocab: { stepId: string };
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -131,6 +134,8 @@ export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackPara
 
 export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRooms'>;
 export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
+export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
+export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
 
 
 export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;

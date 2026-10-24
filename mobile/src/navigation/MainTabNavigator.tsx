@@ -3,7 +3,7 @@ import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { navIcons } from '../assets/images';
-import { HomeScreen } from '../screens/HomeScreen';
+import { PathHomeScreen } from '../screens/PathHomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ScenariosScreen } from '../screens/ScenariosScreen';
 import { VocabScreen } from '../screens/VocabScreen';
@@ -104,7 +104,7 @@ export function MainTabNavigator() {
         )
       }
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={PathHomeScreen} />
       <Tab.Screen name="Scenarios" component={ScenariosScreen} />
       <Tab.Screen name="Vocab" component={VocabScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

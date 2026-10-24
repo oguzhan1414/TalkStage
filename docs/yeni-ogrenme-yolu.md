@@ -1,6 +1,6 @@
 # Yeni öğrenme yolu: okuma merkezli, tek hat
 
-Durum: taslak, onay bekliyor (2026-10-25). Önce bu belge onaylanır, sonra kodlama ve içerik üretimi başlar.
+Durum: taslak (2026-10-25). A1 Ünite 1 yazıldı ve uygulamada önizlenebilir (`yeni-ogrenme-yolu` dalı). Önce bu belge onaylanır, sonra kodlama ve içerik üretimi başlar.
 
 ## 0. Neden değiştiriyoruz
 
@@ -125,11 +125,11 @@ Kısaltmalar: **O** = okuma dersi, **K** = kelime bölümü, **S** = Mivo sahnes
 ### Ünite 1: Merhaba (tanışma)
 | Adım | Tür | Bölüm | Gramer ipucu |
 |---|---|---|---|
-| 1 | O | Maya trenden iner | I am / You are (to be olumlu) |
-| 2 | O | Ev arkadaşı Leo | He/She/It is, We/They are |
+| 1 | O | Bristol'a hoş geldin | I am / You are (to be olumlu) |
+| 2 | O | Küçük ama güzel bir daire | He/She/It is, We/They are |
 | 3 | K | Ülkeler ve sayılar 1–20 | (sistematik set) |
-| 4 | O | "Ben müzisyen değilim!" | to be olumsuz (isn't, aren't) |
-| 5 | O | Kafede Rosa ile tanışma | to be soru ve kısa cevap (Are you…? Yes, I am.) |
+| 4 | O | Bu bir yanlışlık! | to be olumsuz (isn't, aren't) |
+| 5 | O | Kafede Rosa | to be soru ve kısa cevap (Are you…? Yes, I am.) |
 | 6 | S | First Day at Language Class | `vs-a1-first-day` |
 
 ### Ünite 2: Yeni oda
