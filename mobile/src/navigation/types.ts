@@ -91,6 +91,9 @@ export type RootStackParamList = {
   MispronouncedWords: undefined;
   PodcastList: undefined;
   PodcastPlayer: { episodeId: string };
+  /** "Kelime Odaları" (data/wordRooms.ts). */
+  WordRooms: undefined;
+  WordRoom: { roomId: string };
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -125,6 +128,9 @@ export type VocabDecksScreenProps = NativeStackScreenProps<RootStackParamList, '
 export type VocabLibraryScreenProps = NativeStackScreenProps<RootStackParamList, 'VocabLibrary'>;
 
 export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackParamList, 'MispronouncedWords'>;
+
+export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRooms'>;
+export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
 
 
 export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;

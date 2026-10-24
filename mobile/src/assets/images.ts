@@ -77,6 +77,7 @@ export const minimalFeatureIcons = {
   podcasts: require('../../assets/images/premium/podcasts-minimal.webp'),
   pronunciation: require('../../assets/images/premium/pronunciation-minimal.webp'),
   badges: require('../../assets/images/premium/badges-minimal.webp'),
+  wordRooms: require('../../assets/images/premium/word-rooms-minimal.webp'),
 } as const;
 
 export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.webp');

@@ -98,6 +98,13 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           tint="#FFE4E6"
           onPress={() => navigation.navigate('MispronouncedWords')}
         />
+        <FeatureWide
+          title={t("Kelime Odaları")}
+          desc={t("Gerçek bir odada eşyaları bul, kelimeler yerleriyle aklında kalsın")}
+          icon={minimalFeatureIcons.wordRooms}
+          tint="#E0E7FF"
+          onPress={() => navigation.navigate('WordRooms')}
+        />
 
         {/* ---------------- Gelişimim ---------------- */}
         <SectionHead title={t("Gelişimim")} caption={t("Nasıl gittiğine bak")} />

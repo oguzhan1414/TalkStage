@@ -91,6 +91,8 @@ export function RootNavigator() {
           <Stack.Screen name="VocabLibrary" getComponent={() => require('../screens/VocabLibraryScreen').VocabLibraryScreen} />
           <Stack.Screen name="VocabDecks" getComponent={() => require('../screens/VocabDecksScreen').VocabDecksScreen} />
           <Stack.Screen name="MispronouncedWords" getComponent={() => require('../screens/MispronouncedWordsScreen').MispronouncedWordsScreen} />
+          <Stack.Screen name="WordRooms" getComponent={() => require('../screens/WordRoomsScreen').WordRoomsScreen} />
+          <Stack.Screen name="WordRoom" getComponent={() => require('../screens/WordRoomScreen').WordRoomScreen} />
           <Stack.Screen
             name="Paywall"
             component={PaywallScreen}
