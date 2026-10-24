@@ -3321,5 +3321,11 @@
   "Yola dön": "Back to the path",
   "Her kelimeye dokun ve dinle. Sonra eşleştirme oyunu başlayacak.": "Tap each word and listen. Then the matching game starts.",
   "Eşleştir · {{n}}/{{total}}": "Match · {{n}}/{{total}}",
-  "{{n}} kelime cebinde!": "{{n}} words in your pocket!"
+  "{{n}} kelime cebinde!": "{{n}} words in your pocket!",
+  "Ünitede öğrendiklerini benimle konuşarak dene!": "Try what you learnt in this unit by talking with me!",
+  "Kısa bir kelime molası: dinle, eşleştir, cebe koy.": "A short word break: listen, match, pocket them.",
+  "{{level}} · Ünite {{n}}": "{{level}} · Unit {{n}}",
+  "Önceki": "Previous",
+  "Kelime bölümü": "Words",
+  "Mivo ile sahne": "Scene with Mivo"
 }

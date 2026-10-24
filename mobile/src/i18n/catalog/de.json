@@ -3344,5 +3344,11 @@
   "Yola dön": "Zurück zum Pfad",
   "Her kelimeye dokun ve dinle. Sonra eşleştirme oyunu başlayacak.": "Tippe auf jedes Wort und hör zu. Dann beginnt das Zuordnungsspiel.",
   "Eşleştir · {{n}}/{{total}}": "Zuordnen · {{n}}/{{total}}",
-  "{{n}} kelime cebinde!": "{{n}} Wörter in der Tasche!"
+  "{{n}} kelime cebinde!": "{{n}} Wörter in der Tasche!",
+  "Ünitede öğrendiklerini benimle konuşarak dene!": "Probier das Gelernte aus, indem du mit mir sprichst!",
+  "Kısa bir kelime molası: dinle, eşleştir, cebe koy.": "Eine kurze Wortpause: hören, zuordnen, einstecken.",
+  "{{level}} · Ünite {{n}}": "{{level}} · Einheit {{n}}",
+  "Önceki": "Zurück",
+  "Kelime bölümü": "Wörter",
+  "Mivo ile sahne": "Szene mit Mivo"
 }

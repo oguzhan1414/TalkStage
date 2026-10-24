@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
@@ -18,30 +18,30 @@ import { api } from '../lib/api';
 import { currentStep, isDone, isPassed, recordStep, skipStep, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { voiceSceneRoomParams } from '../lib/voiceSceneLaunch';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, shadow, spacing } from '../theme/tokens';
+import { colors, fonts, spacing } from '../theme/tokens';
 import type { ProfileOut, ProgressOut } from '../types/api';
 
-const TYPE_ICON = { reading: 'book', vocab: 'grid', scene: 'mic' } as const;
 const CHEST_KEY = 'spekvia.path.chest';
-
+const TAB_BAR = 68;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
-/** Card colours per step type: reading = indigo story, vocab = green, scene = Mivo violet, soon = grey. */
-const CARD_GRADIENT: Record<string, [string, string]> = {
-  reading: ['#4F46E5', '#7C3AED'],
-  vocab: ['#059669', '#10B981'],
-  scene: ['#7C3AED', '#C026D3'],
-  soon: ['#94A3B8', '#CBD5E1'],
+/** Medallion colours per step type. */
+const RING: Record<string, { ring: string; fill: [string, string] }> = {
+  reading: { ring: '#FDE68A', fill: ['#6366F1', '#8B5CF6'] },
+  vocab: { ring: '#BBF7D0', fill: ['#10B981', '#059669'] },
+  scene: { ring: '#F5D0FE', fill: ['#A855F7', '#7C3AED'] },
+  soon: { ring: '#E2E8F0', fill: ['#CBD5E1', '#94A3B8'] },
 };
 
 /**
- * Home of the new learning path (docs/yeni-ogrenme-yolu.md): one big card for the next step of the level's story,
- * the unit strip with the coming Mivo scene, a one-line recap of the previous episode and Mivo's daily chest.
+ * Home of the new learning path (docs/yeni-ogrenme-yolu.md). One screen, no scrolling: the next step of the level's
+ * story as a big medallion (swipe or use the arrows to browse), Mivo beside it recalling the last episode, the
+ * unit's steps as dots, the daily chest in the corner and the Mivo chat button.
  */
 export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { transitionTo } = useMivoTransition();
   const insets = useSafeAreaInsets();
-  const { width: winW } = useWindowDimensions();
+  const { width: winW, height: winH } = useWindowDimensions();
   const { progress, reload } = usePathProgress();
 
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
@@ -50,25 +50,30 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const level = pathLevel('A1');
   const steps = useMemo(() => flatSteps(level), [level]);
   const current = progress ? currentStep(level, progress) : steps[0];
-  const [focused, setFocused] = useState<FlatStep>(current);
+  const [index, setIndex] = useState(current.index);
   const listRef = useRef<FlatList<FlatStep>>(null);
-
-  const CARD_W = winW - spacing.md * 2 - 24;
-  const SNAP = CARD_W + 12;
+  const focused = steps[index] ?? steps[0];
 
   // Land on the next step whenever progress changes (after finishing a lesson).
   useEffect(() => {
     if (!progress) return;
-    setFocused(current);
-    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: current.index * SNAP, animated: false }));
+    setIndex(current.index);
+    requestAnimationFrame(() => listRef.current?.scrollToIndex({ index: current.index, animated: false }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, current.step.id]);
+
+  const goTo = (i: number) => {
+    const next = Math.max(0, Math.min(steps.length - 1, i));
+    setIndex(next);
+    listRef.current?.scrollToIndex({ index: next, animated: true });
+  };
 
   const xp = xpLevelInfo(profile?.xp);
   const target = profile?.daily_target_minutes ?? 10;
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
   const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
-  const fabBottom = Math.max(insets.bottom, 16) + 68 + 14;
+  const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
+  const medal = Math.round(Math.min(winW * 0.74, winH * 0.36, 320));
 
   const [chatLockOpen, setChatLockOpen] = useState(false);
   const [chestOpen, setChestOpen] = useState(false);
@@ -79,14 +84,23 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       .catch(() => setChestOpenedToday(false));
   }, []);
 
-  /** The next reading after the current position: its words are the chest's gift. */
-  const nextReading = useMemo(() => {
-    const from = current.index + (current.step.kind === 'reading' && progress && !isDone(progress, current.step.id) ? 0 : 1);
-    return steps.slice(from).find((f) => f.step.kind === 'reading')?.step;
-  }, [steps, current, progress]);
+  /** The next reading the learner has not done yet: its words are the chest's gift. */
+  const nextReading = useMemo(
+    () => steps.slice(current.index).find((f) => f.step.kind === 'reading' && !(progress && isDone(progress, f.step.id)))?.step,
+    [steps, current.index, progress]
+  );
 
-  const openStep = (f: FlatStep) => {
-    const s = f.step;
+  /** What Mivo says next to the medallion: the previous episode, or the story's opening line. */
+  const mivoLine = (() => {
+    const s = focused.step;
+    if (s.kind === 'reading' && s.episode.recap) return loc(s.episode.recap);
+    if (s.kind === 'reading') return loc(level.story.blurb);
+    if (stepType(s) === 'scene') return t("Ünitede öğrendiklerini benimle konuşarak dene!");
+    if (stepType(s) === 'vocab') return t("Kısa bir kelime molası: dinle, eşleştir, cebe koy.");
+    return loc(level.story.blurb);
+  })();
+
+  const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
     else if (s.kind === 'scene') {
@@ -100,176 +114,132 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     }
   };
 
-  const unit = focused.unit;
-  const nextSceneIn = (() => {
-    const idx = unit.steps.findIndex((s) => stepType(s) === 'scene');
-    const pos = focused.indexInUnit;
-    return idx > pos ? idx - pos : 0;
-  })();
-
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <LinearGradient colors={['#E0E7FF', '#F8FAFC']} style={StyleSheet.absoluteFill} />
+    <View style={styles.container}>
+      <LinearGradient colors={['#4F8EF7', '#8DBBFB', '#D6E7FF', '#F8FAFC']} locations={[0, 0.35, 0.62, 0.9]} style={StyleSheet.absoluteFill} />
+      <Clouds top={winH * 0.5} width={winW} />
 
-      {/* Top strip: Mivo friendship level, today's goal, streak */}
-      <View style={styles.topStrip}>
-        <Pressable onPress={() => navigation.navigate('Profile')} style={styles.levelBadge} accessibilityRole="button">
-          <Text style={styles.levelBadgeNum}>{xp.level}</Text>
-        </Pressable>
-        <View style={styles.goal}>
-          <View style={styles.goalRow}>
-            <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
-            <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+        {/* Top: Mivo friendship level, today's goal, streak */}
+        <View style={styles.top}>
+          <Pressable onPress={() => navigation.navigate('Profile')} style={styles.levelBadge} accessibilityRole="button">
+            <Text style={styles.levelNum}>{xp.level}</Text>
+          </Pressable>
+          <View style={styles.goal}>
+            <View style={styles.goalRow}>
+              <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
+              <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
+            </View>
+            <View style={styles.goalTrack}>
+              <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
+            </View>
           </View>
-          <View style={styles.goalTrack}>
-            <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
+          <View style={styles.streak}>
+            <Ionicons name="flame" size={22} color="#F97316" />
+            <Text style={styles.streakNum}>{profile?.streak_count ?? 0}</Text>
           </View>
         </View>
-        <View style={styles.streak}>
-          <Ionicons name="flame" size={20} color="#F97316" />
-          <Text style={styles.streakText}>{profile?.streak_count ?? 0}</Text>
-        </View>
-      </View>
 
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: fabBottom + 40 }]} showsVerticalScrollIndicator={false}>
-        {/* Story line */}
-        <View style={styles.storyLine}>
-          <Text style={styles.storyLevel}>{`${level.id} · ${level.name}`}</Text>
-          <Text style={styles.storyTitle} numberOfLines={1}>
-            {loc(level.story.title)}
-          </Text>
-        </View>
-
-        {/* Step cards (swipe to browse) */}
-        <FlatList
-          ref={listRef}
-          data={steps}
-          keyExtractor={(f) => f.step.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={SNAP}
-          decelerationRate="fast"
-          contentContainerStyle={{ paddingHorizontal: spacing.md + 12, gap: 12 }}
-          getItemLayout={(_, i) => ({ length: SNAP, offset: SNAP * i, index: i })}
-          initialNumToRender={3}
-          windowSize={5}
-          onMomentumScrollEnd={(e) => {
-            const i = Math.round(e.nativeEvent.contentOffset.x / SNAP);
-            const f = steps[Math.max(0, Math.min(steps.length - 1, i))];
-            if (f) setFocused(f);
-          }}
-          renderItem={({ item }) => (
-            <StepCard
-              f={item}
-              width={CARD_W}
-              progress={progress}
-              isCurrent={item.step.id === current.step.id}
-              isFuture={item.index > current.index}
-              onOpen={() => openStep(item)}
-              onSkip={async () => {
-                await skipStep(item.step.id);
-                reload();
+        {/* Story + chest */}
+        <View style={styles.storyRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.storyKicker}>{t("{{level}} · Ünite {{n}}", { level: level.id, n: focused.unit.number })}</Text>
+            <Text style={styles.storyTitle} numberOfLines={1}>
+              {loc(level.story.title)}
+            </Text>
+          </View>
+          {nextReading ? (
+            <BouncyPressable
+              onPress={() => {
+                setChestOpen(true);
+                setChestOpenedToday(true);
+                AsyncStorage.setItem(CHEST_KEY, todayKey()).catch(() => {});
               }}
-            />
-          )}
-        />
-
-        {/* Previous episode recap */}
-        {focused.step.kind === 'reading' && focused.step.episode.recap ? (
-          <View style={styles.recap}>
-            <Ionicons name="time-outline" size={16} color={colors.brand} />
-            <Text style={styles.recapText}>
-              <Text style={styles.recapLabel}>{t("Önceki bölümde: ")}</Text>
-              {loc(focused.step.episode.recap)}
-            </Text>
-          </View>
-        ) : null}
-
-        {/* Unit strip */}
-        <View style={[styles.unitCard, shadow.card]}>
-          <View style={styles.unitHead}>
-            <Text style={styles.unitTitle}>{t("Ünite {{n}}: {{title}}", { n: unit.number, title: loc(unit.title) })}</Text>
-            <Text style={styles.unitCount}>
-              {t("{{done}}/{{total}}", { done: progress ? unit.steps.filter((s) => isPassed(progress, s.id)).length : 0, total: unit.steps.length })}
-            </Text>
-          </View>
-          <View style={styles.nodes}>
-            {unit.steps.map((s, i) => {
-              const type = stepType(s);
-              const done = progress ? isDone(progress, s.id) : false;
-              const skipped = progress ? !!progress.skipped[s.id] : false;
-              const here = s.id === focused.step.id;
-              const isScene = type === 'scene';
-              return (
-                <View key={s.id} style={styles.nodeWrap}>
-                  {i > 0 ? <View style={[styles.nodeLine, done && styles.nodeLineDone]} /> : null}
-                  <Pressable
-                    onPress={() => {
-                      const f = steps.find((x) => x.step.id === s.id);
-                      if (!f) return;
-                      setFocused(f);
-                      listRef.current?.scrollToOffset({ offset: f.index * SNAP, animated: true });
-                    }}
-                    style={[
-                      styles.node,
-                      isScene && styles.nodeScene,
-                      done && styles.nodeDone,
-                      skipped && styles.nodeSkipped,
-                      here && styles.nodeHere,
-                      s.kind === 'soon' && styles.nodeSoon,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={stepTitle(s)}
-                  >
-                    {isScene && !done ? (
-                      <Image source={mivoVoiceImages.speak} style={styles.nodeMivo} />
-                    ) : (
-                      <Ionicons
-                        name={done ? 'checkmark' : s.kind === 'soon' ? 'lock-closed' : TYPE_ICON[type]}
-                        size={done ? 18 : 15}
-                        color={done ? '#FFFFFF' : s.kind === 'soon' ? '#94A3B8' : colors.brand}
-                      />
-                    )}
-                  </Pressable>
-                </View>
-              );
-            })}
-          </View>
-          <Text style={styles.unitHint}>
-            {nextSceneIn > 1
-              ? t("{{n}} adım sonra Mivo'yla konuşuyorsun 🎙️", { n: nextSceneIn - 1 })
-              : nextSceneIn === 1
-                ? t("Sıradaki adım Mivo'yla sesli sahne 🎙️")
-                : t("Ünitenin sonunda Mivo seni bekliyor.")}
-          </Text>
+              style={styles.gift}
+              hapticType="medium"
+              scaleTo={0.9}
+            >
+              <Ionicons name="gift" size={28} color="#F59E0B" />
+              {!chestOpenedToday ? <View style={styles.giftDot} /> : null}
+            </BouncyPressable>
+          ) : null}
         </View>
 
-        {/* Mivo's chest: the next episode's words, once a day */}
-        {nextReading && nextReading.kind === 'reading' ? (
-          <BouncyPressable
-            onPress={() => {
-              setChestOpen(true);
-              setChestOpenedToday(true);
-              AsyncStorage.setItem(CHEST_KEY, todayKey()).catch(() => {});
-            }}
-            style={[styles.chest, shadow.card]}
-            hapticType="medium"
-            scaleTo={0.97}
-          >
-            <View style={styles.chestIcon}>
-              <Ionicons name="gift" size={26} color="#F59E0B" />
-              {!chestOpenedToday ? <View style={styles.chestDot} /> : null}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.chestTitle}>{t("Mivo'nun sandığı")}</Text>
-              <Text style={styles.chestSub}>
-                {chestOpenedToday ? t("Sıradaki bölümün kelimelerine göz at") : t("Bugünün sandığı hazır! Aç ve sıradaki bölüme hazırlan")}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-          </BouncyPressable>
-        ) : null}
-      </ScrollView>
+        {/* Mivo recalls the story */}
+        <View style={styles.mivoRow}>
+          <Image source={mivoVoiceImages.speak} style={styles.mivo} resizeMode="contain" />
+          <View style={styles.bubble}>
+            <Text style={styles.bubbleText} numberOfLines={3}>
+              {mivoLine}
+            </Text>
+          </View>
+        </View>
+
+        {/* The medallion carousel */}
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <FlatList
+            ref={listRef}
+            data={steps}
+            keyExtractor={(f) => f.step.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            getItemLayout={(_, i) => ({ length: winW, offset: winW * i, index: i })}
+            initialScrollIndex={current.index}
+            initialNumToRender={3}
+            windowSize={3}
+            onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / winW))}
+            renderItem={({ item }) => (
+              <View style={{ width: winW, alignItems: 'center' }}>
+                <Medallion
+                  f={item}
+                  size={medal}
+                  progress={progress}
+                  isFuture={item.index > current.index}
+                  onOpen={() => openStep(item.step)}
+                  onSkip={async () => {
+                    await skipStep(item.step.id);
+                    reload();
+                  }}
+                />
+              </View>
+            )}
+          />
+          {index > 0 ? (
+            <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, styles.arrowLeft]} hitSlop={10} accessibilityLabel={t("Önceki")}>
+              <Ionicons name="arrow-back" size={24} color={colors.brand} />
+            </Pressable>
+          ) : null}
+          {index < steps.length - 1 ? (
+            <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, styles.arrowRight]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
+              <Ionicons name="arrow-forward" size={24} color={colors.brand} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        {/* Unit steps as dots */}
+        <View style={[styles.dots, { marginBottom: Math.max(insets.bottom, 16) + TAB_BAR + 18 }]}>
+          {focused.unit.steps.map((s) => {
+            const done = progress ? isDone(progress, s.id) : false;
+            const skipped = progress ? !!progress.skipped[s.id] : false;
+            const here = s.id === focused.step.id;
+            const scene = stepType(s) === 'scene';
+            return (
+              <Pressable
+                key={s.id}
+                onPress={() => {
+                  const f = steps.find((x) => x.step.id === s.id);
+                  if (f) goTo(f.index);
+                }}
+                hitSlop={6}
+                style={[styles.dot, scene && styles.dotScene, done && styles.dotDone, skipped && styles.dotSkipped, here && styles.dotHere]}
+              >
+                {scene ? <Ionicons name="mic" size={11} color={done ? '#FFFFFF' : '#7C3AED'} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </SafeAreaView>
 
       {/* Mivo chat button (bottom right) */}
       <BouncyPressable
@@ -308,106 +278,115 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           </Pressable>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
-function StepCard({
+/** Soft cloud bank across the screen, the horizon under the medallion. */
+function Clouds({ top, width }: { top: number; width: number }) {
+  const puffs = [0.02, 0.18, 0.36, 0.55, 0.72, 0.9].map((x, i) => ({ left: width * x - 70, size: i % 2 ? 150 : 190 }));
+  return (
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { top }]}>
+      {puffs.map((p, i) => (
+        <View key={i} style={[styles.puff, { left: p.left, width: p.size, height: p.size, borderRadius: p.size / 2, top: i % 2 ? 18 : 0 }]} />
+      ))}
+      <View style={[styles.cloudBase, { top: 70 }]} />
+    </View>
+  );
+}
+
+function Medallion({
   f,
-  width,
+  size,
   progress,
-  isCurrent,
   isFuture,
   onOpen,
   onSkip,
 }: {
   f: FlatStep;
-  width: number;
+  size: number;
   progress: PathProgress | null;
-  isCurrent: boolean;
   isFuture: boolean;
   onOpen: () => void;
   onSkip: () => void;
 }) {
   const s = f.step;
   const type = stepType(s);
-  const stars = progress?.stars[s.id] ?? 0;
   const soon = s.kind === 'soon';
   const locked = soon || isFuture;
+  const palette = RING[soon ? 'soon' : type];
+  const stars = progress?.stars[s.id] ?? 0;
+  const done = progress ? isDone(progress, s.id) : false;
+  const passed = progress ? isPassed(progress, s.id) : false;
   const kicker =
     s.kind === 'reading'
-      ? t("Ünite {{u}} · Bölüm {{n}}", { u: f.unit.number, n: s.episode.number })
+      ? t("Bölüm {{n}}", { n: s.episode.number })
       : type === 'vocab'
-        ? t("Ünite {{u}} · Kelime bölümü", { u: f.unit.number })
-        : t("Ünite {{u}} · Mivo ile sahne", { u: f.unit.number });
-  const grammar = s.kind === 'reading' ? loc(s.episode.grammar) : s.kind === 'soon' && s.grammar ? loc(s.grammar) : null;
+        ? t("Kelime bölümü")
+        : t("Mivo ile sahne");
   const cta = soon
     ? t("Yakında")
     : isFuture
-      ? t("Önce önceki adımlar")
+      ? t("Kilitli")
       : type === 'scene'
-        ? t("Mivo'yla konuş")
-        : stars > 0
+        ? t("Konuş")
+        : done
           ? t("Tekrarla")
-          : type === 'vocab'
-            ? t("Kelimelere başla")
-            : t("Başla");
+          : t("Başla");
 
   return (
-    <View style={{ width }}>
-      <LinearGradient colors={CARD_GRADIENT[soon ? 'soon' : type]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.card, isCurrent && styles.cardCurrent]}>
-        <View style={styles.cardGlow} />
-        <Image
-          source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
-          style={[styles.cardMivo, soon && { opacity: 0.35 }]}
-          resizeMode="contain"
-        />
-        <Text style={styles.cardKicker}>{kicker}</Text>
-        <Text style={styles.cardTitle} numberOfLines={2}>
-          {stepTitle(s)}
-        </Text>
-        <View style={styles.cardChips}>
-          {grammar ? (
-            <View style={styles.chip}>
-              <Text style={styles.chipText} numberOfLines={1}>
-                {grammar}
-              </Text>
-            </View>
-          ) : null}
-          {s.kind === 'reading' ? (
-            <View style={styles.chip}>
-              <Ionicons name="time-outline" size={12} color="#FFFFFF" />
-              <Text style={styles.chipText}>{t("~{{n}} dk", { n: s.episode.minutes })}</Text>
-            </View>
-          ) : s.kind === 'vocab' ? (
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>{t("{{n}} kelime", { n: s.words.length })}</Text>
-            </View>
-          ) : null}
-        </View>
-        <View style={{ flex: 1 }} />
-        {type !== 'scene' ? (
-          <View style={styles.stars}>
-            {[1, 2, 3].map((n) => (
-              <Ionicons key={n} name={n <= stars ? 'star' : 'star-outline'} size={26} color={n <= stars ? '#FDE047' : 'rgba(255,255,255,0.6)'} />
-            ))}
+    <View style={{ alignItems: 'center', width: size + 40 }}>
+      <View style={[styles.medalRing, { width: size, height: size, borderRadius: size / 2, borderColor: palette.ring }]}>
+        <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.medal, { borderRadius: size / 2 }]}>
+          <Image
+            source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
+            style={[styles.medalArt, { width: size * 0.62, height: size * 0.62, opacity: locked ? 0.35 : 0.95 }]}
+            resizeMode="contain"
+          />
+          <LinearGradient colors={['rgba(15,23,42,0.45)', 'rgba(15,23,42,0)']} style={styles.medalShade} />
+          <View style={styles.medalText}>
+            <Text style={styles.medalKicker}>{kicker}</Text>
+            <Text style={[styles.medalTitle, { fontSize: size > 280 ? 24 : 21 }]} numberOfLines={2}>
+              {stepTitle(s)}
+            </Text>
           </View>
-        ) : null}
-        <Pressable
-          onPress={onOpen}
-          disabled={locked}
-          style={({ pressed }) => [styles.cta, locked && styles.ctaLocked, pressed && { transform: [{ translateY: 2 }] }]}
-          accessibilityRole="button"
-        >
-          {locked ? <Ionicons name="lock-closed" size={16} color="#64748B" /> : null}
-          <Text style={[styles.ctaText, locked && { color: '#64748B' }]}>{cta}</Text>
+          {type !== 'scene' ? (
+            <View style={styles.medalStars}>
+              {[1, 2, 3].map((n) => (
+                <Ionicons key={n} name="star" size={n === 2 ? 46 : 38} color={n <= stars ? '#FCD34D' : 'rgba(255,255,255,0.45)'} style={n === 2 ? { marginTop: -10 } : undefined} />
+              ))}
+            </View>
+          ) : null}
+          {locked ? (
+            <View style={styles.medalLock}>
+              <Ionicons name="lock-closed" size={30} color="#FFFFFF" />
+            </View>
+          ) : null}
+        </LinearGradient>
+      </View>
+
+      <Pressable
+        onPress={onOpen}
+        disabled={locked}
+        style={({ pressed }) => [styles.cta, locked && styles.ctaLocked, pressed && { transform: [{ translateY: 2 }] }]}
+        accessibilityRole="button"
+      >
+        <Text style={[styles.ctaText, locked && { color: '#64748B' }]}>{cta}</Text>
+      </Pressable>
+
+      {s.kind === 'reading' ? (
+        <Text style={styles.grammar} numberOfLines={1}>
+          {loc(s.episode.grammar)}
+        </Text>
+      ) : type === 'scene' && !locked && !passed ? (
+        <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
+          <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
         </Pressable>
-        {type === 'scene' && !soon && !isFuture && !(progress && isDone(progress, s.id)) ? (
-          <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
-            <Text style={styles.skipText}>{t("Şimdi değil, okumaya devam et")}</Text>
-          </Pressable>
-        ) : null}
-      </LinearGradient>
+      ) : s.kind === 'soon' && s.grammar ? (
+        <Text style={styles.grammar} numberOfLines={1}>
+          {loc(s.grammar)}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -446,93 +425,104 @@ function ChestSheet({ visible, step, onClose }: { visible: boolean; step: PathSt
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
-  topStrip: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6 },
   levelBadge: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.brand,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4F46E5',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: '#FFFFFF',
-    ...shadow.card,
   },
-  levelBadgeNum: { fontFamily: fonts.headingBold, fontSize: 18, color: '#FFFFFF' },
-  goal: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8, gap: 6, ...shadow.card },
+  levelNum: { fontFamily: fonts.headingBold, fontSize: 19, color: '#FFFFFF' },
+  goal: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 9, gap: 6 },
   goalRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  goalLabel: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
-  goalValue: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textBody },
+  goalLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading },
+  goalValue: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textBody },
   goalTrack: { height: 8, borderRadius: 4, backgroundColor: '#E2E8F0', overflow: 'hidden' },
   goalFill: { height: '100%', borderRadius: 4, backgroundColor: '#22C55E' },
-  streak: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 10, height: 46, ...shadow.card },
-  streakText: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
+  streak: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 12, height: 50 },
+  streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
-  scroll: { gap: 14 },
-  storyLine: { paddingHorizontal: spacing.md + 4, marginTop: 4 },
-  storyLevel: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.6, color: colors.brand, textTransform: 'uppercase' },
-  storyTitle: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading, marginTop: 1 },
+  storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 14 },
+  storyKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' },
+  storyTitle: { fontFamily: fonts.headingBold, fontSize: 24, color: '#FFFFFF', marginTop: 1 },
+  gift: { width: 54, height: 54, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  giftDot: { position: 'absolute', top: 6, right: 6, width: 12, height: 12, borderRadius: 6, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#FFFFFF' },
 
-  card: { height: 360, borderRadius: 28, padding: 20, overflow: 'hidden' },
-  cardCurrent: { borderWidth: 3, borderColor: '#FDE68A' },
-  cardGlow: { position: 'absolute', right: -60, top: -60, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(255,255,255,0.14)' },
-  cardMivo: { position: 'absolute', right: -10, bottom: 70, width: 150, height: 150 },
-  cardKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.5, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase' },
-  cardTitle: { fontFamily: fonts.headingBold, fontSize: 27, lineHeight: 33, color: '#FFFFFF', marginTop: 6, maxWidth: '85%' },
-  cardChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10, maxWidth: '75%' },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
-  chipText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#FFFFFF' },
-  stars: { flexDirection: 'row', gap: 6, marginBottom: 12 },
+  mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 8 },
+  mivo: { width: 76, height: 76 },
+  bubble: { flex: 1, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 14 },
+  bubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
+
+  medalRing: {
+    borderWidth: 12,
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  medal: { flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  medalArt: { position: 'absolute', bottom: 0 },
+  medalShade: { position: 'absolute', left: 0, right: 0, top: 0, height: '55%' },
+  medalText: { position: 'absolute', top: '17%', left: '12%', right: '12%', alignItems: 'center' },
+  medalKicker: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: 'rgba(255,255,255,0.9)' },
+  medalTitle: { fontFamily: fonts.headingBold, color: '#FFFFFF', textAlign: 'center', marginTop: 2 },
+  medalStars: { position: 'absolute', bottom: '20%', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
   cta: {
-    flexDirection: 'row',
-    gap: 8,
+    marginTop: -32,
+    minWidth: 190,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FDE047',
-    borderRadius: 18,
-    paddingVertical: 15,
-    borderBottomWidth: 4,
-    borderBottomColor: '#CA8A04',
+    backgroundColor: '#FCD34D',
+    borderRadius: 32,
+    paddingVertical: 16,
+    paddingHorizontal: 30,
+    borderBottomWidth: 5,
+    borderBottomColor: '#D97706',
+    shadowColor: '#92400E',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
   },
   ctaLocked: { backgroundColor: '#E2E8F0', borderBottomColor: '#CBD5E1' },
-  ctaText: { fontFamily: fonts.headingBold, fontSize: 18, color: '#713F12' },
-  skipText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: 'rgba(255,255,255,0.9)', textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' },
+  ctaText: { fontFamily: fonts.headingBold, fontSize: 21, color: '#78350F' },
+  grammar: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, marginTop: 12 },
+  skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 12, textDecorationLine: 'underline' },
 
-  recap: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginHorizontal: spacing.md + 4 },
-  recapText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
-  recapLabel: { fontFamily: fonts.headingBold, color: colors.brand },
-
-  unitCard: { marginHorizontal: spacing.md, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 12 },
-  unitHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  unitTitle: { flex: 1, fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  unitCount: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textMuted },
-  nodes: { flexDirection: 'row', alignItems: 'center' },
-  nodeWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
-  nodeLine: { flex: 1, height: 3, backgroundColor: '#E2E8F0', marginHorizontal: 2 },
-  nodeLineDone: { backgroundColor: '#22C55E' },
-  node: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#EEF2FF',
+  arrow: {
+    position: 'absolute',
+    top: '42%',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#C7D2FE',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
   },
-  nodeScene: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#F5F3FF', borderColor: '#C4B5FD', overflow: 'hidden' },
-  nodeDone: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
-  nodeSkipped: { backgroundColor: '#F1F5F9', borderColor: '#CBD5E1', borderStyle: 'dashed' },
-  nodeHere: { borderColor: colors.brand, borderWidth: 3, transform: [{ scale: 1.08 }] },
-  nodeSoon: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' },
-  nodeMivo: { width: 40, height: 40 },
-  unitHint: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted },
+  arrowLeft: { left: 10 },
+  arrowRight: { right: 10 },
 
-  chest: { marginHorizontal: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14 },
-  chestIcon: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center' },
-  chestDot: { position: 'absolute', top: 4, right: 4, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#FEF3C7' },
-  chestTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
-  chestSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  dots: { flexDirection: 'row', alignSelf: 'center', alignItems: 'center', gap: 10, marginTop: 6 },
+  dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#CBD5E1' },
+  dotScene: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#F5F3FF', borderWidth: 2, borderColor: '#C4B5FD', alignItems: 'center', justifyContent: 'center' },
+  dotDone: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
+  dotSkipped: { backgroundColor: '#E2E8F0', borderColor: '#94A3B8' },
+  dotHere: { transform: [{ scale: 1.35 }], borderWidth: 2, borderColor: '#4F46E5' },
+
+  puff: { position: 'absolute', backgroundColor: '#FFFFFF', opacity: 0.95 },
+  cloudBase: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#FFFFFF' },
+
   chestWords: { alignSelf: 'stretch', gap: 8, marginVertical: 6 },
   chestWord: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFC', borderRadius: 14, padding: 12 },
   chestWordEn: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
@@ -569,15 +559,7 @@ const styles = StyleSheet.create({
   },
 
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 24,
-    paddingBottom: 36,
-    alignItems: 'center',
-    gap: 10,
-  },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, paddingBottom: 36, alignItems: 'center', gap: 10 },
   sheetMivo: { width: 110, height: 110 },
   sheetTitle: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading, textAlign: 'center' },
   sheetText: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: colors.textBody, textAlign: 'center' },
