@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -37,6 +38,14 @@ from app.core.security import warm_up_jwks
 from app.core.supabase_client import warm_up
 
 init_sentry()
+
+# The app's own info lines (voice timings, stt_utterance health) were invisible: without this only warnings reach
+# the uvicorn console / docker logs.
+logging.getLogger("app").setLevel(logging.INFO)
+if not logging.getLogger("app").handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logging.getLogger("app").addHandler(_handler)
 
 
 async def _warm_up() -> None:

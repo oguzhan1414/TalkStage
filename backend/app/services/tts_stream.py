@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import logging
 import time
 
@@ -11,8 +12,22 @@ logger = logging.getLogger(__name__)
 
 CARTESIA_URL = "https://api.cartesia.ai/tts/bytes"
 OPENAI_TTS_URL = "https://api.openai.com/v1/audio/speech"
-OPENAI_TTS_MODEL = "tts-1"
-OPENAI_TTS_VOICE = "nova"
+
+# Mivo's voice style: OpenAI.fm's "Eternal Optimist" vibe (openai/openai-fm src/lib/library.ts), which the user
+# picked with the Marin voice, plus one line for learners. gpt-4o-mini-tts follows it; tts-1 ignores it.
+MIVO_VOICE_INSTRUCTIONS = (
+    "Voice: Warm, upbeat, and reassuring, with a steady and confident cadence that keeps the conversation calm "
+    "and productive.\n\n"
+    "Tone: Positive and solution-oriented, always focusing on the next steps rather than dwelling on the problem.\n\n"
+    "Dialect: Neutral and professional, avoiding overly casual speech but maintaining a friendly and approachable "
+    "style.\n\n"
+    "Pronunciation: Clear and precise, with a natural rhythm that emphasizes key words to instill confidence and "
+    "keep the listener engaged.\n\n"
+    "Features: Uses empathetic phrasing, gentle reassurance, and proactive language to shift the focus from "
+    "frustration to resolution.\n\n"
+    "Pace: The listener is learning English, so speak a little slower than usual and never swallow words."
+)
+_INSTRUCTIONS_TAG = hashlib.sha256(MIVO_VOICE_INSTRUCTIONS.encode()).hexdigest()[:8]
 # Cartesia hesap/kredi hatası (401/402/403) alırsa bu süre boyunca hiç denenmez (her cümlede boşuna 1 sn kaybetmesin).
 _CARTESIA_RETRY_AFTER_SECONDS = 600
 _cartesia_down_until = 0.0
@@ -97,21 +112,67 @@ def cartesia_configured() -> bool:
     return bool(settings.cartesia_api_key and settings.cartesia_voice_id)
 
 
+def openai_tts_configured() -> bool:
+    return bool(settings.openai_api_key)
+
+
 def tts_available() -> bool:
-    """Sesli cevap üretilebilir mi: Cartesia ya da yedek olarak OpenAI TTS anahtarı var mı."""
-    return cartesia_configured() or bool(settings.openai_api_key)
+    """Sesli cevap üretilebilir mi: OpenAI ya da Cartesia anahtarı var mı."""
+    return openai_tts_configured() or cartesia_configured()
+
+
+def _openai_voice_key() -> str:
+    """Cache "voice" for OpenAI: model + voice + style, so changing any of them never serves old audio."""
+    return f"{settings.openai_tts_model}:{settings.openai_tts_voice}:{_INSTRUCTIONS_TAG}"
 
 
 async def _openai_tts(client: httpx.AsyncClient, text: str) -> bytes:
-    """Cartesia kullanılamıyorsa yedek sağlayıcı (aynı WAV çıktısı)."""
+    """gpt-4o-mini-tts with Mivo's voice and style; 24 kHz 16-bit mono WAV like Cartesia's output."""
+    body = {
+        "model": settings.openai_tts_model,
+        "voice": settings.openai_tts_voice,
+        "input": text,
+        "response_format": "wav",
+    }
+    if not settings.openai_tts_model.startswith("tts-1"):  # tts-1 / tts-1-hd take no style instructions
+        body["instructions"] = MIVO_VOICE_INSTRUCTIONS
     response = await client.post(
         OPENAI_TTS_URL,
         headers={"Authorization": f"Bearer {settings.openai_api_key}"},
-        json={"model": OPENAI_TTS_MODEL, "voice": OPENAI_TTS_VOICE, "input": text, "response_format": "wav"},
+        json=body,
         timeout=30.0,
     )
     response.raise_for_status()
     return response.content
+
+
+async def _via_openai(client: httpx.AsyncClient, text: str, language: str | None) -> bytes:
+    key = _openai_voice_key()
+    cached = await get_cached("openai", key, language, text)
+    if cached is not None:
+        return cached
+    audio = await _openai_tts(client, text)
+    await put_cached("openai", key, language, text, audio)
+    return audio
+
+
+async def _via_cartesia(client: httpx.AsyncClient, text: str, voice_id: str, language: str | None) -> bytes:
+    global _cartesia_down_until
+    if time.monotonic() < _cartesia_down_until:
+        raise RuntimeError("Cartesia is paused after an account/credit error")
+    cached = await get_cached("cartesia", voice_id, language, text)
+    if cached is not None:
+        return cached
+    try:
+        audio = await _cartesia_tts(client, text, voice_id, language)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code in (401, 402, 403):
+            _cartesia_down_until = time.monotonic() + _CARTESIA_RETRY_AFTER_SECONDS
+            logger.warning("Cartesia TTS reddedildi (HTTP %s: hesap/kredi?). %s dk boyunca denenmeyecek.",
+                           exc.response.status_code, _CARTESIA_RETRY_AFTER_SECONDS // 60)
+        raise
+    await put_cached("cartesia", voice_id, language, text, audio)
+    return audio
 
 
 async def synthesize_speech(
@@ -120,31 +181,23 @@ async def synthesize_speech(
     voice_id: str,
     language: str | None = None,
 ) -> bytes:
-    """Önce Cartesia; hesap/kredi sorunu (401/402/403), kota (429) ya da sağlayıcı hatasında OpenAI TTS."""
-    global _cartesia_down_until
-    fallback_ok = bool(settings.openai_api_key)
-    if cartesia_configured() and time.monotonic() >= _cartesia_down_until:
-        cached = await get_cached("cartesia", voice_id, language, text)
-        if cached is not None:
-            return cached
+    """Mivo's voice from the configured provider (settings.tts_provider, OpenAI by default); the other one, when
+    configured, is the fallback for account/credit problems, rate limits and outages. Both are cached on disk, so a
+    repeated line is paid for once."""
+    order = ["cartesia", "openai"] if settings.tts_provider == "cartesia" else ["openai", "cartesia"]
+    providers = [p for p in order if (openai_tts_configured() if p == "openai" else cartesia_configured())]
+    if not providers:
+        raise RuntimeError("Neither OpenAI nor Cartesia TTS is configured")
+
+    last_error: Exception | None = None
+    for i, provider in enumerate(providers):
         try:
-            audio = await _cartesia_tts(client, text, voice_id, language)
-            await put_cached("cartesia", voice_id, language, text, audio)
-            return audio
-        except httpx.HTTPStatusError as exc:
-            code = exc.response.status_code
-            if code in (401, 402, 403):
-                _cartesia_down_until = time.monotonic() + _CARTESIA_RETRY_AFTER_SECONDS
-                logger.warning("Cartesia TTS reddedildi (HTTP %s: hesap/kredi?). %s dk boyunca yedek TTS kullanılacak.",
-                               code, _CARTESIA_RETRY_AFTER_SECONDS // 60)
-            else:
-                logger.warning("Cartesia TTS hatası HTTP %s; bu istek için yedek TTS deneniyor.", code)
-            if not fallback_ok:
-                raise
-        except (httpx.HTTPError, asyncio.TimeoutError):
-            logger.warning("Cartesia TTS ulaşılamadı; bu istek için yedek TTS deneniyor.")
-            if not fallback_ok:
-                raise
-    if not fallback_ok:
-        raise RuntimeError("Neither Cartesia nor OpenAI TTS is configured")
-    return await _openai_tts(client, text)
+            if provider == "openai":
+                return await _via_openai(client, text, language)
+            return await _via_cartesia(client, text, voice_id, language)
+        except (httpx.HTTPError, asyncio.TimeoutError, RuntimeError) as exc:
+            last_error = exc
+            if i + 1 < len(providers):
+                logger.warning("%s TTS failed (%s); trying %s for this line.", provider, exc, providers[i + 1])
+    assert last_error is not None
+    raise last_error

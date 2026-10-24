@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     gemini_api_key: str = ""
 
-    # TTS
+    # TTS — "openai" (gpt-4o-mini-tts, ~3x cheaper than Cartesia, same bill as the LLM) or "cartesia".
+    # The other provider, when configured, is only the fallback.
+    tts_provider: str = "openai"
+    openai_tts_model: str = "gpt-4o-mini-tts"
+    openai_tts_voice: str = "marin"
     cartesia_api_key: str = ""
     cartesia_voice_id: str = ""
     elevenlabs_api_key: str = ""

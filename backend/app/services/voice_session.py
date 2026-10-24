@@ -185,6 +185,11 @@ class Recognition:
         if self.interim:
             confidence = min(confidence, 0.7)
         duration = max(self.duration, self.byte_count / 32000)
+        # Recognition health, never the words: the mic stream must be 16 kHz mono PCM16 (= ~32,000 bytes per second
+        # of holding the mic). A very different rate means the phone sends audio Deepgram decodes at the wrong speed.
+        held = max(time.monotonic() - self.started, 0.001)
+        logger.info("stt_utterance held_s=%.1f bytes_per_s=%d words=%d confidence=%.2f ended_on_interim=%s",
+                    held, self.byte_count / held, len(words), confidence, bool(self.interim))
         await self.send_json({"type": "transcript.final", "text": text, "words": words,
                               "metrics": {"wpm": round(len(words) * 60 / duration, 1) if duration else 0,
                                           "filler_count": self.fillers,
