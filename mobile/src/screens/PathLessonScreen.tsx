@@ -997,6 +997,12 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [picked, setPicked] = useState<number | null>(null);
   const lessonWords = useMemo(() => new Set(words.map((w) => w.en.toLowerCase())), [words]);
+  // The piece is read aloud as soon as it appears (after the card has faded in); "Dinle" replays it.
+  useEffect(() => {
+    const id = setTimeout(() => sayAll(lines.map((l) => l.en)).catch(() => {}), 450);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <>
       <FadeIn>
