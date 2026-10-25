@@ -38,6 +38,9 @@ export function useVoiceRecorder() {
 
   const stop = useCallback(async () => {
     await recorder.stop();
+    // Back to playback mode: left in recording mode, iOS plays through the quiet earpiece and some Android phones
+    // stay silent, so the next "listen" after a recording seemed not to play.
+    await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
     return recorder.uri;
   }, [recorder]);
 

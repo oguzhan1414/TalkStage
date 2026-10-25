@@ -1232,7 +1232,7 @@ function PairsItem({ pairs, tally, onNext }: ItemProps & { pairs: PathWord[] }) 
  * sentence ("I · like · coffee → I like coffee").
  */
 function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (i: number, n: number) => void; onNext: () => void }) {
-  const { say: pronounce } = usePathVoice();
+  const { say: pronounce, stop: stopVoice } = usePathVoice();
   const recorder = useVoiceRecorder();
   const items = useMemo(() => [...sentence.split(' ').map((w) => w.replace(/[^A-Za-z']/g, '')).filter(Boolean), sentence], [sentence]);
   const [idx, setIdx] = useState(0);
@@ -1258,6 +1258,7 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
       setResult(null);
       setError(null);
       haptics.light();
+      stopVoice(); // Mivo's voice must not end up in the recording
       await recorder.start();
       return;
     }
@@ -1299,7 +1300,12 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
       </View>
       <FadeIn key={`m${idx}`} from={10} style={[styles.sayCard, shadow.card]}>
         <Text style={[styles.sayText, !whole && styles.sayWordBig, result === true && styles.sayHit, result === false && styles.sayMiss]}>{item}</Text>
-        <Pressable onPress={() => pronounce(item, { rate: 0.7 }).catch(() => {})} style={styles.listen} accessibilityRole="button">
+        <Pressable
+          onPress={() => pronounce(item, { rate: 0.7 }).catch(() => {})}
+          disabled={recorder.isRecording || checking}
+          style={[styles.listen, (recorder.isRecording || checking) && { opacity: 0.4 }]}
+          accessibilityRole="button"
+        >
           <Ionicons name="volume-high" size={18} color={colors.brand} />
           <Text style={styles.listenText}>{t("Dinle")}</Text>
         </Pressable>
