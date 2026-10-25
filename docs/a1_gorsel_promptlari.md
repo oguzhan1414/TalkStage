@@ -1,326 +1,320 @@
-# A1 görselleri: "Maya'nın yeni şehri"
+# A1 bölüm kapak görselleri: "Maya'nın yeni şehri"
 
-Ana ekrandaki yuvarlak madalyonlarda görünen bölüm görselleri. Toplam **39 görsel**: 36 bölüm ve 3 kelime seti. Kelime odası olan 6 kelime bölümünde mevcut oda fotoğrafları kullanılır, onlar için görsel üretme.
+2026-10-25. Yeni A1 hikâyesine göre ([a1_ders_plani.md](a1_ders_plani.md), içerik `mobile/src/data/path/a1/`). Bu görseller iki yerde görünür:
+- **Ana sayfadaki yuvarlak madalyon:** Görsel daireye kırpılır. Üstte bölüm adı, altta yıldızlar ya da kilit durur.
+- **Dersin kapak sayfası:** Görsel kare olarak, köşeleri yuvarlatılmış hâlde görünür.
 
-Bu belge aynı zamanda A1 hikâyesinin bölüm bölüm akışı. Bölüm metinleri bu akışa göre yazılacak.
+Toplam **42 görsel**: 36 bölüm ve 6 kelime adımı. Mevcut `a1_w1` (sayılar), `a1_w3` (aile) ve `a1_w5` (günler) görselleri hâlâ uyuyor, onları yeniden üretme.
+
+## Yuvarlak çerçeve kuralları
+
+```
+┌─────────────────────┐
+│ ░░ köşe: boş zemin ░│   üst %30: sade (gökyüzü, duvar) → bölüm adı burada
+│   ╭─────────────╮   │
+│  │   KARAKTERLER  │  │   orta bant (%30–%75): ana sahne, yüzler merkeze yakın
+│  │   VE OLAY      │  │
+│   ╰─────────────╯   │   alt %20: sade zemin → yıldızlar burada
+│ ░░ köşe: boş zemin ░│
+└─────────────────────┘
+```
+
+1. **Önemli her şey ortadaki dairenin içinde.** Köşeler kesilecek; oraya sadece düz zemin gelsin.
+2. **Yüzler ve ana olay merkezde, orta bantta.** Karakterler yakın plan ya da orta plan çizilsin (dizden yukarı). Küçük madalyonda bile ifadeleri okunmalı.
+3. **Üst üçte bir sade:** gökyüzü, duvar, yumuşak arka plan. Bölüm adı oraya, koyu bir gölgenin üstüne yazılıyor.
+4. **Alt beşte bir sade:** düz zemin, masa yüzeyi, çimen.
+5. **En fazla 3–4 karakter.** Kalabalık sahneler dairede dağılır.
+6. **Yazı yok.** Kartpostallar, tabelalar, ekranlar, takvimler, saatler boş ya da sadece resimli olsun. Kartpostallardaki kelimeleri (HELLO vb.) **yazdırma**; kartpostalda küçük bir resim yeterli.
 
 ## Nasıl üretilir
 
-1. **Önce karakter sayfası.** Aşağıdaki "Karakter sayfası" prompt'uyla tek bir görsel üret. Görsel aracın referans görsel kabul ediyorsa sonraki her görselde bunu referans olarak ver; karakterler her bölümde aynı görünür. (Bu görsel uygulamaya girmez, sadece referans.)
-2. Her prompt'un sonuna **"Ortak stil"** bloğunu ekle.
-3. **Kare (1:1)** üret. Görsel yuvarlak madalyona kırpılacak. Ana sahne alt %60'ta olsun, üst %40 sade kalsın (gökyüzü, duvar, yumuşak arka plan): bölüm adı oraya yazılıyor.
-4. Görselde **yazı, harf ya da rakam olmasın.** Kartpostallar, tabelalar ve takvimler boş ya da sadece resimli olsun.
-5. JPG olarak `mobile/assets/images/path/` klasörüne, aşağıdaki dosya adlarıyla koy. WebP'ye ben çeviririm.
+1. Karakterler için referans olarak `brand/characters/a1_characters.jpg` görselini her üretime ekle ve başa şunu yaz: `Same characters and style as the reference image.` İnsan karakterler aynı; o görseldeki kedi (Biscuit) artık hikâyede yok, onu çizdirme.
+2. Her sahne promptunun sonuna **Ortak stil** bloğunu ekle.
+3. Kare (1:1) üret. JPG olarak `mobile/assets/images/path/` klasörüne aşağıdaki adlarla koy. Eski görsellerin üzerine yazılabilir. WebP'ye ben çeviririm ve orijinalleri silerim.
+4. Önce **Ünite 1'in 5 görselini** üretip gönder. Madalyonda nasıl oturduğuna birlikte bakalım, sonra devam et.
 
 ## Karakterler
 
 | Karakter | Tarif |
 |---|---|
 | **Maya** | 24-year-old Spanish woman, shoulder-length dark curly hair, warm brown eyes, mustard-yellow raincoat, small brown backpack |
-| **Leo** | 26-year-old British man, messy ginger hair, freckles, green hoodie, often with an acoustic guitar |
-| **Rosa** | Italian woman in her 60s, grey hair in a bun, round glasses, red apron, warm smile |
-| **Tom** | Rosa's 10-year-old grandson, dark curly hair, red baseball cap, blue jacket, very curious |
-| **Mr Patel** | British-Indian man in his 70s, white hair, neat white beard, round glasses, brown knitted cardigan |
-| **Biscuit** | Mr Patel's fluffy ginger cat |
+| **Leo** | 26-year-old British man, messy ginger hair, freckles, green hoodie, often with a red acoustic guitar |
+| **Rosa** | Italian woman in her 60s, grey hair in a bun, round glasses, red apron, warm smile; owns the small café downstairs |
+| **Tom** | Rosa's 10-year-old grandson, dark curly hair, red baseball cap, blue jacket, very curious and energetic |
+| **Mr Patel** | British-Indian man in his 70s, white hair, neat white beard, round glasses, brown knitted cardigan; lives in an old house with a yellow front door |
 
-### Karakter sayfası (referans görsel)
+**Hayvanlar:** Mr Patel's old brown dog and his small yellow bird · Rosa's black-and-white cat · Tom's white rabbit · Leo's red goldfish.
 
-```
-Character reference sheet for an animated film, six characters standing side by side on a plain light background, full body, front view, friendly expressions: Maya, a 24-year-old Spanish woman with shoulder-length dark curly hair, warm brown eyes, mustard-yellow raincoat and a small brown backpack; Leo, a 26-year-old British man with messy ginger hair, freckles, green hoodie, holding an acoustic guitar; Rosa, an Italian woman in her 60s with grey hair in a bun, round glasses and a red apron; Tom, a 10-year-old boy with dark curly hair, red baseball cap and blue jacket; Mr Patel, a British-Indian man in his 70s with white hair, neat white beard, round glasses and a brown knitted cardigan; Biscuit, a fluffy ginger cat sitting at Mr Patel's feet.
-```
+**Yerler:** Rosa's small cozy café with a striped awning · Maya and Leo's small flat above it · Mr Patel's old house with a yellow door · Bristol's colorful terraced streets, a stone bridge, red double-decker buses.
 
-### Ortak stil (her prompt'un sonuna ekle)
+## Ortak stil (her promptun sonuna ekle)
 
 ```
-Soft 3D animated film style, warm pastel colors, gentle natural light, cozy and friendly mood, rounded shapes, rich but simple details. Square 1:1 composition: the main scene in the lower 60 percent, the upper 40 percent calm and simple (sky, wall or soft background). No text, no letters, no numbers, no logos anywhere; postcards, signs and calendars are blank or show only pictures.
+Soft 3D animated film style, warm pastel colors, gentle natural light, cozy and friendly mood, rounded shapes, simple uncluttered details. Composition made for a round frame: everything important stays inside a centered circle and the four corners are only plain background. Characters and action sit in the middle band of the image with faces near the center, medium shot, large and easy to read even when the image is small. The top third is calm and simple (sky, wall or soft background) and the bottom fifth is plain floor or ground. At most four characters. Square 1:1. No text, no letters, no numbers, no logos anywhere; postcards, signs, screens, clocks and calendars are blank or show only small pictures.
 ```
 
 ---
 
-## Ünite 1: Merhaba
+## Ünite 1: Ben ve sen
 
 **a1_e01.jpg** · Bölüm 1: Bristol'a hoş geldin
-*Maya trenle Bristol'a gelir, istasyonda ev arkadaşı Leo onu karşılar. Dairede onu bir kartpostal beklemektedir.*
+*Maya Bristol'a gelir: yorgun, aç ama mutlu. Leo onu karşılar; o da aç.*
 ```
-Maya standing on a train platform in Bristol with two big suitcases, smiling tired but happy, Leo walking towards her and waving, his guitar on his back, a red-brick Victorian station, soft morning sky above.
-```
-
-**a1_e02.jpg** · Bölüm 2: Küçük ama güzel bir daire
-*Daire eski bir kafenin üstündedir. Mutfak masasında Londra'dan gelen bir kartpostal vardır: tek kelime, HELLO.*
-```
-A small cozy flat above an old café, Maya and Leo in the kitchen looking surprised at a postcard lying on the wooden table, plants on the windowsill, warm window light, colorful houses outside the window.
+Maya on a train station platform with two suitcases, tired but smiling happily, and Leo greeting her with a big wave, his guitar on his back and one hand on his rumbling tummy; a soft red-brick station arch and pale morning sky behind them.
 ```
 
-**a1_w1.jpg** · Kelime: Ülkeler ve sayılar
+**a1_e02.jpg** · Bölüm 2: Yeni yüzler
+*Rosa'nın kafesinde herkesle tanışırlar: mutlu Rosa, küçük Tom, aç bir bebek.*
 ```
-A cheerful little world globe on a stand with tiny colorful flags pinned on it and small floating number blocks around it, playful toy-like look, centered, light blue background.
-```
-
-**a1_e03.jpg** · Bölüm 3: Bu bir yanlışlık!
-*Maya kartpostalın yanlışlıkla geldiğini düşünür. Tam o sırada kapının altından ikinci bir kartpostal kayar.*
-```
-Morning in the flat kitchen, Leo pointing excitedly at a second postcard sliding in under the front door, Maya holding a coffee mug with a curious face, soft morning light.
+Inside Rosa's cozy little café: Rosa behind the counter with a big warm smile, little Tom waving next to her, a baby in a high chair holding a spoon, Maya and Leo at a small round table looking hungry; plain warm wall above.
 ```
 
-**a1_e04.jpg** · Bölüm 4: Kafede Rosa
-*Maya kartpostalları kafenin sahibi Rosa'ya gösterir. Rosa onlardan haberi yoktur, Maya'ya torunu Tom'a sormasını söyler.*
+**a1_w2.jpg** · Kelime adımı: Renkler
 ```
-Maya at the counter of a small old café showing two postcards to Rosa, an espresso machine and fresh pastries on the counter, cozy warm light, wooden shelves with jars.
-```
-
-## Ünite 2: Yeni oda
-
-**a1_e05.jpg** · Bölüm 5: Odadaki eşyalar
-*Maya küçük çatı katı odasına yerleşir: bir yatak, bir lamba, eski bir masa.*
-```
-Maya unpacking in a small attic bedroom with a sloped ceiling, a bed, a lamp, an old wooden desk and open cardboard boxes, a round window with a view of rooftops.
+A cheerful group of open paint pots in red, blue, green, yellow, black, white, grey, pink and brown with a soft rainbow paint splash arching above them, centered, plain cream background.
 ```
 
-**a1_e06.jpg** · Bölüm 6: Kutular ve kitaplar
-*Leo kutuları merdivenden yukarı taşır. Kitaplar, bitkiler, ayakkabılar…*
+**a1_e03.jpg** · Bölüm 3: Soğuk bir gün
+*Hava soğuk; Maya üşüyor ama hasta değil. Leo terlemiş hâlde geç gelir, "erken geldim" der.*
 ```
-Leo carrying a tall stack of cardboard boxes up a narrow wooden staircase, books and a plant on top of the stack, Maya behind him carrying two potted plants and laughing.
-```
-
-**Kelime: Kelime Odası, Yatak odası.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e07.jpg** · Bölüm 7: Bu ne?
-*Gardıropta eski ahşap bir kutu çıkar: içinde eski anahtarlar ve fotoğraflar.*
-```
-Maya and Leo (the adult man with messy ginger hair and a green hoodie, NOT a child, no boy and no red cap in this image) sitting on the bedroom floor looking into an old wooden box full of old keys and faded photographs, dust in a ray of sunlight, curious faces.
+At the café door on a cold day: Maya shivering in her yellow raincoat and a thick scarf, Leo rushing in hot and sweaty with his guitar case, and Rosa with hands on her hips giving him a teasing look; a few snowflakes in the grey sky above.
 ```
 
-**a1_e08.jpg** · Bölüm 8: İlk ipucu
-*Üçüncü kartpostal gelir. Maya hepsini yan yana koyar, el yazısı aynıdır, hep Londra'dan gelmişlerdir.*
+**a1_e04.jpg** · Bölüm 4: İlk kartpostal
+*Rosa ile Maya sohbet eder. Tom kapının altında ilk kartpostalı bulur.*
 ```
-Close-up of a wooden table with three picture postcards laid side by side, Maya's hands holding a magnifying glass over them, a cup of tea, soft lamp light, mysterious cozy mood.
-```
-
-## Ünite 3: Kimin bu?
-
-**a1_e09.jpg** · Bölüm 9: Kayıp çanta
-*Kafede bir sandalyede yeşil bir okul çantası unutulmuştur. Kimin?*
-```
-A green school backpack left on a café chair, Maya and Rosa looking at it with puzzled faces, warm café interior with small tables.
+In the café, excited little Tom holding up a postcard with a small picture of a bridge on it, Maya leaning in surprised and curious, Rosa smiling behind them with her glasses; plain soft wall above.
 ```
 
-**a1_e10.jpg** · Bölüm 10: Rosa'nın torunu Tom
-*Çanta Rosa'nın torunu Tom'undur. Tom koşarak gelir; meraklı, akıllı bir çocuktur.*
+## Ünite 2: Eşyalar
+
+**a1_e05.jpg** · Bölüm 5: Muz mu, şemsiye mi?
+*Kahvaltıda Leo ıslak ve üşümüş, şemsiye ister; Tom ona muz uzatır.*
 ```
-Tom running into the café to hug his green school backpack, Rosa laughing behind the counter, Maya smiling, morning light through the café window.
+Breakfast in the café on a rainy morning: Leo wet and sad, and Tom grinning as he holds a banana over Leo's head like an umbrella; Maya laughing at the table with a fried egg and an orange on her plate; rain on the window behind.
 ```
 
-**Kelime: Aile.**
-
-**a1_w3.jpg** · Kelime: Aile
+**a1_e06.jpg** · Bölüm 6: Üç çanta
+*Leo üç çantayı taşırken yorulur. Çantalar kitap ve kalem dolu. Odada eski bir masa ve sandalye var.*
 ```
-A warm family tree made of soft round picture frames on a cozy wall: grandparents at the top, parents in the middle, children and a baby at the bottom, connected by little branches with leaves, cheerful and simple.
-```
-
-**a1_e11.jpg** · Bölüm 11: Leo'nun gitarı
-*Leo'nun iki gitarı var, Tom'un bisikleti var… Penceredeki turuncu kedinin kime ait olduğunu kimse bilmez.*
-```
-Leo playing an acoustic guitar on a sofa in the cozy flat, Tom sitting on the floor listening happily, a fluffy ginger cat looking in through the open window.
+In a small attic room: Leo out of breath carrying three heavy bags, Maya happily stacking books and a cup of pens on an old wooden table with an old chair; a round window with soft daylight above.
 ```
 
-**a1_e12.jpg** · Bölüm 12: Bu kimin?
-*Kedi Biscuit'tir, karşı komşu Bay Patel'in kedisi. Maya kediyi geri götürür ve Bay Patel'le tanışır.*
+**a1_e07.jpg** · Bölüm 7: Çay saati
+*Rosa Maya'ya çaya süt koymayı öğretir. Fincanlar kırmızı, bardaklar mavi. Tom'a su verilir.*
 ```
-Maya on the doorstep of an old house holding a fluffy ginger cat, Mr Patel in the doorway smiling warmly, potted plants by the door, late afternoon light.
-```
-
-## Ünite 4: Günlük hayat
-
-**a1_e13.jpg** · Bölüm 13: Maya'nın ilk iş günü
-*Maya sabahları Rosa'nın kafesinde çalışmaya başlar.*
-```
-Maya wearing a red apron behind the café counter making coffee at an espresso machine, early morning, the first customers coming in, steam and warm light.
+At the café counter: Rosa pouring milk into a red cup of tea for a curious Maya, little Tom next to them drinking a blue glass of water; a few red cups and blue glasses on a shelf above.
 ```
 
-**a1_e14.jpg** · Bölüm 14: Rosa her sabah…
-*Rosa her sabah altıda kalkar, ekmek pişirir, yedide kafeyi açar.*
+**a1_e08.jpg** · Bölüm 8: Anahtar nerede?
+*Maya ve Leo anahtarı arar. Anahtar pencerenin önündedir; yanında ikinci kartpostal.*
 ```
-Rosa taking fresh round loaves of bread out of an old oven in the café kitchen, sunrise light through a small window, flour on the table.
-```
-
-**Kelime: Kelime Odası, Banyo.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e15.jpg** · Bölüm 15: Leo erken kalkmaz
-*Leo öğlene kadar uyur, kahvaltı yapmaz. Maya ona güler.*
-```
-Leo fast asleep on the sofa with his guitar on his chest and an alarm clock ringing on the floor, Maya standing nearby with a coffee mug, laughing.
+Maya and Leo searching their small flat, Leo holding up his phone like a torch, both turning toward the window where an old key and a postcard with a small picture glow softly on the windowsill; evening sky through the window.
 ```
 
-**a1_e16.jpg** · Bölüm 16: Kahve içer misin?
-*Bay Patel her gün kafeye gelir ama kahve içmez, çay içer.*
+## Ünite 3: Benim, senin, onun
+
+**a1_e09.jpg** · Bölüm 9: Leo'nun gitarı
+*Leo kırmızı gitarını gösterir. Maya paltosunu, şapkasını ve yanlışlıkla Leo'nun kocaman ayakkabılarını giyer.*
 ```
-Mr Patel sitting at a small café table with a cup of tea and a folded newspaper, Maya serving him a biscuit with a smile, Biscuit the ginger cat sleeping on the next chair.
+Leo proudly holding up his red guitar next to his blue bike, and Maya in her coat and a hat laughing as she stands in Leo's huge shoes that are far too big for her; plain warm wall above.
+```
+
+**a1_e10.jpg** · Bölüm 10: Komşular ve hayvanlar
+*Bay Patel'in yaşlı köpeği ve sarı kuşu, Rosa'nın siyah beyaz kedisi, Tom'un beyaz tavşanı.*
+```
+On the sunny street outside the café: Mr Patel with his old brown dog and a small yellow bird on his shoulder, Rosa holding her black-and-white cat, and Tom hugging his white rabbit; soft blue sky above.
+```
+
+**a1_e11.jpg** · Bölüm 11: Evler ve bahçeler
+*Maya ailesini telefonda gösterir. Rosa'nın bahçesi ve kırmızı arabası var.*
+```
+In Rosa's small garden full of green and yellow flowers, next to a little red car, Maya holding up her phone with a picture of her mother, father and brother waving on the screen, Rosa watering the flowers beside her; soft sky above.
+```
+
+**a1_e12.jpg** · Bölüm 12: Eski fotoğraf makinesi
+*Maya ve Tom odada eski bir fotoğraf makinesi bulur; çantasında bir yüzük var.*
+```
+Maya and Tom kneeling on the floor of her room, opening an old leather camera bag: an old camera and a small sparkling ring inside, both of them amazed; a ball and a wooden toy train beside them, a laptop on the desk behind.
+```
+
+## Ünite 4: Her gün
+
+**a1_e13.jpg** · Bölüm 13: Bristol'da bir gün
+*Maya kafede çalışır; çay içerler, yumurta ve elma yerler; Tom topla oynar.*
+```
+In the café: Maya behind the counter serving a cup of tea with milk, Leo at a table eating eggs with an apple beside him, and Tom playing with a ball on the floor; plain warm wall above.
+```
+
+**a1_e14.jpg** · Bölüm 14: Leo şarkı söyler
+*Leo şarkı söylerken yumurtaları yakar. Pencereden Bay Patel'in arabayla Londra'ya gittiği görünür.*
+```
+In the small kitchen: Leo singing happily with a spatula as a pan of burnt black eggs smokes, Maya laughing with her hands on her cheeks; through the window behind them Mr Patel drives away in a small old car.
+```
+
+**a1_w4.jpg** · Kelime adımı: Ünite 4 tekrarı
+```
+A sunny kitchen table with a teapot, a cup of tea with milk, a fried egg in a pan and a red guitar leaning on a chair, cozy morning light, centered, plain cream background.
+```
+
+**a1_e15.jpg** · Bölüm 15: Bay Patel'in penceresi
+*Maya ve Tom Bay Patel'in penceresinden bakar: televizyon kapalı, o eski bir kitap okuyor, masada eski kartpostallar.*
+```
+Maya and Tom peeking curiously over a windowsill into Mr Patel's room: Mr Patel reading an old book in an armchair, his old dog asleep at his feet, a switched-off old TV and a small pile of old postcards on the table.
+```
+
+**a1_e16.jpg** · Bölüm 16: Çay ister misiniz?
+*Maya Bay Patel'in kapısına bir fincan çay götürür.*
+```
+Maya at Mr Patel's yellow front door holding out a cup of tea, Mr Patel in the doorway in his cardigan accepting it with a small surprised smile; soft afternoon sky above.
 ```
 
 ## Ünite 5: Ne zaman?
 
-**a1_e17.jpg** · Bölüm 17: Haftalık program
-*Tom okuldan önce kahvaltıya gelir ve Maya'nın buzdolabındaki programını sorgular: salı ve perşembe İngilizce kursu, hafta içi her sabah kafe.*
+**a1_e17.jpg** · Bölüm 17: Farklı saatler
+*Maya yedide kalkıp kahvaltı eder; Leo hâlâ uyuyor.*
 ```
-Maya pointing at a colorful weekly planner stuck on the fridge door with fruit magnets, small picture stickers on the days, Tom eating cereal next to her, morning kitchen.
-```
-
-**a1_e18.jpg** · Bölüm 18: Bay Patel her zaman…
-*Bay Patel her sabah saat sekizde parkta kuşları besler. Hiç aksatmaz.*
-```
-Mr Patel feeding pigeons from a paper bag on a bench in a small leafy square, early morning, Biscuit the cat watching the birds from under the bench.
+In the flat at sunrise: Maya fresh and cheerful at the breakfast table with toast and an egg, while Leo is still fast asleep on the sofa with a pillow over his head and an alarm clock beside him; soft morning light from the window above.
 ```
 
-**a1_w5.jpg** · Kelime: Günler, aylar, saatler
+**a1_e18.jpg** · Bölüm 18: Herkesin alışkanlığı
+*Tom hep koşar, Rosa dans eder, Bay Patel bir gün Maya'ya gülümser.*
 ```
-A cute desk calendar flip book and a round alarm clock side by side, little season symbols floating around them: a flower, a sun, a leaf and a snowflake, soft playful look, centered.
-```
-
-**a1_e19.jpg** · Bölüm 19: Pazartesi saat sekizde
-*Maya fark eder: kartpostallar hep pazartesi sabahı geliyor.*
-```
-Maya at the window at dawn, looking down at the street and the front door below, a postcard in her hand, a wall clock beside the window, quiet blue morning light.
+In a green park: Tom running past with a big grin, Rosa doing a little dance, and on a bench Mr Patel giving Maya a gentle smile for the first time, Maya surprised and happy; soft blue sky above.
 ```
 
-**a1_e20.jpg** · Bölüm 20: Pazartesi sabahı tuzağı
-*Maya ve Leo gönderen kişiyi yakalamak için kapının önünde beklerler ama uyuyakalırlar. Uyandıklarında yeni kartpostal yerdedir.*
+**a1_e19.jpg** · Bölüm 19: Doğum günü sırrı
+*Leo ve Rosa, Maya'nın doğum günü için gizlice plan yapar; Tom "şşt" der.*
 ```
-Maya and Leo asleep on two chairs next to the front door at dawn, a blanket half on the floor, a new postcard lying on the doormat, a funny and cozy mood.
+Behind the café counter: Leo and Rosa whispering a secret plan, and Tom with his finger on his lips saying shh; through the window behind them Maya walks past without noticing, spring flowers in the window box.
+```
+
+**a1_e20.jpg** · Bölüm 20: Pazartesi treni
+*Maya ve Tom otobüsten Bay Patel'in Londra trenine bindiğini görür.*
+```
+Maya and Tom on the top deck of a red double-decker bus, faces pressed to the window, watching Mr Patel with a small bag getting on a train at the station below; soft sky above.
 ```
 
 ## Ünite 6: Şehirde
 
-**a1_e21.jpg** · Bölüm 21: Mahallede neler var?
-*Maya mahalleyi keşfeder: bir fırın, bir park, bir postane.*
+**a1_e21.jpg** · Bölüm 21: Tom'la mahalle turu
+*Tom Maya'ya mahalleyi gezdirir; sonunda sarı kapılı eski bir ev görürler.*
 ```
-Maya walking down a colorful hilly Bristol street with pastel houses, a little bakery and a park at the end of the street, holding a paper map, sunny day.
-```
-
-**a1_e22.jpg** · Bölüm 22: Postane nerede?
-*Postane bankayla kütüphanenin arasındadır. Görevli kartpostalların Londra'dan geldiğini doğrular.*
-```
-Maya at the counter of a small old post office talking to a friendly postwoman, shelves with parcels, a red post box by the door, warm light.
+Tom proudly leading Maya down a colorful Bristol street, pointing ahead to an old house with a bright yellow front door; a small park tree on one side; soft sky above.
 ```
 
-**Kelime: Kelime Odası, Sokak.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e23.jpg** · Bölüm 23: Yol tarifi
-*Leo, Maya'ya limana giden yolu tarif eder: "Sola dön, köprüyü geç…"*
+**a1_e22.jpg** · Bölüm 22: Aynanın arkasında
+*Maya telefonunu arar; kedi kanepenin altında. Aynanın arkasında eski bir anahtar bulur.*
 ```
-Leo pointing the way for Maya on a sloping street with colorful houses, the harbour and boats visible below, bicycles leaning on a railing, bright day.
+In her room, Maya tilting an old mirror away from the wall and finding an old golden key behind it, amazed; a black-and-white cat peeking out from under a green sofa, her phone next to a glowing lamp on the desk.
 ```
 
-**a1_e24.jpg** · Bölüm 24: Sarı kapı
-*Maya ve Leo limanın yanında kartpostalların satıldığı küçük bir dükkân bulur.*
+**a1_w6.jpg** · Kelime adımı: Ünite 6 tekrarı
 ```
-Maya and Leo looking at the window of a tiny vintage shop full of colorful picture postcards, by the harbour, boats in the background, excited faces.
-```
-
-## Ünite 7: Sevdiklerin ve şu an
-
-**a1_e25.jpg** · Bölüm 25: Leo'nun hobileri
-*Leo müzik yapmayı sever, temizlik yapmaktan nefret eder. Hafta sonları sokakta çalar.*
-```
-Leo playing guitar on a street corner by the harbour, a small happy crowd around him, an open guitar case with coins, Maya clapping, golden afternoon light.
+A tiny toy-like town on a round base: a park with a tree, a café with a striped awning, a small school and a red double-decker bus, centered, plain cream background.
 ```
 
-**a1_e26.jpg** · Bölüm 26: Onu tanıyor musun?
-*Dükkânın sahibi bu kartpostalları hep yaşlı bir adamın aldığını söyler ve bir fotoğraf gösterir.*
+**a1_e23.jpg** · Bölüm 23: Haritayla
+*Tom haritayla Maya'yı köprüden geçirip sarı kapılı eve götürür.*
 ```
-An elderly shop owner behind a counter full of postcards showing an old photograph to Maya, Maya leaning closer with a surprised face, Leo peeking from behind her.
-```
-
-**a1_e27.jpg** · Bölüm 27: Annesiyle telefonda
-*Maya annesiyle görüntülü konuşur: "Şu an kafede oturuyorum, dışarıda yağmur yağıyor."*
-```
-Maya sitting by the café window on a video call on her phone, smiling and waving at the screen, rain on the window outside, a cup of hot chocolate on the table.
+Tom holding an open map and pointing the way as he leads Maya across an old stone bridge, the house with the yellow door waiting at the end of the street; soft sky above.
 ```
 
-**Kelime: Kelime Odası, Spor salonu.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e28.jpg** · Bölüm 28: Şu an ne yapıyorsun?
-*Leo ile Tom gizlice bir şey hazırlıyor: Maya'ya sürpriz bir parti.*
+**a1_e24.jpg** · Bölüm 24: İyi bir kafe var mı?
+*Bir turist iyi bir kafe sorar; Maya gururla Rosa'nın kafesini gösterir. Masada yeni bir kartpostal var.*
 ```
-Leo standing on a chair hanging string lights in the flat while Tom holds balloons, both looking towards the door with a "shh" secret expression, cozy evening light.
+At the café door: a tourist with a big unfolded map asking the way, Maya proudly pointing at Rosa's small café, Tom grinning beside her; on the outside table a postcard with a small picture of a teacup.
 ```
 
-## Ünite 8: Yapabildiklerin
+## Ünite 7: Sevdiklerim ve şu an
 
-**a1_e29.jpg** · Bölüm 29: Parti hazırlığı
-*Leo gitar çalabilir, Rosa pasta yapabilir, Maya ise yemek yapamaz!*
+**a1_e25.jpg** · Bölüm 25: Kim neyi sever?
+*Maya'nın doğum günü sabahı: herkesin sevdiği bir şey var.*
 ```
-A happy mess in the flat kitchen: Maya covered in flour, Rosa showing her how to knead dough, Leo sitting on the counter playing guitar, warm evening light.
-```
-
-**a1_e30.jpg** · Bölüm 30: Yardım eder misin?
-*Maya, Bay Patel'den yardım ister ve onu partiye davet eder.*
-```
-Maya at Mr Patel's front door handing him a small handmade invitation card without text, Mr Patel holding Biscuit the cat and smiling, flowers by the door.
+Birthday morning in the café: Maya happily holding an ice cream cone, Tom spinning a football on his finger, Rosa dancing next to an old record player, Leo holding his guitar; a few balloons floating above.
 ```
 
-**a1_e31.jpg** · Bölüm 31: Alışveriş listesi
-*Maya ve Leo pazarda alışveriş yapar: biraz meyve, biraz peynir, hiç çilek yok…*
+**a1_e26.jpg** · Bölüm 26: Eski fotoğraf
+*Tom eski bir fotoğraf gösterir: genç dansçı Rosa ve fotoğraf makineli genç bir sanatçı.*
 ```
-Maya and Leo at a colorful outdoor market stall full of fruit and vegetables, Leo holding a shopping basket, a friendly stall owner, sunny morning.
-```
-
-**Kelime: Kelime Odası, Market.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e32.jpg** · Bölüm 32: Ne kadar?
-*Kasada Maya ve Rosa hesabı öder: "Elmalar ne kadar?"*
-```
-Rosa and Maya at the checkout of a small neighbourhood grocery shop, paper bags full of food on the counter, the cashier smiling, cozy shop shelves behind.
+Tom showing Maya an old sepia photograph in a frame: in the photo a young dancer and a young artist holding a camera smile together; Maya looks at it amazed; plain warm wall above.
 ```
 
-## Ünite 9: Hafta sonu ve sır
-
-**a1_e33.jpg** · Bölüm 33: Parti dündü
-*Ertesi sabah: parti harikaydı, herkes oradaydı.*
+**a1_w7.jpg** · Kelime adımı: Ünite 7 tekrarı
 ```
-The morning after a party in the cozy flat: balloons on the floor, string lights still on, Maya and Leo sleepy on the sofa with mugs, sunny window.
+A small stage under a warm spotlight with a red guitar, a microphone on a stand and an ice cream cone on a stool, centered, plain cream background.
 ```
 
-**a1_e34.jpg** · Bölüm 34: Herkes dans etti
-*Partide herkes dans etti: Leo çaldı, Rosa ile Bay Patel dans etti.*
+**a1_e27.jpg** · Bölüm 27: Parti hazırlığı
+*Akşam kafede hazırlık: Leo kapıyı boyuyor, Rosa telefonda, Tom pencerede bekliyor.*
 ```
-A warm party in the small flat: Leo playing guitar, Rosa and Mr Patel dancing together, Maya and Tom laughing, string lights and balloons, golden evening glow.
+Evening at the café with string lights: Leo painting the door bright yellow, Rosa talking on the phone, and Tom standing at the window waiting with his nose against the glass; warm evening sky above.
 ```
 
-**Kelime: Kelime Odası, Kafe.** Mevcut oda fotoğrafı kullanılır.
-
-**a1_e35.jpg** · Bölüm 35: Bay Patel'in hikâyesi
-*Bay Patel eskiden İngilizce öğretmeniydi. Öğrencilerine hep kartpostal gönderirdi.*
+**a1_e28.jpg** · Bölüm 28: Partide
+*Parti: pizza, pasta, meyve suyu. Bay Patel çekingen bir şekilde kapıda duruyor.*
 ```
-Mr Patel in a cozy armchair showing an old photo album to Maya, old black-and-white photos of a classroom with students, Biscuit the cat on his lap, warm lamp light, bookshelves.
+The birthday party in the café: Maya laughing with a slice of pizza, Tom with chocolate on his face, a birthday cake and orange juice on the table, and shy Mr Patel standing at the open door in his cardigan; string lights above.
+```
+
+## Ünite 8: Yapabilirim
+
+**a1_e29.jpg** · Bölüm 29: Ağaçtaki Tom
+*Tom ağaca tırmanır ama inemez; yaşlı Bay Patel tırmanıp ona yardım eder.*
+```
+In the park: Tom stuck on a branch of a big tree looking worried, Mr Patel climbing up toward him with a calm smile, Maya below with her hands on her face, Tom's bike lying on the grass; birds flying in the sky above.
+```
+
+**a1_e30.jpg** · Bölüm 30: Ağır kutular
+*Maya ve Leo Bay Patel'in kutularını taşır; Rosa çay getirir. Kutuda eski kartpostallar var.*
+```
+Inside Mr Patel's house: Maya and Leo carrying big cardboard boxes, one box open with old postcards showing small pictures of a yellow door, Rosa bringing a tray with tea; plain warm wall above.
+```
+
+**a1_w8.jpg** · Kelime adımı: Ünite 8 tekrarı
+```
+A cheerful park tree with a bicycle leaning on it, a stack of cardboard boxes and two birds flying, centered, plain cream background.
+```
+
+**a1_e31.jpg** · Bölüm 31: Akşam yemeği
+*Maya ve Leo Bay Patel'e akşam yemeği yapar: ekmek, peynir, domates.*
+```
+In Mr Patel's cozy kitchen: Maya and Leo preparing dinner with bread, cheese and tomatoes on the table, Mr Patel sitting at the table smiling warmly; a soft lamp glow above.
+```
+
+**a1_e32.jpg** · Bölüm 32: Markette
+*Markette havuç ve pirinç alırlar; Tom para yerine topunu uzatır.*
+```
+At a small shop counter: Maya with a basket of carrots and rice, Tom proudly offering his ball instead of money, and the friendly shopkeeper laughing; shelves of vegetables behind them.
+```
+
+## Ünite 9: Dün
+
+**a1_e33.jpg** · Bölüm 33: Annemle telefonda
+*Maya yağmurlu bir akşam annesiyle telefonda konuşur; karşıda Bay Patel penceresinde.*
+```
+Maya on the phone at her window on a rainy evening, smiling and excited, her wet raincoat hanging beside her; across the street Mr Patel in his lit window; soft rainy sky above.
+```
+
+**a1_e34.jpg** · Bölüm 34: Bay Patel'in hikâyesi
+*Bay Patel gençliğini anlatır: Bristol'a geldi, Maya'nın dairesinde kaldı, Rosa ile arkadaştı.*
+```
+Mr Patel in his armchair telling a story, Maya listening closely; above them a soft dreamy cloud shows the memory of a young man with a suitcase arriving at a station and a young woman dancing.
+```
+
+**a1_w9.jpg** · Kelime adımı: Ünite 9 tekrarı
+```
+An old leather suitcase with picture-only travel stickers, an old camera and a postcard resting on top, centered, plain cream background.
+```
+
+**a1_e35.jpg** · Bölüm 35: Postanede
+*Tom postanede Bay Patel'i kartpostal alırken görür.*
+```
+Inside a small post office: Mr Patel at the counter buying a postcard, and Tom peeking out from behind a display stand with wide amazed eyes; plain soft wall above.
 ```
 
 **a1_e36.jpg** · Bölüm 36: Kartpostalları kim gönderdi?
-*Sır çözülür: kartpostalları Bay Patel göndermiştir. Her hafta sonu Londra'daki kızını ziyaret ederken postalamış, Maya İngilizce öğrensin diye. Maya da ona bir kartpostal yazar.*
+*Maya eski anahtarla sarı kapıya gelir. Bay Patel "Evine hoş geldin" der.*
 ```
-Maya handing a picture postcard to Mr Patel on his doorstep, both smiling warmly, Biscuit the cat between them, golden evening light, a happy ending feeling.
+At the open yellow door of the old house: Maya holding the old golden key, Mr Patel welcoming her inside with open arms and a warm smile, six postcards with small pictures pinned on the wall behind him; golden evening light.
 ```
-
----
-
-## Durum (2026-10-25)
-
-- Hazır ve uygulamada: 34 bölüm ve 3 kelime seti.
-- **Yeniden üretilecek:** a1_e07 (Tom yanlışlıkla çizilmiş; Tom 10. bölümde tanıtılıyor, burada Maya ile Leo olmalı).
-- **Eksik:** a1_e34, a1_e35.
-- 17, 23, 24, 26, 31 ve 32. bölümlerin metni görsellere uyduruldu (yukarıdaki prompt'lar da güncel).
-
-## Kontrol listesi
-
-| Ünite | Görseller |
-|---|---|
-| 1 | a1_e01, a1_e02, a1_w1, a1_e03, a1_e04 |
-| 2 | a1_e05, a1_e06, a1_e07, a1_e08 |
-| 3 | a1_e09, a1_e10, a1_w3, a1_e11, a1_e12 |
-| 4 | a1_e13, a1_e14, a1_e15, a1_e16 |
-| 5 | a1_e17, a1_e18, a1_w5, a1_e19, a1_e20 |
-| 6 | a1_e21, a1_e22, a1_e23, a1_e24 |
-| 7 | a1_e25, a1_e26, a1_e27, a1_e28 |
-| 8 | a1_e29, a1_e30, a1_e31, a1_e32 |
-| 9 | a1_e33, a1_e34, a1_e35, a1_e36 |
-
-Toplam: 36 bölüm ve 3 kelime seti, **39 görsel**.
