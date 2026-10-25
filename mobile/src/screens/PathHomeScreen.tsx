@@ -12,6 +12,7 @@ import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, gloss, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
+import { findWordRoom } from '../data/wordRooms';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { t } from '../i18n';
 import { api } from '../lib/api';
@@ -103,6 +104,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
+    else if (s.kind === 'room') navigation.navigate('WordRoom', { roomId: s.roomId, pathStepId: s.id });
     else if (s.kind === 'scene') {
       const scene = voiceSceneById(s.sceneId);
       if (!scene) return;
@@ -338,11 +340,15 @@ function Medallion({
     <View style={{ alignItems: 'center', width: size + 40 }}>
       <View style={[styles.medalRing, { width: size, height: size, borderRadius: size / 2, borderColor: palette.ring }]}>
         <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.medal, { borderRadius: size / 2 }]}>
-          <Image
-            source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
-            style={[styles.medalArt, { width: size * 0.62, height: size * 0.62, opacity: locked ? 0.35 : 0.95 }]}
-            resizeMode="contain"
-          />
+          {s.kind === 'room' && findWordRoom(s.roomId) ? (
+            <Image source={findWordRoom(s.roomId)!.thumb} style={[StyleSheet.absoluteFill, { opacity: locked ? 0.4 : 1 }]} resizeMode="cover" />
+          ) : (
+            <Image
+              source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
+              style={[styles.medalArt, { width: size * 0.62, height: size * 0.62, opacity: locked ? 0.35 : 0.95 }]}
+              resizeMode="contain"
+            />
+          )}
           <LinearGradient colors={['rgba(15,23,42,0.45)', 'rgba(15,23,42,0)']} style={styles.medalShade} />
           <View style={styles.medalText}>
             <Text style={styles.medalKicker}>{kicker}</Text>

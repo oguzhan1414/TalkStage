@@ -93,7 +93,8 @@ export type RootStackParamList = {
   PodcastPlayer: { episodeId: string };
   /** "Kelime Odaları" (data/wordRooms.ts). */
   WordRooms: undefined;
-  WordRoom: { roomId: string };
+  /** `pathStepId`: opened as a word section of the learning path (marks that step done at the end). */
+  WordRoom: { roomId: string; pathStepId?: string };
   /** New learning path (docs/yeni-ogrenme-yolu.md): a reading lesson and a vocabulary section. */
   PathLesson: { stepId: string };
   PathVocab: { stepId: string };

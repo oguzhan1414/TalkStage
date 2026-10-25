@@ -1,18 +1,19 @@
-import type { PathLevel, PathStep, PathUnit } from './types';
+import { A1_U2 } from './a1/u2';
+import { A1_U3 } from './a1/u3';
+import { A1_U4 } from './a1/u4';
+import { A1_U5 } from './a1/u5';
+import { A1_U6 } from './a1/u6';
+import { A1_U7 } from './a1/u7';
+import { A1_U8 } from './a1/u8';
+import { A1_U9 } from './a1/u9';
+import type { PathLevel, PathUnit } from './types';
 
 /**
  * A1 (Beginner): "Maya's new city". Maya moves to Bristol and every week a postcard with an English word
  * appears under her door. Who sends them is revealed in unit 9, once the past tense is learnt.
- * Unit 1 is written in full; units 2–9 are planned (titles + grammar) and appear as "soon" steps.
+ * 9 units × (4 episodes + a word section + a Mivo scene). Units 2–9 live in ./a1/. Story outline and images:
+ * docs/a1_gorsel_promptlari.md.
  */
-
-const soon = (
-  id: string,
-  type: 'reading' | 'vocab' | 'scene',
-  tr: string,
-  en: string,
-  grammar?: { tr: string; en: string }
-): PathStep => ({ id, kind: 'soon', type, title: { tr, en }, grammar });
 
 const UNIT_1: PathUnit = {
   id: 'a1-u1',
@@ -305,23 +306,6 @@ const UNIT_1: PathUnit = {
   ],
 };
 
-const plannedUnit = (
-  n: number,
-  title: { tr: string; en: string },
-  readings: [string, string, { tr: string; en: string }][],
-  vocab: { tr: string; en: string },
-  scene: { tr: string; en: string }
-): PathUnit => {
-  const id = `a1-u${n}`;
-  const r = readings.map(([tr, en, g], i) => soon(`${id}-r${i + 1}`, 'reading', tr, en, g));
-  return {
-    id,
-    number: n,
-    title,
-    steps: [r[0], r[1], soon(`${id}-v`, 'vocab', vocab.tr, vocab.en), r[2], r[3], soon(`${id}-sc`, 'scene', scene.tr, scene.en)],
-  };
-};
-
 export const A1: PathLevel = {
   id: 'A1',
   name: 'Beginner',
@@ -332,103 +316,5 @@ export const A1: PathLevel = {
       en: 'Maya moves to Bristol. Every week a postcard with an English word appears under her door. Who sends them?',
     },
   },
-  units: [
-    UNIT_1,
-    plannedUnit(
-      2,
-      { tr: 'Yeni oda', en: 'A new room' },
-      [
-        ['Odadaki eşyalar', 'Things in the room', { tr: 'a / an', en: 'a / an' }],
-        ['Kutular ve kitaplar', 'Boxes and books', { tr: 'Çoğul isimler', en: 'Plural nouns' }],
-        ['Bu ne?', 'What is this?', { tr: 'this / that / these / those', en: 'this / that / these / those' }],
-        ['İlk ipucu', 'The first clue', { tr: 'What is…? Where is…?', en: 'What is…? Where is…?' }],
-      ],
-      { tr: 'Kelime Odası: Yatak odası', en: 'Word Room: Bedroom' },
-      { tr: 'Mivo ile: Hediyelik eşya dükkânı', en: 'With Mivo: At the gift shop' }
-    ),
-    plannedUnit(
-      3,
-      { tr: 'Kimin bu?', en: 'Whose is it?' },
-      [
-        ['Kayıp çanta', 'The lost bag', { tr: 'my / your / his / her', en: 'my / your / his / her' }],
-        ["Rosa'nın torunu Tom", "Rosa's grandson Tom", { tr: "İyelik 's", en: "Possessive 's" }],
-        ["Leo'nun gitarı", "Leo's guitar", { tr: 'have / has', en: 'have / has' }],
-        ['Bu kimin?', 'Whose is this?', { tr: 'Whose?', en: 'Whose?' }],
-      ],
-      { tr: 'Aile', en: 'Family' },
-      { tr: 'Mivo ile: Kayıp eşya bürosu', en: 'With Mivo: Lost and found' }
-    ),
-    plannedUnit(
-      4,
-      { tr: 'Günlük hayat', en: 'Daily life' },
-      [
-        ["Maya'nın ilk iş günü", "Maya's first day at work", { tr: 'Geniş zaman: olumlu', en: 'Present simple: positive' }],
-        ['Rosa her sabah…', 'Every morning Rosa…', { tr: 'he / she / it + -s', en: 'he / she / it + -s' }],
-        ['Leo erken kalkmaz', "Leo doesn't get up early", { tr: "Geniş zaman: don't / doesn't", en: "Present simple: don't / doesn't" }],
-        ['Kahve içer misin?', 'Do you drink coffee?', { tr: 'Do you…? Does she…?', en: 'Do you…? Does she…?' }],
-      ],
-      { tr: 'Kelime Odası: Banyo', en: 'Word Room: Bathroom' },
-      { tr: 'Mivo ile: Komşuyla sohbet', en: 'With Mivo: Chat with your neighbour' }
-    ),
-    plannedUnit(
-      5,
-      { tr: 'Ne zaman?', en: 'When?' },
-      [
-        ['Haftalık program', 'The weekly plan', { tr: 'What time do you…?', en: 'What time do you…?' }],
-        ['Bay Patel her zaman…', 'Mr Patel always…', { tr: 'always / usually / never', en: 'always / usually / never' }],
-        ['Pazartesi saat sekizde', 'On Monday at eight', { tr: 'at / on / in', en: 'at / on / in' }],
-        ['Pazartesi sabahı tuzağı', 'The Monday morning trap', { tr: 'Geniş zaman tekrarı', en: 'Present simple review' }],
-      ],
-      { tr: 'Günler, aylar, saatler', en: 'Days, months, times' },
-      { tr: 'Mivo ile: Spor salonuna kayıt', en: 'With Mivo: Joining the gym' }
-    ),
-    plannedUnit(
-      6,
-      { tr: 'Şehirde', en: 'In the city' },
-      [
-        ['Mahallede neler var?', "What's in the neighbourhood?", { tr: 'there is / there are', en: 'there is / there are' }],
-        ['Postane nerede?', 'Where is the post office?', { tr: 'next to / between / opposite', en: 'next to / between / opposite' }],
-        ['Yol tarifi', 'Directions', { tr: "Turn left / Don't…", en: "Turn left / Don't…" }],
-        ['Yakında banka var mı?', 'Is there a bank near here?', { tr: 'Is there…? Are there…?', en: 'Is there…? Are there…?' }],
-      ],
-      { tr: 'Kelime Odası: Sokak', en: 'Word Room: Street' },
-      { tr: 'Mivo ile: Şehirde kaybolmak', en: 'With Mivo: Lost in the city' }
-    ),
-    plannedUnit(
-      7,
-      { tr: 'Sevdiklerin ve şu an', en: 'Likes and right now' },
-      [
-        ["Leo'nun hobileri", "Leo's hobbies", { tr: 'like / love + -ing', en: 'like / love + -ing' }],
-        ['Onu tanıyor musun?', 'Do you know him?', { tr: 'me / him / her / them', en: 'me / him / her / them' }],
-        ['Annesiyle telefonda', 'On the phone with Mum', { tr: 'Şimdiki zaman', en: 'Present continuous' }],
-        ['Şu an ne yapıyorsun?', 'What are you doing now?', { tr: 'Şimdiki zaman: soru', en: 'Present continuous: questions' }],
-      ],
-      { tr: 'Kelime Odası: Spor salonu', en: 'Word Room: Gym' },
-      { tr: 'Mivo ile: Partide hobiler', en: 'With Mivo: Hobbies at a party' }
-    ),
-    plannedUnit(
-      8,
-      { tr: 'Yapabildiklerin', en: 'What you can do' },
-      [
-        ['Parti hazırlığı', 'Getting ready for the party', { tr: "can / can't", en: "can / can't" }],
-        ['Yardım eder misin?', 'Can you help me?', { tr: 'Can I…? Could you…?', en: 'Can I…? Could you…?' }],
-        ['Alışveriş listesi', 'The shopping list', { tr: 'some / any', en: 'some / any' }],
-        ['Ne kadar?', 'How much?', { tr: 'How much / How many', en: 'How much / How many' }],
-      ],
-      { tr: 'Kelime Odası: Market', en: 'Word Room: Grocery' },
-      { tr: 'Mivo ile: Markette', en: 'With Mivo: At the grocery store' }
-    ),
-    plannedUnit(
-      9,
-      { tr: 'Hafta sonu ve sır', en: 'The weekend and the secret' },
-      [
-        ['Parti dündü', 'The party was yesterday', { tr: 'was / were', en: 'was / were' }],
-        ['Herkes dans etti', 'Everybody danced', { tr: 'Geçmiş zaman: düzenli', en: 'Past simple: regular' }],
-        ["Bay Patel'in hikâyesi", "Mr Patel's story", { tr: 'Geçmiş zaman: düzensiz', en: 'Past simple: irregular' }],
-        ['Kartpostalları kim gönderdi?', 'Who sent the postcards?', { tr: 'Did you…? ago / last', en: 'Did you…? ago / last' }],
-      ],
-      { tr: 'Kelime Odası: Kafe', en: 'Word Room: Café' },
-      { tr: 'Mivo ile: Hafta sonun nasıldı?', en: 'With Mivo: How was your weekend?' }
-    ),
-  ],
+  units: [UNIT_1, A1_U2, A1_U3, A1_U4, A1_U5, A1_U6, A1_U7, A1_U8, A1_U9],
 };

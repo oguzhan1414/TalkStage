@@ -169,7 +169,7 @@ Kısaltmalar: **O** = okuma dersi, **K** = kelime bölümü, **S** = Mivo sahnes
 | 26 | O | Bay Patel her zaman… | sıklık zarfları (always, usually, never) |
 | 27 | K | Günler, aylar, saatler | (sistematik set) |
 | 28 | O | Pazartesi saat sekizde | at / on / in (zaman) |
-| 29 | O | İkinci kartpostal | geniş zaman tekrarı |
+| 29 | O | Pazartesi sabahı tuzağı | geniş zaman tekrarı |
 | 30 | S | Joining the Gym | `vs-a1-gym-signup` |
 
 ### Ünite 6: Şehirde
@@ -179,7 +179,7 @@ Kısaltmalar: **O** = okuma dersi, **K** = kelime bölümü, **S** = Mivo sahnes
 | 32 | O | Postane nerede? | yer edatları (next to, between, opposite) |
 | 33 | K | Kelime Odası: Sokak | |
 | 34 | O | Yol tarifi | emir kipi (Turn left, Don't…) |
-| 35 | O | "Is there a bank near here?" | Is there / Are there? |
+| 35 | O | Sarı kapı | Is there / Are there? |
 | 36 | S | Lost in the City | `vs-a1-city-directions` |
 
 ### Ünite 7: Sevdiklerin ve şu an

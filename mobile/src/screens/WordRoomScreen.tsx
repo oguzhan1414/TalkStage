@@ -15,6 +15,7 @@ import { getLocale, t } from '../i18n';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
+import { recordStep } from '../lib/pathProgress';
 import { addMastered, loadMastered, saveLastRoom } from '../lib/wordRoomProgress';
 import type { WordRoomScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -676,6 +677,7 @@ function ResultsView({
   checkOk,
   onReplay,
   onExit,
+  pathStepId,
 }: {
   room: WordRoom;
   session: RoomItem[];
@@ -683,6 +685,8 @@ function ResultsView({
   checkOk: Results;
   onReplay: () => void;
   onExit: () => void;
+  /** Set when the game was opened as a word section of the learning path: the step is marked done. */
+  pathStepId?: string;
 }) {
   const queryClient = useQueryClient();
   const learned = session.filter((i) => findOk[i.id] && checkOk[i.id]);
@@ -703,6 +707,10 @@ function ResultsView({
     if (savedOnce.current) return;
     savedOnce.current = true;
     addMastered(room.id, learned.map((i) => i.id)).then((all) => setRoomTotal(all.size));
+    if (pathStepId) {
+      const ratio = learned.length / Math.max(1, session.length);
+      void recordStep(pathStepId, ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : 1);
+    }
     postQueued('/progress/log-practice')
       .then(() => queryClient.invalidateQueries({ queryKey: ['me'] }))
       .catch(() => {});
@@ -923,6 +931,7 @@ export function WordRoomScreen({ navigation, route }: WordRoomScreenProps) {
           checkOk={checkOk}
           onReplay={start}
           onExit={() => navigation.goBack()}
+          pathStepId={route.params.pathStepId}
         />
       )}
     </SafeAreaView>

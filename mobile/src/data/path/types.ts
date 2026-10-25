@@ -70,6 +70,8 @@ export type PathStep =
   | { id: string; kind: 'reading'; episode: PathEpisode }
   | { id: string; kind: 'vocab'; title: Loc; words: PathWord[] }
   | { id: string; kind: 'scene'; title: Loc; sceneId: string }
+  /** A vocabulary section played as a Word Room (data/wordRooms.ts). */
+  | { id: string; kind: 'room'; title: Loc; roomId: string }
   /** Planned but not written yet. */
   | { id: string; kind: 'soon'; title: Loc; type: 'reading' | 'vocab' | 'scene'; grammar?: Loc };
 
@@ -89,5 +91,7 @@ export function stepTitle(step: PathStep): string {
 }
 
 export function stepType(step: PathStep): 'reading' | 'vocab' | 'scene' {
-  return step.kind === 'soon' ? step.type : step.kind;
+  if (step.kind === 'soon') return step.type;
+  if (step.kind === 'room') return 'vocab';
+  return step.kind;
 }

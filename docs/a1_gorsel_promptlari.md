@@ -210,7 +210,7 @@ Maya at the counter of a small old post office talking to a friendly postwoman, 
 Tom pointing the way for Maya on a sloping street with colorful houses, the harbour and boats visible below, bicycles leaning on a railing, bright day.
 ```
 
-**a1_e24.jpg** · Bölüm 24: Yakında banka var mı?
+**a1_e24.jpg** · Bölüm 24: Sarı kapı
 *Limanın yanında kartpostalların satıldığı küçük bir dükkân bulurlar.*
 ```
 Maya and Tom looking at the window of a tiny vintage shop full of colorful picture postcards, by the harbour, boats in the background, excited faces.
