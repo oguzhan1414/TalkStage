@@ -313,9 +313,6 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
   const size = Math.round(Math.min(width - spacing.md * 2, height * 0.34));
   const zoom = useLoop(true, 9000, true);
   const scale = zoom.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] });
-  const names = PART_NAMES();
-  const subs = [t("{{n}} yeni kelime", { n: episode.words.length }), loc(episode.grammar), t("Okuma ve konuşma")];
-  const icons: React.ComponentProps<typeof Ionicons>['name'][] = ['text', 'construct', 'book'];
   const nextPart = Math.min(partsDone, 2);
   const allDone = partsDone >= 3;
 
@@ -346,36 +343,24 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
         ) : null}
       </FadeIn>
 
-      <View style={styles.parts}>
-        {names.map((name, i) => {
-          const done = i < partsDone;
-          const isNext = !allDone && i === nextPart;
-          const locked = !done && !isNext && !allDone;
-          return (
-            <FadeIn key={name} delay={200 + i * 80}>
-              <Pressable
-                onPress={() => onStart(i)}
-                disabled={locked}
-                style={({ pressed }) => [styles.partRow, isNext && styles.partRowNext, locked && { opacity: 0.55 }, pressed && { transform: [{ scale: 0.98 }] }]}
-                accessibilityRole="button"
-              >
-                <View style={[styles.partIcon, done && styles.partIconDone, isNext && styles.partIconNext]}>
-                  <Ionicons name={done ? 'star' : locked ? 'lock-closed' : icons[i]} size={18} color={done ? '#F59E0B' : isNext ? '#FFFFFF' : '#94A3B8'} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.partName}>{t("{{n}}. yıldız · {{name}}", { n: i + 1, name })}</Text>
-                  <Text style={styles.partSub} numberOfLines={1}>
-                    {subs[i]}
-                  </Text>
-                </View>
-                {done ? <Ionicons name="checkmark-circle" size={22} color="#22C55E" /> : !locked ? <Ionicons name="chevron-forward" size={20} color={colors.brand} /> : null}
-              </Pressable>
-            </FadeIn>
-          );
-        })}
-      </View>
+      <FadeIn delay={200} style={styles.chipRow}>
+        <View style={styles.chip}>
+          <Ionicons name="sparkles" size={14} color={colors.brand} />
+          <Text style={styles.chipText} numberOfLines={1}>
+            {loc(episode.grammar)}
+          </Text>
+        </View>
+        <View style={styles.chip}>
+          <Ionicons name="time-outline" size={14} color={colors.textBody} />
+          <Text style={[styles.chipText, { color: colors.textBody }]}>{t("~{{n}} dk", { n: episode.minutes })}</Text>
+        </View>
+        <View style={styles.chip}>
+          <Ionicons name="text" size={14} color={colors.textBody} />
+          <Text style={[styles.chipText, { color: colors.textBody }]}>{t("{{n}} yeni kelime", { n: episode.words.length })}</Text>
+        </View>
+      </FadeIn>
 
-      <FadeIn delay={460}>
+      <FadeIn delay={320}>
         <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Başla")} onPress={() => onStart(allDone ? 0 : nextPart)} />
       </FadeIn>
     </>
@@ -384,7 +369,7 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
 
 /* ---------------- ⭐1 Words ---------------- */
 
-/** Hear the word, pick its picture out of two (or its meaning when the word has no picture). */
+/** Look at the picture and pick its word out of two (the meaning is shown when a word has no picture). */
 function PickStep({
   words,
   tally,
@@ -399,24 +384,35 @@ function PickStep({
   onDone: () => void;
 }) {
   const { pronounce } = usePronunciation();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [idx, setIdx] = useState(0);
-  const [picked, setPicked] = useState<number | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
   const w = words[idx];
+  const img = wordImage(w.en);
   const options = useMemo(() => {
-    const others = words.filter((o) => o.en !== w.en && (wordImage(w.en) ? wordImage(o.en) : gloss(o.native)));
-    const other = others[Math.floor(Math.random() * others.length)] ?? words[(idx + 1) % words.length];
-    return shuffle([w, other]);
+    const others = words.filter((o) => o.en !== w.en);
+    const other = others[Math.floor(Math.random() * others.length)];
+    return shuffle(other ? [w.en, other.en] : [w.en]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
-  const card = Math.floor((width - spacing.md * 2 - 12) / 2);
+  const size = Math.round(Math.min(width - spacing.md * 2, height * 0.36, 320));
 
   useEffect(() => {
     report(idx, words.length);
-    pronounce(w.en).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
+  const choose = (o: string) => {
+    if (picked) return;
+    setPicked(o);
+    const ok = o === w.en;
+    tally(ok);
+    if (ok) haptics.success();
+    else haptics.warning();
+    // The word is heard after the answer, so the sound never gives it away.
+    pronounce(w.en).catch(() => {});
+    onAnswered();
+  };
   const next = () => {
     if (idx + 1 >= words.length) onDone();
     else {
@@ -428,73 +424,28 @@ function PickStep({
   return (
     <>
       <FadeIn>
-        <StepHead icon="images" title={t("Resmi bul")} sub={t("Kelimeyi dinle ve doğru resmi seç.")} />
+        <StepHead icon="images" title={t("Bu ne?")} sub={t("Resme bak ve doğru kelimeyi seç.")} />
       </FadeIn>
-      <FadeIn key={`w${idx}`} delay={40} style={styles.pickWordRow}>
-        <Pressable onPress={() => pronounce(w.en).catch(() => {})} style={styles.pickSpeaker} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
-          <Ionicons name="volume-high" size={22} color="#FFFFFF" />
-        </Pressable>
-        <Text style={styles.pickWord}>{w.en}</Text>
+      <FadeIn key={`p${idx}`} delay={40} style={[styles.pickPic, { width: size, height: size }]}>
+        {img ? (
+          <Image source={img} style={{ width: size, height: size, borderRadius: 28 }} resizeMode="cover" />
+        ) : (
+          <Text style={styles.pickMeaning}>{gloss(w.native)}</Text>
+        )}
       </FadeIn>
-      <View style={styles.pickCards}>
+      <View style={styles.options}>
         {options.map((o, i) => (
-          <PickCard
-            key={`${idx}-${o.en}`}
-            word={o}
-            size={card}
+          <Choice
+            key={`${idx}-${o}`}
+            label={o}
             index={i}
-            state={picked === null ? 'idle' : o.en === w.en ? 'ok' : i === picked ? 'bad' : 'dim'}
-            onPress={() => {
-              if (picked !== null) return;
-              setPicked(i);
-              const ok = o.en === w.en;
-              tally(ok);
-              if (ok) haptics.success();
-              else haptics.warning();
-              onAnswered();
-            }}
+            state={!picked ? 'idle' : o === w.en ? 'ok' : o === picked ? 'bad' : 'dim'}
+            onPress={() => choose(o)}
           />
         ))}
       </View>
-      {picked !== null ? (
-        <Feedback key={`f${idx}`} ok={options[picked].en === w.en} sub={wordLine(w)} label={t("Devam")} onNext={next} />
-      ) : null}
+      {picked ? <Feedback key={`f${idx}`} ok={picked === w.en} sub={wordLine(w)} label={t("Devam")} onNext={next} /> : null}
     </>
-  );
-}
-
-function PickCard({ word, size, index, state, onPress }: { word: PathWord; size: number; index: number; state: 'idle' | 'ok' | 'bad' | 'dim'; onPress: () => void }) {
-  const shake = useShake();
-  const pop = usePop(1.06);
-  useEffect(() => {
-    if (state === 'ok') pop.pop();
-    if (state === 'bad') shake.shake();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
-  const img = wordImage(word.en);
-  return (
-    <FadeIn delay={100 + index * 80}>
-      <Animated.View style={[shake.style]}>
-        <Animated.View style={pop.style}>
-          <Pressable
-            onPress={onPress}
-            style={[styles.pickCard, { width: size, height: size }, state === 'ok' && styles.pickCardOk, state === 'bad' && styles.pickCardBad, state === 'dim' && styles.optionDim]}
-            accessibilityRole="button"
-          >
-            {img ? (
-              <Image source={img} style={{ width: size * 0.58, height: size * 0.58 }} resizeMode="contain" />
-            ) : (
-              <Text style={styles.pickMeaning}>{gloss(word.native)}</Text>
-            )}
-            {state === 'ok' || state === 'bad' ? (
-              <View style={[styles.pickMark, { backgroundColor: state === 'ok' ? colors.success : colors.error }]}>
-                <Ionicons name={state === 'ok' ? 'checkmark' : 'close'} size={16} color="#FFFFFF" />
-              </View>
-            ) : null}
-          </Pressable>
-        </Animated.View>
-      </Animated.View>
-    </FadeIn>
   );
 }
 
@@ -1271,12 +1222,12 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
         <Image source={part === 1 ? mivoVoiceImages.note : mivoVoiceImages.speak} style={styles.partNextMivo} resizeMode="contain" />
         <Text style={styles.partNextText}>
           {part === 1
-            ? t("Şimdi bu kelimelerle cümle kuracağız. Kısa bir kural, sonra pratik!")
-            : t("Sırada Maya'nın hikâyesi var. Yeni kelimeleri ve kalıbı orada göreceksin.")}
+            ? t("Kelimeler cebinde! Sırada dil bilgisi var ama korkma: 2 dakikalık kısa bir görev. Az önce öğrendiğin kelimelerle cümle kuracaksın.")
+            : t("Süpersin! Bir sonraki ders açıldı. Şimdi en keyifli kısım: Maya'nın hikâyesi.")}
         </Text>
       </FadeIn>
       <FadeIn delay={700} style={{ alignSelf: 'stretch', gap: 12 }}>
-        <NextButton label={t("Devam: {{name}}", { name: names[part] })} onPress={onNext} />
+        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Hikâyeye geç")} onPress={onNext} />
         <Pressable onPress={onExit} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Sonra devam ederim")}</Text>
         </Pressable>
@@ -1379,14 +1330,9 @@ const styles = StyleSheet.create({
   coverBadgeText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, letterSpacing: 0.3 },
   coverTitle: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: colors.textHeading, textAlign: 'center' },
   coverRecap: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  parts: { gap: 8 },
-  partRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, borderWidth: 2, borderColor: '#E2E8F0' },
-  partRowNext: { borderColor: '#C7D2FE', backgroundColor: '#F5F7FF' },
-  partIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
-  partIconDone: { backgroundColor: '#FEF3C7' },
-  partIconNext: { backgroundColor: colors.brand },
-  partName: { fontFamily: fonts.headingBold, fontSize: 15.5, color: colors.textHeading },
-  partSub: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, marginTop: 1 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFFFFF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#E2E8F0', maxWidth: '100%' },
+  chipText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, flexShrink: 1 },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
@@ -1415,24 +1361,18 @@ const styles = StyleSheet.create({
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
   feedbackSub: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textBody, marginTop: 1 },
 
-  pickWordRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, paddingVertical: 10 },
-  pickSpeaker: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 3, borderBottomColor: '#3730A3' },
-  pickWord: { fontFamily: fonts.headingBold, fontSize: 34, color: colors.textHeading },
-  pickCards: { flexDirection: 'row', gap: 12 },
-  pickCard: {
+  pickPic: {
+    alignSelf: 'center',
+    borderRadius: 28,
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
     borderWidth: 2,
     borderBottomWidth: 5,
     borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 10,
+    overflow: 'hidden',
   },
-  pickCardOk: { borderColor: '#22C55E', backgroundColor: '#F0FDF4' },
-  pickCardBad: { borderColor: colors.error, backgroundColor: '#FFF1F2' },
-  pickMeaning: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, textAlign: 'center' },
-  pickMark: { position: 'absolute', top: 10, right: 10, width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  pickMeaning: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading, textAlign: 'center', padding: 16 },
 
   typePrompt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 6 },
   typeImg: { width: 64, height: 64 },

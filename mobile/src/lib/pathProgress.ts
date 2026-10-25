@@ -17,8 +17,8 @@ export type PathProgress = {
   /** Scene steps skipped for later: they never block the road. */
   skipped: Record<string, true>;
   /**
-   * Reading lessons are three parts (words, grammar, story), one star each: the parts finished so far. The step
-   * counts as done (3 stars) only after the third part.
+   * Reading lessons are three parts (words, grammar, story), one star each: the parts finished so far. Two parts
+   * open the next step; the step counts as done (3 stars) after the third.
    */
   parts: Record<string, number>;
 };
@@ -74,9 +74,10 @@ export function isDone(p: PathProgress, stepId: string) {
   return (p.stars[stepId] ?? 0) > 0;
 }
 
-/** Done or skipped: the road moves past it. */
+/** Done, two parts of a reading lesson, or skipped: the road moves past it. */
 export function isPassed(p: PathProgress, stepId: string) {
-  return isDone(p, stepId) || !!p.skipped[stepId];
+  // Two stars of a reading lesson (words + grammar) open the next step; the story can be read later.
+  return isDone(p, stepId) || (p.parts[stepId] ?? 0) >= 2 || !!p.skipped[stepId];
 }
 
 /** The first step the learner has not passed yet (the "next" card), or the last written one when all are done. */
