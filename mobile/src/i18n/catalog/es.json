@@ -3350,5 +3350,10 @@
   "{{level}} · Ünite {{n}}": "{{level}} · Unidad {{n}}",
   "Önceki": "Anterior",
   "Kelime bölümü": "Palabras",
-  "Mivo ile sahne": "Escena con Mivo"
+  "Mivo ile sahne": "Escena con Mivo",
+  "{{level}} · Ünite {{u}} · Bölüm {{n}}": "{{level}} · Unidad {{u}} · Episodio {{n}}",
+  "{{level}} · Ünite {{u}} · Kelimeler": "{{level}} · Unidad {{u}} · Palabras",
+  "{{level}} · Ünite {{u}} · Mivo ile sahne": "{{level}} · Unidad {{u}} · Escena con Mivo",
+  "Tekrar oku": "Leer de nuevo",
+  "Okumaya başla": "Empezar a leer"
 }

@@ -5,7 +5,7 @@ import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
@@ -24,20 +24,23 @@ import type { ProfileOut, ProgressOut } from '../types/api';
 
 const CHEST_KEY = 'spekvia.path.chest';
 const TAB_BAR = 68;
+const PAPER = '#FBF6EE';
+const INK = '#2B2118';
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
-/** Medallion colours per step type. */
-const RING: Record<string, { ring: string; fill: [string, string] }> = {
-  reading: { ring: '#FDE68A', fill: ['#6366F1', '#8B5CF6'] },
-  vocab: { ring: '#BBF7D0', fill: ['#10B981', '#059669'] },
-  scene: { ring: '#F5D0FE', fill: ['#A855F7', '#7C3AED'] },
-  soon: { ring: '#E2E8F0', fill: ['#CBD5E1', '#94A3B8'] },
+/** Fallback picture backgrounds (no illustration yet): scene = Mivo violet, vocab = green, story = indigo. */
+const FALLBACK: Record<string, [string, string]> = {
+  reading: ['#6366F1', '#8B5CF6'],
+  vocab: ['#10B981', '#059669'],
+  scene: ['#A855F7', '#7C3AED'],
+  soon: ['#CBD5E1', '#94A3B8'],
 };
 
 /**
- * Home of the new learning path (docs/yeni-ogrenme-yolu.md). One screen, no scrolling: the next step of the level's
- * story as a big medallion (swipe or use the arrows to browse), Mivo beside it recalling the last episode, the
- * unit's steps as dots, the daily chest in the corner and the Mivo chat button.
+ * Home of the new learning path (docs/yeni-ogrenme-yolu.md), drawn like a storybook page: the step's illustration
+ * fills the top half edge to edge and melts into the paper below, where the title, the grammar chip, the stars and
+ * the start button sit. Swipe (or the arrows on the picture) to browse the steps. Mivo recalls the last episode at
+ * the bottom next to the unit's dots; the Mivo chat button stays bottom right.
  */
 export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { transitionTo } = useMivoTransition();
@@ -74,7 +77,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
   const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
   const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
-  const medal = Math.round(Math.min(winW * 0.74, winH * 0.36, 320));
+  const artH = Math.round(winH * 0.48);
 
   const [chatLockOpen, setChatLockOpen] = useState(false);
   const [chestOpen, setChestOpen] = useState(false);
@@ -91,7 +94,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     [steps, current.index, progress]
   );
 
-  /** What Mivo says next to the medallion: the previous episode, or the story's opening line. */
+  /** What Mivo says at the bottom: the previous episode, or the story's opening line. */
   const mivoLine = (() => {
     const s = focused.step;
     if (s.kind === 'reading' && s.episode.recap) return loc(s.episode.recap);
@@ -118,109 +121,95 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#4F8EF7', '#8DBBFB', '#D6E7FF', '#F8FAFC']} locations={[0, 0.35, 0.62, 0.9]} style={StyleSheet.absoluteFill} />
-      <Clouds top={winH * 0.5} width={winW} />
-
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-        {/* Top: Mivo friendship level, today's goal, streak */}
-        <View style={styles.top}>
-          <Pressable onPress={() => navigation.navigate('Profile')} style={styles.levelBadge} accessibilityRole="button">
-            <Text style={styles.levelNum}>{xp.level}</Text>
-          </Pressable>
-          <View style={styles.goal}>
-            <View style={styles.goalRow}>
-              <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
-              <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
-            </View>
-            <View style={styles.goalTrack}>
-              <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
-            </View>
-          </View>
-          <View style={styles.streak}>
-            <Ionicons name="flame" size={22} color="#F97316" />
-            <Text style={styles.streakNum}>{profile?.streak_count ?? 0}</Text>
-          </View>
-        </View>
-
-        {/* Story + chest */}
-        <View style={styles.storyRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.storyKicker}>{t("{{level}} · Ünite {{n}}", { level: level.id, n: focused.unit.number })}</Text>
-            <Text style={styles.storyTitle} numberOfLines={1}>
-              {loc(level.story.title)}
-            </Text>
-          </View>
-          {nextReading ? (
-            <BouncyPressable
-              onPress={() => {
-                setChestOpen(true);
-                setChestOpenedToday(true);
-                AsyncStorage.setItem(CHEST_KEY, todayKey()).catch(() => {});
-              }}
-              style={styles.gift}
-              hapticType="medium"
-              scaleTo={0.9}
-            >
-              <Ionicons name="gift" size={28} color="#F59E0B" />
-              {!chestOpenedToday ? <View style={styles.giftDot} /> : null}
-            </BouncyPressable>
-          ) : null}
-        </View>
-
-        {/* Mivo recalls the story */}
-        <View style={styles.mivoRow}>
-          <Image source={mivoVoiceImages.speak} style={styles.mivo} resizeMode="contain" />
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText} numberOfLines={3}>
-              {mivoLine}
-            </Text>
-          </View>
-        </View>
-
-        {/* The medallion carousel */}
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <FlatList
-            ref={listRef}
-            data={steps}
-            keyExtractor={(f) => f.step.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            getItemLayout={(_, i) => ({ length: winW, offset: winW * i, index: i })}
-            initialScrollIndex={current.index}
-            initialNumToRender={3}
-            windowSize={3}
-            onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / winW))}
-            renderItem={({ item }) => (
-              <View style={{ width: winW, alignItems: 'center' }}>
-                <Medallion
-                  f={item}
-                  size={medal}
-                  progress={progress}
-                  isFuture={item.index > current.index}
-                  onOpen={() => openStep(item.step)}
-                  onSkip={async () => {
-                    await skipStep(item.step.id);
-                    reload();
-                  }}
-                />
-              </View>
-            )}
+      {/* The pages: picture on top, paper below. */}
+      <FlatList
+        ref={listRef}
+        data={steps}
+        keyExtractor={(f) => f.step.id}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        getItemLayout={(_, i) => ({ length: winW, offset: winW * i, index: i })}
+        initialScrollIndex={current.index}
+        initialNumToRender={2}
+        windowSize={3}
+        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / winW))}
+        renderItem={({ item }) => (
+          <Page
+            f={item}
+            width={winW}
+            artH={artH}
+            levelId={level.id}
+            progress={progress}
+            isFuture={item.index > current.index}
+            onOpen={() => openStep(item.step)}
+            onSkip={async () => {
+              await skipStep(item.step.id);
+              reload();
+            }}
           />
-          {index > 0 ? (
-            <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, styles.arrowLeft]} hitSlop={10} accessibilityLabel={t("Önceki")}>
-              <Ionicons name="arrow-back" size={24} color={colors.brand} />
-            </Pressable>
-          ) : null}
-          {index < steps.length - 1 ? (
-            <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, styles.arrowRight]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
-              <Ionicons name="arrow-forward" size={24} color={colors.brand} />
-            </Pressable>
-          ) : null}
-        </View>
+        )}
+      />
 
-        {/* Unit steps as dots */}
-        <View style={[styles.dots, { marginBottom: Math.max(insets.bottom, 16) + TAB_BAR + 18 }]}>
+      {/* Over the picture: friendship level, today's goal, streak and the chest. */}
+      <View style={[styles.top, { top: insets.top + 6 }]} pointerEvents="box-none">
+        <Pressable onPress={() => navigation.navigate('Profile')} style={styles.levelBadge} accessibilityRole="button">
+          <Text style={styles.levelNum}>{xp.level}</Text>
+        </Pressable>
+        <View style={styles.goal}>
+          <View style={styles.goalRow}>
+            <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
+            <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
+          </View>
+          <View style={styles.goalTrack}>
+            <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
+          </View>
+        </View>
+        <View style={styles.pill}>
+          <Ionicons name="flame" size={19} color="#F97316" />
+          <Text style={styles.pillText}>{profile?.streak_count ?? 0}</Text>
+        </View>
+        {nextReading ? (
+          <BouncyPressable
+            onPress={() => {
+              setChestOpen(true);
+              setChestOpenedToday(true);
+              AsyncStorage.setItem(CHEST_KEY, todayKey()).catch(() => {});
+            }}
+            style={styles.pillRound}
+            hapticType="medium"
+            scaleTo={0.9}
+          >
+            <Ionicons name="gift" size={21} color="#F59E0B" />
+            {!chestOpenedToday ? <View style={styles.giftDot} /> : null}
+          </BouncyPressable>
+        ) : null}
+      </View>
+
+      {/* Arrows on the picture */}
+      {index > 0 ? (
+        <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, { left: 12, top: artH * 0.5 }]} hitSlop={10} accessibilityLabel={t("Önceki")}>
+          <Ionicons name="chevron-back" size={22} color={INK} />
+        </Pressable>
+      ) : null}
+      {index < steps.length - 1 ? (
+        <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, { right: 12, top: artH * 0.5 }]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
+          <Ionicons name="chevron-forward" size={22} color={INK} />
+        </Pressable>
+      ) : null}
+
+      {/* Bottom: Mivo recalls the story, the unit's dots (left of the chat button). */}
+      <View style={[styles.bottom, { bottom: Math.max(insets.bottom, 16) + TAB_BAR + 12 }]} pointerEvents="box-none">
+        <View style={styles.mivoRow}>
+          <Image source={mivoHomeImages.fab} style={styles.mivoFace} />
+          <Text style={styles.mivoText} numberOfLines={2}>
+            {mivoLine}
+          </Text>
+        </View>
+        <View style={styles.dots}>
+          <Text style={styles.unitLabel} numberOfLines={1}>
+            {t("Ünite {{n}}: {{title}}", { n: focused.unit.number, title: loc(focused.unit.title) })}
+          </Text>
           {focused.unit.steps.map((s) => {
             const done = progress ? isDone(progress, s.id) : false;
             const skipped = progress ? !!progress.skipped[s.id] : false;
@@ -236,12 +225,12 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                 hitSlop={6}
                 style={[styles.dot, scene && styles.dotScene, done && styles.dotDone, skipped && styles.dotSkipped, here && styles.dotHere]}
               >
-                {scene ? <Ionicons name="mic" size={11} color={done ? '#FFFFFF' : '#7C3AED'} /> : null}
+                {scene ? <Ionicons name="mic" size={10} color={done ? '#FFFFFF' : '#7C3AED'} /> : null}
               </Pressable>
             );
           })}
         </View>
-      </SafeAreaView>
+      </View>
 
       {/* Mivo chat button (bottom right) */}
       <BouncyPressable
@@ -284,29 +273,21 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   );
 }
 
-/** Soft cloud bank across the screen, the horizon under the medallion. */
-function Clouds({ top, width }: { top: number; width: number }) {
-  const puffs = [0.02, 0.18, 0.36, 0.55, 0.72, 0.9].map((x, i) => ({ left: width * x - 70, size: i % 2 ? 150 : 190 }));
-  return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { top }]}>
-      {puffs.map((p, i) => (
-        <View key={i} style={[styles.puff, { left: p.left, width: p.size, height: p.size, borderRadius: p.size / 2, top: i % 2 ? 18 : 0 }]} />
-      ))}
-      <View style={[styles.cloudBase, { top: 70 }]} />
-    </View>
-  );
-}
-
-function Medallion({
+/** One storybook page: the picture with the title on it, then chips, stars and the start button on the paper. */
+function Page({
   f,
-  size,
+  width,
+  artH,
+  levelId,
   progress,
   isFuture,
   onOpen,
   onSkip,
 }: {
   f: FlatStep;
-  size: number;
+  width: number;
+  artH: number;
+  levelId: string;
   progress: PathProgress | null;
   isFuture: boolean;
   onOpen: () => void;
@@ -317,83 +298,104 @@ function Medallion({
   const soon = s.kind === 'soon';
   const locked = soon || isFuture;
   const art = stepArt(f);
-  const palette = RING[soon ? 'soon' : type];
   const stars = progress?.stars[s.id] ?? 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
   const kicker =
     s.kind === 'reading'
-      ? t("Bölüm {{n}}", { n: s.episode.number })
+      ? t("{{level}} · Ünite {{u}} · Bölüm {{n}}", { level: levelId, u: f.unit.number, n: s.episode.number })
       : type === 'vocab'
-        ? t("Kelime bölümü")
-        : t("Mivo ile sahne");
+        ? t("{{level}} · Ünite {{u}} · Kelimeler", { level: levelId, u: f.unit.number })
+        : t("{{level}} · Ünite {{u}} · Mivo ile sahne", { level: levelId, u: f.unit.number });
+  const grammar = s.kind === 'reading' ? loc(s.episode.grammar) : null;
   const cta = soon
     ? t("Yakında")
     : isFuture
-      ? t("Kilitli")
+      ? t("Önce önceki adımlar")
       : type === 'scene'
-        ? t("Konuş")
+        ? t("Mivo'yla konuş")
         : done
-          ? t("Tekrarla")
-          : t("Başla");
+          ? t("Tekrar oku")
+          : s.kind === 'reading'
+            ? t("Okumaya başla")
+            : t("Kelimelere başla");
 
   return (
-    <View style={{ alignItems: 'center', width: size + 40 }}>
-      <View style={[styles.medalRing, { width: size, height: size, borderRadius: size / 2, borderColor: palette.ring }]}>
-        <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.medal, { borderRadius: size / 2 }]}>
-          {art ? (
-            <Image source={art} style={[StyleSheet.absoluteFill, { opacity: locked ? 0.45 : 1 }]} resizeMode="cover" />
-          ) : (
-            <Image
-              source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
-              style={[styles.medalArt, { width: size * 0.62, height: size * 0.62, opacity: locked ? 0.35 : 0.95 }]}
-              resizeMode="contain"
-            />
-          )}
-          <LinearGradient colors={['rgba(15,23,42,0.6)', 'rgba(15,23,42,0)']} style={styles.medalShade} />
-          <View style={styles.medalText}>
-            <Text style={styles.medalKicker}>{kicker}</Text>
-            <Text style={[styles.medalTitle, { fontSize: size > 280 ? 24 : 21 }]} numberOfLines={2}>
-              {stepTitle(s)}
-            </Text>
+    <View style={{ width, flex: 1 }}>
+      {/* Picture */}
+      <View style={{ height: artH, overflow: 'hidden' }}>
+        {art ? (
+          <Image source={art} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        ) : (
+          <LinearGradient colors={FALLBACK[soon ? 'soon' : type]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, styles.fallback]}>
+            <Image source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide} style={{ width: artH * 0.62, height: artH * 0.62 }} resizeMode="contain" />
+          </LinearGradient>
+        )}
+        {/* Darker at the very top (status bar, pills) and at the bottom (title), then into the paper. */}
+        <LinearGradient colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0)']} style={styles.topShade} />
+        <LinearGradient colors={['rgba(43,33,24,0)', 'rgba(43,33,24,0.55)', PAPER]} locations={[0.45, 0.8, 1]} style={StyleSheet.absoluteFill} />
+        {locked ? (
+          <View style={styles.lock}>
+            <Ionicons name="lock-closed" size={26} color="#FFFFFF" />
           </View>
+        ) : null}
+        <View style={styles.titleBox}>
+          <Text style={styles.kicker} numberOfLines={1}>
+            {kicker}
+          </Text>
+          <Text style={styles.title} numberOfLines={2}>
+            {stepTitle(s)}
+          </Text>
+        </View>
+      </View>
+
+      {/* Paper */}
+      <View style={styles.paper}>
+        <View style={styles.chips}>
+          {grammar ? (
+            <View style={styles.chip}>
+              <Ionicons name="sparkles" size={13} color={colors.brand} />
+              <Text style={styles.chipText} numberOfLines={1}>
+                {grammar}
+              </Text>
+            </View>
+          ) : null}
+          {s.kind === 'reading' ? (
+            <View style={styles.chip}>
+              <Ionicons name="time-outline" size={13} color={colors.textBody} />
+              <Text style={[styles.chipText, { color: colors.textBody }]}>{t("~{{n}} dk", { n: s.episode.minutes })}</Text>
+            </View>
+          ) : s.kind === 'vocab' ? (
+            <View style={styles.chip}>
+              <Text style={[styles.chipText, { color: colors.textBody }]}>{t("{{n}} kelime", { n: s.words.length })}</Text>
+            </View>
+          ) : null}
           {type !== 'scene' ? (
-            <View style={styles.medalStars}>
+            <View style={styles.stars}>
               {[1, 2, 3].map((n) => (
-                <Ionicons key={n} name="star" size={n === 2 ? 46 : 38} color={n <= stars ? '#FCD34D' : 'rgba(255,255,255,0.45)'} style={n === 2 ? { marginTop: -10 } : undefined} />
+                <Ionicons key={n} name={n <= stars ? 'star' : 'star-outline'} size={20} color={n <= stars ? '#F59E0B' : '#D6CBB8'} />
               ))}
             </View>
           ) : null}
-          {locked ? (
-            <View style={styles.medalLock}>
-              <Ionicons name="lock-closed" size={30} color="#FFFFFF" />
-            </View>
-          ) : null}
-        </LinearGradient>
-      </View>
+        </View>
 
-      <Pressable
-        onPress={onOpen}
-        disabled={locked}
-        style={({ pressed }) => [styles.cta, locked && styles.ctaLocked, pressed && { transform: [{ translateY: 2 }] }]}
-        accessibilityRole="button"
-      >
-        <Text style={[styles.ctaText, locked && { color: '#64748B' }]}>{cta}</Text>
-      </Pressable>
-
-      {s.kind === 'reading' ? (
-        <Text style={styles.grammar} numberOfLines={1}>
-          {loc(s.episode.grammar)}
-        </Text>
-      ) : type === 'scene' && !locked && !passed ? (
-        <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
-          <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
+        <Pressable
+          onPress={onOpen}
+          disabled={locked}
+          style={({ pressed }) => [styles.cta, locked && styles.ctaLocked, pressed && { transform: [{ translateY: 2 }] }]}
+          accessibilityRole="button"
+        >
+          {locked ? <Ionicons name="lock-closed" size={17} color="#94A3B8" /> : null}
+          <Text style={[styles.ctaText, locked && { color: '#94A3B8' }]}>{cta}</Text>
+          {!locked ? <Ionicons name="arrow-forward" size={20} color="#FFFFFF" /> : null}
         </Pressable>
-      ) : s.kind === 'soon' && s.grammar ? (
-        <Text style={styles.grammar} numberOfLines={1}>
-          {loc(s.grammar)}
-        </Text>
-      ) : null}
+
+        {type === 'scene' && !locked && !passed ? (
+          <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
+            <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -429,106 +431,100 @@ function ChestSheet({ visible, step, onClose }: { visible: boolean; step: PathSt
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+const shadowSoft = {
+  shadowColor: '#000',
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 3 },
+  elevation: 4,
+};
 
-  top: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6 },
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: PAPER },
+
+  top: { position: 'absolute', left: spacing.md, right: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 8 },
   levelBadge: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#4F46E5',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
+    borderWidth: 2.5,
     borderColor: '#FFFFFF',
+    ...shadowSoft,
   },
-  levelNum: { fontFamily: fonts.headingBold, fontSize: 19, color: '#FFFFFF' },
-  goal: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 9, gap: 6 },
+  levelNum: { fontFamily: fonts.headingBold, fontSize: 17, color: '#FFFFFF' },
+  goal: { flex: 1, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7, gap: 5, ...shadowSoft },
   goalRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  goalLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading },
-  goalValue: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textBody },
-  goalTrack: { height: 8, borderRadius: 4, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  goalLabel: { fontFamily: fonts.headingBold, fontSize: 12.5, color: INK },
+  goalValue: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#6B5D4F' },
+  goalTrack: { height: 7, borderRadius: 4, backgroundColor: '#EDE4D6', overflow: 'hidden' },
   goalFill: { height: '100%', borderRadius: 4, backgroundColor: '#22C55E' },
-  streak: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 12, height: 50 },
-  streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 2, height: 44, paddingHorizontal: 10, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.92)', ...shadowSoft },
+  pillText: { fontFamily: fonts.headingBold, fontSize: 16, color: INK },
+  pillRound: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center', ...shadowSoft },
+  giftDot: { position: 'absolute', top: 6, right: 6, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#FFFFFF' },
 
-  storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 14 },
-  storyKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' },
-  storyTitle: { fontFamily: fonts.headingBold, fontSize: 24, color: '#FFFFFF', marginTop: 1 },
-  gift: { width: 54, height: 54, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-  giftDot: { position: 'absolute', top: 6, right: 6, width: 12, height: 12, borderRadius: 6, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#FFFFFF' },
-
-  mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 8 },
-  mivo: { width: 76, height: 76 },
-  bubble: { flex: 1, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 14 },
-  bubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
-
-  medalRing: {
-    borderWidth: 12,
-    shadowColor: '#1E3A8A',
-    shadowOpacity: 0.25,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
-    backgroundColor: '#FFFFFF',
+  fallback: { alignItems: 'center', justifyContent: 'flex-end' },
+  topShade: { position: 'absolute', left: 0, right: 0, top: 0, height: 120 },
+  lock: { position: 'absolute', alignSelf: 'center', top: '38%', width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(43,33,24,0.55)', alignItems: 'center', justifyContent: 'center' },
+  titleBox: { position: 'absolute', left: spacing.md + 4, right: spacing.md + 4, bottom: 14 },
+  kicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase' },
+  title: {
+    fontFamily: fonts.headingBold,
+    fontSize: 30,
+    lineHeight: 36,
+    color: '#FFFFFF',
+    marginTop: 2,
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowRadius: 8,
+    textShadowOffset: { width: 0, height: 2 },
   },
-  medal: { flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  medalArt: { position: 'absolute', bottom: 0 },
-  medalShade: { position: 'absolute', left: 0, right: 0, top: 0, height: '55%' },
-  medalText: { position: 'absolute', top: '17%', left: '12%', right: '12%', alignItems: 'center' },
-  medalKicker: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: 'rgba(255,255,255,0.9)' },
-  medalTitle: { fontFamily: fonts.headingBold, color: '#FFFFFF', textAlign: 'center', marginTop: 2 },
-  medalStars: { position: 'absolute', bottom: '20%', flexDirection: 'row', alignItems: 'center', gap: 4 },
-  medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
+
+  paper: { paddingHorizontal: spacing.md + 4, paddingTop: 6, gap: 14 },
+  chips: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFFFFF', borderRadius: 999, paddingHorizontal: 11, paddingVertical: 6, borderWidth: 1, borderColor: '#EDE4D6', maxWidth: '70%' },
+  chipText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand },
+  stars: { flexDirection: 'row', gap: 2, marginLeft: 'auto' },
   cta: {
-    marginTop: -32,
-    minWidth: 190,
+    flexDirection: 'row',
+    gap: 10,
     alignItems: 'center',
-    backgroundColor: '#FCD34D',
-    borderRadius: 32,
-    paddingVertical: 16,
-    paddingHorizontal: 30,
+    justifyContent: 'center',
+    backgroundColor: '#4F46E5',
+    borderRadius: 20,
+    paddingVertical: 17,
     borderBottomWidth: 5,
-    borderBottomColor: '#D97706',
-    shadowColor: '#92400E',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
+    borderBottomColor: '#3730A3',
   },
-  ctaLocked: { backgroundColor: '#E2E8F0', borderBottomColor: '#CBD5E1' },
-  ctaText: { fontFamily: fonts.headingBold, fontSize: 21, color: '#78350F' },
-  grammar: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, marginTop: 12 },
-  skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 12, textDecorationLine: 'underline' },
+  ctaLocked: { backgroundColor: '#EDE4D6', borderBottomColor: '#DCCFBC' },
+  ctaText: { fontFamily: fonts.headingBold, fontSize: 18, color: '#FFFFFF' },
+  skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: '#6B5D4F', textAlign: 'center', textDecorationLine: 'underline' },
 
   arrow: {
     position: 'absolute',
-    top: '42%',
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#FFFFFF',
+    width: 40,
+    height: 40,
+    marginTop: -20,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.85)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#1E3A8A',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 5,
+    ...shadowSoft,
   },
-  arrowLeft: { left: 10 },
-  arrowRight: { right: 10 },
 
-  dots: { flexDirection: 'row', alignSelf: 'center', alignItems: 'center', gap: 10, marginTop: 6 },
-  dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#CBD5E1' },
-  dotScene: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#F5F3FF', borderWidth: 2, borderColor: '#C4B5FD', alignItems: 'center', justifyContent: 'center' },
+  bottom: { position: 'absolute', left: spacing.md + 4, right: 96, gap: 10 },
+  mivoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  mivoFace: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: '#FFFFFF' },
+  mivoText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#6B5D4F', fontStyle: 'italic' },
+  dots: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  unitLabel: { fontFamily: fonts.headingBold, fontSize: 12, color: '#8A7A66', marginRight: 4, flexShrink: 1 },
+  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#DCCFBC' },
+  dotScene: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#F5F3FF', borderWidth: 2, borderColor: '#C4B5FD', alignItems: 'center', justifyContent: 'center' },
   dotDone: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
-  dotSkipped: { backgroundColor: '#E2E8F0', borderColor: '#94A3B8' },
-  dotHere: { transform: [{ scale: 1.35 }], borderWidth: 2, borderColor: '#4F46E5' },
-
-  puff: { position: 'absolute', backgroundColor: '#FFFFFF', opacity: 0.95 },
-  cloudBase: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#FFFFFF' },
+  dotSkipped: { backgroundColor: '#EDE4D6', borderColor: '#B8A890' },
+  dotHere: { transform: [{ scale: 1.4 }], borderWidth: 2, borderColor: '#4F46E5' },
 
   chestWords: { alignSelf: 'stretch', gap: 8, marginVertical: 6 },
   chestWord: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F8FAFC', borderRadius: 14, padding: 12 },
