@@ -74,23 +74,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         </View>
 
         {/* ---------------- Pratik Yap ---------------- */}
-        <SectionHead title={t("Pratik Yap")} caption={t("Okumadan telaffuza, günlük araçların")} />
-        <View style={styles.tileRow}>
-          <FeatureTile
-            title={t("Hikayeler")}
-            desc={t("Dinle, cümleleri kur, sonra Mivo'ya sesli anlat")}
-            icon={minimalFeatureIcons.reading}
-            tint="#DBEAFE"
-            onPress={() => navigation.navigate('ReadingList')}
-          />
-          <FeatureTile
-            title={t("Podcastler")}
-            desc={t("Gerçek diyalogları dinle, takip et, mini testle pekiştir")}
-            icon={minimalFeatureIcons.podcasts}
-            tint="#E0E7FF"
-            onPress={() => navigation.navigate('PodcastList')}
-          />
-        </View>
+        <SectionHead title={t("Pratik Yap")} caption={t("Telaffuzdan kelime odalarına, günlük araçların")} />
         <FeatureWide
           title={t("Telaffuz")}
           desc={t("Sık yanlış söylenen kelimeleri düzelt")}

@@ -78,13 +78,8 @@ export function RootNavigator() {
           {/* Secondary screens are required lazily (`getComponent`): their modules — and big data files like the vocab library
               or grammar lessons — are only evaluated when first opened, which keeps app start fast. */}
           <Stack.Screen name="Scorecard" getComponent={() => require('../screens/ScorecardScreen').ScorecardScreen} />
-          <Stack.Screen name="PodcastList" getComponent={() => require('../screens/PodcastListScreen').PodcastListScreen} />
-          <Stack.Screen name="PodcastPlayer" getComponent={() => require('../screens/PodcastPlayerScreen').PodcastPlayerScreen} />
-          <Stack.Screen name="ReadingList" getComponent={() => require('../screens/ReadingListScreen').ReadingListScreen} />
-          <Stack.Screen name="ReadingPassage" getComponent={() => require('../screens/ReadingPassageScreen').ReadingPassageScreen} />
           <Stack.Screen name="Badges" getComponent={() => require('../screens/BadgesScreen').BadgesScreen} />
           <Stack.Screen name="AccountSettings" getComponent={() => require('../screens/AccountSettingsScreen').AccountSettingsScreen} />
-          <Stack.Screen name="GrammarLesson" getComponent={() => require('../screens/GrammarLessonV2Screen').GrammarLessonV2Screen} />
           <Stack.Screen name="MistakesNotebook" getComponent={() => require('../screens/MistakesNotebookScreen').MistakesNotebookScreen} />
           <Stack.Screen name="WritingTask" getComponent={() => require('../screens/WritingTaskScreen').WritingTaskScreen} />
           <Stack.Screen name="MivoMemory" getComponent={() => require('../screens/MivoMemoryScreen').MivoMemoryScreen} />

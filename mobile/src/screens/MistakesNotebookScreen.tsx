@@ -133,15 +133,12 @@ type Row = { type: 'group'; group: Group; open: boolean } | { type: 'card'; item
 // ---- one mistake ------------------------------------------------------------------------------------------------
 type CardProps = {
   item: GrammarMistakeOut;
-  /** In the flat "Hepsi" list there is no topic header, so the card itself offers the lesson. */
-  showLesson: boolean;
   onQuiz: (item: GrammarMistakeOut) => void;
-  onLesson: (code: string) => void;
   onLearned: (item: GrammarMistakeOut) => void;
   onListen: (text: string) => void;
 };
 
-const MistakeCard = memo(function MistakeCard({ item, showLesson, onQuiz, onLesson, onLearned, onListen }: CardProps) {
+const MistakeCard = memo(function MistakeCard({ item, onQuiz, onLearned, onListen }: CardProps) {
   const [open, setOpen] = useState(false);
   const source = SOURCE_META[groupOf(item.source)];
   const code = resolveLessonCode(item.topic_code);
@@ -202,21 +199,6 @@ const MistakeCard = memo(function MistakeCard({ item, showLesson, onQuiz, onLess
               <Ionicons name="bulb-outline" size={15} color="#B45309" style={{ marginTop: 2 }} />
               <Text style={styles.explText}>{item.explanation_tr}</Text>
             </View>
-          ) : null}
-
-          {showLesson && code ? (
-            <Pressable onPress={() => onLesson(code)} style={({ pressed }) => [styles.suggestBox, pressed && { opacity: 0.92 }]} accessibilityRole="link">
-              <View style={styles.suggestIcon}>
-                <Ionicons name="school" size={18} color={colors.brand} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.suggestLabel}>{t("Önerilen ders")}</Text>
-                <Text style={styles.suggestTitle} numberOfLines={2}>
-                  {grammarName(code)}
-                </Text>
-              </View>
-              <Ionicons name="arrow-forward" size={16} color={colors.brand} />
-            </Pressable>
           ) : null}
 
           <Pressable onPress={() => onQuiz(item)} style={styles.quizBtn} accessibilityRole="button">
@@ -393,8 +375,6 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
     setSession(null);
   };
 
-  const openLesson = useCallback((code: string) => navigation.navigate('GrammarLesson', { code }), [navigation]);
-
   const header = (
     <View style={styles.listHeader}>
       {/* Tek eylem: hızlı sınav */}
@@ -483,7 +463,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
 
   const renderRow = ({ item: row }: { item: Row }) => {
     if (row.type === 'card') {
-      return <MistakeCard item={row.item} showLesson={viewMode === 'all'} onQuiz={startSingleQuiz} onLesson={openLesson} onLearned={markLearned} onListen={listen} />;
+      return <MistakeCard item={row.item} onQuiz={startSingleQuiz} onLearned={markLearned} onListen={listen} />;
     }
     const { group, open } = row;
     const title = group.code ? grammarName(group.code) : t("Kelime ve üslup");
@@ -504,11 +484,6 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
         <View style={styles.groupCount}>
           <Text style={styles.groupCountText}>{group.items.length}</Text>
         </View>
-        {group.code ? (
-          <Pressable onPress={() => openLesson(group.code as string)} hitSlop={6} style={styles.groupLesson} accessibilityRole="link">
-            <Text style={styles.groupLessonText}>{t("Dersi aç")}</Text>
-          </Pressable>
-        ) : null}
       </Pressable>
     );
   };

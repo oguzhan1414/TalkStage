@@ -797,12 +797,8 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                                   ? t("Hikayeyi bitirmen gerekiyor")
                                   : t("Sohbeti bitirmen gerekiyor");
                         return (
-                          <Pressable
+                          <View
                             key={topic.code}
-                            onPress={() => {
-                              setLevelModalVisible(false);
-                              navigation.navigate('GrammarLesson', { code: topic.code });
-                            }}
                             style={[styles.remainingTopicRow, isDone && styles.remainingTopicRowDone]}
                           >
                             <Ionicons
@@ -821,8 +817,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                                 <Text style={styles.remainingTopicHint}>○ {missingHint}</Text>
                               ) : null}
                             </View>
-                            <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-                          </Pressable>
+                          </View>
                         );
                       })}
                     </>

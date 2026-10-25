@@ -69,19 +69,12 @@ export type RootStackParamList = {
       }
     | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
-  ReadingList: undefined;
-  ReadingPassage: { slug: string };
   Paywall: undefined;
   Badges: undefined;
   // Account/settings screen reached by tapping the avatar in the shared
   // `AppHeader` (top of every main tab) — distinct from the `Profile` TAB,
   // which now shows the "Özellikler" feature list instead of account info.
   AccountSettings: undefined;
-  // Full teaching content for one A1_G0X grammar topic (table, dialogue,
-  // mistakes, examples) — see `data/grammarLessons.ts`. Free for the topic's
-  // `isFree` lesson, Pro-gated for the rest (screen checks `isProUser()`
-  // itself, no need to pass a flag here).
-  GrammarLesson: { code: string };
   MistakesNotebook: undefined;
   /** "Gerçek mesaj yaz" görevi (data/writingTasks.ts). */
   WritingTask: { taskId: string };
@@ -89,8 +82,6 @@ export type RootStackParamList = {
   VocabLibrary: undefined;
   VocabDecks: undefined;
   MispronouncedWords: undefined;
-  PodcastList: undefined;
-  PodcastPlayer: { episodeId: string };
   /** "Kelime Odaları" (data/wordRooms.ts). */
   WordRooms: undefined;
   /** `pathStepId`: opened as a word section of the learning path (marks that step done at the end). */
@@ -115,10 +106,6 @@ export type FreeChatRoomScreenProps = NativeStackScreenProps<RootStackParamList,
 
 export type ScorecardScreenProps = NativeStackScreenProps<RootStackParamList, 'Scorecard'>;
 
-export type ReadingListScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingList'>;
-
-export type ReadingPassageScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingPassage'>;
-
 export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Paywall'>;
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
@@ -137,9 +124,6 @@ export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'W
 export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
 export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
 export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
-
-
-export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;
 
 export type WritingTaskScreenProps = NativeStackScreenProps<RootStackParamList, 'WritingTask'>;
 

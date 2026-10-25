@@ -17,13 +17,14 @@ function navigateToTarget(target: DeepLinkTarget, ready: boolean): boolean {
   } else if (target.type === 'scenario') {
     navigationRef.navigate('LiveConversationRoom', { scenarioSlug: target.slug });
   } else {
-    navigationRef.navigate('ReadingPassage', { slug: target.slug });
+    // Old reading links: the short readings were replaced by the learning path, so open Home.
+    navigationRef.navigate('Main', { screen: 'Home' });
   }
   return true;
 }
 
 /**
- * `LiveConversationRoom`/`ReadingPassage` only exist in the navigator once
+ * `LiveConversationRoom` and `Main` only exist in the navigator once
  * signed in and past onboarding, so a link opened while logged out (or a
  * cold start where auth is still resolving) is queued here and replayed
  * once `ready` flips true (i.e. once `Main` has mounted).

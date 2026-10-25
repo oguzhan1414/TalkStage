@@ -80,30 +80,6 @@ export const minimalFeatureIcons = {
   wordRooms: require('../../assets/images/premium/word-rooms-minimal.webp'),
 } as const;
 
-export const podcastStudioWallpaper = require('../../assets/images/podcast_studio_wallpaper.webp');
-
-export const podcastCovers = {
-  a1Cafe: require('../../assets/images/podcast_cover_a1_cafe.webp'),
-  a1Routines: require('../../assets/images/podcast_cover_a1_routines.webp'),
-  a1City: require('../../assets/images/podcast_cover_a1_city.webp'),
-  a1Bistro: require('../../assets/images/podcast_cover_a1_bistro.webp'),
-  a1Picnic: require('../../assets/images/podcast_cover_a1_picnic.webp'),
-  a2Airport: require('../../assets/images/podcast_cover_a2_airport.webp'),
-  a2Hotel: require('../../assets/images/podcast_cover_a2_hotel.webp'),
-  a2Shopping: require('../../assets/images/podcast_cover_a2_shopping.webp'),
-  a2Doctor: require('../../assets/images/podcast_cover_a2_home.webp'),
-  a2Cinema: require('../../assets/images/podcast_cover_b1_interview.webp'),
-  b1Interview: require('../../assets/images/podcast_cover_b1_interview.webp'),
-  b1Apartment: require('../../assets/images/podcast_cover_a2_hotel.webp'),
-  b1Luggage: require('../../assets/images/podcast_cover_a2_airport.webp'),
-  b1AI: require('../../assets/images/podcast_cover_b2_tech.webp'),
-  b1Green: require('../../assets/images/podcast_cover_a1_picnic.webp'),
-  cafeA1: require('../../assets/images/podcast_cover_a1_cafe.webp'),
-  homeA2: require('../../assets/images/podcast_cover_a2_home.webp'),
-  interviewB1: require('../../assets/images/podcast_cover_b1_interview.webp'),
-  techB2: require('../../assets/images/podcast_cover_b2_tech.webp'),
-};
-
 /** Chunky 3D Bottom Navigation Icons */
 export const navIcons = {
   today: require('../../assets/images/nav/today.png'),
@@ -219,41 +195,6 @@ export const calibrationImages = {
   micOrb: require('../../assets/images/nav/voice.webp'),
   micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
 };
-
-/**
- * Reading passage scene images — backend content (`reading_passages.scenes[].image_key`)
- * only ever sends one of these string keys, never a require() path (content is
- * data, not code). Reuses the existing category/avatar/state art instead of
- * generating bespoke per-story illustrations.
- */
-import { readingA1Images, readingA2Images } from './readingImages';
-export { readingA1Images, readingA2Images };
-
-export const readingSceneImages: Record<string, ReturnType<typeof require>> = {
-  ...readingA1Images,
-  ...readingA2Images,
-  daily: scenarioCategoryImages.daily,
-  travel: scenarioCategoryImages.travel,
-  visa: scenarioCategoryImages.visa,
-  tech: scenarioCategoryImages.tech,
-  career: scenarioCategoryImages.career,
-  b2b: scenarioCategoryImages.b2b,
-  companion: companionImage,
-  celebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
-  avatar_dev: require('../../assets/images/avatars/male_dev.webp'),
-  avatar_lead: require('../../assets/images/avatars/female_lead.webp'),
-  avatar_traveler: require('../../assets/images/avatars/male_traveler.webp'),
-  avatar_designer: require('../../assets/images/avatars/female_designer.webp'),
-  avatar_engineer: require('../../assets/images/avatars/male_engineer.webp'),
-  avatar_entrepreneur: require('../../assets/images/avatars/female_entrepreneur.webp'),
-};
-
-/**
- * Hikaye kapak görselleri. Anahtar: hikayenin `slug`'ı (öncelikli) veya `theme` etiketi
- * (aile, yemek, seyahat…). Yeni görsel eklenince buraya bir satır ekle; kayıt yoksa
- * ilk sahnenin görseli kullanılır.
- */
-export const readingCoverImages: Record<string, ReturnType<typeof require>> = {};
 
 /** Minimal rounded achievement badges and their matching CEFR level set. */
 export const badgeImages = {
