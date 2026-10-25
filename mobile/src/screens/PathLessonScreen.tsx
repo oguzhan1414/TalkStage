@@ -18,6 +18,7 @@ import { t } from '../i18n';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
+import { stepArt } from '../lib/pathArt';
 import { recordStep } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -53,10 +54,10 @@ export function PathLessonScreen({ navigation, route }: PathLessonScreenProps) {
       </SafeAreaView>
     );
   }
-  return <Lesson stepId={found.step.id} episode={found.step.episode} onExit={() => navigation.goBack()} />;
+  return <Lesson stepId={found.step.id} episode={found.step.episode} art={stepArt(found)} onExit={() => navigation.goBack()} />;
 }
 
-function Lesson({ stepId, episode, onExit }: { stepId: string; episode: PathEpisode; onExit: () => void }) {
+function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: PathEpisode; art?: number; onExit: () => void }) {
   const insets = useSafeAreaInsets();
   const hasGloss = episode.words.some((w) => gloss(w.native));
   const [phase, setPhase] = useState<Phase>('words');
@@ -95,7 +96,7 @@ function Lesson({ stepId, episode, onExit }: { stepId: string; episode: PathEpis
         keyboardShouldPersistTaps="handled"
       >
         {phase === 'words' ? (
-          <WordsStep episode={episode} onNext={() => setPhase(hasGloss ? 'match' : 'read')} />
+          <WordsStep episode={episode} art={art} onNext={() => setPhase(hasGloss ? 'match' : 'read')} />
         ) : phase === 'match' ? (
           <>
             <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
@@ -154,11 +155,12 @@ function NextButton({ label, onPress, disabled }: { label: string; onPress: () =
 
 /* ---------------- 1. Words ---------------- */
 
-function WordsStep({ episode, onNext }: { episode: PathEpisode; onNext: () => void }) {
+function WordsStep({ episode, art, onNext }: { episode: PathEpisode; art?: number; onNext: () => void }) {
   const { pronounce } = usePronunciation();
   const [heard, setHeard] = useState<Set<string>>(new Set());
   return (
     <>
+      {art ? <Image source={art} style={styles.introArt} resizeMode="cover" /> : null}
       <View style={styles.intro}>
         <Text style={styles.introKicker}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
         <Text style={styles.introTitle}>{loc(episode.title)}</Text>
@@ -564,6 +566,7 @@ const styles = StyleSheet.create({
   note: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, textAlign: 'center' },
 
   intro: { gap: 2 },
+  introArt: { width: '100%', aspectRatio: 1.6, borderRadius: 22 },
   introKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.6, color: colors.brand, textTransform: 'uppercase' },
   introTitle: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: colors.textHeading },
 

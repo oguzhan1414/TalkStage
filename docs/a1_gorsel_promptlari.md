@@ -87,7 +87,7 @@ Leo carrying a tall stack of cardboard boxes up a narrow wooden staircase, books
 **a1_e07.jpg** · Bölüm 7: Bu ne?
 *Gardıropta eski ahşap bir kutu çıkar: içinde eski anahtarlar ve fotoğraflar.*
 ```
-Maya and Leo sitting on the bedroom floor looking into an old wooden box full of old keys and faded photographs, dust in a ray of sunlight, curious faces.
+Maya and Leo (the adult man with messy ginger hair and a green hoodie, NOT a child, no boy and no red cap in this image) sitting on the bedroom floor looking into an old wooden box full of old keys and faded photographs, dust in a ray of sunlight, curious faces.
 ```
 
 **a1_e08.jpg** · Bölüm 8: İlk ipucu
@@ -160,9 +160,9 @@ Mr Patel sitting at a small café table with a cup of tea and a folded newspaper
 ## Ünite 5: Ne zaman?
 
 **a1_e17.jpg** · Bölüm 17: Haftalık program
-*Maya'nın haftalık programı buzdolabında: salı ve perşembe İngilizce kursu, hafta içi her sabah kafe.*
+*Tom okuldan önce kahvaltıya gelir ve Maya'nın buzdolabındaki programını sorgular: salı ve perşembe İngilizce kursu, hafta içi her sabah kafe.*
 ```
-Maya pointing at a colorful weekly planner stuck on the fridge door with fruit magnets, small picture stickers on the days, Leo eating cereal next to her, morning kitchen.
+Maya pointing at a colorful weekly planner stuck on the fridge door with fruit magnets, small picture stickers on the days, Tom eating cereal next to her, morning kitchen.
 ```
 
 **a1_e18.jpg** · Bölüm 18: Bay Patel her zaman…
@@ -205,15 +205,15 @@ Maya at the counter of a small old post office talking to a friendly postwoman, 
 **Kelime: Kelime Odası, Sokak.** Mevcut oda fotoğrafı kullanılır.
 
 **a1_e23.jpg** · Bölüm 23: Yol tarifi
-*Tom, Maya'ya limana giden yolu tarif eder: "Sola dön, köprüyü geç…"*
+*Leo, Maya'ya limana giden yolu tarif eder: "Sola dön, köprüyü geç…"*
 ```
-Tom pointing the way for Maya on a sloping street with colorful houses, the harbour and boats visible below, bicycles leaning on a railing, bright day.
+Leo pointing the way for Maya on a sloping street with colorful houses, the harbour and boats visible below, bicycles leaning on a railing, bright day.
 ```
 
 **a1_e24.jpg** · Bölüm 24: Sarı kapı
-*Limanın yanında kartpostalların satıldığı küçük bir dükkân bulurlar.*
+*Maya ve Leo limanın yanında kartpostalların satıldığı küçük bir dükkân bulur.*
 ```
-Maya and Tom looking at the window of a tiny vintage shop full of colorful picture postcards, by the harbour, boats in the background, excited faces.
+Maya and Leo looking at the window of a tiny vintage shop full of colorful picture postcards, by the harbour, boats in the background, excited faces.
 ```
 
 ## Ünite 7: Sevdiklerin ve şu an
@@ -227,7 +227,7 @@ Leo playing guitar on a street corner by the harbour, a small happy crowd around
 **a1_e26.jpg** · Bölüm 26: Onu tanıyor musun?
 *Dükkânın sahibi bu kartpostalları hep yaşlı bir adamın aldığını söyler ve bir fotoğraf gösterir.*
 ```
-An elderly shop owner behind a counter full of postcards showing an old photograph to Maya, Maya leaning closer with a surprised face, Tom peeking from behind her.
+An elderly shop owner behind a counter full of postcards showing an old photograph to Maya, Maya leaning closer with a surprised face, Leo peeking from behind her.
 ```
 
 **a1_e27.jpg** · Bölüm 27: Annesiyle telefonda
@@ -259,9 +259,9 @@ Maya at Mr Patel's front door handing him a small handmade invitation card witho
 ```
 
 **a1_e31.jpg** · Bölüm 31: Alışveriş listesi
-*Pazarda alışveriş: biraz meyve, biraz peynir, hiç ekmek yok…*
+*Maya ve Leo pazarda alışveriş yapar: biraz meyve, biraz peynir, hiç çilek yok…*
 ```
-Maya and Tom at a colorful outdoor market stall full of fruit and vegetables, Tom holding a shopping basket, a friendly stall owner, sunny morning.
+Maya and Leo at a colorful outdoor market stall full of fruit and vegetables, Leo holding a shopping basket, a friendly stall owner, sunny morning.
 ```
 
 **Kelime: Kelime Odası, Market.** Mevcut oda fotoğrafı kullanılır.
@@ -301,6 +301,13 @@ Maya handing a picture postcard to Mr Patel on his doorstep, both smiling warmly
 ```
 
 ---
+
+## Durum (2026-10-25)
+
+- Hazır ve uygulamada: 34 bölüm ve 3 kelime seti.
+- **Yeniden üretilecek:** a1_e07 (Tom yanlışlıkla çizilmiş; Tom 10. bölümde tanıtılıyor, burada Maya ile Leo olmalı).
+- **Eksik:** a1_e34, a1_e35.
+- 17, 23, 24, 26, 31 ve 32. bölümlerin metni görsellere uyduruldu (yukarıdaki prompt'lar da güncel).
 
 ## Kontrol listesi
 

@@ -14,7 +14,7 @@ export const A1_U7: PathUnit = {
         title: L("Leo'nun hobileri", "Leo's hobbies"),
         grammar: L('like / love / hate + -ing', 'like / love / hate + -ing'),
         minutes: 6,
-        recap: L('Maya ve Tom sarı kapılı dükkânı buldu: aynı kartpostallar oradaydı. Ama yaşlı adam dükkânı kapattı.', 'Maya and Tom found the shop with the yellow door: the same postcards were there. But the old man closed the shop.'),
+        recap: L('Maya ve Leo sarı kapılı dükkânı buldu: aynı kartpostallar oradaydı. Ama yaşlı adam dükkânı kapattı.', 'Maya and Leo found the shop with the yellow door: the same postcards were there. But the old man closed the shop.'),
         words: [w('enjoy', 'keyif almak'), w('sing', 'şarkı söylemek'), w('song', 'şarkı'), w('hate', 'nefret etmek'), w('clean', 'temizlemek'), w('pigeon', 'güvercin')],
         sentences: [
           s('On Saturday, Leo plays music by the harbour.', 'Cumartesi Leo limanda müzik yapıyor.'),
@@ -71,12 +71,12 @@ export const A1_U7: PathUnit = {
         recap: L('Leo cumartesi limanda müzik yaptı. Maya’nın aklı ise pazartesi açılacak sarı kapıdaydı.', 'Leo played music at the harbour on Saturday. Maya was thinking about the yellow door that opens on Monday.'),
         words: [w('buy', 'satın almak'), w('well', 'iyi'), w('show', 'göstermek'), w('in front of', 'önünde'), w('young', 'genç'), w('closely', 'dikkatlice')],
         sentences: [
-          s('On Monday, Maya and Tom are at the yellow door again.', 'Pazartesi Maya ve Tom yine sarı kapının önünde.'),
+          s('On Monday, Maya and Leo are at the yellow door again.', 'Pazartesi Maya ve Leo yine sarı kapının önünde.'),
           s('The old shop owner smiles at them.', 'Yaşlı dükkân sahibi onlara gülümsüyor.'),
           s('Hello! The postcards? Do you like them?', 'Merhaba! Kartpostallar mı? Onları beğendiniz mi?', 'Shop owner'),
           s('Yes! Someone sends them to me every week. But who is he?', 'Evet! Biri her hafta onları bana gönderiyor. Ama o kim?', 'Maya'),
           s('Hmm. An old man buys them from me every Saturday morning.', 'Hmm. Yaşlı bir adam her cumartesi sabahı onları benden alıyor.', 'Shop owner'),
-          s('Every Saturday? Do you know him?', 'Her cumartesi mi? Onu tanıyor musunuz?', 'Tom'),
+          s('Every Saturday? Do you know him?', 'Her cumartesi mi? Onu tanıyor musunuz?', 'Leo'),
           s('Not well. But look, here is a photo of us.', 'İyi tanımam. Ama bakın, işte ikimizin bir fotoğrafı.', 'Shop owner'),
           s('He shows them an old photo.', 'Onlara eski bir fotoğraf gösteriyor.'),
           s('In the photo, two young men are in front of a school.', 'Fotoğrafta bir okulun önünde iki genç adam var.'),

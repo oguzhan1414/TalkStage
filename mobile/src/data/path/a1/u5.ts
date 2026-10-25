@@ -18,31 +18,32 @@ export const A1_U5: PathUnit = {
         words: [w('fridge', 'buzdolabı'), w('plan', 'program, plan'), w('language school', 'dil okulu'), w('harbour', 'liman'), w('special', 'özel'), w('because', 'çünkü')],
         sentences: [
           s("Maya's weekly plan is on the fridge.", "Maya'nın haftalık programı buzdolabında."),
-          s('What time do you start work?', 'İşe saat kaçta başlıyorsun?', 'Leo'),
+          s('Tom is at the kitchen table with his cereal before school.', 'Tom okuldan önce mutfak masasında mısır gevreği yiyor.'),
+          s('What time do you start work?', 'İşe saat kaçta başlıyorsun?', 'Tom'),
           s('At seven. And I have English class on Tuesday and Thursday.', 'Yedide. Salı ve perşembe de İngilizce dersim var.', 'Maya'),
-          s('Where do you have class?', 'Ders nerede?', 'Leo'),
+          s('Where do you have class?', 'Ders nerede?', 'Tom'),
           s('At a language school near the harbour.', 'Limanın yakınındaki bir dil okulunda.', 'Maya'),
-          s('What do you do on Sunday?', 'Pazar günü ne yaparsın?', 'Leo'),
-          s('I sleep! And you? When do you play music?', 'Uyurum! Ya sen? Ne zaman müzik yaparsın?', 'Maya'),
-          s('I play at a bar on Friday and Saturday nights.', 'Cuma ve cumartesi geceleri bir barda çalarım.', 'Leo'),
-          s('Why do you look at the plan every morning?', 'Neden her sabah programa bakıyorsun?', 'Leo'),
+          s('And you, Tom? When do you go to school?', 'Ya sen Tom? Okula ne zaman gidiyorsun?', 'Maya'),
+          s('At half past seven. And I play football on Saturday.', 'Yedi buçukta. Cumartesi de futbol oynuyorum.', 'Tom'),
+          s('Why do you look at the plan every morning?', 'Neden her sabah programa bakıyorsun?', 'Tom'),
           s('Because one day is special: Monday. The postcards come on Monday!', 'Çünkü bir gün özel: pazartesi. Kartpostallar pazartesi geliyor!', 'Maya'),
+          s('A clue! Detectives write down every clue.', 'Bir ipucu! Dedektifler her ipucunu not eder.', 'Tom'),
         ],
         questions: [
           q('What time does Maya start work?', 'Maya işe kaçta başlar?', ['At seven', 'At eight', 'At ten'], 0),
           q('When does Maya have English class?', 'Maya’nın İngilizce dersi ne zaman?', ['On Monday', 'On Tuesday and Thursday', 'On Sunday'], 1),
-          q('Why is Monday special?', 'Pazartesi neden özel?', ['Leo plays music.', 'Maya sleeps.', 'The postcards come on Monday.'], 2),
+          q('Why is Monday special?', 'Pazartesi neden özel?', ['Tom plays football.', 'Maya sleeps.', 'The postcards come on Monday.'], 2),
         ],
         tip: {
           title: L('Soru kelimeleriyle geniş zaman', 'Present simple questions with question words'),
-          highlight: '**What time do you** start work? **When do you** play music?',
+          highlight: '**What time do you** start work? **When do you** go to school?',
           rule: L(
-            'Sıra şöyle: **soru kelimesi + do / does + kişi + fiil**. What time **do** you start? Where **does** Leo play?',
-            'The order is: **question word + do / does + subject + verb**. What time **do** you start? Where **does** Leo play?'
+            'Sıra şöyle: **soru kelimesi + do / does + kişi + fiil**. What time **do** you start? When **does** Tom go to school?',
+            'The order is: **question word + do / does + subject + verb**. What time **do** you start? When **does** Tom go to school?'
           ),
           examples: [
             { en: 'Where do you have class?', native: { tr: 'Ders nerede?' } },
-            { en: 'When does Leo play music?', native: { tr: 'Leo ne zaman müzik yapar?' } },
+            { en: 'When does Tom go to school?', native: { tr: 'Tom okula ne zaman gider?' } },
           ],
           mistake: {
             wrong: 'What time you start work?',
@@ -52,11 +53,11 @@ export const A1_U5: PathUnit = {
         },
         practice: [
           choose('What time ___ you start work?', 'İşe kaçta başlarsın?', ['does', 'do', 'are'], 1),
-          choose('Where ___ Leo play music?', 'Leo nerede müzik yapar?', ['does', 'do', 'is'], 0),
-          order('When do you play music', 'Ne zaman müzik yaparsın?'),
+          choose('When ___ Tom go to school?', 'Tom okula ne zaman gider?', ['does', 'do', 'is'], 0),
+          order('When do you go to school', 'Okula ne zaman gidiyorsun?'),
           choose('___ do you look at the plan? — Because Monday is special.', 'Neden programa bakıyorsun? — Çünkü pazartesi özel.', ['Where', 'What', 'Why'], 2),
         ],
-        say: ['What time do you start work?', 'When do you play music?'],
+        say: ['What time do you start work?', 'When do you go to school?'],
       },
     },
     {

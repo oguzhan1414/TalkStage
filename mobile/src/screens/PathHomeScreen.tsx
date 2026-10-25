@@ -12,10 +12,10 @@ import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, gloss, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
-import { findWordRoom } from '../data/wordRooms';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { t } from '../i18n';
 import { api } from '../lib/api';
+import { stepArt } from '../lib/pathArt';
 import { currentStep, isDone, isPassed, recordStep, skipStep, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { voiceSceneRoomParams } from '../lib/voiceSceneLaunch';
 import type { MainTabScreenProps } from '../navigation/types';
@@ -316,6 +316,7 @@ function Medallion({
   const type = stepType(s);
   const soon = s.kind === 'soon';
   const locked = soon || isFuture;
+  const art = stepArt(f);
   const palette = RING[soon ? 'soon' : type];
   const stars = progress?.stars[s.id] ?? 0;
   const done = progress ? isDone(progress, s.id) : false;
@@ -340,8 +341,8 @@ function Medallion({
     <View style={{ alignItems: 'center', width: size + 40 }}>
       <View style={[styles.medalRing, { width: size, height: size, borderRadius: size / 2, borderColor: palette.ring }]}>
         <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.medal, { borderRadius: size / 2 }]}>
-          {s.kind === 'room' && findWordRoom(s.roomId) ? (
-            <Image source={findWordRoom(s.roomId)!.thumb} style={[StyleSheet.absoluteFill, { opacity: locked ? 0.4 : 1 }]} resizeMode="cover" />
+          {art ? (
+            <Image source={art} style={[StyleSheet.absoluteFill, { opacity: locked ? 0.45 : 1 }]} resizeMode="cover" />
           ) : (
             <Image
               source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
@@ -349,7 +350,7 @@ function Medallion({
               resizeMode="contain"
             />
           )}
-          <LinearGradient colors={['rgba(15,23,42,0.45)', 'rgba(15,23,42,0)']} style={styles.medalShade} />
+          <LinearGradient colors={['rgba(15,23,42,0.6)', 'rgba(15,23,42,0)']} style={styles.medalShade} />
           <View style={styles.medalText}>
             <Text style={styles.medalKicker}>{kicker}</Text>
             <Text style={[styles.medalTitle, { fontSize: size > 280 ? 24 : 21 }]} numberOfLines={2}>
