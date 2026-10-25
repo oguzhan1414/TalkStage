@@ -1,6 +1,6 @@
 /**
- * Story images of the learning path (docs/a1_gorsel_promptlari.md), keyed `a1_e01` (episode) and `a1_w1` (word set
- * of unit 1). Steps without an image fall back to Mivo.
+ * Cover pictures of the learning path (prompts: docs/a1_gorsel_promptlari.md), keyed `a1_e01` (episode) and `a1_w1`
+ * (word step of unit 1). Regenerate this file when pictures are added. Steps without a picture fall back to Mivo.
  */
 export const PATH_IMAGES: Record<string, number> = {
   a1_e01: require('../../assets/images/path/a1_e01.webp'),
@@ -36,8 +36,16 @@ export const PATH_IMAGES: Record<string, number> = {
   a1_e31: require('../../assets/images/path/a1_e31.webp'),
   a1_e32: require('../../assets/images/path/a1_e32.webp'),
   a1_e33: require('../../assets/images/path/a1_e33.webp'),
+  a1_e34: require('../../assets/images/path/a1_e34.webp'),
+  a1_e35: require('../../assets/images/path/a1_e35.webp'),
   a1_e36: require('../../assets/images/path/a1_e36.webp'),
   a1_w1: require('../../assets/images/path/a1_w1.webp'),
+  a1_w2: require('../../assets/images/path/a1_w2.webp'),
   a1_w3: require('../../assets/images/path/a1_w3.webp'),
+  a1_w4: require('../../assets/images/path/a1_w4.webp'),
   a1_w5: require('../../assets/images/path/a1_w5.webp'),
+  a1_w6: require('../../assets/images/path/a1_w6.webp'),
+  a1_w7: require('../../assets/images/path/a1_w7.webp'),
+  a1_w8: require('../../assets/images/path/a1_w8.webp'),
+  a1_w9: require('../../assets/images/path/a1_w9.webp'),
 };
