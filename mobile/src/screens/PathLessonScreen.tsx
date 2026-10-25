@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { File } from 'expo-file-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoHomeImages, mivoVoiceImages, stateImages } from '../assets/images';
@@ -14,7 +14,8 @@ import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
-import { findStep, gloss, loc, type PathEpisode, type PathPractice, type PathTable, type PathWord } from '../data/path';
+import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
+import { bare, buildDrills, mivoSentence, sameSentence } from '../data/path/drills';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
@@ -31,10 +32,12 @@ import type { TranscribeResponse, VocabCardOut } from '../types/api';
  * A reading lesson of the new path, in three parts with one star each (like chapters you can stop between):
  *   ⭐1 Words: pick the picture, match, type the word on a keyboard with only its letters, save them for review.
  *   ⭐2 Grammar: Mivo's note, the pattern table with a gap, sentence building with the new words.
- *   ⭐3 Story: Maya's episode, comprehension questions, saying a sentence aloud.
- * The cover shows the episode picture and the three parts; finishing a part records its star.
+ *   ⭐3 Practice: Maya's episode in short pieces between listening, translation and matching drills, then
+ *      Mivo's say-it-with-me (each word, then the sentence).
+ * The cover shows the episode picture; between parts a short screen cheers the learner on. Two parts open the next
+ * lesson; finishing a part records its star.
  */
-type Phase = 'pick' | 'match' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'read' | 'quiz' | 'say';
+type Phase = 'pick' | 'match' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'drills' | 'mivo';
 type Screen = 'cover' | 'partDone' | 'done' | Phase;
 
 const shuffle = <T,>(list: T[]): T[] => {
@@ -61,10 +64,10 @@ function partPhases(e: PathEpisode): Phase[][] {
   const pickable = e.words.some((w) => wordImage(w.en)) || glossed;
   const words: Phase[] = [...(pickable ? (['pick'] as Phase[]) : []), ...(glossed ? (['match'] as Phase[]) : []), 'type', 'save'];
   const grammar: Phase[] = ['tip', ...(e.table ? (['table'] as Phase[]) : []), 'practice'];
-  return [words, grammar, ['read', 'quiz', 'say']];
+  return [words, grammar, ['drills', 'mivo']];
 }
 
-const PART_NAMES = () => [t("Kelimeler"), t("Dil bilgisi"), t("Hikâye")];
+const PART_NAMES = () => [t("Kelimeler"), t("Dil bilgisi"), t("Pratik")];
 
 export function PathLessonScreen({ navigation, route }: PathLessonScreenProps) {
   const found = findStep(route.params.stepId);
@@ -180,12 +183,10 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           <TableStep table={episode.table} tally={tally} onAnswered={toEnd} onDone={next} />
         ) : screen === 'practice' ? (
           <PracticeStep episode={episode} tally={tally} report={report} onAnswered={toEnd} onNext={next} />
-        ) : screen === 'read' ? (
-          <ReadStep episode={episode} report={report} onGrow={toEnd} onNext={next} />
-        ) : screen === 'quiz' ? (
-          <QuizStep episode={episode} tally={tally} report={report} onAnswered={toEnd} onNext={next} />
-        ) : screen === 'say' ? (
-          <SayStep sentences={episode.say} report={report} onNext={next} />
+        ) : screen === 'drills' ? (
+          <DrillsStep episode={episode} art={art} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
+        ) : screen === 'mivo' ? (
+          <MivoSayStep sentence={mivoSentence(episode)} report={report} onNext={next} />
         ) : screen === 'partDone' ? (
           <PartDone stepId={stepId} part={part + 1} onNext={() => startPart(part + 1)} onExit={onExit} />
         ) : (
@@ -907,166 +908,340 @@ function PracticeStep({
   );
 }
 
-/* ---------------- ⭐3 Story ---------------- */
+/* ---------------- ⭐3 Practice ---------------- */
 
-function ReadStep({ episode, report, onGrow, onNext }: { episode: PathEpisode; report: (i: number, n: number) => void; onGrow: () => void; onNext: () => void }) {
-  const { pronounce } = usePronunciation();
-  const [shown, setShown] = useState(1);
-  const [translated, setTranslated] = useState<Set<number>>(new Set());
-  const [wordTip, setWordTip] = useState<string | null>(null);
-  const newWords = useMemo(() => new Map(episode.words.map((w) => [w.en.toLowerCase(), gloss(w.native)])), [episode.words]);
-
-  useEffect(() => {
-    const s = episode.sentences[shown - 1];
-    if (s) pronounce(s.en, { rate: 0.9 }).catch(() => {});
-    report(shown - 1, episode.sentences.length);
-    if (shown > 1) onGrow();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown]);
-
-  const all = shown >= episode.sentences.length;
-
-  return (
-    <>
-      <FadeIn>
-        <StepHead icon="book" title={loc(episode.title)} sub={t("Cümleye dokunursan çevirisini görürsün, altı çizili kelimeye dokunursan anlamını.")} />
-      </FadeIn>
-      <FadeIn delay={80} style={[styles.storyCard, shadow.card]}>
-        {episode.sentences.slice(0, shown).map((s, i) => {
-          const parts = s.en.split(/(\s+)/);
-          const last = i === shown - 1;
-          return (
-            <FadeIn key={i} from={10} duration={320}>
-              <Pressable
-                onPress={() => setTranslated((tr) => (tr.has(i) ? new Set([...tr].filter((x) => x !== i)) : new Set(tr).add(i)))}
-                style={[styles.sentence, last && !all && styles.sentenceNow]}
-                accessibilityRole="button"
-              >
-                {s.speaker ? <Text style={styles.speaker}>{s.speaker}</Text> : null}
-                <Text style={styles.sentenceText}>
-                  {parts.map((part, k) => {
-                    const key = part.toLowerCase().replace(/[^a-z']/g, '');
-                    if (newWords.has(key)) {
-                      return (
-                        <Text key={k} style={styles.newWord} onPress={() => setWordTip(`${key} = ${newWords.get(key) || key}`)}>
-                          {part}
-                        </Text>
-                      );
-                    }
-                    return part;
-                  })}
-                </Text>
-                {translated.has(i) && gloss(s.native) ? <Text style={styles.sentenceNative}>{gloss(s.native)}</Text> : null}
-                <Pressable onPress={() => pronounce(s.en, { rate: 0.9 }).catch(() => {})} hitSlop={8} style={styles.replay} accessibilityLabel={t("Dinle")}>
-                  <Ionicons name="volume-medium" size={18} color={colors.textMuted} />
-                </Pressable>
-              </Pressable>
-            </FadeIn>
-          );
-        })}
-      </FadeIn>
-      {wordTip ? (
-        <FadeIn key={wordTip} from={8} duration={220} style={{ alignSelf: 'center' }}>
-          <Pressable onPress={() => setWordTip(null)} style={styles.wordTip}>
-            <Text style={styles.wordTipText}>{wordTip}</Text>
-          </Pressable>
-        </FadeIn>
-      ) : null}
-      {all ? (
-        <FadeIn>
-          <NextButton label={t("Bitirdim")} onPress={onNext} />
-        </FadeIn>
-      ) : (
-        <NextButton label={t("Devam ({{n}}/{{total}})", { n: shown, total: episode.sentences.length })} onPress={() => setShown((n) => n + 1)} />
-      )}
-    </>
-  );
-}
-
-function QuizStep({
+function DrillsStep({
   episode,
+  art,
   tally,
   report,
   onAnswered,
-  onNext,
+  onDone,
 }: {
   episode: PathEpisode;
+  art?: number;
   tally: (ok: boolean) => void;
   report: (i: number, n: number) => void;
   onAnswered: () => void;
-  onNext: () => void;
+  onDone: () => void;
 }) {
+  const drills = useMemo(() => buildDrills(episode), [episode]);
   const [idx, setIdx] = useState(0);
-  const [picked, setPicked] = useState<number | null>(null);
-  const q = episode.questions[idx];
+  const d = drills[idx];
 
   useEffect(() => {
-    report(idx, episode.questions.length);
+    report(idx, drills.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
-  const choose = (i: number) => {
-    if (picked !== null) return;
-    setPicked(i);
-    const ok = i === q.answer;
-    tally(ok);
-    if (ok) haptics.success();
-    else haptics.warning();
-    onAnswered();
-  };
   const next = () => {
-    if (idx + 1 >= episode.questions.length) onNext();
-    else {
-      setIdx(idx + 1);
-      setPicked(null);
-    }
+    if (idx + 1 >= drills.length) onDone();
+    else setIdx(idx + 1);
   };
+  if (!d) return null;
+  const common = { tally, onAnswered, onNext: next };
+  return d.kind === 'read' ? (
+    <ReadItem key={`d${idx}`} {...common} lines={d.lines} question={d.question} art={d.showArt ? art : undefined} words={episode.words} />
+  ) : d.kind === 'dictation' ? (
+    <DictationItem key={`d${idx}`} {...common} sentence={d.sentence} hide={d.hide} />
+  ) : d.kind === 'listenOrder' ? (
+    <ListenOrderItem key={`d${idx}`} {...common} sentence={d.sentence} native={d.native} />
+  ) : d.kind === 'translate' ? (
+    <TranslateItem key={`d${idx}`} {...common} sentence={d.sentence} native={d.native} />
+  ) : (
+    <PairsItem key={`d${idx}`} {...common} pairs={d.pairs} />
+  );
+}
+
+type ItemProps = { tally: (ok: boolean) => void; onAnswered: () => void; onNext: () => void };
+
+const WAVE = [10, 18, 26, 14, 30, 22, 12, 28, 34, 20, 14, 24, 32, 18, 10, 26, 30, 16, 22, 12, 28, 20, 14, 24];
+
+/** Big play card for listening drills. It plays once by itself; tap again for a slower take. */
+function AudioCard({ text }: { text: string }) {
+  const { pronounce } = usePronunciation();
+  const slow = useRef(false);
+  const pulse = useLoop(true, 900, true);
+  useEffect(() => {
+    pronounce(text, { rate: 0.9 }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+  return (
+    <FadeIn delay={40}>
+      <Pressable
+        onPress={() => {
+          slow.current = !slow.current;
+          pronounce(text, { rate: slow.current ? 0.6 : 0.9 }).catch(() => {});
+        }}
+        style={[styles.audioCard, shadow.card]}
+        accessibilityRole="button"
+        accessibilityLabel={t("Dinle")}
+      >
+        <Animated.View style={[styles.audioIcon, { transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) }] }]}>
+          <Ionicons name="volume-high" size={28} color="#FFFFFF" />
+        </Animated.View>
+        <View style={styles.wave}>
+          {WAVE.map((h, i) => (
+            <View key={i} style={[styles.waveBar, { height: h }]} />
+          ))}
+        </View>
+      </Pressable>
+      <Text style={styles.audioHint}>{t("Tekrar dinlemek için dokun, ikinci dokunuş yavaş çalar.")}</Text>
+    </FadeIn>
+  );
+}
+
+/** A piece of Maya's story with a question about it. */
+function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: ItemProps & { lines: PathSentence[]; question: PathQuestion; art?: number; words: PathWord[] }) {
+  const { pronounce } = usePronunciation();
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const [picked, setPicked] = useState<number | null>(null);
+  const lessonWords = useMemo(() => new Set(words.map((w) => w.en.toLowerCase())), [words]);
+  const text = lines.map((l) => l.en).join(' ');
   return (
     <>
       <FadeIn>
-        <StepHead icon="help-circle" title={t("Anladın mı?")} sub={t("Soru {{n}}/{{total}}", { n: idx + 1, total: episode.questions.length })} />
+        <StepHead icon="book" title={t("Oku ve yanıtla")} sub={t("Maya'nın hikâyesinden bir parça. Cümleye dokunursan Türkçesini görürsün.")} />
       </FadeIn>
-      <FadeIn key={`q${idx}`} delay={40} style={[styles.qCard, shadow.card]}>
-        <Text style={styles.qText}>{q.q}</Text>
-        {gloss(q.native) ? <Text style={styles.qNative}>{gloss(q.native)}</Text> : null}
+      {art ? (
+        <FadeIn delay={40} style={styles.readArtWrap}>
+          <Image source={art} style={styles.readArt} resizeMode="cover" />
+        </FadeIn>
+      ) : null}
+      <FadeIn delay={80} style={[styles.storyCard, shadow.card]}>
+        <Pressable onPress={() => pronounce(text, { rate: 0.85 }).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+          <Ionicons name="volume-high" size={18} color={colors.brand} />
+          <Text style={styles.readPlayText}>{t("Dinle")}</Text>
+        </Pressable>
+        {lines.map((l, i) => (
+          <Pressable
+            key={i}
+            onPress={() => setOpen((s) => (s.has(i) ? new Set([...s].filter((x) => x !== i)) : new Set(s).add(i)))}
+            style={styles.readLine}
+            accessibilityRole="button"
+          >
+            {l.speaker ? <Text style={styles.speaker}>{l.speaker}</Text> : null}
+            <Text style={styles.sentenceText}>
+              {l.en.split(/(\s+)/).map((part, k) =>
+                lessonWords.has(bare(part)) ? (
+                  <Text key={k} style={styles.newWord}>
+                    {part}
+                  </Text>
+                ) : (
+                  part
+                )
+              )}
+            </Text>
+            {open.has(i) && gloss(l.native) ? <Text style={styles.sentenceNative}>{gloss(l.native)}</Text> : null}
+          </Pressable>
+        ))}
+      </FadeIn>
+      <FadeIn delay={140} style={[styles.qCard, shadow.card]}>
+        <Text style={styles.qText}>{question.q}</Text>
+        {gloss(question.native) ? <Text style={styles.qNative}>{gloss(question.native)}</Text> : null}
       </FadeIn>
       <View style={styles.options}>
-        {q.options.map((o, i) => (
+        {question.options.map((o, i) => (
           <Choice
-            key={`${idx}-${o}`}
+            key={o}
             label={o}
-            index={i}
-            state={picked === null ? 'idle' : i === q.answer ? 'ok' : i === picked ? 'bad' : 'dim'}
-            onPress={() => choose(i)}
+            index={i + 2}
+            state={picked === null ? 'idle' : i === question.answer ? 'ok' : i === picked ? 'bad' : 'dim'}
+            onPress={() => {
+              if (picked !== null) return;
+              setPicked(i);
+              const ok = i === question.answer;
+              tally(ok);
+              if (ok) haptics.success();
+              else haptics.warning();
+              onAnswered();
+            }}
           />
         ))}
       </View>
       {picked !== null ? (
         <Feedback
-          key={`f${idx}`}
-          ok={picked === q.answer}
-          sub={picked === q.answer ? undefined : t("Doğru cevap: {{a}}", { a: q.options[q.answer] })}
-          label={idx + 1 >= episode.questions.length ? t("Devam") : t("Sıradaki soru")}
-          onNext={next}
+          ok={picked === question.answer}
+          sub={picked === question.answer ? undefined : t("Doğru cevap: {{a}}", { a: question.options[question.answer] })}
+          label={t("Devam")}
+          onNext={onNext}
         />
       ) : null}
     </>
   );
 }
 
-function SayStep({ sentences, report, onNext }: { sentences: string[]; report: (i: number, n: number) => void; onNext: () => void }) {
+/** Listen and type the missing word. */
+function DictationItem({ sentence, hide, tally, onAnswered, onNext }: ItemProps & { sentence: string; hide: number }) {
+  const words = sentence.split(' ');
+  const target = words[hide];
+  const [value, setValue] = useState('');
+  const [ok, setOk] = useState<boolean | null>(null);
+  const check = () => {
+    const right = bare(value) === bare(target);
+    setOk(right);
+    tally(right);
+    if (right) haptics.success();
+    else haptics.warning();
+    Keyboard.dismiss();
+    onAnswered();
+  };
+  return (
+    <>
+      <FadeIn>
+        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve eksik kelimeyi yaz.")} />
+      </FadeIn>
+      <AudioCard text={sentence} />
+      <FadeIn delay={100} style={[styles.dictCard, shadow.card]}>
+        {words.map((w, i) =>
+          i !== hide ? (
+            <Text key={i} style={styles.dictWord}>
+              {w}
+            </Text>
+          ) : ok === null ? (
+            <TextInput
+              key={i}
+              value={value}
+              onChangeText={setValue}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+              onSubmitEditing={() => value.trim() && check()}
+              style={[styles.dictInput, { minWidth: Math.max(70, bare(target).length * 16) }]}
+              placeholder="…"
+              placeholderTextColor="#94A3B8"
+            />
+          ) : (
+            <Text key={i} style={[styles.dictWord, styles.dictAnswer, { color: ok ? '#16A34A' : colors.error }]}>
+              {target}
+            </Text>
+          )
+        )}
+      </FadeIn>
+      {ok === null ? (
+        <NextButton label={t("Kontrol et")} onPress={check} disabled={!value.trim()} />
+      ) : (
+        <Feedback ok={ok} sub={ok ? sentence : t("Doğru cevap: {{a}}", { a: bare(target) })} label={t("Devam")} onNext={onNext} />
+      )}
+    </>
+  );
+}
+
+/** Listen and put the words in order. */
+function ListenOrderItem({ sentence, native, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
+  const [done, setDone] = useState(false);
+  const wrong = useRef(false);
+  return (
+    <>
+      <FadeIn>
+        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve kelimeleri duyduğun sırayla diz.")} />
+      </FadeIn>
+      <AudioCard text={sentence} />
+      <TapSentenceOrder
+        sentence={sentence}
+        translation={gloss(native) || sentence}
+        resetKey={sentence}
+        onWrongAttempt={() => {
+          wrong.current = true;
+        }}
+        onSolved={(hints) => {
+          tally(!wrong.current && hints === 0);
+          setDone(true);
+          onAnswered();
+        }}
+        onWordPress={() => {}}
+      />
+      {done ? <Feedback ok sub={sentence} label={t("Devam")} onNext={onNext} /> : null}
+    </>
+  );
+}
+
+/** Write the Turkish sentence in English. */
+function TranslateItem({ sentence, native, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
+  const { pronounce } = usePronunciation();
+  const [value, setValue] = useState('');
+  const [ok, setOk] = useState<boolean | null>(null);
+  const check = () => {
+    const right = sameSentence(value, sentence);
+    setOk(right);
+    tally(right);
+    if (right) haptics.success();
+    else haptics.warning();
+    Keyboard.dismiss();
+    pronounce(sentence).catch(() => {});
+    onAnswered();
+  };
+  return (
+    <>
+      <FadeIn>
+        <StepHead icon="language" title={t("Çevir")} sub={t("Bu cümleyi İngilizce yaz.")} />
+      </FadeIn>
+      <FadeIn delay={40} style={[styles.qCard, shadow.card]}>
+        <Text style={styles.qText}>{gloss(native)}</Text>
+      </FadeIn>
+      <FadeIn delay={90}>
+        <TextInput
+          value={value}
+          onChangeText={setValue}
+          editable={ok === null}
+          multiline
+          autoCapitalize="sentences"
+          autoCorrect={false}
+          spellCheck={false}
+          placeholder={t("İngilizcesini yaz…")}
+          placeholderTextColor="#94A3B8"
+          style={[styles.translateInput, ok !== null && { borderColor: ok ? '#86EFAC' : '#FDA4AF' }]}
+        />
+      </FadeIn>
+      {ok === null ? (
+        <NextButton label={t("Kontrol et")} onPress={check} disabled={!value.trim()} />
+      ) : (
+        <Feedback ok={ok} sub={ok ? sentence : t("Doğru cevap: {{a}}", { a: sentence })} label={t("Devam")} onNext={onNext} />
+      )}
+    </>
+  );
+}
+
+/** Match three English sentences with their meanings. */
+function PairsItem({ pairs, tally, onNext }: ItemProps & { pairs: PathWord[] }) {
+  return (
+    <>
+      <FadeIn>
+        <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Her cümleyi anlamıyla eşleştir.")} />
+      </FadeIn>
+      <WordMatch
+        words={pairs}
+        onDone={(mistakes) => {
+          tally(mistakes === 0);
+          onNext();
+        }}
+      />
+    </>
+  );
+}
+
+/**
+ * Mivo's say-it-with-me: Mivo says each word of a short sentence and the learner repeats it, then the whole
+ * sentence ("I · like · coffee → I like coffee").
+ */
+function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (i: number, n: number) => void; onNext: () => void }) {
   const { pronounce } = usePronunciation();
   const recorder = useVoiceRecorder();
+  const items = useMemo(() => [...sentence.split(' ').map((w) => w.replace(/[^A-Za-z']/g, '')).filter(Boolean), sentence], [sentence]);
   const [idx, setIdx] = useState(0);
   const [checking, setChecking] = useState(false);
-  const [result, setResult] = useState<{ heard: string; hits: Set<number>; ok: boolean } | null>(null);
+  const [result, setResult] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const sentence = sentences[idx];
-  const words = sentence.split(/\s+/);
   const ring = useLoop(recorder.isRecording, 1200);
+  const item = items[idx];
+  const whole = idx === items.length - 1;
 
   useEffect(() => {
-    report(idx, sentences.length);
+    report(idx, items.length);
+    setResult(null);
+    setError(null);
+    const id = setTimeout(() => pronounce(item, { rate: whole ? 0.8 : 0.7 }).catch(() => {}), 350);
+    return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
@@ -1087,13 +1262,10 @@ function SayStep({ sentences, report, onNext }: { sentences: string[]; report: (
       form.append('audio', new File(uri) as unknown as Blob);
       const { transcript } = await api.postForm<TranscribeResponse>('/chat/transcribe', form);
       const said = new Set(tokens(transcript));
-      const hits = new Set<number>();
-      words.forEach((w, i) => {
-        const tk = tokens(w)[0];
-        if (tk && said.has(tk)) hits.add(i);
-      });
-      const ok = hits.size / Math.max(1, words.length) >= 0.7;
-      setResult({ heard: transcript.trim(), hits, ok });
+      const want = tokens(item);
+      const hits = want.filter((w) => said.has(w)).length;
+      const ok = whole ? hits / Math.max(1, want.length) >= 0.7 : hits > 0;
+      setResult(ok);
       if (ok) haptics.success();
       else haptics.warning();
     } catch (err) {
@@ -1102,38 +1274,30 @@ function SayStep({ sentences, report, onNext }: { sentences: string[]; report: (
       setChecking(false);
     }
   };
-
-  const next = () => {
-    if (idx + 1 >= sentences.length) onNext();
-    else {
-      setIdx(idx + 1);
-      setResult(null);
-      setError(null);
-    }
-  };
+  const next = () => (idx + 1 >= items.length ? onNext() : setIdx(idx + 1));
 
   return (
     <>
-      <FadeIn>
-        <StepHead icon="mic" title={t("Sesli söyle")} sub={t("Cümleyi dinle, sonra mikrofona basıp sen söyle.")} />
+      <FadeIn style={styles.mivoRow}>
+        <Image source={mivoVoiceImages.speak} style={styles.mivoImg} resizeMode="contain" />
+        <View style={[styles.bubble, shadow.card]}>
+          <Text style={styles.bubbleKicker}>{t("Mivo'ya söyle")}</Text>
+          <Text style={styles.bubbleTitle}>{whole ? t("Şimdi hepsini birden söyle!") : t("Benden sonra tekrar et.")}</Text>
+        </View>
       </FadeIn>
-      <FadeIn key={`s${idx}`} delay={60} style={[styles.sayCard, shadow.card]}>
-        {sentences.length > 1 ? <Text style={styles.sayCount}>{t("Cümle {{n}}/{{total}}", { n: idx + 1, total: sentences.length })}</Text> : null}
-        <Text style={styles.sayText}>
-          {words.map((w, i) => (
-            <Text key={i} style={result ? (result.hits.has(i) ? styles.sayHit : styles.sayMiss) : undefined}>
-              {w}
-              {i < words.length - 1 ? ' ' : ''}
-            </Text>
-          ))}
-        </Text>
-        <Pressable onPress={() => pronounce(sentence, { rate: 0.85 }).catch(() => {})} style={styles.listen} accessibilityRole="button">
+      <View style={styles.sayDots}>
+        {items.map((_, i) => (
+          <View key={i} style={[styles.sayDot, i < idx && styles.sayDotDone, i === idx && styles.sayDotNow]} />
+        ))}
+      </View>
+      <FadeIn key={`m${idx}`} from={10} style={[styles.sayCard, shadow.card]}>
+        <Text style={[styles.sayText, !whole && styles.sayWordBig, result === true && styles.sayHit, result === false && styles.sayMiss]}>{item}</Text>
+        <Pressable onPress={() => pronounce(item, { rate: 0.7 }).catch(() => {})} style={styles.listen} accessibilityRole="button">
           <Ionicons name="volume-high" size={18} color={colors.brand} />
           <Text style={styles.listenText}>{t("Dinle")}</Text>
         </Pressable>
       </FadeIn>
-
-      <View style={{ alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ alignItems: 'center', gap: 12 }}>
         <View style={styles.micWrap}>
           {recorder.isRecording
             ? [0, 0.5].map((offset) => {
@@ -1163,27 +1327,22 @@ function SayStep({ sentences, report, onNext }: { sentences: string[]; report: (
             {checking ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name={recorder.isRecording ? 'stop' : 'mic'} size={34} color="#FFFFFF" />}
           </Pressable>
         </View>
-        <FadeIn key={`${recorder.isRecording}-${!!result}-${!!error}`} from={6} duration={240}>
-          <Text style={[styles.note, result && (result.ok ? styles.noteOk : styles.noteBad)]}>
-            {recorder.permissionDenied
-              ? t("Mikrofon izni kapalı. Ayarlardan açabilir ya da bu adımı geçebilirsin.")
-              : recorder.isRecording
-                ? t("Dinliyorum… bitince tekrar bas.")
-                : result
-                  ? result.ok
-                    ? t("Harika, çok iyi anlaşılıyor! 🎉")
-                    : t("Kırmızı kelimeleri tam duyamadım. Bir daha dene ya da devam et.")
-                  : (error ?? t("Hazır olunca mikrofona bas."))}
-          </Text>
-        </FadeIn>
+        <Text style={[styles.note, result === true && styles.noteOk, result === false && styles.noteBad]}>
+          {recorder.permissionDenied
+            ? t("Mikrofon izni kapalı. Ayarlardan açabilir ya da bu adımı geçebilirsin.")
+            : recorder.isRecording
+              ? t("Dinliyorum… bitince tekrar bas.")
+              : result === true
+                ? t("Harika! 🎉")
+                : result === false
+                  ? t("Tam duyamadım. Bir daha dene ya da devam et.")
+                  : (error ?? t("Mikrofona bas ve söyle."))}
+        </Text>
       </View>
-
-      {result || error || recorder.permissionDenied ? (
-        <FadeIn>
-          <NextButton label={idx + 1 >= sentences.length ? t("Dersi bitir") : t("Sıradaki cümle")} onPress={next} tone={result?.ok ? 'ok' : 'brand'} />
-        </FadeIn>
+      {result !== null || error || recorder.permissionDenied ? (
+        <NextButton label={whole ? t("Dersi bitir") : t("Sıradaki")} onPress={next} tone={result ? 'ok' : 'brand'} />
       ) : (
-        <Pressable onPress={next} hitSlop={8} accessibilityRole="button">
+        <Pressable onPress={onNext} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Şu an konuşamıyorum, geç")}</Text>
         </Pressable>
       )}
@@ -1223,11 +1382,11 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
         <Text style={styles.partNextText}>
           {part === 1
             ? t("Kelimeler cebinde! Sırada dil bilgisi var ama korkma: 2 dakikalık kısa bir görev. Az önce öğrendiğin kelimelerle cümle kuracaksın.")
-            : t("Süpersin! Bir sonraki ders açıldı. Şimdi en keyifli kısım: Maya'nın hikâyesi.")}
+            : t("Süpersin! Bir sonraki ders açıldı. Şimdi pratik zamanı: Maya'nın hikâyesinden parçalar, dinleme ve sonunda Mivo'yla konuşma.")}
         </Text>
       </FadeIn>
       <FadeIn delay={700} style={{ alignSelf: 'stretch', gap: 12 }}>
-        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Hikâyeye geç")} onPress={onNext} />
+        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
         <Pressable onPress={onExit} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Sonra devam ederim")}</Text>
         </Pressable>
@@ -1506,4 +1665,36 @@ const styles = StyleSheet.create({
   partNextCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14, borderWidth: 2, borderColor: '#EEF2FF', alignSelf: 'stretch' },
   partNextMivo: { width: 64, height: 64 },
   partNextText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textBody },
+  audioCard: { flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 20, borderWidth: 1, borderColor: '#EEF2FF' },
+  audioIcon: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },
+  wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 40 },
+  waveBar: { width: 3, borderRadius: 2, backgroundColor: '#C7D2FE' },
+  audioHint: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
+  readArtWrap: { borderRadius: 22, overflow: 'hidden' },
+  readArt: { width: '100%', aspectRatio: 1.7, borderRadius: 22 },
+  readPlay: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 4 },
+  readPlayText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  readLine: { paddingVertical: 6 },
+  dictCard: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 18, borderWidth: 1, borderColor: '#EEF2FF' },
+  dictWord: { fontFamily: fonts.bodyMedium, fontSize: 20, color: colors.textHeading },
+  dictAnswer: { fontFamily: fonts.headingBold, textDecorationLine: 'underline' },
+  dictInput: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.brand, borderBottomWidth: 2, borderBottomColor: colors.brand, paddingVertical: 2, paddingHorizontal: 4 },
+  translateInput: {
+    minHeight: 120,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    padding: 16,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 18,
+    color: colors.textHeading,
+    textAlignVertical: 'top',
+  },
+  sayDots: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
+  sayDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#E2E8F0' },
+  sayDotDone: { backgroundColor: '#22C55E' },
+  sayDotNow: { backgroundColor: colors.brand, transform: [{ scale: 1.3 }] },
+  sayWordBig: { fontSize: 38, lineHeight: 46 },
 });
+

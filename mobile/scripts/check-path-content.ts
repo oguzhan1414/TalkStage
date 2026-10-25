@@ -10,6 +10,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { VOICE_SCENES } from '@talkstage/shared-data/voiceScenes';
 
 import { PATH_LEVELS } from '../src/data/path';
+import { buildDrills, mivoSentence } from '../src/data/path/drills';
 
 const problems: string[] = [];
 const sceneIds = new Set(VOICE_SCENES.map((s) => s.id));
@@ -113,6 +114,15 @@ for (const level of PATH_LEVELS) {
         if (before) problems.push(`${step.id}: "${w.en}" is already taught in ${before}`);
         taught.set(wordKey(w.en), step.id);
       }
+      // The practice part is generated from the episode: make sure every episode yields a full set.
+      const drills = buildDrills(e);
+      const kinds = (k: string) => drills.filter((d) => d.kind === k).length;
+      if (drills.length < 6) problems.push(`${step.id}: only ${drills.length} practice drills`);
+      if (!kinds('dictation')) problems.push(`${step.id}: no dictation drill (no short story sentence with a lesson word)`);
+      if (!kinds('listenOrder')) problems.push(`${step.id}: no listen-and-order drill`);
+      if (kinds('read') !== e.questions.length) problems.push(`${step.id}: story pieces do not match the questions`);
+      const say = mivoSentence(e).split(' ').length;
+      if (say < 2 || say > 6) problems.push(`${step.id}: Mivo sentence has ${say} words`);
       const words = e.sentences.reduce((n, s) => n + s.en.split(/\s+/).length, 0);
       console.log(`${step.id}  ep ${String(e.number).padStart(2)}  ${String(e.sentences.length).padStart(2)} sentences  ${String(words).padStart(3)} words  ${e.title.tr}`);
     }
