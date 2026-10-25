@@ -56,6 +56,10 @@ const IRREGULAR: Record<string, string[]> = {
   fly: ['flew', 'flies'],
   bring: ['brought'],
   'wake up': ['woke up', 'wakes up'],
+  forget: ['forgot', 'forgotten'],
+  lose: ['lost'],
+  win: ['won'],
+  grow: ['grew', 'grown'],
 };
 
 /** The word or a regular form of it (-s, -es, -ies, -ed, -ing, doubled consonant) appears in the text. */

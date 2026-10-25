@@ -85,6 +85,10 @@ const IRREGULAR: Record<string, string[]> = {
   ride: ['rode'],
   fly: ['flew', 'flies'],
   bring: ['brought'],
+  forget: ['forgot', 'forgotten'],
+  lose: ['lost'],
+  win: ['won'],
+  grow: ['grew', 'grown'],
 };
 
 /** Does this token of a sentence stand for the lesson word (same word, a regular ending, or an irregular form)? */

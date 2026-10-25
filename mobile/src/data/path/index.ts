@@ -1,10 +1,11 @@
 import { A1 } from './a1';
+import { A2 } from './a2';
 import type { PathLevel, PathStep, PathUnit } from './types';
 
 export * from './types';
 
 /** Levels written so far (A2–C2 follow the same shape). */
-export const PATH_LEVELS: PathLevel[] = [A1];
+export const PATH_LEVELS: PathLevel[] = [A1, A2];
 
 export function pathLevel(id: string | null | undefined): PathLevel {
   return PATH_LEVELS.find((l) => l.id === id) ?? A1;

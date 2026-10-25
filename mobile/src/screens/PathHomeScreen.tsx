@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +12,7 @@ import { profileAvatar } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { xpLevelInfo } from '../constants/xp';
-import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
+import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
@@ -24,6 +25,8 @@ import type { ProfileOut, ProgressOut } from '../types/api';
 const TAB_BAR = 68;
 const RING_W = 12;
 const todayKey = () => new Date().toISOString().slice(0, 10);
+/** Temporary (until the A1 → A2 move is designed): the level shown on the home, switched by tapping its label. */
+const LEVEL_KEY = 'spekvia.path.level';
 
 /** Medallion colours per step type. */
 const RING: Record<string, { ring: string; fill: [string, string] }> = {
@@ -47,7 +50,19 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   const { data: practice } = useQuery({ queryKey: ['progress'], queryFn: () => api.get<ProgressOut[]>('/progress') });
 
-  const level = pathLevel('A1');
+  const [levelId, setLevelId] = useState('A1');
+  useEffect(() => {
+    AsyncStorage.getItem(LEVEL_KEY)
+      .then((v) => v && setLevelId(v))
+      .catch(() => {});
+  }, []);
+  const switchLevel = () => {
+    const i = PATH_LEVELS.findIndex((l) => l.id === levelId);
+    const next = PATH_LEVELS[(i + 1) % PATH_LEVELS.length].id;
+    setLevelId(next);
+    AsyncStorage.setItem(LEVEL_KEY, next).catch(() => {});
+  };
+  const level = pathLevel(levelId);
   const steps = useMemo(() => flatSteps(level), [level]);
   const current = progress ? currentStep(level, progress) : steps[0];
   const [index, setIndex] = useState(current.index);
@@ -141,7 +156,10 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         {/* Story */}
         <View style={styles.storyRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.storyKicker}>{t("{{level}} · Ünite {{n}}", { level: level.id, n: focused.unit.number })}</Text>
+            <Pressable onPress={switchLevel} hitSlop={8} style={styles.kickerRow} accessibilityRole="button">
+              <Text style={styles.storyKicker}>{t("{{level}} · Ünite {{n}}", { level: level.id, n: focused.unit.number })}</Text>
+              {PATH_LEVELS.length > 1 ? <Ionicons name="swap-horizontal" size={14} color="rgba(255,255,255,0.9)" /> : null}
+            </Pressable>
             <Text style={styles.storyTitle} numberOfLines={1}>
               {loc(level.story.title)}
             </Text>
@@ -419,6 +437,7 @@ const styles = StyleSheet.create({
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
   storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 14 },
+  kickerRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   storyKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' },
   storyTitle: { fontFamily: fonts.headingBold, fontSize: 24, color: '#FFFFFF', marginTop: 1 },
 

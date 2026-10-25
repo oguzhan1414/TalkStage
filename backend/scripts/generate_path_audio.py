@@ -38,6 +38,9 @@ VOICES: dict[str, tuple[str, str]] = {
     "Mr Patel": ("onyx", "You are Mr Patel, a gentle, calm elderly man with a soft, kind voice and a little smile in it."),
     "Mum": ("shimmer", "You are Maya's loving mother on the phone, caring and a little curious."),
     "The man": ("echo", "You are a friendly local man, polite and helpful."),
+    "Doctor": ("nova", "You are a kind, calm doctor; clear and caring, with a gentle sense of humour."),
+    "Teacher": ("fable", "You are a warm, encouraging primary school teacher who loves her pupils' ideas."),
+    "Mr Hill": ("cedar", "You are Mr Hill, a very old, warm baker; slow, a little shy and deeply moved."),
 }
 
 KIND_HINT = {
