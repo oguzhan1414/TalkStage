@@ -3350,5 +3350,13 @@
   "{{level}} · Ünite {{n}}": "{{level}} · Unidade {{n}}",
   "Önceki": "Anterior",
   "Kelime bölümü": "Palavras",
-  "Mivo ile sahne": "Cena com o Mivo"
+  "Mivo ile sahne": "Cena com o Mivo",
+  "Süper!": "Show!",
+  "Tam değil": "Quase",
+  "Doğru cevap: {{a}}": "Resposta certa: {{a}}",
+  "Önceki bölümde": "No episódio anterior",
+  "Sıradaki soru": "Próxima pergunta",
+  "Cümle {{n}}/{{total}}": "Frase {{n}}/{{total}}",
+  "İlk denemede doğru": "Certas na primeira tentativa",
+  "XP": "XP"
 }

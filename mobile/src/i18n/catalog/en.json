@@ -3327,5 +3327,13 @@
   "{{level}} · Ünite {{n}}": "{{level}} · Unit {{n}}",
   "Önceki": "Previous",
   "Kelime bölümü": "Words",
-  "Mivo ile sahne": "Scene with Mivo"
+  "Mivo ile sahne": "Scene with Mivo",
+  "Süper!": "Super!",
+  "Tam değil": "Not quite",
+  "Doğru cevap: {{a}}": "Correct answer: {{a}}",
+  "Önceki bölümde": "Previously",
+  "Sıradaki soru": "Next question",
+  "Cümle {{n}}/{{total}}": "Sentence {{n}}/{{total}}",
+  "İlk denemede doğru": "Right on first try",
+  "XP": "XP"
 }

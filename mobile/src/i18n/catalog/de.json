@@ -3350,5 +3350,13 @@
   "{{level}} · Ünite {{n}}": "{{level}} · Einheit {{n}}",
   "Önceki": "Zurück",
   "Kelime bölümü": "Wörter",
-  "Mivo ile sahne": "Szene mit Mivo"
+  "Mivo ile sahne": "Szene mit Mivo",
+  "Süper!": "Super!",
+  "Tam değil": "Nicht ganz",
+  "Doğru cevap: {{a}}": "Richtige Antwort: {{a}}",
+  "Önceki bölümde": "In der letzten Folge",
+  "Sıradaki soru": "Nächste Frage",
+  "Cümle {{n}}/{{total}}": "Satz {{n}}/{{total}}",
+  "İlk denemede doğru": "Beim ersten Versuch richtig",
+  "XP": "XP"
 }
