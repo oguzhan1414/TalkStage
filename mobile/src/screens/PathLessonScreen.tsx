@@ -1002,16 +1002,18 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
       <FadeIn>
         <StepHead icon="book" title={t("Oku ve yanıtla")} sub={t("Maya'nın hikâyesinden bir parça. Cümleye dokunursan Türkçesini görürsün.")} />
       </FadeIn>
-      {art ? (
-        <FadeIn delay={40} style={styles.readArtWrap}>
-          <Image source={art} style={styles.readArt} resizeMode="cover" />
-        </FadeIn>
-      ) : null}
-      <FadeIn delay={80} style={[styles.storyCard, shadow.card]}>
-        <Pressable onPress={() => sayAll(lines.map((l) => l.en)).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
-          <Ionicons name="volume-high" size={18} color={colors.brand} />
-          <Text style={styles.readPlayText}>{t("Dinle")}</Text>
-        </Pressable>
+      <FadeIn delay={60} style={[styles.storyCard, shadow.card]}>
+        <View style={styles.readHead}>
+          {art ? (
+            <View style={styles.readArtWrap}>
+              <Image source={art} style={styles.readArt} resizeMode="cover" />
+            </View>
+          ) : null}
+          <Pressable onPress={() => sayAll(lines.map((l) => l.en)).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+            <Ionicons name="volume-high" size={18} color={colors.brand} />
+            <Text style={styles.readPlayText}>{t("Dinle")}</Text>
+          </Pressable>
+        </View>
         {lines.map((l, i) => (
           <Pressable
             key={i}
@@ -1669,9 +1671,10 @@ const styles = StyleSheet.create({
   wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 40 },
   waveBar: { width: 3, borderRadius: 2, backgroundColor: '#C7D2FE' },
   audioHint: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
-  readArtWrap: { borderRadius: 22, overflow: 'hidden' },
-  readArt: { width: '100%', aspectRatio: 1.7, borderRadius: 22 },
-  readPlay: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 4 },
+  readHead: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 },
+  readArtWrap: { width: 72, height: 72, borderRadius: 36, padding: 3, backgroundColor: '#EEF2FF' },
+  readArt: { width: 66, height: 66, borderRadius: 33 },
+  readPlay: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   readPlayText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   readLine: { paddingVertical: 6 },
   dictCard: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 18, borderWidth: 1, borderColor: '#EEF2FF' },
