@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /**
- * Sanity check for the learning path content (src/data/path): answer indexes in range, practice answers that
- * fill the blank, known scene and room ids, word counts per episode.
- * Run: npx tsx --tsconfig scripts/tsconfig.check.json scripts/check-path-content.ts
+ * Sanity check for the learning path content (src/data/path): answer indexes in range, known scene ids, the unit
+ * rhythm, pattern tables, and for every lesson word: a picture exists, it turns up in the story, and it is taught
+ * only once in the level.
+ * Run: npm run check:path
  */
 import { readdirSync, readFileSync } from 'node:fs';
 
@@ -21,7 +22,53 @@ const wordPics = new Set(
     .filter((f) => f.endsWith('.webp'))
     .map((f) => f.slice(0, -5))
 );
+/** Same key as src/assets/wordImages.ts (that file requires images, so it cannot be imported here). */
+const wordKey = (en: string) =>
+  en
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, '_');
+
+const IRREGULAR: Record<string, string[]> = {
+  see: ['saw', 'seen'],
+  come: ['came'],
+  buy: ['bought'],
+  take: ['took'],
+  meet: ['met'],
+  make: ['made'],
+  give: ['gave'],
+  find: ['found'],
+  send: ['sent'],
+  say: ['said'],
+  go: ['went', 'goes'],
+  eat: ['ate'],
+  drink: ['drank'],
+  sing: ['sang'],
+  run: ['ran'],
+  swim: ['swam'],
+  sit: ['sat'],
+  stand: ['stood'],
+  write: ['wrote'],
+  ride: ['rode'],
+  fly: ['flew', 'flies'],
+  bring: ['brought'],
+  'wake up': ['woke up', 'wakes up'],
+};
+
+/** The word or a regular form of it (-s, -es, -ies, -ed, -ing, doubled consonant) appears in the text. */
+function appears(word: string, text: string): boolean {
+  const w = word.toLowerCase();
+  const stem = w.replace(/e$/, '');
+  const forms = [w, `${w}s`, `${w}es`, `${w}ed`, `${w}d`, `${w}ing`, `${stem}ing`, `${w}${w.slice(-1)}ing`, `${w}${w.slice(-1)}ed`, ...(IRREGULAR[w] ?? [])];
+  if (w.endsWith('y')) forms.push(`${w.slice(0, -1)}ies`, `${w.slice(0, -1)}ied`);
+  const plain = text.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return forms.some((f) => new RegExp(`(^|[^a-z])${f.normalize('NFD').replace(/[̀-ͯ]/g, '')}([^a-z]|$)`).test(plain));
+}
+
 const ids = new Set<string>();
+const taught = new Map<string, string>();
 
 for (const level of PATH_LEVELS) {
   let episode = 0;
@@ -37,8 +84,8 @@ for (const level of PATH_LEVELS) {
       const e = step.episode;
       episode += 1;
       if (e.number !== episode) problems.push(`${step.id}: episode number ${e.number}, expected ${episode}`);
-      if (e.words.length < 4) problems.push(`${step.id}: only ${e.words.length} words`);
-      if (e.questions.length !== 3) problems.push(`${step.id}: ${e.questions.length} questions`);
+      if (e.words.length !== 5) problems.push(`${step.id}: ${e.words.length} words (expected 5)`);
+      if (e.questions.length < 2 || e.questions.length > 3) problems.push(`${step.id}: ${e.questions.length} questions`);
       e.questions.forEach((qq, i) => {
         if (qq.answer < 0 || qq.answer >= qq.options.length) problems.push(`${step.id} q${i + 1}: answer out of range`);
         if (new Set(qq.options).size !== qq.options.length) problems.push(`${step.id} q${i + 1}: duplicate options`);
@@ -49,18 +96,22 @@ for (const level of PATH_LEVELS) {
           if (new Set(p.options).size !== p.options.length) problems.push(`${step.id} p${i + 1}: duplicate options`);
         } else if (p.sentence.split(' ').length < 2) problems.push(`${step.id} p${i + 1}: order sentence too short`);
       });
-      if (e.table) {
+      if (!e.tip.highlight.includes('**')) problems.push(`${step.id}: tip highlight has no **marks**`);
+      if (!e.table) problems.push(`${step.id}: no pattern table`);
+      else {
         const { rows, ask } = e.table;
         const width = ask.cells.length;
         if (rows.some((r) => r.length !== width)) problems.push(`${step.id} table: rows of different widths`);
         if (ask.col < 0 || ask.col >= width) problems.push(`${step.id} table: gap column out of range`);
         else if (!ask.options.includes(ask.cells[ask.col])) problems.push(`${step.id} table: options miss "${ask.cells[ask.col]}"`);
-        // Lessons in the three-part format: every word has a picture and turns up in the story.
-        const story = e.sentences.map((s) => s.en.toLowerCase()).join(' ');
-        for (const w of e.words) {
-          if (!wordPics.has(w.en.toLowerCase())) problems.push(`${step.id}: no picture for "${w.en}"`);
-          if (!story.includes(w.en.toLowerCase())) problems.push(`${step.id}: "${w.en}" is not in the story`);
-        }
+      }
+      const story = e.sentences.map((s) => s.en.toLowerCase()).join(' ');
+      for (const w of e.words) {
+        if (!wordPics.has(wordKey(w.en))) problems.push(`${step.id}: no picture for "${w.en}"`);
+        if (!appears(w.en, story)) problems.push(`${step.id}: "${w.en}" is not in the story`);
+        const before = taught.get(wordKey(w.en));
+        if (before) problems.push(`${step.id}: "${w.en}" is already taught in ${before}`);
+        taught.set(wordKey(w.en), step.id);
       }
       const words = e.sentences.reduce((n, s) => n + s.en.split(/\s+/).length, 0);
       console.log(`${step.id}  ep ${String(e.number).padStart(2)}  ${String(e.sentences.length).padStart(2)} sentences  ${String(words).padStart(3)} words  ${e.title.tr}`);
@@ -69,5 +120,6 @@ for (const level of PATH_LEVELS) {
   }
 }
 
+console.log(`\n${taught.size} lesson words`);
 console.log(problems.length ? `\n${problems.length} problem(s):\n- ${problems.join('\n- ')}` : '\nOK: no problems');
 process.exit(problems.length ? 1 : 0);

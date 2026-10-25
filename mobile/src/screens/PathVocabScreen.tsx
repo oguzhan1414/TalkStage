@@ -5,6 +5,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { stateImages } from '../assets/images';
+import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
@@ -84,7 +85,10 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
                   style={({ pressed }) => [styles.card, heard.has(w.en) && styles.cardHeard, pressed && { transform: [{ scale: 0.97 }] }]}
                   accessibilityRole="button"
                 >
-                  <Ionicons name="volume-high" size={16} color={heard.has(w.en) ? '#16A34A' : colors.brand} />
+                  <View style={styles.cardTop}>
+                    <Ionicons name="volume-high" size={16} color={heard.has(w.en) ? '#16A34A' : colors.brand} />
+                    {wordImage(w.en) ? <Image source={wordImage(w.en)} style={styles.pic} resizeMode="contain" /> : null}
+                  </View>
                   <Text style={styles.en}>{w.en}</Text>
                   {gloss(w.native) ? <Text style={styles.native}>{gloss(w.native)}</Text> : null}
                 </Pressable>
@@ -147,6 +151,8 @@ const styles = StyleSheet.create({
     borderColor: '#E0E7FF',
   },
   cardHeard: { borderColor: '#BBF7D0' },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  pic: { width: 56, height: 56, borderRadius: 12 },
   en: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
   native: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted },
   next: { backgroundColor: colors.brand, borderRadius: 18, paddingVertical: 16, alignItems: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },

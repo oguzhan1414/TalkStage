@@ -1,241 +1,199 @@
-import { choose, L, order, q, s, w } from '../build';
+import { choose, L, order, q, reading, s, scene, table, tip, w, wordStep } from '../build';
 import type { PathUnit } from '../types';
 
+/** A1 unit 2: things (a/an, plurals, this/that, what/where). Plan: docs/a1_ders_plani.md. */
 export const A1_U2: PathUnit = {
   id: 'a1-u2',
   number: 2,
-  title: L('Yeni oda', 'A new room'),
+  title: L('Eşyalar', 'Things'),
   steps: [
-    {
-      id: 'a1-u2-s1',
-      kind: 'reading',
-      episode: {
-        number: 5,
-        title: L('Odadaki eşyalar', 'Things in the room'),
-        grammar: L('a / an', 'a / an'),
-        minutes: 6,
-        recap: L(
-          'Rosa da kartpostalları göndermemiş. Tom adında torununa sormasını söyledi.',
-          "Rosa didn't send the postcards either. She told Maya to ask her grandson Tom."
+    reading('a1-u2-s1', {
+      number: 5,
+      title: L('Muz mu, şemsiye mi?', 'A banana or an umbrella?'),
+      grammar: L('a / an', 'a / an'),
+      minutes: 5,
+      recap: L('Kapının altından ilk kartpostal çıktı: HELLO. Kimden geldiği belli değil.', 'The first postcard came under the door: HELLO. Nobody knows who sent it.'),
+      words: [w('apple', 'elma'), w('egg', 'yumurta'), w('orange', 'portakal'), w('umbrella', 'şemsiye'), w('banana', 'muz')],
+      sentences: [
+        s('Maya is hungry.', 'Maya aç.'),
+        s('An egg, Maya? An apple? An orange?', 'Yumurta mı Maya? Elma mı? Portakal mı?', 'Rosa'),
+        s('An egg and an orange, please.', 'Bir yumurta ve bir portakal, lütfen.', 'Maya'),
+        s('Tom is hungry too. A banana for Tom!', "Tom da aç. Tom'a bir muz!"),
+        s('Leo is late. He is cold and sad.', 'Leo geç kaldı. Üşümüş ve üzgün.'),
+        s("I'm cold! An umbrella, Rosa?", 'Üşüdüm! Şemsiye var mı Rosa?', 'Leo'),
+        s('An umbrella? Here!', 'Şemsiye mi? Al!', 'Tom'),
+        s("It isn't an umbrella, Tom. It is a banana!", 'Bu şemsiye değil Tom. Bu bir muz!', 'Leo'),
+        s('Maya and Rosa are happy. Leo is not!', 'Maya ve Rosa gülüyor. Leo gülmüyor!'),
+      ],
+      questions: [
+        q('Maya is…', 'Maya nasıl?', ['hungry', 'sick', 'late'], 0),
+        q("Is it an umbrella?", 'Bu bir şemsiye mi?', ["Yes, it is.", "No, it's a banana."], 1),
+      ],
+      tip: tip(
+        L('Bir: a mı, an mı?', 'One: a or an?'),
+        '**An** egg and **an** orange, please.',
+        L(
+          'Tek bir şeyden önce **a** gelir. Kelime sesli harf sesiyle başlıyorsa **an** olur: an apple, an egg.',
+          'Use **a** before one thing; before a vowel sound it is **an**: an apple, an egg.'
         ),
-        words: [w('room', 'oda'), w('window', 'pencere'), w('lamp', 'lamba'), w('umbrella', 'şemsiye'), w('gift', 'hediye'), w('desk', 'çalışma masası')],
-        sentences: [
-          s("Maya's new room is at the top of the house.", "Maya'nın yeni odası evin en üst katında."),
-          s('It is small, but it is a nice room.', 'Küçük ama güzel bir oda.'),
-          s('The window is round, and the view is great.', 'Penceresi yuvarlak ve manzarası harika.'),
-          s("Maya's bag is open on the bed.", "Maya'nın çantası yatağın üstünde açık duruyor."),
-          s('A lamp, a book, an umbrella… and an orange!', 'Bir lamba, bir kitap, bir şemsiye… ve bir portakal!', 'Maya'),
-          s('An orange? In your bag?', 'Portakal mı? Çantanda mı?', 'Leo'),
-          s('Yes! It is a gift from my mum.', 'Evet! Annemden bir hediye.', 'Maya'),
-          s('And this is an old desk. It is from Rosa.', "Bu da eski bir çalışma masası. Rosa'dan.", 'Leo'),
-          s("It's a great desk for an English student!", 'İngilizce öğrencisi için harika bir masa!', 'Maya'),
-          s('On the desk is an envelope with a note: "Welcome, Maya! Rosa"', 'Masanın üstünde bir not olan bir zarf var: "Hoş geldin Maya! Rosa"'),
-          s('Maya smiles. Rosa is kind. But the postcards are still a mystery.', 'Maya gülümsüyor. Rosa çok nazik. Ama kartpostallar hâlâ bir gizem.'),
+        [
+          ['a banana, a boy', 'bir muz, bir erkek çocuk'],
+          ['an apple, an umbrella', 'bir elma, bir şemsiye'],
         ],
-        questions: [
-          q("Where is Maya's room?", "Maya'nın odası nerede?", ['Next to the café', 'At the top of the house', 'In the kitchen'], 1),
-          q("What is in Maya's bag?", "Maya'nın çantasında ne var?", ['A guitar', 'A cat', 'An orange'], 2),
-          q('Who is the desk from?', 'Masa kimden?', ['Rosa', 'Leo', "Maya's mum"], 0),
-        ],
-        tip: {
-          title: L('Bir: a mı, an mı?', 'One: a or an?'),
-          highlight: '**A** lamp, **a** book, **an** umbrella… and **an** orange!',
-          rule: L(
-            "Ünsüz sesle başlayan kelimeden önce **a** (a lamp, a desk), ünlü sesle (a, e, i, o, u) başlayandan önce **an** gelir (an orange, an old desk). Kural yazıya değil **sese** bakar.",
-            'Use **a** before a consonant sound (a lamp, a desk) and **an** before a vowel sound (an orange, an old desk). It is about the **sound**, not the letter.'
-          ),
-          examples: [
-            { en: 'a gift, a room, a window', native: { tr: 'bir hediye, bir oda, bir pencere' } },
-            { en: 'an umbrella, an orange, an English student', native: { tr: 'bir şemsiye, bir portakal, bir İngilizce öğrencisi' } },
-          ],
-          mistake: {
-            wrong: 'a orange',
-            right: 'an orange',
-            why: L("Türkçede 'bir' hiç değişmez. İngilizcede ünlü sesten önce **an** olur.", 'Before a vowel sound it is always **an**.'),
-          },
-        },
-        practice: [
-          choose('It is ___ umbrella.', 'Bu bir şemsiye.', ['a', 'an'], 1),
-          choose('It is ___ lamp.', 'Bu bir lamba.', ['a', 'an'], 0),
-          order('It is an old desk', 'Bu eski bir masa.'),
-          choose('___ orange is a gift from my mum.', 'Bir portakal annemden hediye.', ['A', 'An', 'Two'], 1),
-        ],
-        say: ['It is an old desk.', 'A lamp, a book and an umbrella!'],
-      },
-    },
-    {
-      id: 'a1-u2-s2',
-      kind: 'reading',
-      episode: {
-        number: 6,
-        title: L('Kutular ve kitaplar', 'Boxes and books'),
-        grammar: L('Çoğul isimler', 'Plural nouns'),
-        minutes: 6,
-        recap: L(
-          'Maya çatı katındaki küçük odasına yerleşti. Rosa ona eski bir masa hediye etti.',
-          'Maya moved into her small room at the top of the house. Rosa gave her an old desk.'
+        ['a orange', 'an orange', "Türkçede 'bir' hiç değişmez. İngilizcede sesli harften önce **an** olur.", 'Before a vowel sound it is always **an**.']
+      ),
+      table: table(['It is | an | apple', 'It is | a | banana', 'It is | an | egg', 'It is | an | orange', 'It is | an | umbrella'], 'It is | an | egg', 1, 'a', 'Bu bir yumurta.'),
+      practice: [
+        choose('It is ___ apple.', 'Bu bir elma.', ['a', 'an'], 1),
+        choose('It is ___ banana.', 'Bu bir muz.', ['a', 'an'], 0),
+        order('It is an umbrella', 'Bu bir şemsiye.'),
+        order('An egg and an orange', 'Bir yumurta ve bir portakal.'),
+      ],
+      say: ["It isn't an umbrella. It is a banana!"],
+    }),
+    reading('a1-u2-s2', {
+      number: 6,
+      title: L('Üç çanta', 'Three bags'),
+      grammar: L('Çoğul: -s', 'Plurals: -s'),
+      minutes: 5,
+      recap: L("Rosa'nın kafesinde kahvaltı. Tom şemsiye yerine Leo'ya muz uzattı.", 'Breakfast at Rosa’s café. Tom gave Leo a banana, not an umbrella.'),
+      words: [w('book', 'kitap'), w('pen', 'kalem'), w('bag', 'çanta'), w('chair', 'sandalye'), w('table', 'masa')],
+      sentences: [
+        s('One bag, two bags, three bags!', 'Bir çanta, iki çanta, üç çanta!', 'Leo'),
+        s('Maya, three bags? I am tired!', 'Maya, üç çanta mı? Yoruldum!', 'Leo'),
+        s('They are books, Leo. Ten books!', 'Onlar kitap Leo. On kitap!', 'Maya'),
+        s('And pens. Six pens!', 'Bir de kalemler. Altı kalem!', 'Maya'),
+        s('A table and a chair are for Maya.', 'Bir masa ve bir sandalye Maya için.'),
+        s('The table is old. The chair is old too.', 'Masa eski. Sandalye de eski.'),
+        s('Two men are at the table: Leo and Tom!', 'Masada iki adam var: Leo ve Tom!'),
+        s('Maya and Leo are tired, but they are happy.', 'Maya ve Leo yorgun ama mutlular.'),
+      ],
+      questions: [
+        q('Ten…', 'On tane ne var?', ['books', 'chairs', 'tables'], 0),
+        q('The table is…', 'Masa nasıl?', ['old', 'young', 'hot'], 0),
+      ],
+      tip: tip(
+        L('Birden fazla: -s', 'More than one: -s'),
+        'And **pens**. Six **pens**!',
+        L(
+          'Birden fazlası için isme **-s** eklenir: book → books. Bazıları düzensizdir: man → men, woman → women, child → children.',
+          'Add **-s** for more than one: book → books. Some are irregular: man → men, woman → women.'
         ),
-        words: [w('box', 'kutu'), w('heavy', 'ağır'), w('shoes', 'ayakkabılar'), w('important', 'önemli'), w('glass', 'bardak'), w('feet', 'ayaklar')],
-        sentences: [
-          s('Leo is on the stairs with three big boxes.', 'Leo üç büyük kutuyla merdivende.'),
-          s('Maya, the boxes are very heavy!', 'Maya, kutular çok ağır!', 'Leo'),
-          s('Sorry! They are full of books.', 'Pardon! Kitap dolular.', 'Maya'),
-          s('Twenty books, two plants and six pairs of shoes.', 'Yirmi kitap, iki bitki ve altı çift ayakkabı.'),
-          s('Six pairs of shoes? You are crazy!', 'Altı çift ayakkabı mı? Sen delisin!', 'Leo'),
-          s('Shoes are important, Leo!', 'Ayakkabılar önemli Leo!', 'Maya'),
-          s('In the last box are two dishes and four glasses.', 'Son kutuda iki tabak ve dört bardak var.'),
-          s('Leo is on the floor now. "Ouch! My feet!"', 'Leo artık yerde. "Ah! Ayaklarım!"'),
-          s('Thank you, Leo. You are a good friend.', 'Teşekkürler Leo. Sen iyi bir arkadaşsın.', 'Maya'),
-          s('Across the street, the old neighbour is at his window again.', 'Sokağın karşısında yaşlı komşu yine penceresinin önünde.'),
-          s('Next to him is a big ginger cat.', 'Yanında iri, turuncu bir kedi var.'),
+        [
+          ['one bag → three bags', 'bir çanta → üç çanta'],
+          ['one man → two men', 'bir adam → iki adam'],
         ],
-        questions: [
-          q('How many boxes are on the stairs?', 'Merdivende kaç kutu var?', ['Two', 'Three', 'Six'], 1),
-          q('What are in the boxes?', 'Kutularda ne var?', ['Books, plants and shoes', 'Guitars', 'Cats'], 0),
-          q('Who is at the window again?', 'Pencerede yine kim var?', ['Rosa', 'Tom', 'The old neighbour'], 2),
-        ],
-        tip: {
-          title: L('Birden fazlası: çoğul isimler', 'More than one: plural nouns'),
-          highlight: 'Twenty **books**, two **plants** and six pairs of **shoes**.',
-          rule: L(
-            "Çoğu isme **-s** eklenir (book → books). -s, -sh, -ch, -x ile bitenlere **-es** eklenir (box → boxes, glass → glasses). Bazıları kuralsızdır: **man → men, woman → women, child → children, foot → feet**.",
-            'Most nouns add **-s** (book → books). Nouns ending in -s, -sh, -ch, -x add **-es** (box → boxes, glass → glasses). Some are irregular: **man → men, woman → women, child → children, foot → feet**.'
-          ),
-          examples: [
-            { en: 'one box → three boxes', native: { tr: 'bir kutu → üç kutu' } },
-            { en: 'one foot → two feet', native: { tr: 'bir ayak → iki ayak' } },
-          ],
-          mistake: {
-            wrong: 'two book',
-            right: 'two books',
-            why: L("Türkçede sayıdan sonra çoğul eki gelmez (iki kitap). İngilizcede gelir: **two books**.", 'After a number bigger than one, the noun is plural: **two books**.'),
-          },
-        },
-        practice: [
-          choose('three big ___', 'üç büyük kutu', ['boxs', 'boxes', 'box'], 1),
-          choose('Twenty ___ are in the box.', 'Kutuda yirmi kitap var.', ['book', 'bookes', 'books'], 2),
-          order('The boxes are very heavy', 'Kutular çok ağır.'),
-          choose('one foot, two ___', 'bir ayak, iki ayak', ['foots', 'feet', 'feets'], 1),
-        ],
-        say: ['The boxes are very heavy!', 'Shoes are important!'],
-      },
-    },
-    { id: 'a1-u2-s3', kind: 'room', title: L('Kelime Odası: Yatak odası', 'Word Room: Bedroom'), roomId: 'bedroom' },
-    {
-      id: 'a1-u2-s4',
-      kind: 'reading',
-      episode: {
-        number: 7,
-        title: L('Bu ne?', 'What is this?'),
-        grammar: L('this / that / these / those', 'this / that / these / those'),
-        minutes: 6,
-        recap: L(
-          'Leo, Maya’nın kutularını taşıdı. Karşı komşu yine penceredeydi, yanında turuncu bir kedi vardı.',
-          "Leo carried Maya's boxes. The neighbour was at his window again, with a ginger cat."
+        ['two book', 'two books', "Türkçede 'iki kitap' denir, -ler eklenmez. İngilizcede sayıdan sonra da **-s** gelir.", 'After a number the noun still takes **-s**.']
+      ),
+      table: table(['a book | two | books', 'a pen | three | pens', 'a bag | four | bags', 'a chair | two | chairs', 'a man | two | men'], 'a table | two | tables', 2, 'table', 'bir masa, iki masa'),
+      practice: [
+        choose('two ___', 'iki kitap', ['book', 'books'], 1),
+        choose('one ___', 'bir kalem', ['pen', 'pens'], 0),
+        order('They are books', 'Onlar kitap.'),
+        choose('two ___', 'iki adam', ['mans', 'men'], 1),
+      ],
+      say: ['They are books. Ten books!'],
+    }),
+    wordStep('a1-u2-s3', L('Renkler', 'Colours'), [
+      w('red', 'kırmızı'),
+      w('blue', 'mavi'),
+      w('green', 'yeşil'),
+      w('yellow', 'sarı'),
+      w('black', 'siyah'),
+      w('white', 'beyaz'),
+      w('grey', 'gri'),
+      w('pink', 'pembe'),
+      w('brown', 'kahverengi'),
+    ]),
+    reading('a1-u2-s4', {
+      number: 7,
+      title: L('Çay saati', 'Tea time'),
+      grammar: L('this / that / these / those', 'this / that / these / those'),
+      minutes: 5,
+      recap: L("Leo, Maya'nın çantalarını taşıdı. Odada eski bir masa ve sandalye var.", "Leo carried Maya's bags. There is an old table and chair in her room."),
+      words: [w('cup', 'fincan'), w('glass', 'bardak'), w('water', 'su'), w('milk', 'süt'), w('tea', 'çay')],
+      sentences: [
+        s('This is tea, Maya. English tea.', 'Bu çay Maya. İngiliz çayı.', 'Rosa'),
+        s('And that is milk.', 'Şu da süt.', 'Rosa'),
+        s('Milk? In tea?', 'Süt mü? Çayın içine mi?', 'Maya'),
+        s('Yes! Tea and milk. This cup is for you.', 'Evet! Çay ve süt. Bu fincan senin için.', 'Rosa'),
+        s('These cups are red. Those glasses are blue.', 'Bu fincanlar kırmızı. Şu bardaklar mavi.'),
+        s('Tom is thirsty.', 'Tom susamış.'),
+        s('That glass is for Tom. Water!', 'Şu bardak Tom için. Su!', 'Rosa'),
+        s('Mmm… tea and milk! I am happy!', 'Mmm… çay ve süt! Çok mutluyum!', 'Maya'),
+      ],
+      questions: [
+        q('What is in the tea?', 'Çayın içinde ne var?', ['water', 'milk', 'an orange'], 1),
+        q('What is for Tom?', 'Tom için ne var?', ['tea', 'water', 'milk'], 1),
+      ],
+      tip: tip(
+        L('Yakın ve uzak: this, that', 'Near and far: this, that'),
+        '**These** cups are red. **Those** glasses are blue.',
+        L(
+          'Yakındaki için **this** (çoğulu **these**), uzaktaki için **that** (çoğulu **those**) kullanılır.',
+          'Use **this** (plural **these**) for things near you and **that** (plural **those**) for things far away.'
         ),
-        words: [w('wardrobe', 'gardırop'), w('wooden', 'tahta, ahşap'), w('key', 'anahtar'), w('photo', 'fotoğraf'), w('gold', 'altın'), w('familiar', 'tanıdık')],
-        sentences: [
-          s('In the wardrobe is an old wooden box.', 'Gardıropta eski, tahta bir kutu var.'),
-          s('Look, Leo! What is this?', 'Bak Leo! Bu ne?', 'Maya'),
-          s("It's a box. And what are these?", 'Bir kutu. Peki bunlar ne?', 'Leo'),
-          s('These are old keys. And those are photos.', 'Bunlar eski anahtarlar. Şunlar da fotoğraf.', 'Maya'),
-          s('These keys are beautiful. That one is gold!', 'Bu anahtarlar çok güzel. Şuradaki altın!', 'Leo'),
-          s('Look at this photo. It is a school class.', 'Şu fotoğrafa bak. Bir okul sınıfı.', 'Maya'),
-          s('Who is that man in the photo?', 'Fotoğraftaki şu adam kim?', 'Leo'),
-          s('No idea! This box is very old.', 'Hiçbir fikrim yok! Bu kutu çok eski.', 'Maya'),
-          s('Maybe it is from the old owner of the flat.', 'Belki dairenin eski sahibinden kalmıştır.', 'Leo'),
-          s('The man in the photo is young…', 'Fotoğraftaki adam genç…'),
-          s('…but his smile is familiar.', '…ama gülüşü tanıdık geliyor.'),
+        [
+          ['This is tea. That is milk.', 'Bu çay. Şu süt.'],
+          ['These cups are red.', 'Bu fincanlar kırmızı.'],
         ],
-        questions: [
-          q('What is in the wooden box?', 'Tahta kutuda ne var?', ['Postcards', 'Old keys and photos', 'Books'], 1),
-          q('What is the photo?', 'Fotoğrafta ne var?', ['A school class', 'A café', 'A train station'], 0),
-          q('What is familiar?', 'Tanıdık gelen ne?', ['The keys', 'The box', "The man's smile"], 2),
-        ],
-        tip: {
-          title: L('Yakın ve uzak: this, that, these, those', 'Near and far: this, that, these, those'),
-          highlight: '**These** are old keys. And **those** are photos.',
-          rule: L(
-            'Yakındaki tek şey için **this**, uzaktaki tek şey için **that**. Yakındaki birden fazlası için **these**, uzaktakiler için **those**.',
-            'One thing near you: **this**. One thing far: **that**. More than one near: **these**. More than one far: **those**.'
-          ),
-          examples: [
-            { en: 'This box is old. That one is new.', native: { tr: 'Bu kutu eski. Şu yeni.' } },
-            { en: 'These keys are gold. Those are photos.', native: { tr: 'Bu anahtarlar altın. Şunlar fotoğraf.' } },
-          ],
-          mistake: {
-            wrong: 'this keys',
-            right: 'these keys',
-            why: L('Çoğul isimle **these / those** kullanılır.', 'With plural nouns use **these / those**.'),
-          },
-        },
-        practice: [
-          choose('___ are old keys. (near)', 'Bunlar eski anahtarlar.', ['This', 'These', 'That'], 1),
-          choose('Look at ___ photo over there.', 'Oradaki şu fotoğrafa bak.', ['that', 'these', 'those'], 0),
-          order('What are these', 'Bunlar ne?'),
-          choose('___ keys are beautiful. (near)', 'Bu anahtarlar çok güzel.', ['This', 'That', 'These'], 2),
-        ],
-        say: ['What is this?', 'These are old keys.'],
-      },
-    },
-    {
-      id: 'a1-u2-s5',
-      kind: 'reading',
-      episode: {
-        number: 8,
-        title: L('İlk ipucu', 'The first clue'),
-        grammar: L('What is…? Where is…?', 'What is…? Where is…?'),
-        minutes: 7,
-        recap: L(
-          'Gardıropta eski bir kutu çıktı. İçindeki fotoğraftaki adamın gülüşü Maya’ya tanıdık geldi.',
-          "An old box came out of the wardrobe. The smile of the man in the photo felt familiar to Maya."
+        ['This cups are red.', 'These cups are red.', 'Çoğul isimle **these / those** kullanılır.', 'Plural nouns take **these / those**.']
+      ),
+      table: table(['This | is | water', 'That | is | milk', 'These | are | cups', 'Those | are | glasses', 'This | is | tea'], 'These | are | glasses', 0, 'This', 'Bunlar bardak.'),
+      practice: [
+        choose('___ is milk.', 'Şu süt.', ['That', 'Those'], 0),
+        choose('___ cups are red.', 'Bu fincanlar kırmızı.', ['This', 'These'], 1),
+        order('This is English tea', 'Bu İngiliz çayı.'),
+        order('That glass is for Tom', 'Şu bardak Tom için.'),
+      ],
+      say: ['This is tea, and that is milk.'],
+    }),
+    reading('a1-u2-s5', {
+      number: 8,
+      title: L('Anahtar nerede?', 'Where is the key?'),
+      grammar: L('What…? / Where…?', 'What…? / Where…?'),
+      minutes: 5,
+      recap: L('Rosa Maya’ya çayın içine süt koymayı öğretti.', 'Rosa showed Maya how to have tea with milk.'),
+      words: [w('key', 'anahtar'), w('phone', 'telefon'), w('door', 'kapı'), w('window', 'pencere'), w('postcard', 'kartpostal')],
+      sentences: [
+        s('Where is the key?', 'Anahtar nerede?', 'Maya'),
+        s('What key?', 'Hangi anahtar?', 'Leo'),
+        s('The key for the door!', 'Kapının anahtarı!', 'Maya'),
+        s('Is it here? No. Is it there? No.', 'Burada mı? Hayır. Orada mı? Hayır.'),
+        s('What is that? Is it the key?', 'O ne? Anahtar mı?', 'Leo'),
+        s('No, it is the phone.', 'Hayır, telefon.', 'Maya'),
+        s('And what is that, at the window?', 'Ya pencerenin önündeki şu ne?', 'Leo'),
+        s('It is the key! And… a postcard!', 'Anahtar! Ve… bir kartpostal!', 'Maya'),
+        s('What is on the postcard?', 'Kartpostalda ne var?', 'Leo'),
+        s('One word: WELCOME.', 'Tek kelime: WELCOME.'),
+        s('Where is the friend? Who is the friend?', 'Bu arkadaş nerede? Kim bu arkadaş?', 'Maya'),
+      ],
+      questions: [
+        q('Where is the key?', 'Anahtar nerede?', ['at the window', 'at the door', 'in the bag'], 0),
+        q('What is on the postcard?', 'Kartpostalda ne yazıyor?', ['HELLO', 'WELCOME', 'FRIEND'], 1),
+      ],
+      tip: tip(
+        L('Ne? Nerede? What, where', 'What? Where?'),
+        '**Where** is the key?',
+        L(
+          '**What** "ne", **where** "nerede" diye sorar. Soru kelimesi en başa gelir, sonra is: Where is the key?',
+          '**What** asks about a thing, **where** about a place. The question word comes first: Where is the key?'
         ),
-        words: [w('writing', 'el yazısı'), w('same', 'aynı'), w('stamp', 'pul'), w('bus', 'otobüs'), w('clock', 'saat'), w('question', 'soru')],
-        sentences: [
-          s("It's Monday morning, and a third postcard is under the door.", 'Pazartesi sabahı ve kapının altında üçüncü bir kartpostal var.'),
-          s('The word on it is FRIEND.', 'Üzerindeki kelime FRIEND: arkadaş.'),
-          s('Now three postcards are on the table: HELLO, WELCOME and FRIEND.', 'Şimdi masada üç kartpostal var: HELLO, WELCOME ve FRIEND.'),
-          s('What is the same on all three?', 'Üçünde de aynı olan ne?', 'Leo'),
-          s("The writing! It's the same writing.", 'El yazısı! Aynı el yazısı.', 'Maya'),
-          s('And where are they from?', 'Peki nereden gelmişler?', 'Leo'),
-          s('They are all from London.', "Hepsi Londra'dan.", 'Maya'),
-          s('What is the picture on this one?', 'Bunun üstündeki resim ne?', 'Leo'),
-          s("It's a red bus. And on that one, a big clock.", 'Kırmızı bir otobüs. Şunda da büyük bir saat.', 'Maya'),
-          s("Where is the stamp? Here. It's from a post office in London.", "Pul nerede? Burada. Londra'daki bir postaneden.", 'Maya'),
-          s('Maya, who is your friend in London?', "Maya, Londra'daki arkadaşın kim?", 'Leo'),
-          s("That's the big question, Leo!", 'Asıl soru da bu Leo!', 'Maya'),
+        [
+          ["What is this? It's a phone.", 'Bu ne? Bir telefon.'],
+          ["Where is the door? It's there.", 'Kapı nerede? Orada.'],
         ],
-        questions: [
-          q('What is the word on the third postcard?', 'Üçüncü kartpostaldaki kelime ne?', ['HELLO', 'FRIEND', 'HOME'], 1),
-          q('What is the same on the postcards?', 'Kartpostallarda aynı olan ne?', ['The writing', 'The picture', 'The colour'], 0),
-          q('Where are the postcards from?', 'Kartpostallar nereden geliyor?', ['Spain', 'Bristol', 'London'], 2),
-        ],
-        tip: {
-          title: L('Soru kelimeleriyle soru: What, Where, Who', 'Questions with What, Where, Who'),
-          highlight: '**Where are** they from? **What is** the picture?',
-          rule: L(
-            "Soru kelimesi başa gelir, sonra **is / are**, en son konu: **Where is** the stamp? **What are** these? Kısaltmalar: **What's, Where's, Who's**.",
-            'The question word comes first, then **is / are**, then the subject: **Where is** the stamp? **What are** these? Short forms: **What\'s, Where\'s, Who\'s**.'
-          ),
-          examples: [
-            { en: 'Where is London? — In England.', native: { tr: 'Londra nerede? — İngiltere’de.' } },
-            { en: 'Who is your friend? — I don’t know!', native: { tr: 'Arkadaşın kim? — Bilmiyorum!' } },
-          ],
-          mistake: {
-            wrong: 'Where London is?',
-            right: 'Where is London?',
-            why: L('Soruda **is / are**, konudan önce gelir.', 'In a question **is / are** comes before the subject.'),
-          },
-        },
-        practice: [
-          choose('___ is the stamp? — Here.', 'Pul nerede? — Burada.', ['What', 'Where', 'Who'], 1),
-          choose('___ is your friend in London?', "Londra'daki arkadaşın kim?", ['Who', 'Where', 'What'], 0),
-          order('Where are they from', 'Nereden geliyorlar?'),
-          choose('What ___ the picture?', 'Resim ne?', ['are', 'am', 'is'], 2),
-        ],
-        say: ['Where are they from?', 'What is the same on all three?'],
-      },
-    },
-    { id: 'a1-u2-s6', kind: 'scene', title: L('Mivo ile: Hediyelik eşya dükkânı', 'With Mivo: At the gift shop'), sceneId: 'vs-a1-gift-shop' },
+        ['The key is where?', 'Where is the key?', "Türkçede soru kelimesi sonda olabilir (Anahtar nerede?), İngilizcede hep **başta**.", 'The question word always comes **first**.']
+      ),
+      table: table(['What | is | this?', 'It | is | a key', 'Where | is | the phone?', 'It | is | here', 'Where | is | the postcard?'], 'Where | is | the key?', 0, 'What', 'Anahtar nerede?'),
+      practice: [
+        choose('___ is the phone?', 'Telefon nerede?', ['What', 'Where'], 1),
+        choose('___ is this? It is a key.', 'Bu ne? Bir anahtar.', ['What', 'Where'], 0),
+        order('Where is the postcard', 'Kartpostal nerede?'),
+        order('It is at the window', 'Pencerenin önünde.'),
+      ],
+      say: ['Where is the key?'],
+    }),
+    scene('a1-u2-s6', L('Mivo ile: Hediyelik eşya dükkânı', 'With Mivo: The gift shop'), 'vs-a1-gift-shop'),
   ],
 };

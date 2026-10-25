@@ -8,7 +8,8 @@ import { flatSteps, type FlatStep, type PathLevel } from '../data/path';
  * Progress on the new learning path, kept on the device for now: stars per finished step, the parts finished of a
  * reading lesson that is still open, and the scene steps the learner chose to skip. (Moves to the server once the path leaves the preview branch.)
  */
-const KEY = 'spekvia.path.v1';
+// v2: the A1 content was rewritten to the three-star format (docs/a1_ders_plani.md), so old progress is dropped.
+const KEY = 'spekvia.path.v2';
 
 export type PathProgress = {
   /** 1–3 for a finished reading/vocab step; scenes count as done with 3. */
