@@ -5,8 +5,8 @@ import { useCallback, useState } from 'react';
 import { flatSteps, type FlatStep, type PathLevel } from '../data/path';
 
 /**
- * Progress on the new learning path, kept on the device for now: stars per finished step and the scene steps the
- * learner chose to skip. (Moves to the server once the path leaves the preview branch.)
+ * Progress on the new learning path, kept on the device for now: stars per finished step, the parts finished of a
+ * reading lesson that is still open, and the scene steps the learner chose to skip. (Moves to the server once the path leaves the preview branch.)
  */
 const KEY = 'spekvia.path.v1';
 
@@ -15,9 +15,14 @@ export type PathProgress = {
   stars: Record<string, number>;
   /** Scene steps skipped for later: they never block the road. */
   skipped: Record<string, true>;
+  /**
+   * Reading lessons are three parts (words, grammar, story), one star each: the parts finished so far. The step
+   * counts as done (3 stars) only after the third part.
+   */
+  parts: Record<string, number>;
 };
 
-const EMPTY: PathProgress = { stars: {}, skipped: {} };
+const EMPTY: PathProgress = { stars: {}, skipped: {}, parts: {} };
 
 export async function loadPathProgress(): Promise<PathProgress> {
   try {
@@ -43,6 +48,19 @@ export async function recordStep(stepId: string, stars: number): Promise<void> {
   const { [stepId]: _, ...rest } = p.skipped;
   p.skipped = rest;
   await save(p);
+}
+
+/** One part of a reading lesson finished (1–3, in order); the third one finishes the step. */
+export async function recordPart(stepId: string, part: number): Promise<void> {
+  const p = await loadPathProgress();
+  p.parts = { ...p.parts, [stepId]: Math.max(part, p.parts[stepId] ?? 0) };
+  if (part >= 3) p.stars = { ...p.stars, [stepId]: 3 };
+  await save(p);
+}
+
+/** Stars to show on a step: its result, or the parts of an unfinished reading lesson. */
+export function starsOf(p: PathProgress, stepId: string) {
+  return Math.max(p.stars[stepId] ?? 0, p.parts[stepId] ?? 0);
 }
 
 export async function skipStep(stepId: string): Promise<void> {

@@ -48,6 +48,15 @@ export type PathPractice =
   | { kind: 'choose'; prompt: string; native?: Loc; options: string[]; answer: number }
   | { kind: 'order'; sentence: string; native: Loc };
 
+/**
+ * A pattern table for the grammar part: example rows split into columns (who · verb · rest), then one row with a
+ * gap at `col` to fill from `options`. The right option is `ask.cells[col]`.
+ */
+export type PathTable = {
+  rows: string[][];
+  ask: { cells: string[]; col: number; options: string[]; native?: Loc };
+};
+
 export type PathEpisode = {
   /** Episode number inside the level's story. */
   number: number;
@@ -61,6 +70,8 @@ export type PathEpisode = {
   sentences: PathSentence[];
   questions: PathQuestion[];
   tip: PathTip;
+  /** Pattern table shown before the practice (grammar part). */
+  table?: PathTable;
   practice: PathPractice[];
   /** Sentences to read aloud at the end. */
   say: string[];

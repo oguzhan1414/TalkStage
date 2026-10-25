@@ -15,7 +15,7 @@ import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type Pat
 import { t } from '../i18n';
 import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
-import { currentStep, isDone, isPassed, recordStep, skipStep, usePathProgress, type PathProgress } from '../lib/pathProgress';
+import { currentStep, isDone, isPassed, recordStep, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { voiceSceneRoomParams } from '../lib/voiceSceneLaunch';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
@@ -298,7 +298,7 @@ function Medallion({
   const art = stepArt(f);
   const palette = RING[soon ? 'soon' : type];
   const inner = size - 2 * RING_W;
-  const stars = progress?.stars[s.id] ?? 0;
+  const stars = progress ? starsOf(progress, s.id) : 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
   const kicker =
@@ -315,6 +315,8 @@ function Medallion({
         ? t("Konuş")
         : done
           ? t("Tekrarla")
+          : stars > 0
+            ? t("Devam et")
           : t("Başla");
 
   return (

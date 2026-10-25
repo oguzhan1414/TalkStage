@@ -4,7 +4,7 @@
  * fill the blank, known scene and room ids, word counts per episode.
  * Run: npx tsx --tsconfig scripts/tsconfig.check.json scripts/check-path-content.ts
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 
 import { VOICE_SCENES } from '@talkstage/shared-data/voiceScenes';
 
@@ -15,6 +15,11 @@ const sceneIds = new Set(VOICE_SCENES.map((s) => s.id));
 // wordRooms.ts requires images, which Node cannot load: read the room ids from the source instead.
 const roomIds = new Set(
   [...readFileSync(new URL('../src/data/wordRooms.ts', import.meta.url), 'utf8').matchAll(/^  id: '(\w+)',/gm)].map((m) => m[1])
+);
+const wordPics = new Set(
+  readdirSync(new URL('../assets/images/words/', import.meta.url))
+    .filter((f) => f.endsWith('.webp'))
+    .map((f) => f.slice(0, -5))
 );
 const ids = new Set<string>();
 
@@ -44,6 +49,19 @@ for (const level of PATH_LEVELS) {
           if (new Set(p.options).size !== p.options.length) problems.push(`${step.id} p${i + 1}: duplicate options`);
         } else if (p.sentence.split(' ').length < 2) problems.push(`${step.id} p${i + 1}: order sentence too short`);
       });
+      if (e.table) {
+        const { rows, ask } = e.table;
+        const width = ask.cells.length;
+        if (rows.some((r) => r.length !== width)) problems.push(`${step.id} table: rows of different widths`);
+        if (ask.col < 0 || ask.col >= width) problems.push(`${step.id} table: gap column out of range`);
+        else if (!ask.options.includes(ask.cells[ask.col])) problems.push(`${step.id} table: options miss "${ask.cells[ask.col]}"`);
+        // Lessons in the three-part format: every word has a picture and turns up in the story.
+        const story = e.sentences.map((s) => s.en.toLowerCase()).join(' ');
+        for (const w of e.words) {
+          if (!wordPics.has(w.en.toLowerCase())) problems.push(`${step.id}: no picture for "${w.en}"`);
+          if (!story.includes(w.en.toLowerCase())) problems.push(`${step.id}: "${w.en}" is not in the story`);
+        }
+      }
       const words = e.sentences.reduce((n, s) => n + s.en.split(/\s+/).length, 0);
       console.log(`${step.id}  ep ${String(e.number).padStart(2)}  ${String(e.sentences.length).padStart(2)} sentences  ${String(words).padStart(3)} words  ${e.title.tr}`);
     }
