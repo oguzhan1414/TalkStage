@@ -15,7 +15,7 @@ import { WordMatch } from '../components/path/WordMatch';
 import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
-import { bare, buildDrills, mivoSentence, sameSentence } from '../data/path/drills';
+import { bare, buildDrills, lessonWordsIn, mivoSentence, sameSentence } from '../data/path/drills';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
 import { api, ApiError } from '../lib/api';
@@ -224,7 +224,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
 /* ---------------- Shared pieces ---------------- */
 
 /** The progress bar of the part being played; it slides to its new value. */
-function Bar({ value }: { value: number }) {
+export function Bar({ value }: { value: number }) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(v, { toValue: Math.max(0.04, Math.min(1, value)), duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
@@ -236,7 +236,8 @@ function Bar({ value }: { value: number }) {
   );
 }
 
-function StepHead({ icon, title, sub }: { icon: React.ComponentProps<typeof Ionicons>['name']; title: string; sub?: string }) {
+/** Title row of a step; `art` adds the episode picture as a small circle on the right. */
+export function StepHead({ icon, title, sub, art }: { icon: React.ComponentProps<typeof Ionicons>['name']; title: string; sub?: string; art?: number }) {
   return (
     <View style={styles.stepHead}>
       <View style={styles.stepIcon}>
@@ -246,11 +247,34 @@ function StepHead({ icon, title, sub }: { icon: React.ComponentProps<typeof Ioni
         <Text style={styles.stepTitle}>{title}</Text>
         {sub ? <Text style={styles.stepSub}>{sub}</Text> : null}
       </View>
+      {art ? (
+        <View style={styles.headArtWrap}>
+          <Image source={art} style={styles.headArt} resizeMode="cover" />
+        </View>
+      ) : null}
     </View>
   );
 }
 
-function NextButton({ label, onPress, disabled, tone = 'brand' }: { label: string; onPress: () => void; disabled?: boolean; tone?: 'brand' | 'ok' | 'bad' }) {
+/** Pictures of the lesson words in a sentence, as a hint (no labels, so they never give the spelling away). */
+function PicStrip({ words, label }: { words: PathWord[]; label?: string }) {
+  const pics = words.filter((w) => wordImage(w.en));
+  if (pics.length === 0) return null;
+  return (
+    <View style={styles.picStrip}>
+      {label ? <Text style={styles.picStripLabel}>{label}</Text> : null}
+      <View style={styles.picStripRow}>
+        {pics.map((w, i) => (
+          <PopIn key={w.en} delay={120 + i * 90} style={[styles.picStripItem, shadow.card]}>
+            <Image source={wordImage(w.en)} style={styles.picStripImg} resizeMode="cover" />
+          </PopIn>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+export function NextButton({ label, onPress, disabled, tone = 'brand' }: { label: string; onPress: () => void; disabled?: boolean; tone?: 'brand' | 'ok' | 'bad' }) {
   return (
     <Pressable
       onPress={onPress}
@@ -394,8 +418,52 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
 
 /* ---------------- ⭐1 Words ---------------- */
 
+/** Meet the words one at a time: a big picture, the word read aloud, its meaning. Tap the picture to hear it again. */
+export function LearnStep({ words, report, onDone }: { words: PathWord[]; report: (i: number, n: number) => void; onDone: () => void }) {
+  const { say: pronounce } = usePathVoice();
+  const { width, height } = useWindowDimensions();
+  const [idx, setIdx] = useState(0);
+  const w = words[idx];
+  const img = wordImage(w.en);
+  const size = Math.round(Math.min(width - spacing.md * 2, height * 0.36, 320));
+  const last = idx + 1 >= words.length;
+
+  useEffect(() => {
+    report(idx, words.length);
+    const id = setTimeout(() => pronounce(w.en).catch(() => {}), 350);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx]);
+
+  return (
+    <>
+      <FadeIn>
+        <StepHead icon="sparkles" title={t("Yeni kelime")} sub={t("Resme bak, dinle ve içinden tekrar et.")} />
+      </FadeIn>
+      <FadeIn key={`l${idx}`} from={16} delay={40} style={{ gap: 14 }}>
+        <Pressable onPress={() => pronounce(w.en).catch(() => {})} style={[styles.pickPic, { width: size, height: size }]} accessibilityRole="button" accessibilityLabel={w.en}>
+          {img ? <Image source={img} style={{ width: size, height: size, borderRadius: 28 }} resizeMode="cover" /> : <Text style={styles.pickMeaning}>{w.en}</Text>}
+        </Pressable>
+        <View style={styles.learnRow}>
+          <Text style={styles.learnWord}>{w.en}</Text>
+          <Pressable onPress={() => pronounce(w.en, { rate: 0.7 }).catch(() => {})} style={styles.learnPlay} hitSlop={6} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+            <Ionicons name="volume-high" size={22} color={colors.brand} />
+          </Pressable>
+        </View>
+        {gloss(w.native) ? <Text style={styles.learnMeaning}>{gloss(w.native)}</Text> : null}
+      </FadeIn>
+      <View style={styles.learnDots}>
+        {words.map((_, i) => (
+          <View key={i} style={[styles.learnDot, i < idx && styles.learnDotDone, i === idx && styles.learnDotOn]} />
+        ))}
+      </View>
+      <NextButton label={last ? t("Hadi bakalım, test zamanı!") : t("Sıradaki kelime")} onPress={() => (last ? onDone() : setIdx(idx + 1))} />
+    </>
+  );
+}
+
 /** Look at the picture and pick its word out of two (the meaning is shown when a word has no picture). */
-function PickStep({
+export function PickStep({
   words,
   tally,
   report,
@@ -963,9 +1031,9 @@ function DrillsStep({
     else setIdx(idx + 1);
   };
   if (!d) return null;
-  const common = { tally, onAnswered, onNext: next };
+  const common = { tally, onAnswered, onNext: next, art, words: episode.words };
   return d.kind === 'read' ? (
-    <ReadItem key={`d${idx}`} {...common} lines={d.lines} question={d.question} art={d.showArt ? art : undefined} words={episode.words} />
+    <ReadItem key={`d${idx}`} {...common} lines={d.lines} question={d.question} />
   ) : d.kind === 'dictation' ? (
     <DictationItem key={`d${idx}`} {...common} sentence={d.sentence} hide={d.hide} />
   ) : d.kind === 'listenOrder' ? (
@@ -977,7 +1045,8 @@ function DrillsStep({
   );
 }
 
-type ItemProps = { tally: (ok: boolean) => void; onAnswered: () => void; onNext: () => void };
+/** Every practice drill gets the episode picture and the lesson words (for picture hints). */
+type ItemProps = { tally: (ok: boolean) => void; onAnswered: () => void; onNext: () => void; art?: number; words: PathWord[] };
 
 const WAVE = [10, 18, 26, 14, 30, 22, 12, 28, 34, 20, 14, 24, 32, 18, 10, 26, 30, 16, 22, 12, 28, 20, 14, 24];
 
@@ -1016,7 +1085,7 @@ function AudioCard({ text }: { text: string }) {
 }
 
 /** A piece of Maya's story with a question about it. */
-function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: ItemProps & { lines: PathSentence[]; question: PathQuestion; art?: number; words: PathWord[] }) {
+function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: ItemProps & { lines: PathSentence[]; question: PathQuestion }) {
   const { sayAll } = usePathVoice();
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [picked, setPicked] = useState<number | null>(null);
@@ -1103,9 +1172,10 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
 }
 
 /** Listen and type the missing word. */
-function DictationItem({ sentence, hide, tally, onAnswered, onNext }: ItemProps & { sentence: string; hide: number }) {
+function DictationItem({ sentence, hide, art, words: lessonWords, tally, onAnswered, onNext }: ItemProps & { sentence: string; hide: number }) {
   const words = sentence.split(' ');
   const target = words[hide];
+  const hint = useMemo(() => lessonWordsIn(target, lessonWords), [target, lessonWords]);
   const [value, setValue] = useState('');
   const [ok, setOk] = useState<boolean | null>(null);
   const check = () => {
@@ -1120,9 +1190,10 @@ function DictationItem({ sentence, hide, tally, onAnswered, onNext }: ItemProps 
   return (
     <>
       <FadeIn>
-        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve eksik kelimeyi yaz.")} />
+        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve eksik kelimeyi yaz.")} art={art} />
       </FadeIn>
       <AudioCard text={sentence} />
+      <PicStrip words={hint} label={t("İpucu")} />
       <FadeIn delay={100} style={[styles.dictCard, shadow.card]}>
         {words.map((w, i) =>
           i !== hide ? (
@@ -1159,15 +1230,17 @@ function DictationItem({ sentence, hide, tally, onAnswered, onNext }: ItemProps 
 }
 
 /** Listen and put the words in order. */
-function ListenOrderItem({ sentence, native, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
+function ListenOrderItem({ sentence, native, art, words, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
   const [done, setDone] = useState(false);
   const wrong = useRef(false);
+  const pics = useMemo(() => lessonWordsIn(sentence, words), [sentence, words]);
   return (
     <>
       <FadeIn>
-        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve kelimeleri duyduğun sırayla diz.")} />
+        <StepHead icon="ear" title={t("Ne duydun?")} sub={t("Dinle ve kelimeleri duyduğun sırayla diz.")} art={art} />
       </FadeIn>
       <AudioCard text={sentence} />
+      <PicStrip words={pics} />
       <TapSentenceOrder
         sentence={sentence}
         translation={gloss(native) || sentence}
@@ -1188,8 +1261,9 @@ function ListenOrderItem({ sentence, native, tally, onAnswered, onNext }: ItemPr
 }
 
 /** Write the Turkish sentence in English. */
-function TranslateItem({ sentence, native, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
+function TranslateItem({ sentence, native, art, words, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
   const { say: pronounce } = usePathVoice();
+  const pics = useMemo(() => lessonWordsIn(sentence, words), [sentence, words]);
   const [value, setValue] = useState('');
   const [ok, setOk] = useState<boolean | null>(null);
   const check = () => {
@@ -1205,11 +1279,12 @@ function TranslateItem({ sentence, native, tally, onAnswered, onNext }: ItemProp
   return (
     <>
       <FadeIn>
-        <StepHead icon="language" title={t("Çevir")} sub={t("Bu cümleyi İngilizce yaz.")} />
+        <StepHead icon="language" title={t("Çevir")} sub={t("Bu cümleyi İngilizce yaz.")} art={art} />
       </FadeIn>
       <FadeIn delay={40} style={[styles.qCard, shadow.card]}>
         <Text style={styles.qText}>{gloss(native)}</Text>
       </FadeIn>
+      <PicStrip words={pics} />
       <FadeIn delay={90}>
         <TextInput
           value={value}
@@ -1234,11 +1309,11 @@ function TranslateItem({ sentence, native, tally, onAnswered, onNext }: ItemProp
 }
 
 /** Match three English sentences with their meanings. */
-function PairsItem({ pairs, tally, onNext }: ItemProps & { pairs: PathWord[] }) {
+function PairsItem({ pairs, art, tally, onNext }: ItemProps & { pairs: PathWord[] }) {
   return (
     <>
       <FadeIn>
-        <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Her cümleyi anlamıyla eşleştir.")} />
+        <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Her cümleyi anlamıyla eşleştir.")} art={art} />
       </FadeIn>
       <WordMatch
         words={pairs}
@@ -1576,6 +1651,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   pickMeaning: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading, textAlign: 'center', padding: 16 },
+
+  headArtWrap: { width: 48, height: 48, borderRadius: 24, padding: 2, backgroundColor: '#EEF2FF' },
+  headArt: { width: 44, height: 44, borderRadius: 22 },
+  picStrip: { alignItems: 'center', gap: 6 },
+  picStripLabel: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.textMuted, letterSpacing: 0.6, textTransform: 'uppercase' },
+  picStripRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
+  picStripItem: { width: 84, height: 84, borderRadius: 22, backgroundColor: '#FFFFFF', borderWidth: 2, borderColor: '#EEF2FF', overflow: 'hidden' },
+  picStripImg: { width: '100%', height: '100%' },
+
+  learnWord: { fontFamily: fonts.headingBold, fontSize: 34, color: colors.textHeading, textAlign: 'center' },
+  learnMeaning: { fontFamily: fonts.bodyMedium, fontSize: 17, color: colors.textMuted, textAlign: 'center', marginTop: 2 },
+  learnRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  learnPlay: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  learnDots: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
+  learnDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#E2E8F0' },
+  learnDotOn: { width: 22, backgroundColor: colors.brand },
+  learnDotDone: { backgroundColor: '#A5B4FC' },
 
   typePrompt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 6 },
   typeImg: { width: 64, height: 64 },

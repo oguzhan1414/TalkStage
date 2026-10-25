@@ -5,8 +5,8 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { stateImages } from '../assets/images';
-import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { FadeIn, PopIn } from '../components/path/anim';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type PathWord } from '../data/path';
@@ -14,13 +14,19 @@ import { t } from '../i18n';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { recordStep } from '../lib/pathProgress';
-import { usePathVoice } from '../lib/pathVoice';
 import type { PathVocabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
+import { Bar, LearnStep, NextButton, PickStep, StepHead } from './PathLessonScreen';
 
-const ROUND = 4;
+const ROUND = 5;
 
-/** A vocabulary section of the path: listen to every word, then match them in rounds of four. */
+type Phase = 'learn' | 'pick' | 'match';
+
+/**
+ * A vocabulary section of the path (numbers, colours, family, a unit review), played like the words part of a
+ * lesson: the words come in rounds of five; each round meets the words one at a time (picture, voice, meaning),
+ * then asks "what is this?" for each picture, then matches the round's words with their meanings.
+ */
 export function PathVocabScreen({ navigation, route }: PathVocabScreenProps) {
   const found = findStep(route.params.stepId);
   const { finishTransition } = useMivoTransition();
@@ -34,20 +40,30 @@ export function PathVocabScreen({ navigation, route }: PathVocabScreenProps) {
 function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: string; words: PathWord[]; onExit: () => void }) {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
-  const { say: pronounce } = usePathVoice();
+  const scrollRef = useRef<ScrollView>(null);
   const canMatch = words.some((w) => gloss(w.native));
+  const phases: Phase[] = canMatch ? ['learn', 'pick', 'match'] : ['learn', 'pick'];
   const rounds = useMemo(() => {
     const out: PathWord[][] = [];
     for (let i = 0; i < words.length; i += ROUND) out.push(words.slice(i, i + ROUND));
+    // A last round of one or two words joins the round before it.
+    if (out.length > 1 && out[out.length - 1].length < 3) out[out.length - 2].push(...(out.pop() as PathWord[]));
     return out;
   }, [words]);
-  const [phase, setPhase] = useState<'learn' | 'match' | 'done'>('learn');
   const [round, setRound] = useState(0);
-  const [heard, setHeard] = useState<Set<string>>(new Set());
-  const mistakes = useRef(0);
+  const [phase, setPhase] = useState<Phase | 'roundDone' | 'done'>('learn');
+  const [sub, setSub] = useState(0);
+  const right = useRef(0);
+  const total = useRef(0);
   const saved = useRef(false);
 
-  const stars = mistakes.current === 0 ? 3 : mistakes.current <= 3 ? 2 : 1;
+  const score = total.current ? right.current / total.current : 1;
+  const stars = score >= 0.9 ? 3 : score >= 0.6 ? 2 : 1;
+
+  useEffect(() => {
+    setSub(0);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [phase, round]);
 
   useEffect(() => {
     if (phase !== 'done' || saved.current) return;
@@ -60,68 +76,99 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  const tally = (ok: boolean) => {
+    total.current += 1;
+    if (ok) right.current += 1;
+  };
+  const report = (i: number, n: number) => setSub(n ? i / n : 0);
+  const toEnd = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
+  const next = () => {
+    const i = phases.indexOf(phase as Phase);
+    if (i >= 0 && i + 1 < phases.length) setPhase(phases[i + 1]);
+    else if (round + 1 < rounds.length) setPhase('roundDone');
+    else setPhase('done');
+  };
+
+  const inRound = phases.indexOf(phase as Phase);
+  const progress = phase === 'done' ? 1 : (round + (inRound >= 0 ? (inRound + sub) / phases.length : 1)) / rounds.length;
+  const roundWords = rounds[round];
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Pressable onPress={onExit} hitSlop={12} style={styles.close} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
           <Ionicons name="close" size={24} color={colors.textHeading} />
         </Pressable>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
+        <Bar value={progress} />
+        <View style={styles.roundTag}>
+          <Text style={styles.roundTagText}>{`${Math.min(round + 1, rounds.length)}/${rounds.length}`}</Text>
+        </View>
       </View>
-      <ScrollView contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        style={{ flex: 1 }}
+        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
+        showsVerticalScrollIndicator={false}
+      >
         {phase === 'learn' ? (
           <>
-            <Text style={styles.sub}>{t("Her kelimeye dokun ve dinle. Sonra eşleştirme oyunu başlayacak.")}</Text>
-            <View style={styles.grid}>
-              {words.map((w) => (
-                <Pressable
-                  key={w.en}
-                  onPress={() => {
-                    pronounce(w.en).catch(() => {});
-                    setHeard((h) => new Set(h).add(w.en));
-                  }}
-                  style={({ pressed }) => [styles.card, heard.has(w.en) && styles.cardHeard, pressed && { transform: [{ scale: 0.97 }] }]}
-                  accessibilityRole="button"
-                >
-                  <Ionicons name={heard.has(w.en) ? 'checkmark-circle' : 'volume-high'} size={18} color={heard.has(w.en) ? '#16A34A' : colors.brand} style={styles.cardIcon} />
-                  {wordImage(w.en) ? <Image source={wordImage(w.en)} style={styles.pic} resizeMode="contain" /> : null}
-                  <Text style={styles.en}>{w.en}</Text>
-                  {gloss(w.native) ? <Text style={styles.native}>{gloss(w.native)}</Text> : null}
-                </Pressable>
-              ))}
-            </View>
-            <Pressable onPress={() => setPhase(canMatch ? 'match' : 'done')} style={styles.next} accessibilityRole="button">
-              <Text style={styles.nextText}>{canMatch ? t("Oyuna başla") : t("Bitir")}</Text>
-            </Pressable>
+            {round === 0 ? (
+              <FadeIn>
+                <Text style={styles.kicker}>{title}</Text>
+              </FadeIn>
+            ) : null}
+            <LearnStep key={`l${round}`} words={roundWords} report={report} onDone={next} />
           </>
+        ) : phase === 'pick' ? (
+          <PickStep key={`p${round}`} words={roundWords} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
         ) : phase === 'match' ? (
           <>
-            <Text style={styles.sub}>{t("Eşleştir · {{n}}/{{total}}", { n: round + 1, total: rounds.length })}</Text>
+            <FadeIn>
+              <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
+            </FadeIn>
             <WordMatch
-              key={round}
-              words={rounds[round]}
-              onDone={(m) => {
-                mistakes.current += m;
-                if (round + 1 >= rounds.length) setPhase('done');
-                else setRound(round + 1);
+              key={`m${round}`}
+              words={roundWords}
+              onDone={(mistakes) => {
+                tally(mistakes === 0);
+                next();
               }}
             />
           </>
+        ) : phase === 'roundDone' ? (
+          <View style={styles.done}>
+            <PopIn delay={80}>
+              <Image source={stateImages.goalCelebration} style={styles.roundImg} resizeMode="contain" />
+            </PopIn>
+            <FadeIn delay={160}>
+              <Text style={styles.doneTitle}>{t("{{n}} kelime daha cebinde!", { n: roundWords.length })}</Text>
+              <Text style={styles.doneSub}>{t("Çok iyi gidiyorsun. Sıradaki {{n}} kelimeyle devam edelim mi?", { n: rounds[round + 1].length })}</Text>
+            </FadeIn>
+            <FadeIn delay={260} style={{ alignSelf: 'stretch' }}>
+              <NextButton
+                label={t("Devam edelim")}
+                onPress={() => {
+                  setRound(round + 1);
+                  setPhase('learn');
+                }}
+              />
+            </FadeIn>
+          </View>
         ) : (
           <View style={styles.done}>
             <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
             <Text style={styles.doneTitle}>{t("{{n}} kelime cebinde!", { n: words.length })}</Text>
             <View style={styles.stars}>
               {[1, 2, 3].map((n) => (
-                <Ionicons key={n} name={n <= stars ? 'star' : 'star-outline'} size={44} color="#F59E0B" />
+                <PopIn key={n} delay={150 + n * 120}>
+                  <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={44} color="#F59E0B" />
+                </PopIn>
               ))}
             </View>
-            <Text style={styles.sub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
-            <Pressable onPress={onExit} style={[styles.next, { alignSelf: 'stretch' }]} accessibilityRole="button">
-              <Text style={styles.nextText}>{t("Yola dön")}</Text>
-            </Pressable>
+            <Text style={styles.doneSub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
+            <View style={{ alignSelf: 'stretch' }}>
+              <NextButton label={t("Yola dön")} onPress={onExit} />
+            </View>
           </View>
         )}
       </ScrollView>
@@ -133,30 +180,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
   close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  title: { flex: 1, fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
-  body: { paddingHorizontal: spacing.md, gap: 16 },
-  sub: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textBody },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  card: {
-    width: '48%',
-    flexGrow: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 12,
-    gap: 3,
-    borderWidth: 2,
-    borderBottomWidth: 4,
-    borderColor: '#E0E7FF',
-  },
-  cardHeard: { borderColor: '#BBF7D0' },
-  cardIcon: { position: 'absolute', top: 10, right: 10, zIndex: 1 },
-  pic: { width: '100%', aspectRatio: 1.25, borderRadius: 12, marginBottom: 4 },
-  en: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading, textAlign: 'center' },
-  native: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, textAlign: 'center' },
-  next: { backgroundColor: colors.brand, borderRadius: 18, paddingVertical: 16, alignItems: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },
-  nextText: { fontFamily: fonts.headingBold, fontSize: 17, color: '#FFFFFF' },
-  done: { alignItems: 'center', gap: 12, paddingTop: 30 },
+  roundTag: { backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  roundTagText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  body: { paddingHorizontal: spacing.md, gap: 16, paddingTop: 4 },
+  kicker: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand, letterSpacing: 0.6, textTransform: 'uppercase', textAlign: 'center' },
+  done: { alignItems: 'center', gap: 14, paddingTop: 30 },
+  roundImg: { width: 140, height: 140 },
   doneImg: { width: 160, height: 160 },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 24, color: colors.textHeading, textAlign: 'center' },
+  doneSub: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 21, color: colors.textBody, textAlign: 'center', marginTop: 6 },
   stars: { flexDirection: 'row', gap: 8 },
 });

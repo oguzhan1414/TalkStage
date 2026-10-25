@@ -95,6 +95,16 @@ function isLessonWord(token: string, lessonWord: string): boolean {
   return w.startsWith(lessonWord.replace(/e$/, '')) && w.length - lessonWord.length <= 3 && w.length >= lessonWord.length;
 }
 
+/** The lesson words that a sentence (or a single token) uses, in sentence order, each once. */
+export function lessonWordsIn(sentence: string, words: PathWord[]): PathWord[] {
+  const out: PathWord[] = [];
+  for (const token of sentence.split(/\s+/)) {
+    const hit = words.find((w) => isLessonWord(token, w.en.toLowerCase()));
+    if (hit && !out.includes(hit)) out.push(hit);
+  }
+  return out;
+}
+
 export function buildDrills(e: PathEpisode): Drill[] {
   const glossed = e.sentences.some((s) => gloss(s.native));
   const lessonWords = e.words.map((w) => w.en.toLowerCase());
