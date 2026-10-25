@@ -29,6 +29,15 @@ const AVATAR_MAP: Record<string, ReturnType<typeof require>> = {
   service: avatarImages.femaleEntrepreneur,
 };
 
+/** The character the learner picked (or the one matching their persona); the student as a fallback. */
+export function profileAvatar(profile: ProfileOut | undefined) {
+  return (
+    (profile?.avatar_id && AVATAR_MAP[profile.avatar_id]) ||
+    (profile?.persona_id && AVATAR_MAP[profile.persona_id]) ||
+    avatarImages.studentYouth
+  );
+}
+
 const LEVEL_SEEN_KEY = 'spekvia.xp_level_seen.v1';
 // Several AppHeaders are mounted at once (one per tab): only one of them may show the alert.
 let levelAlertShowing = false;
@@ -68,10 +77,7 @@ export function AppHeader() {
     session?.user.email?.split('@')[0] ??
     t("Konuşmacı");
 
-  const userAvatar =
-    (profile?.avatar_id && AVATAR_MAP[profile.avatar_id]) ||
-    (profile?.persona_id && AVATAR_MAP[profile.persona_id]) ||
-    avatarImages.studentYouth;
+  const userAvatar = profileAvatar(profile);
 
   // Real level-ups only: the first run (nothing stored yet) just remembers the current level.
   useEffect(() => {
