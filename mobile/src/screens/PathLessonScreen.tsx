@@ -16,13 +16,13 @@ import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
 import { bare, buildDrills, mivoSentence, sameSentence } from '../data/path/drills';
-import { usePronunciation } from '../hooks/usePronunciation';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
 import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { stepArt } from '../lib/pathArt';
+import { usePathVoice } from '../lib/pathVoice';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -384,7 +384,7 @@ function PickStep({
   onAnswered: () => void;
   onDone: () => void;
 }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const { width, height } = useWindowDimensions();
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -454,7 +454,7 @@ const KEY_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 
 /** Type the word: the keyboard only opens the word's letters; a wrong letter shakes, "Yardım" adds the next one. */
 function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: (ok: boolean) => void; report: (i: number, n: number) => void; onDone: () => void }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const { width } = useWindowDimensions();
   const items = words.slice(0, 5);
   const [idx, setIdx] = useState(0);
@@ -715,7 +715,7 @@ const COL_COLORS = ['#4F46E5', '#16A34A', colors.textHeading];
 
 /** The pattern table: example rows column by column, then a row with a gap to fill. */
 function TableStep({ table, tally, onAnswered, onDone }: { table: PathTable; tally: (ok: boolean) => void; onAnswered: () => void; onDone: () => void }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const [picked, setPicked] = useState<string | null>(null);
   const options = useMemo(() => shuffle(table.ask.options), [table]);
   const answer = table.ask.cells[table.ask.col];
@@ -959,7 +959,7 @@ const WAVE = [10, 18, 26, 14, 30, 22, 12, 28, 34, 20, 14, 24, 32, 18, 10, 26, 30
 
 /** Big play card for listening drills. It plays once by itself; tap again for a slower take. */
 function AudioCard({ text }: { text: string }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const slow = useRef(false);
   const pulse = useLoop(true, 900, true);
   useEffect(() => {
@@ -993,11 +993,10 @@ function AudioCard({ text }: { text: string }) {
 
 /** A piece of Maya's story with a question about it. */
 function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: ItemProps & { lines: PathSentence[]; question: PathQuestion; art?: number; words: PathWord[] }) {
-  const { pronounce } = usePronunciation();
+  const { sayAll } = usePathVoice();
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [picked, setPicked] = useState<number | null>(null);
   const lessonWords = useMemo(() => new Set(words.map((w) => w.en.toLowerCase())), [words]);
-  const text = lines.map((l) => l.en).join(' ');
   return (
     <>
       <FadeIn>
@@ -1009,7 +1008,7 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
         </FadeIn>
       ) : null}
       <FadeIn delay={80} style={[styles.storyCard, shadow.card]}>
-        <Pressable onPress={() => pronounce(text, { rate: 0.85 }).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+        <Pressable onPress={() => sayAll(lines.map((l) => l.en)).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
           <Ionicons name="volume-high" size={18} color={colors.brand} />
           <Text style={styles.readPlayText}>{t("Dinle")}</Text>
         </Pressable>
@@ -1158,7 +1157,7 @@ function ListenOrderItem({ sentence, native, tally, onAnswered, onNext }: ItemPr
 
 /** Write the Turkish sentence in English. */
 function TranslateItem({ sentence, native, tally, onAnswered, onNext }: ItemProps & { sentence: string; native: Loc }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const [value, setValue] = useState('');
   const [ok, setOk] = useState<boolean | null>(null);
   const check = () => {
@@ -1225,7 +1224,7 @@ function PairsItem({ pairs, tally, onNext }: ItemProps & { pairs: PathWord[] }) 
  * sentence ("I · like · coffee → I like coffee").
  */
 function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (i: number, n: number) => void; onNext: () => void }) {
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const recorder = useVoiceRecorder();
   const items = useMemo(() => [...sentence.split(' ').map((w) => w.replace(/[^A-Za-z']/g, '')).filter(Boolean), sentence], [sentence]);
   const [idx, setIdx] = useState(0);

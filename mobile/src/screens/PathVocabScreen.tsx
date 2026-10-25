@@ -10,11 +10,11 @@ import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type PathWord } from '../data/path';
-import { usePronunciation } from '../hooks/usePronunciation';
 import { t } from '../i18n';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { recordStep } from '../lib/pathProgress';
+import { usePathVoice } from '../lib/pathVoice';
 import type { PathVocabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 
@@ -34,7 +34,7 @@ export function PathVocabScreen({ navigation, route }: PathVocabScreenProps) {
 function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: string; words: PathWord[]; onExit: () => void }) {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
-  const { pronounce } = usePronunciation();
+  const { say: pronounce } = usePathVoice();
   const canMatch = words.some((w) => gloss(w.native));
   const rounds = useMemo(() => {
     const out: PathWord[][] = [];
