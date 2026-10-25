@@ -49,6 +49,30 @@ const shuffle = <T,>(list: T[]): T[] => {
   return a;
 };
 
+/** A spoken word counts when speech recognition got it right or one letter off (only for words of 4+ letters). */
+function closeWord(said: string, want: string): boolean {
+  if (said === want) return true;
+  if (want.length < 4 || Math.abs(said.length - want.length) > 1) return false;
+  let i = 0;
+  let j = 0;
+  let edits = 0;
+  while (i < said.length && j < want.length) {
+    if (said[i] === want[j]) {
+      i++;
+      j++;
+      continue;
+    }
+    if (++edits > 1) return false;
+    if (said.length > want.length) i++;
+    else if (said.length < want.length) j++;
+    else {
+      i++;
+      j++;
+    }
+  }
+  return edits + (said.length - i) + (want.length - j) <= 1;
+}
+
 /** Words of a sentence, lower-cased, without punctuation (for the read-aloud check). */
 const tokens = (s: string) =>
   s
@@ -1239,6 +1263,7 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [heard, setHeard] = useState('');
   const ring = useLoop(recorder.isRecording, 1200);
   const item = items[idx];
   const whole = idx === items.length - 1;
@@ -1247,6 +1272,7 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
     report(idx, items.length);
     setResult(null);
     setError(null);
+    setHeard('');
     const id = setTimeout(() => pronounce(item, { rate: whole ? 0.8 : 0.7 }).catch(() => {}), 350);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1269,9 +1295,10 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
       const form = new FormData();
       form.append('audio', new File(uri) as unknown as Blob);
       const { transcript } = await api.postForm<TranscribeResponse>('/chat/transcribe', form);
-      const said = new Set(tokens(transcript));
+      setHeard(transcript.trim());
+      const said = tokens(transcript);
       const want = tokens(item);
-      const hits = want.filter((w) => said.has(w)).length;
+      const hits = want.filter((w) => said.some((s) => closeWord(s, w))).length;
       const ok = whole ? hits / Math.max(1, want.length) >= 0.7 : hits > 0;
       setResult(ok);
       if (ok) haptics.success();
@@ -1348,9 +1375,12 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
               : result === true
                 ? t("Harika! 🎉")
                 : result === false
-                  ? t("Tam duyamadım. Bir daha dene ya da devam et.")
+                  ? heard
+                    ? t("Tam duyamadım. Bir daha dene ya da devam et.")
+                    : t("Sesin bana hiç ulaşmadı. Telefonu biraz yaklaştırıp tekrar dene.")
                   : (error ?? t("Mikrofona bas ve söyle."))}
         </Text>
+        {result === false && heard ? <Text style={styles.heardText}>{t("Duyduğum: “{{text}}”", { text: heard })}</Text> : null}
       </View>
       {result !== null || error || recorder.permissionDenied ? (
         <NextButton label={whole ? t("Dersi bitir") : t("Sıradaki")} onPress={next} tone={result ? 'ok' : 'brand'} />
@@ -1485,6 +1515,7 @@ const styles = StyleSheet.create({
   note: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, textAlign: 'center' },
   noteOk: { color: '#15803D', fontFamily: fonts.headingBold },
   noteBad: { color: '#B45309' },
+  heardText: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, textAlign: 'center', fontStyle: 'italic' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textMuted, textAlign: 'center', textDecorationLine: 'underline' },
 
   coverShadow: {

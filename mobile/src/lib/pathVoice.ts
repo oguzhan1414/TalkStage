@@ -16,9 +16,14 @@ export function pathClip(text: string): number | undefined {
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// Clips must be heard with the iPhone's silent switch on too; set once (the recorder switches modes itself).
-let modeReady: Promise<void> | null = null;
-const playbackMode = () => (modeReady ??= setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {}));
+// Clips must be heard with the iPhone's silent switch on too; set once and never wait for it (the recorder switches
+// modes itself).
+let modeSet = false;
+const playbackMode = () => {
+  if (modeSet) return;
+  modeSet = true;
+  setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+};
 
 /**
  * Plays path texts with the pre-made character voices, and falls back to the server voice (usePronunciation) for
@@ -84,9 +89,7 @@ export function usePathVoice() {
   const say = useCallback(
     async (text: string, options?: { rate?: number }) => {
       stop();
-      const run = runRef.current;
-      await playbackMode();
-      if (runRef.current !== run) return;
+      playbackMode();
       await playOne(text, options?.rate ?? 1);
     },
     [stop, playOne]
@@ -97,7 +100,7 @@ export function usePathVoice() {
     async (texts: string[], options?: { rate?: number }) => {
       stop();
       const run = runRef.current;
-      await playbackMode();
+      playbackMode();
       for (const text of texts) {
         if (runRef.current !== run) return;
         await playOne(text, options?.rate ?? 1);
