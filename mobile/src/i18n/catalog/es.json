@@ -3415,5 +3415,8 @@
   "Sıradaki kelime": "Siguiente palabra",
   "{{n}} kelime daha cebinde!": "¡{{n}} palabras más en tu bolsillo!",
   "Çok iyi gidiyorsun. Sıradaki {{n}} kelimeyle devam edelim mi?": "Lo estás haciendo genial. ¿Seguimos con las siguientes {{n}} palabras?",
-  "Devam edelim": "Sigamos"
+  "Devam edelim": "Sigamos",
+  "Seviyem": "Mi nivel",
+  "Orta üstü": "Intermedio alto",
+  "Uzman": "Dominio"
 }

@@ -30,6 +30,8 @@ import {
   type StageId,
 } from '../lib/stages';
 import { MivoTip } from '../components/MivoTip';
+import { loc, PATH_LEVELS } from '../data/path';
+import { pathLevelName, usePathLevel } from '../lib/pathLevel';
 import { useRestorePurchases } from '../hooks/useRestorePurchases';
 import { PlanEditorModal } from '../components/PlanEditorModal';
 import { planFeatureTitles } from '../components/PlanFeatureGrid';
@@ -219,6 +221,14 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
     },
   });
 
+  // The level of the learning path; the profile's CEFR level follows it (it unlocks free chat from A2).
+  const [pathLevelId, setPathLevelId] = usePathLevel();
+  const choosePathLevel = (id: string) => {
+    if (id === pathLevelId) return;
+    setPathLevelId(id);
+    levelMutation.mutate(id);
+  };
+
   const levelMutation = useMutation({
     mutationFn: (newLevel: string) =>
       api.patch<ProfileOut>('/me', { cefr_level: newLevel } satisfies ProfileUpdate),
@@ -353,14 +363,32 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
 
         {/* Simple settings list */}
         <View style={[styles.settingsCard, shadow.card]}>
-          <Pressable onPress={() => setLevelModalVisible(true)} style={styles.settingRow}>
+          <View style={styles.settingRow}>
             <Ionicons name="school-outline" size={20} color={colors.brand} />
             <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Öğrenme Aşaması")}</Text>
-              <Text style={styles.settingDesc}>{t("{{stage}} • {{completedTopicsCount}}/{{length}} konu (%{{levelCompletionPercent}})", { stage: currentLevelObj.title, completedTopicsCount, length: activeCurriculum.topics.length, levelCompletionPercent })}</Text>
+              <Text style={styles.settingLabel}>{t("Seviyem")}</Text>
+              <Text style={styles.settingDesc}>
+                {loc(PATH_LEVELS.find((l) => l.id === pathLevelId)?.story.title ?? PATH_LEVELS[0].story.title)}
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
+          </View>
+          <View style={styles.levelChips}>
+            {PATH_LEVELS.map((l) => {
+              const on = l.id === pathLevelId;
+              return (
+                <Pressable
+                  key={l.id}
+                  onPress={() => choosePathLevel(l.id)}
+                  style={[styles.levelChip, on && styles.levelChipOn]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Text style={[styles.levelChipCode, on && { color: '#FFFFFF' }]}>{l.id}</Text>
+                  <Text style={[styles.levelChipName, on && { color: 'rgba(255,255,255,0.85)' }]}>{pathLevelName(l.id)}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
           <View style={styles.settingDivider} />
 
@@ -1006,6 +1034,19 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: spacing.md,
   },
+  levelChips: { flexDirection: 'row', gap: 10, paddingHorizontal: 14, paddingBottom: 14 },
+  levelChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#E0E7FF',
+    backgroundColor: '#FFFFFF',
+  },
+  levelChipOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  levelChipCode: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  levelChipName: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted, marginTop: 1 },
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
