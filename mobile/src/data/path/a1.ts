@@ -377,7 +377,7 @@ export const A1: PathLevel = {
         ['Haftalık program', 'The weekly plan', { tr: 'What time do you…?', en: 'What time do you…?' }],
         ['Bay Patel her zaman…', 'Mr Patel always…', { tr: 'always / usually / never', en: 'always / usually / never' }],
         ['Pazartesi saat sekizde', 'On Monday at eight', { tr: 'at / on / in', en: 'at / on / in' }],
-        ['İkinci kartpostal', 'The second postcard', { tr: 'Geniş zaman tekrarı', en: 'Present simple review' }],
+        ['Pazartesi sabahı tuzağı', 'The Monday morning trap', { tr: 'Geniş zaman tekrarı', en: 'Present simple review' }],
       ],
       { tr: 'Günler, aylar, saatler', en: 'Days, months, times' },
       { tr: 'Mivo ile: Spor salonuna kayıt', en: 'With Mivo: Joining the gym' }
