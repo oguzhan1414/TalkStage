@@ -8,6 +8,7 @@ import { stateImages } from '../assets/images';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
+import { EXIT_SPACE, ExitButton } from '../components/path/ExitButton';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type PathWord } from '../data/path';
@@ -103,9 +104,6 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <Pressable onPress={onExit} hitSlop={12} style={styles.close} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
-          <Ionicons name="close" size={24} color={colors.textHeading} />
-        </Pressable>
         <Bar value={progress} />
         <View style={styles.roundTag}>
           <Text style={styles.roundTagText}>{`${Math.min(round + 1, rounds.length)}/${rounds.length}`}</Text>
@@ -114,7 +112,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
       <ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
+        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + EXIT_SPACE }]}
         showsVerticalScrollIndicator={false}
       >
         <PageIn key={`${phase}-${round}`} style={styles.page}>
@@ -188,6 +186,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
           )}
         </PageIn>
       </ScrollView>
+      <ExitButton onExit={onExit} confirm={phase !== 'done'} />
     </SafeAreaView>
   );
 }
@@ -195,7 +194,6 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
-  close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   roundTag: { backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   roundTagText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   page: { gap: 16 },

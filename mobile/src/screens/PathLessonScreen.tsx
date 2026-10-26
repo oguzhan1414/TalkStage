@@ -26,6 +26,7 @@ import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
+import { EXIT_SPACE, ExitButton } from '../components/path/ExitButton';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
@@ -55,7 +56,7 @@ import type { ProfileOut, TranscribeResponse, VocabCardOut } from '../types/api'
  * lesson; finishing a part records its star.
  */
 type Phase = 'pick' | 'match' | 'listen' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'drills' | 'mivo';
-type Screen = 'cover' | 'partDone' | 'done' | Phase;
+type Screen = 'cover' | 'intro' | 'partDone' | 'done' | Phase;
 
 const shuffle = <T,>(list: T[]): T[] => {
   const a = [...list];
@@ -170,7 +171,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
 
   const startPart = (p: number) => {
     setPart(p);
-    setScreen(phases[p][0]);
+    setScreen('intro');
   };
   const next = () => {
     const list = phases[part];
@@ -188,9 +189,6 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <Pressable onPress={onExit} hitSlop={12} style={styles.close} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
-          <Ionicons name="close" size={24} color={colors.textHeading} />
-        </Pressable>
         {inPart >= 0 ? (
           <>
             <Bar value={barValue} />
@@ -216,13 +214,15 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
       <ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
+        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + EXIT_SPACE }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <PageIn key={screen} style={styles.page}>
           {screen === 'cover' ? (
             <CoverStep episode={episode} art={art} partsDone={partsDone} onStart={startPart} />
+          ) : screen === 'intro' ? (
+            <PartIntro part={part} onGo={() => setScreen(phases[part][0])} />
           ) : screen === 'pick' ? (
             <PickStep words={episode.words} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
           ) : screen === 'listen' ? (
@@ -273,6 +273,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           )}
         </PageIn>
       </ScrollView>
+      <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />
       {combo ? <ComboBanner key={combo.key} n={combo.n} onEnd={() => setCombo(null)} /> : null}
     </SafeAreaView>
   );
@@ -458,6 +459,78 @@ function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label
 /** "word = meaning", or just the word for English speakers. */
 const wordLine = (w: PathWord) => (gloss(w.native) ? `${w.en} = ${gloss(w.native)}` : w.en);
 
+/** The three parts of a lesson as badges: words, grammar (a puzzle piece), practice (talking). */
+const PART_ICONS: React.ComponentProps<typeof Ionicons>['name'][] = ['text', 'extension-puzzle', 'chatbubbles'];
+
+/**
+ * A short screen before each part: the three part badges (finished ones gold, this one big and glowing), the
+ * part's name and one line about it. It moves on by itself; a tap moves on at once.
+ */
+function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
+  const { height } = useWindowDimensions();
+  const glow = useLoop(true, 1100, true);
+  const gone = useRef(false);
+  const go = () => {
+    if (gone.current) return;
+    gone.current = true;
+    onGo();
+  };
+  useEffect(() => {
+    const id = setTimeout(go, 2600);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const titles = [t("Yeni kelimeler"), t("Yeni dil bilgisi"), t("Pratik zamanı")];
+  const lines = [
+    t("**Resimlerle** öğrenilen kelimeler akılda kalır."),
+    t("**Renkli formüller** dil bilgisini kolaylaştırır."),
+    t("**Hikâye, dinleme ve konuşmayla** öğrendiğini pekiştir."),
+  ];
+  return (
+    <Pressable onPress={go} style={[styles.intro, { minHeight: height * 0.7 }]} accessibilityRole="button">
+      <View style={styles.introBadges}>
+        {PART_ICONS.map((icon, i) => {
+          const done = i < part;
+          const now = i === part;
+          const size = now ? 96 : 66;
+          return (
+            <PopIn key={icon} delay={120 + i * 140} onShow={() => now && playSfx('star')}>
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                {now ? (
+                  <Animated.View
+                    style={[
+                      styles.introGlow,
+                      {
+                        width: size + 30,
+                        height: size + 30,
+                        borderRadius: (size + 30) / 2,
+                        opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.8] }),
+                        transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1.06] }) }],
+                      },
+                    ]}
+                  />
+                ) : null}
+                <LinearGradient
+                  colors={done ? ['#FCD34D', '#F59E0B'] : now ? ['#818CF8', '#4F46E5'] : ['#F1F5F9', '#E2E8F0']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.introBadge, { width: size, height: size, borderRadius: size / 2 }]}
+                >
+                  <Ionicons name={done ? 'checkmark' : icon} size={now ? 44 : 28} color={done || now ? '#FFFFFF' : '#94A3B8'} />
+                </LinearGradient>
+              </View>
+            </PopIn>
+          );
+        })}
+      </View>
+      <FadeIn delay={420}>
+        <Text style={styles.introTitle}>{titles[part]}</Text>
+        <BoldText text={lines[part]} style={styles.introLine} boldStyle={{ color: colors.brand }} />
+      </FadeIn>
+    </Pressable>
+  );
+}
+
 /* ---------------- Cover ---------------- */
 
 function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode; art?: number; partsDone: number; onStart: (part: number) => void }) {
@@ -502,38 +575,10 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
 
       <FadeIn delay={120}>
         <Text style={styles.coverTitle}>{loc(episode.title)}</Text>
-        <View style={styles.coverMeta}>
-          <Ionicons name="time-outline" size={14} color={colors.textMuted} />
-          <Text style={styles.coverMetaText}>{t("~{{n}} dk", { n: episode.minutes })}</Text>
-          <Text style={styles.coverMetaDot}>•</Text>
-          <Ionicons name="text" size={14} color={colors.textMuted} />
-          <Text style={styles.coverMetaText}>{t("{{n}} yeni kelime", { n: episode.words.length })}</Text>
-        </View>
+        <Text style={styles.coverLine} numberOfLines={2}>
+          {loc(episode.grammar)} · {t("~{{n}} dk", { n: episode.minutes })}
+        </Text>
       </FadeIn>
-
-      <FadeIn delay={200} style={styles.coverTopic}>
-        <View style={styles.coverTopicIcon}>
-          <Ionicons name="sparkles" size={18} color="#FFFFFF" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.coverTopicKicker}>{t("Bugün öğreneceğin")}</Text>
-          <Text style={styles.coverTopicText} numberOfLines={2}>
-            {loc(episode.grammar)}
-          </Text>
-        </View>
-      </FadeIn>
-
-      {episode.recap ? (
-        <FadeIn delay={260} style={styles.coverRecapRow}>
-          <Image source={mivoVoiceImages.speak} style={styles.coverMivo} resizeMode="contain" />
-          <View style={styles.coverBubble}>
-            <Text style={styles.coverBubbleKicker}>{t("Önceki bölümde")}</Text>
-            <Text style={styles.coverRecap} numberOfLines={3}>
-              {loc(episode.recap)}
-            </Text>
-          </View>
-        </FadeIn>
-      ) : null}
 
       <FadeIn delay={340}>
         <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
@@ -1798,7 +1843,6 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10, minHeight: 52 },
-  close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   bar: { flex: 1, height: 12, borderRadius: 6, backgroundColor: '#E2E8F0', overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6, backgroundColor: '#FBBF24' },
   muteBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' },
@@ -1840,18 +1884,13 @@ const styles = StyleSheet.create({
   coverBadgeText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, letterSpacing: 0.3 },
   coverStars: { position: 'absolute', bottom: 12, alignSelf: 'center', flexDirection: 'row', gap: 6 },
   coverTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: colors.textHeading, textAlign: 'center' },
-  coverMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 6 },
-  coverMetaText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
-  coverMetaDot: { fontSize: 13, color: '#CBD5E1', marginHorizontal: 3 },
-  coverTopic: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#EEF2FF', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#E0E7FF' },
-  coverTopicIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  coverTopicKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.6, textTransform: 'uppercase', color: '#6366F1' },
-  coverTopicText: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading, marginTop: 1 },
-  coverRecapRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  coverMivo: { width: 52, height: 52 },
-  coverBubble: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, borderBottomLeftRadius: 4, padding: 12, borderWidth: 1, borderColor: '#E2E8F0' },
-  coverBubbleKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.textMuted, marginBottom: 2 },
-  coverRecap: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
+  coverLine: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 21, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
+  intro: { alignItems: 'center', justifyContent: 'center', gap: 34 },
+  introBadges: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  introGlow: { position: 'absolute', backgroundColor: '#C7D2FE' },
+  introBadge: { alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: '#FFFFFF' },
+  introTitle: { fontFamily: fonts.headingBold, fontSize: 30, color: colors.textHeading, textAlign: 'center' },
+  introLine: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 25, color: colors.textMuted, textAlign: 'center', marginTop: 10, paddingHorizontal: 12 },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
