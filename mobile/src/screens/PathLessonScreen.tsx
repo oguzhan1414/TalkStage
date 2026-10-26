@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, mivoVoiceImages, stateImages } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, partBadgeImages, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
@@ -202,7 +202,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
               <Ionicons name={muted ? 'volume-mute' : 'volume-medium'} size={18} color={muted ? colors.textMuted : colors.brand} />
             </Pressable>
             <View style={styles.partTag}>
-              <Ionicons name="star" size={14} color="#F59E0B" />
+              <Image source={partBadgeImages.gold[part]} style={styles.partTagBadge} resizeMode="contain" />
               <Text style={styles.partTagText}>{part + 1}/3</Text>
             </View>
           </>
@@ -459,9 +459,6 @@ function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label
 /** "word = meaning", or just the word for English speakers. */
 const wordLine = (w: PathWord) => (gloss(w.native) ? `${w.en} = ${gloss(w.native)}` : w.en);
 
-/** The three parts of a lesson as badges: words, grammar (a puzzle piece), practice (talking). */
-const PART_ICONS: React.ComponentProps<typeof Ionicons>['name'][] = ['text', 'extension-puzzle', 'chatbubbles'];
-
 /**
  * A short screen before each part: the three part badges (finished ones gold, this one big and glowing), the
  * part's name and one line about it. It moves on by itself; a tap moves on at once.
@@ -489,12 +486,12 @@ function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
   return (
     <Pressable onPress={go} style={[styles.intro, { minHeight: height * 0.7 }]} accessibilityRole="button">
       <View style={styles.introBadges}>
-        {PART_ICONS.map((icon, i) => {
+        {[0, 1, 2].map((i) => {
           const done = i < part;
           const now = i === part;
-          const size = now ? 96 : 66;
+          const size = now ? 112 : 72;
           return (
-            <PopIn key={icon} delay={120 + i * 140} onShow={() => now && playSfx('star')}>
+            <PopIn key={i} delay={120 + i * 140} onShow={() => now && playSfx('star')}>
               <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 {now ? (
                   <Animated.View
@@ -510,14 +507,7 @@ function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
                     ]}
                   />
                 ) : null}
-                <LinearGradient
-                  colors={done ? ['#FCD34D', '#F59E0B'] : now ? ['#818CF8', '#4F46E5'] : ['#F1F5F9', '#E2E8F0']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={[styles.introBadge, { width: size, height: size, borderRadius: size / 2 }]}
-                >
-                  <Ionicons name={done ? 'checkmark' : icon} size={now ? 44 : 28} color={done || now ? '#FFFFFF' : '#94A3B8'} />
-                </LinearGradient>
+                <Image source={done ? partBadgeImages.gold[i] : partBadgeImages.grey[i]} style={{ width: size, height: size, opacity: done || now ? 1 : 0.7 }} resizeMode="contain" />
               </View>
             </PopIn>
           );
@@ -1701,11 +1691,11 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
       <View style={styles.doneStars}>
         {[1, 2, 3].map((n) =>
           n === part ? (
-            <PopIn key={n} delay={150} onShow={() => playSfx('star')} style={{ marginTop: -14 }}>
-              <Ionicons name="star" size={72} color="#F59E0B" />
+            <PopIn key={n} delay={150} onShow={() => playSfx('star')} style={{ marginTop: -10 }}>
+              <Image source={partBadgeImages.gold[n - 1]} style={styles.badgeBig} resizeMode="contain" />
             </PopIn>
           ) : (
-            <Ionicons key={n} name="star" size={46} color={n < part ? '#F59E0B' : '#E2E8F0'} />
+            <Image key={n} source={n < part ? partBadgeImages.gold[n - 1] : partBadgeImages.grey[n - 1]} style={[styles.badgeSmall, n > part && { opacity: 0.7 }]} resizeMode="contain" />
           )
         )}
       </View>
@@ -1800,9 +1790,9 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
               haptics.selection();
               playSfx('star');
             }}
-            style={n === 2 ? { marginTop: -14 } : undefined}
+            style={n === 2 ? { marginTop: -10 } : undefined}
           >
-            <Ionicons name="star" size={n === 2 ? 58 : 46} color="#F59E0B" />
+            <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.badgeMid : styles.badgeSmall} resizeMode="contain" />
           </PopIn>
         ))}
       </View>
@@ -1847,6 +1837,7 @@ const styles = StyleSheet.create({
   barFill: { height: '100%', borderRadius: 6, backgroundColor: '#FBBF24' },
   muteBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' },
   partTag: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFFBEB', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1, borderColor: '#FDE68A' },
+  partTagBadge: { width: 18, height: 18 },
   partTagText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
 
   page: { gap: 16 },
@@ -1887,8 +1878,7 @@ const styles = StyleSheet.create({
   coverLine: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 21, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
   intro: { alignItems: 'center', justifyContent: 'center', gap: 34 },
   introBadges: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  introGlow: { position: 'absolute', backgroundColor: '#C7D2FE' },
-  introBadge: { alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: '#FFFFFF' },
+  introGlow: { position: 'absolute', backgroundColor: '#FDE68A' },
   introTitle: { fontFamily: fonts.headingBold, fontSize: 30, color: colors.textHeading, textAlign: 'center' },
   introLine: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 25, color: colors.textMuted, textAlign: 'center', marginTop: 10, paddingHorizontal: 12 },
 
@@ -2074,7 +2064,10 @@ const styles = StyleSheet.create({
   doneImg: { width: 170, height: 170 },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 90 },
+  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 110 },
+  badgeSmall: { width: 66, height: 66 },
+  badgeMid: { width: 84, height: 84 },
+  badgeBig: { width: 104, height: 104 },
   doneStats: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   doneStat: { minWidth: 100, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
   doneStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },

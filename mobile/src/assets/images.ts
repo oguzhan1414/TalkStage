@@ -180,6 +180,20 @@ export const avatarImages = {
 };
 
 /** 3D App States & Micro-Delights (53 - 57) */
+/** The three part badges of a lesson (words, grammar, practice): gold when earned, grey before. */
+export const partBadgeImages = {
+  gold: [
+    require('../../assets/images/badges_path/badge_words_gold.webp'),
+    require('../../assets/images/badges_path/badge_grammar_gold.webp'),
+    require('../../assets/images/badges_path/badge_practice_gold.webp'),
+  ],
+  grey: [
+    require('../../assets/images/badges_path/badge_words_grey.webp'),
+    require('../../assets/images/badges_path/badge_grammar_grey.webp'),
+    require('../../assets/images/badges_path/badge_practice_grey.webp'),
+  ],
+} as const;
+
 export const stateImages = {
   micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
   goalCelebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
