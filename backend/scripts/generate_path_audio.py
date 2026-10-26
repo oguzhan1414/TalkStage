@@ -41,6 +41,11 @@ VOICES: dict[str, tuple[str, str]] = {
     "Doctor": ("nova", "You are a kind, calm doctor; clear and caring, with a gentle sense of humour."),
     "Teacher": ("fable", "You are a warm, encouraging primary school teacher who loves her pupils' ideas."),
     "Mr Hill": ("cedar", "You are Mr Hill, a very old, warm baker; slow, a little shy and deeply moved."),
+    "Mr Grant": ("ballad", "You are Mr Grant, a tired, worried landlord in his sixties; serious at first, softening and kind later."),
+    "Journalist": ("alloy", "You are Ana, a lively, curious local journalist, quick and friendly."),
+    "Dr Shaw": ("fable", "You are Dr Shaw, an enthusiastic architect who loves old buildings; warm and full of wonder."),
+    "Mrs Lane": ("shimmer", "You are Mrs Lane, an older neighbour; a little grumpy at first, then warm and funny."),
+    "Sofia": ("nova", "You are Sofia, Rosa's happy, excited grown-up daughter who has big news."),
 }
 
 KIND_HINT = {
