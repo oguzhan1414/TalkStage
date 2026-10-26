@@ -1,3 +1,5 @@
+from datetime import date
+
 from app.api.deps import AuthContext
 from app.core.clock import local_today
 from app.services.scorecard import next_streak_state
