@@ -7,6 +7,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { stateImages } from '../assets/images';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn } from '../components/path/anim';
+import { Confetti } from '../components/path/Confetti';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type PathWord } from '../data/path';
@@ -149,6 +150,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
             </>
           ) : phase === 'roundDone' ? (
             <View style={styles.done}>
+              <Confetti count={18} />
               <PopIn delay={80}>
                 <Image source={stateImages.goalCelebration} style={styles.roundImg} resizeMode="contain" />
               </PopIn>
@@ -158,6 +160,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
               </FadeIn>
               <FadeIn delay={260} style={{ alignSelf: 'stretch' }}>
                 <NextButton
+                  shine
                   label={t("Devam edelim")}
                   onPress={() => {
                     setRound(round + 1);
@@ -168,18 +171,19 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
             </View>
           ) : (
             <View style={styles.done}>
+              <Confetti />
               <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
               <Text style={styles.doneTitle}>{t("{{n}} kelime cebinde!", { n: words.length })}</Text>
               <View style={styles.stars}>
                 {[1, 2, 3].map((n) => (
-                  <PopIn key={n} delay={150 + n * 120}>
+                  <PopIn key={n} delay={150 + n * 120} onShow={() => n <= stars && playSfx('star')}>
                     <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={44} color="#F59E0B" />
                   </PopIn>
                 ))}
               </View>
               <Text style={styles.doneSub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
               <View style={{ alignSelf: 'stretch' }}>
-                <NextButton label={t("Yola dön")} onPress={onExit} />
+                <NextButton shine label={t("Yola dön")} onPress={onExit} />
               </View>
             </View>
           )}

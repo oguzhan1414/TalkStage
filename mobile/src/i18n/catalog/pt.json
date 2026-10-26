@@ -3427,5 +3427,19 @@
   "Hadi başlayalım!": "Vamos começar!",
   "Özne": "Sujeito",
   "fiil": "verbo",
-  "sıfat / isim": "adjetivo / substantivo"
+  "sıfat / isim": "adjetivo / substantivo",
+  "{{n}} doğru üst üste! Durdurulamazsın!": "{{n}} seguidas! Você é imparável!",
+  "{{n}} doğru üst üste! Harikasın!": "{{n}} seguidas! Você é incrível!",
+  "{{n}} doğru üst üste!": "{{n}} seguidas!",
+  "Aynen böyle!": "É isso aí!",
+  "Olsun, devam!": "Tudo bem, continue!",
+  "Az kaldı!": "Quase!",
+  "Günlük seri": "Sequência diária",
+  "Spekvia'da {{level}} seviyesinin {{n}}. ünitesini bitirdim: {{words}} yeni kelime, {{stars}} yıldız! 🎉": "Terminei a unidade {{n}} do {{level}} no Spekvia: {{words}} palavras novas, {{stars}} estrelas! 🎉",
+  "Ünite tamam!": "Unidade concluída!",
+  "bölüm": "episódios",
+  "kelime": "palavras",
+  "yıldız": "estrelas",
+  "Yola devam": "Continuar",
+  "Paylaş": "Compartilhar"
 }

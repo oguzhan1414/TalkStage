@@ -3404,5 +3404,19 @@
   "Hadi başlayalım!": "Let's start!",
   "Özne": "Subject",
   "fiil": "verb",
-  "sıfat / isim": "adjective / noun"
+  "sıfat / isim": "adjective / noun",
+  "{{n}} doğru üst üste! Durdurulamazsın!": "{{n}} in a row! You're unstoppable!",
+  "{{n}} doğru üst üste! Harikasın!": "{{n}} in a row! You're amazing!",
+  "{{n}} doğru üst üste!": "{{n}} in a row!",
+  "Aynen böyle!": "Just like that!",
+  "Olsun, devam!": "No worries, keep going!",
+  "Az kaldı!": "Almost!",
+  "Günlük seri": "Day streak",
+  "Spekvia'da {{level}} seviyesinin {{n}}. ünitesini bitirdim: {{words}} yeni kelime, {{stars}} yıldız! 🎉": "I finished unit {{n}} of {{level}} on Spekvia: {{words}} new words, {{stars}} stars! 🎉",
+  "Ünite tamam!": "Unit complete!",
+  "bölüm": "episodes",
+  "kelime": "words",
+  "yıldız": "stars",
+  "Yola devam": "Keep going",
+  "Paylaş": "Share"
 }

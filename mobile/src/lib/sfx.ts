@@ -3,9 +3,10 @@ import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useEffect, useState } from 'react';
 
 /**
- * Short lesson sound effects (our own synthesised sounds in assets/sounds): a right answer,
- * a wrong one, a matched pair, a key tap and a finished part. One player per sound is kept and rewound, so a sound
- * starts at once. The learner can mute them (the speaker button in a lesson); the choice is remembered.
+ * Short lesson sound effects (our own synthesised sounds in assets/sounds): a right answer, a wrong one, a matched
+ * pair, a key tap, a finished part, a star landing, a run of right answers and an unlocked step. One player per
+ * sound is kept and rewound, so a sound starts at once. The learner can mute them (the speaker button in a lesson);
+ * the choice is remembered.
  */
 const SOUNDS = {
   correct: require('../../assets/sounds/correct.mp3'),
@@ -13,11 +14,14 @@ const SOUNDS = {
   match: require('../../assets/sounds/match.mp3'),
   tap: require('../../assets/sounds/tap.mp3'),
   complete: require('../../assets/sounds/complete.mp3'),
+  star: require('../../assets/sounds/star.mp3'),
+  combo: require('../../assets/sounds/combo.mp3'),
+  unlock: require('../../assets/sounds/unlock.mp3'),
 } as const;
 
 export type Sfx = keyof typeof SOUNDS;
 
-const VOLUME: Record<Sfx, number> = { correct: 0.8, wrong: 1, match: 0.7, tap: 0.5, complete: 0.85 };
+const VOLUME: Record<Sfx, number> = { correct: 0.8, wrong: 1, match: 0.7, tap: 0.5, complete: 0.85, star: 0.7, combo: 0.8, unlock: 0.85 };
 const KEY = 'spekvia.sfx.muted';
 const players: Partial<Record<Sfx, AudioPlayer>> = {};
 let muted = false;

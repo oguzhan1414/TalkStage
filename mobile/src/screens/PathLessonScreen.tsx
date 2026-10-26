@@ -3,13 +3,30 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { File } from 'expo-file-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Image, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Image,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+  type StyleProp,
+  type TextStyle,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, mivoVoiceImages, stateImages } from '../assets/images';
+import { mivoHomeImages, mivoImages, mivoVoiceImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
-import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
+import { FadeIn, PageIn, PopIn, Shine, useLoop, usePop, useShake } from '../components/path/anim';
+import { Confetti } from '../components/path/Confetti';
+import { MivoAvatar } from '../components/MivoAvatar';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
@@ -27,7 +44,7 @@ import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
-import type { TranscribeResponse, VocabCardOut } from '../types/api';
+import type { ProfileOut, TranscribeResponse, VocabCardOut } from '../types/api';
 
 /**
  * A reading lesson of the new path, in three parts with one star each (like chapters you can stop between):
@@ -135,9 +152,18 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [screen]);
 
+  // A run of right answers on the first try: a banner and a sparkle at 3, 5, 8 and every 5 after that.
+  const run = useRef(0);
+  const [combo, setCombo] = useState<{ n: number; key: number } | null>(null);
   const tally = (firstTry: boolean) => {
     score.current.total += 1;
     if (firstTry) score.current.right += 1;
+    run.current = firstTry ? run.current + 1 : 0;
+    const n = run.current;
+    if (n === 3 || n === 5 || n === 8 || (n > 8 && n % 5 === 0)) {
+      setCombo({ n, key: Date.now() });
+      setTimeout(() => playSfx('combo'), 650);
+    }
   };
   const report = (i: number, n: number) => setSub(n ? i / n : 0);
   /** New content was added at the bottom (a sentence, the answer panel): bring it into view. */
@@ -248,11 +274,51 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           )}
         </PageIn>
       </ScrollView>
+      {combo ? <ComboBanner key={combo.key} n={combo.n} onEnd={() => setCombo(null)} /> : null}
     </SafeAreaView>
   );
 }
 
 /* ---------------- Shared pieces ---------------- */
+
+/** "3 in a row!": slides down under the header with Mivo cheering, then slides away. */
+function ComboBanner({ n, onEnd }: { n: number; onEnd: () => void }) {
+  const insets = useSafeAreaInsets();
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.sequence([
+      Animated.delay(600),
+      Animated.spring(v, { toValue: 1, friction: 6, tension: 90, useNativeDriver: true }),
+      Animated.delay(1500),
+      Animated.timing(v, { toValue: 0, duration: 260, useNativeDriver: true }),
+    ]).start(() => onEnd());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const text =
+    n >= 8 ? t("{{n}} doğru üst üste! Durdurulamazsın!", { n }) : n >= 5 ? t("{{n}} doğru üst üste! Harikasın!", { n }) : t("{{n}} doğru üst üste!", { n });
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.combo,
+        {
+          top: insets.top + 58,
+          opacity: v,
+          transform: [
+            { translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-30, 0] }) },
+            { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
+          ],
+        },
+      ]}
+    >
+      <LinearGradient colors={['#F59E0B', '#F97316']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.comboInner}>
+        <Image source={mivoImages.success} style={styles.comboMivo} resizeMode="cover" />
+        <Ionicons name="flame" size={20} color="#FFFFFF" />
+        <Text style={styles.comboText}>{text}</Text>
+      </LinearGradient>
+    </Animated.View>
+  );
+}
 
 /** The progress bar of the part being played; it slides to its new value. */
 export function Bar({ value }: { value: number }) {
@@ -305,7 +371,20 @@ function PicStrip({ words, label }: { words: PathWord[]; label?: string }) {
   );
 }
 
-export function NextButton({ label, onPress, disabled, tone = 'brand' }: { label: string; onPress: () => void; disabled?: boolean; tone?: 'brand' | 'ok' | 'bad' }) {
+export function NextButton({
+  label,
+  onPress,
+  disabled,
+  tone = 'brand',
+  shine,
+}: {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  tone?: 'brand' | 'ok' | 'bad';
+  /** A soft light sweep (the main call to action of a screen). */
+  shine?: boolean;
+}) {
   return (
     <Pressable
       onPress={onPress}
@@ -319,6 +398,7 @@ export function NextButton({ label, onPress, disabled, tone = 'brand' }: { label
       ]}
       accessibilityRole="button"
     >
+      {shine && !disabled ? <Shine /> : null}
       <Text style={styles.nextText}>{label}</Text>
     </Pressable>
   );
@@ -366,7 +446,19 @@ function Choice({
 
 /** The panel that slides in after an answer: right / not quite, a line under it, and the way on. */
 function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label: string; onNext: () => void }) {
-  const praise = useMemo(() => [t("Doğru!"), t("Harika!"), t("Süper!")][Math.floor(Math.random() * 3)], []);
+  const praise = useMemo(() => {
+    const lines = ok ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")] : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
+    return lines[Math.floor(Math.random() * lines.length)];
+  }, [ok]);
+  const hop = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    // Mivo jumps for joy on a right answer and tilts its head on a wrong one.
+    Animated.sequence([
+      Animated.timing(hop, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.spring(hop, { toValue: 0, friction: 3, tension: 140, useNativeDriver: true }),
+    ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     playSfx(ok ? 'correct' : 'wrong');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -374,11 +466,22 @@ function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label
   return (
     <FadeIn from={24} style={[styles.feedback, ok ? styles.feedbackOk : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
-        <PopIn style={[styles.feedbackIcon, { backgroundColor: ok ? colors.success : colors.error }]}>
-          <Ionicons name={ok ? 'checkmark' : 'close'} size={22} color="#FFFFFF" />
+        <PopIn>
+          <Animated.View
+            style={{
+              transform: ok
+                ? [{ translateY: hop.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }]
+                : [{ rotate: hop.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-12deg'] }) }],
+            }}
+          >
+            <Image source={ok ? mivoImages.success : mivoImages.thinking} style={styles.feedbackMivo} resizeMode="cover" />
+            <View style={[styles.feedbackBadge, { backgroundColor: ok ? colors.success : colors.error }]}>
+              <Ionicons name={ok ? 'checkmark' : 'close'} size={13} color="#FFFFFF" />
+            </View>
+          </Animated.View>
         </PopIn>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.feedbackTitle, { color: ok ? '#047857' : '#BE123C' }]}>{ok ? praise : t("Tam değil")}</Text>
+          <Text style={[styles.feedbackTitle, { color: ok ? '#047857' : '#BE123C' }]}>{praise}</Text>
           {sub ? <Text style={styles.feedbackSub}>{sub}</Text> : null}
         </View>
       </View>
@@ -469,7 +572,7 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
 
       <FadeIn delay={340}>
         <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
-          <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
+          <NextButton shine label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
         </Animated.View>
       </FadeIn>
     </>
@@ -1584,10 +1687,11 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
   }, []);
   return (
     <View style={styles.done}>
+      <Confetti count={24} />
       <View style={styles.doneStars}>
         {[1, 2, 3].map((n) =>
           n === part ? (
-            <PopIn key={n} delay={150} style={{ marginTop: -14 }}>
+            <PopIn key={n} delay={150} onShow={() => playSfx('star')} style={{ marginTop: -14 }}>
               <Ionicons name="star" size={72} color="#F59E0B" />
             </PopIn>
           ) : (
@@ -1608,7 +1712,7 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
         </Text>
       </FadeIn>
       <FadeIn delay={700} style={{ alignSelf: 'stretch', gap: 12 }}>
-        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
+        <NextButton shine label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
         <Pressable onPress={onExit} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Sonra devam ederim")}</Text>
         </Pressable>
@@ -1617,10 +1721,34 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
   );
 }
 
+/** A number that counts up from 0 (the XP won). */
+function CountUp({ to, delay = 0, style }: { to: number; delay?: number; style?: StyleProp<TextStyle> }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let frame = 0;
+    const steps = 18;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const start = setTimeout(() => {
+      timer = setInterval(() => {
+        frame += 1;
+        setN(Math.round((to * frame) / steps));
+        if (frame >= steps && timer) clearInterval(timer);
+      }, 45);
+    }, delay);
+    return () => {
+      clearTimeout(start);
+      if (timer) clearInterval(timer);
+    };
+  }, [to, delay]);
+  return <Text style={style}>+{n}</Text>;
+}
+
 function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; episode: PathEpisode; right: number; total: number; onExit: () => void }) {
   const queryClient = useQueryClient();
   const saved = useRef(false);
   const glow = useLoop(true, 2400, true);
+  const flame = useLoop(true, 700, true);
+  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   useEffect(() => {
     if (saved.current) return;
     saved.current = true;
@@ -1635,6 +1763,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
 
   return (
     <View style={styles.done}>
+      <Confetti />
       <View style={styles.doneHero}>
         <Animated.View
           style={[
@@ -1646,7 +1775,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
           ]}
         />
         <PopIn>
-          <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
+          <MivoAvatar state="success" size={170} interactive={false} />
         </PopIn>
       </View>
       <FadeIn delay={250}>
@@ -1654,7 +1783,15 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
       </FadeIn>
       <View style={styles.doneStars}>
         {[1, 2, 3].map((n) => (
-          <PopIn key={n} delay={500 + n * 260} onShow={() => haptics.selection()} style={n === 2 ? { marginTop: -14 } : undefined}>
+          <PopIn
+            key={n}
+            delay={500 + n * 260}
+            onShow={() => {
+              haptics.selection();
+              playSfx('star');
+            }}
+            style={n === 2 ? { marginTop: -14 } : undefined}
+          >
             <Ionicons name="star" size={n === 2 ? 58 : 46} color="#F59E0B" />
           </PopIn>
         ))}
@@ -1670,13 +1807,24 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
             </View>
           ) : null}
           <View style={[styles.doneStat, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
-            <Text style={[styles.doneStatNum, { color: '#B45309' }]}>+{ACTIVITY_XP}</Text>
+            <CountUp to={ACTIVITY_XP} delay={1500} style={[styles.doneStatNum, { color: '#B45309' }]} />
             <Text style={styles.doneStatLabel}>{t("XP")}</Text>
           </View>
+          {profile?.streak_count ? (
+            <View style={[styles.doneStat, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Animated.View style={{ transform: [{ scale: flame.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] }) }] }}>
+                  <Ionicons name="flame" size={22} color="#F97316" />
+                </Animated.View>
+                <Text style={[styles.doneStatNum, { color: '#C2410C' }]}>{profile.streak_count}</Text>
+              </View>
+              <Text style={styles.doneStatLabel}>{t("Günlük seri")}</Text>
+            </View>
+          ) : null}
         </View>
       </FadeIn>
       <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
-        <NextButton label={t("Yola dön")} onPress={onExit} />
+        <NextButton shine label={t("Yola dön")} onPress={onExit} />
       </FadeIn>
     </View>
   );
@@ -1693,6 +1841,10 @@ const styles = StyleSheet.create({
   partTagText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
 
   page: { gap: 16 },
+  combo: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+  comboInner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6, paddingRight: 16, paddingVertical: 6, borderRadius: 999, borderBottomWidth: 3, borderBottomColor: '#C2410C' },
+  comboMivo: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#E8E8EC' },
+  comboText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
   formula: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', rowGap: 6 },
   formulaItem: { flexDirection: 'row', alignItems: 'center' },
   formulaPlus: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading, marginHorizontal: 6 },
@@ -1750,6 +1902,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     borderBottomColor: '#3730A3',
     marginTop: 4,
+    overflow: 'hidden',
   },
   nextOk: { backgroundColor: '#16A34A', borderBottomColor: '#15803D' },
   nextBad: { backgroundColor: '#E11D48', borderBottomColor: '#9F1239' },
@@ -1760,7 +1913,19 @@ const styles = StyleSheet.create({
   feedbackOk: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
   feedbackBad: { backgroundColor: '#FFF1F2', borderColor: '#FECDD3' },
   feedbackRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  feedbackIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  feedbackMivo: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#E8E8EC' },
+  feedbackBadge: {
+    position: 'absolute',
+    right: -3,
+    bottom: -3,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
   feedbackSub: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textBody, marginTop: 1 },
 
@@ -1919,8 +2084,8 @@ const styles = StyleSheet.create({
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
   doneStars: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 90 },
-  doneStats: { flexDirection: 'row', gap: 10 },
-  doneStat: { minWidth: 120, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
+  doneStats: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
+  doneStat: { minWidth: 100, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
   doneStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
   doneStatLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
   partNextCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14, borderWidth: 2, borderColor: '#EEF2FF', alignSelf: 'stretch' },
