@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { profileAvatar } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
@@ -17,6 +17,7 @@ import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type Pat
 import { t } from '../i18n';
 import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
+import { preloadStep } from '../lib/pathPreload';
 import { usePathLevel } from '../lib/pathLevel';
 import { currentStep, isDone, isPassed, recordStep, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { haptics } from '../lib/haptics';
@@ -60,6 +61,10 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const [index, setIndex] = useState(current.index);
   const listRef = useRef<FlatList<FlatStep>>(null);
   const focused = steps[index] ?? steps[0];
+  useEffect(() => {
+    const id = setTimeout(() => preloadStep(focused), 400);
+    return () => clearTimeout(id);
+  }, [focused]);
 
   // Coming back from a lesson: the finished step's stars land one by one, then the path slides on to the next
   // step and its lock breaks open. Otherwise land on the next step.
@@ -449,10 +454,15 @@ function Medallion({
                     }}
                     style={n === 2 ? { marginTop: -10 } : undefined}
                   >
-                    <Ionicons name="star" size={n === 2 ? 46 : 38} color="#FCD34D" />
+                    <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.medalBadgeMid : styles.medalBadge} resizeMode="contain" />
                   </PopIn>
                 ) : (
-                  <Ionicons key={n} name="star" size={n === 2 ? 46 : 38} color={n <= stars && celebrate?.kind !== 'stars' ? '#FCD34D' : 'rgba(255,255,255,0.55)'} style={n === 2 ? { marginTop: -10 } : undefined} />
+                  <Image
+                    key={n}
+                    source={n <= stars && celebrate?.kind !== 'stars' ? partBadgeImages.gold[n - 1] : partBadgeImages.grey[n - 1]}
+                    style={[n === 2 ? styles.medalBadgeMid : styles.medalBadge, n === 2 && { marginTop: -10 }, !(n <= stars && celebrate?.kind !== 'stars') && { opacity: 0.85 }]}
+                    resizeMode="contain"
+                  />
                 )
               )}
             </View>
@@ -569,7 +579,9 @@ const styles = StyleSheet.create({
   medalText: { position: 'absolute', top: '17%', left: '12%', right: '12%', alignItems: 'center' },
   medalKicker: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: 'rgba(255,255,255,0.9)' },
   medalTitle: { fontFamily: fonts.headingBold, color: '#FFFFFF', textAlign: 'center', marginTop: 2 },
-  medalStars: { position: 'absolute', bottom: '20%', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  medalBadge: { width: 40, height: 40 },
+  medalBadgeMid: { width: 50, height: 50 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
   medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
   cta: {

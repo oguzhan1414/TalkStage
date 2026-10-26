@@ -39,6 +39,7 @@ import { api, ApiError } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { stepArt } from '../lib/pathArt';
+import { nextStepOf, preloadStep } from '../lib/pathPreload';
 import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
@@ -1755,6 +1756,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
     haptics.success();
     void recordPart(stepId, 3);
     playSfx('complete');
+    setTimeout(() => preloadStep(nextStepOf(stepId)), 2500);
     postQueued('/progress/log-practice')
       .then(() => queryClient.invalidateQueries({ queryKey: ['me'] }))
       .catch(() => {});
