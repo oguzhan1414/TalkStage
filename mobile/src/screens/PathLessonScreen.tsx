@@ -21,12 +21,11 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, mivoImages, mivoVoiceImages } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
-import { FadeIn, PageIn, PopIn, Shine, useLoop, usePop, useShake } from '../components/path/anim';
+import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
-import { MivoAvatar } from '../components/MivoAvatar';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
@@ -281,7 +280,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
 
 /* ---------------- Shared pieces ---------------- */
 
-/** "3 in a row!": slides down under the header with Mivo cheering, then slides away. */
+/** "3 in a row!": slides down under the header, then slides away. */
 function ComboBanner({ n, onEnd }: { n: number; onEnd: () => void }) {
   const insets = useSafeAreaInsets();
   const v = useRef(new Animated.Value(0)).current;
@@ -312,7 +311,6 @@ function ComboBanner({ n, onEnd }: { n: number; onEnd: () => void }) {
       ]}
     >
       <LinearGradient colors={['#F59E0B', '#F97316']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.comboInner}>
-        <Image source={mivoImages.success} style={styles.comboMivo} resizeMode="cover" />
         <Ionicons name="flame" size={20} color="#FFFFFF" />
         <Text style={styles.comboText}>{text}</Text>
       </LinearGradient>
@@ -371,20 +369,7 @@ function PicStrip({ words, label }: { words: PathWord[]; label?: string }) {
   );
 }
 
-export function NextButton({
-  label,
-  onPress,
-  disabled,
-  tone = 'brand',
-  shine,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-  tone?: 'brand' | 'ok' | 'bad';
-  /** A soft light sweep (the main call to action of a screen). */
-  shine?: boolean;
-}) {
+export function NextButton({ label, onPress, disabled, tone = 'brand' }: { label: string; onPress: () => void; disabled?: boolean; tone?: 'brand' | 'ok' | 'bad' }) {
   return (
     <Pressable
       onPress={onPress}
@@ -398,7 +383,6 @@ export function NextButton({
       ]}
       accessibilityRole="button"
     >
-      {shine && !disabled ? <Shine /> : null}
       <Text style={styles.nextText}>{label}</Text>
     </Pressable>
   );
@@ -450,15 +434,7 @@ function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label
     const lines = ok ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")] : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
     return lines[Math.floor(Math.random() * lines.length)];
   }, [ok]);
-  const hop = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    // Mivo jumps for joy on a right answer and tilts its head on a wrong one.
-    Animated.sequence([
-      Animated.timing(hop, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.spring(hop, { toValue: 0, friction: 3, tension: 140, useNativeDriver: true }),
-    ]).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
   useEffect(() => {
     playSfx(ok ? 'correct' : 'wrong');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -466,19 +442,8 @@ function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label
   return (
     <FadeIn from={24} style={[styles.feedback, ok ? styles.feedbackOk : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
-        <PopIn>
-          <Animated.View
-            style={{
-              transform: ok
-                ? [{ translateY: hop.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }]
-                : [{ rotate: hop.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-12deg'] }) }],
-            }}
-          >
-            <Image source={ok ? mivoImages.success : mivoImages.thinking} style={styles.feedbackMivo} resizeMode="cover" />
-            <View style={[styles.feedbackBadge, { backgroundColor: ok ? colors.success : colors.error }]}>
-              <Ionicons name={ok ? 'checkmark' : 'close'} size={13} color="#FFFFFF" />
-            </View>
-          </Animated.View>
+        <PopIn style={[styles.feedbackIcon, { backgroundColor: ok ? colors.success : colors.error }]}>
+          <Ionicons name={ok ? 'checkmark' : 'close'} size={22} color="#FFFFFF" />
         </PopIn>
         <View style={{ flex: 1 }}>
           <Text style={[styles.feedbackTitle, { color: ok ? '#047857' : '#BE123C' }]}>{praise}</Text>
@@ -572,7 +537,7 @@ function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode;
 
       <FadeIn delay={340}>
         <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
-          <NextButton shine label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
+          <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
         </Animated.View>
       </FadeIn>
     </>
@@ -1712,7 +1677,7 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
         </Text>
       </FadeIn>
       <FadeIn delay={700} style={{ alignSelf: 'stretch', gap: 12 }}>
-        <NextButton shine label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
+        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
         <Pressable onPress={onExit} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Sonra devam ederim")}</Text>
         </Pressable>
@@ -1775,7 +1740,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
           ]}
         />
         <PopIn>
-          <MivoAvatar state="success" size={170} interactive={false} />
+          <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
         </PopIn>
       </View>
       <FadeIn delay={250}>
@@ -1824,7 +1789,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
         </View>
       </FadeIn>
       <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
-        <NextButton shine label={t("Yola dön")} onPress={onExit} />
+        <NextButton label={t("Yola dön")} onPress={onExit} />
       </FadeIn>
     </View>
   );
@@ -1842,8 +1807,7 @@ const styles = StyleSheet.create({
 
   page: { gap: 16 },
   combo: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
-  comboInner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6, paddingRight: 16, paddingVertical: 6, borderRadius: 999, borderBottomWidth: 3, borderBottomColor: '#C2410C' },
-  comboMivo: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#E8E8EC' },
+  comboInner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 999, borderBottomWidth: 3, borderBottomColor: '#C2410C' },
   comboText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
   formula: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', rowGap: 6 },
   formulaItem: { flexDirection: 'row', alignItems: 'center' },
@@ -1913,19 +1877,7 @@ const styles = StyleSheet.create({
   feedbackOk: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
   feedbackBad: { backgroundColor: '#FFF1F2', borderColor: '#FECDD3' },
   feedbackRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  feedbackMivo: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#E8E8EC' },
-  feedbackBadge: {
-    position: 'absolute',
-    right: -3,
-    bottom: -3,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
+  feedbackIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
   feedbackSub: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textBody, marginTop: 1 },
 

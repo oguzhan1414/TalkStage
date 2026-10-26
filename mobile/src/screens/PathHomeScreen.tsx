@@ -3,18 +3,17 @@ import { useQuery } from '@tanstack/react-query';
 import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, Image, Modal, Pressable, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Easing, FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
 import { profileAvatar } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
-import { MivoAvatar } from '../components/MivoAvatar';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
 import { xpLevelInfo } from '../constants/xp';
-import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep, type PathUnit } from '../data/path';
+import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
@@ -63,10 +62,9 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const focused = steps[index] ?? steps[0];
 
   // Coming back from a lesson: the finished step's stars land one by one, then the path slides on to the next
-  // step and its lock breaks open; finishing a whole unit ends with the unit card. Otherwise land on the next step.
+  // step and its lock breaks open. Otherwise land on the next step.
   const prevProgress = useRef<PathProgress | null>(null);
   const [celebrate, setCelebrate] = useState<{ id: string; kind: 'stars' | 'unlock'; key: number } | null>(null);
-  const [unitDone, setUnitDone] = useState<PathUnit | null>(null);
   useEffect(() => {
     preloadSfx();
   }, []);
@@ -101,9 +99,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         }, 1800)
       );
     }
-    const unit = changed.unit;
-    const allPassed = (p: PathProgress) => unit.steps.every((st) => isPassed(p, st.id));
-    if (allPassed(progress) && !allPassed(prev)) timers.push(setTimeout(() => setUnitDone(unit), unlocked ? 3600 : 2000));
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, current.step.id]);
@@ -293,7 +288,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       </BouncyPressable>
 
       {celebrate?.kind === 'stars' ? <Confetti key={celebrate.key} count={22} /> : null}
-      {unitDone ? <UnitDoneCard unit={unitDone} levelId={level.id} progress={progress} onClose={() => setUnitDone(null)} /> : null}
 
       <Modal visible={chatLockOpen} transparent animationType="fade" onRequestClose={() => setChatLockOpen(false)}>
         <Pressable style={styles.overlay} onPress={() => setChatLockOpen(false)}>
@@ -521,69 +515,6 @@ function Medallion({
   );
 }
 
-/** A finished unit: Mivo jumps, the unit's numbers, and a way to share it. */
-function UnitDoneCard({ unit, levelId, progress, onClose }: { unit: PathUnit; levelId: string; progress: PathProgress | null; onClose: () => void }) {
-  const lessons = unit.steps.filter((st) => st.kind === 'reading');
-  const words = unit.steps.reduce((n, st) => n + (st.kind === 'reading' ? st.episode.words.length : st.kind === 'vocab' ? st.words.length : 0), 0);
-  const stars = progress ? lessons.reduce((n, st) => n + starsOf(progress, st.id), 0) : 0;
-  const last = [...lessons].reverse()[0];
-  const art = last ? stepArt({ step: last, unit, index: 0, indexInUnit: 0 }) : undefined;
-  useEffect(() => {
-    playSfx('complete');
-    haptics.success();
-  }, []);
-  const share = () => {
-    Share.share({
-      message: t("Spekvia'da {{level}} seviyesinin {{n}}. ünitesini bitirdim: {{words}} yeni kelime, {{stars}} yıldız! 🎉", {
-        level: levelId,
-        n: unit.number,
-        words,
-        stars,
-      }),
-    }).catch(() => {});
-  };
-  return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={[styles.overlay, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Confetti />
-        <PopIn style={styles.unitCard}>
-          {art ? <Image source={art} style={styles.unitArt} resizeMode="cover" /> : null}
-          <View style={styles.unitMivo}>
-            <MivoAvatar state="success" size={96} interactive={false} showGlow={false} />
-          </View>
-          <Text style={styles.unitKicker}>{t("{{level}} · Ünite {{n}}", { level: levelId, n: unit.number })}</Text>
-          <Text style={styles.unitTitle}>{t("Ünite tamam!")}</Text>
-          <Text style={styles.unitName}>{loc(unit.title)}</Text>
-          <View style={styles.unitStats}>
-            <View style={styles.unitStat}>
-              <Text style={styles.unitStatNum}>{lessons.length}</Text>
-              <Text style={styles.unitStatLabel}>{t("bölüm")}</Text>
-            </View>
-            <View style={styles.unitStat}>
-              <Text style={styles.unitStatNum}>{words}</Text>
-              <Text style={styles.unitStatLabel}>{t("kelime")}</Text>
-            </View>
-            <View style={styles.unitStat}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                <Ionicons name="star" size={18} color="#F59E0B" />
-                <Text style={styles.unitStatNum}>{stars}</Text>
-              </View>
-              <Text style={styles.unitStatLabel}>{t("yıldız")}</Text>
-            </View>
-          </View>
-          <Pressable onPress={onClose} style={[styles.sheetBtn, { marginHorizontal: 18 }]} accessibilityRole="button">
-            <Text style={styles.sheetBtnText}>{t("Yola devam")}</Text>
-          </Pressable>
-          <Pressable onPress={share} style={styles.unitShare} hitSlop={8} accessibilityRole="button">
-            <Ionicons name="share-social" size={16} color={colors.brand} />
-            <Text style={styles.unitShareText}>{t("Paylaş")}</Text>
-          </Pressable>
-        </PopIn>
-      </View>
-    </Modal>
-  );
-}
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
@@ -640,18 +571,6 @@ const styles = StyleSheet.create({
   medalTitle: { fontFamily: fonts.headingBold, color: '#FFFFFF', textAlign: 'center', marginTop: 2 },
   medalStars: { position: 'absolute', bottom: '20%', flexDirection: 'row', alignItems: 'center', gap: 4 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
-  unitCard: { width: '86%', maxWidth: 380, backgroundColor: '#FFFFFF', borderRadius: 28, paddingBottom: 18, alignItems: 'center', overflow: 'hidden' },
-  unitArt: { width: '100%', height: 150 },
-  unitMivo: { marginTop: -52, borderRadius: 48, borderWidth: 4, borderColor: '#FFFFFF', overflow: 'hidden' },
-  unitKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: colors.brand, textTransform: 'uppercase', marginTop: 8 },
-  unitTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, marginTop: 2 },
-  unitName: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textMuted, marginTop: 2 },
-  unitStats: { flexDirection: 'row', gap: 10, marginVertical: 16, paddingHorizontal: 16 },
-  unitStat: { flex: 1, alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 16, paddingVertical: 10, borderWidth: 1, borderColor: '#E2E8F0' },
-  unitStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
-  unitStatLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
-  unitShare: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
-  unitShareText: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.brand },
   medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
   cta: {
     marginTop: -32,

@@ -112,35 +112,3 @@ export function PageIn({ children, style }: { children: ReactNode; style?: Style
     </Animated.View>
   );
 }
-
-/**
- * A soft light sweep across a button every few seconds (the main call to action). Put it inside a view with
- * `overflow: 'hidden'`.
- */
-export function Shine({ every = 2800 }: { every?: number }) {
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const anim = Animated.loop(
-      Animated.sequence([
-        Animated.timing(v, { toValue: 1, duration: 750, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.delay(every),
-        Animated.timing(v, { toValue: 0, duration: 0, useNativeDriver: true }),
-      ])
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [every, v]);
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={{
-        position: 'absolute',
-        top: -20,
-        bottom: -20,
-        width: 46,
-        backgroundColor: 'rgba(255,255,255,0.32)',
-        transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-80, 420] }) }, { rotate: '18deg' }],
-      }}
-    />
-  );
-}

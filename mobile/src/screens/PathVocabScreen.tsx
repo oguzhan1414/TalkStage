@@ -160,7 +160,6 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
               </FadeIn>
               <FadeIn delay={260} style={{ alignSelf: 'stretch' }}>
                 <NextButton
-                  shine
                   label={t("Devam edelim")}
                   onPress={() => {
                     setRound(round + 1);
@@ -183,7 +182,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
               </View>
               <Text style={styles.doneSub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
               <View style={{ alignSelf: 'stretch' }}>
-                <NextButton shine label={t("Yola dön")} onPress={onExit} />
+                <NextButton label={t("Yola dön")} onPress={onExit} />
               </View>
             </View>
           )}
