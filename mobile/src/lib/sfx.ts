@@ -17,7 +17,7 @@ const SOUNDS = {
 
 export type Sfx = keyof typeof SOUNDS;
 
-const VOLUME: Record<Sfx, number> = { correct: 0.8, wrong: 0.7, match: 0.7, tap: 0.5, complete: 0.85 };
+const VOLUME: Record<Sfx, number> = { correct: 0.8, wrong: 1, match: 0.7, tap: 0.5, complete: 0.85 };
 const KEY = 'spekvia.sfx.muted';
 const players: Partial<Record<Sfx, AudioPlayer>> = {};
 let muted = false;

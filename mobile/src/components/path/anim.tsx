@@ -84,3 +84,31 @@ export function useLoop(active: boolean, duration: number, reverse = false) {
   }, [active, duration, reverse, v]);
   return v;
 }
+
+/**
+ * A page change inside a lesson: the new page glides in from the right with a soft spring and a fade, so moving
+ * on feels like turning a page. Give it a `key` that changes with the page.
+ */
+export function PageIn({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.spring(v, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <Animated.View
+      style={[
+        style,
+        {
+          opacity: v.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1, 1] }),
+          transform: [
+            { translateX: v.interpolate({ inputRange: [0, 1], outputRange: [42, 0] }) },
+            { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] }) },
+          ],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+}

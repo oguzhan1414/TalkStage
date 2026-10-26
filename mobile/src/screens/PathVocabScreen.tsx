@@ -6,7 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { stateImages } from '../assets/images';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
-import { FadeIn, PopIn } from '../components/path/anim';
+import { FadeIn, PageIn, PopIn } from '../components/path/anim';
 import { WordMatch } from '../components/path/WordMatch';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type PathWord } from '../data/path';
@@ -116,72 +116,74 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
         contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
         showsVerticalScrollIndicator={false}
       >
-        {phase === 'learn' ? (
-          <>
-            {round === 0 ? (
+        <PageIn key={`${phase}-${round}`} style={styles.page}>
+          {phase === 'learn' ? (
+            <>
+              {round === 0 ? (
+                <FadeIn>
+                  <Text style={styles.kicker}>{title}</Text>
+                </FadeIn>
+              ) : null}
+              <LearnStep key={`l${round}`} words={roundWords} report={report} onDone={next} />
+            </>
+          ) : phase === 'pick' ? (
+            <PickStep key={`p${round}`} words={roundWords} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
+          ) : phase === 'match' ? (
+            <>
               <FadeIn>
-                <Text style={styles.kicker}>{title}</Text>
+                {round % 2 === 1 ? (
+                  <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
+                ) : (
+                  <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
+                )}
               </FadeIn>
-            ) : null}
-            <LearnStep key={`l${round}`} words={roundWords} report={report} onDone={next} />
-          </>
-        ) : phase === 'pick' ? (
-          <PickStep key={`p${round}`} words={roundWords} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
-        ) : phase === 'match' ? (
-          <>
-            <FadeIn>
-              {round % 2 === 1 ? (
-                <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
-              ) : (
-                <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
-              )}
-            </FadeIn>
-            <WordMatch
-              key={`m${round}`}
-              audio={round % 2 === 1}
-              words={roundWords}
-              onDone={(mistakes) => {
-                tally(mistakes === 0);
-                next();
-              }}
-            />
-          </>
-        ) : phase === 'roundDone' ? (
-          <View style={styles.done}>
-            <PopIn delay={80}>
-              <Image source={stateImages.goalCelebration} style={styles.roundImg} resizeMode="contain" />
-            </PopIn>
-            <FadeIn delay={160}>
-              <Text style={styles.doneTitle}>{t("{{n}} kelime daha cebinde!", { n: roundWords.length })}</Text>
-              <Text style={styles.doneSub}>{t("Çok iyi gidiyorsun. Sıradaki {{n}} kelimeyle devam edelim mi?", { n: rounds[round + 1].length })}</Text>
-            </FadeIn>
-            <FadeIn delay={260} style={{ alignSelf: 'stretch' }}>
-              <NextButton
-                label={t("Devam edelim")}
-                onPress={() => {
-                  setRound(round + 1);
-                  setPhase('learn');
+              <WordMatch
+                key={`m${round}`}
+                audio={round % 2 === 1}
+                words={roundWords}
+                onDone={(mistakes) => {
+                  tally(mistakes === 0);
+                  next();
                 }}
               />
-            </FadeIn>
-          </View>
-        ) : (
-          <View style={styles.done}>
-            <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
-            <Text style={styles.doneTitle}>{t("{{n}} kelime cebinde!", { n: words.length })}</Text>
-            <View style={styles.stars}>
-              {[1, 2, 3].map((n) => (
-                <PopIn key={n} delay={150 + n * 120}>
-                  <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={44} color="#F59E0B" />
-                </PopIn>
-              ))}
+            </>
+          ) : phase === 'roundDone' ? (
+            <View style={styles.done}>
+              <PopIn delay={80}>
+                <Image source={stateImages.goalCelebration} style={styles.roundImg} resizeMode="contain" />
+              </PopIn>
+              <FadeIn delay={160}>
+                <Text style={styles.doneTitle}>{t("{{n}} kelime daha cebinde!", { n: roundWords.length })}</Text>
+                <Text style={styles.doneSub}>{t("Çok iyi gidiyorsun. Sıradaki {{n}} kelimeyle devam edelim mi?", { n: rounds[round + 1].length })}</Text>
+              </FadeIn>
+              <FadeIn delay={260} style={{ alignSelf: 'stretch' }}>
+                <NextButton
+                  label={t("Devam edelim")}
+                  onPress={() => {
+                    setRound(round + 1);
+                    setPhase('learn');
+                  }}
+                />
+              </FadeIn>
             </View>
-            <Text style={styles.doneSub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
-            <View style={{ alignSelf: 'stretch' }}>
-              <NextButton label={t("Yola dön")} onPress={onExit} />
+          ) : (
+            <View style={styles.done}>
+              <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
+              <Text style={styles.doneTitle}>{t("{{n}} kelime cebinde!", { n: words.length })}</Text>
+              <View style={styles.stars}>
+                {[1, 2, 3].map((n) => (
+                  <PopIn key={n} delay={150 + n * 120}>
+                    <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={44} color="#F59E0B" />
+                  </PopIn>
+                ))}
+              </View>
+              <Text style={styles.doneSub}>{t("+{{xp}} XP", { xp: ACTIVITY_XP })}</Text>
+              <View style={{ alignSelf: 'stretch' }}>
+                <NextButton label={t("Yola dön")} onPress={onExit} />
+              </View>
             </View>
-          </View>
-        )}
+          )}
+        </PageIn>
       </ScrollView>
     </SafeAreaView>
   );
@@ -193,6 +195,7 @@ const styles = StyleSheet.create({
   close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   roundTag: { backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   roundTagText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  page: { gap: 16 },
   body: { paddingHorizontal: spacing.md, gap: 16, paddingTop: 4 },
   kicker: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand, letterSpacing: 0.6, textTransform: 'uppercase', textAlign: 'center' },
   done: { alignItems: 'center', gap: 14, paddingTop: 30 },

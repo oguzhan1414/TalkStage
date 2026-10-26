@@ -7,7 +7,7 @@ import { gloss } from '../../data/path';
 import { haptics } from '../../lib/haptics';
 import { usePathVoice } from '../../lib/pathVoice';
 import { playSfx } from '../../lib/sfx';
-import { colors, fonts, shadow } from '../../theme/tokens';
+import { colors, fonts } from '../../theme/tokens';
 import { FadeIn, usePop, useShake } from './anim';
 
 function shuffle<T>(list: T[]): T[] {
@@ -17,6 +17,16 @@ function shuffle<T>(list: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/** A second order where no item stays in its row, so a pair never sits side by side from the start. */
+function shuffleApart(base: string[]): string[] {
+  if (base.length < 2) return [...base];
+  for (let tries = 0; tries < 40; tries++) {
+    const next = shuffle(base);
+    if (next.every((v, i) => v !== base[i])) return next;
+  }
+  return [...base.slice(1), base[0]];
 }
 
 /** A waveform that looks different for every word but stays the same for that word. */
@@ -39,7 +49,7 @@ export function WordMatch({ words, onDone, audio }: { words: PathWord[]; onDone:
   const { height } = useWindowDimensions();
   const { say } = usePathVoice();
   const left = useMemo(() => shuffle(words.map((w) => w.en)), [words]);
-  const right = useMemo(() => shuffle(words.map((w) => w.en)), [words]);
+  const right = useMemo(() => shuffleApart(left), [left]);
   const [pickL, setPickL] = useState<string | null>(null);
   const [pickR, setPickR] = useState<string | null>(null);
   const [matched, setMatched] = useState<Set<string>>(new Set());
@@ -153,7 +163,7 @@ function Cell({
 
   const doneStyle = {
     backgroundColor: glow.interpolate({ inputRange: [0, 1], outputRange: ['#FFFFFF', '#DCFCE7'] }),
-    borderColor: glow.interpolate({ inputRange: [0, 1], outputRange: ['#FFFFFF', '#4ADE80'] }),
+    borderColor: glow.interpolate({ inputRange: [0, 1], outputRange: ['#E6EAF2', '#4ADE80'] }),
     opacity: fade,
   };
   const tint = wrong ? colors.error : picked ? colors.brand : '#3B82F6';
@@ -166,14 +176,20 @@ function Cell({
             <Animated.View
               style={[
                 styles.cell,
-                shadow.card,
                 { height },
                 picked && styles.cellPicked,
                 wrong && styles.cellWrong,
                 done && doneStyle,
               ]}
             >
-              {wave ? (
+              {wave && done ? (
+                <View style={styles.audioRow}>
+                  <Ionicons name="volume-high" size={22} color="#16A34A" />
+                  <Text style={[styles.cellText, styles.cellEn, styles.cellTextDone]} numberOfLines={1} adjustsFontSizeToFit>
+                    {label}
+                  </Text>
+                </View>
+              ) : wave ? (
                 <View style={styles.audioRow}>
                   <Ionicons name="volume-high" size={26} color={done ? '#16A34A' : tint} />
                   <View style={styles.wave}>
@@ -198,17 +214,19 @@ function Cell({
 const styles = StyleSheet.create({
   cols: { flexDirection: 'row', gap: 14, paddingTop: 8 },
   col: { flex: 1, gap: 14 },
+  // Plain white, tactile cards (a thicker bottom edge instead of a shadow, which looked grey on Android).
   cell: {
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderBottomWidth: 5,
+    borderColor: '#E6EAF2',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
-  cellPicked: { borderColor: '#60A5FA', backgroundColor: '#EFF6FF' },
-  cellWrong: { borderColor: colors.error, backgroundColor: '#FFF1F2' },
+  cellPicked: { borderColor: '#60A5FA', borderBottomColor: '#3B82F6', backgroundColor: '#EFF6FF' },
+  cellWrong: { borderColor: '#FB7185', borderBottomColor: colors.error, backgroundColor: '#FFF1F2' },
   cellText: { fontFamily: fonts.bodyMedium, fontSize: 18, color: colors.textHeading, textAlign: 'center' },
   cellEn: { fontFamily: fonts.headingBold },
   cellTextDone: { color: '#15803D' },

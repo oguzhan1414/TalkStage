@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import type { WordRole } from '../../data/path/drills';
 import { nativeFlag, t } from '../../i18n';
 import { colors, fonts, radii } from '../../theme/tokens';
 
@@ -20,6 +21,15 @@ type Props = {
   onSolved: (hintsUsed: number) => void;
   /** Çözüldükten sonra kelimeye dokunma (sözlük balonu). */
   onWordPress: (word: string) => void;
+  /** Kelime başına renk rolü (özne, yapı, ana kelime); verilirse kartlar renklenir. */
+  roles?: WordRole[] | null;
+};
+
+/** Renkli cümle kurma: özne mavi, öğretilen yapı turuncu, ana kelime yeşil, kalanı beyaz. */
+export const ROLE_COLORS: Record<Exclude<WordRole, 'rest'>, { bg: string; edge: string }> = {
+  subject: { bg: '#3B82F6', edge: '#2563EB' },
+  core: { bg: '#FB923C', edge: '#EA580C' },
+  main: { bg: '#22C55E', edge: '#16A34A' },
 };
 
 function shuffled<T>(items: T[]): T[] {
@@ -37,7 +47,14 @@ function shuffled<T>(items: T[]): T[] {
  * kelimeler yeşil kilitlenir, yanlışlar kısa süre kırmızı olup bankaya geri döner.
  * Çeviri ve ipucu (sıradaki doğru kelimeyi yerleştirir) ayrı düğmelerdir.
  */
-export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttempt, onSolved, onWordPress }: Props) {
+export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttempt, onSolved, onWordPress, roles }: Props) {
+  /** Colour of a word card by its role (the tile id is the word's place in the sentence). */
+  const roleStyle = (id: number) => {
+    const role = roles?.[id];
+    if (!role || role === 'rest') return null;
+    const c = ROLE_COLORS[role];
+    return { box: { backgroundColor: c.bg, borderColor: c.bg, borderBottomColor: c.edge }, text: { color: '#FFFFFF' } };
+  };
   const words = useMemo(() => sentence.split(' '), [sentence]);
   const [bank, setBank] = useState<Tile[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -177,11 +194,15 @@ export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttem
           <Text style={styles.solvedTitle}>{hintsUsed === 0 ? t("Harika! Mükemmel cümle") : t("Doğru cümle!")}</Text>
         </View>
         <Text style={styles.solvedSentence}>
-          {words.map((w, i) => (
-            <Text key={`${i}-${w}`} onPress={() => onWordPress(w)}>
-              {w}{' '}
-            </Text>
-          ))}
+          {words.map((w, i) => {
+            const role = roles?.[i];
+            const color = role && role !== 'rest' ? ROLE_COLORS[role].edge : undefined;
+            return (
+              <Text key={`${i}-${w}`} onPress={() => onWordPress(w)} style={color ? { color } : undefined}>
+                {w}{' '}
+              </Text>
+            );
+          })}
         </Text>
         <Text style={styles.solvedTranslation}>
           {nativeFlag()} {translation}
@@ -212,12 +233,13 @@ export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttem
                   styles.chip,
                   slot.hinted && styles.chipHinted,
                   slot.locked && !slot.hinted && styles.chipLocked,
+                  !isWrong && !slot.hinted && roleStyle(slot.tile.id)?.box,
                   isWrong && styles.chipWrong,
                 ]}
                 accessibilityRole="button"
                 accessibilityLabel={slot.tile.word}
               >
-                <Text style={[styles.chipText, slot.hinted && styles.chipTextHinted, isWrong && styles.chipTextWrong]}>
+                <Text style={[styles.chipText, slot.hinted && styles.chipTextHinted, !isWrong && !slot.hinted && roleStyle(slot.tile.id)?.text, isWrong && styles.chipTextWrong]}>
                   {slot.tile.word}
                 </Text>
               </Pressable>
@@ -234,11 +256,11 @@ export function TapSentenceOrder({ sentence, translation, resetKey, onWrongAttem
           <Pressable
             key={tile.id}
             onPress={() => place(tile)}
-            style={({ pressed }) => [styles.chip, styles.bankChip, pressed && styles.chipPressed]}
+            style={({ pressed }) => [styles.chip, styles.bankChip, roleStyle(tile.id)?.box, pressed && styles.chipPressed]}
             accessibilityRole="button"
             accessibilityLabel={tile.word}
           >
-            <Text style={styles.chipText}>{tile.word}</Text>
+            <Text style={[styles.chipText, roleStyle(tile.id)?.text]}>{tile.word}</Text>
           </Pressable>
         ))}
       </View>

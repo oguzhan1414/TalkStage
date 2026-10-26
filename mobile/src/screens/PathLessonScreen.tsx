@@ -9,13 +9,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { mivoHomeImages, mivoVoiceImages, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
-import { FadeIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
+import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
-import { TapSentenceOrder } from '../components/reading/TapSentenceOrder';
+import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
 import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
-import { bare, buildDrills, lessonWordsIn, mivoSentence, sameSentence } from '../data/path/drills';
+import { bare, buildDrills, lessonWordsIn, mivoSentence, sameSentence, sentenceRoles, type WordRole } from '../data/path/drills';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
 import { api, ApiError } from '../lib/api';
@@ -195,56 +195,58 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {screen === 'cover' ? (
-          <CoverStep episode={episode} art={art} partsDone={partsDone} onStart={startPart} />
-        ) : screen === 'pick' ? (
-          <PickStep words={episode.words} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
-        ) : screen === 'listen' ? (
-          <>
-            <FadeIn>
-              <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
-            </FadeIn>
-            <WordMatch
-              audio
-              words={episode.words}
-              onDone={(mistakes) => {
-                tally(mistakes === 0);
-                next();
-              }}
-            />
-          </>
-        ) : screen === 'match' ? (
-          <>
-            <FadeIn>
-              <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
-            </FadeIn>
-            <WordMatch
-              words={episode.words}
-              onDone={(mistakes) => {
-                tally(mistakes === 0);
-                next();
-              }}
-            />
-          </>
-        ) : screen === 'type' ? (
-          <TypeStep words={episode.words} tally={tally} report={report} onDone={next} />
-        ) : screen === 'save' ? (
-          <SaveStep episode={episode} onDone={next} />
-        ) : screen === 'tip' ? (
-          <TipStep episode={episode} onNext={next} />
-        ) : screen === 'table' && episode.table ? (
-          <TableStep table={episode.table} tally={tally} onAnswered={toEnd} onDone={next} />
-        ) : screen === 'practice' ? (
-          <PracticeStep episode={episode} tally={tally} report={report} onAnswered={toEnd} onNext={next} />
-        ) : screen === 'drills' ? (
-          <DrillsStep episode={episode} art={art} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
-        ) : screen === 'mivo' ? (
-          <MivoSayStep sentence={mivoSentence(episode)} report={report} onNext={next} />
-        ) : screen === 'partDone' ? (
-          <PartDone stepId={stepId} part={part + 1} onNext={() => startPart(part + 1)} onExit={onExit} />
-        ) : (
-          <DoneStep stepId={stepId} episode={episode} right={score.current.right} total={score.current.total} onExit={onExit} />
-        )}
+        <PageIn key={screen} style={styles.page}>
+          {screen === 'cover' ? (
+            <CoverStep episode={episode} art={art} partsDone={partsDone} onStart={startPart} />
+          ) : screen === 'pick' ? (
+            <PickStep words={episode.words} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
+          ) : screen === 'listen' ? (
+            <>
+              <FadeIn>
+                <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
+              </FadeIn>
+              <WordMatch
+                audio
+                words={episode.words}
+                onDone={(mistakes) => {
+                  tally(mistakes === 0);
+                  next();
+                }}
+              />
+            </>
+          ) : screen === 'match' ? (
+            <>
+              <FadeIn>
+                <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
+              </FadeIn>
+              <WordMatch
+                words={episode.words}
+                onDone={(mistakes) => {
+                  tally(mistakes === 0);
+                  next();
+                }}
+              />
+            </>
+          ) : screen === 'type' ? (
+            <TypeStep words={episode.words} tally={tally} report={report} onDone={next} />
+          ) : screen === 'save' ? (
+            <SaveStep episode={episode} onDone={next} />
+          ) : screen === 'tip' ? (
+            <TipStep episode={episode} onNext={next} />
+          ) : screen === 'table' && episode.table ? (
+            <TableStep table={episode.table} tally={tally} onAnswered={toEnd} onDone={next} />
+          ) : screen === 'practice' ? (
+            <PracticeStep episode={episode} tally={tally} report={report} onAnswered={toEnd} onNext={next} />
+          ) : screen === 'drills' ? (
+            <DrillsStep episode={episode} art={art} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
+          ) : screen === 'mivo' ? (
+            <MivoSayStep sentence={mivoSentence(episode)} report={report} onNext={next} />
+          ) : screen === 'partDone' ? (
+            <PartDone stepId={stepId} part={part + 1} onNext={() => startPart(part + 1)} onExit={onExit} />
+          ) : (
+            <DoneStep stepId={stepId} episode={episode} right={score.current.right} total={score.current.total} onExit={onExit} />
+          )}
+        </PageIn>
       </ScrollView>
     </SafeAreaView>
   );
@@ -944,6 +946,42 @@ function TableStep({ table, tally, onAnswered, onDone }: { table: PathTable; tal
   );
 }
 
+const BE_FORMS = new Set(['am', 'is', 'are', 'was', 'were', "isn't", "aren't", "wasn't", "weren't", 'not']);
+
+/** The sentence's pattern as coloured chips: Özne + don't + fiil + … (the structure's own words in the middle). */
+function Formula({ sentence, roles }: { sentence: string; roles: WordRole[] }) {
+  const words = sentence.split(' ');
+  const core = words.filter((_, i) => roles[i] === 'core').map((w) => w.toLowerCase().replace(/[,.!?]/g, ''));
+  const main = words.find((_, i) => roles[i] === 'main') ?? '';
+  const mainIsVerb = core.length === 0 || !core.every((w) => BE_FORMS.has(w)) || /ing$/.test(main);
+  const parts: { role: WordRole; label: string }[] = [];
+  roles.forEach((r) => {
+    if (parts.some((p) => p.role === r)) return;
+    const label =
+      r === 'subject' ? t("Özne") : r === 'core' ? core.join(' ') : r === 'main' ? (mainIsVerb ? t("fiil") : t("sıfat / isim")) : '…';
+    parts.push({ role: r, label });
+  });
+  return (
+    <View style={styles.formula}>
+      {parts.map((p, i) => (
+        <View key={p.role} style={styles.formulaItem}>
+          {i > 0 ? <Text style={styles.formulaPlus}>+</Text> : null}
+          <PopIn delay={120 + i * 90}>
+            <View
+              style={[
+                styles.formulaChip,
+                p.role !== 'rest' ? { backgroundColor: ROLE_COLORS[p.role].bg } : styles.formulaChipRest,
+              ]}
+            >
+              <Text style={[styles.formulaText, p.role === 'rest' && { color: colors.textBody }]}>{p.label}</Text>
+            </View>
+          </PopIn>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function PracticeStep({
   episode,
   tally,
@@ -964,6 +1002,7 @@ function PracticeStep({
   const wrongOnce = useRef(false);
   const item = items[idx];
   const last = idx + 1 >= items.length;
+  const roles = useMemo(() => (item.kind === 'order' ? sentenceRoles(item.sentence) : null), [item]);
 
   useEffect(() => {
     report(idx, items.length);
@@ -988,7 +1027,10 @@ function PracticeStep({
       {/* Mivo's rule stays in view while building sentences. */}
       <FadeIn delay={30} style={styles.ruleCard}>
         <Image source={mivoHomeImages.fab} style={styles.ruleFace} />
-        <BoldText text={loc(episode.tip.rule)} style={styles.ruleText} boldStyle={{ color: colors.brand }} />
+        <View style={{ flex: 1, gap: 8 }}>
+          <BoldText text={loc(episode.tip.rule)} style={[styles.ruleText, { flex: 0 }]} boldStyle={{ color: colors.brand }} />
+          {item.kind === 'order' && roles ? <Formula key={`fx${idx}`} sentence={item.sentence} roles={roles} /> : null}
+        </View>
       </FadeIn>
       {item.kind === 'choose' ? (
         <>
@@ -1051,6 +1093,7 @@ function PracticeStep({
               onAnswered();
             }}
             onWordPress={() => {}}
+            roles={roles}
           />
           {orderDone ? <Feedback key={`f${idx}`} ok sub={item.sentence} label={last ? t("Devam") : t("Sıradaki")} onNext={next} /> : null}
         </>
@@ -1649,6 +1692,13 @@ const styles = StyleSheet.create({
   partTag: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFFBEB', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1, borderColor: '#FDE68A' },
   partTagText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
 
+  page: { gap: 16 },
+  formula: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', rowGap: 6 },
+  formulaItem: { flexDirection: 'row', alignItems: 'center' },
+  formulaPlus: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading, marginHorizontal: 6 },
+  formulaChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4 },
+  formulaChipRest: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#E2E8F0' },
+  formulaText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF' },
   body: { paddingHorizontal: spacing.md, paddingTop: 6, gap: 16 },
   note: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, textAlign: 'center' },
   noteOk: { color: '#15803D', fontFamily: fonts.headingBold },

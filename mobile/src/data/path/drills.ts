@@ -167,3 +167,127 @@ export function mivoSentence(e: PathEpisode): string {
   const pick = orders.sort((a, b) => wordCount(a) - wordCount(b))[0] ?? e.say[0] ?? e.sentences[0].en;
   return dropEndPunct(pick);
 }
+
+/** The part a word plays in a sentence-building drill, shown as a colour: subject, the grammar being taught, the
+ * main word after it, the rest. */
+export type WordRole = 'subject' | 'core' | 'main' | 'rest';
+
+/** Helping words of the structures in the path (be, do, have, modals, will, going to, not / never / ever). */
+const AUX = new Set([
+  'am', 'is', 'are', 'was', 'were', "isn't", "aren't", "wasn't", "weren't",
+  'do', 'does', 'did', "don't", "doesn't", "didn't",
+  'have', 'has', 'had', "haven't", "hasn't", "hadn't",
+  'will', "won't", 'would', 'can', "can't", 'could', "couldn't", 'should', "shouldn't", 'must', "mustn't", 'might', 'may',
+  'not', 'never', 'ever', 'going', 'got',
+]);
+const PRONOUNS = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they', 'there', 'this', 'that', 'these', 'those']);
+const NAMES = new Set(['maya', 'leo', 'rosa', 'tom', 'mr', 'mrs', 'patel', 'hill', 'mum', 'bristol']);
+const DETERMINERS = new Set(['the', 'a', 'an', 'my', 'your', 'his', 'her', 'our', 'their', 'this', 'that', 'these', 'those', 'some', 'any', 'every']);
+const WH = new Set(['what', 'where', 'when', 'who', 'whose', 'which', 'why', 'how']);
+/** Skipped when looking for the main word: small adverbs, prepositions, determiners. */
+const NOT_MAIN = new Set([...DETERMINERS, 'sometimes', 'always', 'usually', 'often', 'really', 'still', 'only', 'just', 'also', 'to', 'at', 'in', 'on', 'for', 'of', 'with', 'as']);
+const CONTRACTED_SUBJECT = /^(i|you|we|they|he|she|it|that|there)'(m|re|s|ve|d|ll)$/;
+
+/**
+ * Colours for the words of a short sentence (I · don't · watch · TV): who does it, the helping words of the
+ * structure being practised, the main word after them, the rest. Questions start with the helping word
+ * (Are · you · a student?), commands with the verb (Look · at the map). Returns null when it does not split clearly.
+ */
+export function sentenceRoles(sentence: string): WordRole[] | null {
+  const tokens = sentence.split(' ');
+  const n = tokens.length;
+  const norm = tokens.map((tk) => tk.toLowerCase().replace(/[’]/g, "'").replace(/[^a-z']/g, ''));
+  const roles: WordRole[] = tokens.map(() => 'rest');
+  const isSubjectWord = (i: number) => PRONOUNS.has(norm[i]) || NAMES.has(norm[i]) || CONTRACTED_SUBJECT.test(norm[i]);
+  // do / does / did only help at the start of a question or before not; otherwise they are the verb.
+  const isAux = (i: number, inQuestion: boolean) => {
+    const w = norm[i];
+    if (w === 'to') return i > 0 && ['going', 'have', 'has', 'had', 'got'].includes(norm[i - 1]);
+    if (['do', 'does', 'did'].includes(w)) return inQuestion || norm[i + 1] === 'not';
+    // have + a / some / breakfast: here have is the verb.
+    if (['have', 'has', 'had'].includes(w) && (DETERMINERS.has(norm[i + 1] ?? '') || /^\d|^(breakfast|lunch|dinner)$/.test(norm[i + 1] ?? ''))) return false;
+    return AUX.has(w);
+  };
+  /** Marks the helping words from `i`, then the main word; returns where it stopped. */
+  const coreThenMain = (from: number, inQuestion: boolean) => {
+    let i = from;
+    while (i < n && isAux(i, inQuestion)) {
+      roles[i] = 'core';
+      i++;
+      if (norm[i - 1] === 'to') break;
+    }
+    return i;
+  };
+  const markMain = (from: number) => {
+    let i = from;
+    while (i < n && NOT_MAIN.has(norm[i])) i++;
+    if (i < n) roles[i] = 'main';
+  };
+  const subjectFrom = (i: number) => {
+    // a name (Mr Patel), a pronoun, or a short noun phrase (the old tower)
+    const demonstrative = ['this', 'that', 'these', 'those'].includes(norm[i]) && i + 1 < n && !isAux(i + 1, false);
+    if (CONTRACTED_SUBJECT.test(norm[i]) || (PRONOUNS.has(norm[i]) && !demonstrative)) {
+      roles[i] = 'subject';
+      return i + 1;
+    }
+    if (NAMES.has(norm[i])) {
+      let j = i;
+      while (j < n && NAMES.has(norm[j])) roles[j++] = 'subject';
+      return j;
+    }
+    if (DETERMINERS.has(norm[i])) {
+      // the old tower | is …: up to the helping word if it comes soon, else the determiner and one noun
+      let end = i + 2;
+      for (let k = i + 1; k <= i + 3 && k < n; k++) {
+        if (isAux(k, false)) {
+          end = k;
+          break;
+        }
+      }
+      end = Math.min(end, n - 1);
+      for (let j = i; j < end; j++) roles[j] = 'subject';
+      return end;
+    }
+    return -1;
+  };
+
+  // Skip a lead-in that ends with a comma (Luckily, / If it rains, / Yes,) and a leading and / but.
+  let start = 0;
+  const comma = tokens.findIndex((tk, i) => i < 4 && tk.endsWith(','));
+  if (comma >= 0 && comma < n - 2) start = comma + 1;
+  if (['and', 'but', 'so', 'now', 'then', 'today', 'yesterday'].includes(norm[start])) start++;
+  if (start >= n) return null;
+
+  // Wh-question: What time | do | you | wake up
+  if (WH.has(norm[start])) {
+    let i = start + 1;
+    while (i < n && i < start + 3 && !isAux(i, true)) i++;
+    const afterCore = coreThenMain(i, true);
+    if (afterCore === i) return null;
+    if (afterCore < n && (isSubjectWord(afterCore) || DETERMINERS.has(norm[afterCore]))) {
+      const afterSubject = subjectFrom(afterCore);
+      markMain(afterSubject < 0 ? afterCore + 1 : afterSubject);
+    } else markMain(afterCore);
+    return roles;
+  }
+
+  // Yes / no question or a negative command: Are | you | … · Don't | burn | the bread
+  if (isAux(start, true) && norm[start] !== 'not') {
+    const afterCore = coreThenMain(start, true);
+    if (afterCore < n && (isSubjectWord(afterCore) || DETERMINERS.has(norm[afterCore]))) {
+      const afterSubject = subjectFrom(afterCore);
+      const afterMore = coreThenMain(afterSubject, true);
+      markMain(afterMore);
+    } else markMain(afterCore);
+    return roles;
+  }
+
+  const afterSubject = subjectFrom(start);
+  if (afterSubject < 0) {
+    // A command: Look | at the map
+    roles[start] = 'main';
+    return roles;
+  }
+  markMain(coreThenMain(afterSubject, false));
+  return roles.includes('main') || roles.includes('core') ? roles : null;
+}
