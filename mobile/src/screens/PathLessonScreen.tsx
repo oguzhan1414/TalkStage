@@ -23,6 +23,7 @@ import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { stepArt } from '../lib/pathArt';
 import { usePathVoice } from '../lib/pathVoice';
+import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -37,7 +38,7 @@ import type { TranscribeResponse, VocabCardOut } from '../types/api';
  * The cover shows the episode picture; between parts a short screen cheers the learner on. Two parts open the next
  * lesson; finishing a part records its star.
  */
-type Phase = 'pick' | 'match' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'drills' | 'mivo';
+type Phase = 'pick' | 'match' | 'listen' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'drills' | 'mivo';
 type Screen = 'cover' | 'partDone' | 'done' | Phase;
 
 const shuffle = <T,>(list: T[]): T[] => {
@@ -86,7 +87,7 @@ const tokens = (s: string) =>
 function partPhases(e: PathEpisode): Phase[][] {
   const glossed = e.words.some((w) => gloss(w.native));
   const pickable = e.words.some((w) => wordImage(w.en)) || glossed;
-  const words: Phase[] = [...(pickable ? (['pick'] as Phase[]) : []), ...(glossed ? (['match'] as Phase[]) : []), 'type', 'save'];
+  const words: Phase[] = [...(pickable ? (['pick'] as Phase[]) : []), ...(glossed ? (['match', 'listen'] as Phase[]) : []), 'type', 'save'];
   const grammar: Phase[] = ['tip', ...(e.table ? (['table'] as Phase[]) : []), 'practice'];
   return [words, grammar, ['drills', 'mivo']];
 }
@@ -119,6 +120,11 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
   const [sub, setSub] = useState(0);
   const score = useRef({ right: 0, total: 0 });
   const scrollRef = useRef<ScrollView>(null);
+  const [muted, setMuted] = useSfxMuted();
+
+  useEffect(() => {
+    preloadSfx();
+  }, []);
 
   useEffect(() => {
     loadPathProgress().then((p) => setPartsDone(Math.min(3, starsOf(p, stepId))));
@@ -163,6 +169,15 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
         {inPart >= 0 ? (
           <>
             <Bar value={barValue} />
+            <Pressable
+              onPress={() => setMuted(!muted)}
+              hitSlop={8}
+              style={styles.muteBtn}
+              accessibilityRole="button"
+              accessibilityLabel={muted ? t("Sesleri aç") : t("Sesleri kapat")}
+            >
+              <Ionicons name={muted ? 'volume-mute' : 'volume-medium'} size={18} color={muted ? colors.textMuted : colors.brand} />
+            </Pressable>
             <View style={styles.partTag}>
               <Ionicons name="star" size={14} color="#F59E0B" />
               <Text style={styles.partTagText}>{part + 1}/3</Text>
@@ -184,6 +199,20 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           <CoverStep episode={episode} art={art} partsDone={partsDone} onStart={startPart} />
         ) : screen === 'pick' ? (
           <PickStep words={episode.words} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
+        ) : screen === 'listen' ? (
+          <>
+            <FadeIn>
+              <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
+            </FadeIn>
+            <WordMatch
+              audio
+              words={episode.words}
+              onDone={(mistakes) => {
+                tally(mistakes === 0);
+                next();
+              }}
+            />
+          </>
         ) : screen === 'match' ? (
           <>
             <FadeIn>
@@ -336,6 +365,10 @@ function Choice({
 /** The panel that slides in after an answer: right / not quite, a line under it, and the way on. */
 function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label: string; onNext: () => void }) {
   const praise = useMemo(() => [t("Doğru!"), t("Harika!"), t("Süper!")][Math.floor(Math.random() * 3)], []);
+  useEffect(() => {
+    playSfx(ok ? 'correct' : 'wrong');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <FadeIn from={24} style={[styles.feedback, ok ? styles.feedbackOk : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
@@ -359,58 +392,83 @@ const wordLine = (w: PathWord) => (gloss(w.native) ? `${w.en} = ${gloss(w.native
 
 function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode; art?: number; partsDone: number; onStart: (part: number) => void }) {
   const { width, height } = useWindowDimensions();
-  const size = Math.round(Math.min(width - spacing.md * 2, height * 0.34));
+  const size = Math.round(Math.min(width - spacing.md * 2, height * 0.38));
   const zoom = useLoop(true, 9000, true);
   const scale = zoom.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] });
+  const breathe = useLoop(true, 1400, true);
+  const ctaScale = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.025] });
   const nextPart = Math.min(partsDone, 2);
   const allDone = partsDone >= 3;
 
   return (
     <>
-      <FadeIn from={20} duration={500} style={[styles.coverShadow, { width: size, height: size, borderRadius: 28 }]}>
-        {/* The shadow sits on the outer view; this inner one has none, so Android clips the picture to the corners. */}
-        <View style={[styles.coverClip, { borderRadius: 28 }]}>
-          {art ? (
-            <Animated.Image source={art} style={{ width: size, height: size, borderRadius: 28, transform: [{ scale }] }} resizeMode="cover" />
-          ) : (
-            <LinearGradient colors={['#6366F1', '#8B5CF6']} style={[StyleSheet.absoluteFill, styles.coverFallback]}>
-              <Image source={mivoHomeImages.lessonGuide} style={{ width: size * 0.7, height: size * 0.7 }} resizeMode="contain" />
-            </LinearGradient>
-          )}
-          <View style={styles.coverBadge}>
-            <Text style={styles.coverBadgeText}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
+      <View style={[styles.coverStage, { height: size + 24 }]}>
+        {/* A soft halo behind the picture */}
+        <View style={[styles.coverHalo, { width: size * 1.08, height: size * 1.08, borderRadius: size }]} />
+        <FadeIn from={20} duration={500} style={[styles.coverShadow, { width: size, height: size, borderRadius: 32 }]}>
+          {/* The shadow sits on the outer view; this inner one has none, so Android clips the picture to the corners. */}
+          <View style={[styles.coverClip, { borderRadius: 32 }]}>
+            {art ? (
+              <Animated.Image source={art} style={{ width: size, height: size, borderRadius: 32, transform: [{ scale }] }} resizeMode="cover" />
+            ) : (
+              <LinearGradient colors={['#6366F1', '#8B5CF6']} style={[StyleSheet.absoluteFill, styles.coverFallback]}>
+                <Image source={mivoHomeImages.lessonGuide} style={{ width: size * 0.7, height: size * 0.7 }} resizeMode="contain" />
+              </LinearGradient>
+            )}
+            <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.45)']} style={styles.coverShade} />
+            <View style={styles.coverBadge}>
+              <Text style={styles.coverBadgeText}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
+            </View>
+            <View style={styles.coverStars}>
+              {[1, 2, 3].map((n) => (
+                <PopIn key={n} delay={350 + n * 110}>
+                  <Ionicons name={n <= partsDone ? 'star' : 'star-outline'} size={26} color={n <= partsDone ? '#FBBF24' : 'rgba(255,255,255,0.9)'} />
+                </PopIn>
+              ))}
+            </View>
           </View>
-        </View>
-      </FadeIn>
+        </FadeIn>
+      </View>
 
       <FadeIn delay={120}>
         <Text style={styles.coverTitle}>{loc(episode.title)}</Text>
-        {episode.recap ? (
-          <Text style={styles.coverRecap} numberOfLines={2}>
-            {loc(episode.recap)}
-          </Text>
-        ) : null}
+        <View style={styles.coverMeta}>
+          <Ionicons name="time-outline" size={14} color={colors.textMuted} />
+          <Text style={styles.coverMetaText}>{t("~{{n}} dk", { n: episode.minutes })}</Text>
+          <Text style={styles.coverMetaDot}>•</Text>
+          <Ionicons name="text" size={14} color={colors.textMuted} />
+          <Text style={styles.coverMetaText}>{t("{{n}} yeni kelime", { n: episode.words.length })}</Text>
+        </View>
       </FadeIn>
 
-      <FadeIn delay={200} style={styles.chipRow}>
-        <View style={styles.chip}>
-          <Ionicons name="sparkles" size={14} color={colors.brand} />
-          <Text style={styles.chipText} numberOfLines={1}>
+      <FadeIn delay={200} style={styles.coverTopic}>
+        <View style={styles.coverTopicIcon}>
+          <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.coverTopicKicker}>{t("Bugün öğreneceğin")}</Text>
+          <Text style={styles.coverTopicText} numberOfLines={2}>
             {loc(episode.grammar)}
           </Text>
         </View>
-        <View style={styles.chip}>
-          <Ionicons name="time-outline" size={14} color={colors.textBody} />
-          <Text style={[styles.chipText, { color: colors.textBody }]}>{t("~{{n}} dk", { n: episode.minutes })}</Text>
-        </View>
-        <View style={styles.chip}>
-          <Ionicons name="text" size={14} color={colors.textBody} />
-          <Text style={[styles.chipText, { color: colors.textBody }]}>{t("{{n}} yeni kelime", { n: episode.words.length })}</Text>
-        </View>
       </FadeIn>
 
-      <FadeIn delay={320}>
-        <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Başla")} onPress={() => onStart(allDone ? 0 : nextPart)} />
+      {episode.recap ? (
+        <FadeIn delay={260} style={styles.coverRecapRow}>
+          <Image source={mivoVoiceImages.speak} style={styles.coverMivo} resizeMode="contain" />
+          <View style={styles.coverBubble}>
+            <Text style={styles.coverBubbleKicker}>{t("Önceki bölümde")}</Text>
+            <Text style={styles.coverRecap} numberOfLines={3}>
+              {loc(episode.recap)}
+            </Text>
+          </View>
+        </FadeIn>
+      ) : null}
+
+      <FadeIn delay={340}>
+        <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
+          <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
+        </Animated.View>
       </FadeIn>
     </>
   );
@@ -503,7 +561,7 @@ export function PickStep({
     if (ok) haptics.success();
     else haptics.warning();
     // The word is heard after the answer, so the sound never gives it away.
-    pronounce(w.en).catch(() => {});
+    setTimeout(() => pronounce(w.en).catch(() => {}), 450);
     onAnswered();
   };
   const next = () => {
@@ -576,13 +634,14 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
     if (!solved) return;
     tally(!slip.current);
     haptics.success();
-    pronounce(w.en).catch(() => {});
+    setTimeout(() => pronounce(w.en).catch(() => {}), 450);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solved]);
 
   const press = (k: string) => {
     if (solved) return;
     if (k === target[at]) {
+      playSfx('tap');
       haptics.selection();
       setPos(skipFixed(at + 1));
     } else {
@@ -1376,6 +1435,7 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
       const hits = want.filter((w) => said.some((s) => closeWord(s, w))).length;
       const ok = whole ? hits / Math.max(1, want.length) >= 0.7 : hits > 0;
       setResult(ok);
+      playSfx(ok ? 'correct' : 'wrong');
       if (ok) haptics.success();
       else haptics.warning();
     } catch (err) {
@@ -1475,6 +1535,7 @@ function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: numb
   const names = PART_NAMES();
   useEffect(() => {
     void recordPart(stepId, part);
+    playSfx('complete');
     haptics.success();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1522,6 +1583,7 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
     saved.current = true;
     haptics.success();
     void recordPart(stepId, 3);
+    playSfx('complete');
     postQueued('/progress/log-practice')
       .then(() => queryClient.invalidateQueries({ queryKey: ['me'] }))
       .catch(() => {});
@@ -1583,6 +1645,7 @@ const styles = StyleSheet.create({
   close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   bar: { flex: 1, height: 12, borderRadius: 6, backgroundColor: '#E2E8F0', overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6, backgroundColor: '#FBBF24' },
+  muteBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' },
   partTag: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFFBEB', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1, borderColor: '#FDE68A' },
   partTagText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
 
@@ -1604,13 +1667,25 @@ const styles = StyleSheet.create({
   },
   coverClip: { flex: 1, overflow: 'hidden' },
   coverFallback: { alignItems: 'center', justifyContent: 'flex-end' },
+  coverStage: { alignItems: 'center', justifyContent: 'center' },
+  coverHalo: { position: 'absolute', backgroundColor: '#C7D2FE', opacity: 0.45 },
+  coverShade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '35%' },
   coverBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   coverBadgeText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, letterSpacing: 0.3 },
-  coverTitle: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: colors.textHeading, textAlign: 'center' },
-  coverRecap: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFFFFF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#E2E8F0', maxWidth: '100%' },
-  chipText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, flexShrink: 1 },
+  coverStars: { position: 'absolute', bottom: 12, alignSelf: 'center', flexDirection: 'row', gap: 6 },
+  coverTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: colors.textHeading, textAlign: 'center' },
+  coverMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 6 },
+  coverMetaText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
+  coverMetaDot: { fontSize: 13, color: '#CBD5E1', marginHorizontal: 3 },
+  coverTopic: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#EEF2FF', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#E0E7FF' },
+  coverTopicIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  coverTopicKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.6, textTransform: 'uppercase', color: '#6366F1' },
+  coverTopicText: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading, marginTop: 1 },
+  coverRecapRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  coverMivo: { width: 52, height: 52 },
+  coverBubble: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, borderBottomLeftRadius: 4, padding: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  coverBubbleKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.textMuted, marginBottom: 2 },
+  coverRecap: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },

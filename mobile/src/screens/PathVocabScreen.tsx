@@ -14,6 +14,7 @@ import { t } from '../i18n';
 import { haptics } from '../lib/haptics';
 import { postQueued } from '../lib/outbox';
 import { recordStep } from '../lib/pathProgress';
+import { playSfx, preloadSfx } from '../lib/sfx';
 import type { PathVocabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 import { Bar, LearnStep, NextButton, PickStep, StepHead } from './PathLessonScreen';
@@ -61,6 +62,10 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
   const stars = score >= 0.9 ? 3 : score >= 0.6 ? 2 : 1;
 
   useEffect(() => {
+    preloadSfx();
+  }, []);
+
+  useEffect(() => {
     setSub(0);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [phase, round]);
@@ -69,6 +74,7 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
     if (phase !== 'done' || saved.current) return;
     saved.current = true;
     haptics.success();
+    playSfx('complete');
     void recordStep(stepId, stars);
     postQueued('/progress/log-practice')
       .then(() => queryClient.invalidateQueries({ queryKey: ['me'] }))
@@ -124,10 +130,15 @@ function VocabSet({ stepId, title, words, onExit }: { stepId: string; title: str
         ) : phase === 'match' ? (
           <>
             <FadeIn>
-              <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
+              {round % 2 === 1 ? (
+                <StepHead icon="ear" title={t("Dinle ve eşleştir")} sub={t("Sese dokun, dinle ve anlamını bul.")} />
+              ) : (
+                <StepHead icon="git-compare" title={t("Eşleştir")} sub={t("Kelimeyi anlamıyla eşleştir.")} />
+              )}
             </FadeIn>
             <WordMatch
               key={`m${round}`}
+              audio={round % 2 === 1}
               words={roundWords}
               onDone={(mistakes) => {
                 tally(mistakes === 0);
