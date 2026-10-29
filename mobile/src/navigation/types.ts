@@ -71,9 +71,7 @@ export type RootStackParamList = {
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   Paywall: undefined;
   Badges: undefined;
-  // Account/settings screen reached by tapping the avatar in the shared
-  // `AppHeader` (top of every main tab) — distinct from the `Profile` TAB,
-  // which now shows the "Özellikler" feature list instead of account info.
+  // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
   AccountSettings: undefined;
   MistakesNotebook: undefined;
   /** "Gerçek mesaj yaz" görevi (data/writingTasks.ts). */

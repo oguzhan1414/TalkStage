@@ -3465,5 +3465,12 @@
   "{{xp}} XP · en üst seviye": "{{xp}} XP · top level",
   "Ünite {{n}}": "Unit {{n}}",
   "Üst üste kaç gün pratik yaptığını gösterir. Bir günü saymak için o gün tek bir ders ya da sahne yeter. En uzun serin hep saklanır.": "Shows how many days in a row you've practised. One lesson or scene is enough to count a day. Your longest streak is always kept.",
-  "öğrenildi": "learned"
+  "öğrenildi": "learned",
+  "Profil": "Profile",
+  "Araçlarım": "My tools",
+  "Uygulama": "App",
+  "{{n}} kayıt": "{{n}} entries",
+  "{{a}}/{{b}} rozet": "{{a}}/{{b}} badges",
+  "Eşyalarla kelime ezberle": "Learn words with objects",
+  "Zorlandığın kelimeler": "Words you find hard"
 }

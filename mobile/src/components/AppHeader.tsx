@@ -52,10 +52,9 @@ function getTimeGreeting(): string {
 
 /**
  * Shared top identity bar — avatar/greeting/XP — reused at the top of
- * every main tab (Home, Scenarios, Vocab, Profile/"Özellikler") so the user's
- * identity and quick stats stay visible everywhere, not just Home. Tapping
- * the avatar opens `AccountSettingsScreen` (the actual account/settings
- * screen) — this bar itself carries no settings UI, just identity + a way in.
+ * the Scenarios and Vocab tabs so the user's identity and quick stats stay
+ * visible there too. Tapping the avatar opens the "Profil" tab — this bar
+ * itself carries no settings UI, just identity + a way in.
  * Self-contained: fetches `['me']` itself (same query key every screen
  * already uses, so React Query just shares the cache — no extra network
  * traffic from adding this in four places) and resolves its own navigation
@@ -111,13 +110,13 @@ export function AppHeader() {
     <View style={styles.header}>
       <View style={styles.headerLeftCol}>
         <BouncyPressable
-          onPress={() => navigation.navigate('AccountSettings')}
+          onPress={() => navigation.navigate('Main', { screen: 'Profile' })}
           style={styles.avatarWrapper}
           hitSlop={8}
           hapticType="light"
           scaleTo={0.93}
           accessibilityRole="button"
-          accessibilityLabel={t("Profil ve ayarlar")}
+          accessibilityLabel={t("Profil")}
         >
           <Image source={userAvatar} style={styles.avatarImage} resizeMode="cover" />
           <View style={styles.avatarLevelBadge}>

@@ -172,13 +172,13 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         <View style={styles.top}>
           <View style={styles.topGlass}>
             <BouncyPressable
-              onPress={() => navigation.navigate('AccountSettings')}
+              onPress={() => navigation.navigate('Profile')}
               style={styles.avatar}
               hitSlop={8}
               hapticType="light"
               scaleTo={0.93}
               accessibilityRole="button"
-              accessibilityLabel={t("Profil ve ayarlar")}
+              accessibilityLabel={t("Profil")}
             >
               <Image source={profileAvatar(profile)} style={styles.avatarImage} resizeMode="cover" />
               <View style={styles.avatarLevel}>
