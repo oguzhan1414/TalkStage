@@ -1,56 +1,36 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useMemo, useState } from 'react';
 import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ALL_TOPIC_CODES, CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
-import { VOICE_SCENES } from '@talkstage/shared-data/voiceScenes';
-import { avatarImages, cefrLevelImages, stateImages } from '../assets/images';
+import { avatarImages, partBadgeImages } from '../assets/images';
 import { Button } from '../components/Button';
-import { useAuth } from '../context/AuthContext';
-import { useDailyReminder } from '../hooks/useDailyReminder';
-import { TIME_PRESETS } from '../lib/notifications';
-import { api } from '../lib/api';
-import { isCoreTask, isTopicCoreDone, reviewIdsForTopics } from '../lib/curriculumTasks';
-import { loadSceneStars, type SceneStars } from '../lib/sceneProgress';
-import { loadCompletedWritingIds, playedSceneIds, READY_SCENES } from '../lib/planSignals';
-import {
-  buildStageQueue,
-  firstLevelOf,
-  STAGE_COLOR,
-  STAGE_IDS,
-  STAGE_LEVELS,
-  stageCurriculum,
-  stageOfLevel,
-  stageRange,
-  stageTitle,
-  type StageId,
-} from '../lib/stages';
-import { MivoTip } from '../components/MivoTip';
-import { loc, PATH_LEVELS } from '../data/path';
-import { pathLevelName, usePathLevel } from '../lib/pathLevel';
-import { useRestorePurchases } from '../hooks/useRestorePurchases';
-import { PlanEditorModal } from '../components/PlanEditorModal';
-import { planFeatureTitles } from '../components/PlanFeatureGrid';
-import { useLearningPlan } from '../lib/learningPlanStore';
-import { isProUser } from '../lib/revenuecat';
-import type { AccountSettingsScreenProps } from '../navigation/types';
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type {
-  ProfileOut,
-  ProfileUpdate,
-  ReadingPassageOut,
-  VocabCardOut,
-} from '../types/api';
-import { getLocale, LOCALE_META, t } from '../i18n';
 import { LanguagePickerModal } from '../components/LanguagePickerModal';
+import { privacyUrl } from '../constants/legalLinks';
+import { xpLevelInfo } from '../constants/xp';
+import { useAuth } from '../context/AuthContext';
+import { flatSteps, loc, PATH_LEVELS } from '../data/path';
+import { useDailyReminder } from '../hooks/useDailyReminder';
+import { useRestorePurchases } from '../hooks/useRestorePurchases';
+import { getLocale, LOCALE_META, t } from '../i18n';
+import { api } from '../lib/api';
+import { TIME_PRESETS } from '../lib/notifications';
+import { pathLevelName, usePathLevel } from '../lib/pathLevel';
+import { isDone, usePathProgress, type PathProgress } from '../lib/pathProgress';
+import { isProUser } from '../lib/revenuecat';
+import { useSfxMuted } from '../lib/sfx';
+import type { AccountSettingsScreenProps } from '../navigation/types';
+import { colors, fonts, spacing } from '../theme/tokens';
+import type { ProfileOut, ProfileUpdate } from '../types/api';
 
 const SUPPORT_EMAIL = 'support@spekvia.com';
-import { privacyUrl } from '../constants/legalLinks';
 const APP_VERSION = '1.0.0';
+/** The warm floor shared with the home and the lessons. */
+const FLOOR = '#FBF7F1';
+/** The whole road, also the levels not written yet (shown as "soon"). */
+const ALL_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
 
 const AVATAR_LIST = [
   { id: 'student', name: t("Öğrenci"), source: avatarImages.studentYouth },
@@ -64,73 +44,88 @@ const AVATAR_LIST = [
   { id: 'entrepreneur', name: t("Girişimci"), source: avatarImages.femaleEntrepreneur },
 ];
 
-const STAGE_DESC: Record<StageId, string> = {
-  baslangic: t("Tanışma, günlük hayat, seyahat ve alışveriş"),
-  orta: t("Deneyimler, planlar, fikir belirtme ve sohbeti yönetme"),
-  ileri: t("Vurgu, resmî dil ve akıcı söylem"),
-};
-
-/** The three stages of the journey; the CEFR range is only a small tag next to the name. */
-const STAGES = STAGE_IDS.map((id) => ({
-  code: id,
-  title: stageTitle(id),
-  range: stageRange(id),
-  desc: STAGE_DESC[id],
-  color: STAGE_COLOR[id],
-  targetDays: stageCurriculum(id).targetDays,
-}));
+/** Episodes finished per level and the words learned in them (lesson words and word steps). */
+function journeyStats(progress: PathProgress | null) {
+  const perLevel: Record<string, { done: number; total: number }> = {};
+  const words = new Set<string>();
+  let episodes = 0;
+  for (const level of PATH_LEVELS) {
+    let done = 0;
+    let total = 0;
+    for (const { step } of flatSteps(level)) {
+      if (step.kind === 'reading') {
+        total += 1;
+        if (progress && isDone(progress, step.id)) {
+          done += 1;
+          step.episode.words.forEach((w) => words.add(w.en.toLowerCase()));
+        }
+      } else if (step.kind === 'vocab' && progress && isDone(progress, step.id)) {
+        step.words.forEach((w) => words.add(w.en.toLowerCase()));
+      }
+    }
+    perLevel[level.id] = { done, total };
+    episodes += done;
+  }
+  return { perLevel, episodes, words: words.size };
+}
 
 /**
- * Account/settings screen — reached by tapping the avatar in the shared
- * `AppHeader` (every main tab). This is the "Profilim" content that used to
- * live inline at the top of the Profile tab; moved here verbatim (same
- * modals/mutations/queries) so the Profile tab can become a plain feature
- * list ("Özellikler") instead. No new actions were added — every row here
- * already existed in `ProfileScreen.tsx`, just restructured into a simple
- * settings-list layout.
+ * The profile (opened from the avatar on the home): who you are and your friendship with Mivo, three numbers (streak,
+ * episodes, words), the road from A1 to C2 where the level can be switched, a few settings, then account and help.
  */
 export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps) {
   const { session, signOut, deleteAccount } = useAuth();
   const queryClient = useQueryClient();
-
-  const { data: profile } = useQuery({
-    queryKey: ['me'],
-    queryFn: () => api.get<ProfileOut>('/me'),
-  });
-  const { data: vocabAll } = useQuery({
-    queryKey: ['vocab-cards', 'all'],
-    queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
-  });
-  const { data: readingPassages } = useQuery({
-    queryKey: ['reading'],
-    queryFn: () => api.get<ReadingPassageOut[]>('/reading'),
-  });
-  const { data: completedReadingSlugs } = useQuery({
-    queryKey: ['reading', 'completed'],
-    queryFn: () => api.get<string[]>('/reading/completed-slugs'),
-  });
-  const { data: isPro } = useQuery({
-    queryKey: ['isProUser'],
-    queryFn: isProUser,
-    staleTime: 60_000,
-  });
+  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const { restore: restorePurchases, restoring } = useRestorePurchases();
+  const { progress } = usePathProgress();
+  const [pathLevelId, setPathLevelId] = usePathLevel();
+  const [sfxMuted, setSfxMuted] = useSfxMuted();
 
-  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
-  const [guideModalVisible, setGuideModalVisible] = useState(false);
-  const [nameModalVisible, setNameModalVisible] = useState(false);
-  const [levelModalVisible, setLevelModalVisible] = useState(false);
-  const [languageModalVisible, setLanguageModalVisible] = useState(false);
-  const [levelModalTab, setLevelModalTab] = useState<'PROGRESS' | 'ALL_LEVELS'>('PROGRESS');
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [nameOpen, setNameOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [nameInput, setNameInput] = useState('');
-  const [chatCompletedCodes, setChatCompletedCodes] = useState<Set<string>>(new Set());
-  const [lessonQuizDoneCodes, setLessonQuizDoneCodes] = useState<Set<string>>(new Set());
-  const [sceneStars, setSceneStars] = useState<SceneStars>({});
-  const [completedWritingIds, setCompletedWritingIds] = useState<Set<string>>(new Set());
-  const [planEditorOpen, setPlanEditorOpen] = useState(false);
-  const { plan: learningPlan, applyPlan } = useLearningPlan(profile);
   const [signingOut, setSigningOut] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const displayName =
+    profile?.display_name ??
+    (session?.user.user_metadata?.full_name as string | undefined)?.split(' ')[0] ??
+    session?.user.email?.split('@')[0] ??
+    t("Konuşmacı");
+  const reminder = useDailyReminder(displayName);
+
+  const selectedAvatarId = profile?.avatar_id ?? profile?.persona_id ?? AVATAR_LIST[0].id;
+  const avatar = AVATAR_LIST.find((a) => a.id === selectedAvatarId) ?? AVATAR_LIST[0];
+  const friendship = xpLevelInfo(profile?.xp);
+  const stats = useMemo(() => journeyStats(progress), [progress]);
+  const current = stats.perLevel[pathLevelId] ?? { done: 0, total: 1 };
+  const currentLevel = PATH_LEVELS.find((l) => l.id === pathLevelId) ?? PATH_LEVELS[0];
+
+  const avatarMutation = useMutation({
+    mutationFn: (avatarId: string) => api.patch<ProfileOut>('/me', { avatar_id: avatarId } satisfies ProfileUpdate),
+    onSuccess: (updated) => queryClient.setQueryData(['me'], updated),
+  });
+  const nameMutation = useMutation({
+    mutationFn: (name: string) => api.patch<ProfileOut>('/me', { display_name: name } satisfies ProfileUpdate),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['me'], updated);
+      setNameOpen(false);
+    },
+  });
+  // The profile's CEFR level follows the path level (it unlocks free chat from A2).
+  const levelMutation = useMutation({
+    mutationFn: (level: string) => api.patch<ProfileOut>('/me', { cefr_level: level } satisfies ProfileUpdate),
+    onSuccess: (updated) => queryClient.setQueryData(['me'], updated),
+  });
+  const chooseLevel = (id: string) => {
+    if (id === pathLevelId || !PATH_LEVELS.some((l) => l.id === id)) return;
+    setPathLevelId(id);
+    levelMutation.mutate(id);
+  };
 
   const handleSignOut = async () => {
     if (signingOut) return;
@@ -143,8 +138,7 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
       setSigningOut(false);
     }
   };
-
-  const confirmDeleteAccount = () => {
+  const confirmDelete = () => {
     Alert.alert(
       t("Hesabını kalıcı olarak sil?"),
       t("Konuşma geçmişin, kelimelerin, ilerlemen ve profilin geri alınamayacak şekilde silinir. Aktif mağaza aboneliğin varsa ayrıca App Store veya Google Play üzerinden iptal etmelisin."),
@@ -154,311 +148,157 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
           text: t("Hesabımı Sil"),
           style: 'destructive',
           onPress: async () => {
-            if (deletingAccount) return;
-            setDeletingAccount(true);
+            if (deleting) return;
+            setDeleting(true);
             try {
               await deleteAccount();
             } catch {
               Alert.alert(t("Hesap silinemedi"), t("Bağlantını kontrol edip tekrar dene."));
             } finally {
-              setDeletingAccount(false);
+              setDeleting(false);
             }
           },
         },
-      ],
+      ]
     );
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      AsyncStorage.multiGet(
-        Object.entries(CEFR_CURRICULUM)
-          .flatMap(([, c]) => reviewIdsForTopics(c.topics))
-          .map((c) => `topic_chat_completed_${c}`)
-      ).then(
-        (pairs) => {
-          if (cancelled) return;
-          setChatCompletedCodes(
-            new Set(
-              pairs
-                .filter(([, v]) => v === '1')
-                .map(([k]) => k.replace('topic_chat_completed_', ''))
-            )
-          );
-        }
-      );
-      AsyncStorage.multiGet(ALL_TOPIC_CODES.map((c) => `lesson_quiz_done_${c}`)).then((pairs) => {
-        if (cancelled) return;
-        setLessonQuizDoneCodes(
-          new Set(pairs.filter(([, v]) => v === '1').map(([k]) => k.replace('lesson_quiz_done_', '')))
-        );
-      });
-      loadSceneStars([...READY_SCENES.map((sc) => sc.id), ...VOICE_SCENES.map((sc) => sc.id)]).then((stars) => {
-        if (!cancelled) setSceneStars(stars);
-      });
-      loadCompletedWritingIds().then((ids) => {
-        if (!cancelled) setCompletedWritingIds(ids);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }, [])
-  );
-
-  const avatarMutation = useMutation({
-    mutationFn: (avatarId: string) =>
-      api.patch<ProfileOut>('/me', { avatar_id: avatarId } satisfies ProfileUpdate),
-    onSuccess: (updated) => queryClient.setQueryData(['me'], updated),
-  });
-
-  const nameMutation = useMutation({
-    mutationFn: (displayName: string) =>
-      api.patch<ProfileOut>('/me', { display_name: displayName } satisfies ProfileUpdate),
-    onSuccess: (updated) => {
-      queryClient.setQueryData(['me'], updated);
-      setNameModalVisible(false);
-    },
-  });
-
-  // The level of the learning path; the profile's CEFR level follows it (it unlocks free chat from A2).
-  const [pathLevelId, setPathLevelId] = usePathLevel();
-  const choosePathLevel = (id: string) => {
-    if (id === pathLevelId) return;
-    setPathLevelId(id);
-    levelMutation.mutate(id);
-  };
-
-  const levelMutation = useMutation({
-    mutationFn: (newLevel: string) =>
-      api.patch<ProfileOut>('/me', { cefr_level: newLevel } satisfies ProfileUpdate),
-    onSuccess: (updated) => {
-      queryClient.setQueryData(['me'], updated);
-      setLevelModalVisible(false);
-    },
-  });
-
-  const selectedAvatarId = profile?.avatar_id ?? profile?.persona_id ?? AVATAR_LIST[0].id;
-  const selectedAvatarIdx = Math.max(
-    0,
-    AVATAR_LIST.findIndex((a) => a.id === selectedAvatarId)
-  );
-
-  const displayName =
-    profile?.display_name ??
-    (session?.user.user_metadata?.full_name as string | undefined)?.split(' ')[0] ??
-    session?.user.email?.split('@')[0] ??
-    t("Konuşmacı");
-
-  const {
-    enabled: remindersEnabled,
-    toggle: toggleReminders,
-    unavailable: remindersUnavailable,
-    hour: reminderHour,
-    minute: reminderMinute,
-    setTime: setReminderTime,
-  } = useDailyReminder(displayName);
-
-  const currentLevel = profile?.cefr_level ?? 'A1';
-  const currentStage = stageOfLevel(currentLevel);
-  const levelShield =
-    cefrLevelImages[currentLevel as keyof typeof cefrLevelImages] ?? cefrLevelImages.A1;
-  const currentLevelObj = STAGES.find((l) => l.code === currentStage) ?? STAGES[0];
-
-  const savedWordsLower = new Set((vocabAll ?? []).map((c) => c.term.trim().toLowerCase()));
-  const activeCurriculum = stageCurriculum(currentStage);
-  const completedReadingSlugSetForLevel = new Set(completedReadingSlugs ?? []);
-  const readingPassagesForLevel = (level: string) =>
-    (readingPassages ?? [])
-      .filter((p) => (p.cefr_level ?? 'A1') === level)
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .map((p) => ({ slug: p.slug, title: p.title }));
-  const taskQueue = buildStageQueue(
-    currentStage,
-    currentLevel,
-    {
-      savedWordsLower,
-      lessonQuizDoneCodes,
-      chatCompletedTopicCodes: chatCompletedCodes,
-      completedReadingSlugs: completedReadingSlugSetForLevel,
-      plan: learningPlan,
-      playedSceneIds: playedSceneIds(sceneStars),
-      completedWritingIds,
-    },
-    readingPassagesForLevel
-  );
-  const remainingTopics = activeCurriculum.topics.filter((t) => !isTopicCoreDone(taskQueue, t.code));
-  const completedTopicsCount = activeCurriculum.topics.length - remainingTopics.length;
-  const levelCompletionPercent = activeCurriculum.topics.length
-    ? Math.round((completedTopicsCount / activeCurriculum.topics.length) * 100)
-    : 0;
-  const isLevelComplete = remainingTopics.length === 0;
-  const currentLevelIdx = STAGES.findIndex((l) => l.code === currentStage);
-  const nextLevelObj = STAGES[currentLevelIdx + 1] ?? null;
-  const estimatedDaysRemaining = Math.max(
-    0,
-    Math.round(activeCurriculum.targetDays * (remainingTopics.length / activeCurriculum.topics.length))
-  );
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topHeader}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn}>
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn} accessibilityRole="button" accessibilityLabel={t("Geri")}>
           <Ionicons name="arrow-back" size={20} color={colors.textHeading} />
         </Pressable>
-        <View style={styles.topHeaderCol}>
-          <Text style={styles.topHeaderTitle}>{t("Profilim")}</Text>
-          <Text style={styles.topHeaderSub}>{t("Hesap & Ayarlar")}</Text>
-        </View>
-        <View style={{ width: 36 }} />
+        <Text style={styles.headerTitle}>{t("Profilim")}</Text>
+        <View style={{ width: 38 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <MivoTip
-          tipKey="settings"
-          text={t("Öğrenme planını, hatırlatma saatini ve uygulama dilini buradan değiştirebilirsin ⚙️")}
-          style={{ marginBottom: 14 }}
-        />
-
-        {/* Identity row */}
-        <View style={[styles.identityCard, shadow.card]}>
-          <Pressable
-            onPress={() => setAvatarModalVisible(true)}
-            style={styles.avatarCompactWrapper}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={t("Avatarını değiştir")}
-          >
-            <Image
-              source={AVATAR_LIST[selectedAvatarIdx].source}
-              style={styles.avatarCompactImage}
-              resizeMode="cover"
-            />
-            {isPro ? (
-              <View style={styles.onlineBadge}>
-                <Text style={styles.onlineBadgeText}>{t("PRO")}</Text>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Who you are, and your friendship with Mivo */}
+        <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+          <View style={styles.heroRow}>
+            <Pressable onPress={() => setAvatarOpen(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Avatarını değiştir")}>
+              <Image source={avatar.source} style={styles.avatar} resizeMode="cover" />
+              <View style={styles.avatarEdit}>
+                <Ionicons name="sparkles" size={11} color="#4F46E5" />
               </View>
-            ) : null}
-            <View style={styles.avatarEditBadge}>
-              <Ionicons name="sparkles" size={10} color="#FFFFFF" />
-            </View>
-          </Pressable>
-
-          <View style={styles.profileIdentityCol}>
-            <Pressable
-              onPress={() => {
-                setNameInput(displayName);
-                setNameModalVisible(true);
-              }}
-              style={styles.nameRow}
-            >
-              <Text style={styles.displayName}>{displayName}</Text>
-              <Ionicons name="create-outline" size={15} color={colors.brand} style={{ marginLeft: 4 }} />
             </Pressable>
-            <Text style={styles.emailText} numberOfLines={1}>
-              {session?.user.email}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Pressable
+                onPress={() => {
+                  setNameInput(displayName);
+                  setNameOpen(true);
+                }}
+                style={styles.nameRow}
+                accessibilityRole="button"
+                accessibilityLabel={t("Adını düzenle")}
+              >
+                <Text style={styles.name} numberOfLines={1}>
+                  {displayName}
+                </Text>
+                <Ionicons name="create-outline" size={16} color="rgba(255,255,255,0.85)" />
+              </Pressable>
+              <Text style={styles.email} numberOfLines={1}>
+                {session?.user.email}
+              </Text>
+              {isPro ? (
+                <View style={styles.proPill}>
+                  <Ionicons name="diamond" size={11} color="#78350F" />
+                  <Text style={styles.proText}>PRO</Text>
+                </View>
+              ) : null}
+            </View>
           </View>
+
+          <Pressable onPress={() => setGuideOpen(true)} style={styles.friend} accessibilityRole="button">
+            <View style={styles.friendTop}>
+              <Text style={styles.friendKicker}>{t("Mivo ile dostluk · Seviye {{n}}", { n: friendship.level })}</Text>
+              <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.8)" />
+            </View>
+            <Text style={styles.friendName}>{friendship.name}</Text>
+            <View style={styles.friendTrack}>
+              <View style={[styles.friendFill, { width: `${Math.max(4, friendship.progress * 100)}%` }]} />
+            </View>
+            <Text style={styles.friendXp}>
+              {friendship.nextAt ? t("{{xp}} / {{next}} XP", { xp: friendship.xp, next: friendship.nextAt }) : t("{{xp}} XP · en üst seviye", { xp: friendship.xp })}
+            </Text>
+          </Pressable>
+        </LinearGradient>
+
+        {/* Three numbers */}
+        <View style={styles.stats}>
+          <Stat icon="flame" color="#F97316" value={profile?.streak_count ?? 0} label={t("Günlük seri")} sub={t("En uzun: {{n}}", { n: profile?.longest_streak ?? 0 })} />
+          <Stat icon="book" color="#4F46E5" value={stats.episodes} label={t("Bölüm")} sub={t("tamamlandı")} />
+          <Stat icon="sparkles" color="#10B981" value={stats.words} label={t("Kelime")} sub={t("öğrenildi")} />
         </View>
 
-        {/* Simple settings list */}
-        <View style={[styles.settingsCard, shadow.card]}>
-          <View style={styles.settingRow}>
-            <Ionicons name="school-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Seviyem")}</Text>
-              <Text style={styles.settingDesc}>
-                {loc(PATH_LEVELS.find((l) => l.id === pathLevelId)?.story.title ?? PATH_LEVELS[0].story.title)}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.levelChips}>
-            {PATH_LEVELS.map((l) => {
-              const on = l.id === pathLevelId;
+        {/* The road from A1 to C2 */}
+        <View style={styles.card}>
+          <Text style={styles.cardKicker}>{t("Yolculuğum")}</Text>
+          <Text style={styles.cardTitle}>{loc(currentLevel.story.title)}</Text>
+          <View style={styles.road}>
+            <View style={styles.roadLine} />
+            {ALL_LEVELS.map((id) => {
+              const written = PATH_LEVELS.some((l) => l.id === id);
+              const s = stats.perLevel[id];
+              const finished = !!s && s.total > 0 && s.done >= s.total;
+              const here = id === pathLevelId;
               return (
                 <Pressable
-                  key={l.id}
-                  onPress={() => choosePathLevel(l.id)}
-                  style={[styles.levelChip, on && styles.levelChipOn]}
+                  key={id}
+                  onPress={() => chooseLevel(id)}
+                  disabled={!written}
+                  style={styles.stop}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: on }}
+                  accessibilityState={{ selected: here, disabled: !written }}
                 >
-                  <Text style={[styles.levelChipCode, on && { color: '#FFFFFF' }]}>{l.id}</Text>
-                  <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.levelChipName, on && { color: 'rgba(255,255,255,0.85)' }]}>
-                    {pathLevelName(l.id)}
+                  <View style={[styles.stopDot, finished && styles.stopDone, here && styles.stopHere, !written && styles.stopSoon]}>
+                    {finished ? (
+                      <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                    ) : (
+                      <Text style={[styles.stopCode, here && { color: '#FFFFFF' }, !written && { color: '#A8A29E' }]}>{id}</Text>
+                    )}
+                  </View>
+                  <Text style={[styles.stopName, here && { color: colors.textHeading }]} numberOfLines={1} adjustsFontSizeToFit>
+                    {written ? pathLevelName(id) : t("Yakında")}
                   </Text>
                 </Pressable>
               );
             })}
           </View>
-
-          <View style={styles.settingDivider} />
-
-          <Pressable onPress={() => setPlanEditorOpen(true)} style={styles.settingRow}>
-            <Ionicons name="options-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Öğrenme Planım")}</Text>
-              <Text style={styles.settingDesc}>
-                {learningPlan ? planFeatureTitles(learningPlan).join(', ') : t("Henüz seçilmedi")}
-              </Text>
+          <View style={styles.levelProgress}>
+            <View style={styles.levelTrack}>
+              <View style={[styles.levelFill, { width: `${Math.max(3, (current.done / Math.max(1, current.total)) * 100)}%` }]} />
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
-
-          <View style={styles.settingDivider} />
-
-          <Pressable onPress={() => void restorePurchases()} disabled={restoring} style={styles.settingRow} accessibilityRole="button">
-            <Ionicons name="refresh-circle-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Satın alımları geri yükle")}</Text>
-              <Text style={styles.settingDesc}>
-                {restoring ? t("Kontrol ediliyor…") : t("Telefon değiştirdiysen ya da uygulamayı yeniden kurduysan")}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
-
-          <View style={styles.settingDivider} />
-
-          <Pressable onPress={() => setLanguageModalVisible(true)} style={styles.settingRow}>
-            <Ionicons name="language-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Uygulama Dili")}</Text>
-              <Text style={styles.settingDesc}>
-                {LOCALE_META[getLocale()].flag} {LOCALE_META[getLocale()].nativeName}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
-
-          <View style={styles.settingDivider} />
-
-          <View style={styles.settingRow}>
-            <Ionicons name="notifications-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Günlük Hatırlatıcı")}</Text>
-              <Text style={styles.settingDesc}>{t("Bugünkü görevin ve yarınki planın için akıllı hatırlatma")}</Text>
-            </View>
-            <Switch
-              value={remindersEnabled}
-              onValueChange={toggleReminders}
-              disabled={remindersUnavailable}
-              trackColor={{ false: '#CBD5E1', true: colors.brand }}
-            />
+            <Text style={styles.levelText}>{t("{{level}} · {{done}}/{{total}} bölüm", { level: pathLevelId, done: current.done, total: current.total })}</Text>
           </View>
-          {remindersEnabled && !remindersUnavailable ? (
-            <View style={styles.reminderTimes}>
+          <Text style={styles.cardHint}>{t("Başka bir seviyeye geçmek için durağına dokun. İlerlemen her seviyede ayrı saklanır.")}</Text>
+        </View>
+
+        {/* Settings */}
+        <Text style={styles.groupTitle}>{t("Ayarlar")}</Text>
+        <View style={styles.card}>
+          <Row icon="notifications" tint="#F59E0B" label={t("Günlük hatırlatıcı")} sub={t("Mivo günde bir kez hatırlatır")}>
+            <Switch
+              value={reminder.enabled}
+              onValueChange={reminder.toggle}
+              disabled={reminder.unavailable}
+              trackColor={{ false: '#D6D3D1', true: colors.brand }}
+            />
+          </Row>
+          {reminder.enabled && !reminder.unavailable ? (
+            <View style={styles.times}>
               {TIME_PRESETS.map((p) => {
-                const active = p.hour === reminderHour && p.minute === reminderMinute;
+                const on = p.hour === reminder.hour && p.minute === reminder.minute;
                 return (
                   <Pressable
                     key={`${p.hour}:${p.minute}`}
-                    onPress={() => void setReminderTime(p.hour, p.minute)}
-                    style={[styles.reminderChip, active && styles.reminderChipActive]}
+                    onPress={() => void reminder.setTime(p.hour, p.minute)}
+                    style={[styles.timeChip, on && styles.timeChipOn]}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
+                    accessibilityState={{ selected: on }}
                   >
-                    <Text style={[styles.reminderChipText, active && styles.reminderChipTextActive]}>
+                    <Text style={[styles.timeText, on && { color: '#FFFFFF' }]}>
                       {p.label} {String(p.hour).padStart(2, '0')}:{String(p.minute).padStart(2, '0')}
                     </Text>
                   </Pressable>
@@ -466,217 +306,128 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
               })}
             </View>
           ) : null}
-
-          <View style={styles.settingDivider} />
-
-          <Pressable onPress={() => setGuideModalVisible(true)} style={styles.settingRow}>
-            <Ionicons name="information-circle-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("XP ve Seri Rehberi")}</Text>
-              <Text style={styles.settingDesc}>{t("Ödül kazanma yolları nasıl çalışır")}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
-
-          <View style={styles.settingDivider} />
-
-          <Pressable
-            onPress={() => {
-              void Linking.openURL(privacyUrl());
-            }}
-            style={styles.settingRow}
-            accessibilityRole="link"
-            accessibilityLabel={t("Gizlilik politikasını aç")}
-          >
-            <Ionicons name="shield-checkmark-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Gizlilik ve Ses Verileri")}</Text>
-              <Text style={styles.settingDesc}>{t("Verilerinin nasıl işlendiğini ve haklarını incele")}</Text>
-            </View>
-            <Ionicons name="open-outline" size={18} color={colors.textMuted} />
-          </Pressable>
-
-          <View style={styles.settingDivider} />
-
-          <Pressable
-            onPress={() => {
-              void Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Spekvia')}`);
-            }}
-            style={styles.settingRow}
-            accessibilityRole="link"
-            accessibilityLabel={t("Destek ekibine e-posta yaz")}
-          >
-            <Ionicons name="mail-outline" size={20} color={colors.brand} />
-            <View style={styles.settingTextCol}>
-              <Text style={styles.settingLabel}>{t("Yardım ve Destek")}</Text>
-              <Text style={styles.settingDesc}>{t("Soru, öneri ya da sorun için bize yaz")}</Text>
-            </View>
-            <Ionicons name="open-outline" size={18} color={colors.textMuted} />
-          </Pressable>
+          <Divider />
+          <Row icon="musical-notes" tint="#8B5CF6" label={t("Ses efektleri")} sub={t("Doğru, yanlış ve kutlama sesleri")}>
+            <Switch value={!sfxMuted} onValueChange={(on) => setSfxMuted(!on)} trackColor={{ false: '#D6D3D1', true: colors.brand }} />
+          </Row>
+          <Divider />
+          <Row
+            icon="language"
+            tint="#0EA5E9"
+            label={t("Uygulama dili")}
+            sub={`${LOCALE_META[getLocale()].flag} ${LOCALE_META[getLocale()].nativeName}`}
+            onPress={() => setLanguageOpen(true)}
+          />
         </View>
 
-        <Button
-          label={t("Çıkış Yap")}
-          variant="ghost"
-          onPress={handleSignOut}
-          loading={signingOut}
-          style={styles.logoutButton}
-        />
-        <Button
-          label={t("Hesabımı Kalıcı Olarak Sil")}
-          variant="ghost"
-          onPress={confirmDeleteAccount}
-          loading={deletingAccount}
-          style={styles.deleteAccountButton}
-        />
+        {/* Account and help */}
+        <Text style={styles.groupTitle}>{t("Hesap ve yardım")}</Text>
+        <View style={styles.card}>
+          <Row
+            icon="refresh"
+            tint="#10B981"
+            label={t("Satın alımları geri yükle")}
+            sub={restoring ? t("Kontrol ediliyor…") : t("Telefon değiştirdiysen ya da uygulamayı yeniden kurduysan")}
+            onPress={restoring ? undefined : () => void restorePurchases()}
+          />
+          <Divider />
+          <Row
+            icon="mail"
+            tint="#4F46E5"
+            label={t("Yardım ve destek")}
+            sub={t("Soru, öneri ya da sorun için bize yaz")}
+            external
+            onPress={() => void Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Spekvia')}`)}
+          />
+          <Divider />
+          <Row
+            icon="shield-checkmark"
+            tint="#64748B"
+            label={t("Gizlilik ve ses verileri")}
+            sub={t("Verilerinin nasıl işlendiğini ve haklarını incele")}
+            external
+            onPress={() => void Linking.openURL(privacyUrl())}
+          />
+        </View>
 
-        <Text style={styles.versionText}>{t("Sürüm {{APP_VERSION}}", { APP_VERSION })}</Text>
+        <Button label={t("Çıkış Yap")} variant="ghost" onPress={handleSignOut} loading={signingOut} style={styles.signOut} />
+        <Pressable onPress={confirmDelete} disabled={deleting} hitSlop={8} accessibilityRole="button">
+          <Text style={styles.delete}>{deleting ? t("Siliniyor…") : t("Hesabımı kalıcı olarak sil")}</Text>
+        </Pressable>
+        <Text style={styles.version}>{t("Sürüm {{APP_VERSION}}", { APP_VERSION })}</Text>
       </ScrollView>
 
-      {/* Avatar picker modal */}
-      <LanguagePickerModal visible={languageModalVisible} onClose={() => setLanguageModalVisible(false)} />
-      <PlanEditorModal
-        visible={planEditorOpen}
-        plan={learningPlan}
-        onClose={() => setPlanEditorOpen(false)}
-        onSaved={applyPlan}
-      />
+      <LanguagePickerModal visible={languageOpen} onClose={() => setLanguageOpen(false)} />
 
-      <Modal
-        visible={avatarModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setAvatarModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.avatarModalCard}>
-            <View style={styles.guideModalHeader}>
-              <View>
-                <Text style={styles.guideModalTitle}>{t("3D Persona Avatarını Seç 🎭")}</Text>
-                <Text style={styles.guideModalSub}>{t("Profilinde ve konuşma sahnelerinde görünecek karakterin")}</Text>
-              </View>
-              <Pressable
-                onPress={() => setAvatarModalVisible(false)}
-                hitSlop={12}
-                style={styles.closeGuideBtn}
-              >
-                <Ionicons name="close" size={22} color={colors.textMuted} />
-              </Pressable>
-            </View>
-
-            <ScrollView
-              contentContainerStyle={styles.avatarModalGrid}
-              showsVerticalScrollIndicator={false}
-            >
-              {AVATAR_LIST.map((av, idx) => {
-                const isSelected = selectedAvatarIdx === idx;
+      {/* Avatar picker */}
+      <Modal visible={avatarOpen} animationType="slide" transparent onRequestClose={() => setAvatarOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setAvatarOpen(false)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>{t("Avatarını seç")}</Text>
+            <Text style={styles.sheetSub}>{t("Profilinde ve sahnelerde görünecek karakterin")}</Text>
+            <View style={styles.avatarGrid}>
+              {AVATAR_LIST.map((av) => {
+                const on = av.id === avatar.id;
                 return (
                   <Pressable
                     key={av.id}
                     onPress={() => {
                       avatarMutation.mutate(av.id);
-                      setAvatarModalVisible(false);
+                      setAvatarOpen(false);
                     }}
-                    style={[
-                      styles.avatarModalItem,
-                      isSelected && styles.avatarModalItemSelected,
-                    ]}
+                    style={[styles.avatarItem, on && styles.avatarItemOn]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
                   >
-                    <Image source={av.source} style={styles.avatarModalThumb} resizeMode="cover" />
-                    <Text
-                      style={[styles.avatarModalName, isSelected && styles.avatarModalNameSelected]}
-                      numberOfLines={1}
-                    >
+                    <Image source={av.source} style={styles.avatarThumb} resizeMode="cover" />
+                    <Text style={[styles.avatarName, on && { color: colors.brand }]} numberOfLines={1}>
                       {av.name}
                     </Text>
-                    {isSelected ? (
-                      <View style={styles.avatarModalCheckBadge}>
-                        <Ionicons name="checkmark" size={11} color="#FFFFFF" />
-                      </View>
-                    ) : null}
                   </Pressable>
                 );
               })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* XP & streak guide modal */}
-      <Modal
-        visible={guideModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setGuideModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.guideModalCard}>
-            <View style={styles.guideModalHeader}>
-              <View>
-                <Text style={styles.guideModalTitle}>{t("Spekvia Ödül Sistemi ⚡")}</Text>
-                <Text style={styles.guideModalSub}>{t("XP ve Seri mekaniklerinin rehberi")}</Text>
-              </View>
-              <Pressable
-                onPress={() => setGuideModalVisible(false)}
-                hitSlop={12}
-                style={styles.closeGuideBtn}
-              >
-                <Ionicons name="close" size={22} color={colors.textMuted} />
-              </Pressable>
             </View>
-
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.guideScroll}>
-              <View style={styles.guideBlock}>
-                <View style={styles.guideBlockHeader}>
-                  <Image source={stateImages.xpBolt} style={styles.guideBlockIcon} resizeMode="contain" />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.guideBlockTitle}>{t("⚡ XP (Deneyim Puanı) Nedir?")}</Text>
-                    <Text style={styles.guideBlockTag}>{t("Kalıcı İlerleme")}</Text>
-                  </View>
-                </View>
-                <Text style={styles.guideBlockBody}>{t("XP, pratik yaptıkça kazandığın puandır. Biriktikçe Mivo ile dostluk seviyen yükselir. Asla silinmez.")}</Text>
-                <View style={styles.guideBulletBox}>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Nasıl Kazanılır?")}</Text>{" "}{t("Canlı AI konuşmaları, okuma parçaları, kelime tekrarları ve günlük görevlerin tamamı XP kazandırır.")}</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Ne İşe Yarar?")}</Text>{" "}{t("Mivo ile dostluk seviyeni belirler. İngilizce seviyeni (A1–C2) belirlemez; o ayrı ölçülür.")}</Text>
-                </View>
-              </View>
-
-              <View style={styles.guideBlock}>
-                <View style={styles.guideBlockHeader}>
-                  <Ionicons name="checkmark-done-circle" size={32} color={colors.brand} style={styles.guideBlockIcon} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.guideBlockTitle}>{t("Seri (Streak) Nedir?")}</Text>
-                    <Text style={styles.guideBlockTag}>{t("Düzenli Pratik Takibi")}</Text>
-                  </View>
-                </View>
-                <Text style={styles.guideBlockBody}>{t("Üst üste kaç gün pratik yaptığını gösterir — aynı güne ait herhangi bir pratik (konuşma, okuma, kelime tekrarı) o günü sayar.")}</Text>
-                <View style={styles.guideBulletBox}>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("Nasıl Korunur?")}</Text>{" "}{t("Her gün en az bir pratik yap.")}</Text>
-                  <Text style={styles.guideBullet}>• <Text style={{ fontWeight: 'bold' }}>{t("En Uzun Serin")}</Text>{" "}{t("kalıcı olarak kaydedilir, seri bozulsa bile kaybolmaz.")}</Text>
-                </View>
-              </View>
-
-              <Button
-                label={t("Anladım, Harika! 🚀")}
-                onPress={() => setGuideModalVisible(false)}
-                style={{ marginTop: spacing.md }}
-              />
-            </ScrollView>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
-      {/* Display name modal */}
-      <Modal
-        visible={nameModalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setNameModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.nameModalCard}>
-            <Text style={styles.nameModalTitle}>{t("Görünen Adını Düzenle")}</Text>
-            <Text style={styles.nameModalSub}>{t("Bu isim uygulama genelinde (Ana Sayfa, sesli hitaplar) kullanılır.")}</Text>
+      {/* XP and streak, in two short blocks */}
+      <Modal visible={guideOpen} animationType="slide" transparent onRequestClose={() => setGuideOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setGuideOpen(false)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sheetHandle} />
+            <View style={styles.guideBlock}>
+              <Image source={partBadgeImages.gold[0]} style={styles.guideIcon} resizeMode="contain" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.guideTitle}>{t("Mivo ile dostluk")}</Text>
+                <Text style={styles.guideBody}>
+                  {t("Her bitirdiğin ders ve sahne XP kazandırır; XP biriktikçe Mivo'yla dostluğun bir seviye atlar. İngilizce seviyeni (A1–C2) değiştirmez, o yolculuğundan gelir. XP hiç silinmez.")}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.guideBlock}>
+              <View style={[styles.guideIcon, styles.guideFlame]}>
+                <Ionicons name="flame" size={26} color="#F97316" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.guideTitle}>{t("Günlük seri")}</Text>
+                <Text style={styles.guideBody}>
+                  {t("Üst üste kaç gün pratik yaptığını gösterir. Bir günü saymak için o gün tek bir ders ya da sahne yeter. En uzun serin hep saklanır.")}
+                </Text>
+              </View>
+            </View>
+            <Button label={t("Anladım")} onPress={() => setGuideOpen(false)} />
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Display name */}
+      <Modal visible={nameOpen} animationType="fade" transparent onRequestClose={() => setNameOpen(false)}>
+        <View style={[styles.overlay, { justifyContent: 'center', padding: spacing.md }]}>
+          <View style={styles.nameCard}>
+            <Text style={styles.sheetTitle}>{t("Adını düzenle")}</Text>
+            <Text style={styles.sheetSub}>{t("Mivo sana bu isimle seslenir.")}</Text>
             <TextInput
               value={nameInput}
               onChangeText={setNameInput}
@@ -686,223 +437,21 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
               maxLength={40}
               autoFocus
             />
-            <View style={styles.nameModalActions}>
-              <Pressable onPress={() => setNameModalVisible(false)} style={styles.nameModalCancelBtn}>
-                <Text style={styles.nameModalCancelText}>{t("Vazgeç")}</Text>
+            <View style={styles.nameActions}>
+              <Pressable onPress={() => setNameOpen(false)} style={styles.nameCancel} accessibilityRole="button">
+                <Text style={styles.nameCancelText}>{t("Vazgeç")}</Text>
               </Pressable>
               <Button
                 label={t("Kaydet")}
                 loading={nameMutation.isPending}
+                disabled={!nameInput.trim()}
                 onPress={() => {
                   const trimmed = nameInput.trim();
                   if (trimmed) nameMutation.mutate(trimmed);
                 }}
-                disabled={!nameInput.trim()}
-                style={styles.nameModalSaveBtn}
+                style={{ flex: 1 }}
               />
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* CEFR level & roadmap modal */}
-      <Modal
-        visible={levelModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setLevelModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.levelModalCard}>
-            <View style={styles.guideModalHeader}>
-              <View>
-                <Text style={styles.guideModalTitle}>{t("Aşama & Yol Haritası 🎓")}</Text>
-                <Text style={styles.guideModalSub}>{t("İngilizce yolculuğunun üç aşaması")}</Text>
-              </View>
-              <Pressable
-                onPress={() => setLevelModalVisible(false)}
-                hitSlop={12}
-                style={styles.closeGuideBtn}
-              >
-                <Ionicons name="close" size={22} color={colors.textMuted} />
-              </Pressable>
-            </View>
-
-            <View style={styles.levelModalTabRow}>
-              <Pressable
-                onPress={() => setLevelModalTab('PROGRESS')}
-                style={[styles.levelModalTabBtn, levelModalTab === 'PROGRESS' && styles.levelModalTabBtnActive]}
-              >
-                <Text
-                  style={[styles.levelModalTabText, levelModalTab === 'PROGRESS' && styles.levelModalTabTextActive]}
-                  numberOfLines={1}
-                >{t("📊 {{stage}} İlerlemem (%{{levelCompletionPercent}})", { stage: currentLevelObj.title, levelCompletionPercent })}</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => setLevelModalTab('ALL_LEVELS')}
-                style={[styles.levelModalTabBtn, levelModalTab === 'ALL_LEVELS' && styles.levelModalTabBtnActive]}
-              >
-                <Text
-                  style={[styles.levelModalTabText, levelModalTab === 'ALL_LEVELS' && styles.levelModalTabTextActive]}
-                  numberOfLines={1}
-                >{t("🗺️ Tüm Aşamalar")}</Text>
-              </Pressable>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.levelOptionsScroll}>
-              {levelModalTab === 'PROGRESS' ? (
-                <>
-                  <View style={[styles.levelReportHero, { borderColor: currentLevelObj.color + '40' }]}>
-                    <View style={styles.levelReportHeroLeft}>
-                      <Image source={levelShield} style={styles.levelReportHeroShield} resizeMode="contain" />
-                      <View style={[styles.levelMiniBadge, { backgroundColor: currentLevelObj.color }]}>
-                        <Text style={styles.levelMiniBadgeText}>{currentLevel}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.levelReportHeroContent}>
-                      <View style={styles.levelOptionBadgeRow}>
-                        <Text style={[styles.levelOptionCode, { color: currentLevelObj.color }]}>
-                          {currentLevelObj.title}
-                        </Text>
-                        <Text style={styles.levelOptionTitle}>• {currentLevelObj.range}</Text>
-                      </View>
-                      <Text style={styles.levelOptionDesc}>{currentLevelObj.desc}</Text>
-                      <Text style={styles.levelTargetDays}>{t("🎯 Müfredat: ~{{targetDays}} Günlük Plan", { targetDays: currentLevelObj.targetDays })}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.levelProgressBlock}>
-                    <View style={styles.levelProgressLabelRow}>
-                      <Text style={styles.levelProgressLabel}>{t("{{completedTopicsCount}}/{{length}} konu tamamlandı", { completedTopicsCount, length: activeCurriculum.topics.length })}</Text>
-                      <Text style={[styles.levelProgressPercent, { color: currentLevelObj.color }]}>
-                        %{levelCompletionPercent}
-                      </Text>
-                    </View>
-                    <View style={styles.levelProgressTrack}>
-                      <View
-                        style={[
-                          styles.levelProgressFill,
-                          { width: `${levelCompletionPercent}%`, backgroundColor: currentLevelObj.color },
-                        ]}
-                      />
-                    </View>
-                    {!isLevelComplete ? (
-                      <Text style={styles.levelEstimateText}>{t("⏳ Hedef tempoda tahmini kalan süre: ~{{estimatedDaysRemaining}} gün", { estimatedDaysRemaining })}</Text>
-                    ) : null}
-                  </View>
-
-                  {isLevelComplete && nextLevelObj ? (
-                    <View style={styles.levelUpBox}>
-                      <Text style={styles.levelUpTitle}>{t("🎉 {{stage}} aşamasını tamamladın!", { stage: currentLevelObj.title })}</Text>
-                      <Text style={styles.levelUpDesc}>{t("Tüm konuları bitirdin. Artık {{stage}} aşamasına geçebilirsin.", { stage: nextLevelObj.title })}</Text>
-                      <Button
-                        label={levelMutation.isPending ? t("Geçiliyor...") : t("{{stage}} Aşamasına Geç ➔", { stage: nextLevelObj.title })}
-                        loading={levelMutation.isPending}
-                        onPress={() => levelMutation.mutate(firstLevelOf(nextLevelObj.code))}
-                        style={{ marginTop: spacing.sm }}
-                      />
-                    </View>
-                  ) : isLevelComplete ? (
-                    <View style={styles.levelUpBox}>
-                      <Text style={styles.levelUpTitle}>{t("🏆 Zirvedesin!")}</Text>
-                      <Text style={styles.levelUpDesc}>{t("Tüm aşamaları bitirdin — Spekvia'nın sunduğu en üst seviyedesin.")}</Text>
-                    </View>
-                  ) : (
-                    <>
-                      <Text style={styles.remainingSectionTitle}>{t("📚 Seviyedeki Konular & Durumun ({{length}})", { length: activeCurriculum.topics.length })}</Text>
-                      {activeCurriculum.topics.map((topic) => {
-                        const topicTasks = taskQueue.filter((t) => t.topic.code === topic.code);
-                        const isDone = isTopicCoreDone(taskQueue, topic.code);
-                        const firstMissingTask = topicTasks.find((t) => !t.done && isCoreTask(t));
-                        const missingHint = !firstMissingTask
-                          ? null
-                          : firstMissingTask.type === 'lesson'
-                            ? t("Konu anlatımını okuman gerekiyor")
-                            : firstMissingTask.type === 'vocab'
-                              ? t("Hedef kelimeleri sandığa eklemen gerekiyor")
-                              : firstMissingTask.type === 'listening'
-                                ? t("İlgili podcast bölümünü dinlemen gerekiyor")
-                                : firstMissingTask.type === 'reading'
-                                  ? t("Hikayeyi bitirmen gerekiyor")
-                                  : t("Sohbeti bitirmen gerekiyor");
-                        return (
-                          <View
-                            key={topic.code}
-                            style={[styles.remainingTopicRow, isDone && styles.remainingTopicRowDone]}
-                          >
-                            <Ionicons
-                              name={isDone ? 'checkmark-circle' : 'ellipse-outline'}
-                              size={18}
-                              color={isDone ? '#10B981' : '#94A3B8'}
-                            />
-                            <View style={styles.remainingTopicTextCol}>
-                              <Text style={[styles.remainingTopicCode, isDone && { color: '#059669' }]}>
-                                {topic.code}
-                              </Text>
-                              <Text style={styles.remainingTopicTitle} numberOfLines={1}>
-                                {topic.title}
-                              </Text>
-                              {missingHint ? (
-                                <Text style={styles.remainingTopicHint}>○ {missingHint}</Text>
-                              ) : null}
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </>
-                  )}
-                </>
-              ) : (
-                <View style={styles.allLevelsContainer}>
-                  <Text style={styles.allLevelsIntro}>{t("Yolculuğun boyunca göreceğin üç aşama — her biri bir öncekini tamamlayınca açılır.")}</Text>
-                  {STAGES.map((lvl) => {
-                    const isCurrent = currentStage === lvl.code;
-                    const lvlIdx = STAGES.findIndex((l) => l.code === lvl.code);
-                    const isLocked = lvlIdx > currentLevelIdx;
-                    const shield = cefrLevelImages[STAGE_LEVELS[lvl.code][0] as keyof typeof cefrLevelImages];
-                    return (
-                      <View
-                        key={lvl.code}
-                        style={[
-                          styles.levelGalleryCard,
-                          shadow.card,
-                          isCurrent && { borderColor: lvl.color, backgroundColor: '#F8FAFC' },
-                          isLocked && styles.levelGalleryCardLocked,
-                        ]}
-                      >
-                        <View style={styles.levelGalleryLeft}>
-                          <Image source={shield} style={styles.levelGalleryShield} resizeMode="contain" />
-                          <View style={[styles.levelGalleryBadge, { backgroundColor: lvl.color }]}>
-                            <Text style={styles.levelGalleryBadgeText}>{lvl.range}</Text>
-                          </View>
-                        </View>
-
-                        <View style={styles.levelGalleryContent}>
-                          <View style={styles.levelGalleryHeaderRow}>
-                            <Text style={styles.levelGalleryTitle}>
-                              {lvl.title}
-                            </Text>
-                            {isCurrent ? (
-                              <View style={styles.levelGalleryActivePill}>
-                                <Text style={styles.levelGalleryActiveText}>{t("Aktif")}</Text>
-                              </View>
-                            ) : isLocked ? (
-                              <Ionicons name="lock-closed" size={14} color="#94A3B8" />
-                            ) : null}
-                          </View>
-                          <Text style={styles.levelGalleryEnTitle}>{lvl.range}</Text>
-                          <Text style={styles.levelGalleryDesc}>{lvl.desc}</Text>
-                          <View style={styles.levelGalleryMetaRow}>
-                            <Text style={styles.levelGalleryDays}>{t("⏳ Plan: ~{{targetDays}} Gün", { targetDays: lvl.targetDays })}</Text>
-                          </View>
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -910,689 +459,185 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
   );
 }
 
-const styles = StyleSheet.create({
-  reminderTimes: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 12, paddingLeft: 52 },
-  reminderChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: radii.pill, backgroundColor: '#F1F5F9' },
-  reminderChipActive: { backgroundColor: '#EEF2FF', borderWidth: 1.5, borderColor: colors.brand },
-  reminderChipText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
-  reminderChipTextActive: { color: colors.brand },
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  topHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(226, 232, 240, 0.8)',
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F1F5F9',
-  },
-  topHeaderCol: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  topHeaderTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16,
-    color: colors.textHeading,
-  },
-  topHeaderSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  scrollContent: {
-    padding: spacing.md,
-    paddingBottom: 60,
-  },
-  identityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 14,
-    marginBottom: spacing.md,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-  },
-  avatarCompactWrapper: {
-    position: 'relative',
-  },
-  avatarCompactImage: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    borderWidth: 2.5,
-    borderColor: '#4F46E5',
-  },
-  avatarEditBadge: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    backgroundColor: '#4F46E5',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  onlineBadge: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    backgroundColor: '#10B981',
-    borderRadius: radii.pill,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  onlineBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  profileIdentityCol: {
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  displayName: {
-    fontFamily: fonts.headingBold,
-    fontSize: 16.5,
-    color: colors.textHeading,
-  },
-  emailText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
+function Stat({ icon, color, value, label, sub }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; value: number; label: string; sub: string }) {
+  return (
+    <View style={styles.stat}>
+      <View style={[styles.statIcon, { backgroundColor: `${color}1A` }]}>
+        <Ionicons name={icon} size={18} color={color} />
+      </View>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statSub} numberOfLines={1}>
+        {sub}
+      </Text>
+    </View>
+  );
+}
 
-  /* Settings list */
-  settingsCard: {
+function Row({
+  icon,
+  tint,
+  label,
+  sub,
+  onPress,
+  external,
+  children,
+}: {
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  tint: string;
+  label: string;
+  sub?: string;
+  onPress?: () => void;
+  external?: boolean;
+  children?: React.ReactNode;
+}) {
+  const body = (
+    <>
+      <View style={[styles.rowIcon, { backgroundColor: `${tint}1A` }]}>
+        <Ionicons name={icon} size={18} color={tint} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.rowLabel}>{label}</Text>
+        {sub ? (
+          <Text style={styles.rowSub} numberOfLines={2}>
+            {sub}
+          </Text>
+        ) : null}
+      </View>
+      {children ?? (onPress ? <Ionicons name={external ? 'open-outline' : 'chevron-forward'} size={18} color={colors.textMuted} /> : null)}
+    </>
+  );
+  return onPress ? (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      {body}
+    </Pressable>
+  ) : (
+    <View style={styles.row}>{body}</View>
+  );
+}
+
+const Divider = () => <View style={styles.divider} />;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: FLOOR },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingVertical: 8 },
+  backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  scroll: { paddingHorizontal: spacing.md, paddingBottom: 40, gap: 14 },
+
+  hero: { borderRadius: 26, padding: 18, gap: 16 },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  avatar: { width: 76, height: 76, borderRadius: 38, borderWidth: 3, borderColor: 'rgba(255,255,255,0.9)', backgroundColor: '#EEF2FF' },
+  avatarEdit: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    overflow: 'hidden',
-    marginBottom: spacing.md,
-  },
-  levelChips: { flexDirection: 'row', gap: 8, paddingHorizontal: 14, paddingBottom: 14 },
-  levelChip: {
-    flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 4,
-    paddingVertical: 10,
-    borderRadius: 14,
+    justifyContent: 'center',
+  },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  name: { flexShrink: 1, fontFamily: fonts.headingBold, fontSize: 22, color: '#FFFFFF' },
+  email: { fontFamily: fonts.bodyMedium, fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
+  proPill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 8,
+    backgroundColor: '#FCD34D',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  proText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#78350F', letterSpacing: 0.6 },
+  friend: { backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 18, padding: 14 },
+  friendTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  friendKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.6, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
+  friendName: { fontFamily: fonts.headingBold, fontSize: 19, color: '#FFFFFF', marginTop: 2 },
+  friendTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden', marginTop: 10 },
+  friendFill: { height: '100%', borderRadius: 4, backgroundColor: '#FCD34D' },
+  friendXp: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: 'rgba(255,255,255,0.8)', marginTop: 6 },
+
+  stats: { flexDirection: 'row', gap: 10 },
+  stat: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 10, alignItems: 'center' },
+  statIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  statValue: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading, marginTop: 6 },
+  statLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
+  statSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
+
+  card: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16 },
+  cardKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 1, color: colors.brand, textTransform: 'uppercase' },
+  cardTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginTop: 2 },
+  cardHint: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 10 },
+  road: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  roadLine: { position: 'absolute', top: 19, left: '8%', right: '8%', height: 3, borderRadius: 2, backgroundColor: '#ECE5D8' },
+  stop: { flex: 1, alignItems: 'center', gap: 5 },
+  stopDot: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#E0E7FF',
-    backgroundColor: '#FFFFFF',
-  },
-  levelChipOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  levelChipCode: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
-  levelChipName: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted, marginTop: 1 },
-  settingRow: {
-    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stopDone: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
+  stopHere: { backgroundColor: colors.brand, borderColor: '#3730A3', transform: [{ scale: 1.12 }] },
+  stopSoon: { backgroundColor: '#F5F5F4', borderColor: '#E7E5E4' },
+  stopCode: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  stopName: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted, paddingHorizontal: 2 },
+  levelProgress: { marginTop: 16, gap: 6 },
+  levelTrack: { height: 8, borderRadius: 4, backgroundColor: '#F1EDE6', overflow: 'hidden' },
+  levelFill: { height: '100%', borderRadius: 4, backgroundColor: '#F5B82E' },
+  levelText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textBody },
+
+  groupTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 6, marginLeft: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
+  rowIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  rowLabel: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
+  rowSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 1 },
+  divider: { height: 1, backgroundColor: '#F1EDE6', marginVertical: 6, marginLeft: 48 },
+  times: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingLeft: 48, paddingBottom: 6 },
+  timeChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: '#F5F3FF' },
+  timeChipOn: { backgroundColor: colors.brand },
+  timeText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
+
+  signOut: { marginTop: 8 },
+  delete: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: '#DC2626', textAlign: 'center', marginTop: 4 },
+  version: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
+
+  overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 },
+  sheetHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E8F0' },
+  sheetTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
+  sheetSub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: colors.textMuted, marginTop: -8 },
+  avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
+  avatarItem: { width: '31%', alignItems: 'center', gap: 6, paddingVertical: 10, borderRadius: 18, borderWidth: 2, borderColor: '#F1F5F9' },
+  avatarItemOn: { borderColor: colors.brand, backgroundColor: '#F5F3FF' },
+  avatarThumb: { width: 64, height: 64, borderRadius: 32 },
+  avatarName: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
+  guideBlock: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  guideIcon: { width: 48, height: 48 },
+  guideFlame: { borderRadius: 24, backgroundColor: '#FFF7ED', alignItems: 'center', justifyContent: 'center' },
+  guideTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
+  guideBody: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: colors.textBody, marginTop: 2 },
+  nameCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, gap: 12 },
+  nameInput: {
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    gap: 12,
-  },
-  settingTextCol: {
-    flex: 1,
-  },
-  settingLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-  },
-  settingDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  settingDivider: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-    marginLeft: 46,
-  },
-  logoutButton: {
-    marginTop: 4,
-  },
-  deleteAccountButton: {
-    marginTop: 2,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-  },
-  versionText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.lg,
-  },
-
-  /* Modal base */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.65)',
-    justifyContent: 'flex-end',
-  },
-  guideModalCard: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    padding: spacing.lg,
-    maxHeight: '88%',
-  },
-  guideModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    paddingBottom: spacing.sm,
-  },
-  guideModalTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 17,
-    color: colors.textHeading,
-  },
-  guideModalSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  closeGuideBtn: {
-    padding: 6,
-    borderRadius: radii.pill,
-    backgroundColor: '#F1F5F9',
-  },
-  guideScroll: {
-    gap: 12,
-    paddingBottom: 20,
-  },
-  guideBlock: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: radii.lg,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  guideBlockHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  guideBlockIcon: {
-    width: 28,
-    height: 28,
-    marginRight: 8,
-  },
-  guideBlockTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-    color: colors.textHeading,
-  },
-  guideBlockTag: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    color: colors.textMuted,
-  },
-  guideBlockBody: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textBody,
-    lineHeight: 16,
-    marginBottom: 6,
-  },
-  guideBulletBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: radii.md,
-    padding: 8,
-    gap: 4,
-  },
-  guideBullet: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10.5,
-    color: colors.textBody,
-    lineHeight: 15,
-  },
-
-  /* Avatar picker modal */
-  avatarModalCard: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    padding: spacing.lg,
-    maxHeight: '80%',
-  },
-  avatarModalGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    gap: 10,
-  },
-  avatarModalItem: {
-    width: '30%',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 16,
-    padding: 10,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    position: 'relative',
-  },
-  avatarModalItemSelected: {
-    borderColor: colors.brand,
-    backgroundColor: '#EEF2FF',
-  },
-  avatarModalThumb: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginBottom: 6,
-  },
-  avatarModalName: {
-    fontFamily: fonts.headingBold,
-    fontSize: 10.5,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-  avatarModalNameSelected: {
-    color: colors.brand,
-  },
-  avatarModalCheckBadge: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: colors.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-
-  /* Name modal */
-  nameModalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    marginHorizontal: spacing.md,
-    marginBottom: 'auto',
-    marginTop: 'auto',
-    padding: spacing.lg,
-  },
-  nameModalTitle: {
-    fontFamily: fonts.headingBold,
+    fontFamily: fonts.bodyMedium,
     fontSize: 16,
     color: colors.textHeading,
-    marginBottom: 4,
   },
-  nameModalSub: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: spacing.md,
-  },
-  nameInput: {
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderRadius: radii.md,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontFamily: fonts.headingBold,
-    fontSize: 14,
-    color: colors.textHeading,
-    marginBottom: spacing.md,
-  },
-  nameModalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: 10,
-  },
-  nameModalCancelBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  nameModalCancelText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-  nameModalSaveBtn: {
-    paddingHorizontal: 18,
-  },
-
-  /* Level modal */
-  levelModalCard: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    padding: spacing.lg,
-    maxHeight: '88%',
-  },
-  levelModalTabRow: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: radii.pill,
-    padding: 3,
-    marginBottom: spacing.md,
-    gap: 4,
-  },
-  levelModalTabBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  levelModalTabBtnActive: {
-    backgroundColor: '#FFFFFF',
-    ...shadow.card,
-  },
-  levelModalTabText: {
-    fontFamily: fonts.headingBold,
-    fontSize: 11.5,
-    color: colors.textMuted,
-  },
-  levelModalTabTextActive: {
-    color: colors.brand,
-  },
-  levelOptionsScroll: {
-    gap: 10,
-    paddingBottom: 24,
-  },
-  levelReportHero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 12,
-    borderWidth: 1.5,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
-    marginBottom: spacing.sm,
-  },
-  levelReportHeroLeft: {
-    position: 'relative',
-    width: 54,
-    height: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  levelReportHeroShield: {
-    width: 50,
-    height: 50,
-  },
-  levelReportHeroContent: {
-    flex: 1,
-  },
-  levelMiniBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: radii.pill,
-  },
-  levelMiniBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  levelOptionBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  levelOptionCode: {
-    fontFamily: fonts.mono,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  levelOptionTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-  },
-  levelOptionDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  levelTargetDays: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.brand,
-    marginTop: 4,
-    fontWeight: 'bold',
-  },
-  levelProgressBlock: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 16,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: spacing.md,
-  },
-  levelProgressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  levelProgressLabel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12.5,
-    color: colors.textHeading,
-  },
-  levelProgressPercent: {
-    fontFamily: fonts.mono,
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  levelProgressTrack: {
-    height: 8,
-    borderRadius: radii.pill,
-    backgroundColor: '#E2E8F0',
-    overflow: 'hidden',
-  },
-  levelProgressFill: {
-    height: '100%',
-    borderRadius: radii.pill,
-  },
-  levelEstimateText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 6,
-  },
-  levelUpBox: {
-    backgroundColor: '#ECFDF5',
-    borderRadius: 16,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    marginBottom: spacing.md,
-  },
-  levelUpTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 15,
-    color: '#065F46',
-  },
-  levelUpDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: '#047857',
-    marginTop: 4,
-    lineHeight: 17,
-  },
-  remainingSectionTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13,
-    color: colors.textHeading,
-    marginBottom: 8,
-  },
-  remainingTopicRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 6,
-  },
-  remainingTopicRowDone: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
-  },
-  remainingTopicTextCol: {
-    flex: 1,
-  },
-  remainingTopicCode: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    fontWeight: 'bold',
-    color: colors.brand,
-  },
-  remainingTopicTitle: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12.5,
-    color: colors.textHeading,
-    marginTop: 1,
-  },
-  remainingTopicHint: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 10,
-    color: '#D97706',
-    marginTop: 2,
-  },
-  allLevelsContainer: {
-    gap: 10,
-  },
-  allLevelsIntro: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 4,
-  },
-  levelGalleryCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    gap: 12,
-  },
-  levelGalleryCardLocked: {
-    opacity: 0.55,
-  },
-  levelGalleryLeft: {
-    position: 'relative',
-    width: 52,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  levelGalleryShield: {
-    width: 48,
-    height: 48,
-  },
-  levelGalleryBadge: {
-    position: 'absolute',
-    bottom: -2,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: radii.pill,
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  levelGalleryBadgeText: {
-    fontFamily: fonts.mono,
-    fontSize: 8.5,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  levelGalleryContent: {
-    flex: 1,
-  },
-  levelGalleryHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  levelGalleryTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 13.5,
-    color: colors.textHeading,
-  },
-  levelGalleryActivePill: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  levelGalleryActiveText: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#047857',
-  },
-  levelGalleryEnTitle: {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  levelGalleryDesc: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 2,
-    lineHeight: 15,
-  },
-  levelGalleryMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 6,
-  },
-  levelGalleryDays: {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    color: '#64748B',
-  },
+  nameActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  nameCancel: { paddingHorizontal: 16, paddingVertical: 12 },
+  nameCancelText: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textMuted },
 });
