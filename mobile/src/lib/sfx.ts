@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useEffect, useState } from 'react';
 
+import './audioMode';
+
 /**
  * Short lesson sound effects (our own synthesised sounds in assets/sounds): a right answer, a wrong one, a matched
  * pair, a key tap, a finished part, a star landing, a run of right answers and an unlocked step. One player per

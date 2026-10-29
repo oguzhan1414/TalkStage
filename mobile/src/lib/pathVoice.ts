@@ -1,8 +1,9 @@
-import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { PATH_AUDIO } from '../assets/pathAudio';
 import { usePronunciation } from '../hooks/usePronunciation';
+import { ensurePlaybackMode } from './audioMode';
 import { pathAudioKey } from './pathAudioKey';
 
 /**
@@ -16,14 +17,6 @@ export function pathClip(text: string): number | undefined {
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// Clips must be heard with the iPhone's silent switch on too; set once and never wait for it (the recorder switches
-// modes itself).
-let modeSet = false;
-const playbackMode = () => {
-  if (modeSet) return;
-  modeSet = true;
-  setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
-};
 
 /**
  * Plays path texts with the pre-made character voices, and falls back to the server voice (usePronunciation) for
@@ -63,24 +56,58 @@ export function usePathVoice() {
             .finally(() => setTimeout(resolve, Math.max(900, text.split(/\s+/).length * 420) / rate));
           return;
         }
-        const player = createAudioPlayer(clip);
-        playerRef.current = player;
+        let attempt = 0;
         let done = false;
+        let player: AudioPlayer;
+        const timers: ReturnType<typeof setTimeout>[] = [];
+        let sub: { remove: () => void } | null = null;
+        const release = () => {
+          sub?.remove();
+          sub = null;
+          if (playerRef.current === player) playerRef.current = null;
+          try {
+            player.remove();
+          } catch {
+            // stop() released it already
+          }
+        };
         const finish = () => {
           if (done) return;
           done = true;
-          sub.remove();
-          if (playerRef.current === player) playerRef.current = null;
-          player.remove();
+          timers.forEach(clearTimeout);
+          release();
           resolve();
         };
-        const sub = player.addListener('playbackStatusUpdate', (status) => {
-          if (status.didJustFinish) finish();
-        });
-        player.shouldCorrectPitch = true;
-        player.setPlaybackRate(rate, 'high');
-        player.play();
-        setTimeout(finish, 20000);
+        const start = () => {
+          let started = false;
+          let ending = false;
+          player = createAudioPlayer(clip);
+          playerRef.current = player;
+          player.shouldCorrectPitch = true;
+          sub = player.addListener('playbackStatusUpdate', (status) => {
+            if (status.playing) started = true;
+            if (status.didJustFinish) finish();
+            // The "finished" event is sometimes missed: also end by the clip's own length.
+            if (status.isLoaded && status.duration > 0 && !ending) {
+              ending = true;
+              timers.push(setTimeout(finish, (status.duration * 1000) / rate + 700));
+            }
+          });
+          player.setPlaybackRate(rate, 'high');
+          player.play();
+          // Not playing after a moment (a player that never got going): try once more with a fresh one.
+          timers.push(
+            setTimeout(() => {
+              if (done || started || playerRef.current !== player) return;
+              if (attempt++ === 0) {
+                release();
+                start();
+              } else finish();
+            }, 1200)
+          );
+        };
+        start();
+        timers.push(setTimeout(finish, 20000));
       }),
     [pronounce]
   );
@@ -89,7 +116,7 @@ export function usePathVoice() {
   const say = useCallback(
     async (text: string, options?: { rate?: number }) => {
       stop();
-      playbackMode();
+      ensurePlaybackMode();
       await playOne(text, options?.rate ?? 1);
     },
     [stop, playOne]
@@ -100,7 +127,7 @@ export function usePathVoice() {
     async (texts: string[], options?: { rate?: number }) => {
       stop();
       const run = runRef.current;
-      playbackMode();
+      ensurePlaybackMode();
       for (const text of texts) {
         if (runRef.current !== run) return;
         await playOne(text, options?.rate ?? 1);
