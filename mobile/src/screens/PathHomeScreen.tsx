@@ -101,12 +101,14 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     const timers: ReturnType<typeof setTimeout>[] = [];
     jump(changed.index, false);
     setCelebrate({ id: changed.step.id, kind: 'stars', key: Date.now() });
-    const unlocked = current.index > changed.index ? current : null;
-    if (unlocked) {
+    // Slide on to the next step; its lock breaks only if it was still locked before this lesson (part 2 opens it,
+    // so finishing part 3 later just slides there).
+    if (current.index > changed.index) {
+      const newlyOpen = currentStep(level, prev).index <= changed.index;
       timers.push(
         setTimeout(() => {
-          jump(unlocked.index, true);
-          setCelebrate({ id: unlocked.step.id, kind: 'unlock', key: Date.now() });
+          jump(current.index, true);
+          if (newlyOpen) setCelebrate({ id: current.step.id, kind: 'unlock', key: Date.now() });
         }, 1800)
       );
     }
