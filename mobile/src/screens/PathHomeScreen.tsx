@@ -226,7 +226,11 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
 
         {/* The medallion carousel */}
-        <View style={{ flex: 1, justifyContent: 'center' }} onLayout={(e) => setCarousel({ y: e.nativeEvent.layout.y, h: e.nativeEvent.layout.height })}>
+        <View style={{ flex: 1, justifyContent: 'center' }} onLayout={(e) => {
+            const { y, height: h } = e.nativeEvent.layout;
+            // Ignore tiny changes, so the medallion never wobbles while browsing.
+            setCarousel((c) => (c && Math.abs(c.y - y) < 4 && Math.abs(c.h - h) < 4 ? c : { y, h }));
+          }}>
           <FlatList
             ref={listRef}
             data={steps}
@@ -630,7 +634,17 @@ const styles = StyleSheet.create({
 
   mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 6 },
   mivo: { width: 66, height: 66 },
-  bubble: { flex: 1, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 14 },
+  // Always three lines tall: the medallion's size comes from the space left below, so it must not change with the text.
+  bubble: {
+    flex: 1,
+    height: 19 * 3 + 20,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 18,
+    borderBottomLeftRadius: 4,
+    paddingHorizontal: 14,
+    marginBottom: 14,
+  },
   bubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
 
   medalRing: {
