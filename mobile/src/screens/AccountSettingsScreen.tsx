@@ -384,7 +384,9 @@ export function AccountSettingsScreen({ navigation }: AccountSettingsScreenProps
                   accessibilityState={{ selected: on }}
                 >
                   <Text style={[styles.levelChipCode, on && { color: '#FFFFFF' }]}>{l.id}</Text>
-                  <Text style={[styles.levelChipName, on && { color: 'rgba(255,255,255,0.85)' }]}>{pathLevelName(l.id)}</Text>
+                  <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.levelChipName, on && { color: 'rgba(255,255,255,0.85)' }]}>
+                    {pathLevelName(l.id)}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -1034,10 +1036,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: spacing.md,
   },
-  levelChips: { flexDirection: 'row', gap: 10, paddingHorizontal: 14, paddingBottom: 14 },
+  levelChips: { flexDirection: 'row', gap: 8, paddingHorizontal: 14, paddingBottom: 14 },
   levelChip: {
     flex: 1,
     alignItems: 'center',
+    paddingHorizontal: 4,
     paddingVertical: 10,
     borderRadius: 14,
     borderWidth: 2,

@@ -618,3 +618,26 @@ Kafe kurtulduktan sonra Leo, binanın hikâyesini anlatan bir belgesel çekmeye 
 | 34 | orbit, satellite, telescope, astronaut, galaxy |
 | 35 | microscope, test tube, goggles, experiment, lab coat |
 | 36 | premiere, red carpet, applause, popcorn, autograph |
+
+## Uygulamada (2026-10-29)
+
+İçerik `mobile/src/data/path/b2/` klasöründe, bu plana göre yazıldı.
+
+- **Mivo sahneleri:** Ünite 1 devir teslim (`vs-b2-handover`), 2 kaçırılan uçuş (`vs-b1-missed-flight`), 3 tadilat teklifi (`vs-b2-renovation-quote`), 4 iş yerinde tanık (`vs-b2-witness-at-work`), 5 konukları tanıtmak (`vs-b2-introducing-guests`), 6 iki iş teklifi (`vs-b2-two-offers`), 7 ne ters gitti (`vs-b2-post-mortem`), 8 otel müdürü (`vs-b2-hotel-manager`), 9 pişmanlık var mı (`vs-b2-no-regrets`).
+- **Yeni karakterler:**
+
+  | Karakter | Kim |
+  |---|---|
+  | Lily | Tom'un dansçı arkadaşı |
+  | Ben | Sofia'nın kocası, orkestra şefi |
+  | Danny | grafiti yapan komşu çocuğu |
+  | Kara Annie | 1790'da batan gemisiyle efsanevi kaçakçı lideri |
+  | Çiftçi | kaçakçı ailesinin çiftliğinde yaşıyor |
+  | Dr Okafor | arkeolog |
+  | Yatırımcı | Maya'nın stüdyo fikrini beğeniyor |
+
+  Sesleri `backend/scripts/generate_path_audio.py` içinde.
+- **Hikâyeye eklenen ayrıntılar:**
+  - Tünelin "hayaleti" önce bir kedi, sonra yarasalar çıkıyor.
+  - İkinci kapının anahtarı çiftlikte bulunuyor.
+  - Leo duygularını Ünite 7'de söylüyor.
