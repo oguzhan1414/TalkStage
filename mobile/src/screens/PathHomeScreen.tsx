@@ -6,13 +6,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { homeBackdrop } from '../assets/homeBackdrops';
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { profileAvatar } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
-import { Skyline } from '../components/path/Skyline';
+import { HomeBackdrop } from '../components/path/HomeBackdrop';
 import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
@@ -123,7 +124,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
   const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
   const medal = Math.round(Math.min(winW * 0.7, winH * 0.32, 300));
-  /** Where the houses stand: just above the medallion's bottom, so its title sits on the cream ground below. */
+  const backdrop = homeBackdrop(level.id);
+  /** Where the backdrop's street ends: just above the medallion's bottom, so its title sits on the cream floor below. */
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
   const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + medal * 0.86 : winH * 0.6;
 
@@ -155,7 +157,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   return (
     <View style={styles.container}>
-      <Skyline width={winW} height={winH} horizon={horizon} levelId={level.id} />
+      <HomeBackdrop backdrop={backdrop} width={winW} horizon={horizon} />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
         {/* Top: Mivo friendship level, today's goal, streak */}
@@ -195,11 +197,11 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         {/* Story */}
         <View style={styles.storyRow}>
           <View style={{ flex: 1, alignItems: 'flex-start' }}>
-            <View style={styles.storyChip}>
+            <View style={[styles.storyChip, backdrop.lightSky && styles.storyChipOnLight]}>
               <Text style={styles.storyChipLevel}>{level.id}</Text>
-              <Text style={styles.storyChipText}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
+              <Text style={[styles.storyChipText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
             </View>
-            <Text style={styles.storyTitle} numberOfLines={1} adjustsFontSizeToFit>
+            <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
               {loc(level.story.title)}
             </Text>
           </View>
@@ -595,6 +597,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.45)',
   },
+  storyChipOnLight: { backgroundColor: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.9)' },
   storyChipLevel: {
     fontFamily: fonts.headingBold,
     fontSize: 12,
@@ -615,6 +618,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
+  storyTitleOnLight: { color: colors.textHeading, textShadowColor: 'rgba(255,255,255,0.6)' },
 
   mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 8 },
   mivo: { width: 76, height: 76 },

@@ -1,6 +1,10 @@
 # Ana sayfa arka planları: 6 prompt
 
-2026-10-29. Ana sayfanın (Bugün) arka planı, her seviye için ayrı bir resim. Resim gelene kadar uygulama kodla çizilmiş bir Bristol silueti gösteriyor (`mobile/src/components/path/Skyline.tsx`). Resim gelince onun yerine bu kullanılıyor.
+2026-10-29. Ana sayfanın (Bugün) arka planı, her seviye için ayrı bir resim. Altısı da hazır: `mobile/assets/images/home/home_<seviye>.webp`, kayıt yeri `mobile/src/assets/homeBackdrops.ts`, gösteren bileşen `mobile/src/components/path/HomeBackdrop.tsx`.
+
+**Yeni bir arka plan eklerken:**
+- Görsel, sokağın / kaldırımın bittiği yerden kırpılır. Alt kenarı ufuk olur.
+- Kayıt yerine gökyüzünün en üstteki rengi (`top`), zemin rengi (`floor`) ve gökyüzünün açık olup olmadığı (`lightSky`) yazılır. Gökyüzü açıksa hikâye başlığı koyu renkle yazılır.
 
 ## Resim ekranda nasıl duruyor
 
@@ -14,8 +18,7 @@
 1. **Dikey 9:16** üret (örneğin 1080 × 1920).
 2. Bölüm kapaklarıyla aynı stil için referans olarak beğendiğin bir kapak görselini ekle. Başa şunu yaz: `Same style as the reference image.`
 3. Her promptun sonuna **Ortak stil** bloğunu ekle.
-4. JPG olarak `mobile/assets/images/home/` klasörüne koy: `home_a1.jpg`, `home_a2.jpg`, `home_b1.jpg`, `home_b2.jpg`, `home_c1.jpg`, `home_c2.jpg`. WebP'ye ben çeviririm ve uygulamaya bağlarım.
-5. Önce **A1'i** üret, telefonda nasıl durduğuna birlikte bakalım.
+4. JPG olarak `mobile/assets/images/home/` klasörüne koy. Kırpma, WebP'ye çevirme ve uygulamaya bağlama işini ben yaparım.
 
 ## Ortak stil (her promptun sonuna ekle)
 
