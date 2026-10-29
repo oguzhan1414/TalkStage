@@ -31,8 +31,10 @@ import type { ProfileOut, ProgressOut } from '../types/api';
 
 const TAB_BAR = 68;
 const RING_W = 12;
-/** Height under the medallion: chip overhang, title, subtitle and button. */
-const MEDAL_EXTRA = 168;
+/** Room above the medallion for the chip that sits on its ring. */
+const CHIP_ROOM = 18;
+/** Height the medallion needs besides itself: chip room, title, subtitle and button. */
+const MEDAL_EXTRA = CHIP_ROOM + 172;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -123,11 +125,15 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
   const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
   const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
-  const medal = Math.round(Math.min(winW * 0.7, winH * 0.32, 300));
   const backdrop = homeBackdrop(level.id);
-  /** Where the backdrop's street ends: just above the medallion's bottom, so its title sits on the cream floor below. */
+  /** The carousel's place on screen, measured once laid out: the medallion is sized so it and its title and button fit. */
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
-  const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + medal * 0.86 : winH * 0.6;
+  const maxMedal = Math.min(winW * 0.7, 300);
+  const medal = Math.round(carousel ? Math.max(150, Math.min(maxMedal, carousel.h - MEDAL_EXTRA)) : Math.min(maxMedal, winH * 0.28));
+  /** Where the backdrop's street ends: just above the medallion's bottom, so its title sits on the cream floor below. */
+  /** The arrows sit at the medallion's middle. */
+  const arrowTop = carousel ? Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal / 2 - 23 : '42%';
+  const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal * 0.86 : winH * 0.6;
 
   const [chatLockOpen, setChatLockOpen] = useState(false);
   /** What Mivo says next to the medallion: the previous episode, or the story's opening line. */
@@ -232,7 +238,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             windowSize={3}
             onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / winW))}
             renderItem={({ item }) => (
-              <View style={{ width: winW, alignItems: 'center' }}>
+              <View style={{ width: winW, alignItems: 'center', paddingTop: CHIP_ROOM }}>
                 <Medallion
                   f={item}
                   size={medal}
@@ -249,12 +255,12 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             )}
           />
           {index > 0 ? (
-            <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, styles.arrowLeft]} hitSlop={10} accessibilityLabel={t("Önceki")}>
+            <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, styles.arrowLeft, { top: arrowTop }]} hitSlop={10} accessibilityLabel={t("Önceki")}>
               <Ionicons name="arrow-back" size={24} color={colors.brand} />
             </Pressable>
           ) : null}
           {index < steps.length - 1 ? (
-            <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, styles.arrowRight]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
+            <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, styles.arrowRight, { top: arrowTop }]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
               <Ionicons name="arrow-forward" size={24} color={colors.brand} />
             </Pressable>
           ) : null}
@@ -584,7 +590,7 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 4, height: 44 },
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
-  storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 14 },
+  storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 12 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -620,8 +626,8 @@ const styles = StyleSheet.create({
   },
   storyTitleOnLight: { color: colors.textHeading, textShadowColor: 'rgba(255,255,255,0.6)' },
 
-  mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 8 },
-  mivo: { width: 76, height: 76 },
+  mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 6 },
+  mivo: { width: 66, height: 66 },
   bubble: { flex: 1, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 14 },
   bubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
 
@@ -667,7 +673,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FCD34D',
     borderRadius: 32,
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 30,
     borderBottomWidth: 5,
     borderBottomColor: '#D97706',
@@ -678,12 +684,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   ctaLocked: { backgroundColor: '#E2E8F0', borderBottomColor: '#CBD5E1' },
-  ctaText: { fontFamily: fonts.headingBold, fontSize: 21, color: '#78350F' },
+  ctaText: { fontFamily: fonts.headingBold, fontSize: 20, color: '#78350F' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 12, textDecorationLine: 'underline' },
 
   arrow: {
     position: 'absolute',
-    top: '42%',
     width: 46,
     height: 46,
     borderRadius: 23,
