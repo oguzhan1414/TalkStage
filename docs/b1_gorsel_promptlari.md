@@ -20,7 +20,7 @@ Toplam **45 görsel**: 36 bölüm ve 9 kelime adımı. Kelime görselleri ayrı 
 1. Karakter referansı olarak `brand/characters/a1_characters.jpg` görselini her üretime ekle ve başa şunu yaz: `Same characters and style as the reference image.` İkinci referans olarak beğendiğin bir A2 kapağını ekle (örneğin `a2_e36`); stil daha tutarlı olur.
 2. Yeni karakterler (Bay Grant, Ana, Dr Shaw, Bayan Lane, Sofia) ilk geçtikleri kapakta oluşur. Beğendiğin ilk hâlini sonraki kapaklarda üçüncü referans olarak ver; özellikle **Bay Grant** 5 kapakta var.
 3. Her sahne promptunun sonuna **Ortak stil** bloğunu ekle.
-4. Kare (1:1) üret. JPG olarak `mobile/assets/images/path/` klasörüne aşağıdaki adlarla koy. WebP'ye ben çeviririm, orijinalleri silerim.
+4. Kare (1:1) üret. JPG olarak `mobile/assets/images/path/b1/` klasörüne aşağıdaki adlarla koy (ben `covers/` altına alırım). WebP'ye ben çeviririm, orijinalleri silerim.
 5. **Tek tek üret.** Toplu istekte araç stili gevşetiyor.
 6. Önce **Ünite 1'in 5 görselini** üretip haber ver. Madalyonda nasıl durduğuna birlikte bakalım, sonra devam et.
 

@@ -22,7 +22,7 @@ Toplam **45 görsel**: 36 bölüm ve 9 kelime adımı. Kelime görselleri ayrı 
 2. Yeni karakterler (Lily, Ben, Danny, çiftçi, Dr Okafor, yatırımcı) ilk geçtikleri kapakta oluşur. Beğendiğin hâlini sonraki kapaklarda ek referans olarak ver.
 3. **Kara Annie** sadece eski çizimlerde ve hayallerde görünür. Hep aynı yağlı boya portre tarzında olsun.
 4. Her sahne promptunun sonuna **Ortak stil** bloğunu ekle.
-5. Kare (1:1) üret. JPG olarak `mobile/assets/images/path/` klasörüne aşağıdaki adlarla koy. WebP'ye ben çeviririm, orijinalleri silerim.
+5. Kare (1:1) üret. JPG olarak `mobile/assets/images/path/b2/` klasörüne aşağıdaki adlarla koy (ben `covers/` altına alırım). WebP'ye ben çeviririm, orijinalleri silerim.
 6. **Tek tek üret.** Önce **Ünite 1'in 5 görselini** üretip haber ver.
 
 ## Karakterler

@@ -5,7 +5,7 @@
  * only once in the level.
  * Run: npm run check:path
  */
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
 import { VOICE_SCENES } from '@talkstage/shared-data/voiceScenes';
 
@@ -19,10 +19,17 @@ const sceneIds = new Set(VOICE_SCENES.map((s) => s.id));
 const roomIds = new Set(
   [...readFileSync(new URL('../src/data/wordRooms.ts', import.meta.url), 'utf8').matchAll(/^  id: '(\w+)',/gm)].map((m) => m[1])
 );
+// Word pictures: assets/images/words plus one assets/images/path/<level>/words folder per level (B1 on).
+const levelWordDirs = readdirSync(new URL('../assets/images/path/', import.meta.url), { withFileTypes: true })
+  .filter((e) => e.isDirectory())
+  .map((e) => new URL(`../assets/images/path/${e.name}/words/`, import.meta.url))
+  .filter((u) => existsSync(u));
 const wordPics = new Set(
-  readdirSync(new URL('../assets/images/words/', import.meta.url))
-    .filter((f) => f.endsWith('.webp'))
-    .map((f) => f.slice(0, -5))
+  [new URL('../assets/images/words/', import.meta.url), ...levelWordDirs].flatMap((dir) =>
+    readdirSync(dir)
+      .filter((f) => f.endsWith('.webp'))
+      .map((f) => f.slice(0, -5))
+  )
 );
 /** Same key as src/assets/wordImages.ts (that file requires images, so it cannot be imported here). */
 const wordKey = (en: string) =>

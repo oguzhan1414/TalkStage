@@ -23,7 +23,7 @@ Stylized 3D cartoon illustration, exaggerated caricature proportions (big head, 
 1. **Soyut kelimeler** (achievement, claim, attitude, mood…) somut bir anla anlatıldı. Görsel tek başına 2 saniyede tahmin edilebilmeli.
 2. **Aynı dersteki görseller karışmamalı.** Resim seçme ekranında yanlış şık aynı dersin başka bir kelimesi oluyor. Örnek: injury ile wound, interview ile candidate, king ile knight. Promptlar buna göre ayrıştırıldı.
 3. **Yazı yok.** Gazete manşeti, tabela, etiket, senaryo, fiş: hepsi boş ya da sadece resimli.
-4. **Dosya adı:** kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `conveyor_belt.jpg`, `traffic_jam.jpg`, `x-ray.jpg`, `get_up.jpg`. Klasör: `mobile/assets/images/words/`.
+4. **Dosya adı:** kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `conveyor_belt.jpg`, `traffic_jam.jpg`, `x-ray.jpg`, `get_up.jpg`. Klasör: `mobile/assets/images/path/b1/` (kapaklarla aynı yere atabilirsin; ben `words/` ve `covers/` diye ayırırım).
 5. **Tek tek üret.** Toplu istekte araç stili gevşetiyor. Her üniteyi bitirince bana haber ver; WebP'ye çevirip kontrol ederim.
 
 ---
@@ -330,7 +330,3 @@ Stylized 3D cartoon illustration, exaggerated caricature proportions (big head, 
 
 ---
 
-## Üretim sırası
-
-1. Önce **Ünite 1'in 20 görseli**. Bana haber ver, birlikte bakalım.
-2. Sonra ünite ünite devam et. Kelime adımlarını (malzemeler, duygular, phrasal verb'ler) kendi ünitesiyle birlikte üret.

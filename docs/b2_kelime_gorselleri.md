@@ -28,7 +28,7 @@ Stylized 3D cartoon illustration, exaggerated caricature proportions (big head, 
 
    Promptlar bunlara göre ayrıştırıldı.
 2. **Yazı yok.** Gazete, ilan, CV, sözleşme, pankart, ekran: hepsi boş ya da sadece resimli.
-3. **Dosya adı:** kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `security_guard.jpg`, `first-aid_kit.jpg`, `start-up.jpg`, `cctv.jpg`, `cv.jpg`, `test_tube.jpg`. Klasör: `mobile/assets/images/words/`.
+3. **Dosya adı:** kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `security_guard.jpg`, `first-aid_kit.jpg`, `start-up.jpg`, `cctv.jpg`, `cv.jpg`, `test_tube.jpg`. Klasör: `mobile/assets/images/path/b2/` (kapaklarla aynı yere atabilirsin; ben `words/` ve `covers/` diye ayırırım).
 4. **Tek tek üret.** Her üniteyi bitirince bana haber ver; WebP'ye çevirip kontrol ederim.
 
 ---
