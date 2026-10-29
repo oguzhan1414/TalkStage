@@ -12,6 +12,7 @@ import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
+import { Skyline } from '../components/path/Skyline';
 import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
@@ -29,6 +30,8 @@ import type { ProfileOut, ProgressOut } from '../types/api';
 
 const TAB_BAR = 68;
 const RING_W = 12;
+/** Height under the medallion: chip overhang, title, subtitle and button. */
+const MEDAL_EXTRA = 168;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -119,7 +122,10 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
   const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
   const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
-  const medal = Math.round(Math.min(winW * 0.74, winH * 0.36, 320));
+  const medal = Math.round(Math.min(winW * 0.7, winH * 0.32, 300));
+  /** Where the houses stand: just above the medallion's bottom, so its title sits on the cream ground below. */
+  const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
+  const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + medal * 0.86 : winH * 0.6;
 
   const [chatLockOpen, setChatLockOpen] = useState(false);
   /** What Mivo says next to the medallion: the previous episode, or the story's opening line. */
@@ -149,46 +155,51 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#4F8EF7', '#8DBBFB', '#D6E7FF', '#F8FAFC']} locations={[0, 0.35, 0.62, 0.9]} style={StyleSheet.absoluteFill} />
-      <Clouds top={winH * 0.5} width={winW} />
+      <Skyline width={winW} height={winH} horizon={horizon} levelId={level.id} />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
         {/* Top: Mivo friendship level, today's goal, streak */}
         <View style={styles.top}>
-          <BouncyPressable
-            onPress={() => navigation.navigate('AccountSettings')}
-            style={styles.avatar}
-            hitSlop={8}
-            hapticType="light"
-            scaleTo={0.93}
-            accessibilityRole="button"
-            accessibilityLabel={t("Profil ve ayarlar")}
-          >
-            <Image source={profileAvatar(profile)} style={styles.avatarImage} resizeMode="cover" />
-            <View style={styles.avatarLevel}>
-              <Text style={styles.avatarLevelText}>{xp.level}</Text>
+          <View style={styles.topGlass}>
+            <BouncyPressable
+              onPress={() => navigation.navigate('AccountSettings')}
+              style={styles.avatar}
+              hitSlop={8}
+              hapticType="light"
+              scaleTo={0.93}
+              accessibilityRole="button"
+              accessibilityLabel={t("Profil ve ayarlar")}
+            >
+              <Image source={profileAvatar(profile)} style={styles.avatarImage} resizeMode="cover" />
+              <View style={styles.avatarLevel}>
+                <Text style={styles.avatarLevelText}>{xp.level}</Text>
+              </View>
+            </BouncyPressable>
+            <View style={styles.goal}>
+              <View style={styles.goalRow}>
+                <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
+                <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
+              </View>
+              <View style={styles.goalTrack}>
+                <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
+              </View>
             </View>
-          </BouncyPressable>
-          <View style={styles.goal}>
-            <View style={styles.goalRow}>
-              <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
-              <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
+            <View style={styles.topDivider} />
+            <View style={styles.streak}>
+              <Ionicons name="flame" size={22} color="#F97316" />
+              <Text style={styles.streakNum}>{profile?.streak_count ?? 0}</Text>
             </View>
-            <View style={styles.goalTrack}>
-              <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
-            </View>
-          </View>
-          <View style={styles.streak}>
-            <Ionicons name="flame" size={22} color="#F97316" />
-            <Text style={styles.streakNum}>{profile?.streak_count ?? 0}</Text>
           </View>
         </View>
 
         {/* Story */}
         <View style={styles.storyRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.storyKicker}>{t("{{level}} · Ünite {{n}}", { level: level.id, n: focused.unit.number })}</Text>
-            <Text style={styles.storyTitle} numberOfLines={1}>
+          <View style={{ flex: 1, alignItems: 'flex-start' }}>
+            <View style={styles.storyChip}>
+              <Text style={styles.storyChipLevel}>{level.id}</Text>
+              <Text style={styles.storyChipText}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
+            </View>
+            <Text style={styles.storyTitle} numberOfLines={1} adjustsFontSizeToFit>
               {loc(level.story.title)}
             </Text>
           </View>
@@ -205,7 +216,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
 
         {/* The medallion carousel */}
-        <View style={{ flex: 1, justifyContent: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center' }} onLayout={(e) => setCarousel({ y: e.nativeEvent.layout.y, h: e.nativeEvent.layout.height })}>
           <FlatList
             ref={listRef}
             data={steps}
@@ -312,19 +323,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   );
 }
 
-/** Soft cloud bank across the screen, the horizon under the medallion. */
-function Clouds({ top, width }: { top: number; width: number }) {
-  const puffs = [0.02, 0.18, 0.36, 0.55, 0.72, 0.9].map((x, i) => ({ left: width * x - 70, size: i % 2 ? 150 : 190 }));
-  return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { top }]}>
-      {puffs.map((p, i) => (
-        <View key={i} style={[styles.puff, { left: p.left, width: p.size, height: p.size, borderRadius: p.size / 2, top: i % 2 ? 18 : 0 }]} />
-      ))}
-      <View style={[styles.cloudBase, { top: 70 }]} />
-    </View>
-  );
-}
-
 function Medallion({
   f,
   size,
@@ -383,6 +381,17 @@ function Medallion({
       : type === 'vocab'
         ? t("Kelime bölümü")
         : t("Mivo ile sahne");
+  const kickerIcon = type === 'reading' ? 'book' : type === 'vocab' ? 'sparkles' : 'mic';
+  const subtitle =
+    s.kind === 'reading'
+      ? t("{{grammar}} · ~{{n}} dk", { grammar: loc(s.episode.grammar), n: s.episode.minutes })
+      : s.kind === 'vocab'
+        ? t("{{n}} kelime", { n: s.words.length })
+        : s.kind === 'soon' && s.grammar
+          ? loc(s.grammar)
+          : type === 'scene'
+            ? t("Sesli sahne")
+            : '';
   const cta = soon
     ? t("Yakında")
     : isFuture
@@ -430,17 +439,12 @@ function Medallion({
               resizeMode="contain"
             />
           )}
+          {/* A light shade only behind the badges at the bottom; the picture stays clean. */}
           <LinearGradient
-            colors={['rgba(15,23,42,0.62)', 'rgba(15,23,42,0)', 'rgba(15,23,42,0)', 'rgba(15,23,42,0.35)']}
-            locations={[0, 0.5, 0.7, 1]}
+            colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.28)']}
+            locations={[0.62, 1]}
             style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]}
           />
-          <View style={styles.medalText}>
-            <Text style={styles.medalKicker}>{kicker}</Text>
-            <Text style={[styles.medalTitle, { fontSize: size > 280 ? 24 : 21 }]} numberOfLines={2}>
-              {stepTitle(s)}
-            </Text>
-          </View>
           {type !== 'scene' ? (
             <View style={styles.medalStars}>
               {[1, 2, 3].map((n) =>
@@ -497,7 +501,21 @@ function Medallion({
           {/* Thin white line between the picture and the coloured ring, drawn on top so nothing pokes out. */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.medalEdge, { borderRadius: inner / 2 }]} />
         </View>
+        {/* Chip on the top of the ring: Bölüm 3 / Kelime bölümü / Mivo ile sahne */}
+        <View style={styles.medalChip}>
+          <Ionicons name={kickerIcon} size={14} color={palette.fill[0]} />
+          <Text style={[styles.medalChipText, { color: palette.fill[1] }]}>{kicker}</Text>
+        </View>
       </Animated.View>
+
+      <Text style={[styles.medalTitle, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
+        {stepTitle(s)}
+      </Text>
+      {subtitle ? (
+        <Text style={styles.medalSubtitle} numberOfLines={1}>
+          {subtitle}
+        </Text>
+      ) : null}
 
       <Pressable
         onPress={onOpen}
@@ -508,18 +526,10 @@ function Medallion({
         <Text style={[styles.ctaText, locked && { color: '#64748B' }]}>{cta}</Text>
       </Pressable>
 
-      {s.kind === 'reading' ? (
-        <Text style={styles.grammar} numberOfLines={1}>
-          {loc(s.episode.grammar)}
-        </Text>
-      ) : type === 'scene' && !locked && !passed ? (
+      {type === 'scene' && !locked && !passed ? (
         <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
         </Pressable>
-      ) : s.kind === 'soon' && s.grammar ? (
-        <Text style={styles.grammar} numberOfLines={1}>
-          {loc(s.grammar)}
-        </Text>
       ) : null}
     </View>
   );
@@ -528,9 +538,26 @@ function Medallion({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
-  top: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 6 },
-  avatar: { width: 52, height: 52 },
-  avatarImage: { width: 52, height: 52, borderRadius: 26, borderWidth: 3, borderColor: '#FFFFFF', backgroundColor: '#EEF2FF' },
+  top: { paddingHorizontal: spacing.md, paddingTop: 6 },
+  topGlass: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 6,
+    paddingRight: 8,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.95)',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  topDivider: { width: 1, height: 30, backgroundColor: 'rgba(100,116,139,0.25)' },
+  avatar: { width: 48, height: 48 },
+  avatarImage: { width: 48, height: 48, borderRadius: 24, borderWidth: 2.5, borderColor: '#FFFFFF', backgroundColor: '#EEF2FF' },
   avatarLevel: {
     position: 'absolute',
     right: -4,
@@ -546,18 +573,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarLevelText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
-  goal: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 9, gap: 6 },
+  goal: { flex: 1, paddingHorizontal: 4, paddingVertical: 4, gap: 6 },
   goalRow: { flexDirection: 'row', justifyContent: 'space-between' },
   goalLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading },
   goalValue: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textBody },
-  goalTrack: { height: 8, borderRadius: 4, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  goalTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(148,163,184,0.3)', overflow: 'hidden' },
   goalFill: { height: '100%', borderRadius: 4, backgroundColor: '#22C55E' },
-  streak: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 12, height: 50 },
+  streak: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 4, height: 44 },
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
   storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 14 },
-  storyKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.8, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' },
-  storyTitle: { fontFamily: fonts.headingBold, fontSize: 24, color: '#FFFFFF', marginTop: 1 },
+  storyChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingLeft: 3,
+    paddingRight: 10,
+    paddingVertical: 3,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.45)',
+  },
+  storyChipLevel: {
+    fontFamily: fonts.headingBold,
+    fontSize: 12,
+    color: '#4338CA',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    overflow: 'hidden',
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+  },
+  storyChipText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.4, color: '#FFFFFF' },
+  storyTitle: {
+    fontFamily: fonts.headingBold,
+    fontSize: 27,
+    color: '#FFFFFF',
+    marginTop: 6,
+    textShadowColor: 'rgba(30,58,138,0.35)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
 
   mivoRow: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: spacing.md, marginTop: 8 },
   mivo: { width: 76, height: 76 },
@@ -576,16 +633,32 @@ const styles = StyleSheet.create({
   medalClip: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   medalArt: { position: 'absolute', bottom: 0 },
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
-  medalText: { position: 'absolute', top: '17%', left: '12%', right: '12%', alignItems: 'center' },
-  medalKicker: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: 'rgba(255,255,255,0.9)' },
-  medalTitle: { fontFamily: fonts.headingBold, color: '#FFFFFF', textAlign: 'center', marginTop: 2 },
+  medalChip: {
+    position: 'absolute',
+    top: -15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+  },
+  medalChipText: { fontFamily: fonts.headingBold, fontSize: 14 },
+  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 16 },
+  medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
   medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
   medalBadge: { width: 40, height: 40 },
   medalBadgeMid: { width: 50, height: 50 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
   medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
   cta: {
-    marginTop: -32,
+    marginTop: 14,
     minWidth: 190,
     alignItems: 'center',
     backgroundColor: '#FCD34D',
@@ -602,7 +675,6 @@ const styles = StyleSheet.create({
   },
   ctaLocked: { backgroundColor: '#E2E8F0', borderBottomColor: '#CBD5E1' },
   ctaText: { fontFamily: fonts.headingBold, fontSize: 21, color: '#78350F' },
-  grammar: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, marginTop: 12 },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 12, textDecorationLine: 'underline' },
 
   arrow: {
@@ -630,8 +702,6 @@ const styles = StyleSheet.create({
   dotSkipped: { backgroundColor: '#E2E8F0', borderColor: '#94A3B8' },
   dotHere: { transform: [{ scale: 1.35 }], borderWidth: 2, borderColor: '#4F46E5' },
 
-  puff: { position: 'absolute', backgroundColor: '#FFFFFF', opacity: 0.95 },
-  cloudBase: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#FFFFFF' },
 
   chatFab: {
     position: 'absolute',
