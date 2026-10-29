@@ -21,12 +21,13 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, mivoVoiceImages, partBadgeImages, stateImages } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
 import { EXIT_SPACE, ExitButton } from '../components/path/ExitButton';
+import { PartTrack } from '../components/path/PartTrack';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
@@ -53,11 +54,12 @@ import type { ProfileOut, TranscribeResponse, VocabCardOut } from '../types/api'
  *   ⭐2 Grammar: Mivo's note, the pattern table with a gap, sentence building with the new words.
  *   ⭐3 Practice: Maya's episode in short pieces between listening, translation and matching drills, then
  *      Mivo's say-it-with-me (each word, then the sentence).
- * The cover shows the episode picture; between parts a short screen cheers the learner on. Two parts open the next
- * lesson; finishing a part records its star.
+ * The cover opens the episode picture full width with the three parts as stops; one progress strip (PartTrack) runs
+ * through the whole lesson. Each part starts with a one-second title and ends with a card rising from the bottom.
+ * Two parts open the next lesson; finishing a part records its star.
  */
 type Phase = 'pick' | 'match' | 'listen' | 'type' | 'save' | 'tip' | 'table' | 'practice' | 'drills' | 'mivo';
-type Screen = 'cover' | 'intro' | 'partDone' | 'done' | Phase;
+type Screen = 'cover' | 'intro' | 'done' | Phase;
 
 const shuffle = <T,>(list: T[]): T[] => {
   const a = [...list];
@@ -111,6 +113,10 @@ function partPhases(e: PathEpisode): Phase[][] {
 }
 
 const PART_NAMES = () => [t("Kelimeler"), t("Dil bilgisi"), t("Pratik")];
+/** Rough minutes of each part, from the episode's total. */
+const partMinutes = (e: PathEpisode) => [2, 2, Math.max(2, e.minutes - 4)];
+/** The warm floor the lesson sits on (the same family as the home's cream ground). */
+const FLOOR = '#FBF7F1';
 
 export function PathLessonScreen({ navigation, route }: PathLessonScreenProps) {
   const found = findStep(route.params.stepId);
@@ -153,24 +159,27 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [screen]);
 
-  // A run of right answers on the first try: a banner and a sparkle at 3, 5, 8 and every 5 after that.
-  const run = useRef(0);
-  const [combo, setCombo] = useState<{ n: number; key: number } | null>(null);
+  // Right answers on the first try in a row: a small flame counter in the strip from 3, a shine at 5, 8, every 5.
+  const [run, setRun] = useState(0);
+  const [shineKey, setShineKey] = useState(0);
   const tally = (firstTry: boolean) => {
     score.current.total += 1;
     if (firstTry) score.current.right += 1;
-    run.current = firstTry ? run.current + 1 : 0;
-    const n = run.current;
-    if (n === 3 || n === 5 || n === 8 || (n > 8 && n % 5 === 0)) {
-      setCombo({ n, key: Date.now() });
-      setTimeout(() => playSfx('combo'), 650);
+    const n = firstTry ? run + 1 : 0;
+    setRun(n);
+    if (n === 5 || n === 8 || (n > 8 && n % 5 === 0)) {
+      setShineKey(Date.now());
+      setTimeout(() => playSfx('combo'), 450);
     }
   };
+  /** The part just finished (1 or 2): its card rises over the last screen. */
+  const [partCard, setPartCard] = useState<number | null>(null);
   const report = (i: number, n: number) => setSub(n ? i / n : 0);
   /** New content was added at the bottom (a sentence, the answer panel): bring it into view. */
   const toEnd = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
 
   const startPart = (p: number) => {
+    setPartCard(null);
     setPart(p);
     setScreen('intro');
   };
@@ -180,20 +189,21 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
     if (i >= 0 && i + 1 < list.length) setScreen(list[i + 1]);
     else {
       setPartsDone((d) => Math.max(d, part + 1));
-      setScreen(part === 2 ? 'done' : 'partDone');
+      if (part === 2) setScreen('done');
+      else setPartCard(part + 1);
     }
   };
 
   const inPart = phases[part].indexOf(screen as Phase);
-  const barValue = inPart >= 0 ? (inPart + sub) / phases[part].length : 0;
+  const barValue = partCard ? 1 : inPart >= 0 ? (inPart + sub) / phases[part].length : 0;
+  const inLesson = screen !== 'cover' && screen !== 'done';
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        {inPart >= 0 ? (
-          <>
-            <Bar value={barValue} />
-            <Pressable
+      {inLesson ? (
+        <View style={styles.header}>
+          <PartTrack part={part} value={barValue} partsDone={partsDone} run={run} shineKey={shineKey} />
+          <Pressable
               onPress={() => setMuted(!muted)}
               hitSlop={8}
               style={styles.muteBtn}
@@ -201,16 +211,9 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
               accessibilityLabel={muted ? t("Sesleri aç") : t("Sesleri kapat")}
             >
               <Ionicons name={muted ? 'volume-mute' : 'volume-medium'} size={18} color={muted ? colors.textMuted : colors.brand} />
-            </Pressable>
-            <View style={styles.partTag}>
-              <Image source={partBadgeImages.gold[part]} style={styles.partTagBadge} resizeMode="contain" />
-              <Text style={styles.partTagText}>{part + 1}/3</Text>
-            </View>
-          </>
-        ) : (
-          <View style={{ flex: 1 }} />
-        )}
-      </View>
+          </Pressable>
+        </View>
+      ) : null}
 
       <ScrollView
         ref={scrollRef}
@@ -223,7 +226,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           {screen === 'cover' ? (
             <CoverStep episode={episode} art={art} partsDone={partsDone} onStart={startPart} />
           ) : screen === 'intro' ? (
-            <PartIntro part={part} onGo={() => setScreen(phases[part][0])} />
+            <PartIntro part={part} minutes={partMinutes(episode)[part]} onGo={() => setScreen(phases[part][0])} />
           ) : screen === 'pick' ? (
             <PickStep words={episode.words} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
           ) : screen === 'listen' ? (
@@ -267,58 +270,26 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
             <DrillsStep episode={episode} art={art} tally={tally} report={report} onAnswered={toEnd} onDone={next} />
           ) : screen === 'mivo' ? (
             <MivoSayStep sentence={mivoSentence(episode)} report={report} onNext={next} />
-          ) : screen === 'partDone' ? (
-            <PartDone stepId={stepId} part={part + 1} onNext={() => startPart(part + 1)} onExit={onExit} />
           ) : (
-            <DoneStep stepId={stepId} episode={episode} right={score.current.right} total={score.current.total} onExit={onExit} />
+            <DoneStep stepId={stepId} episode={episode} art={art} right={score.current.right} total={score.current.total} onExit={onExit} />
           )}
         </PageIn>
       </ScrollView>
-      <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />
-      {combo ? <ComboBanner key={combo.key} n={combo.n} onEnd={() => setCombo(null)} /> : null}
+      {partCard ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
+      {partCard ? (
+        <PartCard
+          stepId={stepId}
+          part={partCard}
+          nextMinutes={partMinutes(episode)[partCard]}
+          onNext={() => startPart(partCard)}
+          onLater={onExit}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
 
 /* ---------------- Shared pieces ---------------- */
-
-/** "3 in a row!": slides down under the header, then slides away. */
-function ComboBanner({ n, onEnd }: { n: number; onEnd: () => void }) {
-  const insets = useSafeAreaInsets();
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.sequence([
-      Animated.delay(600),
-      Animated.spring(v, { toValue: 1, friction: 6, tension: 90, useNativeDriver: true }),
-      Animated.delay(1500),
-      Animated.timing(v, { toValue: 0, duration: 260, useNativeDriver: true }),
-    ]).start(() => onEnd());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const text =
-    n >= 8 ? t("{{n}} doğru üst üste! Durdurulamazsın!", { n }) : n >= 5 ? t("{{n}} doğru üst üste! Harikasın!", { n }) : t("{{n}} doğru üst üste!", { n });
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        styles.combo,
-        {
-          top: insets.top + 58,
-          opacity: v,
-          transform: [
-            { translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-30, 0] }) },
-            { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
-          ],
-        },
-      ]}
-    >
-      <LinearGradient colors={['#F59E0B', '#F97316']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.comboInner}>
-        <Ionicons name="flame" size={20} color="#FFFFFF" />
-        <Text style={styles.comboText}>{text}</Text>
-      </LinearGradient>
-    </Animated.View>
-  );
-}
 
 /** The progress bar of the part being played; it slides to its new value. */
 export function Bar({ value }: { value: number }) {
@@ -464,9 +435,8 @@ const wordLine = (w: PathWord) => (gloss(w.native) ? `${w.en} = ${gloss(w.native
  * A short screen before each part: the three part badges (finished ones gold, this one big and glowing), the
  * part's name and one line about it. It moves on by itself; a tap moves on at once.
  */
-function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
+function PartIntro({ part, minutes, onGo }: { part: number; minutes: number; onGo: () => void }) {
   const { height } = useWindowDimensions();
-  const glow = useLoop(true, 1100, true);
   const gone = useRef(false);
   const go = () => {
     if (gone.current) return;
@@ -474,49 +444,25 @@ function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
     onGo();
   };
   useEffect(() => {
-    const id = setTimeout(go, 2600);
+    const id = setTimeout(go, 1500);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const titles = [t("Yeni kelimeler"), t("Yeni dil bilgisi"), t("Pratik zamanı")];
   const lines = [
-    t("**Resimlerle** öğrenilen kelimeler akılda kalır."),
-    t("**Renkli formüller** dil bilgisini kolaylaştırır."),
-    t("**Hikâye, dinleme ve konuşmayla** öğrendiğini pekiştir."),
+    t("Resimlerle tanış, dinle, yaz."),
+    t("Kuralı gör, kalıbı tamamla, cümle kur."),
+    t("Hikâyeyi oku, dinle ve Mivo'yla konuş."),
   ];
   return (
-    <Pressable onPress={go} style={[styles.intro, { minHeight: height * 0.7 }]} accessibilityRole="button">
-      <View style={styles.introBadges}>
-        {[0, 1, 2].map((i) => {
-          const done = i < part;
-          const now = i === part;
-          const size = now ? 112 : 72;
-          return (
-            <PopIn key={i} delay={120 + i * 140} onShow={() => now && playSfx('star')}>
-              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                {now ? (
-                  <Animated.View
-                    style={[
-                      styles.introGlow,
-                      {
-                        width: size + 30,
-                        height: size + 30,
-                        borderRadius: (size + 30) / 2,
-                        opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.8] }),
-                        transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1.06] }) }],
-                      },
-                    ]}
-                  />
-                ) : null}
-                <Image source={done ? partBadgeImages.gold[i] : partBadgeImages.grey[i]} style={{ width: size, height: size, opacity: done || now ? 1 : 0.7 }} resizeMode="contain" />
-              </View>
-            </PopIn>
-          );
-        })}
-      </View>
-      <FadeIn delay={420}>
+    <Pressable onPress={go} style={[styles.intro, { minHeight: height * 0.62 }]} accessibilityRole="button">
+      <PopIn onShow={() => playSfx('star')}>
+        <Image source={partBadgeImages.gold[part]} style={styles.introBadge} resizeMode="contain" />
+      </PopIn>
+      <FadeIn delay={160} style={{ alignItems: 'center' }}>
+        <Text style={styles.introKicker}>{t("Kısım {{n}}/3 · ~{{m}} dk", { n: part + 1, m: minutes })}</Text>
         <Text style={styles.introTitle}>{titles[part]}</Text>
-        <BoldText text={lines[part]} style={styles.introLine} boldStyle={{ color: colors.brand }} />
+        <Text style={styles.introLine}>{lines[part]}</Text>
       </FadeIn>
     </Pressable>
   );
@@ -526,55 +472,76 @@ function PartIntro({ part, onGo }: { part: number; onGo: () => void }) {
 
 function CoverStep({ episode, art, partsDone, onStart }: { episode: PathEpisode; art?: number; partsDone: number; onStart: (part: number) => void }) {
   const { width, height } = useWindowDimensions();
-  const size = Math.round(Math.min(width - spacing.md * 2, height * 0.38));
-  const zoom = useLoop(true, 9000, true);
-  const scale = zoom.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] });
-  const breathe = useLoop(true, 1400, true);
-  const ctaScale = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.025] });
+  const heroH = Math.round(Math.min(height * 0.44, width * 1.02));
+  // The home's round medallion opens into the full-width picture.
+  const open = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(open, { toValue: 1, duration: 620, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+  }, [open]);
+  const drift = useLoop(true, 12000, true);
   const nextPart = Math.min(partsDone, 2);
   const allDone = partsDone >= 3;
+  const names = PART_NAMES();
+  const minutes = partMinutes(episode);
 
   return (
     <>
-      <View style={[styles.coverStage, { height: size + 24 }]}>
-        {/* A soft halo behind the picture */}
-        <View style={[styles.coverHalo, { width: size * 1.08, height: size * 1.08, borderRadius: size }]} />
-        <FadeIn from={20} duration={500} style={[styles.coverShadow, { width: size, height: size, borderRadius: 32 }]}>
-          {/* The shadow sits on the outer view; this inner one has none, so Android clips the picture to the corners. */}
-          <View style={[styles.coverClip, { borderRadius: 32 }]}>
-            {art ? (
-              <Animated.Image source={art} style={{ width: size, height: size, borderRadius: 32, transform: [{ scale }] }} resizeMode="cover" />
-            ) : (
-              <LinearGradient colors={['#6366F1', '#8B5CF6']} style={[StyleSheet.absoluteFill, styles.coverFallback]}>
-                <Image source={mivoHomeImages.lessonGuide} style={{ width: size * 0.7, height: size * 0.7 }} resizeMode="contain" />
-              </LinearGradient>
-            )}
-            <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.45)']} style={styles.coverShade} />
-            <View style={styles.coverBadge}>
-              <Text style={styles.coverBadgeText}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
-            </View>
-            <View style={styles.coverStars}>
-              {[1, 2, 3].map((n) => (
-                <PopIn key={n} delay={350 + n * 110}>
-                  <Ionicons name={n <= partsDone ? 'star' : 'star-outline'} size={26} color={n <= partsDone ? '#FBBF24' : 'rgba(255,255,255,0.9)'} />
-                </PopIn>
-              ))}
-            </View>
-          </View>
-        </FadeIn>
+      <View style={[styles.hero, { height: heroH }]}>
+        <Animated.View
+          style={[
+            styles.heroClip,
+            {
+              borderRadius: open.interpolate({ inputRange: [0, 1], outputRange: [heroH / 2, 0] }),
+              transform: [{ scale: open.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+            },
+          ]}
+        >
+          {art ? (
+            <Animated.Image
+              source={art}
+              style={{ width, height: heroH, transform: [{ scale: drift.interpolate({ inputRange: [0, 1], outputRange: [1.02, 1.08] }) }] }}
+              resizeMode="cover"
+            />
+          ) : (
+            <LinearGradient colors={['#6366F1', '#8B5CF6']} style={[StyleSheet.absoluteFill, styles.coverFallback]}>
+              <Image source={mivoHomeImages.lessonGuide} style={{ width: heroH * 0.7, height: heroH * 0.7 }} resizeMode="contain" />
+            </LinearGradient>
+          )}
+        </Animated.View>
+        {/* the picture melts into the floor */}
+        <LinearGradient colors={['rgba(251,247,241,0)', FLOOR]} style={[styles.heroFade, { height: heroH * 0.32 }]} />
       </View>
 
-      <FadeIn delay={120}>
+      <FadeIn delay={260} style={styles.coverText}>
+        <Text style={styles.coverKicker}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
         <Text style={styles.coverTitle}>{loc(episode.title)}</Text>
         <Text style={styles.coverLine} numberOfLines={2}>
           {loc(episode.grammar)} · {t("~{{n}} dk", { n: episode.minutes })}
         </Text>
       </FadeIn>
 
-      <FadeIn delay={340}>
-        <Animated.View style={{ transform: [{ scale: ctaScale }] }}>
-          <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
-        </Animated.View>
+      {/* the three parts as stops on a line */}
+      <FadeIn delay={420}>
+        <View style={styles.stops}>
+          <View style={styles.stopsLine} />
+          {[0, 1, 2].map((i) => {
+            const done = i < partsDone;
+            const now = !allDone && i === nextPart;
+            return (
+              <View key={i} style={styles.stop}>
+                <View style={[styles.stopBadge, now && styles.stopBadgeNow]}>
+                  <Image source={done ? partBadgeImages.gold[i] : partBadgeImages.grey[i]} style={styles.stopImg} resizeMode="contain" />
+                </View>
+                <Text style={[styles.stopName, (done || now) && { color: colors.textHeading }]}>{names[i]}</Text>
+                <Text style={styles.stopMin}>{done ? t("Tamam") : t("{{n}} dk", { n: minutes[i] })}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </FadeIn>
+
+      <FadeIn delay={560}>
+        <NextButton label={allDone ? t("Baştan başla") : partsDone > 0 ? t("Devam et") : t("Hadi başlayalım!")} onPress={() => onStart(allDone ? 0 : nextPart)} />
       </FadeIn>
     </>
   );
@@ -1678,46 +1645,50 @@ function MivoSayStep({ sentence, report, onNext }: { sentence: string; report: (
 /* ---------------- Between parts / results ---------------- */
 
 /** A part is finished: its star pops, the next part is one tap away (or come back later). */
-function PartDone({ stepId, part, onNext, onExit }: { stepId: string; part: number; onNext: () => void; onExit: () => void }) {
+/** The end of part 1 or 2: a card rises from the bottom over the last screen, its badge lands, and the strip above
+ * is full. One line says what comes next. */
+function PartCard({ stepId, part, nextMinutes, onNext, onLater }: { stepId: string; part: number; nextMinutes: number; onNext: () => void; onLater: () => void }) {
+  const insets = useSafeAreaInsets();
   const names = PART_NAMES();
+  const rise = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     void recordPart(stepId, part);
     playSfx('complete');
     haptics.success();
+    Animated.spring(rise, { toValue: 1, friction: 9, tension: 70, useNativeDriver: true }).start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const titles = [t("Kelimeler cebinde!"), t("Dil bilgisi tamam!")];
   return (
-    <View style={styles.done}>
-      <Confetti count={24} />
-      <View style={styles.doneStars}>
-        {[1, 2, 3].map((n) =>
-          n === part ? (
-            <PopIn key={n} delay={150} onShow={() => playSfx('star')} style={{ marginTop: -10 }}>
-              <Image source={partBadgeImages.gold[n - 1]} style={styles.badgeBig} resizeMode="contain" />
-            </PopIn>
-          ) : (
-            <Image key={n} source={n < part ? partBadgeImages.gold[n - 1] : partBadgeImages.grey[n - 1]} style={[styles.badgeSmall, n > part && { opacity: 0.7 }]} resizeMode="contain" />
-          )
-        )}
-      </View>
-      <FadeIn delay={350}>
-        <Text style={styles.doneTitle}>{t("{{n}}. yıldız tamam!", { n: part })}</Text>
-        <Text style={styles.doneSub}>{t("{{name}} bitti. Sırada: {{next}}", { name: names[part - 1], next: names[part] })}</Text>
-      </FadeIn>
-      <FadeIn delay={550} style={styles.partNextCard}>
-        <Image source={part === 1 ? mivoVoiceImages.note : mivoVoiceImages.speak} style={styles.partNextMivo} resizeMode="contain" />
-        <Text style={styles.partNextText}>
-          {part === 1
-            ? t("Kelimeler cebinde! Sırada dil bilgisi var ama korkma: 2 dakikalık kısa bir görev. Az önce öğrendiğin kelimelerle cümle kuracaksın.")
-            : t("Süpersin! Bir sonraki ders açıldı. Şimdi pratik zamanı: Maya'nın hikâyesinden parçalar, dinleme ve sonunda Mivo'yla konuşma.")}
-        </Text>
-      </FadeIn>
-      <FadeIn delay={700} style={{ alignSelf: 'stretch', gap: 12 }}>
-        <NextButton label={part === 1 ? t("Hadi, yapalım!") : t("Pratiğe geç")} onPress={onNext} />
-        <Pressable onPress={onExit} hitSlop={8} accessibilityRole="button">
+    <View style={StyleSheet.absoluteFill}>
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.cardDim, { opacity: rise }]} />
+      <Animated.View
+        style={[
+          styles.partCard,
+          { paddingBottom: Math.max(insets.bottom, 16) + 8 },
+          { transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [360, 0] }) }] },
+        ]}
+      >
+        <View style={styles.partCardHead}>
+          <PopIn delay={260} onShow={() => playSfx('star')}>
+            <Image source={partBadgeImages.gold[part - 1]} style={styles.partCardBadge} resizeMode="contain" />
+          </PopIn>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.partCardTitle}>{titles[part - 1]}</Text>
+            <Text style={styles.partCardSub}>{t("Sırada: {{name}} · ~{{n}} dk", { name: names[part], n: nextMinutes })}</Text>
+          </View>
+        </View>
+        {part === 2 ? (
+          <View style={styles.partCardNote}>
+            <Ionicons name="lock-open" size={15} color="#15803D" />
+            <Text style={styles.partCardNoteText}>{t("Bir sonraki bölümün kilidi açıldı.")}</Text>
+          </View>
+        ) : null}
+        <NextButton label={t("Devam et")} onPress={onNext} />
+        <Pressable onPress={onLater} hitSlop={8} accessibilityRole="button">
           <Text style={styles.skip}>{t("Sonra devam ederim")}</Text>
         </Pressable>
-      </FadeIn>
+      </Animated.View>
     </View>
   );
 }
@@ -1744,10 +1715,9 @@ function CountUp({ to, delay = 0, style }: { to: number; delay?: number; style?:
   return <Text style={style}>+{n}</Text>;
 }
 
-function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; episode: PathEpisode; right: number; total: number; onExit: () => void }) {
+function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: string; episode: PathEpisode; art?: number; right: number; total: number; onExit: () => void }) {
   const queryClient = useQueryClient();
   const saved = useRef(false);
-  const glow = useLoop(true, 2400, true);
   const flame = useLoop(true, 700, true);
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   useEffect(() => {
@@ -1765,23 +1735,16 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
 
   return (
     <View style={styles.done}>
-      <Confetti />
-      <View style={styles.doneHero}>
-        <Animated.View
-          style={[
-            styles.doneGlow,
-            {
-              opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0.85] }),
-              transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1.06] }) }],
-            },
-          ]}
-        />
-        <PopIn>
-          <Image source={stateImages.goalCelebration} style={styles.doneImg} resizeMode="contain" />
-        </PopIn>
-      </View>
-      <FadeIn delay={250}>
-        <Text style={styles.doneTitle}>{t("Bölüm {{n}} bitti!", { n: episode.number })}</Text>
+      <Confetti count={18} />
+      {/* The episode picture as a medallion again: the three badges land under it, as on the home. */}
+      <PopIn>
+        <View style={styles.doneMedal}>
+          {art ? <Image source={art} style={styles.doneMedalImg} resizeMode="cover" /> : <Image source={mivoHomeImages.lessonGuide} style={styles.doneMedalImg} resizeMode="contain" />}
+        </View>
+      </PopIn>
+      <FadeIn delay={250} style={{ alignItems: 'center' }}>
+        <Text style={styles.coverKicker}>{t("Bölüm {{n}}", { n: episode.number })}</Text>
+        <Text style={styles.doneTitle}>{t("Tamamlandı!")}</Text>
       </FadeIn>
       <View style={styles.doneStars}>
         {[1, 2, 3].map((n) => (
@@ -1833,19 +1796,13 @@ function DoneStep({ stepId, episode, right, total, onExit }: { stepId: string; e
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10, minHeight: 52 },
+  container: { flex: 1, backgroundColor: FLOOR },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 10, minHeight: 50 },
   bar: { flex: 1, height: 12, borderRadius: 6, backgroundColor: '#E2E8F0', overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6, backgroundColor: '#FBBF24' },
-  muteBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2FF' },
-  partTag: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FFFBEB', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1, borderColor: '#FDE68A' },
-  partTagBadge: { width: 18, height: 18 },
-  partTagText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
+  muteBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' },
 
   page: { gap: 16 },
-  combo: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
-  comboInner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 999, borderBottomWidth: 3, borderBottomColor: '#C2410C' },
-  comboText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
   formula: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', rowGap: 6 },
   formulaItem: { flexDirection: 'row', alignItems: 'center' },
   formulaPlus: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading, marginHorizontal: 6 },
@@ -1859,30 +1816,27 @@ const styles = StyleSheet.create({
   heardText: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, textAlign: 'center', fontStyle: 'italic' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textMuted, textAlign: 'center', textDecorationLine: 'underline' },
 
-  coverShadow: {
-    alignSelf: 'center',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#1E1B4B',
-    shadowOpacity: 0.22,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
-  },
-  coverClip: { flex: 1, overflow: 'hidden' },
+  hero: { marginHorizontal: -spacing.md, marginTop: -6, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  heroClip: { width: '100%', height: '100%', overflow: 'hidden' },
+  heroFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   coverFallback: { alignItems: 'center', justifyContent: 'flex-end' },
-  coverStage: { alignItems: 'center', justifyContent: 'center' },
-  coverHalo: { position: 'absolute', backgroundColor: '#C7D2FE', opacity: 0.45 },
-  coverShade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '35%' },
-  coverBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
-  coverBadgeText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.brand, letterSpacing: 0.3 },
-  coverStars: { position: 'absolute', bottom: 12, alignSelf: 'center', flexDirection: 'row', gap: 6 },
-  coverTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: colors.textHeading, textAlign: 'center' },
-  coverLine: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 21, color: colors.textMuted, textAlign: 'center', marginTop: 6 },
-  intro: { alignItems: 'center', justifyContent: 'center', gap: 34 },
-  introBadges: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  introGlow: { position: 'absolute', backgroundColor: '#FDE68A' },
-  introTitle: { fontFamily: fonts.headingBold, fontSize: 30, color: colors.textHeading, textAlign: 'center' },
-  introLine: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 25, color: colors.textMuted, textAlign: 'center', marginTop: 10, paddingHorizontal: 12 },
+  coverText: { alignItems: 'center', marginTop: -28 },
+  coverKicker: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 1.2, color: colors.brand, textTransform: 'uppercase' },
+  coverTitle: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: colors.textHeading, textAlign: 'center', marginTop: 4 },
+  coverLine: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 21, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
+  stops: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8 },
+  stopsLine: { position: 'absolute', top: 29, left: '16%', right: '16%', height: 3, borderRadius: 2, backgroundColor: '#ECE5D8' },
+  stop: { flex: 1, alignItems: 'center', gap: 2 },
+  stopBadge: { width: 60, height: 60, borderRadius: 30, backgroundColor: FLOOR, alignItems: 'center', justifyContent: 'center' },
+  stopBadgeNow: { backgroundColor: '#FFFFFF', borderWidth: 2, borderColor: '#FCD34D' },
+  stopImg: { width: 50, height: 50 },
+  stopName: { fontFamily: fonts.headingBold, fontSize: 13.5, color: colors.textMuted, marginTop: 2 },
+  stopMin: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
+  intro: { alignItems: 'center', justifyContent: 'center', gap: 18 },
+  introBadge: { width: 96, height: 96 },
+  introKicker: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 1.1, color: '#B45309', textTransform: 'uppercase' },
+  introTitle: { fontFamily: fonts.headingBold, fontSize: 30, color: colors.textHeading, textAlign: 'center', marginTop: 6 },
+  introLine: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 23, color: colors.textMuted, textAlign: 'center', marginTop: 6, paddingHorizontal: 12 },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
@@ -2061,9 +2015,8 @@ const styles = StyleSheet.create({
   micRec: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
 
   done: { alignItems: 'center', gap: 14, paddingTop: 20 },
-  doneHero: { width: 220, height: 200, alignItems: 'center', justifyContent: 'center' },
-  doneGlow: { position: 'absolute', width: 200, height: 200, borderRadius: 100, backgroundColor: '#FEF3C7' },
-  doneImg: { width: 170, height: 170 },
+  doneMedal: { width: 172, height: 172, borderRadius: 86, padding: 8, backgroundColor: '#FDE68A' },
+  doneMedalImg: { width: 156, height: 156, borderRadius: 78, borderWidth: 3, borderColor: '#FFFFFF' },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
   doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 110 },
@@ -2074,9 +2027,30 @@ const styles = StyleSheet.create({
   doneStat: { minWidth: 100, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
   doneStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
   doneStatLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
-  partNextCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14, borderWidth: 2, borderColor: '#EEF2FF', alignSelf: 'stretch' },
-  partNextMivo: { width: 64, height: 64 },
-  partNextText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textBody },
+  cardDim: { backgroundColor: 'rgba(15,23,42,0.35)' },
+  partCard: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: spacing.md + 4,
+    paddingTop: 22,
+    gap: 14,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: -6 },
+    elevation: 20,
+  },
+  partCardHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  partCardBadge: { width: 64, height: 64 },
+  partCardTitle: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  partCardSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, marginTop: 2 },
+  partCardNote: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F0FDF4', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 },
+  partCardNoteText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: '#15803D' },
   audioCard: { flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 20, borderWidth: 1, borderColor: '#EEF2FF' },
   audioIcon: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },
   wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 40 },
