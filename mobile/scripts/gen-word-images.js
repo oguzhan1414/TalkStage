@@ -40,13 +40,14 @@ export const WORD_IMAGES: Record<string, number> = {
 ${lines.join('\n')}
 };
 
-/** File-name key of a word: "Wake up" → wake_up, "café" → cafe. */
+/** File-name key of a word: "Wake up" → wake_up, "café" → cafe, "pull someone's leg" → pull_someones_leg. */
 export function wordKey(en: string): string {
   return en
     .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\\u0300-\\u036f]/g, '')
+    .replace(/['’]/g, '')
     .replace(/\\s+/g, '_');
 }
 

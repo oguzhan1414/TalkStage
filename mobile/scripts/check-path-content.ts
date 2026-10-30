@@ -38,6 +38,7 @@ const wordKey = (en: string) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .replace(/['’]/g, '')
     .replace(/\s+/g, '_');
 
 const IRREGULAR: Record<string, string[]> = {
