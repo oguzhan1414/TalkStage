@@ -2,15 +2,37 @@
 
 2026-10-29. [b2_ders_plani.md](b2_ders_plani.md) dosyasındaki 36 dersin 180 kelimesi ve 3 kelime adımının 18 kelimesi (sanat, doğa, iş hayatı). Ünite tekrarları ders kelimelerinin görsellerini kullanır.
 
-Stil, araç ve kurallar [b1_kelime_gorselleri.md](b1_kelime_gorselleri.md) ile aynı: **Stil A, 3D karikatür.** Referans olarak onaylı bir kelime görseli ver (masaüstündeki `spekvia_referans/referans_apple.png` ya da `referans_woman.png`) ve her promptun başına `Same style as the reference image.` yaz.
+Bu görseller dersin kelime bölümünde kullanılıyor: kelimeyi duyma, iki şıktan resim seçme, yazma ve kaydetme ekranları. Bu dosya tek başına yeterli; üretim için başka bir dosyaya bakmana gerek yok.
+
+## Stil: Spekvia 3D karikatür
+
+A1, A2 ve B1'deki kelime görselleriyle aynı stil. Bilinen dil uygulamalarının 2D sulu boya çizimlerinin bilerek tersindeyiz:
+
+| | Yapma | Yap |
+|---|---|---|
+| Teknik | 2D, sulu boya, guaj, fırça izi | Yumuşak 3D, kil gibi pürüzsüz mat yüzeyler |
+| Çerçeve | Kenarı yırtık renkli dikdörtgen, sınır çizgisi | Çerçeve yok; krem zemin, arkada tek pastel daire |
+| Karakter | Uzun, sıska kollu bacaklı | Tombul, büyük kafalı, çok ifadeli |
+| Renk | Hardal, gri-mavi, soluk tonlar | Çivit mavisi, mercan, güneş sarısı, nane yeşili, krem |
+| Sahne | Arka planlı kalabalık sahne | Tek konu, ortada, en az eşya |
 
 ## Renkli daire kelime türünü gösterir
 
-- **İsim:** nane yeşili (`soft mint green circle`)
-- **Fiil:** mercan (`soft coral circle`)
-- **Sıfat:** güneş sarısı (`soft sunny yellow circle`)
+- **İsim** (eşya, yer, kişi): nane yeşili (`soft mint green circle`)
+- **Fiil** (eylem): mercan (`soft coral circle`)
+- **Sıfat** (durum, nitelik): güneş sarısı (`soft sunny yellow circle`)
 
-Aşağıdaki her promptta dairenin rengi hazır yazılı.
+Aşağıdaki her promptta dairenin rengi hazır yazılı; değiştirme.
+
+## Prompt nasıl kurulur
+
+Her görsel için araca şu üç parçayı sırayla ver:
+
+1. Başa: `Same style as the reference image.`
+2. Ortaya: kelimenin altındaki sahne promptu (dairenin rengi içinde).
+3. Sona: aşağıdaki stil bloğu.
+
+**Referans görsel:** Her üretime onaylı bir kelime görselini referans olarak ekle: masaüstündeki `spekvia_referans/referans_apple.png` ya da `referans_woman.png`. B2'den ilk beğendiğin görselleri de sonradan ek referans olarak verebilirsin.
 
 ## Stil bloğu (her promptun sonuna ekle)
 
@@ -18,18 +40,31 @@ Aşağıdaki her promptta dairenin rengi hazır yazılı.
 Stylized 3D cartoon illustration, exaggerated caricature proportions (big head, short round body, very expressive face), soft clay-like smooth materials, warm pastel colors with indigo, coral and sunny yellow accents, soft studio lighting, gentle shadow under the subject. One single subject, centered, filling about 70 percent of the frame, only the props needed to show the meaning. Plain warm cream background. Square 1:1. No text, no letters, no numbers, no logos anywhere (books, screens, signs and labels are blank or show only simple pictures). Not watercolor, no brush strokes, no paint texture, no frame, no border, no thin elongated limbs.
 ```
 
-## Bu set için notlar
+## Kurallar
 
-1. **Aynı dersteki görseller karışmamalı.** Resim seçme ekranında yanlış şık aynı dersin başka bir kelimesi oluyor. Bu sette en çok dikkat isteyenler:
+1. **Biçim:** Kare (1024×1024 ya da daha büyük), JPG ya da PNG.
+2. **Dosya adı:** Her kelimenin yanında parantez içinde yazılı (`documentary.jpg` gibi). Kural: kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `security_guard.jpg`, `first-aid_kit.jpg`, `start-up.jpg`, `cctv.jpg`, `cv.jpg`, `test_tube.jpg`.
+3. **Klasör:** `mobile/assets/images/path/b2/`. Kapaklarla aynı yere atılabilir; ben `words/` ve `covers/` diye ayırır, WebP'ye çevirir, JPG'leri silerim.
+4. **İnsanlar:** Yaş, cinsiyet ve ten rengi çeşitli olsun. Hikâye karakterlerini (Maya, Leo, Rosa, Tom, Bay Patel, Bayan Lane, Lily, Ben, Danny, Dr Okafor…) ve Mivo'yu **kullanma**. Kelime görselleri hikâyeden bağımsız.
+5. **Soyut kelimeler** (legend, deal, guilty, regret…) somut bir anla anlatıldı. Görsel yazısız hâliyle 2 saniyede tahmin edilebilmeli.
+6. **Aynı dersteki görseller karışmamalı.** Resim seçme ekranında yanlış şık aynı dersin başka bir kelimesi oluyor. Bu sette en çok dikkat isteyenler:
    - awkward / guilty / ashamed / relieved / frustrated (Ders 25)
    - glance / gaze / stare (Ders 28)
    - legend / myth / rumour (Ders 10)
    - contract / signature / deal / handshake (Ders 16)
 
-   Promptlar bunlara göre ayrıştırıldı.
-2. **Yazı yok.** Gazete, ilan, CV, sözleşme, pankart, ekran: hepsi boş ya da sadece resimli.
-3. **Dosya adı:** kelimenin kendisi, küçük harf, boşluk yerine alt çizgi: `security_guard.jpg`, `first-aid_kit.jpg`, `start-up.jpg`, `cctv.jpg`, `cv.jpg`, `test_tube.jpg`. Klasör: `mobile/assets/images/path/b2/` (kapaklarla aynı yere atabilirsin; ben `words/` ve `covers/` diye ayırırım).
-4. **Tek tek üret.** Her üniteyi bitirince bana haber ver; WebP'ye çevirip kontrol ederim.
+   Promptlar bunlara göre ayrıştırıldı; sahneyi kendi kafana göre değiştirme.
+7. **Yazı yok.** Gazete, ilan, CV, sözleşme, pankart, ekran, tabela: hepsi boş ya da sadece resimli. Yazı, harf ya da rakam sızan görseli yeniden üret.
+8. **Tek tek üret.** Toplu istekte araç stili gevşetiyor. Önce Ders 1'in 5 görselini üret ve göster; stil tamamsa ünite ünite devam et. Her ünite bitince haber ver.
+
+## Kontrol listesi (her görsel için)
+
+- Yazısız hâliyle kelime 2 saniyede tahmin edilebiliyor mu?
+- Küçültünce (~150 px) de anlaşılıyor mu?
+- Dairenin rengi doğru mu (isim yeşil, fiil mercan, sıfat sarı)?
+- Aynı dersteki diğer 4 görselle karışıyor mu?
+- Yazı, harf, rakam ya da logo sızmış mı?
+- Diğer görsellerle aynı elden çıkmış gibi mi (3D, krem zemin, tek daire, çerçevesiz)?
 
 ---
 
