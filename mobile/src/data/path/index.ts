@@ -3,12 +3,13 @@ import { A2 } from './a2';
 import { B1 } from './b1';
 import { B2 } from './b2';
 import { C1 } from './c1';
+import { C2 } from './c2';
 import type { PathLevel, PathStep, PathUnit } from './types';
 
 export * from './types';
 
-/** Levels written so far (C2 follows the same shape). */
-export const PATH_LEVELS: PathLevel[] = [A1, A2, B1, B2, C1];
+/** The whole road, A1 to C2. */
+export const PATH_LEVELS: PathLevel[] = [A1, A2, B1, B2, C1, C2];
 
 export function pathLevel(id: string | null | undefined): PathLevel {
   return PATH_LEVELS.find((l) => l.id === id) ?? A1;

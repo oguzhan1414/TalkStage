@@ -485,5 +485,35 @@
   "keyPhrases.0.tr": "Me temo que no podemos comprometernos a eso.",
   "keyPhrases.1.tr": "Lo que puedo ofrecer en su lugar es una entrega por fases.",
   "keyPhrases.2.tr": "Valoro nuestra relación, por eso soy sincero."
+ },
+ "vs-c2-distant-relative": {
+  "titleTr": "Conocer a una pariente lejana",
+  "aiRole": "Tu prima lejana",
+  "objectives.0.textTr": "Habla del vínculo familiar con tacto y moderación (It's far from simple, It's not unlike…).",
+  "objectives.1.textTr": "Muestra que el vínculo importa pase lo que pase (Whatever happens, be it here or in Bristol…).",
+  "objectives.2.textTr": "Pregunta por los recuerdos de Isabel y responde con sentimiento real, sin exagerar.",
+  "keyPhrases.0.tr": "No es nada fácil saber qué decir.",
+  "keyPhrases.1.tr": "Pase lo que pase, me alegro de conocerte.",
+  "keyPhrases.2.tr": "La historia de tu familia no es muy distinta de la mía."
+ },
+ "vs-c2-editor-deal": {
+  "titleTr": "Negociar con una editora",
+  "aiRole": "Editora",
+  "objectives.0.textTr": "Discrepa con firmeza usando negaciones fuertes (I'm not in the least convinced, That's not remotely what I meant).",
+  "objectives.1.textTr": "Concede un punto y defiende otro (I concede that…, but I'd maintain that…).",
+  "objectives.2.textTr": "Llega a un acuerdo claro sobre la extensión, el título y el capítulo que quieres conservar.",
+  "keyPhrases.0.tr": "El nuevo título no me convence en absoluto.",
+  "keyPhrases.1.tr": "Admito que la parte central es demasiado larga.",
+  "keyPhrases.2.tr": "Pero sostengo que el último capítulo se queda."
+ },
+ "vs-c2-wedding-speech": {
+  "titleTr": "El discurso de boda",
+  "aiRole": "Organizadora de bodas",
+  "objectives.0.textTr": "Haz un brindis corto que mezcle un toque formal con una historia personal (I'd like to pay homage to…).",
+  "objectives.1.textTr": "Usa un deseo literario (Would that…, If only…, Oh, to…).",
+  "objectives.2.textTr": "Acepta los comentarios de Olivia, acorta el discurso y termina con un brindis claro.",
+  "keyPhrases.0.tr": "Quiero rendir homenaje a las personas que nos trajeron hasta aquí.",
+  "keyPhrases.1.tr": "Ojalá todas las parejas tuvieran tanta suerte.",
+  "keyPhrases.2.tr": "¡Por favor, levanten sus copas por los novios!"
  }
 }

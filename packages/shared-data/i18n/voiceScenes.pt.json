@@ -485,5 +485,35 @@
   "keyPhrases.0.tr": "Receio que não possamos nos comprometer com isso.",
   "keyPhrases.1.tr": "O que posso oferecer em vez disso é uma entrega em etapas.",
   "keyPhrases.2.tr": "Valorizo nossa parceria, por isso estou sendo sincero."
+ },
+ "vs-c2-distant-relative": {
+  "titleTr": "Conhecer uma parente distante",
+  "aiRole": "Sua prima distante",
+  "objectives.0.textTr": "Fale do vínculo familiar com tato e moderação (It's far from simple, It's not unlike…).",
+  "objectives.1.textTr": "Mostre que a ligação importa aconteça o que acontecer (Whatever happens, be it here or in Bristol…).",
+  "objectives.2.textTr": "Pergunte pelas memórias de Isabel e responda com sentimento real, sem exagerar.",
+  "keyPhrases.0.tr": "Não é nada fácil saber o que dizer.",
+  "keyPhrases.1.tr": "Aconteça o que acontecer, fico feliz por termos nos conhecido.",
+  "keyPhrases.2.tr": "A história da sua família não é tão diferente da minha."
+ },
+ "vs-c2-editor-deal": {
+  "titleTr": "Negociar com uma editora",
+  "aiRole": "Editora",
+  "objectives.0.textTr": "Discorde com firmeza usando negações fortes (I'm not in the least convinced, That's not remotely what I meant).",
+  "objectives.1.textTr": "Conceda um ponto e defenda outro (I concede that…, but I'd maintain that…).",
+  "objectives.2.textTr": "Chegue a um acordo claro sobre o tamanho, o título e o capítulo que você quer manter.",
+  "keyPhrases.0.tr": "O novo título não me convence nem um pouco.",
+  "keyPhrases.1.tr": "Admito que a parte do meio está longa demais.",
+  "keyPhrases.2.tr": "Mas continuo defendendo que o último capítulo fica."
+ },
+ "vs-c2-wedding-speech": {
+  "titleTr": "O discurso de casamento",
+  "aiRole": "Organizadora de casamentos",
+  "objectives.0.textTr": "Faça um brinde curto que misture um toque formal com uma história pessoal (I'd like to pay homage to…).",
+  "objectives.1.textTr": "Use um desejo literário (Would that…, If only…, Oh, to…).",
+  "objectives.2.textTr": "Aceite o retorno da Olivia, encurte o discurso e termine com um brinde claro.",
+  "keyPhrases.0.tr": "Quero prestar homenagem às pessoas que nos trouxeram até aqui.",
+  "keyPhrases.1.tr": "Quem dera todo casal tivesse essa sorte.",
+  "keyPhrases.2.tr": "Por favor, ergam seus copos aos noivos!"
  }
 }

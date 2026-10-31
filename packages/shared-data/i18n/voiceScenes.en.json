@@ -485,5 +485,35 @@
   "keyPhrases.0.tr": "I'm afraid that isn't something we can commit to.",
   "keyPhrases.1.tr": "What I can offer instead is a phased delivery.",
   "keyPhrases.2.tr": "I value our partnership, which is why I'm being honest."
+ },
+ "vs-c2-distant-relative": {
+  "titleTr": "Meeting a Distant Relative",
+  "aiRole": "Your distant cousin",
+  "objectives.0.textTr": "Talk about the family link with tact and understatement (It's far from simple, It's not unlike…).",
+  "objectives.1.textTr": "Show that the connection matters whatever happens (Whatever happens, be it here or in Bristol…).",
+  "objectives.2.textTr": "Ask about Isabel's memories and respond with real feeling, without overdoing it.",
+  "keyPhrases.0.tr": "It's far from easy to know what to say.",
+  "keyPhrases.1.tr": "Whatever happens, I'm glad we met.",
+  "keyPhrases.2.tr": "Your family story is not unlike mine."
+ },
+ "vs-c2-editor-deal": {
+  "titleTr": "Negotiating with an Editor",
+  "aiRole": "Book editor",
+  "objectives.0.textTr": "Disagree firmly with strong negatives (I'm not in the least convinced, That's not remotely what I meant).",
+  "objectives.1.textTr": "Concede one point and defend another (I concede that…, but I'd maintain that…).",
+  "objectives.2.textTr": "Reach a clear compromise on length, title and the chapter you want to keep.",
+  "keyPhrases.0.tr": "I'm not in the least convinced by the new title.",
+  "keyPhrases.1.tr": "I concede that the middle is too long.",
+  "keyPhrases.2.tr": "But I'd maintain that the last chapter stays."
+ },
+ "vs-c2-wedding-speech": {
+  "titleTr": "The Wedding Speech",
+  "aiRole": "Wedding planner",
+  "objectives.0.textTr": "Give a short toast that mixes a formal touch with a personal story (I'd like to pay homage to…).",
+  "objectives.1.textTr": "Use one literary wish (Would that…, If only…, Oh, to…).",
+  "objectives.2.textTr": "Take Olivia's feedback, shorten the speech and finish with a clear toast.",
+  "keyPhrases.0.tr": "I'd like to pay homage to the people who brought us here.",
+  "keyPhrases.1.tr": "Would that every couple were this lucky.",
+  "keyPhrases.2.tr": "Please raise your glasses to the happy couple!"
  }
 }

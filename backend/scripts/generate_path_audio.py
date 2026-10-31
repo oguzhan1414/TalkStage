@@ -58,6 +58,11 @@ VOICES: dict[str, tuple[str, str]] = {
     "Mr Rourke": ("echo", "You are Mr Rourke, a wealthy construction boss; smooth and polite on the surface, cold underneath."),
     "Mayor": ("ballad", "You are the city's mayor, a formal, slightly pompous politician who wants to look good."),
     "Grace": ("nova", "You are Grace, a gentle woman in her forties, moved to see her grandfather remembered."),
+    "Annie": ("shimmer", "You are Anne Hale, a brave, witty young woman in 1790s Bristol reading her own letter aloud; warm, determined, a little playful, never theatrical."),
+    "Carmen": ("fable", "You are Carmen, a proud, warm Spanish grandmother of eighty from Cádiz speaking English; firm, affectionate and a little dramatic."),
+    "Señor Ortega": ("ballad", "You are Señor Ortega, a precise, polite archivist from Seville speaking English; calm, dry and quietly kind."),
+    "Dr Pryce": ("echo", "You are Dr Pryce, a confident, sceptical British historian; clipped and a little superior, but honest when proven wrong."),
+    "Ms Reid": ("alloy", "You are Ms Reid, a sharp, direct book editor in London; brisk and dry, with a hidden warmth."),
 }
 
 KIND_HINT = {

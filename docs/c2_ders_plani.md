@@ -449,3 +449,20 @@ Tüzük kutusundan çıkan mektuplar 1789–1791 arasında iki kişi arasında y
 | 24 | keepsake, memento, time capsule, afterglow, homecoming |
 
 **Not:** `cargo`, `bouquet` ve `confetti` günlük hayatta sık geçebilir. Kod aşamasındaki kontrolde daha alt bir seviyede çıkarlarsa yerlerine aynı temadan daha nadir bir kelime gelecek (örneğin `cargo` yerine `consignment`).
+
+---
+
+## Uygulamada (2026-10-31)
+
+Kod: `mobile/src/data/path/c2.ts` ve `mobile/src/data/path/c2/u1..u6.ts`. `check:path` temiz; 120 kelimenin, 18 deyimin ve 30 kapağın hepsinin görseli var. Böylece yol A1'den C2'ye tamamlandı.
+
+- **Ritim:** Her ünite `ders, ders, kelime adımı, ders, ders, Mivo sahnesi`; kelime adımı 3. sırada (C1 ile aynı). Ünite tekrarları, ünitenin ilk iki dersinin 10 kelimesi.
+- **Uzunluk:** Bölümler 194–238 kelime, 18–20 cümle. Ünite 1 ~195 (C1'in sonu ~180), Ünite 6 ~235; yumuşak rampa.
+- **Sahneler:** Ünite 1 `vs-c2-three-tones`, Ünite 2 `vs-c2-panel-debate`, Ünite 3 `vs-c2-distant-relative` (yeni), Ünite 4 `vs-c2-saying-no`, Ünite 5 `vs-c2-editor-deal` (yeni), Ünite 6 `vs-c2-wedding-speech` (yeni). Yeni üç sahne `scripts/voice_scenes_ileri.py` içinde, 5 dilde.
+- **Konuşanlar ve sesler:** Annie (mektup satırları), Carmen, Señor Ortega, Dr Pryce, Ms Reid `backend/scripts/generate_path_audio.py` VOICES tablosunda.
+- **Hikâyede netleşenler (planla tutarlı olsun diye):**
+  - Maya Diego'nun, Bayan Lane Annie'nin soyundan geldiği için Annie ile Diego hiç evlenemedi. Diego 1790 fırtınasından kurtuldu, çiftçi onu sakladı ve baharda bir balıkçı teknesiyle Cádiz'e döndü; savaş yüzünden Bristol'a bir daha gelemedi. Annie'nin 1791 tarihli son mektubu ona ulaştı.
+  - Annie 1795'te Bristol'lu bir denizciyle evlendi; çocukları aynı sokakta kaldı (Bayan Lane, kızlık soyadı Hale).
+  - Carmen'in madalyonunda Annie'nin minik portresi var; 1791'den beri anneden kıza geçiyor.
+  - Mektuplarda Annie'nin ailesinin hanı, bugünkü kafenin binası.
+- **Kapanış:** Ders 24'te zaman kapsülüne Annie'nin son mektubu, tünelden çıkan taç, kafenin ilk menüsü, Tom'un robotu, Leo'nun gala bileti ve Maya'nın Bristol'daki ilk gün fotoğrafı konuyor. Son cümle: "For Maya, it felt like a homecoming."
