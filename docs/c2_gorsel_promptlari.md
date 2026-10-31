@@ -174,7 +174,7 @@ A thick leather codex, a small reel of microfilm, a sheet of old paper held agai
 **c2_e15.jpg** · Bölüm 15: Bayan Lane'in sırrı
 *Bristol'a dönüş. Bayan Lane eski aile İncil'ini getiriyor: kızlık soyadı Hale. Annie'nin torununun torunu.*
 ```
-Rosa's café: Mrs Lane walking in holding a huge old family Bible open at a page with a hand-drawn family tree (small oval portraits and blank lines), everyone around her frozen in surprise: Maya with her hands on her cheeks, Mr Patel half-standing, Tom dropping a biscuit; plain café wall above.
+Rosa's café: Mrs Lane (white curly hair, lilac knitted cardigan, pearl necklace, no glasses) walking in holding a huge old family Bible open at a page with a hand-drawn family tree (small oval portraits and blank lines), everyone around her frozen in surprise: Maya with her hands on her cheeks, Mr Patel half-standing, Tom dropping a biscuit; plain café wall above.
 ```
 
 **c2_e16.jpg** · Bölüm 16: Alacakaranlıkta rıhtım
@@ -232,7 +232,7 @@ A cheerful person sitting inside a giant open book as if on a sofa, turning over
 **c2_e23.jpg** · Bölüm 23: Konuşmalar
 *Carmen İspanyolca, Bayan Lane İngilizce konuşuyor, Bay Patel ikisini birleştiriyor. Ayakta alkış.*
 ```
-Inside the marquee: Mr Patel at a small wooden podium raising a glass in a toast, Carmen and Mrs Lane standing on either side of him holding hands; Maya in a simple white wedding dress and Leo in a suit in the front, both laughing; guests behind standing and clapping, soft fairy lights above.
+Inside the marquee: in the front, the bride and groom laughing together: the bride is Maya from the reference image (dark curly shoulder-length hair, warm brown skin and eyes) in a simple white wedding dress with a small flower crown, and the groom is Leo (messy ginger hair, freckles) in a dark suit; behind them Mr Patel at a small wooden podium raising a glass in a toast, with Carmen (white bun, black flowered shawl, cane) and Mrs Lane (white curly hair, lilac cardigan) on either side of him; guests behind standing and clapping, soft fairy lights above. Maya must be the bride, not a guest.
 ```
 
 **c2_w6.jpg** · Kelime adımı: Ünite 6 tekrarı
