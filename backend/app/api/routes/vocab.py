@@ -47,6 +47,32 @@ def _find_existing_card(ctx: AuthContext, term: str) -> dict | None:
     return ctx.db.table("vocab_cards").select("*").eq("id", match["id"]).single().execute().data
 
 
+def _clean_tags(tags: list[str] | None) -> list[str]:
+    """Trimmed, non-empty, de-duplicated (case-insensitive), at most 20 tags of 40 characters."""
+    out: list[str] = []
+    for tag in tags or []:
+        t = tag.strip()[:40]
+        if t and t.lower() not in {o.lower() for o in out}:
+            out.append(t)
+    return out[:20]
+
+
+def _touch_existing(ctx: AuthContext, card: dict, tags: list[str], review_now: bool) -> dict:
+    """Saving a word that is already in the deck: add the new tags to it and, when asked, bring it into today's
+    review (its SM-2 history stays as it is)."""
+    update: dict = {}
+    merged = _clean_tags([*(card.get("tags") or []), *tags])
+    if merged != (card.get("tags") or []):
+        update["tags"] = merged
+    today = local_today().isoformat()
+    if review_now and str(card.get("next_review_date", ""))[:10] > today:
+        update["next_review_date"] = today
+    if not update:
+        return card
+    result = ctx.db.table("vocab_cards").update(update).eq("id", card["id"]).eq("user_id", ctx.user.id).execute()
+    return result.data[0] if result.data else card
+
+
 @router.post("", response_model=VocabCardOut)
 def create_card(
     payload: VocabCardCreate, response: Response, ctx: AuthContext = Depends(get_auth_context)
@@ -56,12 +82,19 @@ def create_card(
     tapped again in a later scenario/reading passage shouldn't fragment its
     SM-2 review history across multiple rows."""
     term_clean = payload.term.strip()
+    tags = _clean_tags(payload.tags)
     existing = _find_existing_card(ctx, term_clean)
     if existing:
         response.status_code = status.HTTP_200_OK
-        return VocabCardOut(**existing)
+        return VocabCardOut(**_touch_existing(ctx, existing, tags, payload.review_now))
 
-    row = {**payload.model_dump(), "user_id": ctx.user.id, "term": term_clean}
+    row = {
+        **payload.model_dump(exclude={"tags", "review_now"}),
+        "user_id": ctx.user.id,
+        "term": term_clean,
+        # Only written when there are tags, so saving words keeps working before migration 0032 is applied.
+        **({"tags": tags} if tags else {}),
+    }
     try:
         result = ctx.db.table("vocab_cards").insert(row).execute()
     except APIError:
@@ -70,7 +103,7 @@ def create_card(
         existing = _find_existing_card(ctx, term_clean)
         if existing:
             response.status_code = status.HTTP_200_OK
-            return VocabCardOut(**existing)
+            return VocabCardOut(**_touch_existing(ctx, existing, tags, payload.review_now))
         raise
     response.status_code = status.HTTP_201_CREATED
     return VocabCardOut(**result.data[0])
@@ -83,6 +116,8 @@ def update_card(
     ctx: AuthContext = Depends(get_auth_context),
 ) -> VocabCardOut:
     update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if "tags" in update_data:
+        update_data["tags"] = _clean_tags(update_data["tags"])
     if not update_data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
 

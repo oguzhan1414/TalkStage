@@ -116,6 +116,8 @@ export type VocabCardOut = {
   sm2_interval_days: number;
   next_review_date: string;
   created_at: string;
+  /** User labels ("Travel", "Work"); older servers send nothing. */
+  tags?: string[];
 };
 
 export type VocabCardCreate = {
@@ -126,6 +128,9 @@ export type VocabCardCreate = {
   cefr_level?: string;
   source_scenario_id?: string;
   source_label?: string;
+  tags?: string[];
+  /** Already saved: bring it into today's review. */
+  review_now?: boolean;
 };
 
 export type VocabCardUpdate = {
@@ -134,6 +139,7 @@ export type VocabCardUpdate = {
   example_sentence?: string;
   part_of_speech?: string;
   cefr_level?: string;
+  tags?: string[];
 };
 
 export type VocabGrade = 'again' | 'good' | 'easy';

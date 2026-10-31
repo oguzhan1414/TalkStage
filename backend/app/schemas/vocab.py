@@ -17,6 +17,7 @@ class VocabCardOut(BaseModel):
     sm2_interval_days: int
     next_review_date: str
     created_at: str
+    tags: list[str] = []
 
 
 class VocabCardCreate(BaseModel):
@@ -27,6 +28,10 @@ class VocabCardCreate(BaseModel):
     cefr_level: str | None = None
     source_scenario_id: str | None = None
     source_label: str | None = None
+    tags: list[str] | None = None
+    # The word is already saved: bring it into today's review instead of silently doing nothing
+    # (adding it again from the library means "I want to practise this now").
+    review_now: bool = False
 
 
 class VocabCardUpdate(BaseModel):
@@ -35,6 +40,7 @@ class VocabCardUpdate(BaseModel):
     example_sentence: str | None = None
     part_of_speech: str | None = None
     cefr_level: str | None = None
+    tags: list[str] | None = None
 
 
 class VocabReviewRequest(BaseModel):

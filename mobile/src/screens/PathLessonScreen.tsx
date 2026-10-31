@@ -259,7 +259,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           ) : screen === 'type' ? (
             <TypeStep words={episode.words} tally={tally} report={report} onDone={next} />
           ) : screen === 'save' ? (
-            <SaveStep episode={episode} onDone={next} />
+            <SaveStep episode={episode} level={stepId.split('-')[0].toUpperCase()} onDone={next} />
           ) : screen === 'tip' ? (
             <TipStep episode={episode} onNext={next} />
           ) : screen === 'table' && episode.table ? (
@@ -799,7 +799,7 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
 }
 
 /** Offer the episode's words for the review deck: all ticked, untick what you know. */
-function SaveStep({ episode, onDone }: { episode: PathEpisode; onDone: () => void }) {
+function SaveStep({ episode, level, onDone }: { episode: PathEpisode; level: string; onDone: () => void }) {
   const queryClient = useQueryClient();
   const { data: cards } = useQuery({ queryKey: ['vocab-cards', 'all'], queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true') });
   const owned = useMemo(() => new Set((cards ?? []).map((c) => c.term.trim().toLowerCase())), [cards]);
@@ -820,6 +820,7 @@ function SaveStep({ episode, onDone }: { episode: PathEpisode; onDone: () => voi
             translation: gloss(w.native) || null,
             example_sentence: episode.sentences.find((s) => s.en.toLowerCase().includes(w.en.toLowerCase()))?.en,
             source_label: t("Hikâye · Bölüm {{n}}", { n: episode.number }),
+            cefr_level: level,
           })
         )
       );

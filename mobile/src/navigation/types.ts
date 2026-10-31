@@ -3,6 +3,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import type { VocabFocus } from '../lib/vocabGroups';
 import type { SessionOut } from '../types/api';
 
 export type AuthStackParamList = {
@@ -30,7 +31,8 @@ export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList>
 export type MainTabParamList = {
   Home: undefined;
   Scenarios: { openSceneId?: string } | undefined;
-  Vocab: undefined;
+  /** From Gruplarım: practise or browse one level or one tag of the word bank. */
+  Vocab: { practice?: VocabFocus; browse?: VocabFocus } | undefined;
   Profile: undefined;
 };
 

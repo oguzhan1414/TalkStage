@@ -178,18 +178,13 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             </View>
           </View>
 
-          <Pressable onPress={() => setGuideOpen(true)} style={styles.friend} accessibilityRole="button">
-            <View style={styles.friendTop}>
-              <Text style={styles.friendKicker}>{t("Mivo ile dostluk · Seviye {{n}}", { n: friendship.level })}</Text>
-              <Ionicons name="information-circle-outline" size={16} color="rgba(255,255,255,0.8)" />
-            </View>
-            <Text style={styles.friendName}>{friendship.name}</Text>
+          <Pressable onPress={() => setGuideOpen(true)} style={styles.friend} accessibilityRole="button" accessibilityLabel={t("Mivo ile dostluk")}>
+            <Text style={styles.friendLine} numberOfLines={1}>
+              {t("Mivo ile dostluk · Sv. {{n}} · {{name}}", { n: friendship.level, name: friendship.name })}
+            </Text>
             <View style={styles.friendTrack}>
               <View style={[styles.friendFill, { width: `${Math.max(4, friendship.progress * 100)}%` }]} />
             </View>
-            <Text style={styles.friendXp}>
-              {friendship.nextAt ? t("{{xp}} / {{next}} XP", { xp: friendship.xp, next: friendship.nextAt }) : t("{{xp}} XP · en üst seviye", { xp: friendship.xp })}
-            </Text>
           </Pressable>
         </LinearGradient>
 
@@ -240,67 +235,46 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             </View>
             <Text style={styles.levelText}>{t("{{level}} · {{done}}/{{total}} bölüm", { level: pathLevelId, done: current.done, total: current.total })}</Text>
           </View>
-          <Text style={styles.cardHint}>{t("Başka bir seviyeye geçmek için durağına dokun. İlerlemen her seviyede ayrı saklanır.")}</Text>
         </View>
 
-        {/* Practice tools */}
-        <Text style={styles.groupTitle}>{t("Araçlarım")}</Text>
-        <View style={styles.tools}>
-          <Tool
-            title={t("Hata Defterim")}
-            sub={t("{{n}} kayıt", { n: mistakeCount })}
+        {/* A few more things, as a plain list (word tools are in the Kelimeler tab) */}
+        <View style={styles.list}>
+          <ListRow
+            icon={minimalFeatureIcons.badges}
+            tint="#FEF3C7"
+            title={t("Rozetlerim")}
+            sub={t("{{a}}/{{b}} rozet", { a: earnedBadgeIds.size, b: BADGES.length })}
+            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
+          />
+          <View style={styles.listDivider} />
+          <ListRow
             icon={minimalFeatureIcons.mistakesNotebook}
             tint="#E0F2FE"
+            title={t("Hata Defterim")}
+            sub={t("{{n}} kayıt", { n: mistakeCount })}
             badge={mistakeCount > 0 ? mistakeCount : undefined}
             onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
           />
-          <Tool
-            title={t("Rozetlerim")}
-            sub={t("{{a}}/{{b}} rozet", { a: earnedBadgeIds.size, b: BADGES.length })}
-            icon={minimalFeatureIcons.badges}
-            tint="#FEF3C7"
-            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
+          <View style={styles.listDivider} />
+          <ListRow
+            icon={minimalFeatureIcons.mivoMemory}
+            tint="#EDE9FE"
+            title={t("Mivo'nun Hatırladıkları")}
+            sub={t("Sohbetlerden öğrendikleri")}
+            onPress={() => navigation.navigate('MivoMemory')}
           />
         </View>
-        <View style={styles.tools}>
-          <Tool
-            title={t("Kelime Odaları")}
-            sub={t("Eşyalarla kelime ezberle")}
-            icon={minimalFeatureIcons.wordRooms}
-            tint="#E0E7FF"
-            onPress={() => navigation.navigate('WordRooms')}
-          />
-          <Tool
-            title={t("Telaffuz")}
-            sub={t("Zorlandığın kelimeler")}
-            icon={minimalFeatureIcons.pronunciation}
-            tint="#FFE4E6"
-            onPress={() => navigation.navigate('MispronouncedWords')}
-          />
-        </View>
-        <Pressable onPress={() => navigation.navigate('MivoMemory')} style={({ pressed }) => [styles.memory, pressed && { opacity: 0.75 }]} accessibilityRole="button">
-          <View style={[styles.memoryArt, { backgroundColor: '#EDE9FE' }]}>
-            <Image source={minimalFeatureIcons.mivoMemory} style={styles.memoryIcon} resizeMode="contain" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.toolTitle}>{t("Mivo'nun Hatırladıkları")}</Text>
-            <Text style={styles.toolSub} numberOfLines={2}>
-              {t("Sohbetlerden öğrendiği şeyleri gör, düzenle veya sil")}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-        </Pressable>
 
         {/* Pro, only for those who don't have it */}
         {isPro ? null : (
           <BouncyPressable onPress={() => navigation.navigate('Paywall')} style={styles.vipWrap} hapticType="medium" scaleTo={0.97}>
             <LinearGradient colors={['#0F172A', '#312E81']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vip}>
-              <View style={styles.vipGlow} />
               <Image source={stateImages.vipPass} style={styles.vipImage} resizeMode="contain" />
-              <View style={{ flex: 1, paddingRight: 8 }}>
-                <Text style={styles.vipBadge}>{t("SPEKVIA PRO")}</Text>
-                <Text style={styles.vipTitle}>{t("Sınırsız Sahneye Çık")}</Text>
-                <Text style={styles.vipDesc}>{t("Günlük sesli senaryo limitini kaldır ve tüm gramer derslerinin kilidini aç.")}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.vipTitle}>{t("Spekvia Pro")}</Text>
+                <Text style={styles.vipDesc} numberOfLines={1}>
+                  {t("Sınırsız sahne ve canlı oda")}
+                </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#FBBF24" />
             </LinearGradient>
@@ -423,39 +397,40 @@ function Stat({ icon, color, value, label, sub }: { icon: React.ComponentProps<t
   );
 }
 
-/** Half-width tool card: the 3D icon on a soft tint, the name and one short line. */
-function Tool({
-  title,
-  sub,
+/** One row of the short list: 3D icon on a soft tint, name, one line, an optional count badge. */
+function ListRow({
   icon,
   tint,
+  title,
+  sub,
   badge,
   onPress,
 }: {
-  title: string;
-  sub: string;
   icon: ImageSourcePropType;
   tint: string;
+  title: string;
+  sub: string;
   badge?: number;
   onPress: () => void;
 }) {
   return (
-    <BouncyPressable onPress={onPress} style={styles.tool} hapticType="light" scaleTo={0.96}>
-      <View style={[styles.toolArt, { backgroundColor: tint }]}>
-        <Image source={icon} style={styles.toolIcon} resizeMode="contain" />
-        {badge ? (
-          <View style={styles.toolBadge}>
-            <Text style={styles.toolBadgeText}>{badge > 99 ? '99+' : badge}</Text>
-          </View>
-        ) : null}
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+      <View style={[styles.rowArt, { backgroundColor: tint }]}>
+        <Image source={icon} style={styles.rowIcon} resizeMode="contain" />
       </View>
-      <Text style={styles.toolTitle} numberOfLines={1}>
-        {title}
-      </Text>
-      <Text style={styles.toolSub} numberOfLines={1}>
-        {sub}
-      </Text>
-    </BouncyPressable>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.rowTitle}>{title}</Text>
+        <Text style={styles.rowSub} numberOfLines={1}>
+          {sub}
+        </Text>
+      </View>
+      {badge ? (
+        <View style={styles.rowBadge}>
+          <Text style={styles.rowBadgeText}>{badge > 99 ? '99+' : badge}</Text>
+        </View>
+      ) : null}
+      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+    </Pressable>
   );
 }
 
@@ -496,13 +471,10 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   proText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#78350F', letterSpacing: 0.6 },
-  friend: { backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 18, padding: 14 },
-  friendTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  friendKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 0.6, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
-  friendName: { fontFamily: fonts.headingBold, fontSize: 19, color: '#FFFFFF', marginTop: 2 },
-  friendTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden', marginTop: 10 },
-  friendFill: { height: '100%', borderRadius: 4, backgroundColor: '#FCD34D' },
-  friendXp: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: 'rgba(255,255,255,0.8)', marginTop: 6 },
+  friend: { backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 9, gap: 6 },
+  friendLine: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: 'rgba(255,255,255,0.92)' },
+  friendTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' },
+  friendFill: { height: '100%', borderRadius: 3, backgroundColor: '#FCD34D' },
 
   stats: { flexDirection: 'row', gap: 10 },
   stat: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 10, alignItems: 'center' },
@@ -538,47 +510,29 @@ const styles = StyleSheet.create({
   levelFill: { height: '100%', borderRadius: 4, backgroundColor: '#F5B82E' },
   levelText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textBody },
 
-  groupTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 6, marginLeft: 4 },
-  tools: { flexDirection: 'row', gap: 12 },
-  tool: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 14 },
-  toolArt: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  toolIcon: { width: 46, height: 46 },
-  toolBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -8,
+  list: { backgroundColor: '#FFFFFF', borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4 },
+  listDivider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
+  rowArt: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  rowIcon: { width: 36, height: 36 },
+  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
+  rowSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  rowBadge: {
     minWidth: 22,
     height: 22,
     borderRadius: 11,
     paddingHorizontal: 6,
     backgroundColor: '#F43F5E',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  toolBadgeText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
-  toolTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: colors.textHeading },
-  toolSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 1 },
-  memory: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 14 },
-  memoryArt: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  memoryIcon: { width: 42, height: 42 },
+  rowBadgeText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
 
-  vipWrap: { borderRadius: 24, marginTop: 4 },
-  vip: { borderRadius: 24, padding: 18, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
-  vipGlow: {
-    position: 'absolute',
-    right: -40,
-    top: -50,
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    backgroundColor: 'rgba(251, 191, 36, 0.14)',
-  },
-  vipImage: { width: 56, height: 56, marginRight: 12 },
-  vipBadge: { fontFamily: fonts.headingBold, fontSize: 10, letterSpacing: 0.8, color: '#FBBF24', marginBottom: 3 },
-  vipTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
-  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: '#A5B4FC', marginTop: 2 },
+  vipWrap: { borderRadius: 20 },
+  vip: { borderRadius: 20, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, overflow: 'hidden' },
+  vipImage: { width: 40, height: 40 },
+  vipTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#FFFFFF' },
+  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#A5B4FC', marginTop: 1 },
 
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 },
