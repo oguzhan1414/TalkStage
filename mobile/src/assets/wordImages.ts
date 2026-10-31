@@ -933,6 +933,7 @@ export const WORD_IMAGES: Record<string, number> = {
   tower: require('../../assets/images/words/tower.webp'),
   toy: require('../../assets/images/words/toy.webp'),
   trace: require('../../assets/images/path/c1/words/trace.webp'),
+  tractor: require('../../assets/images/path/b2/words/tractor.webp'),
   tradition: require('../../assets/images/path/b1/words/tradition.webp'),
   traffic_jam: require('../../assets/images/path/b1/words/traffic_jam.webp'),
   train: require('../../assets/images/words/train.webp'),
