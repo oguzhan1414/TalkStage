@@ -436,6 +436,26 @@
   "keyPhrases.1.tr": "There has been a significant decline in complaints.",
   "keyPhrases.2.tr": "In other words, we fixed the process and delays fell."
  },
+ "vs-c1-press-interview": {
+  "titleTr": "Talking to a Journalist",
+  "aiRole": "Journalist",
+  "objectives.0.textTr": "Soften claims you cannot prove with seem / appear / it would appear that / may well.",
+  "objectives.1.textTr": "Separate what you know from what is reported (Reportedly…, It is alleged that…).",
+  "objectives.2.textTr": "Refuse to be pushed into a quote you can't stand behind, and say what you can confirm.",
+  "keyPhrases.0.tr": "It would appear that the decision was made in private.",
+  "keyPhrases.1.tr": "That may well be true, but I can't confirm it.",
+  "keyPhrases.2.tr": "What I can say on the record is this."
+ },
+ "vs-c1-secret-source": {
+  "titleTr": "Meeting a Secret Source",
+  "aiRole": "Anonymous source",
+  "objectives.0.textTr": "Speculate about the past with must / might / can't have been + -ing (They must have been planning this for months).",
+  "objectives.1.textTr": "Reassure Jo with formal conditionals (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+  "objectives.2.textTr": "Get one concrete detail while promising to protect Jo's name.",
+  "keyPhrases.0.tr": "They must have been hiding this for months.",
+  "keyPhrases.1.tr": "Should you feel unsafe, call me at once.",
+  "keyPhrases.2.tr": "Your name will never appear, whatever happens."
+ },
  "vs-c2-panel-debate": {
   "titleTr": "Panel Debate",
   "aiRole": "Fellow panellist",

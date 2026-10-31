@@ -1,4 +1,4 @@
-"""Sesli sahneler, İleri aşama (C1-C2): 7 konu. `build_voice_scenes.py` bunu içe aktarır.
+"""Sesli sahneler, İleri aşama (C1-C2): 9 konu. `build_voice_scenes.py` bunu içe aktarır.
 
 Orta'dan farkı: ipucu yok, karşıdaki tam hızda, imalı ve zorlayıcı; hedefler ikna, müzakere,
 ton ayarı ve diplomasi üzerine. Alan sırası her yerde (en, tr, es, pt, de).
@@ -110,6 +110,56 @@ def add_ileri(S, ENGLISH_ROLES, TWISTS):
           [("The introduction of the app led to an increase in sales.", "Uygulamanın devreye girmesi satışlarda artışa yol açtı.", "La introducción de la aplicación provocó un aumento de las ventas.", "A introdução do aplicativo levou a um aumento nas vendas.", "Die Einführung der App führte zu einem Umsatzanstieg."),
            ("There has been a significant decline in complaints.", "Şikâyetlerde belirgin bir düşüş yaşandı.", "Ha habido un descenso significativo de las quejas.", "Houve uma queda significativa nas reclamações.", "Die Beschwerden sind deutlich zurückgegangen."),
            ("In other words, we fixed the process and delays fell.", "Yani süreci düzelttik ve gecikmeler azaldı.", "En otras palabras, arreglamos el proceso y los retrasos bajaron.", "Em outras palavras, corrigimos o processo e os atrasos diminuíram.", "Anders gesagt: Wir haben den Prozess repariert, und die Verzögerungen sanken.")])
+
+    scene("vs-c1-press-interview", "C1_U1", "C1", "🗞️", "Ms. Grey",
+          ("Talking to a Journalist", "Bir Gazeteciye Röportaj", "Hablar con una periodista", "Falar com uma jornalista", "Interview mit einer Journalistin"),
+          ("Gazeteci", "Periodista", "Jornalista", "Journalistin"), "Journalist",
+          ["hurry", "chatty"],
+          "You are Ms. Grey, a sharp local journalist interviewing the learner, who speaks for a small community group. A historic building in their area is reportedly about to be sold, but nothing is confirmed yet. You want a strong, quotable line: push for certainty ('So the council is lying?', 'Can I quote you on that?'). Reward careful, distanced language (seems, appears, it would appear that, may well, reportedly) and pounce on any claim they cannot prove. Ask once whether something can be off the record. Stay polite, quick and persistent.",
+          "Thanks for making time. People are saying the old building will be sold next month. Is that true?",
+          [("Soften claims you cannot prove with seem / appear / it would appear that / may well.",
+            "Kanıtlayamadığın iddiaları seem / appear / it would appear that / may well ile yumuşat.",
+            "Suaviza lo que no puedes probar con seem / appear / it would appear that / may well.",
+            "Suavize o que você não pode provar com seem / appear / it would appear that / may well.",
+            "Schwäche unbewiesene Aussagen mit seem / appear / it would appear that / may well ab."),
+           ("Separate what you know from what is reported (Reportedly…, It is alleged that…).",
+            "Bildiğini, sadece söylenenden ayır (Reportedly…, It is alleged that…).",
+            "Separa lo que sabes de lo que se dice (Reportedly…, It is alleged that…).",
+            "Separe o que você sabe do que se diz (Reportedly…, It is alleged that…).",
+            "Trenne, was du weißt, von dem, was berichtet wird (Reportedly…, It is alleged that…)."),
+           ("Refuse to be pushed into a quote you can't stand behind, and say what you can confirm.",
+            "Arkasında duramayacağın bir söze zorlanmayı reddet ve neyi doğrulayabildiğini söyle.",
+            "Niégate a dar una frase que no puedas sostener y di qué puedes confirmar.",
+            "Recuse uma citação que você não pode sustentar e diga o que pode confirmar.",
+            "Lass dich nicht zu einem Zitat drängen, hinter dem du nicht stehst, und sag, was du bestätigen kannst.")],
+          [("It would appear that the decision was made in private.", "Görünüşe göre karar kapalı kapılar ardında verildi.", "Al parecer, la decisión se tomó en privado.", "Ao que parece, a decisão foi tomada em particular.", "Es scheint, dass die Entscheidung im Stillen getroffen wurde."),
+           ("That may well be true, but I can't confirm it.", "Bu doğru olabilir ama doğrulayamam.", "Puede que sea cierto, pero no puedo confirmarlo.", "Pode até ser verdade, mas não posso confirmar.", "Das mag gut sein, aber ich kann es nicht bestätigen."),
+           ("What I can say on the record is this.", "Kayda geçecek şekilde söyleyebileceğim şu.", "Lo que puedo decir oficialmente es esto.", "O que posso dizer oficialmente é isto.", "Offiziell kann ich Folgendes sagen.")])
+
+    scene("vs-c1-secret-source", "C1_U2", "C1", "🕯️", "Jo",
+          ("Meeting a Secret Source", "Gizli Kaynakla Buluşma", "Reunión con una fuente secreta", "Encontro com uma fonte secreta", "Treffen mit einer geheimen Quelle"),
+          ("Gizli kaynak", "Fuente anónima", "Fonte anônima", "Anonyme Quelle"), "Anonymous source",
+          ["hurry", "mixup"],
+          "You are Jo, a nervous office worker meeting the learner, a journalist, on a park bench at dawn. You have seen documents showing that your employer hid a payment, and you are scared of losing your job. Keep looking around, give only small hints, and ask what will happen to you if you talk ('What if they find out?'). Open up a little only when the learner reassures you with careful, formal conditionals and speculates sensibly about what must have been going on. Never give your full name. Leave if they push too hard.",
+          "You came alone? Good. I can only stay ten minutes. Someone might have been following me.",
+          [("Speculate about the past with must / might / can't have been + -ing (They must have been planning this for months).",
+            "Geçmiş hakkında must / might / can't have been + -ing ile tahmin yürüt (They must have been planning this for months).",
+            "Haz suposiciones sobre el pasado con must / might / can't have been + -ing (They must have been planning this for months).",
+            "Faça suposições sobre o passado com must / might / can't have been + -ing (They must have been planning this for months).",
+            "Stelle mit must / might / can't have been + -ing Vermutungen über die Vergangenheit an (They must have been planning this for months)."),
+           ("Reassure Jo with formal conditionals (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+            "Jo'yu resmî koşul cümleleriyle rahatlat (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+            "Tranquiliza a Jo con condicionales formales (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+            "Tranquilize Jo com condicionais formais (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+            "Beruhige Jo mit formellen Bedingungssätzen (Should you feel unsafe…, Were you to go on record…, But for your help…)."),
+           ("Get one concrete detail while promising to protect Jo's name.",
+            "Jo'nun adını koruyacağına söz verirken somut bir ayrıntı öğren.",
+            "Consigue un dato concreto mientras prometes proteger el nombre de Jo.",
+            "Consiga um detalhe concreto enquanto promete proteger o nome de Jo.",
+            "Erfahre ein konkretes Detail und versprich, Jos Namen zu schützen.")],
+          [("They must have been hiding this for months.", "Bunu aylardır saklıyor olmalılar.", "Deben de haberlo estado ocultando durante meses.", "Eles devem ter escondido isso por meses.", "Sie müssen das seit Monaten verheimlicht haben."),
+           ("Should you feel unsafe, call me at once.", "Kendini güvende hissetmezsen hemen beni ara.", "Si te sientes en peligro, llámame enseguida.", "Se você se sentir inseguro, me ligue na hora.", "Solltest du dich unsicher fühlen, ruf mich sofort an."),
+           ("Your name will never appear, whatever happens.", "Ne olursa olsun adın asla geçmeyecek.", "Tu nombre nunca aparecerá, pase lo que pase.", "Seu nome nunca vai aparecer, aconteça o que acontecer.", "Dein Name wird nie erscheinen, egal was passiert.")])
 
     scene("vs-c2-panel-debate", "C2_N47", "C2", "🎤", "Dr. Hartmann",
           ("Panel Debate", "Panel Tartışması", "Debate en panel", "Debate em painel", "Podiumsdiskussion"),

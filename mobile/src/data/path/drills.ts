@@ -181,7 +181,7 @@ const AUX = new Set([
   'not', 'never', 'ever', 'going', 'got',
 ]);
 const PRONOUNS = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they', 'there', 'this', 'that', 'these', 'those']);
-const NAMES = new Set(['maya', 'leo', 'rosa', 'tom', 'mr', 'mrs', 'dr', 'patel', 'hill', 'grant', 'lane', 'shaw', 'okafor', 'jack', 'lily', 'ana', 'sofia', 'ben', 'mum', 'bristol']);
+const NAMES = new Set(['maya', 'leo', 'rosa', 'tom', 'mr', 'mrs', 'dr', 'patel', 'hill', 'grant', 'lane', 'shaw', 'okafor', 'jack', 'lily', 'ana', 'sofia', 'ben', 'mum', 'bristol', 'hayes', 'clara', 'rourke', 'grace']);
 const DETERMINERS = new Set(['the', 'a', 'an', 'my', 'your', 'his', 'her', 'our', 'their', 'this', 'that', 'these', 'those', 'some', 'any', 'every']);
 const WH = new Set(['what', 'where', 'when', 'who', 'whose', 'which', 'why', 'how']);
 /** Skipped when looking for the main word: small adverbs, prepositions, determiners. */

@@ -428,3 +428,15 @@ Belediye başkanı, Bayan Lane, Bay Grant ve Dr Shaw geri dönüyor.
 | 24 | aftermath, resilience, prosperity, optimism, horizon |
 
 **Kontrol:** 120 kelimenin hepsi Oxford 5000'in C1 bölümünde var. Kod yazılırken `check:path` tekrarları bir kez daha denetleyecek.
+
+---
+
+## Uygulamada (2026-10-31)
+
+Kod: `mobile/src/data/path/c1.ts` ve `mobile/src/data/path/c1/u1..u6.ts`. `check:path` temiz; 120 kelimenin ve 30 kapağın hepsinin görseli var.
+
+- **Ritim:** Her ünite `ders, ders, kelime adımı, ders, ders, Mivo sahnesi`. Kelime adımı (deyim seti ya da ünite tekrarı) her ünitede 3. sırada; plandaki "ders 2'den sonra / ünite sonunda" farkı kodda tek düzene indi. Ünite tekrarları, o ünitenin ilk iki dersinin 10 kelimesi.
+- **Uzunluk:** Bölümler 160–182 kelime, 16–18 cümle. Ünite 1–2 ~163, Ünite 5–6 ~177; B2'nin son bölümü (151) ile yumuşak geçiş.
+- **Sahneler:** Ünite 1 `vs-c1-press-interview` (yeni: gazeteciye röportaj), Ünite 2 `vs-c1-contract-talks`, Ünite 3 `vs-c1-board-report`, Ünite 4 `vs-c1-secret-source` (yeni: gizli kaynakla buluşma), Ünite 5 `vs-c1-science-interview`, Ünite 6 `vs-c1-investor-pitch`. Yeni iki sahne `scripts/voice_scenes_ileri.py` içinde, 5 dilde.
+- **Konuşanlar ve sesler:** Ana, Mr Hayes, Clara, Mr Rourke, Mayor ve Grace (anı kitabını yazan işçinin torunu, Ders 23) `backend/scripts/generate_path_audio.py` VOICES tablosunda.
+- **Hikâyeye eklenen küçük ayrıntılar:** Ders 23'te işçinin torununun adı Grace. Ders 24'te mektuplar liman parkının açılış kutlamasında, tüzük kutusunun dibinde bulunuyor.

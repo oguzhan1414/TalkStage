@@ -52,6 +52,12 @@ VOICES: dict[str, tuple[str, str]] = {
     "Danny": ("echo", "You are Danny, a shy fourteen-year-old boy who did something silly and is sorry; quiet, a little awkward."),
     "Investor": ("fable", "You are a confident, friendly investor from a start-up; warm, quick and encouraging."),
     "Dr Okafor": ("alloy", "You are Dr Okafor, an archaeologist full of excitement about history; clear, warm and curious."),
+    "Ana": ("alloy", "You are Ana, a sharp, warm journalist in her thirties who runs a small newspaper; calm, precise and brave."),
+    "Mr Hayes": ("cedar", "You are Mr Hayes, a careful, honest newspaper editor in his sixties; dry, measured and quietly kind."),
+    "Clara": ("shimmer", "You are Clara, a young council worker who leaked documents; nervous and quiet, but brave."),
+    "Mr Rourke": ("echo", "You are Mr Rourke, a wealthy construction boss; smooth and polite on the surface, cold underneath."),
+    "Mayor": ("ballad", "You are the city's mayor, a formal, slightly pompous politician who wants to look good."),
+    "Grace": ("nova", "You are Grace, a gentle woman in her forties, moved to see her grandfather remembered."),
 }
 
 KIND_HINT = {

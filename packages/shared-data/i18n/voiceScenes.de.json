@@ -436,6 +436,26 @@
   "keyPhrases.1.tr": "Die Beschwerden sind deutlich zurückgegangen.",
   "keyPhrases.2.tr": "Anders gesagt: Wir haben den Prozess repariert, und die Verzögerungen sanken."
  },
+ "vs-c1-press-interview": {
+  "titleTr": "Interview mit einer Journalistin",
+  "aiRole": "Journalistin",
+  "objectives.0.textTr": "Schwäche unbewiesene Aussagen mit seem / appear / it would appear that / may well ab.",
+  "objectives.1.textTr": "Trenne, was du weißt, von dem, was berichtet wird (Reportedly…, It is alleged that…).",
+  "objectives.2.textTr": "Lass dich nicht zu einem Zitat drängen, hinter dem du nicht stehst, und sag, was du bestätigen kannst.",
+  "keyPhrases.0.tr": "Es scheint, dass die Entscheidung im Stillen getroffen wurde.",
+  "keyPhrases.1.tr": "Das mag gut sein, aber ich kann es nicht bestätigen.",
+  "keyPhrases.2.tr": "Offiziell kann ich Folgendes sagen."
+ },
+ "vs-c1-secret-source": {
+  "titleTr": "Treffen mit einer geheimen Quelle",
+  "aiRole": "Anonyme Quelle",
+  "objectives.0.textTr": "Stelle mit must / might / can't have been + -ing Vermutungen über die Vergangenheit an (They must have been planning this for months).",
+  "objectives.1.textTr": "Beruhige Jo mit formellen Bedingungssätzen (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+  "objectives.2.textTr": "Erfahre ein konkretes Detail und versprich, Jos Namen zu schützen.",
+  "keyPhrases.0.tr": "Sie müssen das seit Monaten verheimlicht haben.",
+  "keyPhrases.1.tr": "Solltest du dich unsicher fühlen, ruf mich sofort an.",
+  "keyPhrases.2.tr": "Dein Name wird nie erscheinen, egal was passiert."
+ },
  "vs-c2-panel-debate": {
   "titleTr": "Podiumsdiskussion",
   "aiRole": "Podiumsgast",

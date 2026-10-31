@@ -436,6 +436,26 @@
   "keyPhrases.1.tr": "Ha habido un descenso significativo de las quejas.",
   "keyPhrases.2.tr": "En otras palabras, arreglamos el proceso y los retrasos bajaron."
  },
+ "vs-c1-press-interview": {
+  "titleTr": "Hablar con una periodista",
+  "aiRole": "Periodista",
+  "objectives.0.textTr": "Suaviza lo que no puedes probar con seem / appear / it would appear that / may well.",
+  "objectives.1.textTr": "Separa lo que sabes de lo que se dice (Reportedly…, It is alleged that…).",
+  "objectives.2.textTr": "Niégate a dar una frase que no puedas sostener y di qué puedes confirmar.",
+  "keyPhrases.0.tr": "Al parecer, la decisión se tomó en privado.",
+  "keyPhrases.1.tr": "Puede que sea cierto, pero no puedo confirmarlo.",
+  "keyPhrases.2.tr": "Lo que puedo decir oficialmente es esto."
+ },
+ "vs-c1-secret-source": {
+  "titleTr": "Reunión con una fuente secreta",
+  "aiRole": "Fuente anónima",
+  "objectives.0.textTr": "Haz suposiciones sobre el pasado con must / might / can't have been + -ing (They must have been planning this for months).",
+  "objectives.1.textTr": "Tranquiliza a Jo con condicionales formales (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+  "objectives.2.textTr": "Consigue un dato concreto mientras prometes proteger el nombre de Jo.",
+  "keyPhrases.0.tr": "Deben de haberlo estado ocultando durante meses.",
+  "keyPhrases.1.tr": "Si te sientes en peligro, llámame enseguida.",
+  "keyPhrases.2.tr": "Tu nombre nunca aparecerá, pase lo que pase."
+ },
  "vs-c2-panel-debate": {
   "titleTr": "Debate en panel",
   "aiRole": "Panelista",

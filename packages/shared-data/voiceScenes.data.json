@@ -1985,6 +1985,96 @@
   ]
  },
  {
+  "id": "vs-c1-press-interview",
+  "topicCode": "C1_U1",
+  "level": "C1",
+  "emoji": "🗞️",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "chatty"
+  ],
+  "title": "Talking to a Journalist",
+  "titleTr": "Bir Gazeteciye Röportaj",
+  "aiName": "Ms. Grey",
+  "aiRole": "Gazeteci",
+  "situation": "You are Ms. Grey, a sharp local journalist interviewing the learner, who speaks for a small community group. A historic building in their area is reportedly about to be sold, but nothing is confirmed yet. You want a strong, quotable line: push for certainty ('So the council is lying?', 'Can I quote you on that?'). Reward careful, distanced language (seems, appears, it would appear that, may well, reportedly) and pounce on any claim they cannot prove. Ask once whether something can be off the record. Stay polite, quick and persistent.",
+  "opening": "Thanks for making time. People are saying the old building will be sold next month. Is that true?",
+  "objectives": [
+   {
+    "text": "Soften claims you cannot prove with seem / appear / it would appear that / may well.",
+    "textTr": "Kanıtlayamadığın iddiaları seem / appear / it would appear that / may well ile yumuşat."
+   },
+   {
+    "text": "Separate what you know from what is reported (Reportedly…, It is alleged that…).",
+    "textTr": "Bildiğini, sadece söylenenden ayır (Reportedly…, It is alleged that…)."
+   },
+   {
+    "text": "Refuse to be pushed into a quote you can't stand behind, and say what you can confirm.",
+    "textTr": "Arkasında duramayacağın bir söze zorlanmayı reddet ve neyi doğrulayabildiğini söyle."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It would appear that the decision was made in private.",
+    "tr": "Görünüşe göre karar kapalı kapılar ardında verildi."
+   },
+   {
+    "en": "That may well be true, but I can't confirm it.",
+    "tr": "Bu doğru olabilir ama doğrulayamam."
+   },
+   {
+    "en": "What I can say on the record is this.",
+    "tr": "Kayda geçecek şekilde söyleyebileceğim şu."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-secret-source",
+  "topicCode": "C1_U2",
+  "level": "C1",
+  "emoji": "🕯️",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "mixup"
+  ],
+  "title": "Meeting a Secret Source",
+  "titleTr": "Gizli Kaynakla Buluşma",
+  "aiName": "Jo",
+  "aiRole": "Gizli kaynak",
+  "situation": "You are Jo, a nervous office worker meeting the learner, a journalist, on a park bench at dawn. You have seen documents showing that your employer hid a payment, and you are scared of losing your job. Keep looking around, give only small hints, and ask what will happen to you if you talk ('What if they find out?'). Open up a little only when the learner reassures you with careful, formal conditionals and speculates sensibly about what must have been going on. Never give your full name. Leave if they push too hard.",
+  "opening": "You came alone? Good. I can only stay ten minutes. Someone might have been following me.",
+  "objectives": [
+   {
+    "text": "Speculate about the past with must / might / can't have been + -ing (They must have been planning this for months).",
+    "textTr": "Geçmiş hakkında must / might / can't have been + -ing ile tahmin yürüt (They must have been planning this for months)."
+   },
+   {
+    "text": "Reassure Jo with formal conditionals (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+    "textTr": "Jo'yu resmî koşul cümleleriyle rahatlat (Should you feel unsafe…, Were you to go on record…, But for your help…)."
+   },
+   {
+    "text": "Get one concrete detail while promising to protect Jo's name.",
+    "textTr": "Jo'nun adını koruyacağına söz verirken somut bir ayrıntı öğren."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "They must have been hiding this for months.",
+    "tr": "Bunu aylardır saklıyor olmalılar."
+   },
+   {
+    "en": "Should you feel unsafe, call me at once.",
+    "tr": "Kendini güvende hissetmezsen hemen beni ara."
+   },
+   {
+    "en": "Your name will never appear, whatever happens.",
+    "tr": "Ne olursa olsun adın asla geçmeyecek."
+   }
+  ]
+ },
+ {
   "id": "vs-c2-panel-debate",
   "topicCode": "C2_N47",
   "level": "C2",
