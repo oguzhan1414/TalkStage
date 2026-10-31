@@ -3546,5 +3546,11 @@
   "Yarın yeni bir deste gelecek": "Mañana llega un mazo nuevo",
   "Hafıza haritan": "Tu mapa de memoria",
   "{{n}} kelime kalıcı": "{{n}} palabras afianzadas",
-  "Odalar": "Salas"
+  "Odalar": "Salas",
+  "Kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.",
+  "Etiketler kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "No se pudieron guardar las etiquetas. Revisa tu conexión e inténtalo de nuevo.",
+  "Kaydetmek için İngilizce kelimeyi yaz.": "Escribe la palabra en inglés para guardarla.",
+  "TÜRKÇE ANLAMI (İSTEĞE BAĞLI)": "SIGNIFICADO (OPCIONAL)",
+  "CÜMLE İÇİNDE KULLANIMI (İSTEĞE BAĞLI)": "USO EN UNA ORACIÓN (OPCIONAL)",
+  "Adın kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "No se pudo guardar tu nombre. Revisa tu conexión e inténtalo de nuevo."
 }

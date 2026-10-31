@@ -146,6 +146,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
   const [newTagDraft, setNewTagDraft] = useState('');
   const [tagSheetCard, setTagSheetCard] = useState<VocabCardOut | null>(null);
   const [savingTags, setSavingTags] = useState(false);
+  const [tagError, setTagError] = useState<string | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
 
   useEffect(() => {
@@ -169,6 +170,11 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
   const [formLevel, setFormLevel] = useState<string>('A2');
   const [isSaving, setIsSaving] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  // Errors are shown inside the form (a toast would sit behind the modal and nobody would see it).
+  const [termError, setTermError] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const termInputRef = useRef<TextInput>(null);
+  const formScrollRef = useRef<ScrollView>(null);
 
   // Action Menu Bottom Sheet State (Long Press)
   const [actionCard, setActionCard] = useState<VocabCardOut | null>(null);
@@ -322,6 +328,8 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     setFormLevel('A2');
     setFormTags([]);
     setNewTagDraft('');
+    setTermError(false);
+    setFormError(null);
     setModalVisible(true);
   };
 
@@ -345,16 +353,22 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     setFormLevel(card.cefr_level ? card.cefr_level.toUpperCase() : 'A2');
     setFormTags(card.tags ?? []);
     setNewTagDraft('');
+    setTermError(false);
+    setFormError(null);
     setModalVisible(true);
   };
 
   // Save (Create or Update) Word in Supabase & Selected Deck
   const handleSaveWord = async () => {
     if (!formTerm.trim()) {
-      showToast(t("Lütfen bir İngilizce kelime girin!"));
+      // Show where: mark the field, scroll up to it and put the cursor there.
+      setTermError(true);
+      formScrollRef.current?.scrollTo({ y: 0, animated: true });
+      termInputRef.current?.focus();
       return;
     }
 
+    setFormError(null);
     setIsSaving(true);
     const termClean = formTerm.trim();
     // Boş bırakılan alanlar uydurma metinle doldurulmuyor.
@@ -393,18 +407,20 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
       await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("İşlem gerçekleştirilemedi."));
-    } finally {
-      setIsSaving(false);
       setModalVisible(false);
       setEditingCardId(null);
+    } catch (err) {
+      // Keep the form open with everything the learner typed, and say what went wrong right above the button.
+      setFormError(err instanceof ApiError ? err.message : t("Kaydedilemedi. Bağlantını kontrol edip tekrar dene."));
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleSaveTags = async (tags: string[]) => {
     if (!tagSheetCard) return;
     const term = tagSheetCard.term;
+    setTagError(null);
     setSavingTags(true);
     try {
       await api.patch(`/vocab-cards/${tagSheetCard.id}`, { tags } satisfies VocabCardUpdate);
@@ -412,7 +428,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
       setTagSheetCard(null);
       showToast(tags.length ? t("“{{term}}” etiketlendi: {{tags}}", { term, tags: tags.join(', ') }) : t("“{{term}}” etiketlerinden çıkarıldı", { term }));
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("Etiketler kaydedilemedi."));
+      setTagError(err instanceof ApiError ? err.message : t("Etiketler kaydedilemedi. Bağlantını kontrol edip tekrar dene."));
     } finally {
       setSavingTags(false);
     }
@@ -995,7 +1011,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <ScrollView ref={formScrollRef} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <View style={[styles.previewWord, { borderLeftColor: POS_OPTIONS.find((p) => p.id === formPos)?.color ?? colors.brand }]}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.previewWordTerm} numberOfLines={1}>{formTerm.trim() || t("Kelime…")}</Text>
@@ -1010,16 +1026,26 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>{t("İNGİLİZCE KELİME VEYA DEYİM *")}</Text>
                 <TextInput
-                  style={[styles.textInput, focusedInput === 'term' && styles.textInputFocused]}
+                  ref={termInputRef}
+                  style={[styles.textInput, focusedInput === 'term' && styles.textInputFocused, termError && styles.textInputError]}
                   onFocus={() => setFocusedInput('term')}
                   onBlur={() => setFocusedInput(null)}
                   placeholder={t("Örn: resilient, nail down, breakthrough")}
                   placeholderTextColor={colors.textMuted}
                   value={formTerm}
-                  onChangeText={setFormTerm}
+                  onChangeText={(text) => {
+                    setFormTerm(text);
+                    if (text.trim()) setTermError(false);
+                  }}
                   autoCapitalize="none"
                   autoFocus={!editingCardId}
                 />
+                {termError ? (
+                  <View style={styles.fieldErrorRow}>
+                    <Ionicons name="alert-circle" size={15} color="#E11D48" />
+                    <Text style={styles.fieldErrorText}>{t("Kaydetmek için İngilizce kelimeyi yaz.")}</Text>
+                  </View>
+                ) : null}
               </View>
 
               {/* 2. CEFR Level Selector (A1 - C2) */}
@@ -1079,7 +1105,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
               {/* 4. Turkish Meaning */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t("TÜRKÇE ANLAMI")}</Text>
+                <Text style={styles.inputLabel}>{t("TÜRKÇE ANLAMI (İSTEĞE BAĞLI)")}</Text>
                 <TextInput
                   style={[styles.textInput, focusedInput === 'meaning' && styles.textInputFocused]}
                   onFocus={() => setFocusedInput('meaning')}
@@ -1093,7 +1119,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
               {/* 5. Example Sentence */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t("CÜMLE İÇİNDE KULLANIMI")}</Text>
+                <Text style={styles.inputLabel}>{t("CÜMLE İÇİNDE KULLANIMI (İSTEĞE BAĞLI)")}</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea, focusedInput === 'example' && styles.textInputFocused]}
                   onFocus={() => setFocusedInput('example')}
@@ -1140,6 +1166,13 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                   </Pressable>
                 </View>
               </View>
+
+              {formError ? (
+                <View style={styles.formErrorBox}>
+                  <Ionicons name="alert-circle" size={18} color="#E11D48" />
+                  <Text style={styles.formErrorText}>{formError}</Text>
+                </View>
+              ) : null}
 
               {/* Action Buttons */}
               <View style={styles.modalActionsRow}>
@@ -1263,8 +1296,12 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         initial={tagSheetCard?.tags ?? []}
         allTags={allTags}
         saving={savingTags}
+        error={tagError}
         onSave={handleSaveTags}
-        onClose={() => setTagSheetCard(null)}
+        onClose={() => {
+          setTagSheetCard(null);
+          setTagError(null);
+        }}
       />
 
       {/* ======================================================== */}
@@ -1361,6 +1398,11 @@ function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; 
 const FLOOR = '#FBF7F1';
 
 const styles = StyleSheet.create({
+  textInputError: { borderColor: '#F43F5E', backgroundColor: '#FFF1F2' },
+  fieldErrorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7 },
+  fieldErrorText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#E11D48' },
+  formErrorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFF1F2', borderRadius: 14, padding: 12, marginBottom: 12 },
+  formErrorText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#9F1239' },
   dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 104, gap: 12 },
   dashHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },

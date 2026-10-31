@@ -155,6 +155,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               <Pressable
                 onPress={() => {
                   setNameInput(displayName);
+                  nameMutation.reset();
                   setNameOpen(true);
                 }}
                 style={styles.nameRow}
@@ -360,6 +361,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               maxLength={40}
               autoFocus
             />
+            {nameMutation.isError ? <Text style={styles.nameError}>{t("Adın kaydedilemedi. Bağlantını kontrol edip tekrar dene.")}</Text> : null}
             <View style={styles.nameActions}>
               <Pressable onPress={() => setNameOpen(false)} style={styles.nameCancel} accessibilityRole="button">
                 <Text style={styles.nameCancelText}>{t("Vazgeç")}</Text>
@@ -560,6 +562,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textHeading,
   },
+  nameError: { fontFamily: fonts.bodyMedium, fontSize: 13, color: '#E11D48', marginTop: -4 },
   nameActions: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   nameCancel: { paddingHorizontal: 16, paddingVertical: 12 },
   nameCancelText: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textMuted },

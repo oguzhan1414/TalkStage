@@ -18,6 +18,7 @@ export function TagSheet({
   initial,
   allTags,
   saving,
+  error,
   onSave,
   onClose,
 }: {
@@ -26,6 +27,8 @@ export function TagSheet({
   initial: string[];
   allTags: string[];
   saving?: boolean;
+  /** Shown inside the sheet (a toast would sit behind it). */
+  error?: string | null;
   onSave: (tags: string[]) => void;
   onClose: () => void;
 }) {
@@ -96,6 +99,13 @@ export function TagSheet({
               </Pressable>
             </View>
 
+            {error ? (
+              <View style={styles.error}>
+                <Ionicons name="alert-circle" size={18} color="#E11D48" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
             <Button label={t("Kaydet")} loading={saving} onPress={() => onSave(tags)} />
           </Pressable>
         </KeyboardAvoidingView>
@@ -137,5 +147,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textHeading,
   },
+  error: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFF1F2', borderRadius: 14, padding: 12 },
+  errorText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#9F1239' },
   addBtn: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
 });

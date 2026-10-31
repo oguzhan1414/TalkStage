@@ -3523,5 +3523,11 @@
   "Yarın yeni bir deste gelecek": "A new deck comes tomorrow",
   "Hafıza haritan": "Your memory map",
   "{{n}} kelime kalıcı": "{{n}} words solid",
-  "Odalar": "Rooms"
+  "Odalar": "Rooms",
+  "Kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "Could not save. Check your connection and try again.",
+  "Etiketler kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "The tags could not be saved. Check your connection and try again.",
+  "Kaydetmek için İngilizce kelimeyi yaz.": "Type the English word to save it.",
+  "TÜRKÇE ANLAMI (İSTEĞE BAĞLI)": "MEANING (OPTIONAL)",
+  "CÜMLE İÇİNDE KULLANIMI (İSTEĞE BAĞLI)": "USED IN A SENTENCE (OPTIONAL)",
+  "Adın kaydedilemedi. Bağlantını kontrol edip tekrar dene.": "Your name could not be saved. Check your connection and try again."
 }
