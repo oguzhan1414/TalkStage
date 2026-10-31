@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_LOCALE, LOCALES, LOCALE_COOKIE, TR_ONLY_ROUTES, isLocale, type Locale } from "@/i18n/config";
+import { DEFAULT_LOCALE, LOCALES, LOCALE_COOKIE, RETIRED_ROUTES, TR_ONLY_ROUTES, isLocale, type Locale } from "@/i18n/config";
 import { localizePath, parsePath } from "@/i18n/paths";
 
 /**
@@ -15,8 +15,10 @@ const BOT_UA =
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // Not localized: logged-in web app, deep-link router.
-  if (/^\/(app|go)(\/|$)/.test(pathname)) return NextResponse.next();
+  // Not localized: deep-link router.
+  if (/^\/go(\/|$)/.test(pathname)) return NextResponse.next();
+  // The old web app is gone: the app lives in the stores now.
+  if (/^\/app(\/|$)/.test(pathname)) return redirect(request, "/#indir", 308);
 
   const parsed = parsePath(pathname);
   const { locale, key, slug, rest, prefix } = parsed;
@@ -38,8 +40,10 @@ export function proxy(request: NextRequest) {
     return redirect(request, `${localizePath("/", locale)}${search}`, 308);
   }
 
-  // Sign-up lives inside the onboarding flow: a real HTTP redirect (better than a client-side hop).
-  if (key === "signup") return redirect(request, `${localizePath("/onboarding", locale)}${search}`, 308);
+  // Old sign-in / sign-up / onboarding links land on the download section.
+  if (key && (RETIRED_ROUTES as readonly string[]).includes(key)) {
+    return redirect(request, localizePath("/#download", locale), 308);
+  }
 
   if (key) {
     const publicPath = localizePath(`/${key}${rest}`, locale);

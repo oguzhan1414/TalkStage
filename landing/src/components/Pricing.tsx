@@ -44,7 +44,7 @@ export default function Pricing() {
                 ))}
               </ul>
               <Link
-                href="/onboarding"
+                href="/#download"
                 className="mt-9 inline-flex items-center justify-center rounded-full border border-heading/15 bg-white px-6 py-3.5 text-[0.95rem] font-bold text-heading transition-colors hover:border-stage hover:text-stage"
               >{t("Ücretsiz başla")}</Link>
             </div>
@@ -64,7 +64,7 @@ export default function Pricing() {
                 ))}
               </ul>
               <Link
-                href="/onboarding"
+                href="/#download"
                 className="relative mt-9 inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-[0.95rem] font-bold text-stage shadow-[0_18px_36px_-14px_rgba(0,0,0,0.45)] transition-transform hover:-translate-y-0.5"
               >{t("Önce ücretsiz dene")}</Link>
             </div>

@@ -39,11 +39,11 @@ export default function Hero() {
           <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
             <HeroCtaTracker>
               <Link
-                href="/onboarding"
+                href="/#download"
                 className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-linear-to-r from-stage to-purple-pop px-8 py-4 text-base font-bold text-white shadow-[0_22px_44px_-16px_rgba(79,70,229,0.75)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_50px_-14px_rgba(79,70,229,0.85)]"
               >
                 <span aria-hidden className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative">{t("Ücretsiz dene")}</span>
+                <span className="relative">{t("Uygulamayı indir")}</span>
                 <ArrowRight className="relative h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
               </Link>
             </HeroCtaTracker>

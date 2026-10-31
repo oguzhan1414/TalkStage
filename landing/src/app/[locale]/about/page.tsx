@@ -96,7 +96,7 @@ export default async function AboutPage({ params }: PageProps) {
                 <p className="mt-3 max-w-md text-lg text-heading/70">{t("Ücretsiz başla; günde bir sesli sahne seni bekliyor.")}</p>
                 <div className="mt-7">
                   <Link
-                    href="/onboarding"
+                    href="/#download"
                     className="inline-flex items-center rounded-full bg-linear-to-r from-stage to-purple-pop px-8 py-4 text-base font-bold text-white shadow-[0_22px_44px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
                   >{t("Ücretsiz dene")}</Link>
                 </div>

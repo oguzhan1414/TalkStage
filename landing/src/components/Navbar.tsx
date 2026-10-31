@@ -104,14 +104,10 @@ export default function Navbar() {
         <div className="flex items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <Link
-            href="/login"
-            className="hidden rounded-full px-3 py-2 text-[0.82rem] font-semibold text-body transition-colors hover:bg-paper-deep hover:text-heading sm:inline-flex"
-          >{t("Giriş yap")}</Link>
-          <Link
-            href="/onboarding"
+            href="/#download"
             onClick={() => trackEvent('cta_clicked', { location: 'navbar' })}
             className="inline-flex items-center rounded-full bg-linear-to-r from-stage to-purple-pop px-4 py-2.5 text-[0.82rem] font-bold text-white shadow-[0_10px_22px_-8px_rgba(79,70,229,0.75)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_26px_-8px_rgba(79,70,229,0.85)] sm:px-5"
-          >{t("Ücretsiz dene")}</Link>
+          >{t("Uygulamayı indir")}</Link>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -145,9 +141,6 @@ export default function Navbar() {
               {t(link.label)}
             </Link>
           ))}
-          <Link href="/login" onClick={() => setOpen(false)} className="mt-1 rounded-2xl px-4 py-3.5 text-base font-semibold text-body hover:bg-paper-deep">
-            {t("Giriş yap")}
-          </Link>
         </nav>
       </div>
     </header>

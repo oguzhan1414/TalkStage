@@ -1,5 +1,4 @@
 import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
-import { AuthProvider } from "@/context/AuthContext";
 import CookieConsent from "@/components/CookieConsent";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Analytics } from "@/lib/analytics";
@@ -29,7 +28,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-/** The <html>/<body> shell shared by the localized site and the (Turkish) web app. */
+/** The <html>/<body> shell shared by the localized site and the deep-link router (/go). */
 export default function RootShell({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   return (
     <html
@@ -41,12 +40,10 @@ export default function RootShell({ locale, children }: { locale: Locale; childr
     >
       <body className="min-h-full flex flex-col overflow-x-clip bg-paper text-body selection:bg-stage selection:text-white">
         <I18nProvider locale={locale} catalog={getCatalog(locale)} fallback={getCatalog("en")}>
-          <AuthProvider>
-            <Analytics />
-            <ScrollToTop />
-            <CookieConsent />
-            {children}
-          </AuthProvider>
+          <Analytics />
+          <ScrollToTop />
+          <CookieConsent />
+          {children}
         </I18nProvider>
       </body>
     </html>

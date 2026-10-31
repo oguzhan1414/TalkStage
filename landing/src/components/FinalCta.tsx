@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "@/i18n/Link";
 import Reveal from "./Reveal";
 import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 import { getLocale, getT } from "@/i18n/server";
@@ -48,9 +47,6 @@ export default function FinalCta() {
             </div>
 
             <p className="mt-5 text-sm font-medium text-heading">{t("Kredi kartı gerekmez · Günde 1 sesli sahne ücretsiz")}</p>
-            <p className="mt-2 text-sm text-muted">{t("Telefonun yanında değil mi?")}{" "}<Link href="/onboarding" className="font-semibold text-stage underline decoration-stage/40 underline-offset-4">{t("Web’den başla")}</Link>
-              .
-            </p>
           </div>
         </div>
       </Reveal>
