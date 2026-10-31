@@ -55,6 +55,22 @@
   --color-body: #4a4768;
   --color-muted: #6b6889;
   --color-line: #e3e0f7;
+
+  /* ─── Tefrika (home page): book cloth, page, marker, six level cloths ─── */
+  --color-cloth: #231e66;
+  --color-cloth-deep: #18144d;
+  --color-cloth-line: #3a3490;
+  --color-page: #fdfdff;
+  --color-page-edge: #e7e5f6;
+  --color-marker: #ffc21f;
+  --color-marker-soft: #ffe48f;
+  --color-on-cloth: #e6e4ff;
+  --color-vol-a1: #0e7a58;
+  --color-vol-a2: #0a6f9e;
+  --color-vol-b1: #4338ca;
+  --color-vol-b2: #6d28d9;
+  --color-vol-c1: #c77d0a;
+  --color-vol-c2: #be185d;
 }
 
 @theme inline {
@@ -99,50 +115,33 @@
   --color-body: var(--color-body);
   --color-muted: var(--color-muted);
   --color-line: var(--color-line);
+  --color-cloth: var(--color-cloth);
+  --color-cloth-deep: var(--color-cloth-deep);
+  --color-cloth-line: var(--color-cloth-line);
+  --color-page: var(--color-page);
+  --color-page-edge: var(--color-page-edge);
+  --color-marker: var(--color-marker);
+  --color-marker-soft: var(--color-marker-soft);
+  --color-on-cloth: var(--color-on-cloth);
+  --color-vol-a1: var(--color-vol-a1);
+  --color-vol-a2: var(--color-vol-a2);
+  --color-vol-b1: var(--color-vol-b1);
+  --color-vol-b2: var(--color-vol-b2);
+  --color-vol-c1: var(--color-vol-c1);
+  --color-vol-c2: var(--color-vol-c2);
 
   --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, sans-serif;
   --font-body: var(--font-figtree), "Figtree", ui-sans-serif, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --font-story: var(--font-alegreya), "Alegreya", ui-serif, Georgia, serif;
 
   --shadow-layered: 0 10px 30px -12px rgba(21, 18, 58, 0.14), 0 4px 10px -4px rgba(21, 18, 58, 0.06);
   --shadow-lifted: 0 30px 70px -20px rgba(21, 18, 58, 0.28), 0 10px 24px -8px rgba(21, 18, 58, 0.1);
-  --shadow-glow-indigo: 0 0 60px rgba(67, 56, 202, 0.25);
-  --shadow-glow-gold: 0 0 70px rgba(227, 167, 63, 0.35);
-  --shadow-glow-pink: 0 0 60px rgba(239, 93, 168, 0.3);
 
-  --animate-float: float 7s ease-in-out infinite;
-  --animate-marquee: marquee 32s linear infinite;
-  --animate-pulse-dot: pulse-dot 1.8s ease-in-out infinite;
-  --animate-bounce-soft: bounce-soft 2s ease-in-out infinite;
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-14px); }
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(0.82); }
-  }
-  @keyframes equalizer {
-    0%, 100% { height: 4px; }
-    50% { height: 14px; }
-  }
-  @keyframes bounce-soft {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-  @keyframes wiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-3deg); }
-    75% { transform: rotate(3deg); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
   }
 }
 
@@ -178,189 +177,13 @@ body {
   color: var(--color-white);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   DESIGN SYSTEM UTILITIES
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Glass Card */
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-/* Kodland-style highlighted text (lime background behind words) */
-.text-highlight {
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-  white-space: nowrap;
-}
-.text-highlight::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  right: -8px;
-  top: 55%;
-  transform: translateY(-50%);
-  height: 75%;
-  background: var(--color-lime-pop);
-  border-radius: 18px;
-  z-index: -1;
-}
-
-.text-highlight-pink {
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-  white-space: nowrap;
-}
-.text-highlight-pink::before {
-  content: '';
-  position: absolute;
-  left: -10px;
-  right: -10px;
-  top: 55%;
-  transform: translateY(-50%);
-  height: 80%;
-  background: var(--color-pink-pop);
-  border-radius: 18px;
-  z-index: -1;
-}
-
-/* Signature "stage" motifs */
-.grain-overlay {
-  position: relative;
-}
-
-.grain-overlay::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-.spotlight-glow {
-  background: radial-gradient(circle, rgba(227, 167, 63, 0.35), transparent 70%);
-}
-
 .text-balance {
   text-wrap: balance;
-}
-
-/* Playful card hover — Kodland-style icon tilt + card lift */
-.card-playful {
-  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.4s ease;
-}
-.card-playful:hover {
-  transform: translateY(-6px);
-}
-.card-playful:hover .card-icon {
-  transform: rotate(-15deg) scale(1.1);
-}
-.card-icon {
-  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
-}
-
-/* Big rounded Kodland-style section cards */
-.section-card {
-  border-radius: 44px;
-  overflow: hidden;
-}
-@media (max-width: 768px) {
-  .section-card {
-    border-radius: 28px;
-  }
-}
-
-/* CTA shimmer effect */
-.cta-shimmer {
-  background-size: 200% auto;
-  animation: shimmer 3s ease infinite;
-}
-
-/* Scroll reveal */
-.reveal {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* MobileAppShowcase's interactive screen tour */
-.phone-swap-in {
-  animation: phone-swap-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes phone-swap-in {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   Spekvia v2 — "take slate" motif
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Clapperboard stripes (ink + yellow) — the slate bar on stage frames & scene cards */
-.slate-stripes {
-  background-image: repeating-linear-gradient(
-    -55deg,
-    var(--color-slate-yellow) 0 14px,
-    var(--color-ink) 14px 28px
-  );
-}
-
-/* Typed-caret blink for the live transcript */
-.caret::after {
-  content: "";
-  display: inline-block;
-  width: 2px;
-  height: 1.05em;
-  margin-left: 2px;
-  vertical-align: -0.15em;
-  background: currentColor;
-  animation: caret-blink 1s steps(1) infinite;
-}
-@keyframes caret-blink {
-  50% { opacity: 0; }
-}
-
-/* Wave bars used for the "Mivo is speaking" meter */
-@keyframes wave-bar {
-  0%, 100% { transform: scaleY(0.35); }
-  50% { transform: scaleY(1); }
-}
-
-/* Horizontal scroller without a visible bar */
-.no-scrollbar {
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
   *,
   *::before,
@@ -377,12 +200,117 @@ body {
   to { opacity: 1; transform: none; }
 }
 
-/* Hero stage: bubbles pop in one after another each time the scene changes */
-@keyframes stage-in {
-  from { opacity: 0; transform: translateY(14px) scale(0.96); }
-  to { opacity: 1; transform: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Tefrika (home page)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+
+html {
+  scrollbar-color: var(--color-cloth-line) var(--color-paper);
+}
+
+/* Pressable things answer the finger. */
+.press {
+  transition: transform 160ms var(--ease-out), background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Highlighter stroke behind a grammar word; drawn once on load. */
+.marker {
+  background-image: linear-gradient(transparent 58%, var(--color-marker) 58%, var(--color-marker) 92%, transparent 92%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  padding: 0 0.12em;
+  margin: 0 -0.06em;
+  border-radius: 2px;
+}
+.marker-draw {
+  animation: marker-draw 700ms var(--ease-out) 450ms both;
+}
+@keyframes marker-draw {
+  from { background-size: 0% 100%; }
+  to { background-size: 100% 100%; }
+}
+
+/* A word that opens its meaning. */
+.story-word {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, var(--color-stage) 55%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .story-word:hover {
+    background-color: color-mix(in oklab, var(--color-stage) 10%, transparent);
+  }
+}
+.story-word[aria-expanded="true"] {
+  background-color: var(--color-stage);
+  color: var(--color-white);
+  text-decoration-color: transparent;
+}
+
+/* The meaning bubble grows out of its word. */
+.gloss {
+  transform-origin: var(--gloss-origin, 50% 100%);
+  transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out);
+}
+.gloss[data-open="false"] {
+  opacity: 0;
+  transform: scale(0.96) translateY(2px);
+  pointer-events: none;
+}
+
+/* Cross-fade between lesson parts; blur hides the overlap. */
+.part-swap {
+  transition: opacity 220ms var(--ease-out), filter 220ms var(--ease-out), transform 220ms var(--ease-out);
+}
+.part-swap[data-active="false"] {
+  opacity: 0;
+  filter: blur(3px);
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+/* Spines on the shelf */
+.spine {
+  transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .spine:hover {
+    transform: translateY(-8px);
+  }
+}
+.spine[aria-pressed="true"] {
+  transform: translateY(-18px);
+  box-shadow: 0 22px 30px -18px rgba(24, 20, 77, 0.6);
+}
+
+/* Pins in the word room */
+.room-pin {
+  transition: transform 180ms var(--ease-out), background-color 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .room-pin:hover {
+    transform: scale(1.12);
+  }
+}
+
+/* A volume taken from the shelf opens in place. */
+.vol-in {
+  animation: vol-in 260ms var(--ease-out) both;
+}
+@keyframes vol-in {
+  from { opacity: 0; filter: blur(3px); transform: translateY(6px); }
+  to { opacity: 1; filter: blur(0); transform: none; }
 }

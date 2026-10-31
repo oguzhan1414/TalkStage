@@ -42,6 +42,7 @@ export const ANCHORS = {
   scenes: { tr: "sahneler", en: "scenes", es: "escenas", pt: "cenas", de: "szenen" },
   mivo: { tr: "mivo", en: "mivo", es: "mivo", pt: "mivo", de: "mivo" },
   path: { tr: "yol", en: "path", es: "ruta", pt: "trilha", de: "weg" },
+  levels: { tr: "seviyeler", en: "levels", es: "niveles", pt: "niveis", de: "stufen" },
   pricing: { tr: "fiyatlandirma", en: "pricing", es: "precios", pt: "precos", de: "preise" },
   faq: { tr: "sss", en: "faq", es: "preguntas", pt: "perguntas", de: "fragen" },
   download: { tr: "indir", en: "download", es: "descargar", pt: "baixar", de: "download" },

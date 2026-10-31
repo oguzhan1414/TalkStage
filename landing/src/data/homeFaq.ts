@@ -19,7 +19,7 @@ export const HOME_FAQS = [
   },
   {
     q: tr("Ücretsiz mi?"),
-    a: tr("Evet, ücretsiz başlayabilirsin: günde 1 sesli sahne (5 dakikaya kadar), kelime kartları, okuma hikâyeleri ve anlık düzeltme. Sınırsız sesli pratik için Pro var."),
+    a: tr("Evet, uygulamayı ücretsiz indirip hikâyeye hemen başlayabilirsin. Sınırları kaldırmak istersen Pro var; içeriği ve fiyatı uygulamada, mağazanın kendi fiyatıyla gösterilir."),
   },
   {
     q: tr("Sesim ve konuşmalarım ne oluyor?"),

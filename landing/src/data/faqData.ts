@@ -120,7 +120,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     category: "Abonelik",
     question: tr("Ücretsiz mi?"),
     answer:
-      tr("Ücretsiz başlayabilirsin: günde 1 sesli sahne (5 dakikaya kadar), kelime kartları, okuma hikâyeleri ve anlık düzeltme. Sınırsız sesli pratik için Pro var."),
+      tr("Evet, uygulamayı ücretsiz indirip hikâyeye hemen başlayabilirsin. Sınırları kaldırmak istersen Pro var; içeriği ve fiyatı uygulamada, mağazanın kendi fiyatıyla gösterilir."),
   },
   {
     id: "a2",

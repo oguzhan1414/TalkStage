@@ -1,4 +1,4 @@
-import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
+import { Alegreya, Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
 import CookieConsent from "@/components/CookieConsent";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Analytics } from "@/lib/analytics";
@@ -28,6 +28,15 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// The story voice: episode text on the home page reads like a book.
+const alegreya = Alegreya({
+  variable: "--font-alegreya",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
 /** The <html>/<body> shell shared by the localized site and the deep-link router (/go). */
 export default function RootShell({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   return (
@@ -35,10 +44,10 @@ export default function RootShell({ locale, children }: { locale: Locale; childr
       lang={locale}
       // The site is already localized (own language switcher): stop browsers' automatic page translation from mangling it.
       translate="no"
-      className={`notranslate ${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full overflow-x-clip antialiased`}
+      className={`notranslate ${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} ${alegreya.variable} h-full overflow-x-clip antialiased`}
       style={{ colorScheme: "light" }}
     >
-      <body className="min-h-full flex flex-col overflow-x-clip bg-paper text-body selection:bg-stage selection:text-white">
+      <body className="min-h-full flex flex-col overflow-x-clip bg-paper text-body selection:bg-marker selection:text-cloth-deep">
         <I18nProvider locale={locale} catalog={getCatalog(locale)} fallback={getCatalog("en")}>
           <Analytics />
           <ScrollToTop />

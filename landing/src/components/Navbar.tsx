@@ -13,9 +13,9 @@ import { tr } from "@/i18n/shared";
 import type { AnchorKey } from "@/i18n/config";
 
 const NAV_LINKS: { key: AnchorKey; href: string; label: string }[] = [
-  { key: 'scenes', href: '/#scenes', label: tr("Sahneler") },
+  { key: 'path', href: '/#path', label: tr("Hikâye") },
   { key: 'mivo', href: '/#mivo', label: tr("Mivo") },
-  { key: 'path', href: '/#path', label: tr("Günlük yol") },
+  { key: 'levels', href: '/#levels', label: tr("Seviyeler") },
   { key: 'pricing', href: '/#pricing', label: tr("Fiyat") },
   { key: 'faq', href: '/faq', label: tr("SSS") },
 ];
@@ -78,7 +78,7 @@ export default function Navbar() {
   return (
     <header className={`fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-300 sm:px-5 ${show ? 'translate-y-0' : '-translate-y-[120%]'}`}>
       <div
-        className={`relative mx-auto flex max-w-6xl items-center justify-between rounded-full border bg-white/85 px-4 backdrop-blur-xl transition-all duration-300 sm:px-5 ${
+        className={`relative mx-auto flex max-w-6xl items-center justify-between rounded-full border bg-white px-4 transition-[padding,box-shadow,border-color] duration-300 ease-out sm:px-5 ${
           scrolled ? 'border-line py-2 shadow-lifted' : 'border-white/70 py-2.5 shadow-layered'
         }`}
       >
@@ -92,8 +92,8 @@ export default function Navbar() {
               key={link.key}
               href={link.href}
               aria-current={active === link.key ? 'location' : undefined}
-              className={`rounded-full px-3.5 py-2 text-[0.82rem] font-semibold transition-all duration-300 ${
-                active === link.key ? 'bg-stage/10 text-stage' : 'text-body hover:bg-paper-deep hover:text-heading'
+              className={`rounded-full px-3.5 py-2 text-[0.82rem] font-semibold transition-colors duration-200 ${
+                active === link.key ? 'bg-cloth text-white' : 'text-body hover:bg-paper-deep hover:text-heading'
               }`}
             >
               {t(link.label)}
@@ -106,7 +106,7 @@ export default function Navbar() {
           <Link
             href="/#download"
             onClick={() => trackEvent('cta_clicked', { location: 'navbar' })}
-            className="inline-flex items-center rounded-full bg-linear-to-r from-stage to-purple-pop px-4 py-2.5 text-[0.82rem] font-bold text-white shadow-[0_10px_22px_-8px_rgba(79,70,229,0.75)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_26px_-8px_rgba(79,70,229,0.85)] sm:px-5"
+            className="press inline-flex items-center rounded-full bg-stage px-4 py-2.5 text-[0.82rem] font-bold text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.8)] hover:bg-stage-deep sm:px-5"
           >{t("Uygulamayı indir")}</Link>
           <button
             type="button"
@@ -124,7 +124,7 @@ export default function Navbar() {
       {/* phone menu */}
       <div
         id="mobile-menu"
-        className={`mx-auto mt-2 max-w-6xl origin-top overflow-hidden rounded-[2rem] border border-white bg-white/95 shadow-lifted backdrop-blur-xl transition-all duration-300 md:hidden ${
+        className={`mx-auto mt-2 max-w-6xl origin-top overflow-hidden rounded-[2rem] border border-page-edge bg-white shadow-lifted transition-[max-height,opacity] duration-300 ease-out md:hidden ${
           open ? 'max-h-[28rem] opacity-100' : 'pointer-events-none max-h-0 border-transparent opacity-0'
         }`}
       >
@@ -135,7 +135,7 @@ export default function Navbar() {
               href={link.href}
               onClick={() => setOpen(false)}
               className={`rounded-2xl px-4 py-3.5 font-display text-xl font-bold tracking-tight transition-colors ${
-                active === link.key ? 'bg-stage/10 text-stage' : 'text-heading hover:bg-paper-deep'
+                active === link.key ? 'bg-cloth text-white' : 'text-heading hover:bg-paper-deep'
               }`}
             >
               {t(link.label)}
