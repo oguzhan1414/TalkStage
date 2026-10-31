@@ -1,5 +1,7 @@
 # Landing ana sayfa: tasarım yönü (2026-10-31)
 
+> **Güncelleme (aynı gün):** Kullanıcı "tefrika" tasarımını beğenmedi (fazla anlatıyor, ağır). Referans: sade app tanıtım sayfaları (büyük başlık, eğik telefon maketleri, animasyon, az yazı) + dünya haritası. Güncel düzen `landing/DESIGN.md`'de. Aşağıdaki sözleşme ilk denemenin kaydıdır.
+
 Yalnızca geliştirme notu; siteye hiçbir parçası taşınmaz. Kaynaklar: emilkowalski/skills (animasyon ve detay kuralları), pbakaus/impeccable (new-work, mode-persuade, craft-floor). Impeccable'ın yardımcı programı çalıştırılmadı; kurallar dosyalardan okunarak uygulandı. `concept-seed` zarı atılmadı, yönü kullanıcı seçti.
 
 Mod: Persuade. Ziyaretçi: telefonda Instagram/TikTok linkinden gelen, İngilizceyi anlayan ama konuşamayan yetişkin. Eylem: uygulamayı indirmek.

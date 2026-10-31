@@ -1,45 +1,33 @@
 # Spekvia landing: design system
 
-The home page is a serial story ("tefrika"): an indigo book cover with an episode lying open on it. Direction and sources: `../docs/landing_tasarim.md`.
+Clean app-showcase page (2026-10-31, second pass): lots of white space, big headline, tilted phone mockups with quiet motion, little text. The first "tefrika" pass was too busy and was replaced.
 
-## Colour (tokens in `src/app/globals.css`)
+## Sections (`src/components/home/`)
 
-| Token | Value | Job |
-|---|---|---|
-| `cloth` / `cloth-deep` | #231e66 / #18144d | Book cloth: hero, closing, active tabs, dark text on light grounds |
-| `page` / `page-edge` | #fdfdff / #e7e5f6 | The paper: open page, panels, section ground; edge as 2px bottom "page thickness" |
-| `paper` | #f5f4ff | Alternate section ground |
-| `marker` / `marker-soft` | #ffc21f / #ffe48f | Highlighter on grammar words, ribbon bookmark, Mivo section field, selection |
-| `stage` | #4f46e5 | Actions and links (brand indigo) |
-| `on-cloth` | #e6e4ff | Body text on cloth |
-| `vol-a1` … `vol-c2` | emerald, sky, indigo, violet, amber, rose | One cloth colour per level (spines, cover rings) |
+1. `Hero`: headline, one line, store buttons; two tilted phones (Mivo scene behind, home screen in front) rise in and drift.
+2. `HowItWorks`: four steps; on desktop one sticky phone swaps its screen as each step reaches the middle (inline phones on mobile).
+3. `WorldMap`: dotted world map (`public/world-dots.svg`), arcs drawing toward Mivo, one learner bubble per app language. Illustrative, no user numbers.
+4. `Levels`: six round covers, A1–C2 (C2 "Yakında").
+5. `PriceFaq`: one number-free price line, then the FAQ.
+6. `FinalCta`: dark panel, store buttons, a phone rising from the bottom edge, Mivo waving.
 
-Colour strategy: committed. Cloth and marker own whole sections; there are no scattered accents on a neutral template.
+## Phones
 
-## Type
+`Phone.tsx` draws the body in CSS. `AppScreens.tsx` rebuilds four app screens in HTML from the app's own art and copy (home, reading episode, kitchen word room, Mivo scene). When real screenshots arrive, replace a screen's children with `<Image src="/screens/…" fill className="object-cover" />`.
 
-- Display: Bricolage Grotesque 800, tracking −0.03 to −0.035em, sizes 2.4–4.6rem.
-- Story (English the learner reads): Alegreya 400/500, 1.1–1.5rem.
-- Body: Figtree, 1–1.2rem, measure ≤ 36rem.
-- No mono labels, no eyebrow/kicker above headings, no gradient text.
+## Colour and type
 
-## Shape and depth
-
-- Radius: panels 1.2–1.6rem, buttons 1rem (store) or full (nav, chips).
-- Depth: page edge `0 2px 0 var(--color-page-edge)` plus one soft offset shadow. No glass, no glow.
-- Cloth carries a 4px weave at 7% opacity, nothing else.
+- Ink `cloth-deep` #18144d for headings, `body` #4a4768 for text, brand `stage` #4f46e5 for accents, `cloth` #231e66 for dark buttons and the closing panel, `marker` #ffc21f only inside the app screens.
+- Soft grounds: hero panel #f3f1ff → white → #eef6ff, map panel #f4f3ff. Big rounded panels (2–2.75rem) like app-store landing pages.
+- Bricolage Grotesque 800 headings (−0.03em), Figtree body, Alegreya only for English sample text inside the phones.
+- No eyebrow labels, no gradient text, no glass.
 
 ## Motion (Emil Kowalski rules)
 
-- Easing `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`; UI motion ≤ 260ms; nothing enters from scale(0).
-- `.press`: scale(0.97) on `:active` for every pressable.
-- `.gloss`: meaning bubble grows from its word (150ms). `.part-swap` / `.vol-in`: blur + fade + 6px rise. `.marker-draw`: highlighter drawn once on load.
-- Hover effects only under `(hover: hover) and (pointer: fine)`. No scroll fade-ins on sections. `prefers-reduced-motion` collapses all durations.
+- `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`.
+- `.phone-in` 900ms rise with tilt, `.phone-drift` 7s float, `.screen-swap` 380ms blur cross-fade, map arcs/bubbles once on view, pins pulse.
+- `.press` scale(0.97) on every pressable; hover only for fine pointers; `prefers-reduced-motion` collapses everything.
 
 ## Imagery provenance
 
-All rasters in `public/story/` are copied from the mobile app: episode covers from `mobile/assets/images/path/`, word pictures from `mobile/assets/images/words/`, the kitchen room from `mobile/assets/images/rooms/`. Mivo art lives in `public/mivo/`. When the app art changes, recopy it here.
-
-## Content rule
-
-Every story line, word, tip and scene on the page is real app content (`src/data/storyDemo.ts` names the source files). The Mivo conversation is labelled "Örnek konuşma". No prices or free-tier numbers until the packages are final.
+`public/story/` holds copies of app art (episode covers, A1 home backdrop, kitchen room) from `mobile/assets/images/`. The map SVG was generated once with `dotted-map` (not a dependency).

@@ -17,7 +17,7 @@ const COLUMNS = [
   {
     title: tr("Ürün"),
     links: [
-      { label: tr("Hikâye"), href: "/#path" },
+      { label: tr("Nasıl çalışır"), href: "/#path" },
       { label: tr("Mivo"), href: "/#mivo" },
       { label: tr("Seviyeler"), href: "/#levels" },
       { label: tr("Fiyat"), href: "/#pricing" },

@@ -1,12 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import StoryHero from "@/components/home/StoryHero";
-import LessonParts from "@/components/home/LessonParts";
-import MivoScene from "@/components/home/MivoScene";
-import Shelf from "@/components/home/Shelf";
-import BeyondPath from "@/components/home/BeyondPath";
+import Hero from "@/components/home/Hero";
+import HowItWorks from "@/components/home/HowItWorks";
+import WorldMap from "@/components/home/WorldMap";
+import Levels from "@/components/home/Levels";
 import PriceFaq from "@/components/home/PriceFaq";
-import Closing from "@/components/home/Closing";
+import FinalCta from "@/components/home/FinalCta";
 import JsonLd from "@/components/JsonLd";
 import { HOME_FAQS } from "@/data/homeFaq";
 import { faqSchema, webPageSchema } from "@/i18n/schema";
@@ -37,13 +36,12 @@ export default async function Home({ params }: PageProps) {
       />
       <Navbar />
       <main className="flex-1">
-        <StoryHero />
-        <LessonParts />
-        <MivoScene />
-        <Shelf />
-        <BeyondPath />
+        <Hero />
+        <HowItWorks />
+        <WorldMap />
+        <Levels />
         <PriceFaq />
-        <Closing />
+        <FinalCta />
       </main>
       <Footer />
     </>

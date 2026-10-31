@@ -13,7 +13,7 @@ import { tr } from "@/i18n/shared";
 import type { AnchorKey } from "@/i18n/config";
 
 const NAV_LINKS: { key: AnchorKey; href: string; label: string }[] = [
-  { key: 'path', href: '/#path', label: tr("Hikâye") },
+  { key: 'path', href: '/#path', label: tr("Nasıl çalışır") },
   { key: 'mivo', href: '/#mivo', label: tr("Mivo") },
   { key: 'levels', href: '/#levels', label: tr("Seviyeler") },
   { key: 'pricing', href: '/#pricing', label: tr("Fiyat") },

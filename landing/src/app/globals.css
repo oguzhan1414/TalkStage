@@ -222,95 +222,70 @@ html {
   transform: scale(0.97);
 }
 
-/* Highlighter stroke behind a grammar word; drawn once on load. */
-.marker {
-  background-image: linear-gradient(transparent 58%, var(--color-marker) 58%, var(--color-marker) 92%, transparent 92%);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  padding: 0 0.12em;
-  margin: 0 -0.06em;
-  border-radius: 2px;
+/* Hero phones rise in tilted, then drift. */
+.phone-in {
+  transform: rotate(var(--tilt, 0deg));
+  animation: phone-in 900ms var(--ease-out) both;
 }
-.marker-draw {
-  animation: marker-draw 700ms var(--ease-out) 450ms both;
+@keyframes phone-in {
+  from { opacity: 0; transform: translateY(48px) rotate(var(--tilt, 0deg)) scale(0.96); }
+  to { opacity: 1; transform: rotate(var(--tilt, 0deg)); }
 }
-@keyframes marker-draw {
-  from { background-size: 0% 100%; }
-  to { background-size: 100% 100%; }
+.phone-drift {
+  animation: phone-drift 7s ease-in-out infinite;
 }
-
-/* A word that opens its meaning. */
-.story-word {
-  text-decoration: underline dotted;
-  text-decoration-color: color-mix(in oklab, var(--color-stage) 55%, transparent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.22em;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 150ms ease, color 150ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .story-word:hover {
-    background-color: color-mix(in oklab, var(--color-stage) 10%, transparent);
-  }
-}
-.story-word[aria-expanded="true"] {
-  background-color: var(--color-stage);
-  color: var(--color-white);
-  text-decoration-color: transparent;
+@keyframes phone-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
-/* The meaning bubble grows out of its word. */
-.gloss {
-  transform-origin: var(--gloss-origin, 50% 100%);
-  transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out);
+/* One phone, several screens: blur hides the cross-fade. */
+.screen-swap {
+  transition: opacity 380ms var(--ease-out), filter 380ms var(--ease-out), transform 380ms var(--ease-out);
 }
-.gloss[data-open="false"] {
+.screen-swap[data-active="false"] {
   opacity: 0;
-  transform: scale(0.96) translateY(2px);
-  pointer-events: none;
+  filter: blur(4px);
+  transform: scale(1.03);
 }
 
-/* Cross-fade between lesson parts; blur hides the overlap. */
-.part-swap {
-  transition: opacity 220ms var(--ease-out), filter 220ms var(--ease-out), transform 220ms var(--ease-out);
+/* The microphone breathes while Mivo listens. */
+.mic-ring {
+  animation: mic-ring 1.8s var(--ease-out) infinite;
 }
-.part-swap[data-active="false"] {
+@keyframes mic-ring {
+  from { opacity: 0.55; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.7); }
+}
+
+/* World map: arcs draw toward Mivo, bubbles pop in once the map is on screen, pins pulse. */
+.world-arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.world[data-seen="true"] .world-arc {
+  animation: arc-draw 1.2s var(--ease-in-out) forwards;
+}
+@keyframes arc-draw {
+  to { stroke-dashoffset: 0; }
+}
+.world-bubble {
   opacity: 0;
-  filter: blur(3px);
-  transform: translateY(6px);
-  pointer-events: none;
+  transform: translateY(6px) scale(0.96);
 }
-
-/* Spines on the shelf */
-.spine {
-  transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+.world[data-seen="true"] .world-bubble {
+  animation: bubble-in 420ms var(--ease-out) forwards;
 }
-@media (hover: hover) and (pointer: fine) {
-  .spine:hover {
-    transform: translateY(-8px);
-  }
+@keyframes bubble-in {
+  to { opacity: 1; transform: none; }
 }
-.spine[aria-pressed="true"] {
-  transform: translateY(-18px);
-  box-shadow: 0 22px 30px -18px rgba(24, 20, 77, 0.6);
+.world-pin {
+  animation: pin-pulse 2.4s ease-out infinite;
 }
-
-/* Pins in the word room */
-.room-pin {
-  transition: transform 180ms var(--ease-out), background-color 180ms ease;
+@keyframes pin-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.45); }
+  70%, 100% { box-shadow: 0 0 0 12px rgba(79, 70, 229, 0); }
 }
-@media (hover: hover) and (pointer: fine) {
-  .room-pin:hover {
-    transform: scale(1.12);
-  }
-}
-
-/* A volume taken from the shelf opens in place. */
-.vol-in {
-  animation: vol-in 260ms var(--ease-out) both;
-}
-@keyframes vol-in {
-  from { opacity: 0; filter: blur(3px); transform: translateY(6px); }
-  to { opacity: 1; filter: blur(0); transform: none; }
+.world-mivo {
+  animation: phone-drift 6s ease-in-out infinite;
 }
