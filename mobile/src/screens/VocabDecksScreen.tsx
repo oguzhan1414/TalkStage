@@ -10,15 +10,22 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { Toast } from '../components/Toast';
 import { t } from '../i18n';
 import { api, ApiError } from '../lib/api';
-import { levelGroups, levelLabel, migrateLocalFolders, tagGroups, type VocabFocus } from '../lib/vocabGroups';
+import { pathLevelName } from '../lib/pathLevel';
+import { inFocus, levelGroups, migrateLocalFolders, NO_LEVEL, tagGroups, type VocabFocus } from '../lib/vocabGroups';
 import type { VocabDecksScreenProps } from '../navigation/types';
-import { colors, fonts, spacing } from '../theme/tokens';
+import { cefrAura, colors, fonts, spacing } from '../theme/tokens';
 import type { VocabCardOut, VocabCardUpdate } from '../types/api';
+
+/** The warm floor shared with the home, the lessons and the profile. */
+const FLOOR = '#FBF7F1';
+
+/** Share of a group's words that are settled for good (SM-2 interval of a month or more). */
+const solidShare = (cards: VocabCardOut[]) => (cards.length ? cards.filter((c) => c.sm2_interval_days >= 30).length / cards.length : 0);
 
 /**
  * "Gruplarım": the word bank grouped by level (automatic; lesson words carry their path level) and by the learner's
- * own tags. Every group opens in the Vocab tab, either as a list or as a practice with the same SM-2 review.
- * Tags are set on a word from Sandığım (tap a word → Etiketle) or in the add-word form.
+ * own tags. Each row shows how much of the group is already settled; tapping opens its words, "Çalış" practises it
+ * with the same SM-2 review. Tags are set on a word from the list (tap a word → Etiketle) or in the add-word form.
  * (Route name stays 'VocabDecks': the old phone-only folders lived here and move into tags once.)
  */
 export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
@@ -39,8 +46,9 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
     });
   }, [queryClient]);
 
-  const levels = useMemo(() => levelGroups(cards ?? []), [cards]);
-  const tags = useMemo(() => tagGroups(cards ?? []), [cards]);
+  const all = cards ?? [];
+  const levels = useMemo(() => levelGroups(all), [all]);
+  const tags = useMemo(() => tagGroups(all), [all]);
 
   const open = (focus: VocabFocus, how: 'practice' | 'browse') =>
     navigation.navigate('Main', { screen: 'Vocab', params: how === 'practice' ? { practice: focus } : { browse: focus } });
@@ -53,7 +61,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
         style: 'destructive',
         onPress: async () => {
           try {
-            const tagged = (cards ?? []).filter((c) => (c.tags ?? []).some((x) => x.toLowerCase() === tag.toLowerCase()));
+            const tagged = all.filter((c) => inFocus(c, { kind: 'tag', value: tag }));
             await Promise.all(
               tagged.map((c) =>
                 api.patch(`/vocab-cards/${c.id}`, { tags: (c.tags ?? []).filter((x) => x.toLowerCase() !== tag.toLowerCase()) } satisfies VocabCardUpdate)
@@ -73,7 +81,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
     <SafeAreaView style={styles.container}>
       <ScreenHeader
         title={t("Gruplarım")}
-        subtitle={t("{{count}} kelime", { count: cards?.length ?? 0 })}
+        subtitle={t("{{count}} kelime", { count: all.length })}
         icon={minimalFeatureIcons.vocabFolders}
         onBack={() => navigation.goBack()}
       />
@@ -84,21 +92,35 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.section}>{t("Seviyeye göre")}</Text>
           {levels.length === 0 ? (
-            <Text style={styles.empty}>{t("Henüz kelimen yok. Derslerde ve kütüphanede eklediğin kelimeler burada seviyelerine göre toplanır.")}</Text>
+            <View style={styles.hintCard}>
+              <Ionicons name="layers-outline" size={22} color={colors.brand} />
+              <Text style={styles.hintText}>{t("Henüz kelimen yok. Derslerde ve kütüphanede eklediğin kelimeler burada seviyelerine göre toplanır.")}</Text>
+            </View>
           ) : (
-            <View style={styles.levelGrid}>
-              {levels.map(({ level, count }) => (
-                <View key={level} style={styles.levelCard}>
-                  <Pressable onPress={() => open({ kind: 'level', value: level }, 'browse')} style={styles.levelTop} accessibilityRole="button">
-                    <Text style={styles.levelCode}>{levelLabel(level)}</Text>
-                    <Text style={styles.levelCount}>{t("{{count}} kelime", { count })}</Text>
-                  </Pressable>
-                  <Pressable onPress={() => open({ kind: 'level', value: level }, 'practice')} style={styles.levelPlay} accessibilityRole="button" accessibilityLabel={t("Çalış")}>
-                    <Ionicons name="play" size={14} color="#FFFFFF" />
-                    <Text style={styles.levelPlayText}>{t("Çalış")}</Text>
-                  </Pressable>
-                </View>
-              ))}
+            <View style={styles.card}>
+              {levels.map(({ level, count }, i) => {
+                const focus: VocabFocus = { kind: 'level', value: level };
+                const color = cefrAura[level] ?? '#94A3B8';
+                return (
+                  <GroupRow
+                    key={level}
+                    first={i === 0}
+                    badge={
+                      <View style={[styles.levelBadge, { backgroundColor: `${color}1F`, borderColor: color }]}>
+                        <Text style={[styles.levelBadgeText, { color }]} numberOfLines={1} adjustsFontSizeToFit>
+                          {level === NO_LEVEL ? '•' : level}
+                        </Text>
+                      </View>
+                    }
+                    title={level === NO_LEVEL ? t("Diğer") : pathLevelName(level)}
+                    count={count}
+                    solid={solidShare(all.filter((c) => inFocus(c, focus)))}
+                    color={color}
+                    onOpen={() => open(focus, 'browse')}
+                    onPractice={() => open(focus, 'practice')}
+                  />
+                );
+              })}
             </View>
           )}
 
@@ -112,31 +134,27 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
             </View>
           ) : (
             <View style={styles.card}>
-              {tags.map(({ tag, count }, i) => (
-                <View key={tag}>
-                  {i > 0 ? <View style={styles.divider} /> : null}
-                  <View style={styles.tagRow}>
-                    <Pressable onPress={() => open({ kind: 'tag', value: tag }, 'browse')} style={styles.tagMain} accessibilityRole="button">
-                      <View style={styles.tagIcon}>
-                        <Ionicons name="pricetag" size={16} color={colors.brand} />
+              {tags.map(({ tag, count }, i) => {
+                const focus: VocabFocus = { kind: 'tag', value: tag };
+                return (
+                  <GroupRow
+                    key={tag}
+                    first={i === 0}
+                    badge={
+                      <View style={styles.tagBadge}>
+                        <Ionicons name="pricetag" size={17} color={colors.brand} />
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.tagName} numberOfLines={1}>
-                          {tag}
-                        </Text>
-                        <Text style={styles.tagCount}>{t("{{count}} kelime", { count })}</Text>
-                      </View>
-                    </Pressable>
-                    <Pressable onPress={() => open({ kind: 'tag', value: tag }, 'practice')} style={styles.tagPlay} accessibilityRole="button">
-                      <Ionicons name="play" size={13} color="#FFFFFF" />
-                      <Text style={styles.levelPlayText}>{t("Çalış")}</Text>
-                    </Pressable>
-                    <Pressable onPress={() => removeTag(tag)} hitSlop={10} style={styles.tagMore} accessibilityRole="button" accessibilityLabel={t("Etiketi kaldır")}>
-                      <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
-                    </Pressable>
-                  </View>
-                </View>
-              ))}
+                    }
+                    title={tag}
+                    count={count}
+                    solid={solidShare(all.filter((c) => inFocus(c, focus)))}
+                    color={colors.brand}
+                    onOpen={() => open(focus, 'browse')}
+                    onPractice={() => open(focus, 'practice')}
+                    onRemove={() => removeTag(tag)}
+                  />
+                );
+              })}
             </View>
           )}
           <Text style={styles.footnote}>{t("Bir grubu çalışınca kelimeler günlük tekrardaki gibi ilerler; ayrı bir ilerleme yok.")}</Text>
@@ -147,28 +165,80 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
   );
 }
 
+/** One group: badge, name, word count with a thin "settled" bar, then Çalış (and remove, for tags). */
+function GroupRow({
+  first,
+  badge,
+  title,
+  count,
+  solid,
+  color,
+  onOpen,
+  onPractice,
+  onRemove,
+}: {
+  first: boolean;
+  badge: React.ReactNode;
+  title: string;
+  count: number;
+  solid: number;
+  color: string;
+  onOpen: () => void;
+  onPractice: () => void;
+  onRemove?: () => void;
+}) {
+  return (
+    <View>
+      {first ? null : <View style={styles.divider} />}
+      <View style={styles.row}>
+        <Pressable onPress={onOpen} style={({ pressed }) => [styles.rowMain, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+          {badge}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowTitle} numberOfLines={1}>
+              {title}
+            </Text>
+            <View style={styles.rowMeta}>
+              <Text style={styles.rowCount}>{t("{{count}} kelime", { count })}</Text>
+              <View style={styles.rowTrack}>
+                <View style={[styles.rowFill, { width: `${Math.max(4, solid * 100)}%`, backgroundColor: color }]} />
+              </View>
+            </View>
+          </View>
+        </Pressable>
+        <Pressable onPress={onPractice} style={({ pressed }) => [styles.play, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+          <Ionicons name="play" size={13} color="#FFFFFF" />
+          <Text style={styles.playText}>{t("Çalış")}</Text>
+        </Pressable>
+        {onRemove ? (
+          <Pressable onPress={onRemove} hitSlop={10} style={styles.remove} accessibilityRole="button" accessibilityLabel={t("Etiketi kaldır")}>
+            <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  scroll: { paddingHorizontal: spacing.md, paddingBottom: 40, gap: 12 },
-  section: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 8, marginLeft: 4 },
-  empty: { fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textMuted, paddingHorizontal: 4 },
-  levelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  levelCard: { width: '31.5%', backgroundColor: '#FFFFFF', borderRadius: 18, padding: 10, gap: 8, borderWidth: 1, borderColor: '#EEF2FF' },
-  levelTop: { gap: 1 },
-  levelCode: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
-  levelCount: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
-  levelPlay: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 6 },
-  levelPlayText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
-  hintCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#EEF2FF', borderRadius: 18, padding: 14 },
+  container: { flex: 1, backgroundColor: FLOOR },
+  scroll: { paddingHorizontal: spacing.md, paddingBottom: 40, gap: 10 },
+  section: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 10, marginLeft: 4 },
+  hintCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16 },
   hintText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6 },
-  divider: { height: 1, backgroundColor: '#F1F5F9', marginLeft: 44 },
-  tagRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
-  tagMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  tagIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
-  tagName: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
-  tagCount: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted },
-  tagPlay: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
-  tagMore: { padding: 4 },
-  footnote: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: colors.textMuted, textAlign: 'center', marginTop: 8 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4 },
+  divider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
+  rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  levelBadge: { width: 44, height: 44, borderRadius: 14, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  levelBadgeText: { fontFamily: fonts.headingBold, fontSize: 15 },
+  tagBadge: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
+  rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
+  rowCount: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted },
+  rowTrack: { flex: 1, maxWidth: 90, height: 5, borderRadius: 3, backgroundColor: '#F1EDE6', overflow: 'hidden' },
+  rowFill: { height: '100%', borderRadius: 3 },
+  play: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13 },
+  playText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
+  remove: { padding: 2 },
+  footnote: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: colors.textMuted, textAlign: 'center', marginTop: 8, paddingHorizontal: 12 },
 });

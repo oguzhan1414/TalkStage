@@ -3511,5 +3511,17 @@
   "Mivo ile dostluk · Sv. {{n}} · {{name}}": "Friendship with Mivo · Lv. {{n}} · {{name}}",
   "Sohbetlerden öğrendikleri": "What it learned in your chats",
   "Spekvia Pro": "Spekvia Pro",
-  "Sınırsız sahne ve canlı oda": "Unlimited scenes and the live room"
+  "Sınırsız sahne ve canlı oda": "Unlimited scenes and the live room",
+  "Öğreniliyor": "Learning",
+  "Oturuyor": "Settling",
+  "Kalıcı": "Solid",
+  "{{count}} kelimende ara": "Search your {{count}} words",
+  "BUGÜNÜN DESTESİ": "TODAY'S DECK",
+  "yaklaşık {{n}} dakika": "about {{n}} minutes",
+  "İlk kelimeni ekle": "Add your first word",
+  "Yarın {{n}} kelime seni bekliyor": "{{n}} words are waiting tomorrow",
+  "Yarın yeni bir deste gelecek": "A new deck comes tomorrow",
+  "Hafıza haritan": "Your memory map",
+  "{{n}} kelime kalıcı": "{{n}} words solid",
+  "Odalar": "Rooms"
 }

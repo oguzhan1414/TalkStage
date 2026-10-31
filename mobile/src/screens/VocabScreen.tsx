@@ -7,6 +7,7 @@ import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet,
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { wordImage } from '../assets/wordImages';
 import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
@@ -502,108 +503,135 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     setMode('practice');
   };
 
-  const chestPct = Math.max(6, chestProgress.progressInTier * 100);
+  // Today's deck: the first words waiting, shown as a fan of their pictures.
+  const deckPreview = (dueCards ?? []).slice(0, 3);
+  const deckMinutes = Math.max(1, Math.round((dueCount * 20) / 60));
+  const tomorrowCount = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return cardsList.filter((c) => c.next_review_date.slice(0, 10) === key).length;
+  }, [cardsList]);
+  // Memory map: how settled the words are (from the SM-2 interval).
+  const memory = useMemo(() => {
+    const m = { fresh: 0, learning: 0, settling: 0, solid: 0 };
+    cardsList.forEach((c) => {
+      if (c.sm2_repetitions === 0) m.fresh += 1;
+      else if (c.sm2_interval_days < 7) m.learning += 1;
+      else if (c.sm2_interval_days < 30) m.settling += 1;
+      else m.solid += 1;
+    });
+    return m;
+  }, [cardsList]);
 
   // ---------------------------------------------------------------- Dashboard
+  const memoryParts = [
+    { key: 'fresh', label: t("Yeni"), count: memory.fresh, color: '#CBD5E1' },
+    { key: 'learning', label: t("Öğreniliyor"), count: memory.learning, color: '#F59E0B' },
+    { key: 'settling', label: t("Oturuyor"), count: memory.settling, color: '#818CF8' },
+    { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: '#10B981' },
+  ];
+
   const homeView = (
-    <View style={styles.home}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>{t("Kelimeler")}</Text>
-        <Pressable onPress={openCreateModal} style={styles.addPill} accessibilityRole="button">
-          <Ionicons name="add" size={18} color={colors.brand} />
-          <Text style={styles.addPillText}>{t("Kelime Ekle")}</Text>
+    // Fits one screen on most phones; on short ones it scrolls a little instead of squeezing things together.
+    <ScrollView contentContainerStyle={styles.dash} showsVerticalScrollIndicator={false} bounces={false}>
+      <View style={styles.dashHeader}>
+        <Text style={styles.dashTitle}>{t("Kelimeler")}</Text>
+        <Pressable onPress={openCreateModal} style={styles.dashAdd} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
+          <Ionicons name="add" size={22} color="#FFFFFF" />
         </Pressable>
       </View>
 
-      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, shadow.card]}>
+      {/* All saved words: a search field that opens the list */}
+      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.dashSearch, pressed && { opacity: 0.85 }]} accessibilityRole="search">
+        <Ionicons name="search" size={18} color={colors.textMuted} />
+        <Text style={styles.dashSearchText} numberOfLines={1}>
+          {totalCardsInChest > 0 ? t("{{count}} kelimende ara", { count: totalCardsInChest }) : t("Sandığın henüz boş")}
+        </Text>
+        <Ionicons name="chevron-forward" size={18} color="#C8BFB0" />
+      </Pressable>
+
+      {/* Today's deck */}
+      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.dashHero}>
         <View style={styles.heroBlobA} />
         <View style={styles.heroBlobB} />
-        <Image source={stateImages.xpBolt} style={styles.heroArt} resizeMode="contain" />
-
         {dueLoading && !dueCards ? (
-          <View style={{ alignItems: 'center', paddingVertical: 18 }}>
-            <MivoLoader size={80} />
+          <View style={styles.dashHeroLoading}>
+            <MivoLoader size={72} />
           </View>
         ) : (
-          <View style={styles.heroText}>
-            <View style={styles.heroChip}>
-              <Ionicons name="flash" size={12} color="#FDE68A" />
-              <Text style={styles.heroChipText}>{t("BUGÜNKÜ TEKRAR")}</Text>
+          <View style={styles.dashHeroRow}>
+            <View style={styles.dashHeroText}>
+              <Text style={styles.dashHeroKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
+              {dueCount > 0 ? (
+                <>
+                  <Text style={styles.dashHeroNumber}>{t("{{count}} kelime", { count: dueCount })}</Text>
+                  <Text style={styles.dashHeroLine} numberOfLines={1}>
+                    {t("yaklaşık {{n}} dakika", { n: deckMinutes })}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.dashHeroDone} numberOfLines={2}>
+                    {totalCardsInChest > 0 ? t("Bugünlük bitti 🎉") : t("İlk kelimeni ekle")}
+                  </Text>
+                  {totalCardsInChest > 0 ? (
+                    <Text style={styles.dashHeroLine} numberOfLines={1}>
+                      {tomorrowCount > 0 ? t("Yarın {{n}} kelime seni bekliyor", { n: tomorrowCount }) : t("Yarın yeni bir deste gelecek")}
+                    </Text>
+                  ) : null}
+                </>
+              )}
+              <Pressable
+                onPress={dueCount > 0 ? startPractice : totalCardsInChest > 0 ? startFreePractice : () => navigation.navigate('VocabLibrary')}
+                style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]}
+                accessibilityRole="button"
+              >
+                <Text style={styles.heroBtnText}>{dueCount > 0 ? t("BAŞLA") : totalCardsInChest > 0 ? t("Serbest pratik") : t("Kütüphaneyi aç")}</Text>
+                <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+              </Pressable>
             </View>
-            {dueCount > 0 ? (
-              <>
-                <Text style={styles.heroTitle}>{t("{{count}} kelime seni bekliyor", { count: dueCount })}</Text>
-                <Pressable onPress={startPractice} style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]} accessibilityRole="button">
-                  <Text style={styles.heroBtnText}>{t("TEKRARA BAŞLA")}</Text>
-                  <Ionicons name="arrow-forward" size={16} color={colors.brand} />
-                </Pressable>
-              </>
-            ) : totalCardsInChest > 0 ? (
-              <>
-                <Text style={styles.heroTitle}>{t("Bugünlük bitti 🎉")}</Text>
-                <Pressable onPress={startFreePractice} style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]} accessibilityRole="button">
-                  <Text style={styles.heroBtnText}>{t("Serbest pratik")}</Text>
-                  <Ionicons name="arrow-forward" size={16} color={colors.brand} />
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Text style={styles.heroTitle}>{t("Sandığın henüz boş")}</Text>
-                <Text style={styles.heroSub}>{t("Kütüphaneden kelime ekle ya da kendi kelimeni yaz.")}</Text>
-              </>
-            )}
+            <DeckFan cards={deckPreview} />
           </View>
         )}
       </LinearGradient>
 
-      <View style={styles.grid}>
-        <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.chestCard, shadow.card, pressed && { opacity: 0.94 }]} accessibilityRole="button">
-          <Image source={stateImages.emptyChest} style={styles.chestArt} resizeMode="contain" />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.chestTitle}>{t("Sandığım")}</Text>
-            <Text style={styles.chestCount}>
-              {t("{{count}} kelime", { count: totalCardsInChest })} · {t("Sonraki hedef: {{count}} kelime", { count: chestProgress.nextMilestone })}
-            </Text>
-            <View style={styles.chestTrack}>
-              <View style={[styles.chestFill, { width: `${chestPct}%` }]} />
-            </View>
+      {/* Memory map */}
+      {totalCardsInChest > 0 ? (
+        <View style={styles.dashMemory}>
+          <View style={styles.dashMemoryTop}>
+            <Text style={styles.dashMemoryTitle}>{t("Hafıza haritan")}</Text>
+            <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
-        </Pressable>
-        <View style={styles.tileRow}>
-          <HomeTile
-            title={t("Kütüphane")}
-            sub={t("Seviyene göre hazır listeler")}
-            icon={minimalFeatureIcons.vocabLibrary}
-            tint="#E0E7FF"
-            onPress={() => navigation.navigate('VocabLibrary')}
-          />
-          <HomeTile
-            title={t("Gruplarım")}
-            sub={allTags.length > 0 ? t("{{count}} etiket · seviyeler", { count: allTags.length }) : t("Seviyeye ve etikete göre")}
-            icon={minimalFeatureIcons.vocabFolders}
-            tint="#DBEAFE"
-            onPress={() => navigation.navigate('VocabDecks')}
-          />
+          <View style={styles.dashMemoryBar}>
+            {memoryParts
+              .filter((part) => part.count > 0)
+              .map((part) => (
+                <View key={part.key} style={{ flex: part.count, backgroundColor: part.color }} />
+              ))}
+          </View>
+          <View style={styles.dashMemoryLegend}>
+            {memoryParts.map((part) => (
+              <View key={part.key} style={styles.dashMemoryItem}>
+                <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
+                <Text style={styles.dashMemoryLabel} numberOfLines={1}>
+                  {part.label}
+                </Text>
+                <Text style={styles.dashMemoryCount}>{part.count}</Text>
+              </View>
+            ))}
+          </View>
         </View>
-        <View style={styles.tileRow}>
-          <HomeTile
-            title={t("Kelime Odaları")}
-            sub={t("Eşyalarla kelime ezberle")}
-            icon={minimalFeatureIcons.wordRooms}
-            tint="#EDE9FE"
-            onPress={() => navigation.navigate('WordRooms')}
-          />
-          <HomeTile
-            title={t("Telaffuz")}
-            sub={t("Zorlandığın kelimeler")}
-            icon={minimalFeatureIcons.pronunciation}
-            tint="#FFE4E6"
-            onPress={() => navigation.navigate('MispronouncedWords')}
-          />
-        </View>
+      ) : null}
+
+      {/* Tools, as one row of shortcuts */}
+      <View style={styles.dashTools}>
+        <Shortcut icon={minimalFeatureIcons.vocabLibrary} tint="#E0E7FF" label={t("Kütüphane")} onPress={() => navigation.navigate('VocabLibrary')} />
+        <Shortcut icon={minimalFeatureIcons.vocabFolders} tint="#DBEAFE" label={t("Gruplarım")} onPress={() => navigation.navigate('VocabDecks')} />
+        <Shortcut icon={minimalFeatureIcons.wordRooms} tint="#EDE9FE" label={t("Odalar")} onPress={() => navigation.navigate('WordRooms')} />
+        <Shortcut icon={minimalFeatureIcons.pronunciation} tint="#FFE4E6" label={t("Telaffuz")} onPress={() => navigation.navigate('MispronouncedWords')} />
       </View>
-    </View>
+    </ScrollView>
   );
 
   // ---------------------------------------------------------------- Flashcard session (full screen)
@@ -1288,25 +1316,104 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
   );
 }
 
-/** A dashboard tile: 3D icon at the top right, name and one short line at the bottom; stretches to fill its row. */
-function HomeTile({ title, sub, icon, tint, onPress }: { title: string; sub: string; icon: number; tint: string; onPress: () => void }) {
+/** The first words of today's deck as a small fan of cards: the word's 3D picture, or the word itself. */
+function DeckFan({ cards }: { cards: VocabCardOut[] }) {
+  if (cards.length === 0) return <Image source={stateImages.goalCelebration} style={styles.fanEmpty} resizeMode="contain" />;
+  const angles = cards.length === 1 ? [0] : cards.length === 2 ? [-8, 8] : [-14, 0, 14];
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.tileWrap, shadow.card, pressed && { opacity: 0.94 }]} accessibilityRole="button">
-      <LinearGradient colors={[tint, '#FFFFFF']} start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 1 }} style={styles.tile}>
-        <Image source={icon} style={styles.tileArt} resizeMode="contain" />
-        <View style={{ flex: 1 }} />
-        <Text style={styles.tileTitle} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text style={styles.tileSub} numberOfLines={1}>
-          {sub}
-        </Text>
-      </LinearGradient>
+    <View style={styles.fan}>
+      {cards.map((card, i) => {
+        const pic = wordImage(card.term);
+        return (
+          <View
+            key={card.id}
+            style={[styles.fanCard, { transform: [{ translateX: (i - (cards.length - 1) / 2) * 22 }, { rotate: `${angles[i]}deg` }], zIndex: i }]}
+          >
+            {pic ? (
+              <Image source={pic} style={styles.fanImage} resizeMode="cover" />
+            ) : (
+              <Text style={styles.fanWord} numberOfLines={3} adjustsFontSizeToFit>
+                {card.term}
+              </Text>
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+/** A round shortcut with its 3D icon and a short label underneath. */
+function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.shortcut, pressed && { transform: [{ scale: 0.95 }] }]} accessibilityRole="button" accessibilityLabel={label}>
+      <View style={[styles.shortcutArt, { backgroundColor: tint }]}>
+        <Image source={icon} style={styles.shortcutImage} resizeMode="contain" />
+      </View>
+      <Text style={styles.shortcutLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
+/** The warm floor shared with the home, the lessons and the profile. */
+const FLOOR = '#FBF7F1';
+
 const styles = StyleSheet.create({
+  dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 104, gap: 12 },
+  dashHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
+  dashAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  dashSearchText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted },
+
+  dashHero: { borderRadius: 26, padding: 18, overflow: 'hidden' },
+  dashHeroLoading: { alignItems: 'center', paddingVertical: 24 },
+  dashHeroRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dashHeroText: { flex: 1, alignItems: 'flex-start' },
+  dashHeroKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1, color: '#C7D2FE' },
+  dashHeroNumber: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: '#FFFFFF', marginTop: 6 },
+  dashHeroLine: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: '#E0E7FF', marginTop: 2, marginBottom: 12 },
+  dashHeroDone: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 28, color: '#FFFFFF', marginTop: 6 },
+  fan: { width: 128, height: 112, alignItems: 'center', justifyContent: 'center' },
+  fanCard: {
+    position: 'absolute',
+    width: 70,
+    height: 88,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 6,
+    overflow: 'hidden',
+    shadowColor: '#1E1B4B',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  fanImage: { width: 62, height: 62, borderRadius: 10 },
+  fanWord: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading, textAlign: 'center' },
+  fanEmpty: { width: 104, height: 104 },
+
+  dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 10 },
+  dashMemoryTop: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
+  dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
+  dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#059669' },
+  dashMemoryBar: { flexDirection: 'row', height: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: '#F1EDE6', gap: 2 },
+  dashMemoryLegend: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 6 },
+  dashMemoryItem: { width: '50%', flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 8 },
+  dashMemoryDot: { width: 9, height: 9, borderRadius: 5 },
+  dashMemoryLabel: { flexShrink: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textBody },
+  dashMemoryCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
+
+  dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 14, paddingHorizontal: 8 },
+  shortcut: { flex: 1, alignItems: 'center', gap: 6, paddingHorizontal: 2 },
+  shortcutArt: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' },
+  shortcutImage: { width: 46, height: 46 },
+  shortcutLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textHeading },
+
   // Dashboard fits one screen: hero, the chest, two rows of tiles; the tiles share what is left above the tab bar.
   home: { flex: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 100, gap: 12 },
   grid: { flex: 1, gap: 12 },
@@ -1380,7 +1487,7 @@ const styles = StyleSheet.create({
   collectionRoot: { flex: 1 },
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: FLOOR,
   },
   headerRow: {
     flexDirection: 'row',
@@ -1488,6 +1595,7 @@ const styles = StyleSheet.create({
   dictWordCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingRight: 14, paddingLeft: 20, gap: 8, borderWidth: 1, borderColor: '#F1F5F9', overflow: 'hidden' },
   dictBadgesRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 6,
   },
@@ -1836,7 +1944,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dictDueText: {
-    marginLeft: 'auto',
     fontFamily: fonts.bodyRegular,
     fontSize: 10,
     color: colors.textMuted,
