@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useT } from "@/i18n/client";
 import { anchorId } from "@/i18n/paths";
-import { VOLUMES, VOLUME_COUNTS } from "@/data/storyDemo";
+import { VOLUMES } from "@/data/storyDemo";
 
 const HEIGHTS = ["h-[15rem]", "h-[16.5rem]", "h-[15.5rem]", "h-[17rem]", "h-[14.5rem]", "h-[16rem]"];
 
@@ -66,7 +66,8 @@ export default function Shelf() {
                   <h3 className="mt-1 font-display text-[1.7rem] font-extrabold leading-tight tracking-[-0.02em] text-cloth-deep">{t(vol.story.title)}</h3>
                   <p className="mt-2 max-w-[34rem] text-[1rem] leading-relaxed text-body">{t(vol.story.blurb)}</p>
                   <p className="mt-3 text-[0.9rem] font-medium text-cloth/70">
-                    {t("{{units}} ünite · {{episodes}} bölüm · {{scenes}} Mivo sahnesi", VOLUME_COUNTS)}
+                    {/* every unit ends with one Mivo scene */}
+                    {t("{{units}} ünite · {{episodes}} bölüm · {{scenes}} Mivo sahnesi", { units: vol.story.units, episodes: vol.story.episodes, scenes: vol.story.units })}
                   </p>
                 </div>
               </>
@@ -77,7 +78,7 @@ export default function Shelf() {
                 </p>
                 <h3 className="mt-1 font-display text-[1.7rem] font-extrabold leading-tight tracking-[-0.02em] text-cloth-deep">{t("Bu cilt yazılıyor.")}</h3>
                 <p className="mt-2 max-w-[34rem] text-[1rem] leading-relaxed text-body">
-                  {t("C1 ve C2 hikâyeleri hazırlanıyor. O güne kadar B2’de kaldığın yerden devam edersin.")}
+                  {t("C2 hikâyesi hazırlanıyor. O güne kadar C1’de kaldığın yerden devam edersin.")}
                 </p>
               </div>
             )}

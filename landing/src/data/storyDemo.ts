@@ -4,7 +4,7 @@ import { tr } from "@/i18n/shared";
  * Real app content shown on the home page, copied from the mobile path:
  *   episode, words, tip, practice  → mobile/src/data/path/a1/u1.ts (A1 unit 1, episode 1)
  *   Mivo scene (Sofia)             → packages/shared-data/voiceScenes.data.json, `vs-a1-first-day`
- *   volumes                        → mobile/src/data/path/{a1,a2,b1,b2}.ts (C1/C2 are only planned)
+ *   volumes                        → mobile/src/data/path/{a1,a2,b1,b2,c1}.ts (C2 is only planned)
  *   word room pins                 → mobile/src/data/wordRooms.ts (`kitchen`)
  * English lines stay English (they are what the learner reads); meanings and explanations go through t().
  */
@@ -83,7 +83,7 @@ export type Volume = {
   color: string;
   /** Text colour on the spine (amber needs dark ink). */
   ink: string;
-  story?: { title: string; blurb: string; cover: string };
+  story?: { title: string; blurb: string; cover: string; units: number; episodes: number };
 };
 
 export const VOLUMES: Volume[] = [
@@ -96,6 +96,8 @@ export const VOLUMES: Volume[] = [
       title: tr("Maya'nın yeni şehri"),
       blurb: tr("Maya Bristol'a taşınıyor. Kapısının altına tek kelimelik kartpostallar bırakılıyor. Kim gönderiyor?"),
       cover: "/story/a1-e14.webp",
+      units: 9,
+      episodes: 36,
     },
   },
   {
@@ -107,6 +109,8 @@ export const VOLUMES: Volume[] = [
       title: tr("Dün ve bugün"),
       blurb: tr("Bay Patel'in eski fotoğraf makinesinden kırk yıllık bir film çıkıyor. Maya aynı yerleri bugün çekip bir sergi açacak. Peki fotoğraflardaki fırıncı kim?"),
       cover: "/story/a2-e01.webp",
+      units: 9,
+      episodes: 36,
     },
   },
   {
@@ -118,6 +122,8 @@ export const VOLUMES: Volume[] = [
       title: tr("Kafeyi kurtar"),
       blurb: tr("Ev sahibi kirayı ikiye katladı ve Rosa'nın kafesi kapanabilir. Mahalle bir araya gelip kafeyi kurtarabilecek mi?"),
       cover: "/story/b1-e01.webp",
+      units: 9,
+      episodes: 36,
     },
   },
   {
@@ -129,14 +135,25 @@ export const VOLUMES: Volume[] = [
       title: tr("Bristol'un gizli tarihi"),
       blurb: tr("Kafenin tadilatında duvar kâğıdının arkasından küçük bir kapı çıkıyor. Arkasında kaçakçıların limana inen tüneli var. Bu sırada Maya'ya Londra'dan bir iş teklifi geliyor."),
       cover: "/story/b2-e01.webp",
+      units: 9,
+      episodes: 36,
     },
   },
-  { id: "C1", name: "Advanced", color: "var(--color-vol-c1)", ink: "#231e66" },
+  {
+    id: "C1",
+    name: "Advanced",
+    color: "var(--color-vol-c1)",
+    ink: "#231e66",
+    story: {
+      title: tr("Haber merkezi"),
+      blurb: tr("Galadan bir yıl sonra Leo, Ana'nın gazetesinde çalışıyor. İsimsiz bir zarf geliyor: belediye limanı sessizce bir inşaat şirketine satmak üzere. Bay Patel arşivden 1952 tarihli bir tüzük çıkarıyor."),
+      cover: "/story/c1-e01.webp",
+      units: 6,
+      episodes: 24,
+    },
+  },
   { id: "C2", name: "Proficiency", color: "var(--color-vol-c2)", ink: "#fff" },
 ];
-
-/** Every written level has 9 units of 4 episodes, and each unit ends with a Mivo scene. */
-export const VOLUME_COUNTS = { units: 9, episodes: 36, scenes: 9 };
 
 /** Kitchen room: a few of its pins (x, y in % of the photo). */
 export const ROOM = {

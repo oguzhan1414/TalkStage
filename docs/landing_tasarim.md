@@ -24,7 +24,7 @@ Mod: Persuade. Ziyaretçi: telefonda Instagram/TikTok linkinden gelen, İngilizc
 
 - Bölüm 1 metni, kelimeler, ipucu, pratik: `mobile/src/data/path/a1/u1.ts`
 - Mivo sahnesi (Sofia): `packages/shared-data/voiceScenes.data.json` → `vs-a1-first-day`
-- Cilt hikâyeleri: `mobile/src/data/path/{a1,a2,b1,b2}.ts`; C1/C2 yalnızca plan → "Yakında"
+- Cilt hikâyeleri: `mobile/src/data/path/{a1,a2,b1,b2,c1}.ts`; C1 "Haber merkezi" (6 ünite); C2 yalnızca plan → "Yakında"
 - Kelime odası (mutfak, nesne konumları): `mobile/src/data/wordRooms.ts`
 - Görseller: `mobile/assets/images/path/*`, `rooms/kitchen.webp` → `landing/public/story/`
 - Fiyat: rakam yok (paywall ve sınırlar kesin değil).
