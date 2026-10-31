@@ -222,31 +222,13 @@ html {
   transform: scale(0.97);
 }
 
-/* Hero phones rise in tilted, then drift. */
-.phone-in {
-  transform: rotate(var(--tilt, 0deg));
-  animation: phone-in 900ms var(--ease-out) both;
-}
-@keyframes phone-in {
-  from { opacity: 0; transform: translateY(48px) rotate(var(--tilt, 0deg)) scale(0.96); }
-  to { opacity: 1; transform: rotate(var(--tilt, 0deg)); }
-}
+/* Slow vertical drift for floating things. */
 .phone-drift {
   animation: phone-drift 7s ease-in-out infinite;
 }
 @keyframes phone-drift {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
-}
-
-/* One phone, several screens: blur hides the cross-fade. */
-.screen-swap {
-  transition: opacity 380ms var(--ease-out), filter 380ms var(--ease-out), transform 380ms var(--ease-out);
-}
-.screen-swap[data-active="false"] {
-  opacity: 0;
-  filter: blur(4px);
-  transform: scale(1.03);
 }
 
 /* The microphone breathes while Mivo listens. */
@@ -287,5 +269,10 @@ html {
   70%, 100% { box-shadow: 0 0 0 12px rgba(79, 70, 229, 0); }
 }
 .world-mivo {
+  animation: phone-drift 6s ease-in-out infinite;
+}
+
+/* Cards around the hero phone bob gently. */
+.float-slow {
   animation: phone-drift 6s ease-in-out infinite;
 }
