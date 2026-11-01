@@ -43,6 +43,7 @@ import { stepArt } from '../lib/pathArt';
 import { nextStepOf, preloadStep } from '../lib/pathPreload';
 import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
+import { noteLessonFinished } from '../lib/storeReview';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -1790,7 +1791,14 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
         </View>
       </FadeIn>
       <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
-        <NextButton label={t("Yola dön")} onPress={onExit} />
+        <NextButton
+          label={t("Yola dön")}
+          onPress={() => {
+            onExit();
+            // Back on the path after a finished lesson: the store rating sheet may appear over the home (once).
+            setTimeout(() => void noteLessonFinished(), 900);
+          }}
+        />
       </FadeIn>
     </View>
   );

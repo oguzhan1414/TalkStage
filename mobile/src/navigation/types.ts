@@ -61,6 +61,8 @@ export type RootStackParamList = {
         twistHint?: string;
         // Sesli sahne ipucu (Başlangıç): hedefler + anahtar ifadeler; yoksa ipucu düğmesi görünmez.
         sceneHints?: SceneHints;
+        /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
+        origin?: 'path';
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
         // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
         // corrections and the "practice done" flag to the topic.

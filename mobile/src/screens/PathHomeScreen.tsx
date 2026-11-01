@@ -174,7 +174,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       // Preview: the scene step counts as done once it is started (the room does not report back yet).
       void recordStep(s.id, 3);
       transitionTo(() => {
-        void voiceSceneRoomParams(scene).then((params) => navigation.navigate('FreeChatRoom', params));
+        void voiceSceneRoomParams(scene).then((params) => navigation.navigate('FreeChatRoom', { ...params, origin: 'path' }));
       }, t("Sahne Hazırlanıyor…"));
     }
   };

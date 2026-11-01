@@ -1,6 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ASKED_KEY = 'spekvia.storeReview.asked.v1';
+const LESSONS_KEY = 'spekvia.storeReview.lessons.v1';
+/** Ask after this many finished lessons: the learner has seen what the app does and just had a win. */
+const LESSONS_BEFORE_ASKING = 2;
 
 /**
  * Asks for a store rating ONCE, at a happy moment: right after the learner finishes their first topic.
@@ -16,5 +19,17 @@ export async function requestReviewAfterFirstTopic(): Promise<void> {
     await StoreReview.requestReview();
   } catch {
     // Best effort: a missing native module or an unsupported platform never breaks the app.
+  }
+}
+
+/** Called when a path lesson is finished (all three parts); asks for the rating once, at the second one. */
+export async function noteLessonFinished(): Promise<void> {
+  try {
+    if ((await AsyncStorage.getItem(ASKED_KEY)) === '1') return;
+    const count = Number((await AsyncStorage.getItem(LESSONS_KEY)) ?? '0') + 1;
+    await AsyncStorage.setItem(LESSONS_KEY, String(count));
+    if (count >= LESSONS_BEFORE_ASKING) await requestReviewAfterFirstTopic();
+  } catch {
+    // best effort
   }
 }

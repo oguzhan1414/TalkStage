@@ -102,11 +102,13 @@ export type FocusTopicPayload = {
   topics?: { title: string; formula?: string; words?: string[] }[];
 };
 
-export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload, focus?: FocusTopicPayload) {
+export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload, focus?: FocusTopicPayload, origin?: 'path') {
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const focusRef = useRef(focus);
   focusRef.current = focus;
+  const originRef = useRef(origin);
+  originRef.current = origin;
   const { session } = useAuth();
   const accessToken = session?.access_token;
   const tokenRef = useRef(accessToken);
@@ -411,6 +413,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             utc_offset: utcOffsetMinutes(),
             ...(sceneRef.current ? { scene: sceneRef.current } : {}),
             ...(focusRef.current ? { focus: focusRef.current } : {}),
+            ...(originRef.current ? { origin: originRef.current } : {}),
           })
         );
         // `stream` is null on web — expo-audio's useAudioStream is a no-op stub there.

@@ -1,5 +1,6 @@
 """Mivo free-topic voice practice, sharing the scenario transport and turn pipeline."""
 import asyncio
+import time
 import json
 import logging
 import re
@@ -12,7 +13,8 @@ from app.core.supabase_client import get_service_client
 from app.services.chat_memory import (
     ensure_memory_language_sync, format_memory_context, load_memory, memory_in_language, update_memory_sync,
 )
-from app.services.entitlements import FREE_SESSION_MAX_SECONDS, can_start_session, is_pro
+from app.services.entitlements import FREE_SESSION_MAX_SECONDS, is_pro
+from app.services.voice_access import free_block_reason, learner_turns, record_voice_usage
 from app.services.free_chat_topics import Topic, opening_text, pick_topic
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
 from app.services.voice_turn import run_voice_turn
@@ -282,12 +284,12 @@ async def free_chat_session(websocket: WebSocket) -> None:
             return {}
 
     async def load_quota():
+        # Free plan rules (app/services/voice_access.py); off while VOICE_QUOTA_ENABLED is false (testing).
         if not settings.voice_quota_enabled:
-            return True, True
-        allowed, pro_user = await asyncio.gather(
-            asyncio.to_thread(can_start_session, db, user.id), asyncio.to_thread(is_pro, db, user.id)
-        )
-        return allowed, pro_user
+            return None, True
+        if await asyncio.to_thread(is_pro, db, user.id):
+            return None, True
+        return await asyncio.to_thread(free_block_reason, db, user.id, "free_chat"), False
 
     # Independent lookups run side by side instead of one round trip after another (faster room start).
     profile, quota, memory = await asyncio.gather(
@@ -296,9 +298,9 @@ async def free_chat_session(websocket: WebSocket) -> None:
     if isinstance(quota, BaseException):
         await websocket.close(code=1011, reason="session_error")
         return
-    allowed, pro = quota
-    if not allowed:
-        await websocket.close(code=1008, reason="quota_exceeded")
+    blocked, pro = quota
+    if blocked:
+        await websocket.close(code=1008, reason=blocked)
         return
     if isinstance(profile, BaseException):
         profile = {}
@@ -320,9 +322,12 @@ async def free_chat_session(websocket: WebSocket) -> None:
     async def run_turn(ws, client, history, text, send_json):
         await run_voice_turn(ws, client, prompt, history, text, send_json, language=native,
                              log_mistake=partial(_log_mistake_if_any, db, user.id, text, topic_code=focus["code"] if focus else None))
+    started = time.monotonic()
     history = await serve_voice(websocket, user.id, opening,
                                 run_turn, language=native, native_language=native,
                                 max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
+    await asyncio.to_thread(record_voice_usage, db, user.id, "free_chat", time.monotonic() - started,
+                            learner_turns(history), pro)
     # Oturum bitti, soket kapandı: hafızayı güncelle (best-effort, kullanıcıyı beklemez).
     if history:
         turns = [{"role": m.role, "content": m.content} for m in history]

@@ -1,6 +1,6 @@
 import { VoiceRoomBanner, VoiceRoomControls, VoiceRoomThread, voiceRoomStyles, type DisplayBubble } from '../components/VoiceRoomUI';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -39,6 +39,8 @@ import type { FreeChatRoomScreenProps } from '../navigation/types';
 import { useTrackScreenView } from '../lib/analytics';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { MivoLoader } from '../components/MivoLoader';
+import { Button } from '../components/Button';
+import { isProUser } from '../lib/revenuecat';
 import { t } from '../i18n';
 
 const AI_NAME = 'Mivo';
@@ -50,6 +52,7 @@ const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
   daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
+  service_busy: t("Sesli odalar şu an çok yoğun. Lütfen biraz sonra tekrar dene."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
@@ -60,8 +63,14 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   microphone_start_failed: t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."),
   app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak yeni bir konuşma başlatabilirsin."),
   time_limit_reached: t("Bu sohbetin süresi doldu."),
+  free_chat_trial_used: t("Mivo ile ücretsiz deneme sohbetini kullandın. Pro ile istediğin kadar sohbet edebilirsin."),
+  daily_scene_used: t("Bugünkü ücretsiz sahne hakkın doldu. Yarın yeni bir sahne seni bekliyor, Pro ile hemen devam edebilirsin."),
+  daily_path_scene_used: t("Bugünkü ücretsiz yol sahnen doldu. Okumaya devam edebilir, bu sahneyi yarın oynayabilirsin. Pro ile hemen oynayabilirsin."),
   idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
 };
+
+/** Free plan limits (backend app/services/voice_access.py): the closed room offers Pro instead of "Tekrar Bağlan". */
+const OFFER_REASONS = new Set(['free_chat_trial_used', 'daily_scene_used', 'daily_path_scene_used', 'quota_exceeded', 'pro_only']);
 
 /** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
 const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_error', 'reply_timeout', 'slow_connection', 'connection_timeout']);
@@ -112,8 +121,10 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         }
       : focusTopic
         ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
-        : undefined
+        : undefined,
+    route.params?.origin
   );
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const {
     status,
     closeInfo,
@@ -403,7 +414,10 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           <Text style={styles.statusText}>
             {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
           </Text>
-          {closeInfo?.reason !== 'daily_voice_limit' && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
+          {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? (
+            <Button label={t("Pro’ya Geç")} onPress={() => navigation.navigate('Paywall')} style={styles.offerButton} />
+          ) : null}
+          {closeInfo?.reason !== 'daily_voice_limit' && !(closeInfo && OFFER_REASONS.has(closeInfo.reason)) && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
             <Pressable onPress={reconnect}>
               <Text style={styles.backLink}>{t("Tekrar Bağlan")}</Text>
             </Pressable>
@@ -547,6 +561,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 }
 
 const styles = StyleSheet.create({
+  offerButton: { alignSelf: 'stretch', marginTop: 16, marginHorizontal: spacing.lg },
   hintBtn: {
     flexDirection: 'row',
     alignItems: 'center',

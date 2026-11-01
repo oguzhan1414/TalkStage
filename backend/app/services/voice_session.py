@@ -16,7 +16,7 @@ from websockets.asyncio.client import connect as ws_connect
 from app.core.clock import set_utc_offset
 from app.core.language import DEEPGRAM_CODES, normalize_native_language
 from app.core.security import account_exists, user_from_token
-from app.services.usage_guard import add_voice_seconds, voice_seconds_left
+from app.services.usage_guard import add_voice_seconds, service_voice_budget_left, voice_seconds_left
 from app.services.llm_orchestrator import TurnMessage
 from app.services.stt_stream import DEEPGRAM_LIVE_URL, FINALIZE_MESSAGE, deepgram_auth_headers, parse_transcript_event
 from app.services.voice_turn import SentenceSpeaker
@@ -222,6 +222,13 @@ async def serve_voice(websocket, user_id, opening, run_turn, *, language="tr", t
         await websocket.close(code=1008, reason="daily_voice_limit")
         return
     max_seconds = min(max_seconds, seconds_left)
+    # Whole-service budget guard (GLOBAL_DAILY_VOICE_MINUTES): protects the provider bill from a bug or abuse.
+    budget_left = await service_voice_budget_left()
+    if budget_left is not None:
+        if budget_left <= 0:
+            await websocket.close(code=1013, reason="service_busy")
+            return
+        max_seconds = min(max_seconds, max(60, budget_left))
     started_at = time.monotonic()
     _active_users.add(user_id)
     history = []

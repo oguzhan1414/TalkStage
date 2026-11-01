@@ -10,11 +10,13 @@ memory otherwise. A Redis outage never blocks a user: the guards fail open.
 import logging
 import time
 from collections import defaultdict, deque
+from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, status
 
 from app.api.deps import AuthContext, get_auth_context
 from app.core.clock import local_today
+from app.core.config import settings
 from app.services.cache import get_redis_client
 
 logger = logging.getLogger(__name__)
@@ -23,6 +25,37 @@ logger = logging.getLogger(__name__)
 DAILY_VOICE_SECONDS = 45 * 60
 
 _memory_voice: dict[str, int] = defaultdict(int)
+_warned_days: set[str] = set()
+
+
+def _utc_day() -> str:
+    return datetime.now(timezone.utc).date().isoformat()
+
+
+async def _total_used_today() -> int:
+    key = f"voice_total:{_utc_day()}"
+    client = get_redis_client()
+    if client is not None:
+        return int(await client.get(key) or 0)
+    return _memory_voice[key]
+
+
+async def service_voice_budget_left() -> int | None:
+    """Seconds left in today's budget for the whole service, or None when the guard is off (fails open)."""
+    limit = settings.global_daily_voice_minutes * 60
+    if limit <= 0:
+        return None
+    try:
+        used = await _total_used_today()
+    except Exception:
+        logger.warning("service voice budget lookup failed; allowing", exc_info=True)
+        return None
+    day = _utc_day()
+    if used >= limit * 0.8 and day not in _warned_days:
+        _warned_days.add(day)
+        # Error level on purpose: Sentry turns it into an alert before the budget runs out.
+        logger.error("Voice budget at %d%% of today's %d minutes", round(used / limit * 100), settings.global_daily_voice_minutes)
+    return max(0, limit - used)
 _memory_hits: dict[str, deque] = defaultdict(deque)
 
 
@@ -50,13 +83,17 @@ async def add_voice_seconds(user_id: str, seconds: float) -> None:
     if amount == 0:
         return
     key = f"voice_used:{user_id}:{_day()}"
+    total_key = f"voice_total:{_utc_day()}"
     client = get_redis_client()
     try:
         if client is not None:
             await client.incrby(key, amount)
             await client.expire(key, 2 * 24 * 3600)
+            await client.incrby(total_key, amount)
+            await client.expire(total_key, 2 * 24 * 3600)
         else:
             _memory_voice[key] += amount
+            _memory_voice[total_key] += amount
     except Exception:
         logger.warning("voice usage write failed", exc_info=True)
 

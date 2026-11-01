@@ -10,10 +10,12 @@ import { colors, fonts, radii, shadow, spacing, typography } from '../theme/toke
 import { Button } from './Button';
 import { t } from '../i18n';
 
-// Only what Pro really unlocks (backend/app/services/entitlements.py): never list features that are free for everyone
-// or not built — store policies treat that as a misleading claim. Grows with the free/pro limits of the payment work.
+// Only what Pro really unlocks (backend/app/services/voice_access.py, entitlements.py): never list features that are
+// free for everyone or not built — store policies treat that as a misleading claim.
 const PRO_FEATURES = [
-  t("Sınırsız canlı sesli konuşma pratiği"),
+  t("Mivo ile sınırsız serbest sohbet (ücretsizde 1 deneme)"),
+  t("Her gün istediğin kadar sesli sahne (ücretsizde günde 1)"),
+  t("Canlı konuşma odası"),
   t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
 ];
 
@@ -25,9 +27,10 @@ type Plan = {
   badge?: string;
 };
 
+// Prices come from the store (localised, in the learner's currency); these are shown only until it answers.
 export const STATIC_PLANS: Plan[] = [
-  { key: 'monthly', label: t("Aylık"), price: '199 TL', period: t("/ ay") },
-  { key: 'annual', label: t("Yıllık"), price: '999 TL', period: t("/ yıl"), badge: t("%58 Tasarruf") },
+  { key: 'monthly', label: t("Aylık"), price: '…', period: t("/ ay") },
+  { key: 'annual', label: t("Yıllık"), price: '…', period: t("/ yıl") },
 ];
 
 type PaywallContentProps = {
@@ -70,11 +73,20 @@ export function usePaywall(onPurchased: () => void) {
     }
   };
 
-  return { selected, setSelected, purchasing, packageFor, handlePurchase };
+  /** "%50 Tasarruf" on the annual plan, worked out from the store's real prices (none until both are known). */
+  const annualSaving = (() => {
+    const monthly = packageFor('monthly')?.product.price;
+    const annual = packageFor('annual')?.product.price;
+    if (!monthly || !annual) return undefined;
+    const pct = Math.round((1 - annual / (monthly * 12)) * 100);
+    return pct >= 5 ? t("%{{n}} Tasarruf", { n: pct }) : undefined;
+  })();
+
+  return { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving };
 }
 
 export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentProps) {
-  const { selected, setSelected, purchasing, packageFor, handlePurchase } = usePaywall(onPurchased);
+  const { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving } = usePaywall(onPurchased);
   const { restore, restoring } = useRestorePurchases(onPurchased);
 
   return (
@@ -89,20 +101,22 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
             <Text style={styles.featureText}>{feature}</Text>
           </View>
         ))}
+        <Text style={styles.fairUse}>{t("Sesli konuşmada günlük adil kullanım sınırı uygulanır.")}</Text>
       </View>
 
       <View style={styles.planRow}>
         {STATIC_PLANS.map((plan) => {
           const isSelected = selected === plan.key;
+          const badge = plan.key === 'annual' ? annualSaving : plan.badge;
           return (
             <Pressable
               key={plan.key}
               onPress={() => setSelected(plan.key)}
               style={[styles.planCard, shadow.card, isSelected && styles.planCardSelected]}
             >
-              {plan.badge ? (
+              {badge ? (
                 <View style={styles.planBadge}>
-                  <Text style={styles.planBadgeText}>{plan.badge}</Text>
+                  <Text style={styles.planBadgeText}>{badge}</Text>
                 </View>
               ) : null}
               <Text style={styles.planLabel}>{plan.label}</Text>
@@ -142,6 +156,7 @@ const styles = StyleSheet.create({
   title: { ...typography.h1, textAlign: 'center' },
   featureList: { width: '100%', gap: spacing.sm, marginTop: spacing.sm },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  fairUse: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 2 },
   featureText: { ...typography.body, flex: 1 },
   planRow: { flexDirection: 'row', gap: spacing.sm, width: '100%', marginTop: spacing.lg },
   planCard: {
