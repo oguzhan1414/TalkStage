@@ -7,7 +7,6 @@ import { useAuth } from './AuthContext';
 import { useAnalytics } from '../lib/analytics';
 import { getLocale, t } from '../i18n';
 import { planFromPreset, presetForAnswers, type LearningPlan, type Struggle } from '../lib/learningPlan';
-import { saveLocalPlan } from '../lib/learningPlanStore';
 
 export type OnboardingDraft = {
   displayName: string;
@@ -138,7 +137,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       } satisfies OnboardingCompleteRequest)
       .then(async (updated) => {
         // The path must follow the plan even if the server could not store it yet.
-        await saveLocalPlan(updated.learning_plan ?? chosenPlan);
         const withPlan = { ...updated, learning_plan: updated.learning_plan ?? chosenPlan };
         setCompletedProfile(withPlan);
         return withPlan;

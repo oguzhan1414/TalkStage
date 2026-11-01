@@ -76,8 +76,6 @@ export type RootStackParamList = {
   // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
   AccountSettings: undefined;
   MistakesNotebook: undefined;
-  /** "Gerçek mesaj yaz" görevi (data/writingTasks.ts). */
-  WritingTask: { taskId: string };
   MivoMemory: undefined;
   VocabLibrary: undefined;
   VocabDecks: undefined;
@@ -125,7 +123,6 @@ export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'Wo
 export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
 export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
 
-export type WritingTaskScreenProps = NativeStackScreenProps<RootStackParamList, 'WritingTask'>;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
