@@ -1,19 +1,11 @@
-import ScrollProgress from "@/components/ScrollProgress";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import FeatureTicker from "@/components/FeatureTicker";
-import HowItWorks from "@/components/HowItWorks";
-import MivoWalk from "@/components/MivoWalk";
-import Bento from "@/components/Bento";
-import WhySpekvia from "@/components/WhySpekvia";
-import TrustStrip from "@/components/TrustStrip";
-import SceneShelf from "@/components/SceneShelf";
-import MivoSection from "@/components/MivoSection";
-import DailyPath from "@/components/DailyPath";
-import Pricing from "@/components/Pricing";
-import HomeFaq from "@/components/HomeFaq";
-import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
+import Hero from "@/components/home/Hero";
+import HowItWorks from "@/components/home/HowItWorks";
+import WorldMap from "@/components/home/WorldMap";
+import Levels from "@/components/home/Levels";
+import PriceFaq from "@/components/home/PriceFaq";
+import FinalCta from "@/components/home/FinalCta";
 import JsonLd from "@/components/JsonLd";
 import { HOME_FAQS } from "@/data/homeFaq";
 import { faqSchema, webPageSchema } from "@/i18n/schema";
@@ -26,8 +18,8 @@ export async function generateMetadata({ params }: PageProps) {
   return pageMetadata({
     path: "/",
     locale,
-    title: t("Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması"),
-    description: t("Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla."),
+    title: t("Spekvia — Hikâyeyle İngilizce Öğren, Mivo ile Konuş"),
+    description: t("Her seviye tek bir hikâye: her gün kısa bir bölüm oku, kelimeleri ve dil bilgisini hikâyenin içinde öğren, ünite sonunda Mivo ile sesli konuş. Ücretsiz başla."),
   });
 }
 
@@ -38,25 +30,17 @@ export default async function Home({ params }: PageProps) {
     <>
       <JsonLd
         data={[
-          webPageSchema(locale, "WebPage", "/", t("Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması"), t("Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla.")),
+          webPageSchema(locale, "WebPage", "/", t("Spekvia — Hikâyeyle İngilizce Öğren, Mivo ile Konuş"), t("Her seviye tek bir hikâye: her gün kısa bir bölüm oku, kelimeleri ve dil bilgisini hikâyenin içinde öğren, ünite sonunda Mivo ile sesli konuş. Ücretsiz başla.")),
           faqSchema(locale, HOME_FAQS.map((f) => ({ q: t(f.q), a: t(f.a) })), "/"),
         ]}
       />
-      <ScrollProgress />
       <Navbar />
       <main className="flex-1">
         <Hero />
-        <FeatureTicker />
         <HowItWorks />
-        <MivoWalk />
-        <SceneShelf />
-        <Bento />
-        <DailyPath />
-        <MivoSection />
-        <WhySpekvia />
-        <TrustStrip />
-        <Pricing />
-        <HomeFaq />
+        <WorldMap />
+        <Levels />
+        <PriceFaq />
         <FinalCta />
       </main>
       <Footer />

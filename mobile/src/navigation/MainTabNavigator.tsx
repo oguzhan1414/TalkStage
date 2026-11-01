@@ -3,7 +3,7 @@ import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { navIcons } from '../assets/images';
-import { HomeScreen } from '../screens/HomeScreen';
+import { PathHomeScreen } from '../screens/PathHomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ScenariosScreen } from '../screens/ScenariosScreen';
 import { VocabScreen } from '../screens/VocabScreen';
@@ -20,7 +20,7 @@ const TAB_CONFIG: Record<
   Home: { label: t("Bugün"), image: navIcons.today },
   Scenarios: { label: t("Sahneler"), image: navIcons.scenes },
   Vocab: { label: t("Kelimeler"), image: navIcons.words },
-  Profile: { label: t("Özellikler"), image: navIcons.features },
+  Profile: { label: t("Profil"), image: navIcons.profile },
 };
 
 /**
@@ -82,11 +82,7 @@ export function MainTabNavigator() {
                 style={[styles.tabItem, isFocused && styles.tabItemActive]}
               >
                 <View style={[styles.iconContainer, isFocused && styles.iconContainerActive]}>
-                  <Image
-                    source={config.image}
-                    style={[styles.tabIcon, !isFocused && styles.tabIconInactive]}
-                    resizeMode="contain"
-                  />
+                  <Image source={config.image} style={[styles.tabIcon, !isFocused && styles.tabIconInactive]} resizeMode="contain" />
                 </View>
                 <Text
                   style={[
@@ -104,7 +100,7 @@ export function MainTabNavigator() {
         )
       }
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={PathHomeScreen} />
       <Tab.Screen name="Scenarios" component={ScenariosScreen} />
       <Tab.Screen name="Vocab" component={VocabScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

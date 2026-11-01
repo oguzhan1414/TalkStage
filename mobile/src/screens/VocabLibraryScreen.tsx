@@ -123,6 +123,8 @@ type WordCardProps = {
   tag?: string;
   accent: string;
   saved: boolean;
+  /** When the saved word comes up in the review ("in 3 days"), or null when it is already due today. */
+  dueLabel: string | null;
   known: boolean;
   expanded: boolean;
   onToggle: (id: string) => void;
@@ -130,9 +132,24 @@ type WordCardProps = {
   onAdd: (item: LibraryWordEntry) => void;
   onKnown: (item: LibraryWordEntry) => void;
   onUndo: (item: LibraryWordEntry) => void;
+  onReviewNow: (item: LibraryWordEntry) => void;
 };
 
-const WordCard = memo(function WordCard({ item, tag, accent, saved, known, expanded, onToggle, onSpeak, onAdd, onKnown, onUndo }: WordCardProps) {
+const WordCard = memo(function WordCard({
+  item,
+  tag,
+  accent,
+  saved,
+  dueLabel,
+  known,
+  expanded,
+  onToggle,
+  onSpeak,
+  onAdd,
+  onKnown,
+  onUndo,
+  onReviewNow,
+}: WordCardProps) {
   const rows = useMemo(() => detailRows(item), [item]);
   const hasDetails = rows.length > 0 || !!item.grammarNote || (!!item.exampleTr && item.exampleTr !== item.exampleEn);
 
@@ -213,9 +230,16 @@ const WordCard = memo(function WordCard({ item, tag, accent, saved, known, expan
 
         <View style={styles.actionsRow}>
           {saved ? (
-            <View style={styles.statusPill}>
-              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-              <Text style={styles.statusPillText}>{t("Sandığında Kayıtlı ✓")}</Text>
+            <View style={styles.knownRow}>
+              <View style={styles.statusPill}>
+                <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+                <Text style={styles.statusPillText}>{dueLabel ? t("Sandığında · {{when}}", { when: dueLabel }) : t("Sandığında · bugün sorulacak")}</Text>
+              </View>
+              {dueLabel ? (
+                <Pressable onPress={() => onReviewNow(item)} hitSlop={8} accessibilityRole="button">
+                  <Text style={styles.undoText}>{t("Bugün çalış")}</Text>
+                </Pressable>
+              ) : null}
             </View>
           ) : known ? (
             <View style={styles.knownRow}>
@@ -290,6 +314,20 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   });
 
   const savedTermsLower = useMemo(() => new Set((allCards ?? []).map((c) => c.term.trim().toLowerCase())), [allCards]);
+  /** Saved word → its next review day (YYYY-MM-DD). */
+  const dueByTerm = useMemo(() => new Map((allCards ?? []).map((c) => [c.term.trim().toLowerCase(), c.next_review_date.slice(0, 10)])), [allCards]);
+  const dueLabelOf = useCallback(
+    (w: LibraryWordEntry): string | null => {
+      const due = dueByTerm.get(w.word.trim().toLowerCase());
+      if (!due) return null;
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      if (due <= todayKey) return null;
+      const days = Math.round((new Date(`${due}T00:00:00`).getTime() - new Date(`${todayKey}T00:00:00`).getTime()) / 86400000);
+      return days === 1 ? t("yarın sorulacak") : t("{{n}} gün sonra sorulacak", { n: days });
+    },
+    [dueByTerm]
+  );
   const dismissedIds = useMemo(() => new Set(dismissedWordIds ?? []), [dismissedWordIds]);
   const loading = isLoading || progressLoading;
 
@@ -357,6 +395,20 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
       })
       .map((entry) => ({ entry, category, packIndex }));
   }, [searching, query, activeSet, status, category, packIndex, isReviewed, isSaved, isKnown]);
+
+  // Already saved but not due yet: bring it into today's review (the word keeps its SM-2 history).
+  const handleReviewNow = useCallback(
+    async (entry: LibraryWordEntry) => {
+      try {
+        await api.post<VocabCardOut>('/vocab-cards', { term: entry.word, review_now: true } satisfies VocabCardCreate);
+        await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+        showToast(t("“{{word}}” bugünkü tekrara eklendi", { word: entry.word }));
+      } catch (err) {
+        showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi"));
+      }
+    },
+    [queryClient, showToast]
+  );
 
   const handleAdd = useCallback(
     async (entry: LibraryWordEntry) => {
@@ -588,7 +640,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
         initialNumToRender={8}
         maxToRenderPerBatch={10}
         windowSize={7}
-        extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}`}
+        extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}|${dueByTerm.size}|${allCards?.map((c) => c.next_review_date).join()}`}
         renderItem={({ item: row }) => (
           <WordCard
             item={row.entry}
@@ -602,6 +654,8 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
             onAdd={handleAdd}
             onKnown={handleKnown}
             onUndo={handleUndo}
+            onReviewNow={handleReviewNow}
+            dueLabel={dueLabelOf(row.entry)}
           />
         )}
       />

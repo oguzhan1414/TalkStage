@@ -3,7 +3,7 @@ import RootShell from "@/components/RootShell";
 import { SITE_URL } from "@/i18n/config";
 import { setRequestLocale } from "@/i18n/server";
 
-// The logged-in web app (/app) and the deep-link router (/go) are Turkish for now.
+// The deep-link router (/go) is Turkish for now.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Spekvia",

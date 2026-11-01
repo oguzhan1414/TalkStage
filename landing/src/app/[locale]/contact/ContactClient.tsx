@@ -15,11 +15,11 @@ const faqs = [
   },
   {
     q: tr("Ücretsiz deneme için kredi kartı gerekiyor mu?"),
-    a: tr("Hayır. Günde 1 sesli sahne, kelime kartları ve okuma hikâyeleri ücretsizdir; kart bilgisi girmeden başlayabilirsin."),
+    a: tr("Hayır. Uygulamayı kart bilgisi girmeden ücretsiz indirip başlayabilirsin."),
   },
   {
     q: tr("Hangi cihazlarda kullanabilirim?"),
-    a: tr("iOS ve Android için mobil uygulama ile web stüdyosu var."),
+    a: tr("Spekvia bir mobil uygulama: iOS ve Android’de çalışır."),
   },
   {
     q: tr("Aboneliğimi istediğim zaman iptal edebilir miyim?"),

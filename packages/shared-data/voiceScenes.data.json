@@ -1985,6 +1985,96 @@
   ]
  },
  {
+  "id": "vs-c1-press-interview",
+  "topicCode": "C1_U1",
+  "level": "C1",
+  "emoji": "🗞️",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "chatty"
+  ],
+  "title": "Talking to a Journalist",
+  "titleTr": "Bir Gazeteciye Röportaj",
+  "aiName": "Ms. Grey",
+  "aiRole": "Gazeteci",
+  "situation": "You are Ms. Grey, a sharp local journalist interviewing the learner, who speaks for a small community group. A historic building in their area is reportedly about to be sold, but nothing is confirmed yet. You want a strong, quotable line: push for certainty ('So the council is lying?', 'Can I quote you on that?'). Reward careful, distanced language (seems, appears, it would appear that, may well, reportedly) and pounce on any claim they cannot prove. Ask once whether something can be off the record. Stay polite, quick and persistent.",
+  "opening": "Thanks for making time. People are saying the old building will be sold next month. Is that true?",
+  "objectives": [
+   {
+    "text": "Soften claims you cannot prove with seem / appear / it would appear that / may well.",
+    "textTr": "Kanıtlayamadığın iddiaları seem / appear / it would appear that / may well ile yumuşat."
+   },
+   {
+    "text": "Separate what you know from what is reported (Reportedly…, It is alleged that…).",
+    "textTr": "Bildiğini, sadece söylenenden ayır (Reportedly…, It is alleged that…)."
+   },
+   {
+    "text": "Refuse to be pushed into a quote you can't stand behind, and say what you can confirm.",
+    "textTr": "Arkasında duramayacağın bir söze zorlanmayı reddet ve neyi doğrulayabildiğini söyle."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It would appear that the decision was made in private.",
+    "tr": "Görünüşe göre karar kapalı kapılar ardında verildi."
+   },
+   {
+    "en": "That may well be true, but I can't confirm it.",
+    "tr": "Bu doğru olabilir ama doğrulayamam."
+   },
+   {
+    "en": "What I can say on the record is this.",
+    "tr": "Kayda geçecek şekilde söyleyebileceğim şu."
+   }
+  ]
+ },
+ {
+  "id": "vs-c1-secret-source",
+  "topicCode": "C1_U2",
+  "level": "C1",
+  "emoji": "🕯️",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "mixup"
+  ],
+  "title": "Meeting a Secret Source",
+  "titleTr": "Gizli Kaynakla Buluşma",
+  "aiName": "Jo",
+  "aiRole": "Gizli kaynak",
+  "situation": "You are Jo, a nervous office worker meeting the learner, a journalist, on a park bench at dawn. You have seen documents showing that your employer hid a payment, and you are scared of losing your job. Keep looking around, give only small hints, and ask what will happen to you if you talk ('What if they find out?'). Open up a little only when the learner reassures you with careful, formal conditionals and speculates sensibly about what must have been going on. Never give your full name. Leave if they push too hard.",
+  "opening": "You came alone? Good. I can only stay ten minutes. Someone might have been following me.",
+  "objectives": [
+   {
+    "text": "Speculate about the past with must / might / can't have been + -ing (They must have been planning this for months).",
+    "textTr": "Geçmiş hakkında must / might / can't have been + -ing ile tahmin yürüt (They must have been planning this for months)."
+   },
+   {
+    "text": "Reassure Jo with formal conditionals (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+    "textTr": "Jo'yu resmî koşul cümleleriyle rahatlat (Should you feel unsafe…, Were you to go on record…, But for your help…)."
+   },
+   {
+    "text": "Get one concrete detail while promising to protect Jo's name.",
+    "textTr": "Jo'nun adını koruyacağına söz verirken somut bir ayrıntı öğren."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "They must have been hiding this for months.",
+    "tr": "Bunu aylardır saklıyor olmalılar."
+   },
+   {
+    "en": "Should you feel unsafe, call me at once.",
+    "tr": "Kendini güvende hissetmezsen hemen beni ara."
+   },
+   {
+    "en": "Your name will never appear, whatever happens.",
+    "tr": "Ne olursa olsun adın asla geçmeyecek."
+   }
+  ]
+ },
+ {
   "id": "vs-c2-panel-debate",
   "topicCode": "C2_N47",
   "level": "C2",
@@ -2118,6 +2208,140 @@
    {
     "en": "I value our partnership, which is why I'm being honest.",
     "tr": "Ortaklığımıza değer veriyorum, bu yüzden dürüst oluyorum."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-distant-relative",
+  "topicCode": "C2_U3",
+  "level": "C2",
+  "emoji": "🧬",
+  "durationMin": 7,
+  "twistIds": [
+   "chatty"
+  ],
+  "title": "Meeting a Distant Relative",
+  "titleTr": "Uzak Bir Akrabayla Tanışma",
+  "aiName": "Isabel",
+  "aiRole": "Uzak kuzenin",
+  "situation": "You are Isabel, a warm but slightly guarded woman from Cádiz who has just found out, through an old family tree, that she and the learner share an ancestor from 1790. You are meeting for the first time in a café. You are curious, a little emotional, and you test the learner gently: you ask about their family, their memories and why they came. Use understatement yourself ('It's not unlike a film, is it?'). Reward tact, warmth and subtle language (not unlike, far from, whatever happens, be it … or …); if the learner is blunt or pushy, become quieter until they soften.",
+  "opening": "So you're the one from the family tree. Forgive me, I've been staring at you. You're not unlike my aunt, you know.",
+  "objectives": [
+   {
+    "text": "Talk about the family link with tact and understatement (It's far from simple, It's not unlike…).",
+    "textTr": "Aile bağından incelikle ve ölçülü bir dille söz et (It's far from simple, It's not unlike…)."
+   },
+   {
+    "text": "Show that the connection matters whatever happens (Whatever happens, be it here or in Bristol…).",
+    "textTr": "Ne olursa olsun bu bağın önemli olduğunu göster (Whatever happens, be it here or in Bristol…)."
+   },
+   {
+    "text": "Ask about Isabel's memories and respond with real feeling, without overdoing it.",
+    "textTr": "Isabel'in anılarını sor ve abartmadan gerçek bir duyguyla karşılık ver."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "It's far from easy to know what to say.",
+    "tr": "Ne diyeceğini bilmek hiç kolay değil."
+   },
+   {
+    "en": "Whatever happens, I'm glad we met.",
+    "tr": "Ne olursa olsun tanıştığımıza sevindim."
+   },
+   {
+    "en": "Your family story is not unlike mine.",
+    "tr": "Ailenin hikâyesi benimkinden farksız değil."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-editor-deal",
+  "topicCode": "C2_U4",
+  "level": "C2",
+  "emoji": "📚",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "complaint"
+  ],
+  "title": "Negotiating with an Editor",
+  "titleTr": "Editörle Pazarlık",
+  "aiName": "Ms Hart",
+  "aiRole": "Yayınevi editörü",
+  "situation": "You are Ms Hart, a sharp, experienced book editor. You like the learner's book but you want to cut a third of it, change the title to something more 'commercial' and remove the chapter the learner loves most. Be direct and a little dry, defend your points with market reasons, and never give in at once. Respect strong, well-argued disagreement (I'm not in the least convinced…, I'd maintain that…, I concede that…). Accept a compromise only if the learner concedes something real and defends the rest clearly.",
+  "opening": "Right. I've read it. It's good. It's also a third too long, and the title won't sell. Let's talk.",
+  "objectives": [
+   {
+    "text": "Disagree firmly with strong negatives (I'm not in the least convinced, That's not remotely what I meant).",
+    "textTr": "Güçlü olumsuzlarla kararlı biçimde itiraz et (I'm not in the least convinced, That's not remotely what I meant)."
+   },
+   {
+    "text": "Concede one point and defend another (I concede that…, but I'd maintain that…).",
+    "textTr": "Bir noktayı kabul et, başka birini savun (I concede that…, but I'd maintain that…)."
+   },
+   {
+    "text": "Reach a clear compromise on length, title and the chapter you want to keep.",
+    "textTr": "Uzunluk, başlık ve korumak istediğin bölüm konusunda net bir uzlaşmaya var."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'm not in the least convinced by the new title.",
+    "tr": "Yeni başlığa hiç ikna olmadım."
+   },
+   {
+    "en": "I concede that the middle is too long.",
+    "tr": "Ortasının fazla uzun olduğunu kabul ediyorum."
+   },
+   {
+    "en": "But I'd maintain that the last chapter stays.",
+    "tr": "Ama son bölümün kalması gerektiğini savunurum."
+   }
+  ]
+ },
+ {
+  "id": "vs-c2-wedding-speech",
+  "topicCode": "C2_U5",
+  "level": "C2",
+  "emoji": "🥂",
+  "durationMin": 7,
+  "twistIds": [
+   "hurry",
+   "chatty"
+  ],
+  "title": "The Wedding Speech",
+  "titleTr": "Düğün Konuşması",
+  "aiName": "Olivia",
+  "aiRole": "Düğün organizatörü",
+  "situation": "You are Olivia, a cheerful but very organised wedding planner. The learner must give a toast at a friend's wedding in ten minutes, and you ask them to rehearse it with you. Listen, then give quick, honest feedback: too long, too stiff, too casual, not moving enough. Ask them to add one formal touch (I'd like to pay homage to…, Would that…, If only…), one personal story and one light joke, and to keep it under two minutes. Interrupt once with a timing problem ('The band starts in five minutes!').",
+  "opening": "There you are! Ten minutes until your toast. Let's hear it, from the top, as if I were the whole room.",
+  "objectives": [
+   {
+    "text": "Give a short toast that mixes a formal touch with a personal story (I'd like to pay homage to…).",
+    "textTr": "Resmî bir dokunuşla kişisel bir hikâyeyi birleştiren kısa bir konuşma yap (I'd like to pay homage to…)."
+   },
+   {
+    "text": "Use one literary wish (Would that…, If only…, Oh, to…).",
+    "textTr": "Edebî bir dilek kullan (Would that…, If only…, Oh, to…)."
+   },
+   {
+    "text": "Take Olivia's feedback, shorten the speech and finish with a clear toast.",
+    "textTr": "Olivia'nın geri bildirimini al, konuşmayı kısalt ve net bir kadeh kaldırmayla bitir."
+   }
+  ],
+  "keyPhrases": [
+   {
+    "en": "I'd like to pay homage to the people who brought us here.",
+    "tr": "Bizi buraya getiren insanlara saygımı sunmak istiyorum."
+   },
+   {
+    "en": "Would that every couple were this lucky.",
+    "tr": "Keşke her çift bu kadar şanslı olsa."
+   },
+   {
+    "en": "Please raise your glasses to the happy couple!",
+    "tr": "Lütfen kadehlerinizi mutlu çift için kaldırın!"
    }
   ]
  }

@@ -1,279 +1,244 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useState } from 'react';
-import { Image, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BouncyPressable } from '../components/BouncyPressable';
-import { CreateDeckModal } from '../components/CreateDeckModal';
-import { DeckStudyModal } from '../components/DeckStudyModal';
-import { Toast } from '../components/Toast';
 import { minimalFeatureIcons } from '../assets/images';
+import { MivoLoader } from '../components/MivoLoader';
 import { ScreenHeader } from '../components/ScreenHeader';
-import {
-  deleteCustomDeck,
-  getDeckMasteredWordIds,
-  loadAllDecks,
-  type VocabDeck,
-  type VocabDeckWord,
-} from '../data/vocabDecks';
-import { api, ApiError } from '../lib/api';
-import type { VocabDecksScreenProps } from '../navigation/types';
-import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
-import type { VocabCardCreate, VocabCardOut } from '../types/api';
+import { Toast } from '../components/Toast';
 import { t } from '../i18n';
+import { api, ApiError } from '../lib/api';
+import { pathLevelName } from '../lib/pathLevel';
+import { inFocus, levelGroups, migrateLocalFolders, NO_LEVEL, tagGroups, type VocabFocus } from '../lib/vocabGroups';
+import type { VocabDecksScreenProps } from '../navigation/types';
+import { cefrAura, colors, fonts, spacing } from '../theme/tokens';
+import type { VocabCardOut, VocabCardUpdate } from '../types/api';
 
-// Klasör sayısına makul bir tavan — sınırsız klasör açılabilmesi ızgarayı
-// hızla anlamsız bir yığına çeviriyordu.
-const MAX_CUSTOM_DECKS = 12;
+/** The warm floor shared with the home, the lessons and the profile. */
+const FLOOR = '#FBF7F1';
+
+/** Share of a group's words that are settled for good (SM-2 interval of a month or more). */
+const solidShare = (cards: VocabCardOut[]) => (cards.length ? cards.filter((c) => c.sm2_interval_days >= 30).length / cards.length : 0);
 
 /**
- * "Kelime Klasörlerim" — kullanıcının kendi oluşturduğu kelime klasörleri.
- * Eskiden Kelimeler sekmesinin içindeki 3 sekmeden biriydi; Kelimeler sekmesi
- * sadece kişisel (Akıllı Pratik + Sözlüğüm) kalsın diye Özellikler'e taşındı.
- * Klasör pratiği SM-2'den bağımsız; bir kelimeyi gerçek Sandığa taşımak için
- * `DeckStudyModal`'daki "Sandığa Ekle" butonu kullanılıyor.
+ * "Gruplarım": the word bank grouped by level (automatic; lesson words carry their path level) and by the learner's
+ * own tags. Each row shows how much of the group is already settled; tapping opens its words, "Çalış" practises it
+ * with the same SM-2 review. Tags are set on a word from the list (tap a word → Etiketle) or in the add-word form.
+ * (Route name stays 'VocabDecks': the old phone-only folders lived here and move into tags once.)
  */
 export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
   const queryClient = useQueryClient();
-
-  const { data: allCards } = useQuery({
+  const { data: cards, isLoading } = useQuery({
     queryKey: ['vocab-cards', 'all'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
   });
-  const savedTermsLower = useMemo(
-    () => new Set((allCards ?? []).map((c) => c.term.trim().toLowerCase())),
-    [allCards]
-  );
-
-  const [customDecks, setCustomDecks] = useState<VocabDeck[]>([]);
-  const [deckMasteryMap, setDeckMasteryMap] = useState<Record<string, number>>({});
-  const [selectedStudyDeck, setSelectedStudyDeck] = useState<VocabDeck | null>(null);
-  const [createDeckVisible, setCreateDeckVisible] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2200);
+  const [toast, setToastText] = useState<string | null>(null);
+  const setToast = (msg: string) => {
+    setToastText(msg);
+    setTimeout(() => setToastText(null), 2200);
   };
 
-  const loadDecksAndMastery = useCallback(async () => {
-    const decks = await loadAllDecks();
-    setCustomDecks(decks);
-    const map: Record<string, number> = {};
-    for (const d of decks) {
-      const masteredIds = await getDeckMasteredWordIds(d.id);
-      map[d.id] = masteredIds.length;
-    }
-    setDeckMasteryMap(map);
-  }, []);
+  useEffect(() => {
+    migrateLocalFolders().then((changed) => {
+      if (changed) queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+    });
+  }, [queryClient]);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadDecksAndMastery();
-    }, [loadDecksAndMastery])
-  );
+  const all = cards ?? [];
+  const levels = useMemo(() => levelGroups(all), [all]);
+  const tags = useMemo(() => tagGroups(all), [all]);
 
-  const isCapReached = customDecks.length >= MAX_CUSTOM_DECKS;
+  const open = (focus: VocabFocus, how: 'practice' | 'browse') =>
+    navigation.navigate('Main', { screen: 'Vocab', params: how === 'practice' ? { practice: focus } : { browse: focus } });
 
-  const handleOpenCreateDeck = () => {
-    if (isCapReached) {
-      showToast(t("En fazla {{MAX_CUSTOM_DECKS}} klasör oluşturabilirsin — önce birini silip yer aç 📁", { MAX_CUSTOM_DECKS }));
-      return;
-    }
-    setCreateDeckVisible(true);
-  };
-
-  const handleDeleteDeck = (deckId: string) => {
-    Alert.alert(t("Klasörü Sil"), t("Bu klasörü silmek istediğine emin misin?"), [
-      { text: t("İptal"), style: 'cancel' },
+  const removeTag = (tag: string) => {
+    Alert.alert(t("“{{tag}}” etiketi kaldırılsın mı?", { tag }), t("Kelimeler sandığında kalır, sadece bu etiket silinir."), [
+      { text: t("Vazgeç"), style: 'cancel' },
       {
-        text: t("Sil"),
+        text: t("Kaldır"),
         style: 'destructive',
         onPress: async () => {
-          const updated = await deleteCustomDeck(deckId);
-          setCustomDecks(updated);
-          showToast(t("Klasör silindi 🗑️"));
+          try {
+            const tagged = all.filter((c) => inFocus(c, { kind: 'tag', value: tag }));
+            await Promise.all(
+              tagged.map((c) =>
+                api.patch(`/vocab-cards/${c.id}`, { tags: (c.tags ?? []).filter((x) => x.toLowerCase() !== tag.toLowerCase()) } satisfies VocabCardUpdate)
+              )
+            );
+            await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+            setToast(t("“{{tag}}” etiketi kaldırıldı", { tag }));
+          } catch (err) {
+            setToast(err instanceof ApiError ? err.message : t("Etiket kaldırılamadı."));
+          }
         },
       },
     ]);
   };
 
-  // Klasördeki bir kelimeyi gerçek SM-2 kuyruğuna (Sandık) taşır.
-  const handleAddDeckWordToChest = async (word: VocabDeckWord): Promise<boolean> => {
-    try {
-      const payload: VocabCardCreate = {
-        term: word.term,
-        translation: word.translation,
-        example_sentence: word.exampleEn || undefined,
-        part_of_speech: word.pos,
-        cefr_level: word.level,
-        source_label: t("Klasör Pratiği 📁"),
-      };
-      await api.post<VocabCardOut>('/vocab-cards', payload);
-      await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
-      await queryClient.invalidateQueries({ queryKey: ['vocab-cards', 'all'] });
-      showToast(t("\"{{term}}\" Sandığına eklendi! 📦✨", { term: word.term }));
-      return true;
-    } catch (err) {
-      showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi."));
-      return false;
-    }
-  };
-
-  const renderDeckCard = (deck: VocabDeck) => {
-    const total = deck.words.length;
-    const mastered = deckMasteryMap[deck.id] || 0;
-    const percent = total > 0 ? Math.min(100, Math.round((mastered / total) * 100)) : 0;
-
-    return (
-      <View key={deck.id} style={[styles.deckCard, shadow.card, { borderBottomColor: deck.color }]}>
-        <View style={styles.deckCardTop}>
-          <View style={[styles.deckEmojiBadge, { backgroundColor: `${deck.color}18` }]}>
-            <Text style={styles.deckEmoji}>{deck.emoji}</Text>
-          </View>
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.deckTitle} numberOfLines={1}>{deck.title}</Text>
-            <Text style={styles.deckSub} numberOfLines={1}>{deck.subtitle}</Text>
-          </View>
-          <View style={[styles.deckLevelPill, { backgroundColor: deck.color }]}>
-            <Text style={styles.deckLevelPillText}>{deck.level}</Text>
-          </View>
-          {deck.isCustom && (
-            <BouncyPressable
-              onPress={() => handleDeleteDeck(deck.id)}
-              style={styles.deckDeleteBtn}
-              hapticType="warning"
-              scaleTo={0.88}
-            >
-              <Ionicons name="trash-outline" size={15} color="#EF4444" />
-            </BouncyPressable>
-          )}
-        </View>
-
-        <View style={styles.deckProgressArea}>
-          <View style={styles.deckProgressLabelRow}>
-            <Text style={styles.deckWordCount}>{t("{{total}} Kelime", { total })}</Text>
-            <Text style={styles.deckPercent}>{t("{{mastered}}/{{total}} Öğrenildi • %{{percent}}", { mastered, total, percent })}</Text>
-          </View>
-          <View style={styles.deckBarTrack}>
-            <View
-              style={[styles.deckBarFill, { width: `${Math.max(6, percent)}%`, backgroundColor: deck.color }]}
-            />
-          </View>
-        </View>
-
-        <BouncyPressable
-          onPress={() => setSelectedStudyDeck(deck)}
-          style={[styles.deckStartBtn, { backgroundColor: deck.color }]}
-          hapticType="medium"
-          scaleTo={0.96}
-        >
-          <Text style={styles.deckStartBtnText}>{t("Pratiğe Başla ➔")}</Text>
-        </BouncyPressable>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader
-        title={t("Klasörler")}
-        subtitle={t("{{length}}/{{MAX_CUSTOM_DECKS}} klasör · Kendi başlıklarınla grupla", { length: customDecks.length, MAX_CUSTOM_DECKS })}
+        title={t("Gruplarım")}
+        subtitle={t("{{count}} kelime", { count: all.length })}
         icon={minimalFeatureIcons.vocabFolders}
         onBack={() => navigation.goBack()}
-        right={
-          <BouncyPressable
-            onPress={handleOpenCreateDeck}
-            style={[styles.createBtn, isCapReached && styles.createBtnDisabled]}
-            hapticType="medium"
-            scaleTo={0.94}
-          >
-            <Ionicons name="add" size={16} color="#FFFFFF" />
-            <Text style={styles.createBtnText}>{t("Yeni Klasör")}</Text>
-          </BouncyPressable>
-        }
       />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {customDecks.length > 0 ? (
-          <View style={styles.decksGrid}>{customDecks.map(renderDeckCard)}</View>
-        ) : (
-          <View style={styles.emptyBox}>
-            <Image source={minimalFeatureIcons.vocabFolders} style={styles.emptyArt} resizeMode="contain" />
-            <Text style={styles.emptyTitle}>{t("Henüz klasörün yok")}</Text>
-            <Text style={styles.emptyText}>{t("Ör. \"Mülakat Terimlerim\" gibi kendi temanı oluşturup istediğin kelimeleri içine topla.")}</Text>
-            <BouncyPressable onPress={handleOpenCreateDeck} style={[styles.emptyCta, isCapReached && styles.createBtnDisabled]} hapticType="medium" scaleTo={0.95}>
-              <Ionicons name="add" size={18} color="#FFFFFF" />
-              <Text style={styles.emptyCtaText}>{t("Yeni Klasör")}</Text>
-            </BouncyPressable>
-          </View>
-        )}
-      </ScrollView>
+      {isLoading && !cards ? (
+        <MivoLoader size={90} label={t("Kelimelerin yükleniyor…")} style={{ marginTop: 40 }} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <Text style={styles.section}>{t("Seviyeye göre")}</Text>
+          {levels.length === 0 ? (
+            <View style={styles.hintCard}>
+              <Ionicons name="layers-outline" size={22} color={colors.brand} />
+              <Text style={styles.hintText}>{t("Henüz kelimen yok. Derslerde ve kütüphanede eklediğin kelimeler burada seviyelerine göre toplanır.")}</Text>
+            </View>
+          ) : (
+            <View style={styles.card}>
+              {levels.map(({ level, count }, i) => {
+                const focus: VocabFocus = { kind: 'level', value: level };
+                const color = cefrAura[level] ?? '#94A3B8';
+                return (
+                  <GroupRow
+                    key={level}
+                    first={i === 0}
+                    badge={
+                      <View style={[styles.levelBadge, { backgroundColor: `${color}1F`, borderColor: color }]}>
+                        <Text style={[styles.levelBadgeText, { color }]} numberOfLines={1} adjustsFontSizeToFit>
+                          {level === NO_LEVEL ? '•' : level}
+                        </Text>
+                      </View>
+                    }
+                    title={level === NO_LEVEL ? t("Diğer") : pathLevelName(level)}
+                    count={count}
+                    solid={solidShare(all.filter((c) => inFocus(c, focus)))}
+                    color={color}
+                    onOpen={() => open(focus, 'browse')}
+                    onPractice={() => open(focus, 'practice')}
+                  />
+                );
+              })}
+            </View>
+          )}
 
-      <DeckStudyModal
-        visible={!!selectedStudyDeck}
-        deck={selectedStudyDeck}
-        onClose={() => {
-          setSelectedStudyDeck(null);
-          loadDecksAndMastery();
-        }}
-        onDeckCompleted={() => {
-          loadDecksAndMastery();
-          showToast(t("🎉 Klasör tamamlandı!"));
-        }}
-        savedTermsLower={savedTermsLower}
-        onAddToChest={handleAddDeckWordToChest}
-      />
-
-      <CreateDeckModal
-        visible={createDeckVisible}
-        onClose={() => setCreateDeckVisible(false)}
-        onDeckCreated={(d) => {
-          loadDecksAndMastery();
-          showToast(t("\"{{title}}\" klasörü oluşturuldu! 📁", { title: d.title }));
-        }}
-      />
-
-      {toast && <Toast message={toast} />}
+          <Text style={styles.section}>{t("Etiketlerim")}</Text>
+          {tags.length === 0 ? (
+            <View style={styles.hintCard}>
+              <Ionicons name="pricetags-outline" size={22} color={colors.brand} />
+              <Text style={styles.hintText}>
+                {t("Kelimelerini kendi gruplarına ayır: Sandığım'da bir kelimeye dokun ve Etiketle'yi seç. Seyahat, İş, Mutfak… ne istersen.")}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.card}>
+              {tags.map(({ tag, count }, i) => {
+                const focus: VocabFocus = { kind: 'tag', value: tag };
+                return (
+                  <GroupRow
+                    key={tag}
+                    first={i === 0}
+                    badge={
+                      <View style={styles.tagBadge}>
+                        <Ionicons name="pricetag" size={17} color={colors.brand} />
+                      </View>
+                    }
+                    title={tag}
+                    count={count}
+                    solid={solidShare(all.filter((c) => inFocus(c, focus)))}
+                    color={colors.brand}
+                    onOpen={() => open(focus, 'browse')}
+                    onPractice={() => open(focus, 'practice')}
+                    onRemove={() => removeTag(tag)}
+                  />
+                );
+              })}
+            </View>
+          )}
+          <Text style={styles.footnote}>{t("Bir grubu çalışınca kelimeler günlük tekrardaki gibi ilerler; ayrı bir ilerleme yok.")}</Text>
+        </ScrollView>
+      )}
+      {toast ? <Toast message={toast} /> : null}
     </SafeAreaView>
   );
 }
 
+/** One group: badge, name, word count with a thin "settled" bar, then Çalış (and remove, for tags). */
+function GroupRow({
+  first,
+  badge,
+  title,
+  count,
+  solid,
+  color,
+  onOpen,
+  onPractice,
+  onRemove,
+}: {
+  first: boolean;
+  badge: React.ReactNode;
+  title: string;
+  count: number;
+  solid: number;
+  color: string;
+  onOpen: () => void;
+  onPractice: () => void;
+  onRemove?: () => void;
+}) {
+  return (
+    <View>
+      {first ? null : <View style={styles.divider} />}
+      <View style={styles.row}>
+        <Pressable onPress={onOpen} style={({ pressed }) => [styles.rowMain, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+          {badge}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowTitle} numberOfLines={1}>
+              {title}
+            </Text>
+            <View style={styles.rowMeta}>
+              <Text style={styles.rowCount}>{t("{{count}} kelime", { count })}</Text>
+              <View style={styles.rowTrack}>
+                <View style={[styles.rowFill, { width: `${Math.max(4, solid * 100)}%`, backgroundColor: color }]} />
+              </View>
+            </View>
+          </View>
+        </Pressable>
+        <Pressable onPress={onPractice} style={({ pressed }) => [styles.play, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+          <Ionicons name="play" size={13} color="#FFFFFF" />
+          <Text style={styles.playText}>{t("Çalış")}</Text>
+        </Pressable>
+        {onRemove ? (
+          <Pressable onPress={onRemove} hitSlop={10} style={styles.remove} accessibilityRole="button" accessibilityLabel={t("Etiketi kaldır")}>
+            <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  emptyCtaText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: '#FFFFFF' },
-  emptyCta: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.brand, borderRadius: radii.pill, paddingVertical: 13, paddingHorizontal: 26, marginTop: 8, borderBottomWidth: 4, borderBottomColor: '#3730A3' },
-  emptyTitle: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
-  emptyArt: { width: 150, height: 150, marginBottom: 4 },
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, paddingLeft: 10, paddingRight: 14, paddingVertical: 9, borderRadius: radii.pill, borderBottomWidth: 3, borderBottomColor: '#3730A3' },
-  createBtnDisabled: { backgroundColor: '#CBD5E1' },
-  createBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
-  content: { paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 60 },
-  decksGrid: { gap: 14 },
-  emptyBox: { backgroundColor: '#FFFFFF', borderRadius: 28, borderWidth: 1, borderColor: '#EEF2FF', paddingVertical: 28, paddingHorizontal: 22, alignItems: 'center', gap: 8, marginTop: 6 },
-  emptyText: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: '#64748B', lineHeight: 20, textAlign: 'center' },
-  deckCard: { backgroundColor: '#FFFFFF', borderRadius: 26, padding: 18, borderWidth: 1, borderColor: '#F1F5F9', borderBottomWidth: 5 },
-  deckCardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  deckEmojiBadge: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  deckEmoji: { fontSize: 28 },
-  deckTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: '#0F172A' },
-  deckSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#64748B', marginTop: 2 },
-  deckLevelPill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 9 },
-  deckLevelPillText: { fontFamily: fonts.mono, fontSize: 10, fontWeight: 'bold', color: '#FFFFFF' },
-  deckDeleteBtn: { padding: 6, marginLeft: 6 },
-  deckProgressArea: { marginTop: 14, marginBottom: 14 },
-  deckProgressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  deckWordCount: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#475569' },
-  deckPercent: { fontFamily: fonts.mono, fontSize: 10.5, color: '#64748B' },
-  deckBarTrack: { height: 9, backgroundColor: '#F1F5F9', borderRadius: 5, overflow: 'hidden' },
-  deckBarFill: { height: '100%', borderRadius: 5 },
-  deckStartBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 13, borderRadius: radii.pill },
-  deckStartBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF', letterSpacing: 0.3 },
+  container: { flex: 1, backgroundColor: FLOOR },
+  scroll: { paddingHorizontal: spacing.md, paddingBottom: 40, gap: 10 },
+  section: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 10, marginLeft: 4 },
+  hintCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16 },
+  hintText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4 },
+  divider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
+  rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  levelBadge: { width: 44, height: 44, borderRadius: 14, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  levelBadgeText: { fontFamily: fonts.headingBold, fontSize: 15 },
+  tagBadge: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
+  rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
+  rowCount: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted },
+  rowTrack: { flex: 1, maxWidth: 90, height: 5, borderRadius: 3, backgroundColor: '#F1EDE6', overflow: 'hidden' },
+  rowFill: { height: '100%', borderRadius: 3 },
+  play: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13 },
+  playText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
+  remove: { padding: 2 },
+  footnote: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: colors.textMuted, textAlign: 'center', marginTop: 8, paddingHorizontal: 12 },
 });

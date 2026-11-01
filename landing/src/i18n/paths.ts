@@ -10,8 +10,8 @@ import {
   type RouteKey,
 } from "./config";
 
-/** Paths that are not localized (web app, deep links, API). */
-const UNLOCALIZED = /^\/(app|go|api)(\/|$)/;
+/** Paths that are not localized (deep links, API). */
+const UNLOCALIZED = /^\/(go|api)(\/|$)/;
 
 const routeKeys = Object.keys(ROUTES) as RouteKey[];
 
@@ -39,7 +39,7 @@ function withPrefix(path: string, locale: Locale): string {
 
 /**
  * Turns an internal, language-neutral path (`/contact`, `/blog/some-post`, `/#scenes`,
- * `/app`) into the public URL for `locale`.
+ * `/go/...`) into the public URL for `locale`.
  */
 export function localizePath(href: string, locale: Locale): string {
   if (!href.startsWith("/") || href.startsWith("//")) return href;

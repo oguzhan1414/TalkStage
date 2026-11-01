@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
@@ -88,8 +89,14 @@ async function signInNatively(google: NativeGoogle, onError: (message: string) =
     return true;
   } catch (e) {
     if (google.isErrorWithCode(e) && e.code === google.statusCodes.SIGN_IN_CANCELLED) return true;
-    // Most likely a configuration gap (missing SHA-1 / client id): use the browser flow instead.
-    console.warn('Native Google sign-in failed, falling back to the browser flow', e);
+    // Most likely a configuration gap: code 10 (DEVELOPER_ERROR) means the app's signing SHA-1 + package are not on an
+    // Android OAuth client in the web client's Google Cloud project. Report it, then use the browser flow instead.
+    const code = google.isErrorWithCode(e) ? String(e.code) : 'none';
+    console.warn('Native Google sign-in failed, falling back to the browser flow', code, e);
+    Sentry.captureMessage(`Native Google sign-in failed (code ${code})`, {
+      level: 'warning',
+      extra: { code, message: e instanceof Error ? e.message : String(e) },
+    });
     return false;
   }
 }

@@ -3,7 +3,7 @@ import { SITE_URL } from "@/i18n/config";
 
 // Search and AI answer engines are welcome: the goal is to be cited (SEO + AEO + GEO).
 // Private/app areas stay out of every crawler's reach.
-const PRIVATE = ["/app", "/go", "/api"];
+const PRIVATE = ["/go", "/api"];
 const AI_CRAWLERS = [
   "GPTBot", // OpenAI training / search
   "OAI-SearchBot", // ChatGPT search

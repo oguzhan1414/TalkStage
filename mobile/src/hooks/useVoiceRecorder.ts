@@ -5,7 +5,9 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { ensurePlaybackMode } from '../lib/audioMode';
 
 const RECORDING_OPTIONS = { ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true };
 
@@ -37,9 +39,26 @@ export function useVoiceRecorder() {
   }, [recorder]);
 
   const stop = useCallback(async () => {
-    await recorder.stop();
+    try {
+      await recorder.stop();
+    } finally {
+      // Back to playback mode: left in recording mode, iOS plays through the quiet earpiece and some Android phones
+      // stay silent, so the next "listen" after a recording seemed not to play.
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+    }
     return recorder.uri;
   }, [recorder]);
+
+  // Leaving the screen while recording: stop and go back to playback mode, or the next sounds stay silent.
+  const recording = useRef(false);
+  recording.current = state.isRecording;
+  useEffect(
+    () => () => {
+      if (recording.current) recorder.stop().catch(() => {});
+      ensurePlaybackMode();
+    },
+    [recorder]
+  );
 
   return {
     isRecording: state.isRecording,

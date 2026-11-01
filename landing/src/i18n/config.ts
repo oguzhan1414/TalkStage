@@ -29,6 +29,7 @@ export const ROUTES = {
   terms: { tr: "kullanim-sartlari", en: "terms", es: "terminos", pt: "termos", de: "nutzungsbedingungen" },
   "delete-account": { tr: "hesap-silme", en: "delete-account", es: "eliminar-cuenta", pt: "excluir-conta", de: "konto-loeschen" },
   blog: { tr: "blog", en: "blog", es: "blog", pt: "blog", de: "blog" },
+  // Retired (the site no longer has sign-in): kept only so old links redirect to the download section.
   login: { tr: "giris", en: "login", es: "iniciar-sesion", pt: "entrar", de: "anmelden" },
   signup: { tr: "kayit", en: "signup", es: "registro", pt: "cadastro", de: "registrieren" },
   onboarding: { tr: "onboarding", en: "get-started", es: "empezar", pt: "comecar", de: "loslegen" },
@@ -41,11 +42,15 @@ export const ANCHORS = {
   scenes: { tr: "sahneler", en: "scenes", es: "escenas", pt: "cenas", de: "szenen" },
   mivo: { tr: "mivo", en: "mivo", es: "mivo", pt: "mivo", de: "mivo" },
   path: { tr: "yol", en: "path", es: "ruta", pt: "trilha", de: "weg" },
+  levels: { tr: "seviyeler", en: "levels", es: "niveles", pt: "niveis", de: "stufen" },
   pricing: { tr: "fiyatlandirma", en: "pricing", es: "precios", pt: "precos", de: "preise" },
   faq: { tr: "sss", en: "faq", es: "preguntas", pt: "perguntas", de: "fragen" },
   download: { tr: "indir", en: "download", es: "descargar", pt: "baixar", de: "download" },
 } as const satisfies Record<string, Record<Locale, string>>;
 export type AnchorKey = keyof typeof ANCHORS;
+
+/** Old sign-in pages; the proxy sends them to the home page's download section. */
+export const RETIRED_ROUTES: readonly RouteKey[] = ["login", "signup", "onboarding"];
 
 /** Pages that exist only in Turkish. */
 export const TR_ONLY_ROUTES: readonly RouteKey[] = [];

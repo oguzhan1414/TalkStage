@@ -3,6 +3,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import type { VocabFocus } from '../lib/vocabGroups';
 import type { SessionOut } from '../types/api';
 
 export type AuthStackParamList = {
@@ -30,7 +31,8 @@ export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList>
 export type MainTabParamList = {
   Home: undefined;
   Scenarios: { openSceneId?: string } | undefined;
-  Vocab: undefined;
+  /** From Gruplarım: practise or browse one level or one tag of the word bank. */
+  Vocab: { practice?: VocabFocus; browse?: VocabFocus } | undefined;
   Profile: undefined;
 };
 
@@ -69,31 +71,22 @@ export type RootStackParamList = {
       }
     | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
-  ReadingList: undefined;
-  ReadingPassage: { slug: string };
   Paywall: undefined;
   Badges: undefined;
-  // Account/settings screen reached by tapping the avatar in the shared
-  // `AppHeader` (top of every main tab) — distinct from the `Profile` TAB,
-  // which now shows the "Özellikler" feature list instead of account info.
+  // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
   AccountSettings: undefined;
-  // Full teaching content for one A1_G0X grammar topic (table, dialogue,
-  // mistakes, examples) — see `data/grammarLessons.ts`. Free for the topic's
-  // `isFree` lesson, Pro-gated for the rest (screen checks `isProUser()`
-  // itself, no need to pass a flag here).
-  GrammarLesson: { code: string };
   MistakesNotebook: undefined;
-  /** "Gerçek mesaj yaz" görevi (data/writingTasks.ts). */
-  WritingTask: { taskId: string };
   MivoMemory: undefined;
   VocabLibrary: undefined;
   VocabDecks: undefined;
   MispronouncedWords: undefined;
-  PodcastList: undefined;
-  PodcastPlayer: { episodeId: string };
   /** "Kelime Odaları" (data/wordRooms.ts). */
   WordRooms: undefined;
-  WordRoom: { roomId: string };
+  /** `pathStepId`: opened as a word section of the learning path (marks that step done at the end). */
+  WordRoom: { roomId: string; pathStepId?: string };
+  /** New learning path (docs/yeni-ogrenme-yolu.md): a reading lesson and a vocabulary section. */
+  PathLesson: { stepId: string };
+  PathVocab: { stepId: string };
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -111,10 +104,6 @@ export type FreeChatRoomScreenProps = NativeStackScreenProps<RootStackParamList,
 
 export type ScorecardScreenProps = NativeStackScreenProps<RootStackParamList, 'Scorecard'>;
 
-export type ReadingListScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingList'>;
-
-export type ReadingPassageScreenProps = NativeStackScreenProps<RootStackParamList, 'ReadingPassage'>;
-
 export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Paywall'>;
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
@@ -131,11 +120,9 @@ export type MispronouncedWordsScreenProps = NativeStackScreenProps<RootStackPara
 
 export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRooms'>;
 export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
+export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
+export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
 
-
-export type GrammarLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'GrammarLesson'>;
-
-export type WritingTaskScreenProps = NativeStackScreenProps<RootStackParamList, 'WritingTask'>;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -10,12 +10,11 @@ import { colors, fonts, radii, shadow, spacing, typography } from '../theme/toke
 import { Button } from './Button';
 import { t } from '../i18n';
 
-// Only what Pro really unlocks (backend/app/services/entitlements.py + GrammarLessonScreen `isFree`): never list
-// features that are free for everyone or not built — store policies treat that as a misleading claim.
+// Only what Pro really unlocks (backend/app/services/entitlements.py): never list features that are free for everyone
+// or not built — store policies treat that as a misleading claim. Grows with the free/pro limits of the payment work.
 const PRO_FEATURES = [
   t("Sınırsız canlı sesli konuşma pratiği"),
   t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
-  t("Tüm gramer derslerinin kilidi açık"),
 ];
 
 type Plan = {

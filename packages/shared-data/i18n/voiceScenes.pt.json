@@ -436,6 +436,26 @@
   "keyPhrases.1.tr": "Houve uma queda significativa nas reclamações.",
   "keyPhrases.2.tr": "Em outras palavras, corrigimos o processo e os atrasos diminuíram."
  },
+ "vs-c1-press-interview": {
+  "titleTr": "Falar com uma jornalista",
+  "aiRole": "Jornalista",
+  "objectives.0.textTr": "Suavize o que você não pode provar com seem / appear / it would appear that / may well.",
+  "objectives.1.textTr": "Separe o que você sabe do que se diz (Reportedly…, It is alleged that…).",
+  "objectives.2.textTr": "Recuse uma citação que você não pode sustentar e diga o que pode confirmar.",
+  "keyPhrases.0.tr": "Ao que parece, a decisão foi tomada em particular.",
+  "keyPhrases.1.tr": "Pode até ser verdade, mas não posso confirmar.",
+  "keyPhrases.2.tr": "O que posso dizer oficialmente é isto."
+ },
+ "vs-c1-secret-source": {
+  "titleTr": "Encontro com uma fonte secreta",
+  "aiRole": "Fonte anônima",
+  "objectives.0.textTr": "Faça suposições sobre o passado com must / might / can't have been + -ing (They must have been planning this for months).",
+  "objectives.1.textTr": "Tranquilize Jo com condicionais formais (Should you feel unsafe…, Were you to go on record…, But for your help…).",
+  "objectives.2.textTr": "Consiga um detalhe concreto enquanto promete proteger o nome de Jo.",
+  "keyPhrases.0.tr": "Eles devem ter escondido isso por meses.",
+  "keyPhrases.1.tr": "Se você se sentir inseguro, me ligue na hora.",
+  "keyPhrases.2.tr": "Seu nome nunca vai aparecer, aconteça o que acontecer."
+ },
  "vs-c2-panel-debate": {
   "titleTr": "Debate em painel",
   "aiRole": "Painelista",
@@ -465,5 +485,35 @@
   "keyPhrases.0.tr": "Receio que não possamos nos comprometer com isso.",
   "keyPhrases.1.tr": "O que posso oferecer em vez disso é uma entrega em etapas.",
   "keyPhrases.2.tr": "Valorizo nossa parceria, por isso estou sendo sincero."
+ },
+ "vs-c2-distant-relative": {
+  "titleTr": "Conhecer uma parente distante",
+  "aiRole": "Sua prima distante",
+  "objectives.0.textTr": "Fale do vínculo familiar com tato e moderação (It's far from simple, It's not unlike…).",
+  "objectives.1.textTr": "Mostre que a ligação importa aconteça o que acontecer (Whatever happens, be it here or in Bristol…).",
+  "objectives.2.textTr": "Pergunte pelas memórias de Isabel e responda com sentimento real, sem exagerar.",
+  "keyPhrases.0.tr": "Não é nada fácil saber o que dizer.",
+  "keyPhrases.1.tr": "Aconteça o que acontecer, fico feliz por termos nos conhecido.",
+  "keyPhrases.2.tr": "A história da sua família não é tão diferente da minha."
+ },
+ "vs-c2-editor-deal": {
+  "titleTr": "Negociar com uma editora",
+  "aiRole": "Editora",
+  "objectives.0.textTr": "Discorde com firmeza usando negações fortes (I'm not in the least convinced, That's not remotely what I meant).",
+  "objectives.1.textTr": "Conceda um ponto e defenda outro (I concede that…, but I'd maintain that…).",
+  "objectives.2.textTr": "Chegue a um acordo claro sobre o tamanho, o título e o capítulo que você quer manter.",
+  "keyPhrases.0.tr": "O novo título não me convence nem um pouco.",
+  "keyPhrases.1.tr": "Admito que a parte do meio está longa demais.",
+  "keyPhrases.2.tr": "Mas continuo defendendo que o último capítulo fica."
+ },
+ "vs-c2-wedding-speech": {
+  "titleTr": "O discurso de casamento",
+  "aiRole": "Organizadora de casamentos",
+  "objectives.0.textTr": "Faça um brinde curto que misture um toque formal com uma história pessoal (I'd like to pay homage to…).",
+  "objectives.1.textTr": "Use um desejo literário (Would that…, If only…, Oh, to…).",
+  "objectives.2.textTr": "Aceite o retorno da Olivia, encurte o discurso e termine com um brinde claro.",
+  "keyPhrases.0.tr": "Quero prestar homenagem às pessoas que nos trouxeram até aqui.",
+  "keyPhrases.1.tr": "Quem dera todo casal tivesse essa sorte.",
+  "keyPhrases.2.tr": "Por favor, ergam seus copos aos noivos!"
  }
 }

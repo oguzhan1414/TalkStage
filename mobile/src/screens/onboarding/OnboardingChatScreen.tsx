@@ -16,31 +16,29 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CEFR_CURRICULUM } from '@talkstage/shared-data/curriculumData';
 
 import { minimalFeatureIcons, mivoVoiceImages, roadmapTaskImages } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { TypewriterText, TypingDots } from '../../components/chat/ChatTyping';
-import { hasFeature, PATH_FEATURES, PlanFeatureGrid } from '../../components/PlanFeatureGrid';
-import { PlanPicker } from '../../components/PlanPicker';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
 import { useAuth } from '../../context/AuthContext';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { flatSteps, loc, pathLevel } from '../../data/path';
 import { usePronunciation } from '../../hooks/usePronunciation';
 import { t } from '../../i18n';
 import { useAnalytics } from '../../lib/analytics';
 import { ApiError } from '../../lib/api';
-import { shortTopicTitle } from '../../lib/curriculumTasks';
 import { haptics } from '../../lib/haptics';
-import { planFromPreset, presetForAnswers, presetOptions, type Struggle } from '../../lib/learningPlan';
+import { type Struggle } from '../../lib/learningPlan';
 import { enableNotifications, notificationsAlreadyAllowed, NOTIFICATIONS_UNAVAILABLE, setNotificationTime, TIME_PRESETS } from '../../lib/notifications';
+import { savePathLevel } from '../../lib/pathLevel';
 import { STAGE_COLOR, stageTitle, type StageId } from '../../lib/stages';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { colors, fonts, shadow, spacing } from '../../theme/tokens';
 import { requestOpenNextStep } from '../../widget/homeWidget';
 
-type Step = 'name' | 'goal' | 'struggle' | 'level' | 'demo' | 'mic' | 'features' | 'time' | 'reminder' | 'plan';
-const STEP_ORDER: Step[] = ['name', 'goal', 'struggle', 'level', 'demo', 'mic', 'features', 'time', 'reminder', 'plan'];
+type Step = 'name' | 'goal' | 'struggle' | 'level' | 'demo' | 'mic' | 'time' | 'reminder' | 'plan';
+const STEP_ORDER: Step[] = ['name', 'goal', 'struggle', 'level', 'demo', 'mic', 'time', 'reminder', 'plan'];
 
 type Msg =
   | { id: number; who: 'mivo'; kind: 'text'; text: string; animate: boolean }
@@ -157,12 +155,10 @@ function demoForGoal(goal: string | null): Demo {
 
 /** Everything inside the app, for the "İçeride neler var?" card (path items and the always-open extras). */
 const TOUR_ITEMS: { image: number; label: () => string }[] = [
+  { image: minimalFeatureIcons.reading, label: () => t("Hikâye dersleri") },
   { image: roadmapTaskImages.scene, label: () => t("Sesli sahneler") },
-  { image: roadmapTaskImages.lesson, label: () => t("Konu anlatımı") },
-  { image: roadmapTaskImages.writing, label: () => t("Yazma") },
-  { image: minimalFeatureIcons.reading, label: () => t("Hikayeler") },
-  { image: roadmapTaskImages.vocab, label: () => t("Kelimeler") },
-  { image: minimalFeatureIcons.podcasts, label: () => t("Podcastler") },
+  { image: roadmapTaskImages.vocab, label: () => t("Kelime tekrarı") },
+  { image: minimalFeatureIcons.wordRooms, label: () => t("Kelime odaları") },
   { image: minimalFeatureIcons.pronunciation, label: () => t("Telaffuz") },
   { image: minimalFeatureIcons.mistakesNotebook, label: () => t("Hata defteri") },
 ];
@@ -185,7 +181,6 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
   const [busy, setBusy] = useState(true);
   const [step, setStep] = useState<Step>('name');
   const [name, setName] = useState('');
-  const [planOpen, setPlanOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -260,8 +255,6 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, busy]);
 
-  const plan = draft.learningPlan ?? planFromPreset(presetForAnswers(draft.learningGoal, draft.struggle));
-
   // ---- answers ----
 
   const submitName = (preset?: string) => {
@@ -332,19 +325,19 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
       .then((micAllowed) => {
         if (micAllowed) {
           // Already allowed (e.g. used voice before): say so instead of silently skipping the step.
-          void say([...intro, t("Mikrofon iznin zaten açık, harika! 👂"), ...tourLines()], 'features');
+          void say([...intro, t("Mikrofon iznin zaten açık, harika! 👂"), ...tourLines()], 'time');
         } else {
           void say([...intro, t("Bunun için mikrofon iznine ihtiyacım var. Sadece sen konuşurken dinlerim 🎧")], 'mic');
         }
       });
   };
 
-  /** The tour of everything inside, then the optional choice of what goes on the path. */
+  /** The tour of everything inside (all of it comes along the path on its own), then the daily time. */
   const tourLines = (): Say[] => [
     t("Ama sadece bu değil! İçeride seni bir sürü şey bekliyor:"),
     { tour: true },
-    t("Merak etme dostum, hiçbirini seçmek şart değil 😊"),
-    t("İstersen ihtiyacına uygun olanları seç, istersen benim önerimle devam et 👇"),
+    t("Hepsi Bugün yolunda, sırası gelince karşına çıkacak 😊"),
+    t("Son olarak: günde ne kadar vakit ayırabilirsin?"),
   ];
 
   /** Microphone, asked right after the demo where its reason is obvious. "Sonra": the first voice scene asks again. */
@@ -364,36 +357,6 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
           ? t("Harika, artık seni duyabilirim! 👂")
           : t("Sorun değil, ilk sesli sahnede tekrar sorarım 👍"),
         ...tourLines(),
-      ],
-      'features'
-    );
-  };
-
-  /** "Sen seç, Mivo": keep the suggestion from the answers (any toggling is dropped). */
-  const skipFeatures = () => {
-    if (locked.current) return;
-    haptics.selection();
-    answer(t("Sen seç, Mivo 🙂"));
-    updateDraft({ learningPlan: null });
-    void say(
-      [
-        t("Tamam! Cevaplarına göre en uygununu seçtim. İstediğin zaman Ayarlar'dan değiştirebilirsin."),
-        t("Son olarak: günde ne kadar vakit ayırabilirsin?"),
-      ],
-      'time'
-    );
-  };
-
-  const confirmFeatures = () => {
-    if (locked.current || plan.skills.length === 0) return;
-    haptics.selection();
-    const chosen = PATH_FEATURES.filter((f) => hasFeature(plan, f.id)).map((f) => f.title());
-    answer(chosen.join(' · '));
-    updateDraft({ learningPlan: plan });
-    void say(
-      [
-        t("Süper! Bunu istediğin zaman Ayarlar'dan değiştirebilirsin."),
-        t("Son olarak: günde ne kadar vakit ayırabilirsin?"),
       ],
       'time'
     );
@@ -454,6 +417,8 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
     setError(null);
     try {
       const profile = await completeOnboarding();
+      // The path starts at the chosen stage (A1 / B1 / C1); without this the home always opened A1.
+      await savePathLevel(draft.cefrLevel ?? 'A1');
       // Home opens the first step of the path as soon as it has loaded.
       requestOpenNextStep();
       finishOnboarding(profile);
@@ -465,9 +430,9 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
 
   // ---- render ----
 
-  const presetTitle = plan.preset === 'custom' ? t("Sana özel") : presetOptions().find((p) => p.id === plan.preset)?.title ?? '';
   const level = LEVELS.find((l) => l.code === draft.cefrLevel) ?? LEVELS[0];
-  const firstTopic = CEFR_CURRICULUM[level.code]?.topics[0];
+  const pathOfLevel = pathLevel(level.code);
+  const firstEpisode = flatSteps(pathOfLevel).find((f) => f.step.kind === 'reading')?.step;
   const progress = (STEP_ORDER.indexOf(step) + (busy ? 0 : 1)) / STEP_ORDER.length;
 
   const renderMsg = (msg: Msg, index: number) => {
@@ -538,18 +503,12 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
     } else {
       body = (
         <View style={[styles.planCard, shadow.card]}>
-          <PlanRow emoji={level.emoji} label={t("Seviye")} value={stageTitle(level.stage)} color={STAGE_COLOR[level.stage]} />
-          <PlanRow emoji="🧭" label={t("Odak")} value={presetTitle} />
-          <PlanRow
-            emoji="📚"
-            label={t("İçerik")}
-            value={PATH_FEATURES.filter((f) => hasFeature(plan, f.id)).map((f) => f.title()).join(', ')}
-          />
-          <PlanRow emoji="⏱️" label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last={!firstTopic} />
-          {firstTopic ? <PlanRow emoji="📍" label={t("İlk konu")} value={shortTopicTitle(firstTopic)} last /> : null}
-          <Pressable onPress={() => setPlanOpen(true)} hitSlop={8} style={styles.planEdit} accessibilityRole="button">
-            <Text style={styles.planEditText}>{t("Planı değiştir")}</Text>
-          </Pressable>
+          <PlanRow emoji={level.emoji} label={t("Seviye")} value={`${stageTitle(level.stage)} · ${level.code}`} color={STAGE_COLOR[level.stage]} />
+          <PlanRow emoji="📖" label={t("Hikâye")} value={loc(pathOfLevel.story.title)} />
+          <PlanRow emoji="⏱️" label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last={!firstEpisode} />
+          {firstEpisode && firstEpisode.kind === 'reading' ? (
+            <PlanRow emoji="📍" label={t("İlk bölüm")} value={loc(firstEpisode.episode.title)} last />
+          ) : null}
         </View>
       );
     }
@@ -703,22 +662,6 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
               </View>
             ) : null}
 
-            {step === 'features' ? (
-              <View style={{ gap: 10 }}>
-                <PlanFeatureGrid plan={plan} onChange={(next) => updateDraft({ learningPlan: next })} />
-                <Text style={styles.featureNote}>{t("🎧 Podcast, telaffuz ve serbest sohbet her zaman Özellikler'de açık.")}</Text>
-                <Button
-                  label={t("Böyle devam et ➔")}
-                  variant="chunky"
-                  disabled={plan.skills.length === 0}
-                  onPress={confirmFeatures}
-                />
-                <Pressable onPress={skipFeatures} style={styles.skip} accessibilityRole="button">
-                  <Text style={styles.skipText}>{t("Seçmeden geç, Mivo karar versin")}</Text>
-                </Pressable>
-              </View>
-            ) : null}
-
             {step === 'time' ? (
               <View style={styles.timeRow}>
                 {DAILY_GOAL_OPTIONS.map((d) => (
@@ -756,17 +699,6 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
           </Animated.View>
         ) : null}
       </KeyboardAvoidingView>
-
-      <Modal visible={planOpen} transparent animationType="slide" onRequestClose={() => setPlanOpen(false)}>
-        <Pressable style={styles.sheetBackdrop} onPress={() => setPlanOpen(false)}>
-          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <PlanPicker plan={plan} onChange={(next) => updateDraft({ learningPlan: next })} />
-            </ScrollView>
-            <Button label={t("Tamam")} variant="chunky" onPress={() => setPlanOpen(false)} style={{ marginTop: 12 }} />
-          </Pressable>
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }
