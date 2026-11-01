@@ -46,7 +46,7 @@ export function PartTrack({ part, value, partsDone, run, shineKey }: { part: num
   );
 }
 
-function Segment({ fill }: { fill: number }) {
+export function Segment({ fill }: { fill: number }) {
   const v = useRef(new Animated.Value(fill)).current;
   useEffect(() => {
     Animated.timing(v, { toValue: Math.max(0, Math.min(1, fill)), duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();

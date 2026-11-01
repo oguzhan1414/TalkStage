@@ -3556,5 +3556,10 @@
   "Hikâye dersleri": "Geschichten-Lektionen",
   "Kelime odaları": "Worträume",
   "Hepsi Bugün yolunda, sırası gelince karşına çıkacak 😊": "Alles liegt auf deinem Heute-Weg und kommt, wenn es so weit ist 😊",
-  "İlk bölüm": "Erste Folge"
+  "İlk bölüm": "Erste Folge",
+  "Tur {{n}}/{{m}}": "Runde {{n}}/{{m}}",
+  "Tur {{n}} bitti": "Runde {{n}} geschafft",
+  "Kelime durağı": "Wörter-Station",
+  "{{n}} kelime · ~{{m}} dk": "{{n}} Wörter · ~{{m}} Min.",
+  "Tur {{n}}": "Runde {{n}}"
 }

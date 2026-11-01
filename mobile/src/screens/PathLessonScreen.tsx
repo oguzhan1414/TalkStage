@@ -1695,7 +1695,7 @@ function PartCard({ stepId, part, nextMinutes, onNext, onLater }: { stepId: stri
 }
 
 /** A number that counts up from 0 (the XP won). */
-function CountUp({ to, delay = 0, style }: { to: number; delay?: number; style?: StyleProp<TextStyle> }) {
+export function CountUp({ to, delay = 0, style }: { to: number; delay?: number; style?: StyleProp<TextStyle> }) {
   const [n, setN] = useState(0);
   useEffect(() => {
     let frame = 0;

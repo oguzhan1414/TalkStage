@@ -3533,5 +3533,10 @@
   "Hikâye dersleri": "Story lessons",
   "Kelime odaları": "Word rooms",
   "Hepsi Bugün yolunda, sırası gelince karşına çıkacak 😊": "It's all on your Today path and comes up when it's time 😊",
-  "İlk bölüm": "First episode"
+  "İlk bölüm": "First episode",
+  "Tur {{n}}/{{m}}": "Round {{n}}/{{m}}",
+  "Tur {{n}} bitti": "Round {{n}} done",
+  "Kelime durağı": "Word stop",
+  "{{n}} kelime · ~{{m}} dk": "{{n}} words · ~{{m}} min",
+  "Tur {{n}}": "Round {{n}}"
 }

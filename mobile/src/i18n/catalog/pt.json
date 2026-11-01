@@ -3556,5 +3556,10 @@
   "Hikâye dersleri": "Lições com história",
   "Kelime odaları": "Salas de palavras",
   "Hepsi Bugün yolunda, sırası gelince karşına çıkacak 😊": "Está tudo no seu caminho de Hoje e aparece na hora certa 😊",
-  "İlk bölüm": "Primeiro episódio"
+  "İlk bölüm": "Primeiro episódio",
+  "Tur {{n}}/{{m}}": "Rodada {{n}}/{{m}}",
+  "Tur {{n}} bitti": "Rodada {{n}} concluída",
+  "Kelime durağı": "Parada de palavras",
+  "{{n}} kelime · ~{{m}} dk": "{{n}} palavras · ~{{m}} min",
+  "Tur {{n}}": "Rodada {{n}}"
 }
