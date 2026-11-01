@@ -27,7 +27,7 @@ import { playSfx, preloadSfx } from '../lib/sfx';
 import { voiceSceneRoomParams } from '../lib/voiceSceneLaunch';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
-import type { GrammarMistakeOut, ProfileOut, ProgressOut, VocabCardOut } from '../types/api';
+import type { ProfileOut, ProgressOut, VocabCardOut } from '../types/api';
 
 const TAB_BAR = 68;
 const RING_W = 12;
@@ -48,7 +48,7 @@ const RING: Record<string, { ring: string; fill: [string, string] }> = {
 /**
  * Home of the new learning path (docs/yeni-ogrenme-yolu.md). One screen, no scrolling: the next step of the level's
  * story as a big floating medallion (swipe or use the arrows to browse; neighbours shrink and fade as they slide),
- * the story's chapter count, today's small jobs (words due, mistakes) as pills, Mivo beside it recalling the last
+ * the story's chapter count, today's small jobs (words due, goal done) as pills, Mivo beside it recalling the last
  * episode, the unit's steps as a road of little pictures, and the Mivo chat button.
  */
 export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
@@ -59,9 +59,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   const { data: practice } = useQuery({ queryKey: ['progress'], queryFn: () => api.get<ProgressOut[]>('/progress') });
-  // Today's small jobs next to the story: the words due for review and the mistakes waiting in the notebook.
+  // Today's small jobs next to the story: the words due for review.
   const { data: dueCards } = useQuery({ queryKey: ['vocab-cards'], queryFn: () => api.get<VocabCardOut[]>('/vocab-cards') });
-  const { data: mistakes } = useQuery({ queryKey: ['grammar-mistakes'], queryFn: () => api.get<GrammarMistakeOut[]>('/progress/mistakes') });
 
   // The level is picked in the profile for now (lib/pathLevel.ts).
   const [levelId] = usePathLevel();
@@ -164,7 +163,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
   const levelShare = steps.length ? current.index / steps.length : 0;
   const dueCount = dueCards?.length ?? 0;
-  const mistakeCount = mistakes?.length ?? 0;
 
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
@@ -241,16 +239,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             {dueCount > 0 ? (
               <TodayPill delay={250} icon="layers" color="#0EA5E9" label={t("{{n}} kelime", { n: dueCount })} onPress={() => navigation.navigate('Vocab')} />
             ) : null}
-            {mistakeCount > 0 ? (
-              <TodayPill
-                delay={380}
-                icon="bookmark"
-                color="#F43F5E"
-                label={t("{{n}} hata", { n: mistakeCount })}
-                onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
-              />
-            ) : null}
-            {goalDone ? <TodayPill delay={510} icon="checkmark-circle" color="#16A34A" label={t("Hedef tamam")} /> : null}
+            {goalDone ? <TodayPill delay={380} icon="checkmark-circle" color="#16A34A" label={t("Hedef tamam")} /> : null}
           </View>
         </View>
 
@@ -667,7 +656,7 @@ function Shine() {
   );
 }
 
-/** One of today's small jobs beside the story title (words due, mistakes, goal done). */
+/** One of today's small jobs beside the story title (words due, goal done). */
 function TodayPill({
   icon,
   color,
