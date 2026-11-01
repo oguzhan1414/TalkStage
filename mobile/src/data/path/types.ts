@@ -1,4 +1,5 @@
 import { getLocale } from '../../i18n';
+import { ensurePathLanguage } from './overlay';
 
 /**
  * The new learning path: one linear road per level, built from units of
@@ -13,6 +14,7 @@ export type Loc = { tr: string; en?: string; es?: string; pt?: string; de?: stri
 export function loc(text: Loc | undefined): string {
   if (!text) return '';
   const lang = getLocale();
+  ensurePathLanguage(lang);
   return text[lang] ?? text.en ?? text.tr;
 }
 
@@ -21,6 +23,7 @@ export function gloss(text: Loc | undefined): string {
   if (!text) return '';
   const lang = getLocale();
   if (lang === 'en') return '';
+  ensurePathLanguage(lang);
   return text[lang] ?? '';
 }
 
