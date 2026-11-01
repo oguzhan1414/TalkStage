@@ -1,17 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useQuery } from '@tanstack/react-query';
 import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { navIcons } from '../assets/images';
-import { profileAvatar } from '../components/AppHeader';
-import { api } from '../lib/api';
 import { PathHomeScreen } from '../screens/PathHomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ScenariosScreen } from '../screens/ScenariosScreen';
 import { VocabScreen } from '../screens/VocabScreen';
 import { colors, fonts, shadow } from '../theme/tokens';
-import type { ProfileOut } from '../types/api';
 import type { MainTabParamList } from './types';
 import { t } from '../i18n';
 
@@ -19,13 +15,12 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const TAB_CONFIG: Record<
   keyof MainTabParamList,
-  { label: string; image?: ReturnType<typeof require> }
+  { label: string; image: ReturnType<typeof require> }
 > = {
   Home: { label: t("Bugün"), image: navIcons.today },
   Scenarios: { label: t("Sahneler"), image: navIcons.scenes },
   Vocab: { label: t("Kelimeler"), image: navIcons.words },
-  // The learner's own avatar, like the profile tab in most language apps.
-  Profile: { label: t("Profil") },
+  Profile: { label: t("Profil"), image: navIcons.profile },
 };
 
 /**
@@ -34,7 +29,6 @@ const TAB_CONFIG: Record<
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
   const bottomMargin = Math.max(insets.bottom, 16);
-  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
 
   return (
     <Tab.Navigator
@@ -88,19 +82,7 @@ export function MainTabNavigator() {
                 style={[styles.tabItem, isFocused && styles.tabItemActive]}
               >
                 <View style={[styles.iconContainer, isFocused && styles.iconContainerActive]}>
-                  {config.image ? (
-                    <Image
-                      source={config.image}
-                      style={[styles.tabIcon, !isFocused && styles.tabIconInactive]}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Image
-                      source={profileAvatar(profile)}
-                      style={[styles.tabAvatar, isFocused ? styles.tabAvatarActive : styles.tabAvatarInactive]}
-                      resizeMode="cover"
-                    />
-                  )}
+                  <Image source={config.image} style={[styles.tabIcon, !isFocused && styles.tabIconInactive]} resizeMode="contain" />
                 </View>
                 <Text
                   style={[
@@ -180,20 +162,6 @@ const styles = StyleSheet.create({
   },
   tabIconInactive: {
     opacity: 0.36,
-  },
-  tabAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    backgroundColor: '#EEF2FF',
-  },
-  tabAvatarActive: {
-    borderColor: colors.brand,
-  },
-  tabAvatarInactive: {
-    borderColor: '#E2E8F0',
-    opacity: 0.75,
   },
   tabLabel: {
     fontSize: 10,

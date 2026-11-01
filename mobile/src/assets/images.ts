@@ -86,6 +86,7 @@ export const navIcons = {
   scenes: require('../../assets/images/nav/scenes.png'),
   words: require('../../assets/images/nav/words.png'),
   features: require('../../assets/images/nav/features.png'),
+  profile: require('../../assets/images/nav/profile.png'),
 };
 
 /** Bento Scenario Categories (05 - 10) */
