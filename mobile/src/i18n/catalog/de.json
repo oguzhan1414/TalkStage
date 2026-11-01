@@ -3561,5 +3561,10 @@
   "Tur {{n}} bitti": "Runde {{n}} geschafft",
   "Kelime durağı": "Wörter-Station",
   "{{n}} kelime · ~{{m}} dk": "{{n}} Wörter · ~{{m}} Min.",
-  "Tur {{n}}": "Runde {{n}}"
+  "Tur {{n}}": "Runde {{n}}",
+  "{{n}} günlük serin var! Bugün 5 dakika ayırsan yeter, hadi şu bölümü bitirelim.": "Du hast eine Serie von {{n}} Tagen! Heute reichen fünf Minuten, lass uns diese Folge beenden.",
+  "Bugünkü hedefin tamam, harikasın! İstersen bir bölüm daha okuyalım.": "Dein Tagesziel ist geschafft, super! Wenn du magst, lesen wir noch eine Folge.",
+  "Bölüm {{n}}/{{m}}": "Folge {{n}}/{{m}}",
+  "{{n}} hata": "{{n}} Fehler",
+  "Hedef tamam": "Ziel geschafft"
 }

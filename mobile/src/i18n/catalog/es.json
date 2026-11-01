@@ -3561,5 +3561,10 @@
   "Tur {{n}} bitti": "Ronda {{n}} terminada",
   "Kelime durağı": "Parada de palabras",
   "{{n}} kelime · ~{{m}} dk": "{{n}} palabras · ~{{m}} min",
-  "Tur {{n}}": "Ronda {{n}}"
+  "Tur {{n}}": "Ronda {{n}}",
+  "{{n}} günlük serin var! Bugün 5 dakika ayırsan yeter, hadi şu bölümü bitirelim.": "¡Llevas una racha de {{n}} días! Hoy bastan cinco minutos, terminemos este episodio.",
+  "Bugünkü hedefin tamam, harikasın! İstersen bir bölüm daha okuyalım.": "¡Meta de hoy cumplida, eres genial! Si quieres, leemos un episodio más.",
+  "Bölüm {{n}}/{{m}}": "Episodio {{n}}/{{m}}",
+  "{{n}} hata": "{{n}} errores",
+  "Hedef tamam": "Meta cumplida"
 }

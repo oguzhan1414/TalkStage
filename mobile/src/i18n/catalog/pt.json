@@ -3561,5 +3561,10 @@
   "Tur {{n}} bitti": "Rodada {{n}} concluída",
   "Kelime durağı": "Parada de palavras",
   "{{n}} kelime · ~{{m}} dk": "{{n}} palavras · ~{{m}} min",
-  "Tur {{n}}": "Rodada {{n}}"
+  "Tur {{n}}": "Rodada {{n}}",
+  "{{n}} günlük serin var! Bugün 5 dakika ayırsan yeter, hadi şu bölümü bitirelim.": "Você tem uma sequência de {{n}} dias! Hoje cinco minutos bastam, vamos terminar este episódio.",
+  "Bugünkü hedefin tamam, harikasın! İstersen bir bölüm daha okuyalım.": "Meta de hoje concluída, você é demais! Se quiser, lemos mais um episódio.",
+  "Bölüm {{n}}/{{m}}": "Episódio {{n}}/{{m}}",
+  "{{n}} hata": "{{n}} erros",
+  "Hedef tamam": "Meta concluída"
 }

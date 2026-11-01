@@ -3538,5 +3538,10 @@
   "Tur {{n}} bitti": "Round {{n}} done",
   "Kelime durağı": "Word stop",
   "{{n}} kelime · ~{{m}} dk": "{{n}} words · ~{{m}} min",
-  "Tur {{n}}": "Round {{n}}"
+  "Tur {{n}}": "Round {{n}}",
+  "{{n}} günlük serin var! Bugün 5 dakika ayırsan yeter, hadi şu bölümü bitirelim.": "You have a {{n}}-day streak! Five minutes today is enough, let's finish this episode.",
+  "Bugünkü hedefin tamam, harikasın! İstersen bir bölüm daha okuyalım.": "Today's goal is done, you're great! Let's read one more episode if you like.",
+  "Bölüm {{n}}/{{m}}": "Episode {{n}}/{{m}}",
+  "{{n}} hata": "{{n}} mistakes",
+  "Hedef tamam": "Goal done"
 }
