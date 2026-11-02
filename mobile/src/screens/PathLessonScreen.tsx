@@ -403,28 +403,35 @@ function Choice({
 }
 
 /** The panel that slides in after an answer: right / not quite, a line under it, and the way on. */
-function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label: string; onNext: () => void }) {
+function Feedback({ ok, helped, sub, label, onNext }: { ok: boolean; helped?: boolean; sub?: string; label: string; onNext: () => void }) {
+  // `helped`: finished, but with hints or several slips. Not a mistake: a warm amber note instead of a red cross.
+  const tone = ok ? 'ok' : helped ? 'help' : 'bad';
   const praise = useMemo(() => {
-    const lines = ok ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")] : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
+    const lines =
+      tone === 'ok'
+        ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")]
+        : tone === 'help'
+          ? [t("Tamamladın!"), t("Yardımla tamam!"), t("Güzel, bir dahakine kendin!")]
+          : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
     return lines[Math.floor(Math.random() * lines.length)];
-  }, [ok]);
+  }, [tone]);
 
   useEffect(() => {
-    playSfx(ok ? 'correct' : 'wrong');
+    playSfx(tone === 'bad' ? 'wrong' : 'correct');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <FadeIn from={24} style={[styles.feedback, ok ? styles.feedbackOk : styles.feedbackBad]}>
+    <FadeIn from={24} style={[styles.feedback, tone === 'ok' ? styles.feedbackOk : tone === 'help' ? styles.feedbackHelp : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
-        <PopIn style={[styles.feedbackIcon, { backgroundColor: ok ? colors.success : colors.error }]}>
-          <Ionicons name={ok ? 'checkmark' : 'close'} size={22} color="#FFFFFF" />
+        <PopIn style={[styles.feedbackIcon, { backgroundColor: tone === 'ok' ? colors.success : tone === 'help' ? '#F59E0B' : colors.error }]}>
+          <Ionicons name={tone === 'ok' ? 'checkmark' : tone === 'help' ? 'bulb' : 'close'} size={22} color="#FFFFFF" />
         </PopIn>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.feedbackTitle, { color: ok ? '#047857' : '#BE123C' }]}>{praise}</Text>
+          <Text style={[styles.feedbackTitle, { color: tone === 'ok' ? '#047857' : tone === 'help' ? '#B45309' : '#BE123C' }]}>{praise}</Text>
           {sub ? <Text style={styles.feedbackSub}>{sub}</Text> : null}
         </View>
       </View>
-      <NextButton label={label} onPress={onNext} tone={ok ? 'ok' : 'bad'} />
+      <NextButton label={label} onPress={onNext} tone={tone === 'ok' ? 'ok' : tone === 'help' ? 'brand' : 'bad'} />
     </FadeIn>
   );
 }
@@ -674,17 +681,59 @@ export function PickStep({
   );
 }
 
-const KEY_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+/** The word's letters, each once, in a stable shuffled order (the same word always lays out the same way). */
+function letterTiles(word: string): string[] {
+  const letters = [...new Set(word.toLowerCase().split('').filter((c) => /[a-z]/.test(c)))];
+  let seed = 0;
+  for (const c of word) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
+  for (let i = letters.length - 1; i > 0; i -= 1) {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    const k = seed % (i + 1);
+    [letters[i], letters[k]] = [letters[k], letters[i]];
+  }
+  // Never start already in order (a short word could shuffle back into itself).
+  if (letters.length > 1 && letters.join('') === [...new Set(word.toLowerCase().split('').filter((c) => /[a-z]/.test(c)))].join('')) letters.reverse();
+  return letters;
+}
 
-/** Type the word: the keyboard only opens the word's letters; a wrong letter shakes, "Yardım" adds the next one. */
+/** One letter tile: big, well apart; a wrong tap shakes only this tile. */
+function LetterTile({ letter, size, onPress }: { letter: string; size: number; onPress: (l: string) => boolean }) {
+  const shake = useShake();
+  const pop = usePop(1.12);
+  return (
+    // Two layers: both animations move `transform`, which would overwrite each other on one view.
+    <Animated.View style={shake.style}>
+      <Animated.View style={pop.style}>
+      <Pressable
+        onPress={() => {
+          if (onPress(letter)) pop.pop();
+          else shake.shake();
+        }}
+        hitSlop={4}
+        style={({ pressed }) => [styles.tile, { width: size, height: size + 6 }, pressed && { transform: [{ translateY: 3 }], borderBottomWidth: 2 }]}
+        accessibilityRole="button"
+        accessibilityLabel={letter}
+      >
+        <Text style={[styles.tileText, { fontSize: Math.round(size * 0.48) }]}>{letter}</Text>
+      </Pressable>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+/**
+ * Type the word with big tiles of its own letters (each letter once, shuffled). A wrong tap shakes the tile;
+ * "Yardım" fills the next letter. One slip still counts as right (fingers miss); hints or several slips end with
+ * a friendly "done with help", never a red cross.
+ */
 function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: (ok: boolean) => void; report: (i: number, n: number) => void; onDone: () => void }) {
   const { say: pronounce } = usePathVoice();
   const { width } = useWindowDimensions();
   const items = words.slice(0, 5);
   const [idx, setIdx] = useState(0);
   const [pos, setPos] = useState(0);
-  const slip = useRef(false);
-  const shake = useShake();
+  const slips = useRef(0);
+  const hints = useRef(0);
   const w = items[idx];
   const target = w.en.toLowerCase();
   // Letters to type; spaces, apostrophes and hyphens fill themselves.
@@ -696,8 +745,11 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
   };
   const at = skipFixed(pos);
   const solved = at >= target.length;
-  const open = useMemo(() => new Set(target.split('').filter(isLetter)), [target]);
-  const keyW = Math.floor((width - 16 - 9 * 5) / 10);
+  const tiles = useMemo(() => letterTiles(w.en), [w.en]);
+  // Up to 5 tiles a row, as big as the screen allows (never under 52 pt, so neighbours are hard to hit by mistake).
+  const perRow = Math.min(5, Math.max(4, Math.ceil(tiles.length / 2)));
+  const tileSize = Math.max(52, Math.min(68, Math.floor((width - 32 - (perRow - 1) * 12) / perRow)));
+  const clean = slips.current <= 1 && hints.current === 0;
 
   useEffect(() => {
     report(idx, items.length);
@@ -706,34 +758,36 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
 
   useEffect(() => {
     if (!solved) return;
-    tally(!slip.current);
+    tally(clean);
     haptics.success();
     setTimeout(() => pronounce(w.en).catch(() => {}), 450);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solved]);
 
+  /** True when the letter was the next one. */
   const press = (k: string) => {
-    if (solved) return;
+    if (solved) return true;
     if (k === target[at]) {
       playSfx('tap');
       haptics.selection();
       setPos(skipFixed(at + 1));
-    } else {
-      slip.current = true;
-      haptics.warning();
-      shake.shake();
+      return true;
     }
+    slips.current += 1;
+    haptics.light();
+    return false;
   };
   const help = () => {
     if (solved) return;
-    slip.current = true;
+    hints.current += 1;
     setPos(skipFixed(at + 1));
   };
   const next = () => {
     if (idx + 1 >= items.length) onDone();
     else {
       // Reset in the same render as the word change, so the new word never looks solved for a frame.
-      slip.current = false;
+      slips.current = 0;
+      hints.current = 0;
       setPos(0);
       setIdx(idx + 1);
     }
@@ -745,17 +799,17 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
   return (
     <>
       <FadeIn>
-        <StepHead icon="create" title={t("Kelimeyi yaz")} sub={t("Sadece kelimenin harfleri açık. Sırayla dokun.")} />
+        <StepHead icon="create" title={t("Kelimeyi yaz")} sub={t("Harflere sırayla dokun.")} />
       </FadeIn>
       <FadeIn key={`t${idx}`} delay={40} style={styles.typePrompt}>
         {img ? <Image source={img} style={styles.typeImg} resizeMode="contain" /> : null}
         <Text style={styles.typeMeaning}>{meaning || w.en}</Text>
       </FadeIn>
 
-      <Animated.View style={[styles.slots, shake.style]}>
+      <View style={styles.slots}>
         {target.split('').map((c, i) =>
           isLetter(c) ? (
-            <View key={i} style={[styles.slot, i < at && styles.slotFilled, solved && styles.slotSolved]}>
+            <View key={i} style={[styles.slot, i === at && !solved && styles.slotNow, i < at && styles.slotFilled, solved && styles.slotSolved]}>
               <Text style={[styles.slotText, solved && { color: '#15803D' }]}>{i < at ? w.en[i] : ''}</Text>
             </View>
           ) : (
@@ -764,35 +818,21 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
             </View>
           )
         )}
-      </Animated.View>
+      </View>
 
       {solved ? (
-        <Feedback key={`f${idx}`} ok={!slip.current} sub={wordLine(w)} label={t("Devam")} onNext={next} />
+        <Feedback key={`f${idx}`} ok={clean} helped={!clean} sub={wordLine(w)} label={t("Devam")} onNext={next} />
       ) : (
         <>
+          <View style={styles.tiles}>
+            {tiles.map((k) => (
+              <LetterTile key={`${idx}-${k}`} letter={k} size={tileSize} onPress={press} />
+            ))}
+          </View>
           <Pressable onPress={help} style={styles.helpBtn} accessibilityRole="button">
             <Ionicons name="bulb-outline" size={16} color={colors.brand} />
             <Text style={styles.helpText}>{t("Yardım")}</Text>
           </Pressable>
-          <View style={styles.keyboard}>
-            {KEY_ROWS.map((row) => (
-              <View key={row} style={styles.keyRow}>
-                {row.split('').map((k) => {
-                  const on = open.has(k);
-                  return (
-                    <Pressable
-                      key={k}
-                      disabled={!on}
-                      onPress={() => press(k)}
-                      style={({ pressed }) => [styles.key, { width: keyW }, on ? styles.keyOn : styles.keyOff, pressed && on && { transform: [{ translateY: 2 }] }]}
-                    >
-                      <Text style={[styles.keyText, !on && { color: '#CBD5E1' }]}>{k}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ))}
-          </View>
         </>
       )}
     </>
@@ -1870,6 +1910,7 @@ const styles = StyleSheet.create({
   feedback: { borderRadius: 22, padding: 14, gap: 10, borderWidth: 2 },
   feedbackOk: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
   feedbackBad: { backgroundColor: '#FFF1F2', borderColor: '#FECDD3' },
+  feedbackHelp: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
   feedbackRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   feedbackIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
@@ -1916,12 +1957,18 @@ const styles = StyleSheet.create({
   slotText: { fontFamily: fonts.headingBold, fontSize: 24, color: colors.textHeading },
   helpBtn: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10 },
   helpText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: colors.brand },
-  keyboard: { gap: 8, marginHorizontal: -spacing.md + 8 },
-  keyRow: { flexDirection: 'row', justifyContent: 'center', gap: 5 },
-  key: { height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  keyOn: { backgroundColor: '#FFFFFF', borderWidth: 2, borderBottomWidth: 4, borderColor: '#C7D2FE' },
-  keyOff: { backgroundColor: '#F1F5F9' },
-  keyText: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, paddingVertical: 6 },
+  tile: {
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: '#C7D2FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tileText: { fontFamily: fonts.headingBold, color: colors.textHeading },
+  slotNow: { borderBottomColor: colors.brand, backgroundColor: '#EEF2FF' },
 
   saveRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, borderWidth: 2, borderColor: '#E2E8F0' },
   saveRowOn: { borderColor: '#C7D2FE', backgroundColor: '#F5F7FF' },
