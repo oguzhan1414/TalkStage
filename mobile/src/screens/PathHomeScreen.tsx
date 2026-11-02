@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -21,10 +20,9 @@ import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
 import { preloadStep } from '../lib/pathPreload';
 import { usePathLevel } from '../lib/pathLevel';
-import { currentStep, isDone, isPassed, recordStep, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
+import { currentStep, isDone, isPassed, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { haptics } from '../lib/haptics';
 import { playSfx, preloadSfx } from '../lib/sfx';
-import { voiceSceneRoomParams } from '../lib/voiceSceneLaunch';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 import type { ProfileOut, ProgressOut, VocabCardOut } from '../types/api';
@@ -201,13 +199,20 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
     else if (s.kind === 'room') navigation.navigate('WordRoom', { roomId: s.roomId, pathStepId: s.id });
     else if (s.kind === 'scene') {
-      const scene = voiceSceneById(s.sceneId);
-      if (!scene) return;
-      // Preview: the scene step counts as done once it is started (the room does not report back yet).
-      void recordStep(s.id, 3);
-      transitionTo(() => {
-        void voiceSceneRoomParams(scene).then((params) => navigation.navigate('FreeChatRoom', { ...params, origin: 'path' }));
-      }, t("Sahne Hazırlanıyor…"));
+      // End of the unit: not a Scenes-tab scene but Mivo as coach, rehearsing real life with the unit's grammar and
+      // words. The room writes the earned stars to this step; until then it stays open (or is skipped).
+      const unit = steps.find((f) => f.step.id === s.id)?.unit;
+      if (!unit) return;
+      const readings = unit.steps.flatMap((x) => (x.kind === 'reading' ? [x.episode] : []));
+      const unitFocus = {
+        stepId: s.id,
+        title: loc(unit.title),
+        // The step's own situation ("Mivo ile: Dil kursunda ilk gün" → "Dil kursunda ilk gün"), so the room matches the card.
+        situation: loc(s.title).replace(/^[^:]{1,20}:\s*/, ''),
+        points: readings.map((e) => loc(e.grammar)),
+        words: [...new Set(readings.flatMap((e) => e.words.slice(0, 4).map((w) => w.en)))].slice(0, 14),
+      };
+      transitionTo(() => navigation.navigate('FreeChatRoom', { unitFocus, origin: 'path' }), t("Mivo hazırlanıyor…"));
     }
   };
 
@@ -459,7 +464,7 @@ function Medallion({
       ? t("Bölüm {{n}}", { n: s.episode.number })
       : type === 'vocab'
         ? t("Kelime bölümü")
-        : t("Mivo ile sahne");
+        : t("Mivo ile hazırlık");
   const kickerIcon = type === 'reading' ? 'book' : type === 'vocab' ? 'sparkles' : 'mic';
   const subtitle =
     s.kind === 'reading'
@@ -469,7 +474,7 @@ function Medallion({
         : s.kind === 'soon' && s.grammar
           ? loc(s.grammar)
           : type === 'scene'
-            ? t("Sesli sahne")
+            ? t("Gerçek hayata hazırlık")
             : '';
   const cta = soon
     ? t("Yakında")

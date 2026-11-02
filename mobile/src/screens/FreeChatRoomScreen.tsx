@@ -31,6 +31,7 @@ import { api, ApiError } from '../lib/api';
 import { postQueued } from '../lib/outbox';
 import { haptics } from '../lib/haptics';
 import { setLearningFlag } from '../lib/learningFlags';
+import { recordStep } from '../lib/pathProgress';
 import { SCENE_STAR2_PREFIX, SCENE_STAR3_PREFIX } from '../lib/sceneProgress';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type { VocabCardCreate } from '../types/api';
@@ -100,6 +101,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const reviewTopics = route.params?.reviewTopics;
   const reviewId = route.params?.reviewId;
   const storyFocus = route.params?.storyFocus;
+  const unitFocus = route.params?.unitFocus;
   const isReview = Boolean(reviewTopics?.length);
   useTrackScreenView(
     scene ? 'scene_play_started' : isReview ? 'review_started' : focusTopic ? 'topic_practice_started' : 'free_chat_started',
@@ -108,7 +110,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const aiName = scene?.ai_name || AI_NAME;
   // One topic = the per-topic "Konu Tekrarı" (teach-then-practice); several = a mixed recall chat.
   const singleReview = reviewTopics?.length === 1 ? reviewTopics[0] : undefined;
-  const aiRole = scene?.ai_role || (singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
+  const aiRole = scene?.ai_role || (unitFocus ? t("Gerçek hayata hazırlık") : singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
   const { finishTransition } = useMivoTransition();
 
   const voice = useFreeChatSocket(
@@ -122,7 +124,9 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         }
       : focusTopic
         ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
-        : storyFocus
+        : unitFocus
+          ? { kind: 'unit', title: unitFocus.title, situation: unitFocus.situation, points: unitFocus.points, words: unitFocus.words }
+          : storyFocus
           ? { kind: 'story', title: storyFocus.title, grammar: storyFocus.grammar, story: storyFocus.story, summary: storyFocus.summary, words: storyFocus.words }
           : undefined,
     route.params?.origin
@@ -277,15 +281,19 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     if (exitingRef.current) return;
     exitingRef.current = true;
     endSession();
-    if (scene) {
+    if (scene || unitFocus) {
       const userTurns = turns.filter((turn) => turn.role === 'user').length;
       const completed = sceneCompleteSummary != null;
       let earned: 0 | 2 | 3 = completed && correctionsCount <= 2 ? 3 : completed || userTurns >= 4 ? 2 : 0;
       // Orta aşamada ipucu kullanıldıysa en fazla 2 yıldız.
       if (hintUsedRef.current && sceneHints?.costsStar && earned === 3) earned = 2;
       if (earned >= 2) {
-        setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
-        if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
+        if (scene) {
+          setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
+          if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
+        }
+        // The path's unit rehearsal: the earned stars complete the step on the path.
+        if (unitFocus) void recordStep(unitFocus.stepId, earned);
         postQueued('/progress/log-practice').catch(() => {});
         haptics.success();
         setResultStars(earned);
@@ -461,7 +469,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             </Pressable>
           ) : null}
 
-          {scene && sceneCompleteSummary ? (
+          {(scene || unitFocus) && sceneCompleteSummary ? (
             <Pressable onPress={handleExit} style={styles.sceneDoneStrip}>
               <Ionicons name="checkmark-circle" size={18} color="#059669" />
               <Text style={styles.sceneDoneText} numberOfLines={2}>

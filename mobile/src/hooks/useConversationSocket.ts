@@ -98,7 +98,11 @@ export type FocusTopicPayload = {
   words?: string[];
   code?: string;
   /** 'review' = recall several recent topics in one conversation (`topics`); 'story' = the path episode just read. */
-  kind?: 'review' | 'story';
+  kind?: 'review' | 'story' | 'unit';
+  /** kind 'unit': the unit's grammar points (the coach makes the learner use each one). */
+  points?: string[];
+  /** kind 'unit': the real-life situation to rehearse. */
+  situation?: string;
   /** kind 'story': the episode's grammar label, the story's title and what happened in the episode. */
   grammar?: string;
   story?: string;

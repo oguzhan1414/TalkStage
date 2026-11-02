@@ -61,6 +61,8 @@ export type RootStackParamList = {
         twistHint?: string;
         // Sesli sahne ipucu (Başlangıç): hedefler + anahtar ifadeler; yoksa ipucu düğmesi görünmez.
         sceneHints?: SceneHints;
+        /** End of a path unit: Mivo coaches a real-life rehearsal with the unit's grammar and words; stars go to `stepId`. */
+        unitFocus?: { stepId: string; title: string; situation?: string; points: string[]; words: string[] };
         /** Mivo button on Bugün: the last path episode the learner read, so Mivo talks about it. */
         storyFocus?: { title: string; grammar?: string; story?: string; summary?: string; words?: string[] };
         /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
