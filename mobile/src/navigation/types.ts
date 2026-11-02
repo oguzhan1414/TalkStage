@@ -61,6 +61,8 @@ export type RootStackParamList = {
         twistHint?: string;
         // Sesli sahne ipucu (Başlangıç): hedefler + anahtar ifadeler; yoksa ipucu düğmesi görünmez.
         sceneHints?: SceneHints;
+        /** Mivo button on Bugün: the last path episode the learner read, so Mivo talks about it. */
+        storyFocus?: { title: string; grammar?: string; story?: string; summary?: string; words?: string[] };
         /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
         origin?: 'path';
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check

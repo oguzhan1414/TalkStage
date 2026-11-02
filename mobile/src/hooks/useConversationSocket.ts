@@ -97,8 +97,12 @@ export type FocusTopicPayload = {
   formula?: string;
   words?: string[];
   code?: string;
-  /** 'review' = recall several recent topics in one conversation (`topics`). */
-  kind?: 'review';
+  /** 'review' = recall several recent topics in one conversation (`topics`); 'story' = the path episode just read. */
+  kind?: 'review' | 'story';
+  /** kind 'story': the episode's grammar label, the story's title and what happened in the episode. */
+  grammar?: string;
+  story?: string;
+  summary?: string;
   topics?: { title: string; formula?: string; words?: string[] }[];
 };
 

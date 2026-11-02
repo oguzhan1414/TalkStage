@@ -3579,5 +3579,7 @@
   "Sesli odalar şu an çok yoğun. Lütfen biraz sonra tekrar dene.": "Las salas de voz están muy ocupadas ahora. Inténtalo de nuevo un poco más tarde.",
   "Tamamladın!": "¡Lo lograste!",
   "Yardımla tamam!": "¡Hecho con un poco de ayuda!",
-  "Güzel, bir dahakine kendin!": "¡Bien, la próxima vez tú solo!"
+  "Güzel, bir dahakine kendin!": "¡Bien, la próxima vez tú solo!",
+  "Tebrikler, bu hikâyeyi bitirdin! 🎉 Hazırsan bir sonraki seviyede yeni bir hikâye seni bekliyor.": "¡Felicidades, terminaste esta historia! 🎉 Cuando quieras, en el siguiente nivel te espera una historia nueva.",
+  "Sonraki seviye: {{level}}": "Siguiente nivel: {{level}}"
 }

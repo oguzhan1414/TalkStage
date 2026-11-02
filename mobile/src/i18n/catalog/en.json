@@ -3556,5 +3556,7 @@
   "Sesli odalar şu an çok yoğun. Lütfen biraz sonra tekrar dene.": "Voice rooms are very busy right now. Please try again a little later.",
   "Tamamladın!": "You did it!",
   "Yardımla tamam!": "Done with a little help!",
-  "Güzel, bir dahakine kendin!": "Nice, next time on your own!"
+  "Güzel, bir dahakine kendin!": "Nice, next time on your own!",
+  "Tebrikler, bu hikâyeyi bitirdin! 🎉 Hazırsan bir sonraki seviyede yeni bir hikâye seni bekliyor.": "Congratulations, you finished this story! 🎉 When you're ready, a new story is waiting at the next level.",
+  "Sonraki seviye: {{level}}": "Next level: {{level}}"
 }

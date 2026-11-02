@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -15,7 +15,7 @@ import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
 import { HomeBackdrop } from '../components/path/HomeBackdrop';
 import { xpLevelInfo } from '../constants/xp';
-import { flatSteps, loc, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
+import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
 import { stepArt } from '../lib/pathArt';
@@ -63,7 +63,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { data: dueCards } = useQuery({ queryKey: ['vocab-cards'], queryFn: () => api.get<VocabCardOut[]>('/vocab-cards') });
 
   // The level is picked in the profile for now (lib/pathLevel.ts).
-  const [levelId] = usePathLevel();
+  const [levelId, setLevelId] = usePathLevel();
+  const queryClient = useQueryClient();
   const level = pathLevel(levelId);
   const steps = useMemo(() => flatSteps(level), [level]);
   const current = progress ? currentStep(level, progress) : steps[0];
@@ -144,10 +145,23 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal * 0.86 : winH * 0.6;
 
   const goalDone = todayMinutes >= target;
+  // The whole level passed: offer the next one (path and profile level move together, so Mivo talks at the new level).
+  const levelDone = !!progress && steps.every((f) => isPassed(progress, f.step.id));
+  const nextLevel = PATH_LEVELS[PATH_LEVELS.findIndex((l) => l.id === level.id) + 1];
+  const goNextLevel = () => {
+    if (!nextLevel) return;
+    haptics.success();
+    setLevelId(nextLevel.id);
+    api
+      .patch<ProfileOut>('/me', { cefr_level: nextLevel.id })
+      .then((updated) => queryClient.setQueryData(['me'], updated))
+      .catch(() => {});
+  };
   const streakAtRisk = !!profile?.streak_count && todayMinutes === 0 && new Date().getHours() >= 18;
   /** What Mivo says next to the medallion: today's state on the next step, else the previous episode or the story. */
   const mivoLine = (() => {
     const s = focused.step;
+    if (levelDone && nextLevel) return t("Tebrikler, bu hikâyeyi bitirdin! 🎉 Hazırsan bir sonraki seviyede yeni bir hikâye seni bekliyor.");
     if (focused.index === current.index && streakAtRisk) return t("{{n}} günlük serin var! Bugün 5 dakika ayırsan yeter, hadi şu bölümü bitirelim.", { n: profile?.streak_count ?? 0 });
     if (focused.index === current.index && goalDone) return t("Bugünkü hedefin tamam, harikasın! İstersen bir bölüm daha okuyalım.");
     if (s.kind === 'reading' && s.episode.recap) return loc(s.episode.recap);
@@ -161,6 +175,26 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
   const levelShare = steps.length ? current.index / steps.length : 0;
   const dueCount = dueCards?.length ?? 0;
+
+  /** The last episode the learner read (any part done), for the Mivo button: Mivo opens the chat about it. */
+  const storyFocus = (() => {
+    if (!progress) return undefined;
+    for (let i = Math.min(current.index, steps.length - 1); i >= 0; i -= 1) {
+      const s = steps[i].step;
+      if (s.kind !== 'reading' || starsOf(progress, s.id) === 0) continue;
+      // Each episode's recap tells the one before it, so the next episode's recap is what happened in this one.
+      const after = steps.slice(i + 1).find((f) => f.step.kind === 'reading')?.step;
+      const summary = after && after.kind === 'reading' && after.episode.recap ? loc(after.episode.recap) : undefined;
+      return {
+        title: loc(s.episode.title),
+        grammar: loc(s.episode.grammar),
+        story: loc(level.story.title),
+        summary,
+        words: s.episode.words.slice(0, 8).map((w) => w.en),
+      };
+    }
+    return undefined;
+  })();
 
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
@@ -236,6 +270,9 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           <View style={styles.pills}>
             {dueCount > 0 ? (
               <TodayPill delay={250} icon="layers" color="#0EA5E9" label={t("{{n}} kelime", { n: dueCount })} onPress={() => navigation.navigate('Vocab')} />
+            ) : null}
+            {levelDone && nextLevel ? (
+              <TodayPill delay={200} icon="rocket" color="#7C3AED" label={t("Sonraki seviye: {{level}}", { level: nextLevel.id })} onPress={goNextLevel} />
             ) : null}
             {goalDone ? <TodayPill delay={380} icon="checkmark-circle" color="#16A34A" label={t("Hedef tamam")} /> : null}
           </View>
@@ -338,7 +375,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       {/* Mivo chat button (bottom right) */}
       <BouncyPressable
         // Free chat is open at every level; the free plan's one trial is enforced by the server (voice_access.py).
-        onPress={() => transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"))}
+        onPress={() => transitionTo(() => navigation.navigate('FreeChatRoom', storyFocus ? { storyFocus } : undefined), t("Mivo ile Sohbet Başlıyor…"))}
         style={[styles.chatFab, { bottom: fabBottom }]}
         hitSlop={12}
         hapticType="medium"

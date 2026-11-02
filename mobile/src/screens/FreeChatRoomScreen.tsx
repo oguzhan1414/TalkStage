@@ -99,6 +99,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const focusTopic = route.params?.focusTopic;
   const reviewTopics = route.params?.reviewTopics;
   const reviewId = route.params?.reviewId;
+  const storyFocus = route.params?.storyFocus;
   const isReview = Boolean(reviewTopics?.length);
   useTrackScreenView(
     scene ? 'scene_play_started' : isReview ? 'review_started' : focusTopic ? 'topic_practice_started' : 'free_chat_started',
@@ -121,7 +122,9 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         }
       : focusTopic
         ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
-        : undefined,
+        : storyFocus
+          ? { kind: 'story', title: storyFocus.title, grammar: storyFocus.grammar, story: storyFocus.story, summary: storyFocus.summary, words: storyFocus.words }
+          : undefined,
     route.params?.origin
   );
   const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
