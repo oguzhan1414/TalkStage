@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { voiceSceneById } from '@talkstage/shared-data/voiceScenes';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, Image, Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { homeBackdrop } from '../assets/homeBackdrops';
@@ -132,7 +132,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const xp = xpLevelInfo(profile?.xp);
   const target = profile?.daily_target_minutes ?? 10;
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
-  const freeChatLocked = !profile?.cefr_level || profile.cefr_level.startsWith('A1');
   const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
   const backdrop = homeBackdrop(level.id);
   /** The carousel's place on screen, measured once laid out: the medallion is sized so it and its title and button fit. */
@@ -144,7 +143,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const arrowTop = carousel ? Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal / 2 - 23 : '42%';
   const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal * 0.86 : winH * 0.6;
 
-  const [chatLockOpen, setChatLockOpen] = useState(false);
   const goalDone = todayMinutes >= target;
   const streakAtRisk = !!profile?.streak_count && todayMinutes === 0 && new Date().getHours() >= 18;
   /** What Mivo says next to the medallion: today's state on the next step, else the previous episode or the story. */
@@ -339,10 +337,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
       {/* Mivo chat button (bottom right) */}
       <BouncyPressable
-        onPress={() => {
-          if (freeChatLocked) setChatLockOpen(true);
-          else transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"));
-        }}
+        // Free chat is open at every level; the free plan's one trial is enforced by the server (voice_access.py).
+        onPress={() => transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"))}
         style={[styles.chatFab, { bottom: fabBottom }]}
         hitSlop={12}
         hapticType="medium"
@@ -353,27 +349,13 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             <Image source={mivoHomeImages.fab} style={styles.chatFabImage} resizeMode="cover" />
           </View>
         </LinearGradient>
-        <View style={[styles.chatFabBadge, freeChatLocked && { backgroundColor: '#94A3B8' }]}>
-          <Ionicons name={freeChatLocked ? 'lock-closed' : 'mic'} size={11} color="#FFFFFF" />
+        <View style={styles.chatFabBadge}>
+          <Ionicons name="mic" size={11} color="#FFFFFF" />
         </View>
       </BouncyPressable>
 
       {celebrate?.kind === 'stars' ? <Confetti key={celebrate.key} count={22} /> : null}
 
-      <Modal visible={chatLockOpen} transparent animationType="fade" onRequestClose={() => setChatLockOpen(false)}>
-        <Pressable style={styles.overlay} onPress={() => setChatLockOpen(false)}>
-          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            <Image source={mivoVoiceImages.note} style={styles.sheetMivo} resizeMode="contain" />
-            <Text style={styles.sheetTitle}>{t("Serbest sohbet A2'de açılıyor")}</Text>
-            <Text style={styles.sheetText}>
-              {t("Önce temeli birlikte kuralım. Şimdilik her ünitenin sonunda Mivo'yla sesli bir sahnede konuşacağız; A2'ye geçince istediğin konuda sohbet edebilirsin.")}
-            </Text>
-            <Pressable onPress={() => setChatLockOpen(false)} style={styles.sheetBtn} accessibilityRole="button">
-              <Text style={styles.sheetBtnText}>{t("Tamam")}</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </View>
   );
 }
