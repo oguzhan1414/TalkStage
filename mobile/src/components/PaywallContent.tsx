@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Purchases, { PACKAGE_TYPE, type PurchasesPackage } from 'react-native-purchases';
 
+import { mivoHomeImages } from '../assets/images';
 import { privacyUrl, termsUrl } from '../constants/legalLinks';
 import { useRestorePurchases } from '../hooks/useRestorePurchases';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
@@ -91,15 +92,24 @@ export function usePaywall(onPurchased: () => void) {
     return pct >= 5 ? t("%{{n}} Tasarruf", { n: pct }) : undefined;
   })();
 
-  return { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving };
+  /** Days of the store's free trial on a plan (Play offer with a free phase), if there is one. */
+  const trialDays = (plan: Plan['key']) => {
+    const iso = packageFor(plan)?.product.defaultOption?.freePhase?.billingPeriod?.iso8601;
+    const m = iso ? /^P(\d+)([DW])$/.exec(iso) : null;
+    return m ? Number(m[1]) * (m[2] === 'W' ? 7 : 1) : 0;
+  };
+
+  return { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving, trialDays };
 }
 
 export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentProps) {
-  const { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving } = usePaywall(onPurchased);
+  const { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving, trialDays } = usePaywall(onPurchased);
+  const trial = trialDays(selected);
   const { restore, restoring } = useRestorePurchases(onPurchased);
 
   return (
     <View style={styles.root}>
+      <Image source={mivoHomeImages.pro} style={styles.hero} resizeMode="cover" />
       {eyebrow ? <Text style={styles.eyebrow}>{t("SPEKVIA PRO")}</Text> : null}
       <Text style={styles.title}>{t("Sınırsız pratik yap, hızla ilerle")}</Text>
 
@@ -129,6 +139,7 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
                 </View>
               ) : null}
               <Text style={styles.planLabel}>{plan.label}</Text>
+              {trialDays(plan.key) > 0 ? <Text style={styles.planTrial}>{t("{{n}} gün ücretsiz", { n: trialDays(plan.key) })}</Text> : null}
               <Text style={styles.planPrice}>{packageFor(plan.key)?.product.priceString ?? plan.price}</Text>
               <Text style={styles.planPeriod}>{plan.period}</Text>
             </Pressable>
@@ -137,12 +148,15 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
       </View>
 
       <Button
-        label={purchasing ? t("İşleniyor…") : t("Pro’ya Geç")}
+        label={purchasing ? t("İşleniyor…") : trial > 0 ? t("{{n}} gün ücretsiz dene", { n: trial }) : t("Pro’ya Geç")}
         onPress={handlePurchase}
         loading={purchasing}
         style={styles.ctaButton}
       />
-      <Text style={styles.disclaimer}>{t("İstediğin zaman tek tıkla iptal et.")}</Text>
+      <Text style={styles.disclaimer}>
+        {trial > 0 ? t("Deneme bitmeden iptal edersen ücret alınmaz. ") : ''}
+        {t("İstediğin zaman tek tıkla iptal et.")}
+      </Text>
       <View style={styles.legalRow}>
         <Pressable onPress={() => void Linking.openURL(termsUrl())} hitSlop={8}>
           <Text style={styles.legalLink}>{t("Kullanım Şartları")}</Text>
@@ -161,6 +175,8 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
 
 const styles = StyleSheet.create({
   root: { width: '100%', alignItems: 'center' },
+  hero: { width: 132, height: 132, borderRadius: 34, marginBottom: spacing.sm },
+  planTrial: { fontFamily: fonts.headingBold, fontSize: 12, color: '#15803D', marginTop: 2 },
   eyebrow: { ...typography.caption, fontFamily: fonts.headingSemiBold, color: colors.brand, letterSpacing: 1 },
   title: { ...typography.h1, textAlign: 'center' },
   featureList: { width: '100%', gap: spacing.sm, marginTop: spacing.sm },

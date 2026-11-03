@@ -3584,5 +3584,10 @@
   "Sonraki seviye: {{level}}": "Nächste Stufe: {{level}}",
   "Gerçek hayata hazırlık": "Probe fürs echte Leben",
   "Mivo hazırlanıyor…": "Mivo macht sich bereit…",
-  "Mivo ile hazırlık": "Üben mit Mivo"
+  "Mivo ile hazırlık": "Üben mit Mivo",
+  "{{n}} gün ücretsiz": "{{n}} Tage gratis",
+  "{{n}} gün ücretsiz dene": "{{n}} Tage gratis testen",
+  "Deneme bitmeden iptal edersen ücret alınmaz. ": "Kündigst du vor Ende der Testphase, zahlst du nichts. ",
+  "Spekvia'da \"{{title}}\" bölümünü bitirdim! İngilizceyi hikâyelerle öğreniyorum 📖 https://spekvia.com": "Ich habe auf Spekvia die Folge „{{title}}“ geschafft! Ich lerne Englisch mit Geschichten 📖 https://spekvia.com",
+  "Spekvia'da {{level}} hikâyesini bitirdim: \"{{story}}\" 🎉 İngilizceyi hikâyelerle öğreniyorum: https://spekvia.com": "Ich habe auf Spekvia die {{level}}-Geschichte geschafft: „{{story}}“ 🎉 Ich lerne Englisch mit Geschichten: https://spekvia.com"
 }

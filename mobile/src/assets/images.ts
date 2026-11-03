@@ -29,6 +29,8 @@ export const mivoHomeImages = {
   chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.webp'),
   /** Portrait for Home's round chat button: big face, wave, heart bubble (readable at ~60 px). */
   fab: require('../../assets/images/companion/mivo/mivo_fab.webp'),
+  /** Mivo with the golden mic and crown: the Spekvia Pro picture (paywall, Play subscription icon). */
+  pro: require('../../assets/images/companion/mivo/mivo_pro.webp'),
 } as const;
 
 /** Calm, rounded 3D icons for the Today learning roadmap. */

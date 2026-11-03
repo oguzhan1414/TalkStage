@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Easing, FlatList, Image, Pressable, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { homeBackdrop } from '../assets/homeBackdrops';
@@ -281,6 +281,22 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             ) : null}
             {levelDone && nextLevel ? (
               <TodayPill delay={200} icon="rocket" color="#7C3AED" label={t("Sonraki seviye: {{level}}", { level: nextLevel.id })} onPress={goNextLevel} />
+            ) : null}
+            {levelDone ? (
+              <TodayPill
+                delay={300}
+                icon="share-social"
+                color="#0EA5E9"
+                label={t("Paylaş")}
+                onPress={() =>
+                  void Share.share({
+                    message: t("Spekvia'da {{level}} hikâyesini bitirdim: \"{{story}}\" 🎉 İngilizceyi hikâyelerle öğreniyorum: https://spekvia.com", {
+                      level: level.id,
+                      story: loc(level.story.title),
+                    }),
+                  })
+                }
+              />
             ) : null}
             {goalDone ? <TodayPill delay={380} icon="checkmark-circle" color="#16A34A" label={t("Hedef tamam")} /> : null}
           </View>
@@ -574,7 +590,7 @@ function Medallion({
             locations={[0.62, 1]}
             style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]}
           />
-          {type !== 'scene' ? (
+          {type !== 'scene' || stars > 0 || celebrate?.kind === 'stars' ? (
             <View style={styles.medalStars}>
               {[1, 2, 3].map((n) =>
                 celebrate?.kind === 'stars' && n <= stars ? (

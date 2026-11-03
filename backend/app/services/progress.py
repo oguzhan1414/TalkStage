@@ -48,16 +48,23 @@ def update_streak_and_xp(ctx: AuthContext, xp_gained: int) -> None:
     last_practice_date = (
         date.fromisoformat(profile["last_practice_date"]) if profile["last_practice_date"] else None
     )
+    raw_freeze = profile.get("streak_freeze_used_on")  # migration 0035; absent before it runs
     new_state = next_streak_state(
         current_streak=profile["streak_count"],
         longest_streak=profile["longest_streak"],
         last_practice_date=last_practice_date,
+        last_freeze_on=date.fromisoformat(raw_freeze) if raw_freeze else None,
     )
-    ctx.db.table("profiles").update(
-        {
-            "streak_count": new_state.streak_count,
-            "longest_streak": new_state.longest_streak,
-            "last_practice_date": new_state.last_practice_date.isoformat(),
-            "xp": profile["xp"] + xp_gained,
-        }
-    ).eq("id", ctx.user.id).execute()
+    update = {
+        "streak_count": new_state.streak_count,
+        "longest_streak": new_state.longest_streak,
+        "last_practice_date": new_state.last_practice_date.isoformat(),
+        "xp": profile["xp"] + xp_gained,
+    }
+    # The freeze needs its column; without the migration the old rule applies (the day is not forgiven).
+    if new_state.freeze_used_on and "streak_freeze_used_on" in profile:
+        update["streak_freeze_used_on"] = new_state.freeze_used_on.isoformat()
+    elif new_state.freeze_used_on:
+        update["streak_count"] = 1
+        update["longest_streak"] = max(profile["longest_streak"], 1)
+    ctx.db.table("profiles").update(update).eq("id", ctx.user.id).execute()

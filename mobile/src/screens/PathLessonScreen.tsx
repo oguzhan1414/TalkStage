@@ -11,6 +11,7 @@ import {
   Keyboard,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -1835,6 +1836,20 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
         </View>
       </FadeIn>
       <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
+        <Pressable
+          onPress={() =>
+            void Share.share({
+              message: t("Spekvia'da \"{{title}}\" bölümünü bitirdim! İngilizceyi hikâyelerle öğreniyorum 📖 https://spekvia.com", {
+                title: loc(episode.title),
+              }),
+            })
+          }
+          style={styles.shareBtn}
+          accessibilityRole="button"
+        >
+          <Ionicons name="share-social" size={16} color={colors.brand} />
+          <Text style={styles.shareText}>{t("Paylaş")}</Text>
+        </Pressable>
         <NextButton
           label={t("Yola dön")}
           onPress={() => {
@@ -2086,6 +2101,8 @@ const styles = StyleSheet.create({
   doneStats: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   doneStat: { minWidth: 100, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
   doneStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  shareBtn: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8, marginBottom: 6 },
+  shareText: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.brand },
   doneStatLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
   cardDim: { backgroundColor: 'rgba(15,23,42,0.35)' },
   partCard: {
