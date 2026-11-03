@@ -84,9 +84,23 @@ def clean_spoken(text: str) -> str:
     return " ".join((text or "").replace('\\"', '"').replace("\\", "").replace("**", "").split())
 
 
+# Common words of the learners' own languages: a "suggested reply" with them is an explanation, not an answer.
+_NATIVE_WORDS = {
+    "ve", "bir", "bu", "yerine", "demelisin", "söyle", "soyle", "şimdi", "simdi", "değil", "degil", "için", "icin", "gibi",
+    "que", "una", "por", "para", "dice", "decir", "pero", "você", "voce", "dizer", "não", "nao", "und", "nicht", "sagen",
+    "statt", "anstatt", "der", "die", "das", "ist", "mit",
+}
+
+
 def _is_english(text: str) -> bool:
     letters = [c for c in text if c.isalpha()]
-    return bool(letters) and sum(c.isascii() for c in letters) / len(letters) > 0.97
+    if not letters or sum(c.isascii() for c in letters) / len(letters) < 0.97:
+        return False
+    # An answer to say aloud has no quotes or colons in it (those mean someone is explaining a sentence).
+    if any(ch in text for ch in '"“”«»:'):
+        return False
+    words = {w.strip(".,!?;").lower() for w in text.split()}
+    return not (words & _NATIVE_WORDS)
 
 
 _QUOTED = re.compile(
