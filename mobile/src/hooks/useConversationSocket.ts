@@ -750,7 +750,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
       setPendingTranscript(null);
       setPendingWords([]);
       setPendingConfidence(null);
-      setLiveError(t("Seni duyamadım, tekrar dener misin?"));
+      setLiveError(t("Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş."));
     }, REVIEW_TIMEOUT_MS);
   }, [stream]);
 

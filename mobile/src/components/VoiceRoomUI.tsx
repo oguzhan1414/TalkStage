@@ -217,7 +217,7 @@ export function VoiceRoomControls({ voice, aiName }: {
     {((turnPhase === 'thinking_time' && showKeyboard) || turnPhase === 'error') && (
       <View style={styles.reviewActionsRow}>
         <TextInput value={draft} onChangeText={setDraft} maxLength={2000}
-          placeholder={t("İstersen Türkçe veya İngilizce yaz…")} accessibilityLabel={t("Mivo'ya mesaj")}
+          placeholder={t("İngilizce yaz…")} accessibilityLabel={t("Mivo'ya mesaj")}
           style={[styles.reviewTextInput, { flex: 1 }]} multiline />
         <Pressable disabled={!draft.trim()} accessibilityRole="button" accessibilityLabel={t("Mesajı gönder")}
           style={[styles.reviewSecondaryBtn, { minHeight: 44 }]}
