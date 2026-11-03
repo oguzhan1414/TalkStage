@@ -22,6 +22,8 @@ import { haptics } from '../lib/haptics';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import {
   SCENE_FLAG_PREFIX,
+  SCENE_STAR2_PREFIX,
+  SCENE_STAR3_PREFIX,
   levelToFinishFor,
   loadSceneStars,
   pickSceneOfTheDay,
@@ -95,6 +97,17 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
     () => pickSceneOfTheDay(readyVideoScenarios, userLevel, sceneStars),
     [readyVideoScenarios, userLevel, sceneStars]
   );
+
+  // The result screen's "next scene": the next playable scene in the list, preferring one not played yet.
+  const nextAfterSelected = useMemo(() => {
+    if (!selectedVideoScenario) return null;
+    const i = readyVideoScenarios.findIndex((s) => s.id === selectedVideoScenario.id);
+    const after = [...readyVideoScenarios.slice(i + 1), ...readyVideoScenarios.slice(0, Math.max(0, i))].filter(
+      (s) => sceneAccess(s.level, userLevel) !== 'locked'
+    );
+    return after.find((s) => starsOf(s.id) === 0) ?? after[0] ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVideoScenario, readyVideoScenarios, userLevel, sceneStars]);
 
   // Soft level lock: tapping a scene two+ levels above the user's level only
   // explains how to unlock it; one level above stays playable ("zor" label).
@@ -258,7 +271,9 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                         title={sc.titleTr}
                         character={sc.aiName}
                         minutes={sc.durationMin}
-                        watched={stars > 0}
+                        stars={stars}
+                        levelColor={STAGE_COLOR[sec.id]}
+                        level={sc.level}
                         access={sceneAccess(sc.level, userLevel)}
                         unlockLabel={t("{{stage}} aşamasında açılır", { stage: unlockStage(sc.level) })}
                         onPress={() => openVideoScene(sc)}
@@ -279,14 +294,16 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
         visible={!!selectedVideoScenario}
         scenario={selectedVideoScenario}
         onClose={() => setSelectedVideoScenario(null)}
-        onComplete={(earnedXp) => {
-          if (selectedVideoScenario) {
-            const id = selectedVideoScenario.id;
-            setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
-            setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, 1) as 1 | 2 | 3 }));
-          }
-          showToast(t("🏆 Harika! 3D senaryoyu tamamladın (+{{earnedXp}} XP)", { earnedXp }));
+        onComplete={(_earnedXp, stars) => {
+          if (!selectedVideoScenario) return;
+          const id = selectedVideoScenario.id;
+          // Best result is kept: 1 = finished, 2 and 3 from how cleanly the lines were said.
+          setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
+          if (stars >= 2) setLearningFlag(`${SCENE_STAR2_PREFIX}${id}`);
+          if (stars >= 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${id}`);
+          setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, stars) as 1 | 2 | 3 }));
         }}
+        onNextScene={nextAfterSelected ? () => setSelectedVideoScenario(nextAfterSelected) : undefined}
       />
     </SafeAreaView>
   );

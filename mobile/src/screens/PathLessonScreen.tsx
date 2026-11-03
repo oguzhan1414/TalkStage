@@ -46,6 +46,7 @@ import { stepArt } from '../lib/pathArt';
 import { nextStepOf, preloadStep } from '../lib/pathPreload';
 import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
+import { closeWord, tokens } from '../lib/speechMatch';
 import { noteLessonFinished } from '../lib/storeReview';
 import { trackEvent } from '../lib/analytics';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
@@ -74,39 +75,6 @@ const shuffle = <T,>(list: T[]): T[] => {
   }
   return a;
 };
-
-/** A spoken word counts when speech recognition got it right or one letter off (only for words of 4+ letters). */
-function closeWord(said: string, want: string): boolean {
-  if (said === want) return true;
-  if (want.length < 4 || Math.abs(said.length - want.length) > 1) return false;
-  let i = 0;
-  let j = 0;
-  let edits = 0;
-  while (i < said.length && j < want.length) {
-    if (said[i] === want[j]) {
-      i++;
-      j++;
-      continue;
-    }
-    if (++edits > 1) return false;
-    if (said.length > want.length) i++;
-    else if (said.length < want.length) j++;
-    else {
-      i++;
-      j++;
-    }
-  }
-  return edits + (said.length - i) + (want.length - j) <= 1;
-}
-
-/** Words of a sentence, lower-cased, without punctuation (for the read-aloud check). */
-const tokens = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[’']/g, "'")
-    .replace(/[^a-z0-9' ]+/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
 
 /** The phases of each part for this episode (steps without content are left out). */
 function partPhases(e: PathEpisode): Phase[][] {
