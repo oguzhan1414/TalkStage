@@ -71,6 +71,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   const [imgError, setImgError] = useState(false);
   const [videoStatus, setVideoStatus] = useState<'idle' | 'loading' | 'readyToPlay' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
+  /** Width / height of the playing clip: some scenes are portrait (9:16), some landscape (16:9). */
+  const [videoAspect, setVideoAspect] = useState(16 / 9);
   // The learner's turn
   const [hintLevel, setHintLevel] = useState(0);
   const [misses, setMisses] = useState(0);
@@ -122,12 +124,21 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
       const d = player.duration;
       if (d > 0) setProgress(Math.min(1, currentTime / d));
     });
+    const readAspect = (size?: { width: number; height: number } | null) => {
+      if (size && size.width > 0 && size.height > 0) setVideoAspect(size.width / size.height);
+    };
     setVideoStatus(player.status);
-    const status = player.addListener('statusChange', ({ status: s }) => setVideoStatus(s));
+    readAspect(player.videoTrack?.size);
+    const status = player.addListener('statusChange', ({ status: s }) => {
+      setVideoStatus(s);
+      if (s === 'readyToPlay') readAspect(player.videoTrack?.size);
+    });
+    const track = player.addListener('videoTrackChange', ({ videoTrack }) => readAspect(videoTrack?.size));
     return () => {
       ended.remove();
       time.remove();
       status.remove();
+      track.remove();
     };
   }, [player]);
 
@@ -387,7 +398,13 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.55)' }]} />
 
             <View style={[styles.videoArea, { paddingTop: insets.top + 64 }]}>
-              <View style={styles.videoFrame}>
+              <View
+                style={[
+                  styles.videoFrame,
+                  // Landscape fills the width; portrait fills the height (narrower, centred).
+                  videoAspect >= 1 ? { width: '100%', maxHeight: '100%', aspectRatio: videoAspect } : { height: '100%', maxWidth: '100%', aspectRatio: videoAspect },
+                ]}
+              >
                 <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="contain" nativeControls={false} />
                 {phase === 'playing' && videoStatus === 'loading' ? (
                   <View style={styles.videoOverlay} pointerEvents="none">
@@ -757,7 +774,7 @@ const styles = StyleSheet.create({
   ghostBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textMuted },
 
   videoArea: { flex: 1, justifyContent: 'center', paddingHorizontal: 12, paddingBottom: 12 },
-  videoFrame: { width: '100%', aspectRatio: 16 / 9, maxHeight: '100%', alignSelf: 'center', borderRadius: 18, overflow: 'hidden', backgroundColor: '#000000' },
+  videoFrame: { alignSelf: 'center', borderRadius: 18, overflow: 'hidden', backgroundColor: '#000000' },
   subtitleWrap: { paddingHorizontal: 16, gap: 12 },
   subtitleCard: { backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 20, padding: 14, gap: 8, ...shadow.md },
   speakerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
