@@ -8,8 +8,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { homeBackdrop } from '../assets/homeBackdrops';
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
-import { profileAvatar } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { MivoStage } from '../components/MivoStage';
+import Svg, { Circle } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
@@ -19,6 +20,7 @@ import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
+import { isProUser } from '../lib/revenuecat';
 import { trackEvent } from '../lib/analytics';
 import { stepArt } from '../lib/pathArt';
 import { preloadStep } from '../lib/pathPreload';
@@ -60,6 +62,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   const { data: practice } = useQuery({ queryKey: ['progress'], queryFn: () => api.get<ProgressOut[]>('/progress') });
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   // Today's small jobs next to the story: the words due for review.
   const { data: dueCards } = useQuery({ queryKey: ['vocab-cards'], queryFn: () => api.get<VocabCardOut[]>('/vocab-cards') });
 
@@ -138,7 +141,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const backdrop = homeBackdrop(level.id);
   /** The carousel's place on screen, measured once laid out: the medallion is sized so it and its title and button fit. */
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
-  const maxMedal = Math.min(winW * 0.8, 340);
+  const maxMedal = Math.min(winW * 0.86, 380);
   const medal = Math.round(carousel ? Math.max(150, Math.min(maxMedal, carousel.h - MEDAL_EXTRA)) : Math.min(maxMedal, winH * 0.28));
   /** Where the backdrop's street ends: just above the medallion's bottom, so its title sits on the cream floor below. */
   /** The arrows sit at the medallion's middle. */
@@ -215,6 +218,25 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     return undefined;
   })();
 
+  /** Mivo's bubble next to the Mivo button: shown a few seconds when there is something to say, then it folds away. */
+  const [bubbleOn, setBubbleOn] = useState(false);
+  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showBubble = (ms = 6000) => {
+    setBubbleOn(true);
+    if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = setTimeout(() => setBubbleOn(false), ms);
+  };
+  // When the page opens, and when the learner swipes to another step: the recap or the tip for that step.
+  useEffect(() => {
+    if (!progress) return;
+    const id = setTimeout(() => showBubble(index === current.index ? 6500 : 4000), 700);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, !!progress]);
+  useEffect(() => () => {
+    if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+  }, []);
+
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
@@ -243,47 +265,34 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       <HomeBackdrop backdrop={backdrop} width={winW} horizon={horizon} />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-        {/* Top: Mivo friendship level, today's goal, streak */}
-        <View style={styles.top}>
-          <View style={styles.topGlass}>
-            <BouncyPressable
-              onPress={() => navigation.navigate('Profile')}
-              style={styles.avatar}
-              hitSlop={8}
-              hapticType="light"
-              scaleTo={0.93}
-              accessibilityRole="button"
-              accessibilityLabel={t("Profil")}
-            >
-              <Image source={profileAvatar(profile)} style={styles.avatarImage} resizeMode="cover" />
-              <View style={styles.avatarLevel}>
-                <Text style={styles.avatarLevelText}>{xp.level}</Text>
-              </View>
-            </BouncyPressable>
-            <View style={styles.goal}>
-              <View style={styles.goalRow}>
-                <Text style={styles.goalLabel}>{t("Günlük hedef")}</Text>
-                <Text style={styles.goalValue}>{t("{{n}}/{{target}} dk", { n: Math.min(todayMinutes, target), target })}</Text>
-              </View>
-              <View style={styles.goalTrack}>
-                <View style={[styles.goalFill, { width: `${Math.max(4, Math.min(100, (todayMinutes / target) * 100))}%` }]} />
-              </View>
-            </View>
-            <View style={styles.topDivider} />
-            <View style={styles.streak}>
-              <Ionicons name="flame" size={22} color="#F97316" />
-              <Text style={styles.streakNum}>{profile?.streak_count ?? 0}</Text>
-            </View>
+        {/* Top: one slim row — streak, level and unit, today's goal ring, Pro */}
+        <View style={styles.topRow}>
+          <View style={styles.topChip}>
+            <Ionicons name="flame" size={18} color="#F97316" />
+            <Text style={styles.topChipNum}>{profile?.streak_count ?? 0}</Text>
           </View>
+          <View style={[styles.topChip, { flex: 1, justifyContent: 'center' }]}>
+            <Text style={styles.storyChipLevel}>{level.id}</Text>
+            <Text style={styles.topChipText} numberOfLines={1}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
+          </View>
+          <GoalRing minutes={Math.min(todayMinutes, target)} target={target} />
+          <Pressable
+            onPress={() => {
+              if (isPro) return;
+              trackEvent('paywall_opened', { source: 'home_pro_pill' });
+              navigation.navigate('Paywall');
+            }}
+            style={[styles.proPill, isPro && styles.proPillOn]}
+            accessibilityRole="button"
+            accessibilityLabel={t("Spekvia Pro")}
+          >
+            <Text style={styles.proPillText}>👑 PRO</Text>
+          </Pressable>
         </View>
 
         {/* Story */}
         <View style={styles.storyRow}>
           <View style={{ flex: 1, alignItems: 'flex-start' }}>
-            <View style={[styles.storyChip, backdrop.lightSky && styles.storyChipOnLight]}>
-              <Text style={styles.storyChipLevel}>{level.id}</Text>
-              <Text style={[styles.storyChipText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
-            </View>
             <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
               <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
                 {loc(level.story.title)}
@@ -319,17 +328,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                 }
               />
             ) : null}
-            {goalDone ? <TodayPill delay={380} icon="checkmark-circle" color="#16A34A" label={t("Hedef tamam")} /> : null}
-          </View>
-        </View>
-
-        {/* Mivo recalls the story */}
-        <View style={styles.mivoRow}>
-          <Image source={mivoVoiceImages.speak} style={styles.mivo} resizeMode="contain" />
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText} numberOfLines={3}>
-              {mivoLine}
-            </Text>
           </View>
         </View>
 
@@ -431,13 +429,25 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       >
         <LinearGradient colors={['#818CF8', '#A855F7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.chatFabRing}>
           <View style={styles.chatFabInner}>
-            <Image source={mivoHomeImages.fab} style={styles.chatFabImage} resizeMode="cover" />
+            {/* The same Mivo as in the voice rooms, breathing in its waiting loop */}
+            <MivoStage state="idle" height={62} fit="cover" zoom={1.7} />
           </View>
         </LinearGradient>
         <View style={styles.chatFabBadge}>
           <Ionicons name="mic" size={11} color="#FFFFFF" />
         </View>
       </BouncyPressable>
+
+      {bubbleOn ? (
+        <PopIn style={[styles.mivoBubble, { bottom: fabBottom + 12 }]}>
+          <Pressable onPress={() => setBubbleOn(false)} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+            <Text style={styles.mivoBubbleName}>Mivo</Text>
+            <Text style={styles.mivoBubbleText} numberOfLines={4}>
+              {mivoLine}
+            </Text>
+          </Pressable>
+        </PopIn>
+      ) : null}
 
       {celebrate?.kind === 'stars' ? <Confetti key={celebrate.key} count={22} /> : null}
       <StoryIntroSheet
@@ -710,6 +720,39 @@ function Medallion({
   );
 }
 
+/** Today's goal as a small ring with the minutes in it (green when done). */
+function GoalRing({ minutes, target }: { minutes: number; target: number }) {
+  const size = 40;
+  const stroke = 4;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const share = target > 0 ? Math.min(1, minutes / target) : 0;
+  const done = share >= 1;
+  return (
+    <View style={styles.goalRing} accessibilityLabel={t("{{n}}/{{target}} dk", { n: minutes, target })}>
+      <Svg width={size} height={size}>
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(148,163,184,0.35)" strokeWidth={stroke} fill="#FFFFFF" />
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke={done ? '#22C55E' : '#6366F1'}
+          strokeWidth={stroke}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${c * share} ${c}`}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <View style={StyleSheet.absoluteFill}>
+        <View style={styles.goalRingInner}>
+          {done ? <Ionicons name="checkmark" size={16} color="#16A34A" /> : <Text style={styles.goalRingText}>{minutes}</Text>}
+        </View>
+      </View>
+    </View>
+  );
+}
+
 /** A light sweep across the start button every few seconds. */
 function Shine() {
   const v = useRef(new Animated.Value(0)).current;
@@ -808,6 +851,55 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
   top: { paddingHorizontal: spacing.md, paddingTop: 6 },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, paddingTop: 6 },
+  topChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 40,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  topChipNum: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
+  topChipText: { fontFamily: fonts.headingBold, fontSize: 13.5, color: '#3730A3' },
+  goalRing: { width: 40, height: 40 },
+  goalRingInner: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  goalRingText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
+  proPill: {
+    height: 40,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    justifyContent: 'center',
+    backgroundColor: '#FDE68A',
+    borderWidth: 1.5,
+    borderColor: '#F59E0B',
+  },
+  proPillOn: { backgroundColor: '#FFF7D6' },
+  proPillText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#92400E', letterSpacing: 0.4 },
+  mivoBubble: {
+    position: 'absolute',
+    right: spacing.md + 76,
+    left: spacing.md + 24,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+    borderBottomRightRadius: 4,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    zIndex: 98,
+  },
+  mivoBubbleName: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, letterSpacing: 0.4, marginBottom: 2 },
+  mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
   topGlass: {
     flexDirection: 'row',
     alignItems: 'center',

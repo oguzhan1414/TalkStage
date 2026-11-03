@@ -9,7 +9,23 @@ import { MIVO_STAGE_BG, mivoStagePosters, mivoStageVideos, type MivoStageState }
  * When the state changes, the new state's still poster covers the swap and fades out once the new loop plays, so
  * there is never a black frame. If the video cannot play, the poster simply stays.
  */
-export function MivoStage({ state, height, children, style }: { state: MivoStageState; height: number; children?: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function MivoStage({
+  state,
+  height,
+  zoom = 1,
+  fit = 'contain',
+  children,
+  style,
+}: {
+  state: MivoStageState;
+  height: number;
+  /** >1 frames Mivo's face (the round button on Bugün); 1 shows the whole loop. */
+  zoom?: number;
+  /** 'cover' fills a small round frame; 'contain' shows the whole loop. */
+  fit?: 'contain' | 'cover';
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
   const [failed, setFailed] = useState(false);
   const [poster, setPoster] = useState<MivoStageState>(state);
   const cover = useRef(new Animated.Value(1)).current;
@@ -52,18 +68,20 @@ export function MivoStage({ state, height, children, style }: { state: MivoStage
 
   return (
     <View style={[styles.stage, { height }, style]}>
+      <View style={[StyleSheet.absoluteFill, zoom !== 1 && { transform: [{ scale: zoom }, { translateY: height * 0.08 * (zoom - 1) }] }]}>
       {!failed ? (
         <VideoView
           player={player}
           style={StyleSheet.absoluteFill}
-          contentFit="contain"
+          contentFit={fit}
           nativeControls={false}
           onFirstFrameRender={() => Animated.timing(cover, { toValue: 0, duration: 180, useNativeDriver: true }).start()}
         />
       ) : null}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: failed ? 1 : cover }]}>
-        <Image source={mivoStagePosters[poster]} style={StyleSheet.absoluteFill} resizeMode="contain" />
+        <Image source={mivoStagePosters[poster]} style={StyleSheet.absoluteFill} resizeMode={fit} />
       </Animated.View>
+      </View>
       {children}
     </View>
   );
