@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { t } from '../i18n';
+import { onPathSynced, schedulePathPush } from './pathSync';
 
 /**
  * The level the path home shows. For now the learner picks it in the profile (AccountSettings); how A1 moves on
@@ -21,6 +22,7 @@ export async function loadPathLevel(): Promise<string> {
 export async function savePathLevel(id: string): Promise<void> {
   try {
     await AsyncStorage.setItem(KEY, id);
+    schedulePathPush();
   } catch {
     // keeps working for this session
   }
@@ -38,6 +40,8 @@ export function usePathLevel(): [string, (id: string) => void] {
       };
     }, [])
   );
+  // A fresh install takes the level from the server once the session starts.
+  useEffect(() => onPathSynced(() => void loadPathLevel().then(setId)), []);
   const choose = useCallback((next: string) => {
     setId(next);
     void savePathLevel(next);

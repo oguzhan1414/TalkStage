@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { flatSteps, type FlatStep, type PathLevel } from '../data/path';
+import { onPathSynced, schedulePathPush } from './pathSync';
 
 /**
- * Progress on the new learning path, kept on the device for now: stars per finished step, the parts finished of a
- * reading lesson that is still open, and the scene steps the learner chose to skip. (Moves to the server once the path leaves the preview branch.)
+ * Progress on the learning path: stars per finished step, the parts finished of a reading lesson that is still
+ * open, and the scene steps the learner chose to skip. Screens read the device copy; lib/pathSync.ts keeps the
+ * server copy (backend /path-progress) in step with it, so a new phone or a reinstall brings it back.
  */
 // v2: the A1 content was rewritten to the three-star format (docs/a1_ders_plani.md), so old progress is dropped.
 const KEY = 'spekvia.path.v2';
@@ -37,6 +39,7 @@ export async function loadPathProgress(): Promise<PathProgress> {
 async function save(p: PathProgress) {
   try {
     await AsyncStorage.setItem(KEY, JSON.stringify(p));
+    schedulePathPush();
   } catch {
     // best effort
   }
@@ -102,5 +105,7 @@ export function usePathProgress() {
       };
     }, [])
   );
+  // The server copy arrived after the screen loaded (first start on a new phone): show it.
+  useEffect(() => onPathSynced(reload), [reload]);
   return { progress, reload };
 }
