@@ -90,7 +90,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   const { pronounce, stop: stopPronunciation, isPlaying: isAudioPlaying } = usePronunciation();
   const recorder = useVoiceRecorder();
   const insets = useSafeAreaInsets();
-  const { height: winH } = useWindowDimensions();
+  const { width: winW, height: winH } = useWindowDimensions();
+  const coverH = Math.round(Math.min(winH * 0.4, winW * 0.95));
   const ring = useLoop(turn === 'recording', 1100);
   const shake = useShake();
 
@@ -299,7 +300,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
     cast.face ? (
       <Image source={cast.face} style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor: cast.color }} />
     ) : (
-      <View style={[styles.initials, { width: size, height: size, borderRadius: size / 2, backgroundColor: cast.color }]}>
+      <View style={[styles.initials, { width: size, height: size, borderRadius: size / 2, backgroundColor: cast.color === '#94A3B8' ? levelColor : cast.color }]}>
         <Text style={[styles.initialsText, { fontSize: size * 0.42 }]}>{initialsOf(speaker)}</Text>
       </View>
     );
@@ -311,104 +312,100 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
         {phase === 'preview' ? (
           <View style={[styles.stage, styles.page]}>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 18 }} showsVerticalScrollIndicator={false} bounces={false}>
-              <View style={{ height: Math.round(winH * 0.42) }}>
-                <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" onError={() => setImgError(true)} />
-                <LinearGradient
-                  colors={['rgba(15,23,42,0.35)', 'rgba(15,23,42,0)', 'rgba(248,250,252,0)', PAGE_BG]}
-                  locations={[0, 0.3, 0.75, 1]}
-                  style={StyleSheet.absoluteFill}
-                  pointerEvents="none"
-                />
+              <View style={[styles.coverBox, { height: coverH }]}>
+                <Image source={coverSource} style={{ width: winW, height: coverH }} resizeMode="cover" onError={() => setImgError(true)} />
+                <LinearGradient colors={['rgba(15,23,42,0.45)', 'rgba(15,23,42,0)']} style={styles.coverTopShade} pointerEvents="none" />
               </View>
-              <View style={styles.previewContent}>
-              <View style={styles.metaRow}>
-                <View style={[styles.levelPill, { backgroundColor: levelColor }]}>
-                  <Text style={styles.levelPillText}>{scenario.level}</Text>
-                </View>
-                <View style={styles.metaPill}>
-                  <Ionicons name="film-outline" size={13} color={colors.brand} />
-                  <Text style={styles.metaPillText}>{t("{{length}} replik", { length: steps.length })}</Text>
-                </View>
-                <View style={styles.metaPill}>
-                  <Ionicons name="time-outline" size={13} color={colors.brand} />
-                  <Text style={styles.metaPillText}>{t("{{durationMin}} dk", { durationMin: scenario.durationMin })}</Text>
-                </View>
-                <View style={styles.metaPill}>
-                  <Ionicons name="sparkles" size={13} color="#D97706" />
-                  <Text style={styles.metaPillText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp: ACTIVITY_XP })}</Text>
-                </View>
-              </View>
-
-              <Text style={styles.previewTitle}>{scenario.titleTr}</Text>
-
-              <View style={styles.characterRow}>
-                {face(48)}
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.characterName}>{speaker}</Text>
-                  {scenario.aiRole ? (
-                    <Text style={styles.characterRole} numberOfLines={1}>
-                      {scenario.aiRole}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-
-              <Text style={styles.previewDesc} numberOfLines={5}>
-                {scenario.description}
-              </Text>
-
-              <View style={styles.howRow}>
-                {[
-                  { icon: 'eye-outline' as const, text: t("İzle") },
-                  { icon: 'mic-outline' as const, text: t("Cevabını söyle") },
-                  { icon: 'star-outline' as const, text: t("Yıldızları topla") },
-                ].map((h) => (
-                  <View key={h.text} style={styles.howItem}>
-                    <Ionicons name={h.icon} size={18} color={colors.brand} />
-                    <Text style={styles.howText}>{h.text}</Text>
+              <View style={styles.previewSheet}>
+                <View style={styles.metaRow}>
+                  <View style={[styles.levelPill, { backgroundColor: levelColor }]}>
+                    <Text style={styles.levelPillText}>{scenario.level}</Text>
                   </View>
-                ))}
-              </View>
+                  <View style={styles.metaPill}>
+                    <Ionicons name="chatbubbles-outline" size={13} color={colors.brand} />
+                    <Text style={styles.metaPillText}>{t("{{length}} replik", { length: steps.length })}</Text>
+                  </View>
+                  <View style={styles.metaPill}>
+                    <Ionicons name="time-outline" size={13} color={colors.brand} />
+                    <Text style={styles.metaPillText}>{t("{{durationMin}} dk", { durationMin: scenario.durationMin })}</Text>
+                  </View>
+                  <View style={styles.metaPill}>
+                    <Ionicons name="sparkles" size={13} color="#D97706" />
+                    <Text style={styles.metaPillText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp: ACTIVITY_XP })}</Text>
+                  </View>
+                </View>
 
-              <Pressable onPress={startScene} style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
-                <Ionicons name="play" size={18} color="#FFFFFF" />
-                <Text style={styles.primaryBtnText}>{t("BAŞLA")}</Text>
-              </Pressable>
+                <Text style={styles.previewTitle}>{scenario.titleTr}</Text>
+
+                <View style={styles.characterRow}>
+                  {face(46)}
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.characterName}>{speaker}</Text>
+                    {scenario.aiRole ? (
+                      <Text style={styles.characterRole} numberOfLines={1}>
+                        {scenario.aiRole}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+
+                <Text style={styles.previewDesc} numberOfLines={5}>
+                  {scenario.description}
+                </Text>
+
+                <View style={styles.howRow}>
+                  {[
+                    { icon: 'play-circle' as const, text: t("İzle") },
+                    { icon: 'mic' as const, text: t("Cevabını söyle") },
+                    { icon: 'star' as const, text: t("Yıldızları topla") },
+                  ].map((h, i) => (
+                    <View key={h.text} style={styles.howItem}>
+                      <View style={styles.howIcon}>
+                        <Ionicons name={h.icon} size={18} color={colors.brand} />
+                      </View>
+                      <Text style={styles.howText}>
+                        {i + 1}. {h.text}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                <Pressable onPress={startScene} style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                  <Ionicons name="play" size={18} color="#FFFFFF" />
+                  <Text style={styles.primaryBtnText}>{t("BAŞLA")}</Text>
+                </Pressable>
               </View>
             </ScrollView>
           </View>
         ) : null}
 
-        {/* ---------- The scene: full-screen video ---------- */}
+        {/* ---------- The scene: the video on top, the subtitles or the learner's card below ---------- */}
         {inStage ? (
           <View style={styles.stage}>
-            {/* The blurred cover fills the bars around the video */}
-            <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={18} />
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.45)' }]} />
-            <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="contain" nativeControls={false} />
-            <LinearGradient
-              colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.85)']}
-              locations={[0, 0.18, 0.5, 1]}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
+            {/* The blurred cover fills the space around the video */}
+            <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={20} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.55)' }]} />
 
-            {phase === 'playing' && videoStatus === 'loading' ? (
-              <View style={styles.videoOverlay} pointerEvents="none">
-                <ActivityIndicator color="#FFFFFF" size="large" />
+            <View style={[styles.videoArea, { paddingTop: insets.top + 64 }]}>
+              <View style={styles.videoFrame}>
+                <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="contain" nativeControls={false} />
+                {phase === 'playing' && videoStatus === 'loading' ? (
+                  <View style={styles.videoOverlay} pointerEvents="none">
+                    <ActivityIndicator color="#FFFFFF" size="large" />
+                  </View>
+                ) : null}
+                {phase === 'playing' && videoStatus === 'error' ? (
+                  <View style={[styles.videoOverlay, { backgroundColor: 'rgba(9,13,22,0.88)', gap: 10 }]}>
+                    <Ionicons name="cloud-offline-outline" size={30} color="#F87171" />
+                    <Text style={styles.videoErrorText}>{t("Video şu an yüklenemedi.")}</Text>
+                    <Pressable onPress={skipToTurn} style={styles.videoErrorBtn}>
+                      <Text style={styles.videoErrorBtnText}>{t("Devam Et")}</Text>
+                      <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+                    </Pressable>
+                  </View>
+                ) : null}
               </View>
-            ) : null}
-
-            {phase === 'playing' && videoStatus === 'error' ? (
-              <View style={[styles.videoOverlay, { backgroundColor: 'rgba(9,13,22,0.88)', gap: 10 }]}>
-                <Ionicons name="cloud-offline-outline" size={30} color="#F87171" />
-                <Text style={styles.videoErrorText}>{t("Video şu an yüklenemedi.")}</Text>
-                <Pressable onPress={skipToTurn} style={styles.videoErrorBtn}>
-                  <Text style={styles.videoErrorBtnText}>{t("Devam Et")}</Text>
-                  <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-                </Pressable>
-              </View>
-            ) : null}
+            </View>
 
             {/* Subtitles while the character talks */}
             {phase === 'playing' ? (
@@ -416,7 +413,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <FadeIn key={`s${stepIdx}`} style={styles.subtitleCard}>
                   <View style={styles.speakerRow}>
                     {face(30)}
-                    <Text style={[styles.speakerName, { color: cast.color === '#94A3B8' ? colors.textHeading : cast.color }]} numberOfLines={1}>
+                    <Text style={[styles.speakerName, { color: cast.face ? cast.color : levelColor }]} numberOfLines={1}>
                       {speaker}
                     </Text>
                   </View>
@@ -444,117 +441,148 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 </View>
               </View>
             ) : null}
-          </View>
-        ) : null}
 
-        {/* ---------- The learner's turn ---------- */}
-        {phase === 'turn' ? (
-          <FadeIn key={`t${stepIdx}`} from={40} style={[styles.turnCard, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.lastLine} numberOfLines={2}>
-              {speaker}: “{currentStep.aiSpeech}”
-            </Text>
-
-            <View style={styles.turnHeader}>
-              <View style={styles.turnDot} />
-              <Text style={styles.turnTitle}>{t("SIRA SENDE")}</Text>
-              <View style={{ flex: 1 }} />
-              <Pressable onPress={replayLine} style={styles.turnIconBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Tekrar izle")}>
-                <Ionicons name="reload" size={17} color={colors.textHeading} />
-              </Pressable>
-            </View>
-
-            {/* Hints, one step at a time: the task, then the opening words and key words, then the whole line */}
-            <Text style={styles.taskText}>💡 {currentStep.userHint}</Text>
-            {hintLevel >= 1 && hintLevel < 2 ? (
-              <FadeIn style={styles.hintBox}>
-                <Text style={styles.hintStart}>{firstWords(currentStep.expectedUserResponse)}</Text>
-                {currentStep.keywords?.length ? (
-                  <View style={styles.keywordRow}>
-                    {currentStep.keywords.slice(0, 6).map((k) => (
-                      <View key={k} style={styles.keyword}>
-                        <Text style={styles.keywordText}>{k.split('|')[0]}</Text>
-                      </View>
-                    ))}
-                  </View>
-                ) : null}
-              </FadeIn>
-            ) : null}
-            {hintLevel >= 2 ? (
-              <FadeIn style={styles.targetCard}>
-                <Text style={styles.targetText}>{currentStep.expectedUserResponse}</Text>
-                <Pressable onPress={() => pronounce(currentStep.expectedUserResponse)} style={styles.listenBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
-                  <Ionicons name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'} size={18} color={colors.brand} />
-                </Pressable>
-              </FadeIn>
-            ) : null}
-
-            {/* What was heard */}
-            {heard || turnError ? (
-              <Animated.View style={[styles.heardBox, turn === 'hit' && styles.heardHit, turn === 'miss' && styles.heardMiss, shake.style]}>
-                {turnError ? (
-                  <Text style={styles.heardText}>{turnError}</Text>
-                ) : (
-                  <>
-                    <Text style={styles.heardLabel}>
-                      {turn === 'hit' ? t("Harika, anlaşıldı!") : turn === 'miss' ? t("Tam yakalayamadım, bir daha dene:") : t("Duyduğum:")}
+            {/* ---------- The learner's turn ---------- */}
+            {phase === 'turn' ? (
+              <FadeIn key={`t${stepIdx}`} from={40} style={[styles.turnCard, { paddingBottom: insets.bottom + 14 }]}>
+                {/* What the character just said */}
+                <View style={styles.lastRow}>
+                  {face(32)}
+                  <View style={styles.lastBubble}>
+                    <Text style={styles.lastLine} numberOfLines={3}>
+                      {currentStep.aiSpeech}
                     </Text>
-                    <Text style={styles.heardText}>“{heard}”</Text>
-                  </>
-                )}
-              </Animated.View>
-            ) : null}
+                  </View>
+                </View>
 
-            {/* Hint · mic · skip */}
-            <View style={styles.micRow}>
-              <Pressable
-                onPress={showMoreHint}
-                disabled={hintLevel >= 2 || busy || turn === 'recording'}
-                style={[styles.sideBtn, (hintLevel >= 2 || busy || turn === 'recording') && { opacity: 0.35 }]}
-                accessibilityRole="button"
-              >
-                <Ionicons name="bulb" size={20} color="#F59E0B" />
-                <Text style={styles.sideBtnText}>{hintLevel < 1 ? t("İpucu") : t("Tamamını göster")}</Text>
-              </Pressable>
+                <View style={styles.turnBox}>
+                  <View style={styles.turnHeader}>
+                    <View style={styles.turnBadge}>
+                      <View style={styles.turnDot} />
+                      <Text style={styles.turnTitle}>{t("SIRA SENDE")}</Text>
+                    </View>
+                  </View>
+                  {/* Hints, one step at a time: the task, then the opening words and key words, then the whole line */}
+                  <Text style={styles.taskText}>{currentStep.userHint}</Text>
+                  {hintLevel >= 1 && hintLevel < 2 ? (
+                    <FadeIn style={styles.hintBox}>
+                      <Ionicons name="bulb" size={16} color="#D97706" />
+                      <Text style={styles.hintStart}>{firstWords(currentStep.expectedUserResponse)}</Text>
+                      {currentStep.keywords?.length ? (
+                        <View style={styles.keywordRow}>
+                          {currentStep.keywords.slice(0, 5).map((k) => (
+                            <View key={k} style={styles.keyword}>
+                              <Text style={styles.keywordText}>{k.split('|')[0]}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      ) : null}
+                    </FadeIn>
+                  ) : null}
+                  {hintLevel >= 2 ? (
+                    <FadeIn style={styles.targetCard}>
+                      <Text style={styles.targetText}>{currentStep.expectedUserResponse}</Text>
+                      <Pressable onPress={() => pronounce(currentStep.expectedUserResponse)} style={styles.listenBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+                        <Ionicons name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'} size={18} color={colors.brand} />
+                      </Pressable>
+                    </FadeIn>
+                  ) : null}
+                </View>
 
-              <View style={styles.micWrap}>
-                {turn === 'recording' ? (
-                  <Animated.View
-                    pointerEvents="none"
-                    style={[
-                      styles.micRing,
-                      { opacity: ring.interpolate({ inputRange: [0, 1], outputRange: [0.6, 0] }), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] }) }] },
-                    ]}
-                  />
+                {/* What was heard */}
+                {heard || turnError ? (
+                  <Animated.View style={[styles.heardBox, turn === 'hit' && styles.heardHit, turn === 'miss' && styles.heardMiss, shake.style]}>
+                    <Ionicons
+                      name={turnError ? 'alert-circle' : turn === 'hit' ? 'checkmark-circle' : turn === 'miss' ? 'refresh-circle' : 'ear'}
+                      size={20}
+                      color={turnError ? '#F43F5E' : turn === 'hit' ? '#10B981' : turn === 'miss' ? '#F97316' : colors.textMuted}
+                    />
+                    <View style={{ flex: 1 }}>
+                      {turnError ? (
+                        <Text style={styles.heardText}>{turnError}</Text>
+                      ) : (
+                        <>
+                          <Text style={styles.heardLabel}>
+                            {turn === 'hit' ? t("Harika, anlaşıldı!") : turn === 'miss' ? t("Tam yakalayamadım, bir daha dene:") : t("Duyduğum:")}
+                          </Text>
+                          <Text style={styles.heardText}>“{heard}”</Text>
+                        </>
+                      )}
+                    </View>
+                  </Animated.View>
                 ) : null}
-                <Pressable
-                  onPress={() => void toggleMic()}
-                  disabled={busy}
-                  style={[styles.micBtn, turn === 'recording' && styles.micBtnRec, turn === 'hit' && styles.micBtnHit]}
-                  accessibilityRole="button"
-                  accessibilityLabel={turn === 'recording' ? t("Bitir") : t("Konuş")}
-                >
-                  {turn === 'checking' ? (
-                    <ActivityIndicator color="#FFFFFF" />
-                  ) : (
-                    <Ionicons name={turn === 'hit' ? 'checkmark' : turn === 'recording' ? 'stop' : 'mic'} size={34} color="#FFFFFF" />
-                  )}
-                </Pressable>
-              </View>
 
-              <Pressable
-                onPress={() => passLine(0)}
-                disabled={misses < SKIP_AFTER || busy || turn === 'recording'}
-                style={[styles.sideBtn, (misses < SKIP_AFTER || busy || turn === 'recording') && { opacity: 0 }]}
-                accessibilityRole="button"
-              >
-                <Ionicons name="play-skip-forward-outline" size={20} color={colors.textMuted} />
-                <Text style={styles.sideBtnText}>{isLast ? t("Bitir") : t("Geç")}</Text>
-              </Pressable>
-            </View>
-            <Text style={styles.micHint}>
-              {turn === 'recording' ? t("Dinliyorum… bitince tekrar dokun.") : turn === 'hit' ? (isLast ? t("Sahne bitti!") : t("Sıradaki repliğe geçiyoruz…")) : t("Mikrofona dokun ve cevabını İngilizce söyle.")}
-            </Text>
-          </FadeIn>
+                {/* Hint · mic · replay (or skip after two misses) */}
+                <View style={styles.micRow}>
+                  <Pressable
+                    onPress={showMoreHint}
+                    disabled={hintLevel >= 2 || busy || turn === 'recording'}
+                    style={[styles.sideBtn, (hintLevel >= 2 || busy || turn === 'recording') && { opacity: 0.35 }]}
+                    accessibilityRole="button"
+                  >
+                    <View style={[styles.sideIcon, { backgroundColor: '#FEF3C7' }]}>
+                      <Ionicons name="bulb" size={20} color="#D97706" />
+                    </View>
+                    <Text style={styles.sideBtnText}>{hintLevel < 1 ? t("İpucu") : t("Tamamını göster")}</Text>
+                  </Pressable>
+
+                  <View style={styles.micWrap}>
+                    {turn === 'recording' ? (
+                      <Animated.View
+                        pointerEvents="none"
+                        style={[
+                          styles.micRing,
+                          { opacity: ring.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [1, 1.55] }) }] },
+                        ]}
+                      />
+                    ) : null}
+                    <Pressable
+                      onPress={() => void toggleMic()}
+                      disabled={busy}
+                      style={[styles.micBtn, turn === 'recording' && styles.micBtnRec, turn === 'hit' && styles.micBtnHit]}
+                      accessibilityRole="button"
+                      accessibilityLabel={turn === 'recording' ? t("Bitir") : t("Konuş")}
+                    >
+                      {turn === 'checking' ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Ionicons name={turn === 'hit' ? 'checkmark' : turn === 'recording' ? 'stop' : 'mic'} size={32} color="#FFFFFF" />
+                      )}
+                    </Pressable>
+                  </View>
+
+                  {misses >= SKIP_AFTER ? (
+                    <Pressable
+                      onPress={() => passLine(0)}
+                      disabled={busy || turn === 'recording'}
+                      style={[styles.sideBtn, (busy || turn === 'recording') && { opacity: 0.35 }]}
+                      accessibilityRole="button"
+                    >
+                      <View style={[styles.sideIcon, { backgroundColor: '#F1F5F9' }]}>
+                        <Ionicons name="play-skip-forward" size={18} color={colors.textBody} />
+                      </View>
+                      <Text style={styles.sideBtnText}>{isLast ? t("Bitir") : t("Geç")}</Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={replayLine}
+                      disabled={busy || turn === 'recording'}
+                      style={[styles.sideBtn, (busy || turn === 'recording') && { opacity: 0.35 }]}
+                      accessibilityRole="button"
+                    >
+                      <View style={[styles.sideIcon, { backgroundColor: '#EEF2FF' }]}>
+                        <Ionicons name="reload" size={18} color={colors.brand} />
+                      </View>
+                      <Text style={styles.sideBtnText}>{t("Tekrar izle")}</Text>
+                    </Pressable>
+                  )}
+                </View>
+                <Text style={styles.micHint}>
+                  {turn === 'recording' ? t("Dinliyorum… bitince tekrar dokun.") : turn === 'hit' ? (isLast ? t("Sahne bitti!") : t("Sıradaki repliğe geçiyoruz…")) : t("Mikrofona dokun ve cevabını İngilizce söyle.")}
+                </Text>
+              </FadeIn>
+            ) : null}
+          </View>
         ) : null}
 
         {/* ---------- Result ---------- */}
@@ -673,20 +701,31 @@ const styles = StyleSheet.create({
   initials: { alignItems: 'center', justifyContent: 'center' },
   initialsText: { fontFamily: fonts.headingBold, color: '#FFFFFF' },
 
-  previewContent: { paddingHorizontal: 20, marginTop: -28, gap: 14 },
+  coverBox: { width: '100%', overflow: 'hidden', backgroundColor: '#E2E8F0' },
+  coverTopShade: { position: 'absolute', top: 0, left: 0, right: 0, height: 110 },
+  previewSheet: {
+    marginTop: -26,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: PAGE_BG,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    gap: 14,
+  },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  levelPill: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
-  levelPillText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#FFFFFF', letterSpacing: 0.4 },
+  levelPill: { borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 5, justifyContent: 'center' },
+  levelPillText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#FFFFFF', letterSpacing: 0.4 },
   metaPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFFFFF', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: colors.border },
-  metaPillText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textBody },
-  previewTitle: { fontFamily: fonts.headingBold, fontSize: 27, lineHeight: 33, color: colors.textHeading },
-  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: radii.lg, padding: 12, borderWidth: 1, borderColor: colors.border },
+  metaPillText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
+  previewTitle: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: colors.textHeading },
+  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: radii.lg, padding: 12, ...shadow.sm },
   characterName: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  characterRole: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  characterRole: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, marginTop: 1 },
   previewDesc: { fontFamily: fonts.bodyRegular, fontSize: 14.5, lineHeight: 22, color: colors.textBody },
   howRow: { flexDirection: 'row', gap: 8 },
-  howItem: { flex: 1, alignItems: 'center', gap: 5, paddingVertical: 12, borderRadius: radii.lg, backgroundColor: '#EEF2FF' },
-  howText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#3730A3', textAlign: 'center' },
+  howItem: { flex: 1, alignItems: 'center', gap: 7, paddingVertical: 12, paddingHorizontal: 6, borderRadius: radii.lg, backgroundColor: '#FFFFFF', ...shadow.sm },
+  howIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  howText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, lineHeight: 15, color: colors.textHeading, textAlign: 'center' },
 
   primaryBtn: {
     flexDirection: 'row',
@@ -717,7 +756,9 @@ const styles = StyleSheet.create({
   ghostBtn: { alignItems: 'center', justifyContent: 'center', paddingVertical: 13 },
   ghostBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textMuted },
 
-  subtitleWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, gap: 12 },
+  videoArea: { flex: 1, justifyContent: 'center', paddingHorizontal: 12, paddingBottom: 12 },
+  videoFrame: { width: '100%', aspectRatio: 16 / 9, maxHeight: '100%', alignSelf: 'center', borderRadius: 18, overflow: 'hidden', backgroundColor: '#000000' },
+  subtitleWrap: { paddingHorizontal: 16, gap: 12 },
   subtitleCard: { backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 20, padding: 14, gap: 8, ...shadow.md },
   speakerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   speakerName: { fontFamily: fonts.headingBold, fontSize: 14, maxWidth: 200 },
@@ -730,43 +771,38 @@ const styles = StyleSheet.create({
   chipBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textHeading },
 
   turnCard: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 18,
-    paddingTop: 16,
+    paddingTop: 18,
     gap: 12,
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.18,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 12,
   },
-  lastLine: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 18, color: colors.textMuted },
-  turnHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  turnDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.success },
-  turnTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: '#059669' },
-  turnIconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
-  taskText: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, lineHeight: 22, color: colors.textHeading },
-  hintBox: { gap: 8, padding: 12, borderRadius: radii.lg, backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A' },
-  hintStart: { fontFamily: fonts.headingBold, fontSize: 17, color: '#92400E' },
+  lastRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  lastBubble: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 16, borderTopLeftRadius: 4, paddingHorizontal: 12, paddingVertical: 9 },
+  lastLine: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
+  turnBox: { gap: 10 },
+  turnHeader: { flexDirection: 'row', alignItems: 'center' },
+  turnBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#ECFDF5', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  turnDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
+  turnTitle: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.8, color: '#059669' },
+  taskText: { fontFamily: fonts.headingBold, fontSize: 19, lineHeight: 25, color: colors.textHeading },
+  hintBox: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, padding: 12, borderRadius: radii.lg, backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A' },
+  hintStart: { fontFamily: fonts.headingBold, fontSize: 17, color: '#92400E', marginRight: 2 },
   keywordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   keyword: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#FCD34D' },
   keywordText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#92400E' },
   targetCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#EEF2FF', borderRadius: radii.lg, borderWidth: 1.5, borderColor: '#C7D2FE', padding: 14 },
   targetText: { flex: 1, fontFamily: fonts.headingBold, fontSize: 18, lineHeight: 25, color: '#1E1B4B' },
   listenBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-  heardBox: { borderRadius: radii.lg, padding: 12, backgroundColor: '#F1F5F9', gap: 3 },
+  heardBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, borderRadius: radii.lg, padding: 12, backgroundColor: '#F1F5F9' },
   heardHit: { backgroundColor: '#ECFDF5' },
   heardMiss: { backgroundColor: '#FFF7ED' },
   heardLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textMuted },
   heardText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textHeading },
   micRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 },
-  sideBtn: { width: 84, alignItems: 'center', gap: 4 },
+  sideBtn: { width: 90, alignItems: 'center', gap: 5 },
+  sideIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   sideBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textBody, textAlign: 'center' },
   micWrap: { width: 84, height: 84, alignItems: 'center', justifyContent: 'center' },
   micRing: { position: 'absolute', width: 84, height: 84, borderRadius: 42, backgroundColor: '#F43F5E' },
