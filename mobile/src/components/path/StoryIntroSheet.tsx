@@ -27,7 +27,9 @@ export function StoryIntroSheet({ level, visible, onClose, onStart }: { level: P
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
-            <Image source={CAST_LINEUP} style={styles.lineup} resizeMode="cover" />
+            <View style={styles.lineupWrap}>
+              <Image source={CAST_LINEUP} style={styles.lineup} resizeMode="contain" />
+            </View>
             <Text style={styles.kicker}>{t("{{level}} hikâyesi", { level: level.id })}</Text>
             <Text style={styles.title}>{loc(level.story.title)}</Text>
             <Text style={styles.blurb}>{loc(level.story.blurb)}</Text>
@@ -62,7 +64,9 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: { maxHeight: '88%', backgroundColor: '#FBF7F1', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: 28, overflow: 'hidden' },
   body: { paddingHorizontal: 20, paddingBottom: 12, gap: 6 },
-  lineup: { width: '100%', aspectRatio: 1.35, marginTop: 8, borderRadius: 20 },
+  // The whole cast, never cropped, at a size that leaves room for the story and the names below.
+  lineupWrap: { alignItems: 'center', marginTop: 8, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 6 },
+  lineup: { width: '100%', height: 190 },
   kicker: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 1.2, color: colors.brand, textTransform: 'uppercase', marginTop: 8 },
   title: { fontFamily: fonts.headingBold, fontSize: 24, color: colors.textHeading },
   blurb: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 21, color: colors.textBody },
