@@ -389,7 +389,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 
         <View style={styles.headerTitleCol}>
           <Text style={styles.headerTitle} numberOfLines={1}>
-            {scene ? scene.title : t("{{AI_NAME}} ile Serbest Sohbet", { AI_NAME: aiName })}
+            {scene ? scene.title : unitFocus ? t("Prova: {{unit}}", { unit: unitFocus.title }) : t("{{AI_NAME}} ile Serbest Sohbet", { AI_NAME: aiName })}
           </Text>
           <View style={styles.headerSubRow}>
             <View style={styles.liveIndicatorDot} />
