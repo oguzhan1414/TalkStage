@@ -1,7 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { mivoVoiceImages } from '../assets/images';
+import { type MivoStageState } from '../assets/videos';
+import { MivoStage } from './MivoStage';
 import { TappableWords } from './TappableWords';
 import { Waveform } from './Waveform';
 import { useConversationSocket, type TurnPhase } from '../hooks/useConversationSocket';
@@ -229,7 +231,7 @@ export function VoiceRoomControls({ voice, aiName }: {
   </View>;
 }
 
-export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning }: {
+export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning, celebrate }: {
   phase: TurnPhase;
   aiName: string;
   aiRole: string;
@@ -237,36 +239,52 @@ export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning }
   onReplay?: () => void;
   /** Seconds left before the session limit (server warning); shows a small strip under the banner. */
   timeWarning?: number | null;
+  /** The scene or rehearsal was just completed: Mivo celebrates. */
+  celebrate?: boolean;
 }) {
+  const { width, height } = useWindowDimensions();
   const recording = phase === 'recording';
   const labels: Record<TurnPhase, string> = {
     thinking_time: t("Sıra sende"), recording: t("Seni dinliyorum"), reviewing: t("Söylediklerini kontrol et"),
     ai_thinking: t("Yanıt hazırlanıyor"), ai_speaking: t("{{aiName}} konuşuyor", { aiName }), error: t("Yeniden deneyelim"),
   };
-  const pose = recording ? 'listen' : phase === 'ai_speaking' ? 'speak' : phase === 'ai_thinking' ? 'think' : 'wait';
+  // The stage: Mivo's loop for the moment of the conversation.
+  const stageState: MivoStageState = celebrate
+    ? 'happy'
+    : recording
+      ? 'listening'
+      : phase === 'ai_speaking'
+        ? 'speaking'
+        : phase === 'ai_thinking'
+          ? 'thinking'
+          : 'idle';
+  const stageH = Math.round(Math.min((width - 24) * 0.5, height * 0.26));
   return <>
-  <View style={[styles.turnBanner, recording && styles.turnBannerRecording]}>
-    <Image source={mivoVoiceImages[pose]} style={styles.turnBannerAvatar} resizeMode="contain" />
-    <View style={styles.turnBannerTextCol}>
-      <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
-      <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
-    </View>
-    {phase === 'thinking_time' && onReplay ? (
-      <Pressable
-        onPress={onReplay}
-        hitSlop={8}
-        style={styles.replayBtn}
-        accessibilityRole="button"
-        accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
-      >
-        <Ionicons name="play-circle" size={16} color={colors.brand} />
-        <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
-      </Pressable>
-    ) : (
-      <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
-        <Ionicons name={recording ? 'mic' : 'mic-off-outline'} size={15} color={recording ? '#059669' : colors.textMuted} />
+  <View style={styles.stageWrap}>
+    <MivoStage state={stageState} height={stageH}>
+      {/* The turn, on a frosted strip at the bottom of the stage */}
+      <View style={[styles.stageBar, recording && styles.stageBarRecording]}>
+        <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
+          <Ionicons name={recording ? 'mic' : phase === 'ai_speaking' ? 'volume-high' : 'chatbubble-ellipses-outline'} size={15} color={recording ? '#059669' : colors.brand} />
+        </View>
+        <View style={styles.turnBannerTextCol}>
+          <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
+          <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
+        </View>
+        {phase === 'thinking_time' && onReplay ? (
+          <Pressable
+            onPress={onReplay}
+            hitSlop={8}
+            style={styles.replayBtn}
+            accessibilityRole="button"
+            accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
+          >
+            <Ionicons name="play-circle" size={16} color={colors.brand} />
+            <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
+          </Pressable>
+        ) : null}
       </View>
-    )}
+    </MivoStage>
   </View>
   {timeWarning ? (
     <View style={styles.timeStrip} accessibilityLiveRegion="polite">
@@ -841,6 +859,21 @@ export const voiceRoomStyles = StyleSheet.create({
   mainLayout: {
     flex: 1,
   },
+  stageWrap: { marginHorizontal: 12, marginTop: 8, borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#DCE3F5' },
+  stageBar: {
+    position: 'absolute',
+    left: 10,
+    right: 10,
+    bottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+  },
+  stageBarRecording: { backgroundColor: 'rgba(240,253,249,0.95)' },
   turnBanner: {
     flexDirection: 'row',
     alignItems: 'center',
