@@ -6,7 +6,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 import { resolveScenarioCoverSource } from '../assets/images';
-import { AppHeader } from '../components/AppHeader';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { MIVO_STAGE_BG } from '../assets/videos';
+import { MivoStage } from '../components/MivoStage';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { trackEvent } from '../lib/analytics';
+import { isProUser } from '../lib/revenuecat';
 import { Toast } from '../components/Toast';
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
@@ -55,6 +61,35 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
     queryKey: ['me'],
     queryFn: () => api.get<ProfileOut>('/me'),
   });
+
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
+  const { transitionTo } = useMivoTransition();
+  const openMivoChat = () => {
+    trackEvent('mivo_chat_opened', { with_story: false, from: 'konus' });
+    transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"));
+  };
+  // The live room (Pro): a conversation scenario from the server picked for the learner's level.
+  const [liveOpening, setLiveOpening] = useState(false);
+  const openLiveRoom = async () => {
+    if (!isPro) {
+      trackEvent('paywall_opened', { source: 'konus_live_room' });
+      navigation.navigate('Paywall');
+      return;
+    }
+    if (liveOpening) return;
+    setLiveOpening(true);
+    try {
+      const sc = await api.get<{ id: string; slug: string; title: string }>('/scenarios/recommended');
+      transitionTo(
+        () => navigation.navigate('LiveConversationRoom', { scenarioSlug: sc.slug, scenarioId: sc.id, scenarioTitle: sc.title }),
+        t("Canlı oda hazırlanıyor…")
+      );
+    } catch {
+      showToast(t("Canlı oda şu an açılamadı. Biraz sonra tekrar dene."));
+    } finally {
+      setLiveOpening(false);
+    }
+  };
 
   const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
   const [sceneStars, setSceneStars] = useState<SceneStars>({});
@@ -129,22 +164,25 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader />
-
-      {/* Başlık: ad, izlenen sahne sayısı ve arama */}
+      {/* Header: the tab's name, streak, Pro, search (no greeting or avatar: Profile lives in the tab bar) */}
       <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{t("Sahneler")}</Text>
-          <Text style={styles.subtitle}>{t("Gerçek hayat senaryolarında pratik yap")}</Text>
+        <Text style={[styles.title, { flex: 1 }]}>{t("Konuş")}</Text>
+        <View style={styles.streakChip}>
+          <Ionicons name="flame" size={16} color="#F97316" />
+          <Text style={styles.streakChipText}>{profile?.streak_count ?? 0}</Text>
         </View>
-        {readyVideoScenarios.length > 0 ? (
-          <View style={styles.starsChip}>
-            <Ionicons name="checkmark-circle" size={15} color={colors.success} />
-            <Text style={styles.starsChipText}>
-              {watchedCount}/{readyVideoScenarios.length}
-            </Text>
-          </View>
-        ) : null}
+        <Pressable
+          onPress={() => {
+            if (isPro) return;
+            trackEvent('paywall_opened', { source: 'konus_pro_pill' });
+            navigation.navigate('Paywall');
+          }}
+          style={[styles.proPill, isPro && styles.proPillOn]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Spekvia Pro")}
+        >
+          <Text style={styles.proPillText}>👑 PRO</Text>
+        </Pressable>
         <Pressable
           onPress={() => {
             haptics.selection();
@@ -174,6 +212,43 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
       ) : null}
 
       <ScrollView contentContainerStyle={styles.cinemaScrollContent} showsVerticalScrollIndicator={false}>
+        {!videoSearchLower ? (
+          <>
+            {/* Mivo, as in the voice rooms: the heart of this tab */}
+            <Pressable onPress={openMivoChat} style={styles.mivoCard} accessibilityRole="button" accessibilityLabel={t("Mivo ile serbest sohbet")}>
+              <MivoStage state="idle" height={Math.round(Math.min(((screenWidth - 32) * 9) / 16, 190))} />
+              <View style={styles.mivoCardBody}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.mivoCardTitle}>{t("Mivo ile serbest sohbet")}</Text>
+                  <Text style={styles.mivoCardSub}>
+                    {isPro ? t("İstediğin konuda, istediğin kadar konuş.") : t("İstediğin konuda konuş. Ücretsiz planda 1 deneme sohbetin var.")}
+                  </Text>
+                </View>
+                <View style={styles.mivoCardMic}>
+                  <Ionicons name="mic" size={24} color="#FFFFFF" />
+                </View>
+              </View>
+            </Pressable>
+
+            {/* The live room: Pro's own room */}
+            <Pressable onPress={() => void openLiveRoom()} style={styles.liveCard} accessibilityRole="button">
+              <LinearGradient colors={['#FFF7D6', '#FDE68A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+              <View style={styles.liveIcon}>
+                <Ionicons name="radio" size={22} color="#92400E" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.liveTitle}>{t("Canlı konuşma odası")}</Text>
+                <Text style={styles.liveSub}>{t("Gerçek bir senaryoda, 30 dakikaya kadar kesintisiz konuş.")}</Text>
+              </View>
+              <View style={styles.liveBadge}>
+                <Text style={styles.liveBadgeText}>{isPro ? t("Aç") : '👑 PRO'}</Text>
+              </View>
+            </Pressable>
+
+            <Text style={styles.scenesHead}>{t("Sahneler")}</Text>
+          </>
+        ) : null}
+
         {/* Senin için sıradaki: büyük afiş */}
         {nextScene && !videoSearchLower ? (
           <SceneHero
@@ -258,6 +333,23 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 }
 
 const styles = StyleSheet.create({
+  streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 10, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  streakChipText: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
+  proPill: { height: 36, paddingHorizontal: 11, borderRadius: 18, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
+  proPillOn: { backgroundColor: '#FFF7D6' },
+  proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
+  mivoCard: { borderRadius: 24, overflow: 'hidden', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DCE3F5', marginBottom: 12 },
+  mivoCardBody: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: '#FFFFFF' },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
+  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: colors.textMuted, marginTop: 2 },
+  mivoCardMic: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  liveCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 20, overflow: 'hidden', borderWidth: 1.5, borderColor: '#F59E0B', marginBottom: 18 },
+  liveIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  liveTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: '#78350F' },
+  liveSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#92400E', marginTop: 2 },
+  liveBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, backgroundColor: '#FFFFFF' },
+  liveBadgeText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#92400E' },
+  scenesHead: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginBottom: 10 },
   cinemaEmptyState: {
     alignItems: 'center',
     justifyContent: 'center',

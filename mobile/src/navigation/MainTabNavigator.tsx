@@ -18,7 +18,7 @@ const TAB_CONFIG: Record<
   { label: string; image: ReturnType<typeof require> }
 > = {
   Home: { label: t("Bugün"), image: navIcons.today },
-  Scenarios: { label: t("Sahneler"), image: navIcons.scenes },
+  Scenarios: { label: t("Konuş"), image: navIcons.scenes },
   Vocab: { label: t("Kelimeler"), image: navIcons.words },
   Profile: { label: t("Profil"), image: navIcons.profile },
 };
