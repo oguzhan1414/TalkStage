@@ -67,8 +67,9 @@ export function MivoStage({
   }, [player]);
 
   return (
-    <View style={[styles.stage, { height }, style]}>
-      <View style={[StyleSheet.absoluteFill, zoom !== 1 && { transform: [{ scale: zoom }, { translateY: height * 0.08 * (zoom - 1) }] }]}>
+    // Decoration only: touches go through to whatever holds the stage (the Mivo button on Bugün, the room).
+    <View pointerEvents="box-none" style={[styles.stage, { height }, style]}>
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, zoom !== 1 && { transform: [{ scale: zoom }, { translateY: height * 0.08 * (zoom - 1) }] }]}>
       {!failed ? (
         <VideoView
           player={player}

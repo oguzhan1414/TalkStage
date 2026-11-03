@@ -428,7 +428,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         scaleTo={0.92}
       >
         <LinearGradient colors={['#818CF8', '#A855F7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.chatFabRing}>
-          <View style={styles.chatFabInner}>
+          <View style={styles.chatFabInner} pointerEvents="none">
             {/* The same Mivo as in the voice rooms, breathing in its waiting loop */}
             <MivoStage state="idle" height={62} fit="cover" zoom={1.7} />
           </View>
