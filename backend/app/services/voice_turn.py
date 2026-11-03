@@ -53,7 +53,7 @@ class SentenceSpeaker:
 
     async def speak(self, sentence):
         # Some models leak JSON escapes into the spoken text (\" quotes, stray backslashes): never show or read them.
-        sentence = " ".join(sentence.replace('\\"', '"').replace("\\", "").replace("**", "").split())
+        sentence = clean_spoken(sentence)
         if not sentence:
             return
         await self.send_json({"type": "reply.sentence", "text": sentence,
@@ -77,6 +77,16 @@ class SentenceSpeaker:
     async def flush(self):
         await self.queue.put(None)
         await self.sender
+
+
+def clean_spoken(text: str) -> str:
+    """What a model leaks into a spoken reply and must never be shown or read: JSON escapes, stray backslashes, ** markdown."""
+    return " ".join((text or "").replace('\\"', '"').replace("\\", "").replace("**", "").split())
+
+
+def _is_english(text: str) -> bool:
+    letters = [c for c in text if c.isalpha()]
+    return bool(letters) and sum(c.isascii() for c in letters) / len(letters) > 0.97
 
 
 _QUOTED = re.compile(
@@ -112,13 +122,17 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                 buffer += delta
                 sentences, buffer = extract_complete_sentences(buffer)
                 for sentence in sentences:
+                    sentence = clean_spoken(sentence)
+                    if not sentence:
+                        continue
                     if not parts:
                         logger.info("voice_first_sentence_ms=%d", (time.monotonic() - started) * 1000)
                     parts.append(sentence)
                     await speaker.speak(sentence)
-            if buffer.strip():
-                parts.append(buffer.strip())
-                await speaker.speak(buffer.strip())
+            tail = clean_spoken(buffer)
+            if tail:
+                parts.append(tail)
+                await speaker.speak(tail)
             reply = " ".join(parts)
             if not reply:
                 raise RuntimeError("Empty voice reply")
@@ -140,6 +154,10 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
             await send_json({"type": "fluency_score", "value": analysis.fluency_score})
         suggested = list(analysis.suggested_replies) if analysis else []
         suggested_tr = list(analysis.suggested_replies_tr) if analysis else []
+        # A "suggestion" that is not an English sentence (a weak model put its explanation there) is not shown.
+        if suggested and not all(_is_english(clean_spoken(x)) for x in suggested):
+            suggested, suggested_tr = [], []
+        suggested = [clean_spoken(x) for x in suggested]
         if not suggested:
             # The analysis failed or came back empty (provider rate limit, slow model): the hint button still gets the
             # English line Mivo asked for ("Bir de sen söyle: \"Yes, I am a new student.\"") instead of staying grey.
