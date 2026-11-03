@@ -209,20 +209,20 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
               <View style={styles.mivoTile}>
                 <MivoStage state="idle" height={MIVO_TILE} fit="cover" zoom={1.35} />
               </View>
-              <View style={{ flex: 1, gap: 4 }}>
+              <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                 <View style={styles.mivoLive}>
                   <View style={styles.mivoLiveDot} />
                   <Text style={styles.mivoLiveText}>{t("Mivo hazır")}</Text>
                 </View>
-                <Text style={styles.mivoCardTitle} numberOfLines={1}>
+                <Text style={styles.mivoCardTitle} maxFontSizeMultiplier={1.2}>
                   {t("Serbest sohbet")}
                 </Text>
-                <Text style={styles.mivoCardSub} numberOfLines={2}>
+                <Text style={styles.mivoCardSub} maxFontSizeMultiplier={1.2}>
                   {isPro ? t("İstediğin konuda, istediğin kadar konuş.") : t("İstediğin konuda konuş · 1 deneme hakkı")}
                 </Text>
               </View>
               <View style={styles.mivoMic}>
-                <Ionicons name="mic" size={25} color="#FFFFFF" />
+                <Ionicons name="mic" size={24} color="#FFFFFF" />
               </View>
             </Pressable>
 
@@ -336,7 +336,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 }
 
 /** Mivo's live tile on the free-chat card. */
-const MIVO_TILE = 112;
+const MIVO_TILE = 100;
 
 const styles = StyleSheet.create({
   streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 10, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
@@ -347,9 +347,9 @@ const styles = StyleSheet.create({
   mivoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
     padding: 12,
-    paddingRight: 16,
+    paddingRight: 14,
     marginBottom: 24,
     borderRadius: 24,
     backgroundColor: '#FFFFFF',
@@ -361,12 +361,12 @@ const styles = StyleSheet.create({
   mivoLive: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   mivoLiveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
   mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.3, color: '#059669' },
-  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 20, lineHeight: 25, color: colors.textHeading },
   mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: colors.textBody },
   mivoMic: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: colors.brand,
     alignItems: 'center',
     justifyContent: 'center',
