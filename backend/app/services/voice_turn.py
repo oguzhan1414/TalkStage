@@ -1,5 +1,6 @@
 """Shared, cancellable sentence/TTS pipeline for both voice room types."""
 import asyncio
+import re
 import logging
 import time
 
@@ -78,6 +79,26 @@ class SentenceSpeaker:
         await self.sender
 
 
+_QUOTED = re.compile(
+    r'"([^"\n]{3,160})"'
+    r'|“([^”\n]{3,160})”'
+    r'|«([^»\n]{3,160})»'
+    r'|„([^“”\n]{3,160})[“”]'
+)
+
+
+def quoted_english(text: str) -> list[str]:
+    """English sentences Mivo put in quotes (the line to say, the other person's line), in order."""
+    out = []
+    for m in _QUOTED.finditer(text or ""):
+        part = next(g for g in m.groups() if g is not None).strip()
+        letters = [c for c in part if c.isalpha()]
+        # Mostly plain ASCII letters and at least two words: English, not a Turkish/German phrase.
+        if len(part.split()) >= 2 and letters and sum(c.isascii() for c in letters) / len(letters) > 0.97:
+            out.append(part)
+    return out
+
+
 async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                          send_json, *, language="tr", allow_completion=False,
                          log_mistake=None):
@@ -117,9 +138,16 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
             analysis.correction = drop_trivial_correction(analysis.correction, text)
             await send_json({"type": "correction", "data": analysis.correction.model_dump()})
             await send_json({"type": "fluency_score", "value": analysis.fluency_score})
+        suggested = list(analysis.suggested_replies) if analysis else []
+        suggested_tr = list(analysis.suggested_replies_tr) if analysis else []
+        if not suggested:
+            # The analysis failed or came back empty (provider rate limit, slow model): the hint button still gets the
+            # English line Mivo asked for ("Bir de sen söyle: \"Yes, I am a new student.\"") instead of staying grey.
+            # A question in quotes is the other person's line to ANSWER, not a sentence to repeat.
+            suggested, suggested_tr = [q for q in quoted_english(reply) if not q.rstrip().endswith("?")][-1:], []
         await send_json({"type": "turn.complete", "user_text": text, "assistant_text": reply,
-                         "suggested_replies": analysis.suggested_replies if analysis else [],
-                         "suggested_replies_tr": analysis.suggested_replies_tr if analysis else [],
+                         "suggested_replies": suggested,
+                         "suggested_replies_tr": suggested_tr,
                          "coach_tip_tr": analysis.coach_tip_tr if analysis else None})
         if analysis and allow_completion and analysis.is_scene_complete:
             await send_json({"type": "scene.complete", "summary_tr": analysis.completion_summary_tr})

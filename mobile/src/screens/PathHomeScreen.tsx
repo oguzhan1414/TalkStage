@@ -618,7 +618,8 @@ function Medallion({
             locations={[0.62, 1]}
             style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]}
           />
-          {type !== 'scene' || stars > 0 || celebrate?.kind === 'stars' ? (
+          {/* Rehearsal steps show only their lock: badges would cover Mivo's face. */}
+          {type !== 'scene' ? (
             <View style={styles.medalStars}>
               {[1, 2, 3].map((n) =>
                 celebrate?.kind === 'stars' && n <= stars ? (
