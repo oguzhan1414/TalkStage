@@ -1,11 +1,8 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoWaveImage } from '../../assets/images';
-import { mivoVideos } from '../../assets/videos';
 import { Button } from '../../components/Button';
 import { LanguagePickerModal } from '../../components/LanguagePickerModal';
 import { colors, fonts, radii, spacing } from '../../theme/tokens';
@@ -13,87 +10,48 @@ import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { useTrackScreenView } from '../../lib/analytics';
 import { getLocale, LOCALE_META, t } from '../../i18n';
 
-/** The waving-Mivo clip is 9:16 on a perfectly flat background of this colour, so the screen simply uses the
- * same colour: the video then melts into the page and works on any phone shape. */
-const VIDEO_BG = '#D9E2F9';
-const VIDEO_ASPECT = 9 / 16;
-/** Where Mivo actually stands inside the clip (fraction of its height), used to keep him between the title and the button. */
-const MIVO_TOP = 0.22;
-const MIVO_BOTTOM = 0.88;
+const BG = '#D9E2F9';
 const FOOTER_H = 96;
 
-/** First screen: brand on top, Mivo introduces itself and waves (video loop; static image until the first frame). */
+/** First screen: brand on top, Mivo (the cast's coach) introduces themselves and waves. */
 export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcome'>) {
   useTrackScreenView('onboarding_step_viewed', { step: 'welcome' });
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(210);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
-  const player = useVideoPlayer(mivoVideos.wave, (p) => {
-    p.loop = true;
-    p.muted = true;
-    p.play();
-  });
-
-  // Only play while the screen is visible (it stays mounted underneath the next steps).
-  useFocusEffect(
-    useCallback(() => {
-      try {
-        player.play();
-      } catch {
-        setVideoFailed(true);
-      }
-      return () => {
-        try {
-          player.pause();
-        } catch {
-          // player already released
-        }
-      };
-    }, [player])
-  );
-
-  // Fade the video in once its first frame is on screen (the static Mivo is shown until then, or forever on error).
-  const videoOpacity = useRef(new Animated.Value(0)).current;
-  const showVideo = () => Animated.timing(videoOpacity, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+  // Mivo breathes gently and gives a small wave-hop now and then.
+  const floatY = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    const sub = player.addListener('statusChange', ({ status }) => {
-      if (status === 'error') setVideoFailed(true);
-    });
-    return () => sub.remove();
-  }, [player]);
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatY, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(floatY, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [floatY]);
 
-  // Size/position the clip so Mivo (22%–88% of its height) fits between the header and the footer.
+  // Mivo fills the space between the title and the button (the image is 3:4).
   const footerTop = height - FOOTER_H - insets.bottom;
-  const room = Math.max(120, footerTop - headerBottom - 8);
-  const videoH = Math.min((width / VIDEO_ASPECT) * 1, room / (MIVO_BOTTOM - MIVO_TOP));
-  const videoW = videoH * VIDEO_ASPECT;
-  const mivoH = videoH * (MIVO_BOTTOM - MIVO_TOP);
-  const videoTop = headerBottom + (room - mivoH) / 2 - MIVO_TOP * videoH;
+  const room = Math.max(160, footerTop - headerBottom - 16);
+  const mivoH = Math.min(room, (width - 48) / 0.75);
+  const mivoW = mivoH * 0.75;
+  const mivoTop = headerBottom + (room - mivoH) / 2 + 8;
 
   return (
     <View style={styles.container}>
-      {/* Mivo: video loop on top of the static fallback */}
-      <View pointerEvents="none" style={[styles.stage, { width: videoW, height: videoH, top: videoTop, left: (width - videoW) / 2 }]}>
-        <Image
-          source={mivoWaveImage}
-          style={{ position: 'absolute', alignSelf: 'center', top: MIVO_TOP * videoH, height: mivoH, width: mivoH * (750 / 900) }}
-          resizeMode="contain"
-        />
-        {!videoFailed ? (
-          <Animated.View style={[StyleSheet.absoluteFill, { opacity: videoOpacity }]}>
-            <VideoView
-              player={player}
-              style={StyleSheet.absoluteFill}
-              contentFit="contain"
-              nativeControls={false}
-              onFirstFrameRender={showVideo}
-            />
-          </Animated.View>
-        ) : null}
-      </View>
+      <Animated.Image
+        source={mivoWaveImage}
+        style={[
+          styles.stage,
+          { width: mivoW, height: mivoH, top: mivoTop, left: (width - mivoW) / 2 },
+          { transform: [{ translateY: floatY.interpolate({ inputRange: [0, 1], outputRange: [0, -6] }) }] },
+        ]}
+        resizeMode="contain"
+      />
 
       <View
         style={[styles.header, { paddingTop: insets.top + spacing.sm }]}
@@ -124,7 +82,7 @@ export function WelcomeScreen({ navigation }: OnboardingStackScreenProps<'Welcom
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: VIDEO_BG },
+  container: { flex: 1, backgroundColor: BG },
   stage: { position: 'absolute' },
   header: { paddingHorizontal: spacing.lg, alignItems: 'center', paddingBottom: spacing.sm },
   languageChip: {

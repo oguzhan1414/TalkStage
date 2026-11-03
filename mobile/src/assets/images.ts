@@ -10,7 +10,7 @@ export const mivoImages = {
   listening: require('../../assets/images/companion/mivo/mivo_listening.webp'),
   thinking: require('../../assets/images/companion/mivo/mivo_thinking.webp'),
   speaking: require('../../assets/images/companion/mivo/mivo_speaking.webp'),
-  loading: require('../../assets/images/companion/mivo/mivo_loading_flip.webp'),
+  loading: require('../../assets/images/companion/mivo/mivo_loading.webp'),
   success: require('../../assets/images/companion/mivo/mivo_success.webp'),
 } as const;
 
