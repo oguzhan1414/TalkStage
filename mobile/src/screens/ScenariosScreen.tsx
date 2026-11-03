@@ -7,6 +7,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions
 
 import { resolveScenarioCoverSource } from '../assets/images';
 
+import { LinearGradient } from 'expo-linear-gradient';
 import { MivoStage } from '../components/MivoStage';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { trackEvent } from '../lib/analytics';
@@ -214,21 +215,20 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                   <Text style={[styles.mivoPlanText, isPro && { color: '#92400E' }]}>{isPro ? t("👑 Sınırsız") : t("1 deneme hakkı")}</Text>
                 </View>
               </MivoStage>
-              <View style={styles.mivoCardBody}>
-                <Text style={styles.mivoCardTitle}>{t("Mivo ile serbest sohbet")}</Text>
-                <Text style={styles.mivoCardSub}>{t("Günün, işin, hobilerin… Ne istersen konuş; Mivo sorular sorar, hatalarını nazikçe düzeltir.")}</Text>
-                <View style={styles.mivoTopics}>
-                  {[t("☕ Günün nasıldı?"), t("✈️ Tatil planı"), t("💼 İş görüşmesi")].map((topic) => (
-                    <View key={topic} style={styles.mivoTopic}>
-                      <Text style={styles.mivoTopicText}>{topic}</Text>
-                    </View>
-                  ))}
-                </View>
+              {/* The body: one deep indigo-violet panel, white type, a white pill to start */}
+              <LinearGradient colors={['#4338CA', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.mivoCardBody}>
+                <View style={styles.mivoGlow} pointerEvents="none" />
+                <Text style={styles.mivoKicker}>{t("SERBEST SOHBET")}</Text>
+                <Text style={styles.mivoCardTitle}>{t("Mivo ile istediğin konuda konuş")}</Text>
+                <Text style={styles.mivoCardSub}>{t("Sorular sorar, seni dinler, hatalarını nazikçe düzeltir.")}</Text>
                 <View style={styles.mivoStart}>
-                  <Ionicons name="mic" size={19} color="#FFFFFF" />
+                  <LinearGradient colors={['#6366F1', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.mivoStartMic}>
+                    <Ionicons name="mic" size={18} color="#FFFFFF" />
+                  </LinearGradient>
                   <Text style={styles.mivoStartText}>{t("Konuşmaya başla")}</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#4338CA" style={{ marginLeft: 'auto', marginRight: 6 }} />
                 </View>
-              </View>
+              </LinearGradient>
             </Pressable>
 
             {/* Scenes: the head with the stars collected so far */}
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   proPill: { height: 36, paddingHorizontal: 11, borderRadius: 18, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
-  mivoCard: { borderRadius: 26, overflow: 'hidden', backgroundColor: '#FFFFFF', marginBottom: 22, ...shadow.md },
+  mivoCard: { borderRadius: 28, overflow: 'hidden', backgroundColor: '#4338CA', marginBottom: 22, ...shadow.md },
   mivoLive: {
     position: 'absolute',
     top: 12,
@@ -364,25 +364,27 @@ const styles = StyleSheet.create({
   mivoPlan: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
   mivoPlanPro: { backgroundColor: '#FDE68A' },
   mivoPlanText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand },
-  mivoCardBody: { padding: 16, gap: 10, backgroundColor: '#FFFFFF' },
-  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
-  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textBody, marginTop: -4 },
-  mivoTopics: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  mivoTopic: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#F1F5F9' },
-  mivoTopicText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
+  mivoCardBody: { paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18, gap: 6, overflow: 'hidden' },
+  mivoGlow: { position: 'absolute', width: 220, height: 220, borderRadius: 110, right: -70, top: -110, backgroundColor: 'rgba(255,255,255,0.10)' },
+  mivoKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1.4, color: 'rgba(224,231,255,0.85)' },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 21, lineHeight: 27, color: '#FFFFFF' },
+  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: 'rgba(238,242,255,0.88)' },
   mivoStart: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 2,
-    paddingVertical: 14,
+    gap: 10,
+    marginTop: 10,
+    padding: 6,
     borderRadius: radii.pill,
-    backgroundColor: colors.brand,
-    borderBottomWidth: 4,
-    borderBottomColor: '#3730A3',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1E1B4B',
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
-  mivoStartText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF', letterSpacing: 0.3 },
+  mivoStartMic: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  mivoStartText: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#1E1B4B', letterSpacing: 0.2 },
   scenesHeadRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   scenesHead: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
   scenesSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
