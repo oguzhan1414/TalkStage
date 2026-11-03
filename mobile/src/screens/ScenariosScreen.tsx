@@ -71,7 +71,8 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
   // The live room (Pro): a conversation scenario from the server picked for the learner's level.
   const [liveOpening, setLiveOpening] = useState(false);
   const openLiveRoom = async () => {
-    if (!isPro) {
+    // Development builds (Metro / Expo Go) open it without Pro, so it can be tried locally; release builds need Pro.
+    if (!isPro && !__DEV__) {
       trackEvent('paywall_opened', { source: 'konus_live_room' });
       navigation.navigate('Paywall');
       return;
