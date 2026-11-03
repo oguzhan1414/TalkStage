@@ -24,9 +24,11 @@ export function StoryIntroSheet({ level, visible, onClose, onStart }: { level: P
   const people = castOfLevel(level);
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
+      <View style={styles.overlay}>
+        {/* The dimmed area closes the sheet; it sits behind the sheet so it never takes the sheet's scroll gestures. */}
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel={t("Kapat")} />
+        <View style={styles.sheet}>
+          <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
             <View style={styles.lineupWrap}>
               <Image source={CAST_LINEUP} style={styles.lineup} resizeMode="contain" />
             </View>
@@ -54,8 +56,8 @@ export function StoryIntroSheet({ level, visible, onClose, onStart }: { level: P
           >
             <Text style={styles.btnText}>{onStart ? t("Hikâyeye başla") : t("Devam et")}</Text>
           </Pressable>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -63,6 +65,7 @@ export function StoryIntroSheet({ level, visible, onClose, onStart }: { level: P
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'flex-end' },
   sheet: { maxHeight: '88%', backgroundColor: '#FBF7F1', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: 28, overflow: 'hidden' },
+  scroll: { flexShrink: 1 },
   body: { paddingHorizontal: 20, paddingBottom: 12, gap: 6 },
   // The whole cast, never cropped, at a size that leaves room for the story and the names below.
   lineupWrap: { alignItems: 'center', marginTop: 8, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 6 },
