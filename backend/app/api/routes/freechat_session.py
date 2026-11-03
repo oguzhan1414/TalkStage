@@ -39,20 +39,20 @@ _FOCUS_OPENING = {
 }
 # Mivo button on the learning path: Mivo knows the episode the learner just read (title, grammar, words).
 _STORY_OPENING = {
-    "tr": "Selam! \"{episode}\" bölümünü okudun, harika! Orada {grammar} çalıştık. Hadi biraz konuşalım: önce söyle, bu bölümde en çok ne hoşuna gitti?",
-    "en": "Hi! You read \"{episode}\", great job! We practised {grammar} there. Let's chat a bit: first, what did you like most in this episode?",
-    "es": "¡Hola! Leíste «{episode}», ¡genial! Ahí practicamos {grammar}. Charlemos un poco: primero, ¿qué es lo que más te gustó de este episodio?",
-    "pt": "Oi! Você leu “{episode}”, muito bem! Ali praticamos {grammar}. Vamos conversar um pouco: primeiro, do que você mais gostou neste episódio?",
-    "de": "Hi! Du hast „{episode}“ gelesen, super! Dort haben wir {grammar} geübt. Lass uns ein bisschen reden: Was hat dir an dieser Folge am besten gefallen?",
+    "tr": "Selam! ‘{episode}’ bölümünü okudun, harika! Orada {grammar} çalıştık. Hadi biraz konuşalım: önce söyle, bu bölümde en çok ne hoşuna gitti?",
+    "en": "Hi! You read ‘{episode}’, great job! We practised {grammar} there. Let's chat a bit: first, what did you like most in this episode?",
+    "es": "¡Hola! Leíste ‘{episode}’, ¡genial! Ahí practicamos {grammar}. Charlemos un poco: primero, ¿qué es lo que más te gustó de este episodio?",
+    "pt": "Oi! Você leu ‘{episode}’, muito bem! Ali praticamos {grammar}. Vamos conversar um pouco: primeiro, do que você mais gostou neste episódio?",
+    "de": "Hi! Du hast ‘{episode}’ gelesen, super! Dort haben wir {grammar} geübt. Lass uns ein bisschen reden: Was hat dir an dieser Folge am besten gefallen?",
 }
 # End of a unit on the learning path: Mivo is the learner's coach, preparing them for real life with the unit's
 # grammar and words (not a character from the Scenes tab).
 _UNIT_OPENING = {
-    "tr": "Tebrikler, \"{unit}\" ünitesini bitirdin! 🎉 Ben koçunum. Önce bu ünitede ne öğrendiğimize ve bunu gerçek hayatta nerede kullanacağına kısaca bakalım, sonra seninle gerçek bir durumda prova yapalım. Hazır mısın?",
-    "en": "Congratulations, you finished \"{unit}\"! 🎉 I'm your coach. First let's look quickly at what this unit taught you and where you'll use it in real life, then we'll rehearse it together in a real situation. Ready?",
-    "es": "¡Felicidades, terminaste «{unit}»! 🎉 Soy tu coach. Primero veamos rápido qué aprendiste en esta unidad y dónde lo usarás en la vida real, y luego lo ensayamos juntos en una situación real. ¿Listo?",
-    "pt": "Parabéns, você terminou “{unit}”! 🎉 Eu sou seu coach. Primeiro vamos ver rapidinho o que você aprendeu nesta unidade e onde vai usar isso na vida real, depois ensaiamos juntos numa situação real. Pronto?",
-    "de": "Glückwunsch, du hast „{unit}“ geschafft! 🎉 Ich bin dein Coach. Zuerst schauen wir kurz, was du in dieser Einheit gelernt hast und wo du es im echten Leben brauchst, dann proben wir es zusammen in einer echten Situation. Bereit?",
+    "tr": "Tebrikler, ‘{unit}’ ünitesini bitirdin! 🎉 Ben koçunum. Önce bu ünitede ne öğrendiğimize ve bunu gerçek hayatta nerede kullanacağına kısaca bakalım, sonra seninle gerçek bir durumda prova yapalım. Hazır mısın?",
+    "en": "Congratulations, you finished ‘{unit}’! 🎉 I'm your coach. First let's look quickly at what this unit taught you and where you'll use it in real life, then we'll rehearse it together in a real situation. Ready?",
+    "es": "¡Felicidades, terminaste ‘{unit}’! 🎉 Soy tu coach. Primero veamos rápido qué aprendiste en esta unidad y dónde lo usarás en la vida real, y luego lo ensayamos juntos en una situación real. ¿Listo?",
+    "pt": "Parabéns, você terminou ‘{unit}’! 🎉 Eu sou seu coach. Primeiro vamos ver rapidinho o que você aprendeu nesta unidade e onde vai usar isso na vida real, depois ensaiamos juntos numa situação real. Pronto?",
+    "de": "Glückwunsch, du hast ‘{unit}’ geschafft! 🎉 Ich bin dein Coach. Zuerst schauen wir kurz, was du in dieser Einheit gelernt hast und wo du es im echten Leben brauchst, dann proben wir es zusammen in einer echten Situation. Bereit?",
 }
 _FOCUS_OPENING_CHECK = {
     "tr": "Merhaba! Bu bölümün değerlendirmesini sohbet ederek yapacağız: \"{title}\". Kendini İngilizce rahatça ifade et; ben dinliyorum.",
@@ -142,7 +142,7 @@ def _focus_opening(native: str, focus: dict) -> str:
     story = focus.get("story")
     if story:
         grammar = story.get("grammar") or focus["title"]
-        return _STORY_OPENING[native].format(episode=focus["title"], grammar=f"\"{grammar}\"")
+        return _STORY_OPENING[native].format(episode=focus["title"], grammar=f"‘{grammar}’")
     review = focus.get("review")
     if review and len(review) == 1:
         return _TEACH_OPENING[native].format(title=review[0]["title"])

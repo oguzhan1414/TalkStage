@@ -258,11 +258,12 @@ export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning, 
         : phase === 'ai_thinking'
           ? 'thinking'
           : 'idle';
-  const stageH = Math.round(Math.min((width - 24) * 0.5, height * 0.26));
+  // The whole 16:9 loop, never cropped (Mivo's face stays clear); a little shorter on small phones.
+  const stageH = Math.round(Math.min(((width - 24) * 9) / 16, height * 0.25));
   return <>
   <View style={styles.stageWrap}>
-    <MivoStage state={stageState} height={stageH}>
-      {/* The turn, on a frosted strip at the bottom of the stage */}
+    <MivoStage state={stageState} height={stageH} />
+    {/* The turn, on its own strip under the stage (never over Mivo's face) */}
       <View style={[styles.stageBar, recording && styles.stageBarRecording]}>
         <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
           <Ionicons name={recording ? 'mic' : phase === 'ai_speaking' ? 'volume-high' : 'chatbubble-ellipses-outline'} size={15} color={recording ? '#059669' : colors.brand} />
@@ -284,7 +285,6 @@ export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning, 
           </Pressable>
         ) : null}
       </View>
-    </MivoStage>
   </View>
   {timeWarning ? (
     <View style={styles.timeStrip} accessibilityLiveRegion="polite">
@@ -861,19 +861,14 @@ export const voiceRoomStyles = StyleSheet.create({
   },
   stageWrap: { marginHorizontal: 12, marginTop: 8, borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#DCE3F5' },
   stageBar: {
-    position: 'absolute',
-    left: 10,
-    right: 10,
-    bottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: '#FFFFFF',
   },
-  stageBarRecording: { backgroundColor: 'rgba(240,253,249,0.95)' },
+  stageBarRecording: { backgroundColor: '#F0FDF9' },
   turnBanner: {
     flexDirection: 'row',
     alignItems: 'center',

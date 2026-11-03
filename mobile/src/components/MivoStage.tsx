@@ -56,13 +56,13 @@ export function MivoStage({ state, height, children, style }: { state: MivoStage
         <VideoView
           player={player}
           style={StyleSheet.absoluteFill}
-          contentFit="cover"
+          contentFit="contain"
           nativeControls={false}
           onFirstFrameRender={() => Animated.timing(cover, { toValue: 0, duration: 180, useNativeDriver: true }).start()}
         />
       ) : null}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: failed ? 1 : cover }]}>
-        <Image source={mivoStagePosters[poster]} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        <Image source={mivoStagePosters[poster]} style={StyleSheet.absoluteFill} resizeMode="contain" />
       </Animated.View>
       {children}
     </View>
