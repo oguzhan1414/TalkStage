@@ -31,9 +31,16 @@ export const tokens = (s: string) =>
     .split(/\s+/)
     .filter(Boolean);
 
-/** Share (0–1) of the wanted words that show up in what was heard. */
+/**
+ * Share (0–1) of the wanted words that show up in what was heard. A wanted item may list alternatives with "|"
+ * ("cola|water|juice": any one counts), and an alternative of several words needs all of them ("sci-fi").
+ */
 export function hitRatio(heard: string, wanted: readonly string[]): number {
   if (wanted.length === 0) return 0;
   const said = tokens(heard);
-  return wanted.filter((w) => said.some((s) => closeWord(s, w))).length / wanted.length;
+  const has = (alt: string) => {
+    const words = tokens(alt);
+    return words.length > 0 && words.every((w) => said.some((s) => closeWord(s, w)));
+  };
+  return wanted.filter((group) => group.split('|').some(has)).length / wanted.length;
 }

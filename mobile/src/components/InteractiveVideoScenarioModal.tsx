@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { File } from 'expo-file-system';
 import type { ScenarioEntry, ScenarioVideoStep } from '@talkstage/shared-data/scenariosData';
-import { fonts, radii } from '../theme/tokens';
+import { colors, fonts, radii, shadow } from '../theme/tokens';
 import { haptics } from '../lib/haptics';
 import { playSfx } from '../lib/sfx';
 import { usePronunciation } from '../hooks/usePronunciation';
@@ -38,17 +38,20 @@ type Props = {
 type Phase = 'preview' | 'playing' | 'turn' | 'result';
 type TurnState = 'idle' | 'recording' | 'checking' | 'hit' | 'miss';
 
-/** Enough of the line's key words heard: the learner said it (in their own way is fine). */
-const PASS_RATIO = 0.55;
+/** Enough of the line's key words heard: the learner said it (in their own way is fine). A1 is a little kinder. */
+const passRatio = (level: string) => (level === 'A1' ? 0.5 : 0.55);
+/** A1 starts with the opening words and key words already shown (that is not counted as a hint). */
+const baseHint = (level: string) => (level === 'A1' ? 1 : 0);
 /** After this many misses on one line the learner may skip it. */
 const SKIP_AFTER = 2;
 
-/** The words to listen for: the step's keywords, or the whole expected line when it has none. */
-const wantedWords = (s: ScenarioVideoStep) => (s.keywords?.length ? s.keywords.flatMap(tokens) : tokens(s.expectedUserResponse));
+/** The words to listen for: the step's keywords ("a|b" = either), or the whole expected line when it has none. */
+const wantedWords = (s: ScenarioVideoStep) => (s.keywords?.length ? s.keywords : tokens(s.expectedUserResponse));
 
-/** The opening words of the expected line, for the second hint ("Hello! It really …"). */
-const firstWords = (line: string, n = 3) => {
+/** The opening words of the expected line for the middle hint: about half of a short line, at most three words. */
+const firstWords = (line: string) => {
   const words = line.split(/\s+/);
+  const n = Math.max(1, Math.min(3, Math.floor(words.length / 2)));
   return words.length <= n ? line : `${words.slice(0, n).join(' ')} …`;
 };
 
@@ -87,6 +90,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   const { pronounce, stop: stopPronunciation, isPlaying: isAudioPlaying } = usePronunciation();
   const recorder = useVoiceRecorder();
   const insets = useSafeAreaInsets();
+  const { height: winH } = useWindowDimensions();
   const ring = useLoop(turn === 'recording', 1100);
   const shake = useShake();
 
@@ -132,7 +136,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   };
 
   const resetTurn = () => {
-    setHintLevel(0);
+    setHintLevel(baseHint(scenario?.level ?? ''));
     setMisses(0);
     setTurn('idle');
     setHeard('');
@@ -255,12 +259,12 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
       const { transcript } = await api.postForm<TranscribeResponse>('/chat/transcribe', form);
       const said = transcript.trim();
       setHeard(said);
-      const ok = said.length > 0 && hitRatio(said, wantedWords(currentStep)) >= PASS_RATIO;
+      const ok = said.length > 0 && hitRatio(said, wantedWords(currentStep)) >= passRatio(scenario?.level ?? '');
       if (ok) {
         setTurn('hit');
         playSfx('correct');
         haptics.success();
-        const point = hintLevel >= 2 ? 0 : misses === 0 && hintLevel === 0 ? 2 : 1;
+        const point = hintLevel >= 2 ? 0 : misses === 0 && hintLevel <= baseHint(scenario?.level ?? '') ? 2 : 1;
         advanceTimer.current = setTimeout(() => passLine(point), 1300);
       } else {
         setTurn('miss');
@@ -305,34 +309,32 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
       <View style={styles.root}>
         {/* ---------- Preview ---------- */}
         {phase === 'preview' ? (
-          <View style={styles.stage}>
-            <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" onError={() => setImgError(true)} />
-            <LinearGradient
-              colors={['rgba(9,13,22,0.35)', 'rgba(9,13,22,0.1)', 'rgba(9,13,22,0.82)', 'rgba(9,13,22,0.98)']}
-              locations={[0, 0.3, 0.66, 1]}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={[styles.previewContent, { paddingBottom: insets.bottom + 18 }]}
-              showsVerticalScrollIndicator={false}
-              bounces={false}
-            >
+          <View style={[styles.stage, styles.page]}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 18 }} showsVerticalScrollIndicator={false} bounces={false}>
+              <View style={{ height: Math.round(winH * 0.42) }}>
+                <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" onError={() => setImgError(true)} />
+                <LinearGradient
+                  colors={['rgba(15,23,42,0.35)', 'rgba(15,23,42,0)', 'rgba(248,250,252,0)', PAGE_BG]}
+                  locations={[0, 0.3, 0.75, 1]}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                />
+              </View>
+              <View style={styles.previewContent}>
               <View style={styles.metaRow}>
                 <View style={[styles.levelPill, { backgroundColor: levelColor }]}>
                   <Text style={styles.levelPillText}>{scenario.level}</Text>
                 </View>
                 <View style={styles.metaPill}>
-                  <Ionicons name="film-outline" size={13} color="#C7D2FE" />
+                  <Ionicons name="film-outline" size={13} color={colors.brand} />
                   <Text style={styles.metaPillText}>{t("{{length}} replik", { length: steps.length })}</Text>
                 </View>
                 <View style={styles.metaPill}>
-                  <Ionicons name="time-outline" size={13} color="#C7D2FE" />
+                  <Ionicons name="time-outline" size={13} color={colors.brand} />
                   <Text style={styles.metaPillText}>{t("{{durationMin}} dk", { durationMin: scenario.durationMin })}</Text>
                 </View>
                 <View style={styles.metaPill}>
-                  <Ionicons name="sparkles" size={13} color="#FBBF24" />
+                  <Ionicons name="sparkles" size={13} color="#D97706" />
                   <Text style={styles.metaPillText}>{t("+{{earnedTotalXp}} XP", { earnedTotalXp: ACTIVITY_XP })}</Text>
                 </View>
               </View>
@@ -362,7 +364,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   { icon: 'star-outline' as const, text: t("Yıldızları topla") },
                 ].map((h) => (
                   <View key={h.text} style={styles.howItem}>
-                    <Ionicons name={h.icon} size={18} color="#C7D2FE" />
+                    <Ionicons name={h.icon} size={18} color={colors.brand} />
                     <Text style={styles.howText}>{h.text}</Text>
                   </View>
                 ))}
@@ -372,6 +374,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <Ionicons name="play" size={18} color="#FFFFFF" />
                 <Text style={styles.primaryBtnText}>{t("BAŞLA")}</Text>
               </Pressable>
+              </View>
             </ScrollView>
           </View>
         ) : null}
@@ -413,7 +416,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 <FadeIn key={`s${stepIdx}`} style={styles.subtitleCard}>
                   <View style={styles.speakerRow}>
                     {face(30)}
-                    <Text style={[styles.speakerName, { color: cast.color === '#94A3B8' ? '#E2E8F0' : cast.color }]} numberOfLines={1}>
+                    <Text style={[styles.speakerName, { color: cast.color === '#94A3B8' ? colors.textHeading : cast.color }]} numberOfLines={1}>
                       {speaker}
                     </Text>
                   </View>
@@ -426,17 +429,17 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 </FadeIn>
                 <View style={styles.controlsRow}>
                   <Pressable onPress={() => setShowTranslation((v) => !v)} style={[styles.chipBtn, showTranslation && styles.chipBtnOn]} hitSlop={8} accessibilityRole="button">
-                    <Text style={styles.chipBtnText}>
+                    <Text style={[styles.chipBtnText, showTranslation && { color: '#FFFFFF' }]}>
                       {nativeFlag()} {showTranslation ? t("Çeviriyi gizle") : t("Çeviri")}
                     </Text>
                   </Pressable>
                   <Pressable onPress={replayLine} style={styles.iconBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Tekrar izle")}>
-                    <Ionicons name="reload" size={17} color="#E2E8F0" />
+                    <Ionicons name="reload" size={17} color={colors.textHeading} />
                   </Pressable>
                   <View style={{ flex: 1 }} />
                   <Pressable onPress={skipToTurn} style={styles.chipBtn} hitSlop={8} accessibilityRole="button">
                     <Text style={styles.chipBtnText}>{t("Sıra bende")}</Text>
-                    <Ionicons name="play-skip-forward" size={14} color="#E2E8F0" />
+                    <Ionicons name="play-skip-forward" size={14} color={colors.textHeading} />
                   </Pressable>
                 </View>
               </View>
@@ -455,8 +458,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               <View style={styles.turnDot} />
               <Text style={styles.turnTitle}>{t("SIRA SENDE")}</Text>
               <View style={{ flex: 1 }} />
-              <Pressable onPress={replayLine} style={styles.iconBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Tekrar izle")}>
-                <Ionicons name="reload" size={17} color="#E2E8F0" />
+              <Pressable onPress={replayLine} style={styles.turnIconBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Tekrar izle")}>
+                <Ionicons name="reload" size={17} color={colors.textHeading} />
               </Pressable>
             </View>
 
@@ -469,7 +472,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   <View style={styles.keywordRow}>
                     {currentStep.keywords.slice(0, 6).map((k) => (
                       <View key={k} style={styles.keyword}>
-                        <Text style={styles.keywordText}>{k}</Text>
+                        <Text style={styles.keywordText}>{k.split('|')[0]}</Text>
                       </View>
                     ))}
                   </View>
@@ -480,7 +483,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               <FadeIn style={styles.targetCard}>
                 <Text style={styles.targetText}>{currentStep.expectedUserResponse}</Text>
                 <Pressable onPress={() => pronounce(currentStep.expectedUserResponse)} style={styles.listenBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
-                  <Ionicons name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'} size={18} color="#C7D2FE" />
+                  <Ionicons name={isAudioPlaying ? 'volume-high' : 'volume-medium-outline'} size={18} color={colors.brand} />
                 </Pressable>
               </FadeIn>
             ) : null}
@@ -509,8 +512,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 style={[styles.sideBtn, (hintLevel >= 2 || busy || turn === 'recording') && { opacity: 0.35 }]}
                 accessibilityRole="button"
               >
-                <Ionicons name="bulb-outline" size={20} color="#FDE68A" />
-                <Text style={styles.sideBtnText}>{hintLevel === 0 ? t("İpucu") : t("Tamamını göster")}</Text>
+                <Ionicons name="bulb" size={20} color="#F59E0B" />
+                <Text style={styles.sideBtnText}>{hintLevel < 1 ? t("İpucu") : t("Tamamını göster")}</Text>
               </Pressable>
 
               <View style={styles.micWrap}>
@@ -544,7 +547,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                 style={[styles.sideBtn, (misses < SKIP_AFTER || busy || turn === 'recording') && { opacity: 0 }]}
                 accessibilityRole="button"
               >
-                <Ionicons name="play-skip-forward-outline" size={20} color="#CBD5E1" />
+                <Ionicons name="play-skip-forward-outline" size={20} color={colors.textMuted} />
                 <Text style={styles.sideBtnText}>{isLast ? t("Bitir") : t("Geç")}</Text>
               </Pressable>
             </View>
@@ -556,7 +559,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 
         {/* ---------- Result ---------- */}
         {phase === 'result' ? (
-          <LinearGradient colors={['#1E1B4B', '#0F172A', '#090D16']} style={[styles.stage, styles.result, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 18 }]}>
+          <LinearGradient colors={['#EEF2FF', '#FFFFFF', PAGE_BG]} locations={[0, 0.45, 1]} style={[styles.stage, styles.result, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 18 }]}>
             {stars === 3 ? <Confetti count={30} /> : null}
             <PopIn style={styles.medalWrap}>
               <View style={[styles.medalOuter, { borderColor: '#FBBF24' }]}>
@@ -572,7 +575,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
             <View style={styles.starRow}>
               {[1, 2, 3].map((n) => (
                 <PopIn key={n} delay={350 + n * 260} onShow={() => n <= stars && playSfx('star')}>
-                  <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={n === 2 ? 52 : 42} color={n <= stars ? '#FBBF24' : 'rgba(255,255,255,0.25)'} style={n !== 2 && { marginTop: 12 }} />
+                  <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={n === 2 ? 52 : 42} color={n <= stars ? '#FBBF24' : '#CBD5E1'} style={n !== 2 && { marginTop: 12 }} />
                 </PopIn>
               ))}
             </View>
@@ -582,7 +585,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 
             <View style={styles.statsRow}>
               <View style={styles.statBox}>
-                <Text style={[styles.statVal, { color: '#FBBF24' }]}>+{ACTIVITY_XP}</Text>
+                <Text style={[styles.statVal, { color: '#D97706' }]}>+{ACTIVITY_XP}</Text>
                 <Text style={styles.statLbl}>XP</Text>
               </View>
               <View style={styles.statBox}>
@@ -607,7 +610,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
               </Pressable>
             ) : null}
             <Pressable onPress={playAgain} style={[styles.secondaryBtn, !onNextScene && { marginTop: 0 }]} accessibilityRole="button">
-              <Ionicons name="reload" size={16} color="#E2E8F0" />
+              <Ionicons name="reload" size={16} color={colors.brand} />
               <Text style={styles.secondaryBtnText}>{t("Tekrar oyna")}</Text>
             </Pressable>
             <Pressable onPress={onClose} style={styles.ghostBtn} accessibilityRole="button">
@@ -628,8 +631,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
             </View>
           ) : null}
           <View style={styles.topRow} pointerEvents="box-none">
-            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
-              <Ionicons name="close" size={20} color="#FFFFFF" />
+            <Pressable onPress={onClose} style={[styles.closeBtn, phase === 'result' && styles.closeBtnLight]} hitSlop={10} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+              <Ionicons name="close" size={20} color={phase === 'result' ? colors.textHeading : '#FFFFFF'} />
             </Pressable>
             {inStage ? (
               <View style={styles.stepPill}>
@@ -645,8 +648,12 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
   );
 }
 
+/** The app's light page colour (the rest of Spekvia is white/porcelain; only the video itself sits on black). */
+const PAGE_BG = '#F8FAFC';
+
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#090D16' },
+  root: { flex: 1, backgroundColor: '#000000' },
+  page: { backgroundColor: PAGE_BG },
   stage: { flex: 1, backgroundColor: '#000000' },
   videoOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   videoErrorText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: '#E2E8F0' },
@@ -658,27 +665,28 @@ const styles = StyleSheet.create({
   progressSeg: { flex: 1, height: 3.5, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.3)', overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: '#FFFFFF' },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  closeBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(15,23,42,0.62)', alignItems: 'center', justifyContent: 'center' },
+  closeBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(15,23,42,0.55)', alignItems: 'center', justifyContent: 'center' },
+  closeBtnLight: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: colors.border },
   stepPill: { flexShrink: 1, backgroundColor: 'rgba(15,23,42,0.62)', borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
   stepPillText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#F1F5F9' },
 
   initials: { alignItems: 'center', justifyContent: 'center' },
   initialsText: { fontFamily: fonts.headingBold, color: '#FFFFFF' },
 
-  previewContent: { flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 120, gap: 14 },
+  previewContent: { paddingHorizontal: 20, marginTop: -28, gap: 14 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   levelPill: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
   levelPillText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#FFFFFF', letterSpacing: 0.4 },
-  metaPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(15,23,42,0.62)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
-  metaPillText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#E2E8F0' },
-  previewTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: '#FFFFFF' },
-  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  characterName: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
-  characterRole: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#CBD5E1', marginTop: 1 },
-  previewDesc: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 21, color: '#CBD5E1' },
+  metaPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#FFFFFF', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: colors.border },
+  metaPillText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textBody },
+  previewTitle: { fontFamily: fonts.headingBold, fontSize: 27, lineHeight: 33, color: colors.textHeading },
+  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: radii.lg, padding: 12, borderWidth: 1, borderColor: colors.border },
+  characterName: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
+  characterRole: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  previewDesc: { fontFamily: fonts.bodyRegular, fontSize: 14.5, lineHeight: 22, color: colors.textBody },
   howRow: { flexDirection: 'row', gap: 8 },
-  howItem: { flex: 1, alignItems: 'center', gap: 5, paddingVertical: 10, borderRadius: radii.lg, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  howText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#E2E8F0', textAlign: 'center' },
+  howItem: { flex: 1, alignItems: 'center', gap: 5, paddingVertical: 12, borderRadius: radii.lg, backgroundColor: '#EEF2FF' },
+  howText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#3730A3', textAlign: 'center' },
 
   primaryBtn: {
     flexDirection: 'row',
@@ -701,80 +709,84 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: radii.pill,
     paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
   },
-  secondaryBtnText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: '#E2E8F0' },
+  secondaryBtnText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: colors.brand },
   ghostBtn: { alignItems: 'center', justifyContent: 'center', paddingVertical: 13 },
-  ghostBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: '#94A3B8' },
+  ghostBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textMuted },
 
   subtitleWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, gap: 12 },
-  subtitleCard: { backgroundColor: 'rgba(9,13,22,0.72)', borderRadius: 20, padding: 14, gap: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  subtitleCard: { backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 20, padding: 14, gap: 8, ...shadow.md },
   speakerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   speakerName: { fontFamily: fonts.headingBold, fontSize: 14, maxWidth: 200 },
-  subtitleText: { fontFamily: fonts.headingSemiBold, fontSize: 18.5, lineHeight: 26, color: '#FFFFFF' },
-  translationText: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: '#C7D2FE' },
+  subtitleText: { fontFamily: fonts.headingSemiBold, fontSize: 18, lineHeight: 25, color: colors.textHeading },
+  translationText: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: '#4338CA' },
   controlsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(30,41,59,0.85)', alignItems: 'center', justifyContent: 'center' },
-  chipBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(30,41,59,0.85)', borderRadius: radii.pill, paddingHorizontal: 13, paddingVertical: 9 },
-  chipBtnOn: { backgroundColor: '#4338CA' },
-  chipBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#E2E8F0' },
+  iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
+  chipBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: radii.pill, paddingHorizontal: 13, paddingVertical: 9 },
+  chipBtnOn: { backgroundColor: colors.brand },
+  chipBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textHeading },
 
   turnCard: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    borderTopWidth: 1,
-    borderColor: '#1E293B',
     paddingHorizontal: 18,
     paddingTop: 16,
     gap: 12,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: -4 },
+    elevation: 12,
   },
-  lastLine: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 18, color: '#64748B' },
+  lastLine: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 18, color: colors.textMuted },
   turnHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  turnDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#34D399' },
-  turnTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: '#34D399' },
-  taskText: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 21, color: '#E2E8F0' },
-  hintBox: { gap: 8, padding: 12, borderRadius: radii.lg, backgroundColor: 'rgba(253,230,138,0.08)', borderWidth: 1, borderColor: 'rgba(253,230,138,0.3)' },
-  hintStart: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FDE68A' },
+  turnDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.success },
+  turnTitle: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: '#059669' },
+  turnIconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
+  taskText: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, lineHeight: 22, color: colors.textHeading },
+  hintBox: { gap: 8, padding: 12, borderRadius: radii.lg, backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A' },
+  hintStart: { fontFamily: fonts.headingBold, fontSize: 17, color: '#92400E' },
   keywordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  keyword: { borderRadius: radii.pill, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: 'rgba(255,255,255,0.08)' },
-  keywordText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#E2E8F0' },
-  targetCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: 'rgba(99,102,241,0.14)', borderRadius: radii.lg, borderWidth: 1.5, borderColor: 'rgba(129,140,248,0.45)', padding: 14 },
-  targetText: { flex: 1, fontFamily: fonts.headingBold, fontSize: 17, lineHeight: 25, color: '#FFFFFF' },
-  listenBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(99,102,241,0.3)', alignItems: 'center', justifyContent: 'center' },
-  heardBox: { borderRadius: radii.lg, padding: 12, backgroundColor: 'rgba(255,255,255,0.06)', gap: 3 },
-  heardHit: { backgroundColor: 'rgba(52,211,153,0.16)' },
-  heardMiss: { backgroundColor: 'rgba(251,146,60,0.14)' },
-  heardLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: '#94A3B8' },
-  heardText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: '#F1F5F9' },
+  keyword: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#FCD34D' },
+  keywordText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#92400E' },
+  targetCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#EEF2FF', borderRadius: radii.lg, borderWidth: 1.5, borderColor: '#C7D2FE', padding: 14 },
+  targetText: { flex: 1, fontFamily: fonts.headingBold, fontSize: 18, lineHeight: 25, color: '#1E1B4B' },
+  listenBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  heardBox: { borderRadius: radii.lg, padding: 12, backgroundColor: '#F1F5F9', gap: 3 },
+  heardHit: { backgroundColor: '#ECFDF5' },
+  heardMiss: { backgroundColor: '#FFF7ED' },
+  heardLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textMuted },
+  heardText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textHeading },
   micRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 },
   sideBtn: { width: 84, alignItems: 'center', gap: 4 },
-  sideBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: '#CBD5E1', textAlign: 'center' },
+  sideBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textBody, textAlign: 'center' },
   micWrap: { width: 84, height: 84, alignItems: 'center', justifyContent: 'center' },
   micRing: { position: 'absolute', width: 84, height: 84, borderRadius: 42, backgroundColor: '#F43F5E' },
-  micBtn: { width: 76, height: 76, borderRadius: 38, backgroundColor: '#4F46E5', alignItems: 'center', justifyContent: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },
+  micBtn: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 4, borderBottomColor: '#3730A3' },
   micBtnRec: { backgroundColor: '#F43F5E', borderBottomColor: '#BE123C' },
   micBtnHit: { backgroundColor: '#10B981', borderBottomColor: '#047857' },
-  micHint: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: '#94A3B8', textAlign: 'center' },
+  micHint: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, textAlign: 'center' },
 
   result: { paddingHorizontal: 22, alignItems: 'stretch' },
   medalWrap: { alignSelf: 'center', alignItems: 'center' },
-  medalOuter: { width: 156, height: 156, borderRadius: 78, borderWidth: 4, padding: 5, backgroundColor: 'rgba(251,191,36,0.12)' },
-  medalInner: { flex: 1, borderRadius: 70, borderWidth: 4, overflow: 'hidden', backgroundColor: '#1E293B' },
-  medalLevel: { marginTop: -16, borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 2, borderColor: '#0F172A' },
+  medalOuter: { width: 156, height: 156, borderRadius: 78, borderWidth: 4, padding: 5, backgroundColor: '#FFFBEB', ...shadow.md },
+  medalInner: { flex: 1, borderRadius: 70, borderWidth: 4, overflow: 'hidden', backgroundColor: '#E2E8F0' },
+  medalLevel: { marginTop: -16, borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 2, borderColor: '#FFFFFF' },
   medalLevelText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#FFFFFF', letterSpacing: 0.5 },
   starRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 14, marginBottom: 6 },
-  resultTitle: { fontFamily: fonts.headingBold, fontSize: 25, lineHeight: 31, color: '#FFFFFF', textAlign: 'center' },
-  resultDesc: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: '#94A3B8', textAlign: 'center', marginTop: 4, marginBottom: 20 },
+  resultTitle: { fontFamily: fonts.headingBold, fontSize: 25, lineHeight: 31, color: colors.textHeading, textAlign: 'center' },
+  resultDesc: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: colors.textMuted, textAlign: 'center', marginTop: 4, marginBottom: 20 },
   statsRow: { flexDirection: 'row', gap: 10 },
-  statBox: { flex: 1, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: radii.lg, paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  statVal: { fontFamily: fonts.headingBold, fontSize: 21, color: '#FFFFFF' },
-  statLbl: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: '#94A3B8', marginTop: 3 },
-  resultTip: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 18, color: '#A5B4FC', textAlign: 'center', marginTop: 14 },
+  statBox: { flex: 1, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: radii.lg, paddingVertical: 14, borderWidth: 1, borderColor: colors.border, ...shadow.sm },
+  statVal: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading },
+  statLbl: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: colors.textMuted, marginTop: 3 },
+  resultTip: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 18, color: '#4338CA', textAlign: 'center', marginTop: 14 },
 });
