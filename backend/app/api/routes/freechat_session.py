@@ -173,7 +173,9 @@ def _focus_prompt_block(focus: dict) -> str:
                 "and words, and set it up in one short sentence.\n"
             )
             + "- The other person's lines must be natural, polite and fit the situation and the student's level; never odd or "
-            "awkward questions.\n"
+            "awkward questions. Each line is said TO the student and asks for an answer (a greeting or a question, e.g. the "
+            "teacher says \"Hi! Are you a new student?\"); never give the student's own sentence as the other person's line.\n"
+            "- Plain text only: no ** or other markdown.\n"
             "- A CORRECT ANSWER IS NEVER SENT BACK: if the sentence is right apart from punctuation or capital letters "
             "(speech recognition adds those, e.g. \"Yes. I am happy.\" equals \"Yes, I am happy.\"), praise it in a few words "
             "and move on to the next line. Ask for a retry ONLY when a word or grammar form is really wrong.\n"

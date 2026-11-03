@@ -3579,5 +3579,6 @@
   "Prova: {{unit}}": "Rehearsal: {{unit}}",
   "Mivo - {{pose}}": "Mivo - {{pose}}",
   "İngilizce yaz…": "Type in English…",
-  "Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş.": "I couldn't hear you. Try saying it in English, and maybe move a little closer to the mic."
+  "Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş.": "I couldn't hear you. Try saying it in English, and maybe move a little closer to the mic.",
+  "Mivo seninle kendi dilinde konuşur; sen cevaplarını İngilizce söyle.": "Mivo talks to you in your language; you give your answers in English."
 }

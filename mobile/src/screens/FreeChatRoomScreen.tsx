@@ -43,7 +43,7 @@ import { usePronunciation } from '../hooks/usePronunciation';
 import { MivoLoader } from '../components/MivoLoader';
 import { Button } from '../components/Button';
 import { isProUser } from '../lib/revenuecat';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
 
 const AI_NAME = 'Mivo';
 const AI_ROLE = t("Serbest Sohbet Koçun");
@@ -452,6 +452,14 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             timeWarning={timeWarning}
           />
 
+          {/* The room's language deal, until the first answer: Mivo explains in your language, you answer in English. */}
+          {getLocale() !== 'en' && !turns.some((turn) => turn.role === 'user') ? (
+            <View style={styles.langNote}>
+              <Ionicons name="information-circle" size={16} color={colors.brand} />
+              <Text style={styles.langNoteText}>{t("Mivo seninle kendi dilinde konuşur; sen cevaplarını İngilizce söyle.")}</Text>
+            </View>
+          ) : null}
+
           {scene && twistTitle ? (
             <View style={styles.twistStrip}>
               <Text style={styles.twistEmoji}>{twistEmoji ?? '🎬'}</Text>
@@ -577,6 +585,8 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 }
 
 const styles = StyleSheet.create({
+  langNote: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: spacing.md, marginTop: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: '#EEF2FF' },
+  langNoteText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#3730A3' },
   offerButton: { alignSelf: 'stretch', marginTop: 16, marginHorizontal: spacing.lg },
   hintBtn: {
     flexDirection: 'row',

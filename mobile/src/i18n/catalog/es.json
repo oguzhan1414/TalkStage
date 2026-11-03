@@ -3602,5 +3602,6 @@
   "Prova: {{unit}}": "Ensayo: {{unit}}",
   "Mivo - {{pose}}": "Mivo - {{pose}}",
   "İngilizce yaz…": "Escribe en inglés…",
-  "Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş.": "No te oí. Intenta decirlo en inglés y, si quieres, acércate un poco al micrófono."
+  "Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş.": "No te oí. Intenta decirlo en inglés y, si quieres, acércate un poco al micrófono.",
+  "Mivo seninle kendi dilinde konuşur; sen cevaplarını İngilizce söyle.": "Mivo te habla en tu idioma; tú respondes en inglés."
 }

@@ -53,7 +53,7 @@ class SentenceSpeaker:
 
     async def speak(self, sentence):
         # Some models leak JSON escapes into the spoken text (\" quotes, stray backslashes): never show or read them.
-        sentence = " ".join(sentence.replace('\\"', '"').replace("\\", "").split())
+        sentence = " ".join(sentence.replace('\\"', '"').replace("\\", "").replace("**", "").split())
         if not sentence:
             return
         await self.send_json({"type": "reply.sentence", "text": sentence,
