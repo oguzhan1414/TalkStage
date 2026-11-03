@@ -17,6 +17,7 @@ import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
 import { stepArt } from '../lib/pathArt';
 import { preloadStep } from '../lib/pathPreload';
 import { usePathLevel } from '../lib/pathLevel';
@@ -148,6 +149,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const nextLevel = PATH_LEVELS[PATH_LEVELS.findIndex((l) => l.id === level.id) + 1];
   const goNextLevel = () => {
     if (!nextLevel) return;
+    trackEvent('level_advanced', { from: level.id, to: nextLevel.id });
     haptics.success();
     setLevelId(nextLevel.id);
     api
@@ -212,6 +214,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         points: readings.map((e) => loc(e.grammar)),
         words: [...new Set(readings.flatMap((e) => e.words.slice(0, 4).map((w) => w.en)))].slice(0, 14),
       };
+      trackEvent('unit_rehearsal_opened', { step_id: s.id, level: level.id });
       transitionTo(() => navigation.navigate('FreeChatRoom', { unitFocus, origin: 'path' }), t("Mivo hazırlanıyor…"));
     }
   };
@@ -380,7 +383,10 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       {/* Mivo chat button (bottom right) */}
       <BouncyPressable
         // Free chat is open at every level; the free plan's one trial is enforced by the server (voice_access.py).
-        onPress={() => transitionTo(() => navigation.navigate('FreeChatRoom', storyFocus ? { storyFocus } : undefined), t("Mivo ile Sohbet Başlıyor…"))}
+        onPress={() => {
+          trackEvent('mivo_chat_opened', { with_story: !!storyFocus, level: level.id });
+          transitionTo(() => navigation.navigate('FreeChatRoom', storyFocus ? { storyFocus } : undefined), t("Mivo ile Sohbet Başlıyor…"));
+        }}
         style={[styles.chatFab, { bottom: fabBottom }]}
         hitSlop={12}
         hapticType="medium"

@@ -23,12 +23,42 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   return (
     <PostHogProvider
       apiKey={POSTHOG_KEY}
-      options={{ host: POSTHOG_HOST }}
+      // Application Installed / Opened / Backgrounded: the D1/D7 retention charts are built from these.
+      options={{ host: POSTHOG_HOST, captureAppLifecycleEvents: true }}
       autocapture={{ captureScreens: false, captureTouches: false }}
     >
+      <TrackerBridge />
       {children}
     </PostHogProvider>
   );
+}
+
+type Props = Record<string, string | number | boolean | null | undefined>;
+let globalTrack: ((name: string, props?: Props) => void) | null = null;
+
+/**
+ * Product events from anywhere, also outside React (lib code such as lesson progress or purchases). A no-op when
+ * PostHog is not configured. Event names are the funnel steps listed in docs/analitik.md.
+ */
+export function trackEvent(name: string, props?: Props) {
+  try {
+    const clean = props ? Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)) : undefined;
+    globalTrack?.(name, clean as Record<string, string | number | boolean | null> | undefined);
+  } catch {
+    // analytics never breaks the app
+  }
+}
+
+/** Hands PostHog to trackEvent() once the provider is mounted. */
+function TrackerBridge() {
+  const posthog = usePostHog();
+  useEffect(() => {
+    globalTrack = (name, props) => posthog?.capture(name, props as Record<string, string | number | boolean | null>);
+    return () => {
+      globalTrack = null;
+    };
+  }, [posthog]);
+  return null;
 }
 
 /** Newer posthog-react-native versions log an error when `usePostHog()` runs

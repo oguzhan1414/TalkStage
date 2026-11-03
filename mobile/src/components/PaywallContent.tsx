@@ -6,6 +6,7 @@ import Purchases, { PACKAGE_TYPE, type PurchasesPackage } from 'react-native-pur
 import { privacyUrl, termsUrl } from '../constants/legalLinks';
 import { useRestorePurchases } from '../hooks/useRestorePurchases';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
+import { trackEvent } from '../lib/analytics';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import { Button } from './Button';
 import { t } from '../i18n';
@@ -45,6 +46,10 @@ export function usePaywall(onPurchased: () => void) {
   const [purchasing, setPurchasing] = useState(false);
 
   useEffect(() => {
+    trackEvent('paywall_viewed');
+  }, []);
+
+  useEffect(() => {
     if (!isRevenueCatConfigured) return;
     Purchases.getOfferings()
       .then((offerings) => setPackages(offerings.current?.availablePackages ?? []))
@@ -61,12 +66,16 @@ export function usePaywall(onPurchased: () => void) {
       return;
     }
     setPurchasing(true);
+    const props = { plan: selected, price: pkg.product.price, currency: pkg.product.currencyCode };
+    trackEvent('purchase_started', props);
     try {
       await Purchases.purchasePackage(pkg);
+      trackEvent('purchase_completed', props);
       Alert.alert(t("Teşekkürler!"), t("Pro üyeliğin aktif."));
       onPurchased();
     } catch (err) {
       const cancelled = (err as { userCancelled?: boolean } | null)?.userCancelled;
+      trackEvent(cancelled ? 'purchase_cancelled' : 'purchase_failed', props);
       if (!cancelled) Alert.alert(t("Satın alma tamamlanamadı"), String(err));
     } finally {
       setPurchasing(false);

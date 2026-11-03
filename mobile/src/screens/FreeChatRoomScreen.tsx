@@ -32,6 +32,7 @@ import { postQueued } from '../lib/outbox';
 import { haptics } from '../lib/haptics';
 import { setLearningFlag } from '../lib/learningFlags';
 import { recordStep } from '../lib/pathProgress';
+import { trackEvent } from '../lib/analytics';
 import { SCENE_STAR2_PREFIX, SCENE_STAR3_PREFIX } from '../lib/sceneProgress';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type { VocabCardCreate } from '../types/api';
@@ -267,6 +268,10 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   // Sahne modu: oturum bitince yıldız hesapla (2★ = en az 4 cümle söyledi ya da hedefler tamamlandı,
   // 3★ = hedefler tamamlandı ve en fazla 2 düzeltme aldı). Yıldız bayrakları `/learning-flags` ile senkron.
   const [resultStars, setResultStars] = useState<0 | 2 | 3 | null>(null);
+  const limitReason = status === 'closed' && closeInfo && OFFER_REASONS.has(closeInfo.reason) ? closeInfo.reason : null;
+  useEffect(() => {
+    if (limitReason) trackEvent('free_limit_hit', { reason: limitReason });
+  }, [limitReason]);
 
   // How the room ended (null while it runs): drives the summary card.
   const [endReason, setEndReason] = useState<SessionEndReason | null>(null);

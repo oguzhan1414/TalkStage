@@ -44,6 +44,7 @@ import { nextStepOf, preloadStep } from '../lib/pathPreload';
 import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
 import { noteLessonFinished } from '../lib/storeReview';
+import { trackEvent } from '../lib/analytics';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
@@ -149,6 +150,8 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
 
   useEffect(() => {
     preloadSfx();
+    trackEvent('lesson_started', { step_id: stepId, level: stepId.split('-')[0] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -866,6 +869,7 @@ function SaveStep({ episode, level, onDone }: { episode: PathEpisode; level: str
         )
       );
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      trackEvent('words_saved', { count: chosen.length, level });
       haptics.success();
       onDone();
     } catch (err) {

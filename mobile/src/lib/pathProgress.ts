@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { flatSteps, type FlatStep, type PathLevel } from '../data/path';
 import { onPathSynced, schedulePathPush } from './pathSync';
+import { trackEvent } from './analytics';
 
 /**
  * Progress on the learning path: stars per finished step, the parts finished of a reading lesson that is still
@@ -47,6 +48,7 @@ async function save(p: PathProgress) {
 
 /** Keeps the best result of a step. */
 export async function recordStep(stepId: string, stars: number): Promise<void> {
+  trackEvent('path_step_completed', { step_id: stepId, level: stepId.split('-')[0], stars });
   const p = await loadPathProgress();
   p.stars = { ...p.stars, [stepId]: Math.max(stars, p.stars[stepId] ?? 0) };
   const { [stepId]: _, ...rest } = p.skipped;
@@ -56,6 +58,7 @@ export async function recordStep(stepId: string, stars: number): Promise<void> {
 
 /** One part of a reading lesson finished (1–3, in order); the third one finishes the step. */
 export async function recordPart(stepId: string, part: number): Promise<void> {
+  trackEvent(part >= 3 ? 'lesson_completed' : 'lesson_part_completed', { step_id: stepId, level: stepId.split('-')[0], part });
   const p = await loadPathProgress();
   p.parts = { ...p.parts, [stepId]: Math.max(part, p.parts[stepId] ?? 0) };
   if (part >= 3) p.stars = { ...p.stars, [stepId]: 3 };
@@ -68,6 +71,7 @@ export function starsOf(p: PathProgress, stepId: string) {
 }
 
 export async function skipStep(stepId: string): Promise<void> {
+  trackEvent('path_step_skipped', { step_id: stepId });
   const p = await loadPathProgress();
   p.skipped = { ...p.skipped, [stepId]: true };
   await save(p);
