@@ -27,6 +27,8 @@ import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
+import { SpeakerAvatar } from '../components/path/SpeakerAvatar';
+import { castOf } from '../assets/cast';
 import { EXIT_SPACE, ExitButton } from '../components/path/ExitButton';
 import { PartTrack } from '../components/path/PartTrack';
 import { BoldText } from '../components/path/BoldText';
@@ -1309,10 +1311,13 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
   const { sayAll } = usePathVoice();
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [picked, setPicked] = useState<number | null>(null);
+  /** The line being read aloud: its speaker's face talks and the line is lit. */
+  const [reading, setReading] = useState<number | null>(null);
   const lessonWords = useMemo(() => new Set(words.map((w) => w.en.toLowerCase())), [words]);
+  const readAll = () => sayAll(lines.map((l) => l.en), { onLine: setReading }).catch(() => {});
   // The piece is read aloud as soon as it appears (after the card has faded in); "Dinle" replays it.
   useEffect(() => {
-    const id = setTimeout(() => sayAll(lines.map((l) => l.en)).catch(() => {}), 450);
+    const id = setTimeout(readAll, 450);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1328,7 +1333,7 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
               <Image source={art} style={styles.readArt} resizeMode="cover" />
             </View>
           ) : null}
-          <Pressable onPress={() => sayAll(lines.map((l) => l.en)).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+          <Pressable onPress={readAll} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
             <Ionicons name="volume-high" size={18} color={colors.brand} />
             <Text style={styles.readPlayText}>{t("Dinle")}</Text>
           </Pressable>
@@ -1337,10 +1342,12 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
           <Pressable
             key={i}
             onPress={() => setOpen((s) => (s.has(i) ? new Set([...s].filter((x) => x !== i)) : new Set(s).add(i)))}
-            style={styles.readLine}
+            style={[styles.readLine, l.speaker && styles.readLineSpoken, reading === i && { backgroundColor: `${castOf(l.speaker ?? '').color}14` }]}
             accessibilityRole="button"
           >
-            {l.speaker ? <Text style={styles.speaker}>{l.speaker}</Text> : null}
+            {l.speaker ? <SpeakerAvatar speaker={l.speaker} talking={reading === i} /> : null}
+            <View style={{ flex: 1 }}>
+            {l.speaker ? <Text style={[styles.speaker, { color: castOf(l.speaker).color }]}>{l.speaker}</Text> : null}
             <Text style={styles.sentenceText}>
               {l.en.split(/(\s+)/).map((part, k) =>
                 lessonWords.has(bare(part)) ? (
@@ -1353,6 +1360,7 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
               )}
             </Text>
             {open.has(i) && gloss(l.native) ? <Text style={styles.sentenceNative}>{gloss(l.native)}</Text> : null}
+            </View>
           </Pressable>
         ))}
       </FadeIn>
@@ -2035,6 +2043,7 @@ const styles = StyleSheet.create({
   storyCard: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 4, borderWidth: 1, borderColor: '#EEF2FF' },
   sentence: { paddingVertical: 8, paddingRight: 30, paddingLeft: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', borderLeftWidth: 3, borderLeftColor: 'transparent' },
   sentenceNow: { borderLeftColor: colors.brand, backgroundColor: '#F8FAFF' },
+  readLineSpoken: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   speaker: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 },
   sentenceText: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 26, color: colors.textHeading },
   newWord: { color: colors.brand, textDecorationLine: 'underline', fontFamily: fonts.headingBold },
@@ -2138,7 +2147,7 @@ const styles = StyleSheet.create({
   readArt: { width: 66, height: 66, borderRadius: 33 },
   readPlay: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   readPlayText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
-  readLine: { paddingVertical: 6 },
+  readLine: { paddingVertical: 6, paddingHorizontal: 6, marginHorizontal: -6, borderRadius: 12 },
   dictCard: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 18, borderWidth: 1, borderColor: '#EEF2FF' },
   dictWord: { fontFamily: fonts.bodyMedium, fontSize: 20, color: colors.textHeading },
   dictAnswer: { fontFamily: fonts.headingBold, textDecorationLine: 'underline' },

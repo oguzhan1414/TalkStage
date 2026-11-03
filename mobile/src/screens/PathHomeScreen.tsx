@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Animated, Easing, FlatList, Image, Pressable, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,6 +14,7 @@ import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
 import { HomeBackdrop } from '../components/path/HomeBackdrop';
+import { StoryIntroSheet } from '../components/path/StoryIntroSheet';
 import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
@@ -144,6 +146,23 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal * 0.86 : winH * 0.6;
 
   const goalDone = todayMinutes >= target;
+  // The level's cast and story, once per level on this phone (and from the story title).
+  const [introOpen, setIntroOpen] = useState(false);
+  useEffect(() => {
+    if (!progress) return;
+    const key = `spekvia.intro.${level.id}`;
+    let alive = true;
+    AsyncStorage.getItem(key)
+      .then((seen) => {
+        if (!alive || seen) return;
+        setIntroOpen(true);
+        void AsyncStorage.setItem(key, '1');
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [level.id, !!progress]);
   // The whole level passed: offer the next one (path and profile level move together, so Mivo talks at the new level).
   const levelDone = !!progress && steps.every((f) => isPassed(progress, f.step.id));
   const nextLevel = PATH_LEVELS[PATH_LEVELS.findIndex((l) => l.id === level.id) + 1];
@@ -265,9 +284,11 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               <Text style={styles.storyChipLevel}>{level.id}</Text>
               <Text style={[styles.storyChipText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
             </View>
-            <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
-              {loc(level.story.title)}
-            </Text>
+            <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
+              <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
+                {loc(level.story.title)}
+              </Text>
+            </Pressable>
             <View style={styles.chapterRow}>
               <View style={[styles.chapterTrack, backdrop.lightSky && { backgroundColor: 'rgba(67,56,202,0.15)' }]}>
                 <View style={[styles.chapterFill, { width: `${Math.max(4, Math.round(levelShare * 100))}%` }]} />
@@ -419,6 +440,13 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       </BouncyPressable>
 
       {celebrate?.kind === 'stars' ? <Confetti key={celebrate.key} count={22} /> : null}
+      <StoryIntroSheet
+        level={level}
+        visible={introOpen}
+        onClose={() => setIntroOpen(false)}
+        // Nothing done in this level yet: the button opens the first lesson (right after onboarding).
+        onStart={progress && current.index === 0 && starsOf(progress, current.step.id) === 0 ? () => openStep(current.step) : undefined}
+      />
 
     </View>
   );
