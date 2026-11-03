@@ -8,8 +8,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { homeBackdrop } from '../assets/homeBackdrops';
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
-import { BouncyPressable } from '../components/BouncyPressable';
-import { MivoStage } from '../components/MivoStage';
 import Svg, { Circle } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
@@ -198,27 +196,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const levelShare = steps.length ? current.index / steps.length : 0;
   const dueCount = dueCards?.length ?? 0;
 
-  /** The last episode the learner read (any part done), for the Mivo button: Mivo opens the chat about it. */
-  const storyFocus = (() => {
-    if (!progress) return undefined;
-    for (let i = Math.min(current.index, steps.length - 1); i >= 0; i -= 1) {
-      const s = steps[i].step;
-      if (s.kind !== 'reading' || starsOf(progress, s.id) === 0) continue;
-      // Each episode's recap tells the one before it, so the next episode's recap is what happened in this one.
-      const after = steps.slice(i + 1).find((f) => f.step.kind === 'reading')?.step;
-      const summary = after && after.kind === 'reading' && after.episode.recap ? loc(after.episode.recap) : undefined;
-      return {
-        title: loc(s.episode.title),
-        grammar: loc(s.episode.grammar),
-        story: loc(level.story.title),
-        summary,
-        words: s.episode.words.slice(0, 8).map((w) => w.en),
-      };
-    }
-    return undefined;
-  })();
-
-  /** Mivo's bubble next to the Mivo button: shown a few seconds when there is something to say, then it folds away. */
+  /** Mivo's bubble above the tab bar: shown a few seconds when there is something to say, then it folds away. */
   const [bubbleOn, setBubbleOn] = useState(false);
   const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showBubble = (ms = 6000) => {
@@ -415,36 +393,17 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
       </SafeAreaView>
 
-      {/* Mivo chat button (bottom right) */}
-      <BouncyPressable
-        // Free chat is open at every level; the free plan's one trial is enforced by the server (voice_access.py).
-        onPress={() => {
-          trackEvent('mivo_chat_opened', { with_story: !!storyFocus, level: level.id });
-          transitionTo(() => navigation.navigate('FreeChatRoom', storyFocus ? { storyFocus } : undefined), t("Mivo ile Sohbet Başlıyor…"));
-        }}
-        style={[styles.chatFab, { bottom: fabBottom }]}
-        hitSlop={12}
-        hapticType="medium"
-        scaleTo={0.92}
-      >
-        <LinearGradient colors={['#818CF8', '#A855F7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.chatFabRing}>
-          <View style={styles.chatFabInner} pointerEvents="none">
-            {/* The same Mivo as in the voice rooms, breathing in its waiting loop */}
-            <MivoStage state="idle" height={62} fit="cover" zoom={1.7} />
-          </View>
-        </LinearGradient>
-        <View style={styles.chatFabBadge}>
-          <Ionicons name="mic" size={11} color="#FFFFFF" />
-        </View>
-      </BouncyPressable>
-
       {bubbleOn ? (
-        <PopIn style={[styles.mivoBubble, { bottom: fabBottom + 12 }]}>
-          <Pressable onPress={() => setBubbleOn(false)} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
-            <Text style={styles.mivoBubbleName}>Mivo</Text>
-            <Text style={styles.mivoBubbleText} numberOfLines={4}>
-              {mivoLine}
-            </Text>
+        <PopIn style={[styles.mivoTip, { bottom: fabBottom }]}>
+          {/* Mivo's word on the step in view: shows for a few seconds, a tap folds it away */}
+          <Pressable onPress={() => setBubbleOn(false)} style={styles.mivoTipRow} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+            <Image source={mivoHomeImages.fab} style={styles.mivoTipFace} resizeMode="cover" />
+            <View style={styles.mivoBubble}>
+              <Text style={styles.mivoBubbleName}>Mivo</Text>
+              <Text style={styles.mivoBubbleText} numberOfLines={4}>
+                {mivoLine}
+              </Text>
+            </View>
           </Pressable>
         </PopIn>
       ) : null}
@@ -882,21 +841,21 @@ const styles = StyleSheet.create({
   },
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#92400E', letterSpacing: 0.4 },
+  mivoTip: { position: 'absolute', left: spacing.md, right: spacing.md, zIndex: 98 },
+  mivoTipRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  mivoTipFace: { width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#EEF2FF' },
   mivoBubble: {
-    position: 'absolute',
-    right: spacing.md + 76,
-    left: spacing.md + 24,
+    flex: 1,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 18,
-    borderBottomRightRadius: 4,
+    borderBottomLeftRadius: 4,
     backgroundColor: '#FFFFFF',
     shadowColor: '#1E3A8A',
     shadowOpacity: 0.16,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
-    zIndex: 98,
   },
   mivoBubbleName: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, letterSpacing: 0.4, marginBottom: 2 },
   mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
@@ -1125,35 +1084,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  chatFab: {
-    position: 'absolute',
-    right: spacing.md,
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 12,
-    zIndex: 99,
-  },
-  chatFabRing: { width: 68, height: 68, borderRadius: 34, padding: 3 },
-  chatFabInner: { flex: 1, borderRadius: 31, overflow: 'hidden', backgroundColor: '#EEF2FF', borderWidth: 2, borderColor: '#FFFFFF' },
-  chatFabImage: { width: '100%', height: '100%' },
-  chatFabBadge: {
-    position: 'absolute',
-    right: -1,
-    bottom: -1,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10B981',
-    borderWidth: 2.5,
-    borderColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, paddingBottom: 36, alignItems: 'center', gap: 10 },

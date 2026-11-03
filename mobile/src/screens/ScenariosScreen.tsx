@@ -31,7 +31,7 @@ import {
   sceneAccess,
 } from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, radii, spacing } from '../theme/tokens';
+import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut } from '../types/api';
 import { t } from '../i18n';
 import { STAGE_COLOR, STAGE_IDS, stageOfLevel, stageTitle } from '../lib/stages';
@@ -142,6 +142,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
   });
 
   const watchedCount = readyVideoScenarios.filter((sc) => starsOf(sc.id) > 0).length;
+  const totalStars = readyVideoScenarios.reduce((sum, sc) => sum + starsOf(sc.id), 0);
   const stageSections = STAGE_IDS.map((id) => ({
     id,
     scenes: filteredVideoScenarios
@@ -202,23 +203,47 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
       <ScrollView contentContainerStyle={styles.cinemaScrollContent} showsVerticalScrollIndicator={false}>
         {!videoSearchLower ? (
           <>
-            {/* Mivo, as in the voice rooms: the heart of this tab */}
-            <Pressable onPress={openMivoChat} style={styles.mivoCard} accessibilityRole="button" accessibilityLabel={t("Mivo ile serbest sohbet")}>
-              <MivoStage state="idle" height={Math.round(Math.min(((screenWidth - 32) * 9) / 16, 190))} />
-              <View style={styles.mivoCardBody}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.mivoCardTitle}>{t("Mivo ile serbest sohbet")}</Text>
-                  <Text style={styles.mivoCardSub}>
-                    {isPro ? t("İstediğin konuda, istediğin kadar konuş.") : t("İstediğin konuda konuş. Ücretsiz planda 1 deneme sohbetin var.")}
-                  </Text>
+            {/* Mivo, as in the voice rooms: the heart of this tab (the only way into free chat now) */}
+            <Pressable onPress={openMivoChat} style={({ pressed }) => [styles.mivoCard, pressed && { opacity: 0.95 }]} accessibilityRole="button" accessibilityLabel={t("Mivo ile serbest sohbet")}>
+              <MivoStage state="idle" height={Math.round(Math.min(((screenWidth - 32) * 9) / 16, 200))}>
+                <View style={styles.mivoLive}>
+                  <View style={styles.mivoLiveDot} />
+                  <Text style={styles.mivoLiveText}>{t("Mivo hazır")}</Text>
                 </View>
-                <View style={styles.mivoCardMic}>
-                  <Ionicons name="mic" size={24} color="#FFFFFF" />
+                <View style={[styles.mivoPlan, isPro && styles.mivoPlanPro]}>
+                  <Text style={[styles.mivoPlanText, isPro && { color: '#92400E' }]}>{isPro ? t("👑 Sınırsız") : t("1 deneme hakkı")}</Text>
+                </View>
+              </MivoStage>
+              <View style={styles.mivoCardBody}>
+                <Text style={styles.mivoCardTitle}>{t("Mivo ile serbest sohbet")}</Text>
+                <Text style={styles.mivoCardSub}>{t("Günün, işin, hobilerin… Ne istersen konuş; Mivo sorular sorar, hatalarını nazikçe düzeltir.")}</Text>
+                <View style={styles.mivoTopics}>
+                  {[t("☕ Günün nasıldı?"), t("✈️ Tatil planı"), t("💼 İş görüşmesi")].map((topic) => (
+                    <View key={topic} style={styles.mivoTopic}>
+                      <Text style={styles.mivoTopicText}>{topic}</Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.mivoStart}>
+                  <Ionicons name="mic" size={19} color="#FFFFFF" />
+                  <Text style={styles.mivoStartText}>{t("Konuşmaya başla")}</Text>
                 </View>
               </View>
             </Pressable>
 
-            <Text style={styles.scenesHead}>{t("Sahneler")}</Text>
+            {/* Scenes: the head with the stars collected so far */}
+            <View style={styles.scenesHeadRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.scenesHead}>{t("Sahneler")}</Text>
+                <Text style={styles.scenesSub}>{t("Kısa video sahneler: izle, sıra sende olunca konuş.")}</Text>
+              </View>
+              <View style={styles.starsChip}>
+                <Ionicons name="star" size={15} color="#F59E0B" />
+                <Text style={styles.starsChipText}>
+                  {totalStars}/{readyVideoScenarios.length * 3}
+                </Text>
+              </View>
+            </View>
           </>
         ) : null}
 
@@ -231,6 +256,9 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
             character={nextScene.aiName}
             role={nextScene.aiRole}
             minutes={nextScene.durationMin}
+            level={nextScene.level}
+            levelColor={STAGE_COLOR[stageOfLevel(nextScene.level)]}
+            stars={starsOf(nextScene.id)}
             onPress={() => openVideoScene(nextScene)}
           />
         ) : null}
@@ -249,11 +277,14 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
             return (
               <View key={sec.id} style={styles.section}>
                 <View style={styles.sectionHead}>
-                  <Text style={[styles.sectionTitle, { color: STAGE_COLOR[sec.id] }]}>{stageTitle(sec.id)}</Text>
+                  <View style={[styles.sectionDot, { backgroundColor: STAGE_COLOR[sec.id] }]} />
+                  <Text style={styles.sectionTitle}>{stageTitle(sec.id)}</Text>
                   <View style={{ flex: 1 }} />
-                  <Text style={styles.sectionCount}>
-                    {t("{{played}}/{{total}} sahne izlendi", { played, total: sec.scenes.length })}
-                  </Text>
+                  <View style={[styles.sectionCountPill, { backgroundColor: `${STAGE_COLOR[sec.id]}1A` }]}>
+                    <Text style={[styles.sectionCount, { color: STAGE_COLOR[sec.id] }]}>
+                      {t("{{played}}/{{total}} oynandı", { played, total: sec.scenes.length })}
+                    </Text>
+                  </View>
                 </View>
                 <ScrollView
                   horizontal
@@ -315,12 +346,48 @@ const styles = StyleSheet.create({
   proPill: { height: 36, paddingHorizontal: 11, borderRadius: 18, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
-  mivoCard: { borderRadius: 24, overflow: 'hidden', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DCE3F5', marginBottom: 12 },
-  mivoCardBody: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: '#FFFFFF' },
-  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
-  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: colors.textMuted, marginTop: 2 },
-  mivoCardMic: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  scenesHead: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginBottom: 10 },
+  mivoCard: { borderRadius: 26, overflow: 'hidden', backgroundColor: '#FFFFFF', marginBottom: 22, ...shadow.md },
+  mivoLive: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: radii.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  mivoLiveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
+  mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.textHeading },
+  mivoPlan: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  mivoPlanPro: { backgroundColor: '#FDE68A' },
+  mivoPlanText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand },
+  mivoCardBody: { padding: 16, gap: 10, backgroundColor: '#FFFFFF' },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
+  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textBody, marginTop: -4 },
+  mivoTopics: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  mivoTopic: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#F1F5F9' },
+  mivoTopicText: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
+  mivoStart: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 2,
+    paddingVertical: 14,
+    borderRadius: radii.pill,
+    backgroundColor: colors.brand,
+    borderBottomWidth: 4,
+    borderBottomColor: '#3730A3',
+  },
+  mivoStartText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF', letterSpacing: 0.3 },
+  scenesHeadRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  scenesHead: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  scenesSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  sectionDot: { width: 10, height: 10, borderRadius: 5, alignSelf: 'center' },
+  sectionCountPill: { borderRadius: radii.pill, paddingHorizontal: 9, paddingVertical: 3 },
   cinemaEmptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -379,9 +446,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   section: { marginBottom: spacing.lg },
-  sectionCount: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textMuted },
-  sectionHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 10 },
-  sectionTitle: { fontFamily: fonts.headingBold, fontSize: 20 },
+  sectionCount: { fontFamily: fonts.headingBold, fontSize: 11.5 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  sectionTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
   starsChip: {
     flexDirection: 'row',
     alignItems: 'center',

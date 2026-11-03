@@ -25,6 +25,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { useNavigation } from '@react-navigation/native';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
 import { SpeakerAvatar } from '../components/path/SpeakerAvatar';
@@ -35,7 +36,7 @@ import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
-import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
+import { findStep, flatSteps, gloss, loc, PATH_LEVELS, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
 import { bare, buildDrills, lessonWordsIn, mivoSentence, sameSentence, sentenceRoles, type WordRole } from '../data/path/drills';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
@@ -1743,6 +1744,27 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
   const saved = useRef(false);
   const flame = useLoop(true, 700, true);
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const navigation = useNavigation<{ navigate: (screen: 'FreeChatRoom', params: object) => void }>();
+  const { transitionTo } = useMivoTransition();
+  /** What Mivo gets to talk about this episode: its title, grammar, words and what happened (the next episode's recap). */
+  const storyFocus = useMemo(() => {
+    const level = PATH_LEVELS.find((l) => flatSteps(l).some((f) => f.step.id === stepId));
+    if (!level) return { title: loc(episode.title), grammar: loc(episode.grammar), words: episode.words.slice(0, 8).map((w) => w.en) };
+    const steps = flatSteps(level);
+    const i = steps.findIndex((f) => f.step.id === stepId);
+    const after = steps.slice(i + 1).find((f) => f.step.kind === 'reading')?.step;
+    return {
+      title: loc(episode.title),
+      grammar: loc(episode.grammar),
+      story: loc(level.story.title),
+      summary: after && after.kind === 'reading' && after.episode.recap ? loc(after.episode.recap) : undefined,
+      words: episode.words.slice(0, 8).map((w) => w.en),
+    };
+  }, [stepId, episode]);
+  const talkWithMivo = () => {
+    trackEvent('mivo_chat_opened', { with_story: true, from: 'lesson_done' });
+    transitionTo(() => navigation.navigate('FreeChatRoom', { storyFocus }), t("Mivo ile Sohbet Başlıyor…"));
+  };
   useEffect(() => {
     if (saved.current) return;
     saved.current = true;
@@ -1812,6 +1834,19 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
         </View>
       </FadeIn>
       <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
+        {/* Talk about this very episode with Mivo, while it is fresh */}
+        <Pressable onPress={talkWithMivo} style={({ pressed }) => [styles.talkCard, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+          <Image source={mivoHomeImages.fab} style={styles.talkFace} resizeMode="cover" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.talkTitle}>{t("Bu bölümü Mivo ile konuş")}</Text>
+            <Text style={styles.talkSub} numberOfLines={2}>
+              {t("Hikâyede ne oldu? Öğrendiklerini sesli kullan.")}
+            </Text>
+          </View>
+          <View style={styles.talkMic}>
+            <Ionicons name="mic" size={20} color="#FFFFFF" />
+          </View>
+        </Pressable>
         <Pressable
           onPress={() =>
             void Share.share({
@@ -1840,6 +1875,21 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
 }
 
 const styles = StyleSheet.create({
+  talkCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 20,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+  },
+  talkFace: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FFFFFF' },
+  talkTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#1E1B4B' },
+  talkSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#4338CA', marginTop: 1 },
+  talkMic: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1, backgroundColor: FLOOR },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 10, minHeight: 50 },
   bar: { flex: 1, height: 12, borderRadius: 6, backgroundColor: '#E2E8F0', overflow: 'hidden' },
