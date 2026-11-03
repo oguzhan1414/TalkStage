@@ -1,3 +1,4 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
 
@@ -6,7 +7,10 @@ const ANDROID_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
 
 export const PRO_ENTITLEMENT_ID = 'pro';
 
-export const isRevenueCatConfigured = Boolean(Platform.OS === 'ios' ? IOS_API_KEY : ANDROID_API_KEY);
+/** Expo Go has no Play / App Store billing module: RevenueCat refuses a real store key there, so it stays off. */
+const inExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+export const isRevenueCatConfigured = !inExpoGo && Boolean(Platform.OS === 'ios' ? IOS_API_KEY : ANDROID_API_KEY);
 
 /**
  * `appUserID` is set to the Supabase auth user id on purpose — backend's
@@ -16,8 +20,12 @@ export const isRevenueCatConfigured = Boolean(Platform.OS === 'ios' ? IOS_API_KE
  */
 export function configureRevenueCat(supabaseUserId: string) {
   const apiKey = Platform.OS === 'ios' ? IOS_API_KEY : ANDROID_API_KEY;
-  if (!apiKey) return;
-  Purchases.configure({ apiKey, appUserID: supabaseUserId });
+  if (!apiKey || !isRevenueCatConfigured) return;
+  try {
+    Purchases.configure({ apiKey, appUserID: supabaseUserId });
+  } catch {
+    // A build without the native module: purchases stay off, the rest of the app works.
+  }
 }
 
 export async function isProUser(): Promise<boolean> {
