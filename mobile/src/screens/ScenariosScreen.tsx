@@ -209,7 +209,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
               <View style={styles.mivoTile}>
                 <MivoStage state="idle" height={MIVO_TILE} fit="cover" zoom={1.35} />
               </View>
-              <View style={{ flex: 1, gap: 3 }}>
+              <View style={{ flex: 1, gap: 4 }}>
                 <View style={styles.mivoLive}>
                   <View style={styles.mivoLiveDot} />
                   <Text style={styles.mivoLiveText}>{t("Mivo hazır")}</Text>
@@ -222,7 +222,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                 </Text>
               </View>
               <View style={styles.mivoMic}>
-                <Ionicons name="mic" size={22} color="#FFFFFF" />
+                <Ionicons name="mic" size={25} color="#FFFFFF" />
               </View>
             </Pressable>
 
@@ -336,7 +336,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 }
 
 /** Mivo's live tile on the free-chat card. */
-const MIVO_TILE = 92;
+const MIVO_TILE = 112;
 
 const styles = StyleSheet.create({
   streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 10, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
@@ -347,9 +347,9 @@ const styles = StyleSheet.create({
   mivoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    padding: 10,
-    paddingRight: 14,
+    gap: 16,
+    padding: 12,
+    paddingRight: 16,
     marginBottom: 24,
     borderRadius: 24,
     backgroundColor: '#FFFFFF',
@@ -357,16 +357,16 @@ const styles = StyleSheet.create({
     borderColor: '#E0E7FF',
     ...shadow.sm,
   },
-  mivoTile: { width: MIVO_TILE, height: MIVO_TILE, borderRadius: 18, overflow: 'hidden', backgroundColor: MIVO_STAGE_BG },
+  mivoTile: { width: MIVO_TILE, height: MIVO_TILE, borderRadius: 20, overflow: 'hidden', backgroundColor: MIVO_STAGE_BG },
   mivoLive: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  mivoLiveDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
-  mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 0.3, color: '#059669' },
-  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
-  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: colors.textMuted },
+  mivoLiveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
+  mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.3, color: '#059669' },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading },
+  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: colors.textBody },
   mivoMic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.brand,
     alignItems: 'center',
     justifyContent: 'center',
