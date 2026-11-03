@@ -16,8 +16,7 @@ import { t } from '../i18n';
 // free for everyone or not built — store policies treat that as a misleading claim.
 const PRO_FEATURES = [
   t("Mivo ile sınırsız serbest sohbet (ücretsizde 1 deneme)"),
-  t("Her gün istediğin kadar sesli sahne (ücretsizde günde 1)"),
-  t("Canlı konuşma odası"),
+  t("Her ünitenin sonunda Mivo ile gerçek hayat provası"),
   t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
 ];
 
