@@ -190,7 +190,7 @@ export const partBadgeImages = {
 export const stateImages = {
   micPermission: require('../../assets/images/states/state_mic.webp'),
   goalCelebration: require('../../assets/images/states/state_done.webp'),
-  trashDelete: require('../../assets/images/states/trash-minimal.webp'),
+  trashDelete: require('../../assets/images/states/state_delete.webp'),
   editPencil: require('../../assets/images/states/state_edit.webp'),
   xpBolt: require('../../assets/images/states/xp-bolt-minimal.webp'),
   mistakesNotebook: require('../../assets/images/profile/mistakes.webp'),
