@@ -27,7 +27,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '🎓',
     badge: t("Akademik & Sınav"),
     color: '#0EA5E9',
-    avatarSource: avatarImages.studentYouth,
+    avatarSource: avatarImages.campusGirl,
   },
   {
     id: 'corporate',
@@ -37,7 +37,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '💼',
     badge: t("İş Hayatı"),
     color: '#4F46E5',
-    avatarSource: avatarImages.proDeveloper,
+    avatarSource: avatarImages.officeMan,
   },
   {
     id: 'tech',
@@ -47,7 +47,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '👨‍💻',
     badge: t("Teknik İngilizce"),
     color: '#8B5CF6',
-    avatarSource: avatarImages.maleDev,
+    avatarSource: avatarImages.coder,
   },
   {
     id: 'traveler',
@@ -57,7 +57,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '✈️',
     badge: t("Seyahat & Gezi"),
     color: '#10B981',
-    avatarSource: avatarImages.travelerExplorer,
+    avatarSource: avatarImages.traveler,
   },
   {
     id: 'adult_hobby',
@@ -67,7 +67,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '🌱',
     badge: t("Stressiz Pratik"),
     color: '#F59E0B',
-    avatarSource: avatarImages.matureSenior,
+    avatarSource: avatarImages.senior,
   },
   {
     id: 'service',
@@ -81,7 +81,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     // as the landing prototype, which also still points this at the
     // entrepreneur avatar) — swap in a real "service professional" image here
     // once one exists.
-    avatarSource: avatarImages.femaleEntrepreneur,
+    avatarSource: avatarImages.chef,
   },
 ];
 

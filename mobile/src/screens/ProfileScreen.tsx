@@ -5,7 +5,9 @@ import { useMemo, useState } from 'react';
 import { Image, type ImageSourcePropType, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { avatarImages, minimalFeatureIcons, partBadgeImages, stateImages } from '../assets/images';
+import { mivoHomeImages, partBadgeImages, profileArt } from '../assets/images';
+import { AVATARS, avatarFor } from '../constants/avatars';
+import { VP } from '../theme/vocabPalette';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
@@ -27,18 +29,6 @@ import type { GrammarMistakeOut, ProfileOut, ProfileUpdate } from '../types/api'
 const FLOOR = '#FBF7F1';
 /** The whole road, also the levels not written yet (shown as "soon"). */
 const ALL_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
-
-const AVATAR_LIST = [
-  { id: 'student', name: t("Öğrenci"), source: avatarImages.studentYouth },
-  { id: 'corporate', name: t("Kurumsal / Çalışan"), source: avatarImages.proDeveloper },
-  { id: 'traveler', name: t("Gezgin"), source: avatarImages.travelerExplorer },
-  { id: 'adult_hobby', name: t("Hobi / Yetişkin"), source: avatarImages.matureSenior },
-  { id: 'dev', name: t("Yazılımcı"), source: avatarImages.maleDev },
-  { id: 'lead', name: 'Tech Lead', source: avatarImages.femaleLead },
-  { id: 'designer', name: t("Tasarımcı"), source: avatarImages.femaleDesigner },
-  { id: 'engineer', name: t("Mühendis"), source: avatarImages.maleEngineer },
-  { id: 'entrepreneur', name: t("Girişimci"), source: avatarImages.femaleEntrepreneur },
-];
 
 /** Episodes finished per level and the words learned in them (lesson words and word steps). */
 function journeyStats(progress: PathProgress | null) {
@@ -96,8 +86,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
     session?.user.email?.split('@')[0] ??
     t("Konuşmacı");
 
-  const selectedAvatarId = profile?.avatar_id ?? profile?.persona_id ?? AVATAR_LIST[0].id;
-  const avatar = AVATAR_LIST.find((a) => a.id === selectedAvatarId) ?? AVATAR_LIST[0];
+  const avatar = avatarFor(profile);
   const friendship = xpLevelInfo(profile?.xp);
   const stats = useMemo(() => journeyStats(progress), [progress]);
   const current = stats.perLevel[pathLevelId] ?? { done: 0, total: 1 };
@@ -143,12 +132,14 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Who you are, and your friendship with Mivo */}
-        <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+        <View style={styles.hero}>
           <View style={styles.heroRow}>
             <Pressable onPress={() => setAvatarOpen(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Avatarını değiştir")}>
-              <Image source={avatar.source} style={styles.avatar} resizeMode="cover" />
+              <View style={[styles.avatarRing, { borderColor: avatar.tint }]}>
+                <Image source={avatar.source} style={styles.avatar} resizeMode="cover" />
+              </View>
               <View style={styles.avatarEdit}>
-                <Ionicons name="sparkles" size={11} color="#4F46E5" />
+                <Ionicons name="pencil" size={12} color="#FFFFFF" />
               </View>
             </Pressable>
             <View style={{ flex: 1 }}>
@@ -165,7 +156,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
                 <Text style={styles.name} numberOfLines={1}>
                   {displayName}
                 </Text>
-                <Ionicons name="create-outline" size={16} color="rgba(255,255,255,0.85)" />
+                <Ionicons name="create-outline" size={16} color={VP.inkSoft} />
               </Pressable>
               <Text style={styles.email} numberOfLines={1}>
                 {session?.user.email}
@@ -180,20 +171,24 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           </View>
 
           <Pressable onPress={() => setGuideOpen(true)} style={styles.friend} accessibilityRole="button" accessibilityLabel={t("Mivo ile dostluk")}>
-            <Text style={styles.friendLine} numberOfLines={1}>
-              {t("Mivo ile dostluk · Sv. {{n}} · {{name}}", { n: friendship.level, name: friendship.name })}
-            </Text>
-            <View style={styles.friendTrack}>
-              <View style={[styles.friendFill, { width: `${Math.max(4, friendship.progress * 100)}%` }]} />
+            <Image source={mivoHomeImages.fab} style={styles.friendFace} resizeMode="cover" />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Text style={styles.friendLine} numberOfLines={1}>
+                {t("Mivo ile dostluk · Sv. {{n}} · {{name}}", { n: friendship.level, name: friendship.name })}
+              </Text>
+              <View style={styles.friendTrack}>
+                <View style={[styles.friendFill, { width: `${Math.max(4, friendship.progress * 100)}%` }]} />
+              </View>
             </View>
+            <Ionicons name="information-circle-outline" size={18} color={VP.inkSoft} />
           </Pressable>
-        </LinearGradient>
+        </View>
 
         {/* Three numbers */}
         <View style={styles.stats}>
-          <Stat icon="flame" color="#F97316" value={profile?.streak_count ?? 0} label={t("Günlük seri")} sub={t("En uzun: {{n}}", { n: profile?.longest_streak ?? 0 })} />
-          <Stat icon="book" color="#4F46E5" value={stats.episodes} label={t("Bölüm")} sub={t("tamamlandı")} />
-          <Stat icon="sparkles" color="#10B981" value={stats.words} label={t("Kelime")} sub={t("öğrenildi")} />
+          <Stat icon="flame" color={VP.coralDeep} soft={VP.coralSoft} value={profile?.streak_count ?? 0} label={t("Günlük seri")} sub={t("En uzun: {{n}}", { n: profile?.longest_streak ?? 0 })} />
+          <Stat icon="book" color={VP.skyDeep} soft={VP.skySoft} value={stats.episodes} label={t("Bölüm")} sub={t("tamamlandı")} />
+          <Stat icon="sparkles" color={VP.mintDeep} soft={VP.mintSoft} value={stats.words} label={t("Kelime")} sub={t("öğrenildi")} />
         </View>
 
         {/* The road from A1 to C2 */}
@@ -241,16 +236,16 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         {/* A few more things, as a plain list (word tools are in the Kelimeler tab) */}
         <View style={styles.list}>
           <ListRow
-            icon={minimalFeatureIcons.badges}
-            tint="#FEF3C7"
+            icon={profileArt.badges}
+            tint={VP.sunSoft}
             title={t("Rozetlerim")}
             sub={t("{{a}}/{{b}} rozet", { a: earnedBadgeIds.size, b: BADGES.length })}
             onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
           />
           <View style={styles.listDivider} />
           <ListRow
-            icon={minimalFeatureIcons.mistakesNotebook}
-            tint="#E0F2FE"
+            icon={profileArt.mistakes}
+            tint={VP.coralSoft}
             title={t("Hata Defterim")}
             sub={t("{{n}} kayıt", { n: mistakeCount })}
             badge={mistakeCount > 0 ? mistakeCount : undefined}
@@ -258,8 +253,8 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           />
           <View style={styles.listDivider} />
           <ListRow
-            icon={minimalFeatureIcons.mivoMemory}
-            tint="#EDE9FE"
+            icon={profileArt.memory}
+            tint={VP.skySoft}
             title={t("Mivo'nun Hatırladıkları")}
             sub={t("Sohbetlerden öğrendikleri")}
             onPress={() => navigation.navigate('MivoMemory')}
@@ -269,12 +264,12 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         {/* Pro, only for those who don't have it */}
         {isPro ? null : (
           <BouncyPressable onPress={() => navigation.navigate('Paywall')} style={styles.vipWrap} hapticType="medium" scaleTo={0.97}>
-            <LinearGradient colors={['#0F172A', '#312E81']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vip}>
-              <Image source={stateImages.vipPass} style={styles.vipImage} resizeMode="contain" />
+            <LinearGradient colors={['#1F2A44', '#2C3A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vip}>
+              <Image source={profileArt.pro} style={styles.vipImage} resizeMode="contain" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.vipTitle}>{t("Spekvia Pro")}</Text>
                 <Text style={styles.vipDesc} numberOfLines={1}>
-                  {t("Sınırsız sahne ve canlı oda")}
+                  {t("Sınırsız Mivo sohbeti ve tüm provalar")}
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#FBBF24" />
@@ -289,9 +284,9 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>{t("Avatarını seç")}</Text>
-            <Text style={styles.sheetSub}>{t("Profilinde ve sahnelerde görünecek karakterin")}</Text>
+            <Text style={styles.sheetSub}>{t("Profilinde ve sekme çubuğunda görünecek karakterin")}</Text>
             <View style={styles.avatarGrid}>
-              {AVATAR_LIST.map((av) => {
+              {AVATARS.map((av) => {
                 const on = av.id === avatar.id;
                 return (
                   <Pressable
@@ -304,9 +299,9 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
                     accessibilityRole="button"
                     accessibilityState={{ selected: on }}
                   >
-                    <Image source={av.source} style={styles.avatarThumb} resizeMode="cover" />
-                    <Text style={[styles.avatarName, on && { color: colors.brand }]} numberOfLines={1}>
-                      {av.name}
+                    <Image source={av.source} style={[styles.avatarThumb, { borderColor: on ? VP.ink : av.tint }]} resizeMode="cover" />
+                    <Text style={[styles.avatarName, on && { color: VP.ink }]} numberOfLines={1}>
+                      {av.name()}
                     </Text>
                   </Pressable>
                 );
@@ -384,10 +379,10 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   );
 }
 
-function Stat({ icon, color, value, label, sub }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; value: number; label: string; sub: string }) {
+function Stat({ icon, color, soft, value, label, sub }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; soft: string; value: number; label: string; sub: string }) {
   return (
     <View style={styles.stat}>
-      <View style={[styles.statIcon, { backgroundColor: `${color}1A` }]}>
+      <View style={[styles.statIcon, { backgroundColor: soft }]}>
         <Ionicons name={icon} size={18} color={color} />
       </View>
       <Text style={styles.statValue}>{value}</Text>
@@ -440,27 +435,30 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: FLOOR },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
   headerTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: colors.textHeading },
-  gear: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  gear: { width: 42, height: 42, borderRadius: 21, backgroundColor: VP.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: VP.line },
   // Room for the floating tab bar.
   scroll: { paddingHorizontal: spacing.md, paddingBottom: 130, gap: 14 },
 
-  hero: { borderRadius: 26, padding: 18, gap: 16 },
+  hero: { borderRadius: 24, padding: 16, gap: 14, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  avatar: { width: 76, height: 76, borderRadius: 38, borderWidth: 3, borderColor: 'rgba(255,255,255,0.9)', backgroundColor: '#EEF2FF' },
+  avatarRing: { width: 84, height: 84, borderRadius: 42, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 72, height: 72, borderRadius: 36 },
   avatarEdit: {
     position: 'absolute',
-    right: -2,
-    bottom: -2,
+    right: 0,
+    bottom: 0,
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: VP.ink,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  name: { flexShrink: 1, fontFamily: fonts.headingBold, fontSize: 22, color: '#FFFFFF' },
-  email: { fontFamily: fonts.bodyMedium, fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
+  name: { flexShrink: 1, fontFamily: fonts.headingBold, fontSize: 22, color: VP.ink },
+  email: { fontFamily: fonts.bodyMedium, fontSize: 13, color: VP.inkSoft, marginTop: 2 },
   proPill: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
@@ -473,20 +471,21 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   proText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#78350F', letterSpacing: 0.6 },
-  friend: { backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 9, gap: 6 },
-  friendLine: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: 'rgba(255,255,255,0.92)' },
-  friendTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' },
-  friendFill: { height: '100%', borderRadius: 3, backgroundColor: '#FCD34D' },
+  friend: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: VP.floor, borderRadius: 16, paddingHorizontal: 10, paddingVertical: 9, borderWidth: 1, borderColor: VP.line },
+  friendFace: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFFFF' },
+  friendLine: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
+  friendTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFE8DD', overflow: 'hidden' },
+  friendFill: { height: '100%', borderRadius: 3, backgroundColor: VP.gold },
 
   stats: { flexDirection: 'row', gap: 10 },
-  stat: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 10, alignItems: 'center' },
+  stat: { flex: 1, backgroundColor: VP.card, borderRadius: 20, paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center', borderWidth: 1, borderColor: VP.line },
   statIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  statValue: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading, marginTop: 6 },
-  statLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
+  statValue: { fontFamily: fonts.headingBold, fontSize: 22, color: VP.ink, marginTop: 6 },
+  statLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: VP.ink },
   statSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
 
-  card: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16 },
-  cardKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 1, color: colors.brand, textTransform: 'uppercase' },
+  card: { backgroundColor: VP.card, borderRadius: 22, padding: 16, borderWidth: 1, borderColor: VP.line },
+  cardKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 1, color: VP.coralDeep, textTransform: 'uppercase' },
   cardTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginTop: 2 },
   cardHint: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 10 },
   road: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
@@ -502,17 +501,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stopDone: { backgroundColor: '#22C55E', borderColor: '#16A34A' },
-  stopHere: { backgroundColor: colors.brand, borderColor: '#3730A3', transform: [{ scale: 1.12 }] },
+  stopDone: { backgroundColor: VP.mint, borderColor: VP.mintDeep },
+  stopHere: { backgroundColor: VP.ink, borderColor: '#0B1220', transform: [{ scale: 1.12 }] },
   stopSoon: { backgroundColor: '#F5F5F4', borderColor: '#E7E5E4' },
   stopCode: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   stopName: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted, paddingHorizontal: 2 },
   levelProgress: { marginTop: 16, gap: 6 },
   levelTrack: { height: 8, borderRadius: 4, backgroundColor: '#F1EDE6', overflow: 'hidden' },
-  levelFill: { height: '100%', borderRadius: 4, backgroundColor: '#F5B82E' },
+  levelFill: { height: '100%', borderRadius: 4, backgroundColor: VP.sun },
   levelText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textBody },
 
-  list: { backgroundColor: '#FFFFFF', borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4 },
+  list: { backgroundColor: VP.card, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4, borderWidth: 1, borderColor: VP.line },
   listDivider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   rowArt: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
@@ -532,9 +531,9 @@ const styles = StyleSheet.create({
 
   vipWrap: { borderRadius: 20 },
   vip: { borderRadius: 20, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, overflow: 'hidden' },
-  vipImage: { width: 40, height: 40 },
+  vipImage: { width: 48, height: 48 },
   vipTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#FFFFFF' },
-  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#A5B4FC', marginTop: 1 },
+  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#E8D6A8', marginTop: 1 },
 
   overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 },
@@ -542,9 +541,9 @@ const styles = StyleSheet.create({
   sheetTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
   sheetSub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: colors.textMuted, marginTop: -8 },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
-  avatarItem: { width: '31%', alignItems: 'center', gap: 6, paddingVertical: 10, borderRadius: 18, borderWidth: 2, borderColor: '#F1F5F9' },
-  avatarItemOn: { borderColor: colors.brand, backgroundColor: '#F5F3FF' },
-  avatarThumb: { width: 64, height: 64, borderRadius: 32 },
+  avatarItem: { width: '23%', alignItems: 'center', gap: 5, paddingVertical: 8, borderRadius: 16, borderWidth: 2, borderColor: 'transparent' },
+  avatarItemOn: { borderColor: VP.line, backgroundColor: VP.floor },
+  avatarThumb: { width: 62, height: 62, borderRadius: 31, borderWidth: 3 },
   avatarName: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: colors.textBody },
   guideBlock: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   guideIcon: { width: 48, height: 48 },

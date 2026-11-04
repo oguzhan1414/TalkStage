@@ -6,7 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { vocabArt, minimalFeatureIcons, stateImages } from '../assets/images';
+import { vocabArt, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
@@ -1054,7 +1054,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
           <View style={styles.modalCard}>
             <View style={styles.modalGrab} />
             <View style={styles.modalHeaderRow}>
-              <Image source={editingCardId ? stateImages.editPencil : minimalFeatureIcons.vocabLibrary} style={styles.modalIcon} resizeMode="contain" />
+              <Image source={editingCardId ? stateImages.editPencil : vocabArt.iconLibrary} style={styles.modalIcon} resizeMode="contain" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>{editingCardId ? t("Kelimeyi Düzenle") : t("Yeni Kelime Ekle")}</Text>
                 <Text style={styles.modalSub}>

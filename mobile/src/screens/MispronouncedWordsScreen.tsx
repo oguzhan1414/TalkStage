@@ -5,7 +5,7 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { minimalFeatureIcons, vocabArt } from '../assets/images';
+import { vocabArt } from '../assets/images';
 import { VP } from '../theme/vocabPalette';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { Waveform } from '../components/Waveform';

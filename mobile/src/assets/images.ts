@@ -71,15 +71,7 @@ export const premiumModuleIcons = {
 
 /** Minimal, colorful feature-card icon family aligned with the main tab icons. */
 export const minimalFeatureIcons = {
-  mistakesNotebook: require('../../assets/images/premium/mistakes-minimal.webp'),
-  mivoMemory: require('../../assets/images/premium/mivo-memory-minimal.webp'),
-  vocabLibrary: require('../../assets/images/premium/vocab-library-minimal.webp'),
-  vocabFolders: require('../../assets/images/premium/vocab-folders-minimal.webp'),
   reading: require('../../assets/images/premium/reading-minimal.webp'),
-  podcasts: require('../../assets/images/premium/podcasts-minimal.webp'),
-  pronunciation: require('../../assets/images/premium/pronunciation-minimal.webp'),
-  badges: require('../../assets/images/premium/badges-minimal.webp'),
-  wordRooms: require('../../assets/images/premium/word-rooms-minimal.webp'),
 } as const;
 
 /** Chunky 3D Bottom Navigation Icons */
@@ -165,22 +157,29 @@ export const cefrLevelImages: Record<string, ReturnType<typeof require>> = {
   C2: require('../../assets/images/levels/c2-rounded.webp'),
 };
 
-/** 3D User Personas / Avatars (58 - 63) */
+/** Profile avatars: flat 2D portraits in the cast style, each on its own soft ground colour (see constants/avatars.ts). */
 export const avatarImages = {
-  maleDev: require('../../assets/images/avatars/male_dev.webp'),
-  femaleLead: require('../../assets/images/avatars/female_lead.webp'),
-  maleTraveler: require('../../assets/images/avatars/male_traveler.webp'),
-  femaleDesigner: require('../../assets/images/avatars/female_designer.webp'),
-  maleEngineer: require('../../assets/images/avatars/male_engineer.webp'),
-  femaleEntrepreneur: require('../../assets/images/avatars/female_entrepreneur.webp'),
-  // Dedicated onboarding persona portraits (2026-08-26) — replace the emoji-badge
-  // fallback the onboarding Persona screen used for personas that had no genuinely
-  // matching photo among the 6 career avatars above.
-  studentYouth: require('../../assets/images/avatars/student_youth.webp'),
-  travelerExplorer: require('../../assets/images/avatars/traveler_explorer.webp'),
-  matureSenior: require('../../assets/images/avatars/mature_senior.webp'),
-  proDeveloper: require('../../assets/images/avatars/pro_developer.webp'),
+  campusGirl: require('../../assets/images/avatars/campus_girl.webp'),
+  campusBoy: require('../../assets/images/avatars/campus_boy.webp'),
+  teen: require('../../assets/images/avatars/teen.webp'),
+  officeWoman: require('../../assets/images/avatars/office_woman.webp'),
+  officeMan: require('../../assets/images/avatars/office_man.webp'),
+  coder: require('../../assets/images/avatars/coder.webp'),
+  creative: require('../../assets/images/avatars/creative.webp'),
+  traveler: require('../../assets/images/avatars/traveler.webp'),
+  sporty: require('../../assets/images/avatars/sporty.webp'),
+  chef: require('../../assets/images/avatars/chef.webp'),
+  parent: require('../../assets/images/avatars/parent.webp'),
+  senior: require('../../assets/images/avatars/senior.webp'),
 };
+
+/** Profile list icons and the Pro card art (flat 2D, transparent). */
+export const profileArt = {
+  badges: require('../../assets/images/profile/badges.webp'),
+  mistakes: require('../../assets/images/profile/mistakes.webp'),
+  memory: require('../../assets/images/profile/memory.webp'),
+  pro: require('../../assets/images/profile/pro.webp'),
+} as const;
 
 /** 3D App States & Micro-Delights (53 - 57) */
 /** The three part badges of a lesson (words, grammar, practice): gold when earned, grey before. */
@@ -200,8 +199,6 @@ export const partBadgeImages = {
 export const stateImages = {
   micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
   goalCelebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
-  emptyChest: require('../../assets/images/states/empty-chest-minimal.webp'),
-  vipPass: require('../../assets/images/states/vip-pass-minimal.webp'),
   trashDelete: require('../../assets/images/states/trash-minimal.webp'),
   editPencil: require('../../assets/images/states/edit-pencil-minimal.webp'),
   xpBolt: require('../../assets/images/states/xp-bolt-minimal.webp'),

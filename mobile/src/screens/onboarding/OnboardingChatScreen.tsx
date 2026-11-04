@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-import { minimalFeatureIcons, mivoVoiceImages, roadmapTaskImages } from '../../assets/images';
+import { minimalFeatureIcons, mivoVoiceImages, roadmapTaskImages, profileArt, vocabArt } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { TypewriterText, TypingDots } from '../../components/chat/ChatTyping';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
@@ -158,9 +158,9 @@ const TOUR_ITEMS: { image: number; label: () => string }[] = [
   { image: minimalFeatureIcons.reading, label: () => t("Hikâye dersleri") },
   { image: roadmapTaskImages.scene, label: () => t("Sesli sahneler") },
   { image: roadmapTaskImages.vocab, label: () => t("Kelime tekrarı") },
-  { image: minimalFeatureIcons.wordRooms, label: () => t("Kelime odaları") },
-  { image: minimalFeatureIcons.pronunciation, label: () => t("Telaffuz") },
-  { image: minimalFeatureIcons.mistakesNotebook, label: () => t("Hata defteri") },
+  { image: vocabArt.iconRooms, label: () => t("Kelime odaları") },
+  { image: vocabArt.iconPronunciation, label: () => t("Telaffuz") },
+  { image: profileArt.mistakes, label: () => t("Hata defteri") },
 ];
 
 /**
