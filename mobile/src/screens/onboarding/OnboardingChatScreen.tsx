@@ -21,6 +21,9 @@ import { mivoVoiceImages, onboardingArt, profileArt, vocabArt } from '../../asse
 import { Button } from '../../components/Button';
 import { TypewriterText, TypingDots } from '../../components/chat/ChatTyping';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FadeIn, PopIn } from '../../components/path/anim';
+import { stepArt } from '../../lib/pathArt';
 import { useAuth } from '../../context/AuthContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { flatSteps, loc, pathLevel } from '../../data/path';
@@ -432,7 +435,11 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
 
   const level = LEVELS.find((l) => l.code === draft.cefrLevel) ?? LEVELS[0];
   const pathOfLevel = pathLevel(level.code);
-  const firstEpisode = flatSteps(pathOfLevel).find((f) => f.step.kind === 'reading')?.step;
+  const firstFlat = flatSteps(pathOfLevel).find((f) => f.step.kind === 'reading');
+  const firstEpisode = firstFlat?.step;
+  const firstArt = firstFlat ? stepArt(firstFlat) : undefined;
+  const goalOption = GOAL_OPTIONS.find((g) => g.id === draft.learningGoal);
+  const paceOption = DAILY_GOAL_OPTIONS.find((d) => d.minutes === draft.dailyTargetMinutes);
   const progress = (STEP_ORDER.indexOf(step) + (busy ? 0 : 1)) / STEP_ORDER.length;
 
   const renderMsg = (msg: Msg, index: number) => {
@@ -503,11 +510,38 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
     } else {
       body = (
         <View style={[styles.planCard, shadow.card]}>
-          <PlanRow emoji={level.emoji} label={t("Seviye")} value={`${stageTitle(level.stage)} · ${level.code}`} color={STAGE_COLOR[level.stage]} />
-          <PlanRow emoji="📖" label={t("Hikâye")} value={loc(pathOfLevel.story.title)} />
-          <PlanRow emoji="⏱️" label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last={!firstEpisode} />
+          {/* The plan arrives row by row: the goal on top, then level, story and pace, then the first episode */}
+          {goalOption ? (
+            <FadeIn delay={100} style={styles.planGoal}>
+              {goalOption.iconImage ? <Image source={goalOption.iconImage} style={styles.planGoalImg} resizeMode="contain" /> : null}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.planKicker}>{t("HEDEFİN")}</Text>
+                <Text style={styles.planGoalText} numberOfLines={2}>
+                  {goalOption.title}
+                </Text>
+              </View>
+            </FadeIn>
+          ) : null}
+          <FadeIn delay={350}>
+            <PlanRow image={level.image} label={t("Seviye")} value={`${stageTitle(level.stage)} · ${level.code}`} color={STAGE_COLOR[level.stage]} />
+          </FadeIn>
+          <FadeIn delay={550}>
+            <PlanRow image={onboardingArt.tourStories} label={t("Hikâye")} value={loc(pathOfLevel.story.title)} />
+          </FadeIn>
+          <FadeIn delay={750}>
+            <PlanRow image={paceOption?.iconImage} label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last />
+          </FadeIn>
           {firstEpisode && firstEpisode.kind === 'reading' ? (
-            <PlanRow emoji="📍" label={t("İlk bölüm")} value={loc(firstEpisode.episode.title)} last />
+            <PopIn delay={1000} style={styles.planFirst}>
+              {firstArt ? <Image source={firstArt} style={styles.planFirstImg} resizeMode="cover" /> : null}
+              <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.82)']} style={styles.planFirstShade} pointerEvents="none" />
+              <View style={styles.planFirstBody}>
+                <Text style={styles.planFirstKicker}>{t("İLK BÖLÜMÜN")}</Text>
+                <Text style={styles.planFirstTitle} numberOfLines={2}>
+                  {loc(firstEpisode.episode.title)}
+                </Text>
+              </View>
+            </PopIn>
           ) : null}
         </View>
       );
@@ -703,10 +737,10 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
   );
 }
 
-function PlanRow({ emoji, label, value, color, last }: { emoji: string; label: string; value: string; color?: string; last?: boolean }) {
+function PlanRow({ image, label, value, color, last }: { image?: number; label: string; value: string; color?: string; last?: boolean }) {
   return (
     <View style={[styles.planRow, !last && styles.planRowBorder]}>
-      <Text style={styles.planEmoji}>{emoji}</Text>
+      {image ? <Image source={image} style={styles.planImg} resizeMode="contain" /> : <View style={styles.planImg} />}
       <Text style={styles.planLabel}>{label}</Text>
       <Text style={[styles.planValue, color ? { color } : null]} numberOfLines={1}>{value}</Text>
       <Ionicons name="checkmark-circle" size={18} color="#10B981" />
@@ -776,10 +810,20 @@ const styles = StyleSheet.create({
 
   featureNote: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, textAlign: 'center' },
 
-  planCard: { backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 6, minWidth: 260 },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
-  planRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  planEmoji: { fontSize: 18 },
+  planCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14, minWidth: 270 },
+  planGoal: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, marginBottom: 4, borderRadius: 16, backgroundColor: '#FBF7F1' },
+  planGoalImg: { width: 54, height: 54 },
+  planKicker: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 1.2, color: '#C9533A' },
+  planGoalText: { fontFamily: fonts.headingBold, fontSize: 14.5, lineHeight: 19, color: '#1F2A44', marginTop: 1 },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
+  planRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F1EDE6' },
+  planImg: { width: 34, height: 34 },
+  planFirst: { marginTop: 10, height: 128, borderRadius: 16, overflow: 'hidden', backgroundColor: '#E2E8F0' },
+  planFirstImg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  planFirstShade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%' },
+  planFirstBody: { position: 'absolute', left: 12, right: 12, bottom: 10 },
+  planFirstKicker: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 1.2, color: '#FDE68A' },
+  planFirstTitle: { fontFamily: fonts.headingBold, fontSize: 17, lineHeight: 22, color: '#FFFFFF', marginTop: 1 },
   planLabel: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, width: 58 },
   planValue: { flex: 1, fontFamily: fonts.headingBold, fontSize: 14.5, color: colors.textHeading },
   planEdit: { alignSelf: 'flex-start', paddingVertical: 8 },
