@@ -6,7 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { vocabArt, minimalFeatureIcons, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
@@ -20,6 +20,7 @@ import { CEFR_LEVELS } from '../constants/cefr';
 import { prefetchPronunciation, usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
 import { trackEvent } from '../lib/analytics';
+import { VP } from '../theme/vocabPalette';
 import type { ProfileOut } from '../types/api';
 import { isProUser } from '../lib/revenuecat';
 import { useAnalytics } from '../lib/analytics';
@@ -530,6 +531,23 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     return cardsList.filter((c) => c.next_review_date.slice(0, 10) === key).length;
   }, [cardsList]);
+  // The week ahead: how many words come back on each of the next 7 days (shown when today's deck is done).
+  const weekAhead = useMemo(() => {
+    const days: { key: string; label: string; count: number }[] = [];
+    for (let i = 1; i <= 7; i += 1) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      days.push({ key, label: i === 1 ? t("Yarın") : d.toLocaleDateString(undefined, { weekday: 'short' }), count: 0 });
+    }
+    const at = new Map(days.map((d) => [d.key, d]));
+    cardsList.forEach((c) => {
+      const hit = at.get(c.next_review_date.slice(0, 10));
+      if (hit) hit.count += 1;
+    });
+    return days;
+  }, [cardsList]);
+  const weekMax = Math.max(1, ...weekAhead.map((d) => d.count));
   // Memory map: how settled the words are (from the SM-2 interval).
   const memory = useMemo(() => {
     const m = { fresh: 0, learning: 0, settling: 0, solid: 0 };
@@ -544,10 +562,10 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   // ---------------------------------------------------------------- Dashboard
   const memoryParts = [
-    { key: 'fresh', label: t("Yeni"), count: memory.fresh, color: '#CBD5E1' },
-    { key: 'learning', label: t("Öğreniliyor"), count: memory.learning, color: '#F59E0B' },
-    { key: 'settling', label: t("Oturuyor"), count: memory.settling, color: '#818CF8' },
-    { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: '#10B981' },
+    { key: 'fresh', label: t("Yeni"), count: memory.fresh, color: VP.sky, soft: VP.skySoft, deep: VP.skyDeep },
+    { key: 'learning', label: t("Öğreniliyor"), count: memory.learning, color: VP.coral, soft: VP.coralSoft, deep: VP.coralDeep },
+    { key: 'settling', label: t("Oturuyor"), count: memory.settling, color: VP.sun, soft: VP.sunSoft, deep: VP.sunDeep },
+    { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: VP.mint, soft: VP.mintSoft, deep: VP.mintDeep },
   ];
 
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
@@ -589,73 +607,91 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         <Ionicons name="chevron-forward" size={18} color="#C8BFB0" />
       </Pressable>
 
-      {/* Today's deck */}
-      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.dashHero}>
-        <View style={styles.heroBlobA} />
-        <View style={styles.heroBlobB} />
+      {/* Today's deck: a paper card with the first words fanned out, or Mivo and the week ahead once it is done */}
+      <View style={styles.deckCard}>
         {dueLoading && !dueCards ? (
           <View style={styles.dashHeroLoading}>
             <MivoLoader size={72} />
           </View>
-        ) : (
+        ) : dueCount > 0 || totalCardsInChest === 0 ? (
           <View style={styles.dashHeroRow}>
             <View style={styles.dashHeroText}>
-              <Text style={styles.dashHeroKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
+              <Text style={styles.deckKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
               {dueCount > 0 ? (
                 <>
-                  <Text style={styles.dashHeroNumber}>{t("{{count}} kelime", { count: dueCount })}</Text>
-                  <Text style={styles.dashHeroLine} numberOfLines={1}>
+                  <Text style={styles.deckNumber}>{t("{{count}} kelime", { count: dueCount })}</Text>
+                  <Text style={styles.deckLine} numberOfLines={1}>
                     {t("yaklaşık {{n}} dakika", { n: deckMinutes })}
                   </Text>
                 </>
               ) : (
                 <>
-                  <Text style={styles.dashHeroDone} numberOfLines={2}>
-                    {totalCardsInChest > 0 ? t("Bugünlük bitti 🎉") : t("İlk kelimeni ekle")}
-                  </Text>
-                  {totalCardsInChest > 0 ? (
-                    <Text style={styles.dashHeroLine} numberOfLines={1}>
-                      {tomorrowCount > 0 ? t("Yarın {{n}} kelime seni bekliyor", { n: tomorrowCount }) : t("Yarın yeni bir deste gelecek")}
-                    </Text>
-                  ) : null}
+                  <Text style={styles.deckDoneTitle}>{t("İlk kelimeni ekle")}</Text>
+                  <Text style={styles.deckLine}>{t("Kütüphaneden seç ya da kendin yaz.")}</Text>
                 </>
               )}
               <Pressable
-                onPress={dueCount > 0 ? startPractice : totalCardsInChest > 0 ? startFreePractice : () => navigation.navigate('VocabLibrary')}
-                style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]}
+                onPress={dueCount > 0 ? startPractice : () => navigation.navigate('VocabLibrary')}
+                style={({ pressed }) => [styles.inkBtn, pressed && { transform: [{ translateY: 1 }] }]}
                 accessibilityRole="button"
               >
-                <Text style={styles.heroBtnText}>{dueCount > 0 ? t("BAŞLA") : totalCardsInChest > 0 ? t("Serbest pratik") : t("Kütüphaneyi aç")}</Text>
-                <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+                <Text style={styles.inkBtnText}>{dueCount > 0 ? t("BAŞLA") : t("Kütüphaneyi aç")}</Text>
+                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
               </Pressable>
             </View>
-            <DeckFan cards={deckPreview} />
+            {dueCount > 0 ? <DeckFan cards={deckPreview} /> : <Image source={vocabArt.emptyChest} style={styles.deckArt} resizeMode="contain" />}
           </View>
+        ) : (
+          <>
+            <View style={styles.dashHeroRow}>
+              <View style={styles.dashHeroText}>
+                <Text style={styles.deckKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
+                <Text style={styles.deckDoneTitle}>{t("Bugünlük bitti 🎉")}</Text>
+                <Text style={styles.deckLine} numberOfLines={2}>
+                  {tomorrowCount > 0 ? t("Yarın {{n}} kelime seni bekliyor", { n: tomorrowCount }) : t("Yarın yeni bir deste gelecek")}
+                </Text>
+                <Pressable onPress={startFreePractice} style={({ pressed }) => [styles.lineBtn, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+                  <Ionicons name="shuffle" size={15} color={VP.ink} />
+                  <Text style={styles.lineBtnText}>{t("Serbest pratik")}</Text>
+                </Pressable>
+              </View>
+              <Image source={vocabArt.deckDone} style={styles.deckArt} resizeMode="contain" />
+            </View>
+            {/* The week ahead */}
+            <View style={styles.week}>
+              {weekAhead.map((d, i) => (
+                <View key={d.key} style={styles.weekDay}>
+                  <Text style={[styles.weekCount, d.count === 0 && { color: '#C9C1B4' }]}>{d.count}</Text>
+                  <View style={styles.weekTrack}>
+                    <View style={[styles.weekFill, { height: `${Math.max(d.count ? 18 : 0, (d.count / weekMax) * 100)}%`, backgroundColor: i === 0 ? VP.coral : VP.mint }]} />
+                  </View>
+                  <Text style={[styles.weekLabel, i === 0 && { color: VP.ink }]} numberOfLines={1}>
+                    {d.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
         )}
-      </LinearGradient>
+      </View>
 
-      {/* Memory map */}
+      {/* Memory map: four tiles */}
       {totalCardsInChest > 0 ? (
         <View style={styles.dashMemory}>
           <View style={styles.dashMemoryTop}>
             <Text style={styles.dashMemoryTitle}>{t("Hafıza haritan")}</Text>
             <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
           </View>
-          <View style={styles.dashMemoryBar}>
-            {memoryParts
-              .filter((part) => part.count > 0)
-              .map((part) => (
-                <View key={part.key} style={{ flex: part.count, backgroundColor: part.color }} />
-              ))}
-          </View>
-          <View style={styles.dashMemoryLegend}>
+          <View style={styles.memoryTiles}>
             {memoryParts.map((part) => (
-              <View key={part.key} style={styles.dashMemoryItem}>
-                <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
-                <Text style={styles.dashMemoryLabel} numberOfLines={1}>
-                  {part.label}
-                </Text>
-                <Text style={styles.dashMemoryCount}>{part.count}</Text>
+              <View key={part.key} style={[styles.memoryTile, { backgroundColor: part.soft }]}>
+                <Text style={[styles.memoryNum, { color: part.deep }]}>{part.count}</Text>
+                <View style={styles.memoryLabelRow}>
+                  <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
+                  <Text style={styles.memoryLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                    {part.label}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
@@ -664,10 +700,10 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
       {/* Tools, as one row of shortcuts */}
       <View style={styles.dashTools}>
-        <Shortcut icon={minimalFeatureIcons.vocabLibrary} tint="#E0E7FF" label={t("Kütüphane")} onPress={() => navigation.navigate('VocabLibrary')} />
-        <Shortcut icon={minimalFeatureIcons.vocabFolders} tint="#DBEAFE" label={t("Gruplarım")} onPress={() => navigation.navigate('VocabDecks')} />
-        <Shortcut icon={minimalFeatureIcons.wordRooms} tint="#EDE9FE" label={t("Odalar")} onPress={() => navigation.navigate('WordRooms')} />
-        <Shortcut icon={minimalFeatureIcons.pronunciation} tint="#FFE4E6" label={t("Telaffuz")} onPress={() => navigation.navigate('MispronouncedWords')} />
+        <Shortcut icon={vocabArt.iconLibrary} tint={VP.mintSoft} label={t("Kütüphane")} onPress={() => navigation.navigate('VocabLibrary')} />
+        <Shortcut icon={vocabArt.iconGroups} tint={VP.coralSoft} label={t("Gruplarım")} onPress={() => navigation.navigate('VocabDecks')} />
+        <Shortcut icon={vocabArt.iconRooms} tint={VP.sunSoft} label={t("Odalar")} onPress={() => navigation.navigate('WordRooms')} />
+        <Shortcut icon={vocabArt.iconPronunciation} tint={VP.skySoft} label={t("Telaffuz")} onPress={() => navigation.navigate('MispronouncedWords')} />
       </View>
     </ScrollView>
   );
@@ -764,7 +800,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
       <ScreenHeader
         title={t("Sandığım")}
         subtitle={t("{{count}} kelime", { count: totalCardsInChest })}
-        icon={stateImages.emptyChest}
+        icon={vocabArt.emptyChest}
         onBack={() => setMode('home')}
         right={
           <Pressable onPress={openCreateModal} style={styles.addCircle} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
@@ -1432,10 +1468,31 @@ const styles = StyleSheet.create({
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
   dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
-  dashAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  dashAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.ink, alignItems: 'center', justifyContent: 'center' },
   dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 13, borderWidth: 1, borderColor: '#EDE7DD' },
   dashSearchText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted },
 
+  deckCard: { borderRadius: 24, padding: 18, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line, gap: 14, overflow: 'hidden' },
+  deckKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1.2, color: VP.coralDeep },
+  deckNumber: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: VP.ink, marginTop: 6 },
+  deckDoneTitle: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 28, color: VP.ink, marginTop: 6 },
+  deckLine: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: VP.inkSoft, marginTop: 2, marginBottom: 12 },
+  deckArt: { width: 128, height: 128 },
+  inkBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: VP.ink, borderRadius: radii.pill, paddingVertical: 12, paddingHorizontal: 20 },
+  inkBtnText: { fontFamily: fonts.headingBold, fontSize: 14, letterSpacing: 0.4, color: '#FFFFFF' },
+  lineBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radii.pill, paddingVertical: 9, paddingHorizontal: 14, borderWidth: 1.5, borderColor: VP.line, backgroundColor: VP.floor },
+  lineBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
+  week: { flexDirection: 'row', gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: VP.line },
+  weekDay: { flex: 1, alignItems: 'center', gap: 4 },
+  weekCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: VP.ink },
+  weekTrack: { width: 10, height: 36, borderRadius: 5, backgroundColor: '#F3EEE6', justifyContent: 'flex-end', overflow: 'hidden' },
+  weekFill: { width: '100%', borderRadius: 5 },
+  weekLabel: { fontFamily: fonts.headingSemiBold, fontSize: 10.5, color: VP.inkSoft },
+  memoryTiles: { flexDirection: 'row', gap: 8 },
+  memoryTile: { flex: 1, borderRadius: 16, paddingVertical: 10, paddingHorizontal: 8, gap: 2 },
+  memoryNum: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 26 },
+  memoryLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  memoryLabel: { flexShrink: 1, fontFamily: fonts.headingSemiBold, fontSize: 11, color: VP.ink },
   dashHero: { borderRadius: 26, padding: 18, overflow: 'hidden' },
   dashHeroLoading: { alignItems: 'center', paddingVertical: 24 },
   dashHeroRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -1451,24 +1508,26 @@ const styles = StyleSheet.create({
     height: 88,
     borderRadius: 14,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: VP.line,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 6,
     overflow: 'hidden',
-    shadowColor: '#1E1B4B',
+    shadowColor: VP.ink,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.14,
     shadowRadius: 10,
-    elevation: 6,
+    elevation: 4,
   },
   fanImage: { width: 62, height: 62, borderRadius: 10 },
-  fanWord: { alignSelf: 'stretch', fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading, textAlign: 'center' },
+  fanWord: { alignSelf: 'stretch', fontFamily: fonts.headingBold, fontSize: 14, color: VP.ink, textAlign: 'center' },
   fanEmpty: { width: 104, height: 104 },
 
   dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 10, borderWidth: 1, borderColor: '#EDE7DD' },
   dashMemoryTop: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
-  dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#059669' },
+  dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: VP.ink },
+  dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.mintDeep },
   dashMemoryBar: { flexDirection: 'row', height: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: '#F1EDE6', gap: 2 },
   dashMemoryLegend: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 6 },
   dashMemoryItem: { width: '50%', flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 8 },
@@ -1478,9 +1537,9 @@ const styles = StyleSheet.create({
 
   dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 14, paddingHorizontal: 8, borderWidth: 1, borderColor: '#EDE7DD' },
   shortcut: { flex: 1, alignItems: 'center', gap: 6, paddingHorizontal: 2 },
-  shortcutArt: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' },
-  shortcutImage: { width: 46, height: 46 },
-  shortcutLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textHeading },
+  shortcutArt: { width: 60, height: 60, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  shortcutImage: { width: 44, height: 44 },
+  shortcutLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
 
   // Dashboard fits one screen: hero, the chest, two rows of tiles; the tiles share what is left above the tab bar.
   home: { flex: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 100, gap: 12 },

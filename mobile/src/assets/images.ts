@@ -245,3 +245,17 @@ export const badgeImages = {
 /** Auth & Welcome 3D Hero Artwork */
 /** Horizontal "spekvia" logo (purple lettering with the gold spark), cropped tight; aspect ratio 3.62:1. */
 export const spekviaWordmark = require('../../assets/images/brand/spekvia_wordmark.webp');
+
+/** Kelimeler (word bank) art: flat 2D on transparent ground, cream/ink palette with the word-type colours. */
+export const vocabArt = {
+  deckDone: require('../../assets/images/vocab/mivo_deck_done.webp'),
+  emptyChest: require('../../assets/images/vocab/mivo_empty_chest.webp'),
+  listening: require('../../assets/images/vocab/mivo_listening.webp'),
+  coverNouns: require('../../assets/images/vocab/cover_nouns.webp'),
+  coverVerbs: require('../../assets/images/vocab/cover_verbs.webp'),
+  coverAdjectives: require('../../assets/images/vocab/cover_adjectives.webp'),
+  iconLibrary: require('../../assets/images/vocab/icon_library.webp'),
+  iconGroups: require('../../assets/images/vocab/icon_groups.webp'),
+  iconRooms: require('../../assets/images/vocab/icon_rooms.webp'),
+  iconPronunciation: require('../../assets/images/vocab/icon_pronunciation.webp'),
+} as const;
