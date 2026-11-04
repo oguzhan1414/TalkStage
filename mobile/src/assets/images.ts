@@ -33,16 +33,6 @@ export const mivoHomeImages = {
   pro: require('../../assets/images/companion/mivo/mivo_pro.webp'),
 } as const;
 
-/** Calm, rounded 3D icons for the Today learning roadmap. */
-export const roadmapTaskImages = {
-  lesson: require('../../assets/images/roadmap/grammar-soft.png'),
-  vocab: require('../../assets/images/roadmap/vocabulary-soft.png'),
-  listening: require('../../assets/images/roadmap/listening-soft.png'),
-  reading: require('../../assets/images/roadmap/reading-soft.webp'),
-  review: require('../../assets/images/roadmap/speaking-soft.png'),
-  scene: require('../../assets/images/roadmap/speaking-soft.png'),
-  writing: require('../../assets/images/states/edit-pencil-minimal.webp'),
-} as const;
 
 /**
  * Eski "Yankı" (fincan karakteri) görsellerinin yerine Mivo pozları. Eski dışa aktarım adları, onları
@@ -76,7 +66,6 @@ export const navIcons = {
   today: require('../../assets/images/nav/today.png'),
   scenes: require('../../assets/images/nav/scenes.png'),
   words: require('../../assets/images/nav/words.png'),
-  features: require('../../assets/images/nav/features.png'),
   profile: require('../../assets/images/nav/profile.png'),
 };
 
@@ -144,15 +133,6 @@ export function resolveScenarioCoverSource(scenario: { id: string; category: str
   return resolveScenarioCategoryFallback(scenario.category);
 }
 
-/** Minimal rounded CEFR badges. Distinct paths avoid cached legacy shields. */
-export const cefrLevelImages: Record<string, ReturnType<typeof require>> = {
-  A1: require('../../assets/images/levels/a1-rounded.png'),
-  A2: require('../../assets/images/levels/a2-rounded.png'),
-  B1: require('../../assets/images/levels/b1-rounded.png'),
-  B2: require('../../assets/images/levels/b2-rounded.png'),
-  C1: require('../../assets/images/levels/c1-rounded.png'),
-  C2: require('../../assets/images/levels/c2-rounded.webp'),
-};
 
 /** Profile avatars: flat 2D portraits in the cast style, each on its own soft ground colour (see constants/avatars.ts). */
 export const avatarImages = {
@@ -217,32 +197,22 @@ export const stateImages = {
 };
 
 export const calibrationImages = {
-  micOrb: require('../../assets/images/nav/voice.webp'),
   micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
 };
 
 /** Minimal rounded achievement badges and their matching CEFR level set. */
 export const badgeImages = {
   firstMic: require('../../assets/images/badges/first-mic.webp'),
-  zeroFreeze: require('../../assets/images/badges/zero-freeze.webp'),
-  starCollector: require('../../assets/images/badges/star-collector.webp'),
   perfectTake: require('../../assets/images/badges/flawless-take.webp'),
-  visaApproved: require('../../assets/images/badges/visa-approved.webp'),
-  negotiator: require('../../assets/images/badges/negotiator.webp'),
-  standupHero: require('../../assets/images/badges/standup-hero.webp'),
   mivoFriend: require('../../assets/images/badges/mivo-friend.webp'),
   vocabHunter: require('../../assets/images/badges/vocab-hunter.webp'),
   pronunciationProdigy: require('../../assets/images/badges/pronunciation-prodigy.webp'),
   bookworm: require('../../assets/images/badges/bookworm.webp'),
   podcastFan: require('../../assets/images/badges/podcast-fan.webp'),
   lessonGraduate: require('../../assets/images/badges/grammar-scholar.webp'),
-  fullDay: require('../../assets/images/badges/full-day.webp'),
   sevenDayFlame: require('../../assets/images/badges/7day-flame.webp'),
   thirtyDayMaster: require('../../assets/images/badges/30day-master.webp'),
   hundredDayLegend: require('../../assets/images/badges/100day-legend.webp'),
-  earlyBird: require('../../assets/images/badges/early-bird.webp'),
-  nightOwl: require('../../assets/images/badges/night-owl.webp'),
-  levelA1: require('../../assets/images/badges/level-a1.webp'),
   levelA2: require('../../assets/images/badges/level-a2.webp'),
   levelB1: require('../../assets/images/badges/level-b1.webp'),
   levelB2: require('../../assets/images/badges/level-b2.webp'),

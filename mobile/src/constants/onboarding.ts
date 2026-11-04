@@ -1,4 +1,4 @@
-import { avatarImages, cefrLevelImages } from '../assets/images';
+import { avatarImages } from '../assets/images';
 import { t } from '../i18n';
 
 /**
@@ -172,73 +172,6 @@ export const GOAL_OPTIONS: GoalOption[] = [
     desc: t("Beni asla yargılamayan, sıfır stresle 7/24 sabırla dinleyen bir partnerle konuşmak."),
     badge: t("Sınırsız Pratik"),
     color: '#8B5CF6',
-  },
-];
-
-export type OnboardingLevelOption = {
-  code: string;
-  title: string;
-  enTitle: string;
-  desc: string;
-  realLife: string;
-  color: string;
-  image: ReturnType<typeof require>;
-};
-
-export const ONBOARDING_LEVEL_OPTIONS: OnboardingLevelOption[] = [
-  {
-    code: 'A1',
-    title: t("Sıfırdan / Başlangıç"),
-    enTitle: t("Beginner"),
-    desc: t("Temel kelimeleri biliyorum veya sıfırdan en baştan başlamak istiyorum."),
-    realLife: t("Merhaba, adın ne, neredensin, teşekkürler gibi temel ifadeler."),
-    color: '#10B981',
-    image: cefrLevelImages.A1,
-  },
-  {
-    code: 'A2',
-    title: t("Temel Seviye"),
-    enTitle: t("Elementary"),
-    desc: t("Basit cümleler kurabiliyorum, kendimi ve günlük rutinlerimi anlatabiliyorum."),
-    realLife: t("Kahve siparişi, hava durumu, market alışverişi ve basit yol tarifi."),
-    color: '#0EA5E9',
-    image: cefrLevelImages.A2,
-  },
-  {
-    code: 'B1',
-    title: t("Orta Düzey"),
-    enTitle: t("Intermediate"),
-    desc: t("Çoğu konuşmayı anlıyorum ama akıcı konuşurken kelime arayıp tıkanıyorum."),
-    realLife: t("İş toplantıları, okul projeleri, fikir belirtme ve deneyim aktarımı."),
-    color: '#6366F1',
-    image: cefrLevelImages.B1,
-  },
-  {
-    code: 'B2',
-    title: t("İyi Düzey"),
-    enTitle: t("Upper-Intermediate"),
-    desc: t("Rahat konuşuyorum, daha zengin deyimler ve akıcı tartışmalar istiyorum."),
-    realLife: t("Detaylı mülakatlar, teknik sunumlar, tartışmalar ve hızlı sohbetler."),
-    color: '#8B5CF6',
-    image: cefrLevelImages.B2,
-  },
-  {
-    code: 'C1',
-    title: t("İleri Düzey"),
-    enTitle: t("Advanced"),
-    desc: t("Karmaşık konularda akıcıyım, profesyonel nüanslar ve derinlik hedefliyorum."),
-    realLife: t("Strateji yönetimi, uluslararası müzakere ve akademik sunumlar."),
-    color: '#EC4899',
-    image: cefrLevelImages.C1,
-  },
-  {
-    code: 'C2',
-    title: t("Ustalık"),
-    enTitle: t("Mastery"),
-    desc: t("Anadili düzeyinde spontane akıcılık, derin kültürel deyimler ve mizah."),
-    realLife: t("Her ortamda anında, zahmetsiz ve kusursuz İngilizce."),
-    color: '#F59E0B',
-    image: cefrLevelImages.C2,
   },
 ];
 
