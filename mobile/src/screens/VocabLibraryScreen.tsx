@@ -1,12 +1,12 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { LinearGradient } from 'expo-linear-gradient';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Toast } from '../components/Toast';
-import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { vocabArt } from '../assets/images';
+import { VP } from '../theme/vocabPalette';
 import { ScreenHeader } from '../components/ScreenHeader';
 import {
   ADJECTIVES_100,
@@ -38,14 +38,17 @@ const PACKS: Record<
     icon: keyof typeof Ionicons.glyphMap;
     color: string;
     soft: string;
+    /** The category's illustrated cover. */
+    cover: number;
     sets: { id: string; range: string; words: LibraryWordEntry[] }[];
   }
 > = {
   nouns: {
     label: t("İsimler"),
     icon: 'cube-outline',
-    color: '#6366F1',
-    soft: '#EEF2FF',
+    color: VP.mintDeep,
+    soft: VP.mintSoft,
+    cover: vocabArt.coverNouns,
     sets: [
       { id: 'nouns_1', range: '1–100', words: NOUNS_100 },
       { id: 'nouns_2', range: '101–200', words: NOUNS_200 },
@@ -55,8 +58,9 @@ const PACKS: Record<
   verbs: {
     label: t("Fiiller"),
     icon: 'walk-outline',
-    color: '#0EA5E9',
-    soft: '#E0F2FE',
+    color: VP.coralDeep,
+    soft: VP.coralSoft,
+    cover: vocabArt.coverVerbs,
     sets: [
       { id: 'verbs_1', range: '1–100', words: VERBS_100 },
       { id: 'verbs_2', range: '101–200', words: VERBS_200 },
@@ -66,8 +70,9 @@ const PACKS: Record<
   adjectives: {
     label: t("Sıfatlar"),
     icon: 'color-palette-outline',
-    color: '#F59E0B',
-    soft: '#FEF3C7',
+    color: VP.sunDeep,
+    soft: VP.sunSoft,
+    cover: vocabArt.coverAdjectives,
     sets: [
       { id: 'adjectives_1', range: '1–100', words: ADJECTIVES_100 },
       { id: 'adjectives_2', range: '101–200', words: ADJECTIVES_200 },
@@ -174,7 +179,7 @@ const WordCard = memo(function WordCard({
             accessibilityRole="button"
             accessibilityLabel={t("Telaffuzu dinle")}
           >
-            <Ionicons name="volume-high" size={18} color={colors.brand} />
+            <Ionicons name="volume-high" size={18} color={VP.ink} />
           </Pressable>
         </View>
 
@@ -203,7 +208,7 @@ const WordCard = memo(function WordCard({
             {item.exampleTr && item.exampleTr !== item.exampleEn ? <Text style={styles.exampleTr}>{item.exampleTr}</Text> : null}
             {item.grammarNote ? (
               <View style={styles.noteRow}>
-                <Ionicons name="sparkles" size={12} color={colors.brand} />
+                <Ionicons name="sparkles" size={12} color={VP.ink} />
                 <Text style={styles.noteText}>{item.grammarNote}</Text>
               </View>
             ) : null}
@@ -224,7 +229,7 @@ const WordCard = memo(function WordCard({
         {hasDetails ? (
           <Pressable onPress={() => onToggle(item.id)} hitSlop={8} style={styles.moreBtn} accessibilityRole="button">
             <Text style={styles.moreBtnText}>{expanded ? t("Daha az") : t("Detaylar")}</Text>
-            <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={colors.brand} />
+            <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={VP.ink} />
           </Pressable>
         ) : null}
 
@@ -480,25 +485,18 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
   const header = (
     <View style={styles.listHeader}>
-      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.summaryCard}>
-        <View style={styles.summaryTop}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.summaryLabel}>{t("Genel ilerleme")}</Text>
-            <Text style={styles.summaryValue}>
-              {stats.overall}
-              <Text style={styles.summaryTotal}> / {TOTAL_WORDS}</Text>
-            </Text>
-            <Text style={styles.summarySub}>{t("kelime incelendi (sandıkta veya biliniyor)")}</Text>
-          </View>
-          <View style={styles.summaryBadge}>
-            <Text style={styles.summaryBadgeText}>%{overallPct}</Text>
-          </View>
+      {/* Overall progress, one quiet line */}
+      <View style={styles.overallRow}>
+        <Text style={styles.overallText}>
+          {t("Genel ilerleme")} <Text style={styles.overallNum}>{stats.overall}</Text> / {TOTAL_WORDS}
+        </Text>
+        <View style={styles.overallTrack}>
+          <View style={[styles.overallFill, { width: `${Math.max(3, overallPct)}%` }]} />
         </View>
-        <View style={styles.summaryTrack}>
-          <View style={[styles.summaryFill, { width: `${Math.max(3, overallPct)}%` }]} />
-        </View>
-      </LinearGradient>
+        <Text style={styles.overallPct}>%{overallPct}</Text>
+      </View>
 
+      {/* The three word types as illustrated covers */}
       <View style={styles.catRow}>
         {CATEGORIES.map((cat) => {
           const c = PACKS[cat];
@@ -508,12 +506,16 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
             <Pressable
               key={cat}
               onPress={() => pickCategory(cat)}
-              style={[styles.catCard, active && { borderColor: c.color, backgroundColor: c.soft }]}
+              style={({ pressed }) => [styles.catCard, active && { borderColor: c.color }, pressed && { transform: [{ scale: 0.97 }] }]}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
             >
-              <Ionicons name={c.icon} size={20} color={active ? c.color : colors.textMuted} />
-              <Text style={[styles.catLabel, active && { color: c.color }]}>{c.label}</Text>
+              <View style={[styles.catCoverBox, { backgroundColor: c.soft }]}>
+                <Image source={c.cover} style={styles.catCover} resizeMode="contain" />
+              </View>
+              <Text style={[styles.catLabel, active && { color: c.color }]} numberOfLines={1}>
+                {c.label}
+              </Text>
               <Text style={styles.catCount}>
                 {st.done}/{st.total}
               </Text>
@@ -618,11 +620,11 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
       <ScreenHeader
         title={t("Kütüphane")}
         subtitle={t("En Sık Kullanılan 900 Çekirdek Kelime")}
-        icon={minimalFeatureIcons.vocabLibrary}
+        icon={vocabArt.iconLibrary}
         onBack={() => navigation.goBack()}
         right={
           <Pressable onPress={() => navigation.navigate('Main', { screen: 'Vocab' })} style={styles.chestBtn} accessibilityRole="button">
-            <Image source={stateImages.emptyChest} style={styles.chestBtnIcon} resizeMode="contain" />
+            <Image source={vocabArt.emptyChest} style={styles.chestBtnIcon} resizeMode="contain" />
             <Text style={styles.chestBtnText}>{t("Sandığım")}</Text>
           </Pressable>
         }
@@ -667,26 +669,24 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
 const styles = StyleSheet.create({
   chestBtnIcon: { width: 26, height: 26 },
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  chestBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 6, paddingRight: 12, paddingVertical: 5, borderRadius: radii.pill, backgroundColor: '#FFF7E0', borderWidth: 1, borderColor: '#FDE68A' },
-  chestBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#B45309' },
+  container: { flex: 1, backgroundColor: VP.floor },
+  chestBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 6, paddingRight: 12, paddingVertical: 5, borderRadius: radii.pill, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
+  chestBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: VP.ink },
   listContent: { paddingBottom: 120 },
   listHeader: { paddingHorizontal: spacing.md, paddingTop: spacing.md, gap: 12 },
-  summaryCard: { borderRadius: 26, padding: 20 },
-  summaryTop: { flexDirection: 'row', alignItems: 'center' },
-  summaryLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: 'rgba(255,255,255,0.8)', letterSpacing: 0.4 },
-  summaryValue: { fontFamily: fonts.headingBold, fontSize: 34, color: '#FFFFFF', marginTop: 2 },
-  summaryTotal: { fontFamily: fonts.headingSemiBold, fontSize: 18, color: 'rgba(255,255,255,0.75)' },
-  summarySub: { fontFamily: fonts.bodyRegular, fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
-  summaryBadge: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 8 },
-  summaryBadgeText: { fontFamily: fonts.headingBold, fontSize: 16, color: '#FFFFFF' },
-  summaryTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', marginTop: 14, overflow: 'hidden' },
-  summaryFill: { height: '100%', borderRadius: 4, backgroundColor: '#FFFFFF' },
+  overallRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  overallText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft },
+  overallNum: { fontFamily: fonts.headingBold, color: VP.ink },
+  overallTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: '#EFE8DD', overflow: 'hidden' },
+  overallFill: { height: '100%', borderRadius: 3, backgroundColor: VP.ink },
+  overallPct: { fontFamily: fonts.headingBold, fontSize: 12.5, color: VP.ink },
   catRow: { flexDirection: 'row', gap: 10 },
-  catCard: { flex: 1, alignItems: 'center', gap: 3, paddingVertical: 14, paddingHorizontal: 6, borderRadius: 20, borderWidth: 2, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
-  catLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
-  catCount: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted },
-  catTrack: { height: 4, alignSelf: 'stretch', marginTop: 4, borderRadius: 2, backgroundColor: '#E2E8F0', overflow: 'hidden' },
+  catCard: { flex: 1, gap: 3, padding: 6, paddingBottom: 10, borderRadius: 20, borderWidth: 2, borderColor: VP.line, backgroundColor: VP.card },
+  catCoverBox: { borderRadius: 14, aspectRatio: 1.25, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 4 },
+  catCover: { width: '100%', height: '100%' },
+  catLabel: { fontFamily: fonts.headingBold, fontSize: 13.5, color: VP.ink, paddingHorizontal: 4 },
+  catCount: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: VP.inkSoft, paddingHorizontal: 4 },
+  catTrack: { height: 4, marginHorizontal: 4, marginTop: 4, borderRadius: 2, backgroundColor: '#EFE8DD', overflow: 'hidden' },
   catFill: { height: '100%', borderRadius: 2 },
   packRow: { flexDirection: 'row', gap: 8 },
   packChip: {
@@ -698,8 +698,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: radii.pill,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
+    borderColor: VP.line,
+    backgroundColor: VP.card,
   },
   packRange: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textHeading },
   packRangeActive: { color: '#FFFFFF' },
@@ -712,9 +712,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     height: 46,
     borderRadius: radii.pill,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: VP.card,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    borderColor: VP.line,
   },
   searchInput: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 14.5, color: colors.textHeading, paddingVertical: 0 },
   hint: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, marginLeft: 4, marginBottom: 4 },
@@ -750,11 +750,11 @@ const styles = StyleSheet.create({
   formValue: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textHeading },
   formSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted },
   moreBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
-  moreBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
+  moreBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
   actionsRow: { flexDirection: 'row', gap: 10, marginTop: 2 },
   knownBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderRadius: radii.pill, backgroundColor: '#F1F5F9', borderBottomWidth: 3, borderBottomColor: '#E2E8F0' },
   knownBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
-  addBtn: { flex: 1.2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderRadius: radii.pill, backgroundColor: colors.brand, borderBottomWidth: 3, borderBottomColor: '#3730A3' },
+  addBtn: { flex: 1.2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderRadius: radii.pill, backgroundColor: VP.ink, borderBottomWidth: 3, borderBottomColor: '#0B1220' },
   addBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#FFFFFF' },
   pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
@@ -762,11 +762,11 @@ const styles = StyleSheet.create({
   knownRow: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   statusPillMuted: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   statusPillMutedText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.textMuted },
-  undoText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.brand },
+  undoText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: VP.ink },
   emptyBox: { alignItems: 'center', gap: 8, paddingVertical: 40, paddingHorizontal: spacing.lg },
   emptyEmoji: { fontSize: 34 },
   emptyTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: colors.textHeading, textAlign: 'center' },
   emptySub: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, textAlign: 'center' },
-  emptyBtn: { marginTop: 6, paddingHorizontal: 18, paddingVertical: 10, borderRadius: radii.pill, backgroundColor: colors.brand },
+  emptyBtn: { marginTop: 6, paddingHorizontal: 18, paddingVertical: 10, borderRadius: radii.pill, backgroundColor: VP.ink },
   emptyBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: '#FFFFFF' },
 });

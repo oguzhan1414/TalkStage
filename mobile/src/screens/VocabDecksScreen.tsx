@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { minimalFeatureIcons } from '../assets/images';
+import { vocabArt } from '../assets/images';
+import { VP } from '../theme/vocabPalette';
+
+/** Group colours, in turn: the word-type colours (mint, coral, sun, sky). */
+const GROUP_TINTS = [
+  { color: VP.mintDeep, soft: VP.mintSoft, bar: VP.mint },
+  { color: VP.coralDeep, soft: VP.coralSoft, bar: VP.coral },
+  { color: VP.sunDeep, soft: VP.sunSoft, bar: VP.sun },
+  { color: VP.skyDeep, soft: VP.skySoft, bar: VP.sky },
+];
 import { MivoLoader } from '../components/MivoLoader';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { Toast } from '../components/Toast';
@@ -13,7 +22,7 @@ import { api, ApiError } from '../lib/api';
 import { pathLevelName } from '../lib/pathLevel';
 import { inFocus, levelGroups, migrateLocalFolders, NO_LEVEL, tagGroups, type VocabFocus } from '../lib/vocabGroups';
 import type { VocabDecksScreenProps } from '../navigation/types';
-import { cefrAura, colors, fonts, spacing } from '../theme/tokens';
+import { colors, fonts, spacing } from '../theme/tokens';
 import type { VocabCardOut, VocabCardUpdate } from '../types/api';
 
 /** The warm floor shared with the home, the lessons and the profile. */
@@ -82,7 +91,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
       <ScreenHeader
         title={t("Gruplarım")}
         subtitle={t("{{count}} kelime", { count: all.length })}
-        icon={minimalFeatureIcons.vocabFolders}
+        icon={vocabArt.iconGroups}
         onBack={() => navigation.goBack()}
       />
 
@@ -93,21 +102,21 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
           <Text style={styles.section}>{t("Seviyeye göre")}</Text>
           {levels.length === 0 ? (
             <View style={styles.hintCard}>
-              <Ionicons name="layers-outline" size={22} color={colors.brand} />
+              <Ionicons name="layers-outline" size={22} color={VP.ink} />
               <Text style={styles.hintText}>{t("Henüz kelimen yok. Derslerde ve kütüphanede eklediğin kelimeler burada seviyelerine göre toplanır.")}</Text>
             </View>
           ) : (
             <View style={styles.card}>
               {levels.map(({ level, count }, i) => {
                 const focus: VocabFocus = { kind: 'level', value: level };
-                const color = cefrAura[level] ?? '#94A3B8';
+                const tint = GROUP_TINTS[i % GROUP_TINTS.length];
                 return (
                   <GroupRow
                     key={level}
                     first={i === 0}
                     badge={
-                      <View style={[styles.levelBadge, { backgroundColor: `${color}1F`, borderColor: color }]}>
-                        <Text style={[styles.levelBadgeText, { color }]} numberOfLines={1} adjustsFontSizeToFit>
+                      <View style={[styles.levelBadge, { backgroundColor: tint.soft }]}>
+                        <Text style={[styles.levelBadgeText, { color: tint.color }]} numberOfLines={1} adjustsFontSizeToFit>
                           {level === NO_LEVEL ? '•' : level}
                         </Text>
                       </View>
@@ -115,7 +124,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
                     title={level === NO_LEVEL ? t("Diğer") : pathLevelName(level)}
                     count={count}
                     solid={solidShare(all.filter((c) => inFocus(c, focus)))}
-                    color={color}
+                    color={tint.bar}
                     onOpen={() => open(focus, 'browse')}
                     onPractice={() => open(focus, 'practice')}
                   />
@@ -127,7 +136,7 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
           <Text style={styles.section}>{t("Etiketlerim")}</Text>
           {tags.length === 0 ? (
             <View style={styles.hintCard}>
-              <Ionicons name="pricetags-outline" size={22} color={colors.brand} />
+              <Ionicons name="pricetags-outline" size={22} color={VP.ink} />
               <Text style={styles.hintText}>
                 {t("Kelimelerini kendi gruplarına ayır: Sandığım'da bir kelimeye dokun ve Etiketle'yi seç. Seyahat, İş, Mutfak… ne istersen.")}
               </Text>
@@ -136,19 +145,20 @@ export function VocabDecksScreen({ navigation }: VocabDecksScreenProps) {
             <View style={styles.card}>
               {tags.map(({ tag, count }, i) => {
                 const focus: VocabFocus = { kind: 'tag', value: tag };
+                const tint = GROUP_TINTS[(i + 1) % GROUP_TINTS.length];
                 return (
                   <GroupRow
                     key={tag}
                     first={i === 0}
                     badge={
-                      <View style={styles.tagBadge}>
-                        <Ionicons name="pricetag" size={17} color={colors.brand} />
+                      <View style={[styles.tagBadge, { backgroundColor: tint.soft }]}>
+                        <Ionicons name="pricetag" size={17} color={tint.color} />
                       </View>
                     }
                     title={tag}
                     count={count}
                     solid={solidShare(all.filter((c) => inFocus(c, focus)))}
-                    color={colors.brand}
+                    color={tint.bar}
                     onOpen={() => open(focus, 'browse')}
                     onPractice={() => open(focus, 'practice')}
                     onRemove={() => removeTag(tag)}
@@ -223,21 +233,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: FLOOR },
   scroll: { paddingHorizontal: spacing.md, paddingBottom: 40, gap: 10 },
   section: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 0.8, color: colors.textMuted, textTransform: 'uppercase', marginTop: 10, marginLeft: 4 },
-  hintCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16 },
+  hintCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: VP.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: VP.line },
   hintText: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4 },
+  card: { backgroundColor: VP.card, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4, borderWidth: 1, borderColor: VP.line },
   divider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
   rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  levelBadge: { width: 44, height: 44, borderRadius: 14, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  levelBadge: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   levelBadgeText: { fontFamily: fonts.headingBold, fontSize: 15 },
-  tagBadge: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
-  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
+  tagBadge: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: VP.ink },
   rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
   rowCount: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted },
   rowTrack: { flex: 1, maxWidth: 90, height: 5, borderRadius: 3, backgroundColor: '#F1EDE6', overflow: 'hidden' },
   rowFill: { height: '100%', borderRadius: 3 },
-  play: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13 },
+  play: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: VP.ink, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 13 },
   playText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#FFFFFF' },
   remove: { padding: 2 },
   footnote: { fontFamily: fonts.bodyRegular, fontSize: 12, lineHeight: 17, color: colors.textMuted, textAlign: 'center', marginTop: 8, paddingHorizontal: 12 },

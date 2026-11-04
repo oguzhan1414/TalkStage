@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { mivoVoiceImages } from '../assets/images';
+import { vocabArt } from '../assets/images';
+import { VP } from '../theme/vocabPalette';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { WORD_ROOMS, type WordRoom } from '../data/wordRooms';
@@ -65,22 +66,21 @@ export function WordRoomsScreen({ navigation }: WordRoomsScreenProps) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.back} accessibilityRole="button" accessibilityLabel={t("Geri")}>
-          <Ionicons name="chevron-back" size={22} color={colors.textHeading} />
+          <Ionicons name="chevron-back" size={22} color={VP.ink} />
         </Pressable>
         <Text style={styles.title}>{t("Kelime Odaları")}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Hero: total progress + continue */}
-        <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, shadow.card]}>
-          <View style={styles.heroGlow} />
+        <View style={styles.hero}>
           <View style={styles.heroTop}>
             <View style={{ flex: 1 }}>
               <Text style={styles.heroKicker}>{t("Hafıza sarayın")}</Text>
               <Text style={styles.heroBig}>{t("{{n}}/{{total}} kelime", { n: knownTotal, total: TOTAL_WORDS })}</Text>
               <Text style={styles.heroSub}>{t("{{done}}/{{rooms}} oda tamamlandı", { done: roomsDone, rooms: WORD_ROOMS.length })}</Text>
             </View>
-            <Image source={mivoVoiceImages.note} style={styles.heroMivo} resizeMode="contain" />
+            <Image source={vocabArt.iconRooms} style={styles.heroMivo} resizeMode="contain" />
           </View>
           <View style={styles.heroTrack}>
             <View style={[styles.heroFill, { width: `${Math.max(2, (knownTotal / TOTAL_WORDS) * 100)}%` }]} />
@@ -97,7 +97,7 @@ export function WordRoomsScreen({ navigation }: WordRoomsScreenProps) {
               <Ionicons name="play" size={18} color="#FFFFFF" />
             </View>
           </BouncyPressable>
-        </LinearGradient>
+        </View>
 
         {STAGES.map((stage) => {
           const rooms = WORD_ROOMS.filter((room) => room.stage === stage);
@@ -152,32 +152,31 @@ export function WordRoomsScreen({ navigation }: WordRoomsScreenProps) {
 const CARD_W = 150;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: VP.floor },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 12 },
-  back: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
-  title: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 28, color: colors.textHeading },
+  back: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: VP.line },
+  title: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 28, color: VP.ink },
 
   scroll: { paddingBottom: 40, gap: 20 },
 
-  hero: { marginHorizontal: spacing.md, borderRadius: 26, padding: 18, gap: 12, overflow: 'hidden' },
-  heroGlow: { position: 'absolute', right: -50, top: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.12)' },
+  hero: { marginHorizontal: spacing.md, borderRadius: 24, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  heroKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 0.8, color: '#C7D2FE', textTransform: 'uppercase' },
-  heroBig: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: '#FFFFFF', marginTop: 2 },
-  heroSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: '#E0E7FF', marginTop: 2 },
-  heroMivo: { width: 86, height: 86, marginRight: -6 },
-  heroTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' },
-  heroFill: { height: '100%', borderRadius: 4, backgroundColor: '#34D399' },
-  heroCta: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 8, paddingRight: 10 },
+  heroKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1.2, color: VP.coralDeep, textTransform: 'uppercase' },
+  heroBig: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 32, color: VP.ink, marginTop: 2 },
+  heroSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: VP.inkSoft, marginTop: 2 },
+  heroMivo: { width: 92, height: 92, marginRight: -4 },
+  heroTrack: { height: 8, borderRadius: 4, backgroundColor: '#EFE8DD', overflow: 'hidden' },
+  heroFill: { height: '100%', borderRadius: 4, backgroundColor: VP.mint },
+  heroCta: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: VP.floor, borderRadius: 18, padding: 8, paddingRight: 10, borderWidth: 1, borderColor: VP.line },
   heroCtaThumb: { width: 52, height: 52, borderRadius: 13 },
-  heroCtaLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
-  heroCtaRoom: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
-  heroCtaPlay: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  heroCtaLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: VP.inkSoft },
+  heroCtaRoom: { fontFamily: fonts.headingBold, fontSize: 17, color: VP.ink },
+  heroCtaPlay: { width: 40, height: 40, borderRadius: 20, backgroundColor: VP.ink, alignItems: 'center', justifyContent: 'center' },
 
   section: { gap: 10 },
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md },
   stageBar: { width: 5, height: 20, borderRadius: 3 },
-  sectionTitle: { flex: 1, fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
+  sectionTitle: { flex: 1, fontFamily: fonts.headingBold, fontSize: 19, color: VP.ink },
   sectionCount: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted },
   rowScroll: { paddingHorizontal: spacing.md, gap: 12, paddingBottom: 6 },
 
