@@ -3,7 +3,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { vocabArt, stateImages } from '../assets/images';
@@ -80,6 +80,26 @@ const POS_OPTIONS = [
   { id: 'adverb', label: t("Zarf"), color: '#7C3AED' },
   { id: 'phrase', label: t("Deyim"), color: '#DB2777' },
 ];
+
+type MemoryBucket = 'fresh' | 'learning' | 'settling' | 'solid';
+/** How settled a word is, from its SM-2 state (the same split as the home's memory tiles). */
+function memoryBucket(c: VocabCardOut): MemoryBucket {
+  if (c.sm2_repetitions === 0) return 'fresh';
+  if (c.sm2_interval_days < 7) return 'learning';
+  if (c.sm2_interval_days < 30) return 'settling';
+  return 'solid';
+}
+/** Sandığım's tabs: everything, due today, or one memory bucket. */
+type ChestTab = 'all' | 'due' | MemoryBucket;
+
+/** Days from today to the next review (0 or less = due today). */
+function daysUntil(nextReviewDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(`${nextReviewDate.slice(0, 10)}T00:00:00`);
+  const diff = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+  return Number.isNaN(diff) ? 0 : diff;
+}
 
 /** next_review_date (YYYY-MM-DD) -> "Bugün tekrar" / "Yarın" / "5 gün sonra". */
 function formatDueLabel(nextReviewDate: string): string {
@@ -160,6 +180,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   // Search & Filters in Dictionary
   const [searchQuery, setSearchQuery] = useState('');
+  const [chestTab, setChestTab] = useState<ChestTab>('all');
   const [levelFilter, setLevelFilter] = useState<string | null>(null);
   const [posFilter, setPosFilter] = useState<string | null>(null);
 
@@ -475,6 +496,29 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     });
   }, [cardsList, searchQuery, levelFilter, posFilter, tagFilter]);
 
+  // Sandığım: the tab narrows the filtered list; "all" is grouped by first letter, the others by next review.
+  const chestWords = useMemo(() => {
+    if (chestTab === 'all') return filteredWords;
+    if (chestTab === 'due') return filteredWords.filter((w) => daysUntil(w.next_review_date) <= 0);
+    return filteredWords.filter((w) => memoryBucket(w) === chestTab);
+  }, [filteredWords, chestTab]);
+  const chestSections = useMemo(() => {
+    if (chestTab !== 'all') {
+      const sorted = [...chestWords].sort((a, b) => a.next_review_date.localeCompare(b.next_review_date));
+      return sorted.length ? [{ title: '', data: sorted }] : [];
+    }
+    const groups = new Map<string, VocabCardOut[]>();
+    [...chestWords]
+      .sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' }))
+      .forEach((w) => {
+        const ch = w.term.trim().charAt(0).toUpperCase();
+        const key = /[A-Z]/.test(ch) ? ch : '#';
+        groups.set(key, [...(groups.get(key) ?? []), w]);
+      });
+    return [...groups.entries()].map(([title, data]) => ({ title, data }));
+  }, [chestWords, chestTab]);
+  const dueTodayCount = useMemo(() => cardsList.filter((w) => daysUntil(w.next_review_date) <= 0).length, [cardsList]);
+
   const hasActiveFilters = Boolean(searchQuery || levelFilter || posFilter || tagFilter);
 
   const clearAllFilters = () => {
@@ -599,7 +643,12 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
       </View>
 
       {/* Sandığım: all saved words, as a named card (a bare search field hid it) */}
-      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.chestCard, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel={t("Sandığım")}>
+      <Pressable
+        onPress={() => {
+          setChestTab('all');
+          setMode('collection');
+        }}
+        style={({ pressed }) => [styles.chestCard, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel={t("Sandığım")}>
         <View style={styles.chestArt}>
           <Image source={vocabArt.emptyChest} style={styles.chestImg} resizeMode="contain" />
         </View>
@@ -691,7 +740,15 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
           </View>
           <View style={styles.memoryTiles}>
             {memoryParts.map((part) => (
-              <View key={part.key} style={[styles.memoryTile, { backgroundColor: part.soft }]}>
+              <Pressable
+                key={part.key}
+                onPress={() => {
+                  setChestTab(part.key as MemoryBucket);
+                  setMode('collection');
+                }}
+                style={({ pressed }) => [styles.memoryTile, { backgroundColor: part.soft }, pressed && { opacity: 0.8 }]}
+                accessibilityRole="button"
+              >
                 <Text style={[styles.memoryNum, { color: part.deep }]}>{part.count}</Text>
                 <View style={styles.memoryLabelRow}>
                   <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
@@ -699,7 +756,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                     {part.label}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -850,6 +907,31 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </Pressable>
             </View>
 
+            {/* Memory tabs, in the home tiles' colours */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chestTabs} style={{ flexGrow: 0 }}>
+              {(
+                [
+                  { id: 'all', label: t("Tümü"), count: cardsList.length, color: VP.ink },
+                  { id: 'due', label: t("Bugün tekrar"), count: dueTodayCount, color: VP.coralDeep },
+                  ...memoryParts.map((part) => ({ id: part.key, label: part.label, count: part.count, color: part.deep })),
+                ] as { id: ChestTab; label: string; count: number; color: string }[]
+              ).map((tab) => {
+                const on = chestTab === tab.id;
+                return (
+                  <Pressable
+                    key={tab.id}
+                    onPress={() => setChestTab(tab.id)}
+                    style={[styles.chestTab, on && { backgroundColor: tab.color, borderColor: tab.color }]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                  >
+                    <Text style={[styles.chestTabText, on && { color: '#FFFFFF' }]}>{tab.label}</Text>
+                    <Text style={[styles.chestTabCount, on && { color: 'rgba(255,255,255,0.85)' }]}>{tab.count}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
             {filtersOpen && (
               <View style={styles.filterPanel}>
                 <ScrollView
@@ -938,86 +1020,46 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               )}
             </View>
 
-            {/* Words List with Long Press & Option Menu */}
+            {/* The words: one slim row each; a tap opens everything else in the sheet */}
             {allLoading && !allCards ? (
               <MivoLoader size={90} label={t("Kelimelerin yükleniyor…")} style={styles.dictEmptyBlock} />
-            ) : filteredWords.length > 0 ? (
-              <FlatList
-                data={filteredWords}
+            ) : chestSections.length > 0 ? (
+              <SectionList
+                sections={chestSections}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.dictionaryList}
-                renderItem={({ item }) => {
-                  const posItem = item.part_of_speech
-                    ? POS_OPTIONS.find((p) => p.id === item.part_of_speech?.toLowerCase())
-                    : POS_OPTIONS[0];
-
+                stickySectionHeadersEnabled
+                initialNumToRender={20}
+                renderSectionHeader={({ section }) =>
+                  section.title ? (
+                    <View style={styles.letterHead}>
+                      <Text style={styles.letterHeadText}>{section.title}</Text>
+                    </View>
+                  ) : null
+                }
+                renderItem={({ item, index, section }) => {
+                  const posItem = POS_OPTIONS.find((p) => p.id === (item.part_of_speech || 'noun').toLowerCase()) ?? POS_OPTIONS[0];
+                  const days = daysUntil(item.next_review_date);
+                  const first = index === 0;
+                  const last = index === section.data.length - 1;
                   return (
                     <Pressable
                       onPress={() => setActionCard(item)}
-                      style={({ pressed }) => [
-                        styles.dictWordCard,
-                        shadow.card,
-                        pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-                      ]}
+                      style={({ pressed }) => [styles.wordRow, first && styles.wordRowFirst, last && styles.wordRowLast, pressed && { backgroundColor: '#F7F3EC' }]}
+                      accessibilityRole="button"
                     >
-                      <View style={[styles.dictStrip, { backgroundColor: posItem ? posItem.color : colors.brand }]} />
-                      <View style={styles.dictTopRow}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.dictTerm} numberOfLines={1}>
-                            {item.term}
-                          </Text>
-                          <Text style={styles.dictTranslation} numberOfLines={1}>
-                            {item.translation || t("Anlam eklenmemiş")}
-                          </Text>
-                        </View>
-                        <Pressable
-                          onPress={() => pronounce(item.term)}
-                          hitSlop={8}
-                          style={styles.dictSoundButton}
-                        >
-                          <Ionicons name="volume-high" size={18} color={colors.brand} />
-                        </Pressable>
-                      </View>
-
-                      {item.example_sentence ? (
-                        <Text style={styles.dictExample} numberOfLines={2}>
-                          &ldquo;{item.example_sentence}&rdquo;
+                      <View style={[styles.wordDot, { backgroundColor: posItem.color }]} />
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={styles.wordTerm} numberOfLines={1}>
+                          {item.term}
+                          <Text style={styles.wordMeaning}>{item.translation ? `  ${item.translation}` : ''}</Text>
                         </Text>
-                      ) : null}
-
-                      <View style={styles.dictBadgesRow}>
-                        <View style={styles.dictLevelPill}>
-                          <Text style={styles.dictLevelPillText}>{item.cefr_level || 'A1'}</Text>
-                        </View>
-                        <View
-                          style={[
-                            styles.dictPosPill,
-                            {
-                              backgroundColor: posItem
-                                ? `${posItem.color}15`
-                                : 'rgba(79, 70, 229, 0.08)',
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.dictPosPillText,
-                              { color: posItem ? posItem.color : colors.brand },
-                            ]}
-                          >
-                            {posItem ? posItem.label : t("İsim")}
-                          </Text>
-                        </View>
-                        {(item.tags ?? []).slice(0, 2).map((tag) => (
-                          <View key={tag} style={styles.dictTagPill}>
-                            <Text style={styles.dictTagPillText} numberOfLines={1}>
-                              #{tag}
-                            </Text>
-                          </View>
-                        ))}
-                        <Text style={styles.dictDueText}>{formatDueLabel(item.next_review_date)}</Text>
                       </View>
+                      <Text style={[styles.wordDue, days <= 0 && styles.wordDueNow]}>
+                        {days <= 0 ? t("Bugün") : days === 1 ? t("Yarın") : t("{{n}} gün", { n: days })}
+                      </Text>
+                      {!last ? <View style={styles.wordDivider} /> : null}
                     </Pressable>
                   );
                 }}
@@ -1026,18 +1068,19 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               <View style={styles.dictEmptyBlock}>
                 <Ionicons name="search-outline" size={32} color={colors.textMuted} />
                 <Text style={styles.dictEmptyText}>
-                  {hasActiveFilters
-                    ? t("Seçtiğin filtrelere uygun kelime bulunamadı.")
-                    : t("Henüz kelime eklemedin.")}
+                  {hasActiveFilters || chestTab !== 'all' ? t("Seçtiğin filtrelere uygun kelime bulunamadı.") : t("Henüz kelime eklemedin.")}
                 </Text>
-                {hasActiveFilters && (
+                {hasActiveFilters || chestTab !== 'all' ? (
                   <Button
                     label={t("Tüm Filtreleri Temizle")}
                     variant="ghost"
-                    onPress={clearAllFilters}
+                    onPress={() => {
+                      clearAllFilters();
+                      setChestTab('all');
+                    }}
                     style={{ marginTop: 8 }}
                   />
-                )}
+                ) : null}
               </View>
             )}
           </View>
@@ -1273,12 +1316,41 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
           <View style={styles.actionSheetCard}>
             {/* Header info */}
             <View style={styles.actionSheetHeader}>
-              <Text style={styles.actionSheetWordTitle}>
-                {actionCard?.term}
-              </Text>
-              <Text style={styles.actionSheetWordSub}>
-                {actionCard?.cefr_level || 'A2'} • {actionCard?.part_of_speech || t("İsim")} • {actionCard?.translation}
-              </Text>
+              <View style={styles.sheetTermRow}>
+                <Text style={[styles.actionSheetWordTitle, { flex: 1 }]} numberOfLines={2}>
+                  {actionCard?.term}
+                </Text>
+                {actionCard ? (
+                  <Pressable onPress={() => pronounce(actionCard.term)} hitSlop={8} style={styles.sheetListen} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+                    <Ionicons name="volume-high" size={18} color={VP.ink} />
+                  </Pressable>
+                ) : null}
+              </View>
+              <Text style={styles.actionSheetWordSub}>{actionCard?.translation || t("Anlam eklenmemiş")}</Text>
+              {actionCard?.example_sentence ? <Text style={styles.sheetExample}>“{actionCard.example_sentence}”</Text> : null}
+              {actionCard ? (
+                <View style={styles.sheetBadges}>
+                  <View style={styles.dictLevelPill}>
+                    <Text style={styles.dictLevelPillText}>{actionCard.cefr_level || 'A1'}</Text>
+                  </View>
+                  {(() => {
+                    const pos = POS_OPTIONS.find((p) => p.id === (actionCard.part_of_speech || 'noun').toLowerCase()) ?? POS_OPTIONS[0];
+                    return (
+                      <View style={[styles.dictPosPill, { backgroundColor: `${pos.color}15` }]}>
+                        <Text style={[styles.dictPosPillText, { color: pos.color }]}>{pos.label}</Text>
+                      </View>
+                    );
+                  })()}
+                  {(actionCard.tags ?? []).slice(0, 3).map((tag) => (
+                    <View key={tag} style={styles.dictTagPill}>
+                      <Text style={styles.dictTagPillText} numberOfLines={1}>
+                        #{tag}
+                      </Text>
+                    </View>
+                  ))}
+                  <Text style={styles.dictDueText}>{formatDueLabel(actionCard.next_review_date)}</Text>
+                </View>
+              ) : null}
             </View>
 
             {/* Edit Option */}
@@ -1462,6 +1534,25 @@ function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; 
 const FLOOR = '#FBF7F1';
 
 const styles = StyleSheet.create({
+  chestTabs: { gap: 8, paddingVertical: 2, paddingRight: 8 },
+  chestTab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EDE7DD' },
+  chestTabText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
+  chestTabCount: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: VP.inkSoft },
+  letterHead: { backgroundColor: FLOOR, paddingTop: 10, paddingBottom: 6, paddingHorizontal: 4 },
+  letterHeadText: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 1, color: VP.coralDeep },
+  wordRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#EDE7DD' },
+  wordRowFirst: { borderTopWidth: 1, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  wordRowLast: { borderBottomWidth: 1, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
+  wordDivider: { position: 'absolute', left: 34, right: 0, bottom: 0, height: 1, backgroundColor: '#F1EDE6' },
+  wordDot: { width: 9, height: 9, borderRadius: 5 },
+  wordTerm: { fontFamily: fonts.headingBold, fontSize: 15.5, color: VP.ink },
+  wordMeaning: { fontFamily: fonts.bodyMedium, fontSize: 14, color: VP.inkSoft },
+  wordDue: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: VP.inkSoft },
+  wordDueNow: { color: VP.coralDeep },
+  sheetTermRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sheetListen: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.skySoft, alignItems: 'center', justifyContent: 'center' },
+  sheetExample: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: VP.inkSoft, fontStyle: 'italic', marginTop: 6 },
+  sheetBadges: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 10 },
   textInputError: { borderColor: '#F43F5E', backgroundColor: '#FFF1F2' },
   fieldErrorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7 },
   fieldErrorText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#E11D48' },

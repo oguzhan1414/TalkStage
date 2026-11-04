@@ -3643,5 +3643,7 @@
   "Profilinde ve sekme çubuğunda görünecek karakterin": "The character shown on your profile and in the tab bar",
   "HEDEFİN": "YOUR GOAL",
   "İLK BÖLÜMÜN": "YOUR FIRST EPISODE",
-  "{{count}} kelime · ara, düzenle, etiketle": "{{count}} words · search, edit, tag"
+  "{{count}} kelime · ara, düzenle, etiketle": "{{count}} words · search, edit, tag",
+  "Bugün tekrar": "Due today",
+  "{{n}} gün": "{{n}} days"
 }
