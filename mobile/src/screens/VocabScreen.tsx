@@ -598,13 +598,20 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         </Pressable>
       </View>
 
-      {/* All saved words: a search field that opens the list */}
-      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.dashSearch, pressed && { opacity: 0.85 }]} accessibilityRole="search">
-        <Ionicons name="search" size={18} color={colors.textMuted} />
-        <Text style={styles.dashSearchText} numberOfLines={1}>
-          {totalCardsInChest > 0 ? t("{{count}} kelimende ara", { count: totalCardsInChest }) : t("Sandığın henüz boş")}
-        </Text>
-        <Ionicons name="chevron-forward" size={18} color="#C8BFB0" />
+      {/* Sandığım: all saved words, as a named card (a bare search field hid it) */}
+      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.chestCard, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel={t("Sandığım")}>
+        <View style={styles.chestArt}>
+          <Image source={vocabArt.emptyChest} style={styles.chestImg} resizeMode="contain" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.chestTitle}>{t("Sandığım")}</Text>
+          <Text style={styles.chestSub} numberOfLines={1}>
+            {totalCardsInChest > 0 ? t("{{count}} kelime · ara, düzenle, etiketle", { count: totalCardsInChest }) : t("Sandığın henüz boş")}
+          </Text>
+        </View>
+        <View style={styles.chestSearch}>
+          <Ionicons name="search" size={17} color={VP.ink} />
+        </View>
       </Pressable>
 
       {/* Today's deck: a paper card with the first words fanned out, or Mivo and the week ahead once it is done */}
@@ -1470,6 +1477,12 @@ const styles = StyleSheet.create({
   dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
   dashAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.ink, alignItems: 'center', justifyContent: 'center' },
   dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#EDE7DD' },
+  chestCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 8, paddingLeft: 8, paddingRight: 12, borderWidth: 1, borderColor: '#EDE7DD' },
+  chestArt: { width: 44, height: 44, borderRadius: 14, backgroundColor: VP.sunSoft, alignItems: 'center', justifyContent: 'center' },
+  chestImg: { width: 38, height: 38 },
+  chestTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: VP.ink },
+  chestSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: VP.inkSoft, marginTop: 1 },
+  chestSearch: { width: 36, height: 36, borderRadius: 18, backgroundColor: VP.floor, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#EDE7DD' },
   dashSearchText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted },
 
   deckCard: { borderRadius: 24, padding: 14, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line, gap: 10, overflow: 'hidden' },
