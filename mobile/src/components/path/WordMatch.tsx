@@ -199,7 +199,7 @@ function Cell({
                   </View>
                 </View>
               ) : (
-                <Text style={[styles.cellText, english && styles.cellEn, done && styles.cellTextDone]} numberOfLines={2} adjustsFontSizeToFit>
+                <Text style={[styles.cellText, english && styles.cellEn, done && styles.cellTextDone]} numberOfLines={label.trim().includes(' ') ? 2 : 1} adjustsFontSizeToFit minimumFontScale={0.5}>
                   {label}
                 </Text>
               )}

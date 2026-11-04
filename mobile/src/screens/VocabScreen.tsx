@@ -8,7 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { minimalFeatureIcons, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
-import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
 
@@ -20,6 +19,9 @@ import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { prefetchPronunciation, usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
+import type { ProfileOut } from '../types/api';
+import { isProUser } from '../lib/revenuecat';
 import { useAnalytics } from '../lib/analytics';
 import { formatIntervalLabel, predictNextIntervalDays } from '../lib/sm2Preview';
 import { inFocus, migrateLocalFolders, NO_LEVEL, tagGroups } from '../lib/vocabGroups';
@@ -548,11 +550,31 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: '#10B981' },
   ];
 
+  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
+
   const homeView = (
     // Fits one screen on most phones; on short ones it scrolls a little instead of squeezing things together.
     <ScrollView contentContainerStyle={styles.dash} showsVerticalScrollIndicator={false} bounces={false}>
+      {/* Header, as on Konuş: the tab's name, streak, Pro, add a word (no greeting or avatar) */}
       <View style={styles.dashHeader}>
-        <Text style={styles.dashTitle}>{t("Kelimeler")}</Text>
+        <Text style={[styles.dashTitle, { flex: 1 }]}>{t("Kelimeler")}</Text>
+        <View style={styles.streakChip}>
+          <Ionicons name="flame" size={16} color="#F97316" />
+          <Text style={styles.streakChipText}>{profile?.streak_count ?? 0}</Text>
+        </View>
+        <Pressable
+          onPress={() => {
+            if (isPro) return;
+            trackEvent('paywall_opened', { source: 'vocab_pro_pill' });
+            navigation.navigate('Paywall');
+          }}
+          style={[styles.proPill, isPro && styles.proPillOn]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Spekvia Pro")}
+        >
+          <Text style={styles.proPillText}>👑 PRO</Text>
+        </Pressable>
         <Pressable onPress={openCreateModal} style={styles.dashAdd} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
           <Ionicons name="add" size={22} color="#FFFFFF" />
         </Pressable>
@@ -981,7 +1003,6 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   return (
     <SafeAreaView style={styles.container}>
-      {mode === 'home' ? <AppHeader /> : null}
       {mode === 'home' ? homeView : mode === 'practice' ? practiceView : collectionView}
 
       {/* ======================================================== */}
@@ -1369,7 +1390,7 @@ function DeckFan({ cards }: { cards: VocabCardOut[] }) {
             {pic ? (
               <Image source={pic} style={styles.fanImage} resizeMode="cover" />
             ) : (
-              <Text style={styles.fanWord} numberOfLines={3} adjustsFontSizeToFit>
+              <Text style={styles.fanWord} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45}>
                 {card.term}
               </Text>
             )}
@@ -1403,11 +1424,16 @@ const styles = StyleSheet.create({
   fieldErrorText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#E11D48' },
   formErrorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFF1F2', borderRadius: 14, padding: 12, marginBottom: 12 },
   formErrorText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#9F1239' },
-  dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 104, gap: 12 },
-  dashHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 104, gap: 14 },
+  dashHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 38, paddingHorizontal: 11, borderRadius: 19, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  streakChipText: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
+  proPill: { height: 38, paddingHorizontal: 12, borderRadius: 19, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
+  proPillOn: { backgroundColor: '#FFF7D6' },
+  proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
   dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
-  dashAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  dashAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 13, borderWidth: 1, borderColor: '#EDE7DD' },
   dashSearchText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted },
 
   dashHero: { borderRadius: 26, padding: 18, overflow: 'hidden' },
@@ -1436,10 +1462,10 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   fanImage: { width: 62, height: 62, borderRadius: 10 },
-  fanWord: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading, textAlign: 'center' },
+  fanWord: { alignSelf: 'stretch', fontFamily: fonts.headingBold, fontSize: 14, color: colors.textHeading, textAlign: 'center' },
   fanEmpty: { width: 104, height: 104 },
 
-  dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 10 },
+  dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 10, borderWidth: 1, borderColor: '#EDE7DD' },
   dashMemoryTop: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
   dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
   dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#059669' },
@@ -1450,7 +1476,7 @@ const styles = StyleSheet.create({
   dashMemoryLabel: { flexShrink: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textBody },
   dashMemoryCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
 
-  dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 14, paddingHorizontal: 8 },
+  dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 14, paddingHorizontal: 8, borderWidth: 1, borderColor: '#EDE7DD' },
   shortcut: { flex: 1, alignItems: 'center', gap: 6, paddingHorizontal: 2 },
   shortcutArt: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' },
   shortcutImage: { width: 46, height: 46 },
