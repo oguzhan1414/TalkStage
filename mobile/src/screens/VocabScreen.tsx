@@ -873,6 +873,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         }
       />
           <View style={styles.dictionaryContainer}>
+            <View style={styles.chestTop}>
             <View style={styles.searchRow}>
               <View style={[styles.searchBarBox, { flex: 1, marginBottom: 0 }]}>
                 <Ionicons name="search" size={18} color={colors.textMuted} />
@@ -908,7 +909,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
             </View>
 
             {/* Memory tabs, in the home tiles' colours */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chestTabs} style={{ flexGrow: 0 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chestTabs} style={styles.chestTabsBar}>
               {(
                 [
                   { id: 'all', label: t("Tümü"), count: cardsList.length, color: VP.ink },
@@ -1007,17 +1008,16 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </Pressable>
             ) : null}
 
-            <View style={styles.activeFilterSummaryBar}>
-              <Text style={styles.activeFilterSummaryText}>
-                {hasActiveFilters
-                  ? t("{{length}} / {{length2}} kelime gösteriliyor", { length: filteredWords.length, length2: cardsList.length })
-                  : t("{{length}} kelime · dokun: düzenle, etiketle, sil", { length: cardsList.length })}
-              </Text>
-              {hasActiveFilters && (
-                <Pressable onPress={clearAllFilters}>
+            {hasActiveFilters ? (
+              <View style={styles.activeFilterSummaryBar}>
+                <Text style={styles.activeFilterSummaryText}>
+                  {t("{{length}} / {{length2}} kelime gösteriliyor", { length: filteredWords.length, length2: cardsList.length })}
+                </Text>
+                <Pressable onPress={clearAllFilters} hitSlop={8}>
                   <Text style={styles.clearAllFiltersLink}>{t("Temizle ✕")}</Text>
                 </Pressable>
-              )}
+              </View>
+            ) : null}
             </View>
 
             {/* The words: one slim row each; a tap opens everything else in the sheet */}
@@ -1028,7 +1028,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                 sections={chestSections}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.dictionaryList}
+                contentContainerStyle={styles.chestList}
                 stickySectionHeadersEnabled
                 initialNumToRender={20}
                 renderSectionHeader={({ section }) =>
@@ -1040,7 +1040,6 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                 }
                 renderItem={({ item, index, section }) => {
                   const posItem = POS_OPTIONS.find((p) => p.id === (item.part_of_speech || 'noun').toLowerCase()) ?? POS_OPTIONS[0];
-                  const days = daysUntil(item.next_review_date);
                   const first = index === 0;
                   const last = index === section.data.length - 1;
                   return (
@@ -1056,9 +1055,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                           <Text style={styles.wordMeaning}>{item.translation ? `  ${item.translation}` : ''}</Text>
                         </Text>
                       </View>
-                      <Text style={[styles.wordDue, days <= 0 && styles.wordDueNow]}>
-                        {days <= 0 ? t("Bugün") : days === 1 ? t("Yarın") : t("{{n}} gün", { n: days })}
-                      </Text>
+                      <Ionicons name="chevron-forward" size={16} color="#C8BFB0" />
                       {!last ? <View style={styles.wordDivider} /> : null}
                     </Pressable>
                   );
@@ -1534,13 +1531,16 @@ function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; 
 const FLOOR = '#FBF7F1';
 
 const styles = StyleSheet.create({
-  chestTabs: { gap: 8, paddingVertical: 2, paddingRight: 8 },
-  chestTab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EDE7DD' },
+  chestTop: { flexShrink: 0, gap: 10, paddingBottom: 6 },
+  chestTabsBar: { flexGrow: 0, flexShrink: 0, height: 38 },
+  chestTabs: { gap: 8, alignItems: 'center', paddingRight: 8 },
+  chestList: { paddingTop: 4, paddingBottom: 40 },
+  chestTab: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 13, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EDE7DD' },
   chestTabText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
   chestTabCount: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: VP.inkSoft },
   letterHead: { backgroundColor: FLOOR, paddingTop: 10, paddingBottom: 6, paddingHorizontal: 4 },
   letterHeadText: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 1, color: VP.coralDeep },
-  wordRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#EDE7DD' },
+  wordRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#EDE7DD' },
   wordRowFirst: { borderTopWidth: 1, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
   wordRowLast: { borderBottomWidth: 1, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
   wordDivider: { position: 'absolute', left: 34, right: 0, bottom: 0, height: 1, backgroundColor: '#F1EDE6' },
@@ -1759,7 +1759,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dictionaryContainer: { flex: 1, paddingHorizontal: spacing.md },
-  searchBarBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: '#E2E8F0', gap: 8 },
+  searchBarBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 14, height: 46, borderWidth: 1, borderColor: '#EDE7DD', gap: 8 },
   searchBarInput: {
     flex: 1,
     fontFamily: fonts.bodyRegular,
@@ -1802,18 +1802,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 4,
-    paddingVertical: 4,
-    marginBottom: 6,
   },
   activeFilterSummaryText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12.5,
+    color: VP.inkSoft,
   },
   clearAllFiltersLink: {
     fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.error,
+    fontSize: 12.5,
+    color: VP.coralDeep,
   },
   dictionaryList: { gap: 10, paddingBottom: 30, marginTop: 4 },
   dictWordCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingRight: 14, paddingLeft: 20, gap: 8, borderWidth: 1, borderColor: '#F1F5F9', overflow: 'hidden' },
@@ -2131,21 +2129,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
   },
   filterToggleBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.md,
+    width: 46,
+    height: 46,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
+    borderColor: '#EDE7DD',
   },
   filterToggleBtnActive: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
+    backgroundColor: VP.ink,
+    borderColor: VP.ink,
   },
   filterToggleDot: {
     position: 'absolute',
@@ -2160,7 +2157,6 @@ const styles = StyleSheet.create({
   },
   filterPanel: {
     gap: 6,
-    marginBottom: 8,
   },
   dictTopRow: {
     flexDirection: 'row',
