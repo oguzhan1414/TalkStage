@@ -1,3 +1,4 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 
 /**
@@ -7,7 +8,7 @@ import { Platform } from 'react-native';
  * exist (Expo Go, web).
  */
 export async function clearNativeGoogleAccount(): Promise<void> {
-  if (Platform.OS === 'web') return;
+  if (Platform.OS === 'web' || Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
   try {
     const { GoogleSignin } = require('@react-native-google-signin/google-signin') as typeof import('@react-native-google-signin/google-signin');
     await GoogleSignin.signOut();
