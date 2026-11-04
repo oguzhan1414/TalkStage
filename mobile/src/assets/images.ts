@@ -202,7 +202,7 @@ export const stateImages = {
   trashDelete: require('../../assets/images/states/trash-minimal.webp'),
   editPencil: require('../../assets/images/states/edit-pencil-minimal.webp'),
   xpBolt: require('../../assets/images/states/xp-bolt-minimal.webp'),
-  mistakesNotebook: require('../../assets/images/premium/mistakes-minimal.webp'), // was a dark JPG with baked English text
+  mistakesNotebook: require('../../assets/images/profile/mistakes.webp'),
 };
 
 export const calibrationImages = {
