@@ -69,10 +69,7 @@ export const premiumModuleIcons = {
   achievements: require('../../assets/images/premium/achievements-minimal.webp'),
 };
 
-/** Minimal, colorful feature-card icon family aligned with the main tab icons. */
-export const minimalFeatureIcons = {
-  reading: require('../../assets/images/premium/reading-minimal.webp'),
-} as const;
+
 
 /** Chunky 3D Bottom Navigation Icons */
 export const navIcons = {
@@ -172,6 +169,20 @@ export const avatarImages = {
   parent: require('../../assets/images/avatars/parent.webp'),
   senior: require('../../assets/images/avatars/senior.webp'),
 };
+
+/** Onboarding art (flat 2D, transparent): what the learner struggles with, the three stages, the tour. */
+export const onboardingArt = {
+  struggleFreeze: require('../../assets/images/onboarding/struggle_freeze.webp'),
+  struggleGrammar: require('../../assets/images/onboarding/struggle_grammar.webp'),
+  struggleVocab: require('../../assets/images/onboarding/struggle_vocab.webp'),
+  struggleListening: require('../../assets/images/onboarding/struggle_listening.webp'),
+  levelStart: require('../../assets/images/onboarding/level_start.webp'),
+  levelMid: require('../../assets/images/onboarding/level_mid.webp'),
+  levelAdv: require('../../assets/images/onboarding/level_adv.webp'),
+  tourStories: require('../../assets/images/onboarding/tour_stories.webp'),
+  tourScenes: require('../../assets/images/onboarding/tour_scenes.webp'),
+  tourReview: require('../../assets/images/onboarding/tour_review.webp'),
+} as const;
 
 /** Profile list icons and the Pro card art (flat 2D, transparent). */
 export const profileArt = {

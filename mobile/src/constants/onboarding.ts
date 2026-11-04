@@ -131,7 +131,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'freeze_barrier',
     icon: '😶‍🌫️',
-    iconImage: require('../../assets/images/onboarding/goal_freeze_barrier.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_freeze.webp'),
     title: t("Kafamda Kuruyorum Ama Ağzımdan Çıkmıyor"),
     desc: t("Konuşurken oluşan heyecan ve tutukluğu yenmek, donmadan konuşmak."),
     badge: t("En Sık Yaşanan"),
@@ -140,7 +140,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'exams_school',
     icon: '📚',
-    iconImage: require('../../assets/images/onboarding/goal_exams_school.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_exams.webp'),
     title: t("Okul, Hazırlık veya Speaking Sınavları"),
     desc: t("Hazırlık atlama, lise/üniversite sınavları, TOEFL, IELTS veya YDS Speaking."),
     badge: t("Sınav Başarısı"),
@@ -149,7 +149,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'work_career',
     icon: '💼',
-    iconImage: require('../../assets/images/onboarding/goal_work_career.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_work.webp'),
     title: t("İş Hayatı, Toplantılar & Mülakatlar"),
     desc: t("Yabancı yöneticilerle toplantı, iş mülakatları ve sunumlarda özgüven kazanmak."),
     badge: t("Kariyer Odağı"),
@@ -158,7 +158,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'travel_life',
     icon: '✈️',
-    iconImage: require('../../assets/images/onboarding/goal_travel_life.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_travel.webp'),
     title: t("Yurt Dışı Gezileri & Günlük Hayat"),
     desc: t("Restoranda sipariş verme, otelde check-in, kaybolduğunda yön sorma ve sosyalleşme."),
     badge: t("Özgür Gezgin"),
@@ -167,7 +167,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'no_partner',
     icon: '🗣️',
-    iconImage: require('../../assets/images/onboarding/goal_no_partner.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_partner.webp'),
     title: t("Gramer Biliyorum Ama Pratik Yapacak Kimsem Yok"),
     desc: t("Beni asla yargılamayan, sıfır stresle 7/24 sabırla dinleyen bir partnerle konuşmak."),
     badge: t("Sınırsız Pratik"),

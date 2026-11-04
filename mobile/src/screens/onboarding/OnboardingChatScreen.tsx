@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-import { minimalFeatureIcons, mivoVoiceImages, roadmapTaskImages, profileArt, vocabArt } from '../../assets/images';
+import { mivoVoiceImages, onboardingArt, profileArt, vocabArt } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { TypewriterText, TypingDots } from '../../components/chat/ChatTyping';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
@@ -89,11 +89,11 @@ function goalReaction(id: string): string {
   }
 }
 
-const STRUGGLES: { id: Struggle; emoji: string; label: () => string; reaction: () => string }[] = [
-  { id: 'freeze', emoji: '😶', label: () => t("Konuşurken donuyorum"), reaction: () => t("Not aldım: bol bol konuşma pratiği yapacağız.") },
-  { id: 'grammar', emoji: '🧩', label: () => t("Gramer kafamı karıştırıyor"), reaction: () => t("Not aldım: gramer konularını adım adım işleyeceğiz.") },
-  { id: 'vocab', emoji: '🔤', label: () => t("Kelime bulamıyorum"), reaction: () => t("Not aldım: her gün yeni kelimeler ekleyeceğiz.") },
-  { id: 'listening', emoji: '👂', label: () => t("Duyduğumu anlamıyorum"), reaction: () => t("Not aldım: dinleyerek anlamayı çalışacağız.") },
+const STRUGGLES: { id: Struggle; emoji: string; image: number; label: () => string; reaction: () => string }[] = [
+  { id: 'freeze', emoji: '😶', image: onboardingArt.struggleFreeze, label: () => t("Konuşurken donuyorum"), reaction: () => t("Not aldım: bol bol konuşma pratiği yapacağız.") },
+  { id: 'grammar', emoji: '🧩', image: onboardingArt.struggleGrammar, label: () => t("Gramer kafamı karıştırıyor"), reaction: () => t("Not aldım: gramer konularını adım adım işleyeceğiz.") },
+  { id: 'vocab', emoji: '🔤', image: onboardingArt.struggleVocab, label: () => t("Kelime bulamıyorum"), reaction: () => t("Not aldım: her gün yeni kelimeler ekleyeceğiz.") },
+  { id: 'listening', emoji: '👂', image: onboardingArt.struggleListening, label: () => t("Duyduğumu anlamıyorum"), reaction: () => t("Not aldım: dinleyerek anlamayı çalışacağız.") },
 ];
 
 /**
@@ -101,10 +101,10 @@ const STRUGGLES: { id: Struggle; emoji: string; label: () => string; reaction: (
  * things to different people): the learner picks the hardest sentence they could say comfortably. The silent CEFR
  * step starts at the lower level of the stage and moves up on its own.
  */
-const LEVELS: { stage: StageId; code: string; emoji: string; example: string; sub: () => string }[] = [
-  { stage: 'baslangic', code: 'A1', emoji: '🌱', example: 'My name is Ali. I like coffee.', sub: () => t("Kendimi tanıtabiliyorum ya da yeni başlıyorum") },
-  { stage: 'orta', code: 'B1', emoji: '🚀', example: 'Last summer I went to Italy with my friends.', sub: () => t("Geçmişi anlatıp sohbet edebiliyorum") },
-  { stage: 'ileri', code: 'C1', emoji: '🏆', example: "I'd argue remote work has more pros than cons.", sub: () => t("Fikirlerimi tartışıp savunabiliyorum") },
+const LEVELS: { stage: StageId; code: string; emoji: string; image: number; example: string; sub: () => string }[] = [
+  { stage: 'baslangic', code: 'A1', emoji: '🌱', image: onboardingArt.levelStart, example: 'My name is Ali. I like coffee.', sub: () => t("Kendimi tanıtabiliyorum ya da yeni başlıyorum") },
+  { stage: 'orta', code: 'B1', emoji: '🚀', image: onboardingArt.levelMid, example: 'Last summer I went to Italy with my friends.', sub: () => t("Geçmişi anlatıp sohbet edebiliyorum") },
+  { stage: 'ileri', code: 'C1', emoji: '🏆', image: onboardingArt.levelAdv, example: "I'd argue remote work has more pros than cons.", sub: () => t("Fikirlerimi tartışıp savunabiliyorum") },
 ];
 
 type DemoOption = { text: string; note?: () => string };
@@ -155,9 +155,9 @@ function demoForGoal(goal: string | null): Demo {
 
 /** Everything inside the app, for the "İçeride neler var?" card (path items and the always-open extras). */
 const TOUR_ITEMS: { image: number; label: () => string }[] = [
-  { image: minimalFeatureIcons.reading, label: () => t("Hikâye dersleri") },
-  { image: roadmapTaskImages.scene, label: () => t("Sesli sahneler") },
-  { image: roadmapTaskImages.vocab, label: () => t("Kelime tekrarı") },
+  { image: onboardingArt.tourStories, label: () => t("Hikâye dersleri") },
+  { image: onboardingArt.tourScenes, label: () => t("Sesli sahneler") },
+  { image: onboardingArt.tourReview, label: () => t("Kelime tekrarı") },
   { image: vocabArt.iconRooms, label: () => t("Kelime odaları") },
   { image: vocabArt.iconPronunciation, label: () => t("Telaffuz") },
   { image: profileArt.mistakes, label: () => t("Hata defteri") },
@@ -613,7 +613,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
               <View style={styles.list}>
                 {STRUGGLES.map((s) => (
                   <Pressable key={s.id} onPress={() => pickStruggle(s.id)} style={({ pressed }) => [styles.chip, pressed && styles.pressed]} accessibilityRole="button">
-                    <Text style={styles.chipEmoji}>{s.emoji}</Text>
+                    <Image source={s.image} style={styles.chipImg} resizeMode="contain" />
                     <Text style={styles.chipText}>{s.label()}</Text>
                   </Pressable>
                 ))}
@@ -629,7 +629,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
                     style={({ pressed }) => [styles.levelCard, { borderLeftColor: STAGE_COLOR[l.stage] }, pressed && styles.pressed]}
                     accessibilityRole="button"
                   >
-                    <Text style={styles.levelEmoji}>{l.emoji}</Text>
+                    <Image source={l.image} style={styles.levelImg} resizeMode="contain" />
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.levelTitle, { color: STAGE_COLOR[l.stage] }]}>{stageTitle(l.stage)}</Text>
                       <Text style={styles.levelExample}>“{l.example}”</Text>
@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
   tourTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
   tourGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 },
   tourItem: { width: '25%', alignItems: 'center', gap: 4 },
-  tourImg: { width: 44, height: 44 },
+  tourImg: { width: 56, height: 56 },
   tourLabel: { fontFamily: fonts.bodyMedium, fontSize: 11.5, lineHeight: 14, color: colors.textBody, textAlign: 'center' },
 
   featureNote: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, textAlign: 'center' },
@@ -824,7 +824,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
-  goalImg: { width: 54, height: 54 },
+  goalImg: { width: 76, height: 76 },
   goalEmoji: { fontSize: 36 },
   goalText: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading, textAlign: 'center' },
 
@@ -833,14 +833,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    minHeight: 54,
-    paddingHorizontal: 16,
+    minHeight: 62,
+    paddingHorizontal: 12,
     borderRadius: 18,
     backgroundColor: '#F8FAFC',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
   chipEmoji: { fontSize: 22 },
+  chipImg: { width: 44, height: 44 },
   chipText: { flex: 1, fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textHeading },
   demoChip: { justifyContent: 'center' },
   demoText: { fontFamily: fonts.headingBold, fontSize: 16, color: '#312E81' },
@@ -857,6 +858,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 6,
   },
   levelEmoji: { fontSize: 28 },
+  levelImg: { width: 60, height: 60 },
   levelTitle: { fontFamily: fonts.headingBold, fontSize: 17 },
   levelExample: { fontFamily: fonts.headingSemiBold, fontSize: 14.5, lineHeight: 20, color: '#312E81', marginTop: 4 },
   levelSub: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, marginTop: 3 },
@@ -885,7 +887,7 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   timeCardStar: { borderColor: colors.brand, backgroundColor: '#EEF2FF' },
-  timeImg: { width: 48, height: 48 },
+  timeImg: { width: 64, height: 64 },
   timeValue: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
   timeLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted },
 
