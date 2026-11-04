@@ -56,17 +56,17 @@ export const yankiCelebrateImage = mivoImages.success;
 
 /** Başarılar ekranı başlığı (renkli ikon ailesi). */
 export const premiumModuleIcons = {
-  achievements: require('../../assets/images/premium/achievements-minimal.webp'),
+  achievements: require('../../assets/images/badges/badges_header.webp'),
 };
 
 
 
 /** Chunky 3D Bottom Navigation Icons */
 export const navIcons = {
-  today: require('../../assets/images/nav/today.png'),
-  scenes: require('../../assets/images/nav/scenes.png'),
-  words: require('../../assets/images/nav/words.png'),
-  profile: require('../../assets/images/nav/profile.png'),
+  today: require('../../assets/images/nav/nav_today.webp'),
+  scenes: require('../../assets/images/nav/nav_talk.webp'),
+  words: require('../../assets/images/nav/nav_words.webp'),
+  profile: require('../../assets/images/nav/nav_profile.webp'),
 };
 
 /** Bento Scenario Categories (05 - 10) */
@@ -176,48 +176,48 @@ export const profileArt = {
 /** The three part badges of a lesson (words, grammar, practice): gold when earned, grey before. */
 export const partBadgeImages = {
   gold: [
-    require('../../assets/images/badges_path/badge_words_gold.webp'),
-    require('../../assets/images/badges_path/badge_grammar_gold.webp'),
-    require('../../assets/images/badges_path/badge_practice_gold.webp'),
+    require('../../assets/images/badges_path/part_words.webp'),
+    require('../../assets/images/badges_path/part_grammar.webp'),
+    require('../../assets/images/badges_path/part_practice.webp'),
   ],
   grey: [
-    require('../../assets/images/badges_path/badge_words_grey.webp'),
-    require('../../assets/images/badges_path/badge_grammar_grey.webp'),
-    require('../../assets/images/badges_path/badge_practice_grey.webp'),
+    require('../../assets/images/badges_path/part_words_grey.webp'),
+    require('../../assets/images/badges_path/part_grammar_grey.webp'),
+    require('../../assets/images/badges_path/part_practice_grey.webp'),
   ],
 } as const;
 
 export const stateImages = {
-  micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
-  goalCelebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
+  micPermission: require('../../assets/images/states/state_mic.webp'),
+  goalCelebration: require('../../assets/images/states/state_done.webp'),
   trashDelete: require('../../assets/images/states/trash-minimal.webp'),
-  editPencil: require('../../assets/images/states/edit-pencil-minimal.webp'),
+  editPencil: require('../../assets/images/states/state_edit.webp'),
   xpBolt: require('../../assets/images/states/xp-bolt-minimal.webp'),
   mistakesNotebook: require('../../assets/images/profile/mistakes.webp'),
 };
 
 export const calibrationImages = {
-  micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
+  micPermission: require('../../assets/images/states/state_mic.webp'),
 };
 
 /** Minimal rounded achievement badges and their matching CEFR level set. */
 export const badgeImages = {
-  firstMic: require('../../assets/images/badges/first-mic.webp'),
-  perfectTake: require('../../assets/images/badges/flawless-take.webp'),
-  mivoFriend: require('../../assets/images/badges/mivo-friend.webp'),
-  vocabHunter: require('../../assets/images/badges/vocab-hunter.webp'),
-  pronunciationProdigy: require('../../assets/images/badges/pronunciation-prodigy.webp'),
-  bookworm: require('../../assets/images/badges/bookworm.webp'),
-  podcastFan: require('../../assets/images/badges/podcast-fan.webp'),
-  lessonGraduate: require('../../assets/images/badges/grammar-scholar.webp'),
-  sevenDayFlame: require('../../assets/images/badges/7day-flame.webp'),
-  thirtyDayMaster: require('../../assets/images/badges/30day-master.webp'),
-  hundredDayLegend: require('../../assets/images/badges/100day-legend.webp'),
-  levelA2: require('../../assets/images/badges/level-a2.webp'),
-  levelB1: require('../../assets/images/badges/level-b1.webp'),
-  levelB2: require('../../assets/images/badges/level-b2.webp'),
-  levelC1: require('../../assets/images/badges/level-c1.webp'),
-  levelC2: require('../../assets/images/badges/level-c2.webp'),
+  firstMic: require('../../assets/images/badges/badge_first_mic.webp'),
+  perfectTake: require('../../assets/images/badges/badge_perfect_take.webp'),
+  mivoFriend: require('../../assets/images/badges/badge_mivo_friend.webp'),
+  vocabHunter: require('../../assets/images/badges/badge_vocab_hunter.webp'),
+  pronunciationProdigy: require('../../assets/images/badges/badge_pronunciation.webp'),
+  bookworm: require('../../assets/images/badges/badge_bookworm.webp'),
+  podcastFan: require('../../assets/images/badges/badge_podcast.webp'),
+  lessonGraduate: require('../../assets/images/badges/badge_grammar.webp'),
+  sevenDayFlame: require('../../assets/images/badges/badge_7day.webp'),
+  thirtyDayMaster: require('../../assets/images/badges/badge_30day.webp'),
+  hundredDayLegend: require('../../assets/images/badges/badge_100day.webp'),
+  levelA2: require('../../assets/images/badges/badge_level_a2.webp'),
+  levelB1: require('../../assets/images/badges/badge_level_b1.webp'),
+  levelB2: require('../../assets/images/badges/badge_level_b2.webp'),
+  levelC1: require('../../assets/images/badges/badge_level_c1.webp'),
+  levelC2: require('../../assets/images/badges/badge_level_c2.webp'),
 } as const;
 
 /** Auth & Welcome 3D Hero Artwork */

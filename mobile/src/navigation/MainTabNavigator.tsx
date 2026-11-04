@@ -24,7 +24,7 @@ const TAB_CONFIG: Record<
 };
 
 /**
- * Calm, tool-like navigation with one chunky 3D icon family across all tabs.
+ * Calm, tool-like navigation with one flat 2D icon family across all tabs.
  */
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
