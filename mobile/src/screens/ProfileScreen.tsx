@@ -240,7 +240,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             tint={VP.sunSoft}
             title={t("Rozetlerim")}
             sub={t("{{a}}/{{b}} rozet", { a: earnedBadgeIds.size, b: BADGES.length })}
-            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("3D Rozetlerin Yükleniyor…"))}
+            onPress={() => transitionTo(() => navigation.navigate('Badges'), t("Rozetlerin yükleniyor…"))}
           />
           <View style={styles.listDivider} />
           <ListRow

@@ -29,9 +29,9 @@ BADGE_DEFS: list[BadgeDef] = [
     BadgeDef("100day_legend", 100),
     BadgeDef("perfect_take", 1),
     BadgeDef("mivo_friend", 5),
+    # Kitap Kurdu / Gramer Öğrencisi count finished steps of the learning path (podcasts and topic quizzes are gone).
     BadgeDef("bookworm", 5),
-    BadgeDef("podcast_fan", 10),
-    BadgeDef("lesson_graduate", 10),
+    BadgeDef("lesson_graduate", 30),
     BadgeDef("level_a2", 1),
     BadgeDef("level_b1", 1),
     BadgeDef("level_b2", 1),
@@ -67,6 +67,7 @@ def gather_stats(db, user_id: str) -> dict:
     except Exception:
         sessions = 0
     memory = _rows(db, "chat_memory", "session_count", user_id, limit=1)
+    path = _rows(db, "path_progress", "progress", user_id, limit=1)
     try:
         profile = (
             db.table("profiles").select("longest_streak,streak_count,cefr_level").eq("id", user_id).limit(1).execute().data
@@ -75,7 +76,15 @@ def gather_stats(db, user_id: str) -> dict:
     except Exception:
         logger.warning("badges: could not read profile", exc_info=True)
         profile = []
-    return {"flags": flags, "vocab": vocab, "reading": reading, "sessions": sessions, "memory": memory, "profile": profile}
+    return {
+        "flags": flags,
+        "vocab": vocab,
+        "reading": reading,
+        "sessions": sessions,
+        "memory": memory,
+        "profile": profile,
+        "path": path,
+    }
 
 
 def _flag_ids(flags: list[dict], prefix: str) -> set[str]:
@@ -94,7 +103,9 @@ def evaluate(stats: dict, *, after_activity: bool, local_hour: int | None) -> di
     level = (profile.get("cefr_level") or "A1").upper()
     level_idx = LEVELS.index(level) if level in LEVELS else 0
     memory_sessions = int((stats["memory"] or [{}])[0].get("session_count") or 0)
-    any_activity = bool(played or stats["sessions"] or memory_sessions)
+    path_stars = ((stats.get("path") or [{}])[0].get("progress") or {}).get("stars") or {}
+    path_done = sum(1 for v in path_stars.values() if isinstance(v, (int, float)) and v > 0)
+    any_activity = bool(played or stats["sessions"] or memory_sessions or path_done)
 
     # `after_activity` / `local_hour` are accepted for API compatibility; the time-of-day badges were retired.
     return {
@@ -106,9 +117,8 @@ def evaluate(stats: dict, *, after_activity: bool, local_hour: int | None) -> di
         "100day_legend": longest_streak,
         "perfect_take": min(1, len(star3)),
         "mivo_friend": memory_sessions,
-        "bookworm": len(stats["reading"]),
-        "podcast_fan": len(_flag_ids(flags, "podcast_completed_")),
-        "lesson_graduate": len(_flag_ids(flags, "lesson_quiz_done_")),
+        "bookworm": max(path_done, len(stats["reading"])),
+        "lesson_graduate": path_done,
         # Seviye rozetleri yalnızca en az bir etkinlik yapıldıktan sonra (yerleştirme testi tek başına vermesin).
         "level_a2": 1 if any_activity and level_idx >= 1 else 0,
         "level_b1": 1 if any_activity and level_idx >= 2 else 0,

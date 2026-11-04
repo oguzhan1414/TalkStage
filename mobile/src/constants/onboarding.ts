@@ -225,7 +225,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
     id: 'regular',
     minutes: 10,
     title: t("Düzenli & Dengeli"),
-    desc: t("1 Canlı AI Konuşması + 1 Podcast Dinleme (En çok tercih edilen)"),
+    desc: t("Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)"),
     flameEmoji: '🔥',
     iconImage: require('../../assets/images/onboarding/pace_regular.webp'),
     badge: t("Önerilen 🌟"),

@@ -208,7 +208,6 @@ export const badgeImages = {
   vocabHunter: require('../../assets/images/badges/badge_vocab_hunter.webp'),
   pronunciationProdigy: require('../../assets/images/badges/badge_pronunciation.webp'),
   bookworm: require('../../assets/images/badges/badge_bookworm.webp'),
-  podcastFan: require('../../assets/images/badges/badge_podcast.webp'),
   lessonGraduate: require('../../assets/images/badges/badge_grammar.webp'),
   sevenDayFlame: require('../../assets/images/badges/badge_7day.webp'),
   thirtyDayMaster: require('../../assets/images/badges/badge_30day.webp'),
