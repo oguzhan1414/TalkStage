@@ -62,3 +62,6 @@ Thumbs.db
 
 # vercel
 .vercel
+
+# Source art (generator exports, character sheets, logo masters). The app uses the WebP copies in mobile/assets.
+/images/
