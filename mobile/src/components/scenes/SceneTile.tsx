@@ -37,7 +37,8 @@ export function SceneTile({ width, cover, title, level, levelColor, stars, acces
       style={({ pressed }) => [styles.card, { width }, pressed && styles.pressed]}
     >
       <View style={[styles.pic, { height: picH }]}>
-        <Image source={cover} style={[StyleSheet.absoluteFill, locked && { opacity: 0.4 }]} resizeMode="cover" />
+        {/* Explicit 100% size: a local image without one is laid out at its own pixel size (only its top-left shows). */}
+        <Image source={cover} style={[styles.fill, locked && { opacity: 0.4 }]} resizeMode="cover" />
         <View style={[styles.level, { backgroundColor: levelColor }]}>
           <Text style={styles.levelText}>{level}</Text>
         </View>
@@ -73,6 +74,7 @@ export function SceneTile({ width, cover, title, level, levelColor, stars, acces
 }
 
 const styles = StyleSheet.create({
+  fill: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
   card: {
     borderRadius: 18,
     backgroundColor: '#FFFFFF',

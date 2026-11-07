@@ -444,7 +444,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
         {inStage ? (
           <View style={styles.stage}>
             {/* The blurred cover fills the space around the video */}
-            <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={20} />
+            <Image source={coverSource} style={styles.fillImage} resizeMode="cover" blurRadius={20} />
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.55)' }]} />
 
             <View style={[styles.videoArea, { paddingTop: insets.top + 64 }]}>
@@ -659,7 +659,7 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
             <PopIn style={styles.medalWrap}>
               <View style={[styles.medalOuter, { borderColor: '#FBBF24' }]}>
                 <View style={[styles.medalInner, { borderColor: levelColor }]}>
-                  <Image source={coverSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  <Image source={coverSource} style={styles.fillImage} resizeMode="cover" />
                 </View>
               </View>
               <View style={[styles.medalLevel, { backgroundColor: levelColor }]}>
@@ -747,6 +747,8 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
 const PAGE_BG = '#F8FAFC';
 
 const styles = StyleSheet.create({
+  // Explicit 100% size: a local image without one is laid out at its own pixel size.
+  fillImage: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
   root: { flex: 1, backgroundColor: '#000000' },
   page: { backgroundColor: PAGE_BG },
   stage: { flex: 1, backgroundColor: '#000000' },

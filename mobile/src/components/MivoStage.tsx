@@ -80,7 +80,7 @@ export function MivoStage({
         />
       ) : null}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: failed ? 1 : cover }]}>
-        <Image source={mivoStagePosters[poster]} style={StyleSheet.absoluteFill} resizeMode={fit} />
+        <Image source={mivoStagePosters[poster]} style={styles.fillImage} resizeMode={fit} />
       </Animated.View>
       </View>
       {children}
@@ -89,5 +89,6 @@ export function MivoStage({
 }
 
 const styles = StyleSheet.create({
+  fillImage: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
   stage: { width: '100%', overflow: 'hidden', backgroundColor: MIVO_STAGE_BG },
 });

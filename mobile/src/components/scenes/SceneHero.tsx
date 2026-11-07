@@ -30,7 +30,7 @@ export function SceneHero({ cover, eyebrow, title, character, role, minutes, lev
       {({ pressed }) => (
         <View style={[styles.card, pressed && styles.cardPressed]}>
           <View style={styles.pic}>
-            <Image source={cover} style={StyleSheet.absoluteFill} resizeMode="cover" />
+            <Image source={cover} style={styles.fill} resizeMode="cover" />
             <View style={[styles.level, { backgroundColor: levelColor }]}>
               <Text style={styles.levelText}>{level}</Text>
             </View>
@@ -68,6 +68,7 @@ export function SceneHero({ cover, eyebrow, title, character, role, minutes, lev
 const PLAY = 46;
 
 const styles = StyleSheet.create({
+  fill: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
