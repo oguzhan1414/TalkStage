@@ -676,7 +676,7 @@ function Medallion({
           <View style={[styles.ctaEdge, locked ? styles.ctaEdgeLocked : replay && styles.ctaEdgeReplay]}>
             <View style={[styles.ctaFace, pressed && styles.ctaFacePressed]}>
               <LinearGradient
-                colors={locked ? ['#F8FAFC', '#E2E8F0'] : replay ? ['#FFFFFF', '#EEF2FF'] : ['#FFE27A', '#FBBF24']}
+                colors={locked ? ['#F8FAFC', '#E2E8F0'] : replay ? ['#FFFFFF', '#EEF2FF'] : ['#2FD3BF', '#0EA594']}
                 style={StyleSheet.absoluteFill}
               />
               <View pointerEvents="none" style={styles.ctaGloss} />
@@ -685,7 +685,7 @@ function Medallion({
                 {cta}
               </Text>
               <View style={[styles.ctaIcon, locked ? { backgroundColor: 'rgba(100,116,139,0.12)' } : replay && { backgroundColor: '#E0E7FF' }]}>
-                <Ionicons name={ctaIcon} size={15} color={locked ? '#64748B' : replay ? '#4338CA' : '#78350F'} />
+                <Ionicons name={ctaIcon} size={15} color={locked ? '#64748B' : replay ? '#4338CA' : '#FFFFFF'} />
               </View>
             </View>
           </View>
@@ -1186,9 +1186,9 @@ const styles = StyleSheet.create({
   ctaEdge: {
     height: 62,
     borderRadius: 31,
-    backgroundColor: '#D98E04',
-    shadowColor: '#92400E',
-    shadowOpacity: 0.3,
+    backgroundColor: '#0B7C70',
+    shadowColor: '#0F766E',
+    shadowOpacity: 0.32,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
@@ -1210,12 +1210,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   ctaFacePressed: { top: 5 },
-  ctaGloss: { position: 'absolute', top: 4, left: 18, right: 18, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.4)' },
-  ctaText: { fontFamily: fonts.headingBold, fontSize: 20, color: '#78350F', letterSpacing: 0.3 },
-  ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.6)' },
+  ctaGloss: { position: 'absolute', top: 4, left: 18, right: 18, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.22)' },
+  ctaText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 20,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+    textShadowColor: 'rgba(11,124,112,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.24)' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 10, textDecorationLine: 'underline' },
   shineClip: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 32, overflow: 'hidden' },
-  shineBand: { position: 'absolute', top: -20, bottom: -20, width: 34, backgroundColor: 'rgba(255,255,255,0.55)' },
+  shineBand: { position: 'absolute', top: -20, bottom: -20, width: 34, backgroundColor: 'rgba(255,255,255,0.35)' },
 
   arrow: {
     position: 'absolute',
