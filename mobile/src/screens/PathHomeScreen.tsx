@@ -680,7 +680,6 @@ function Medallion({
                 style={StyleSheet.absoluteFill}
               />
               <View pointerEvents="none" style={styles.ctaGloss} />
-              {!locked && !done ? <Shine /> : null}
               <Text style={[styles.ctaText, locked ? { color: '#64748B' } : replay && { color: '#4338CA' }]} numberOfLines={1} adjustsFontSizeToFit>
                 {cta}
               </Text>
@@ -872,27 +871,6 @@ function LevelArc({ level, share, chapter, chapters }: { level: string; share: n
           {t("Bölüm {{n}}/{{m}}", { n: chapter, m: chapters })}
         </Text>
       </View>
-    </View>
-  );
-}
-
-/** A light sweep across the start button every few seconds. */
-function Shine() {
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const anim = Animated.loop(
-      Animated.sequence([
-        Animated.delay(1800),
-        Animated.timing(v, { toValue: 1, duration: 850, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(v, { toValue: 0, duration: 0, useNativeDriver: true }),
-      ])
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [v]);
-  return (
-    <View pointerEvents="none" style={styles.shineClip}>
-      <Animated.View style={[styles.shineBand, { transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-90, 300] }) }, { rotate: '18deg' }] }]} />
     </View>
   );
 }
@@ -1222,8 +1200,6 @@ const styles = StyleSheet.create({
   },
   ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.24)' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 10, textDecorationLine: 'underline' },
-  shineClip: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 32, overflow: 'hidden' },
-  shineBand: { position: 'absolute', top: -20, bottom: -20, width: 34, backgroundColor: 'rgba(255,255,255,0.35)' },
 
   arrow: {
     position: 'absolute',
