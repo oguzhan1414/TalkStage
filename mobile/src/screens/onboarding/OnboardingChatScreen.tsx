@@ -572,7 +572,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
         <View style={[styles.progressFill, { width: `${Math.max(4, progress * 100)}%` }]} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView
           ref={scrollRef}
           contentContainerStyle={styles.thread}

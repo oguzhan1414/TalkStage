@@ -24,6 +24,7 @@ import { isProUser } from '../lib/revenuecat';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut, ProfileOut, ProfileUpdate } from '../types/api';
+import { KeyboardSafe } from '../components/KeyboardSafe';
 
 /** The warm floor shared with the home and the lessons. */
 const FLOOR = '#FBF7F1';
@@ -343,7 +344,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
 
       {/* Display name */}
       <Modal visible={nameOpen} animationType="fade" transparent onRequestClose={() => setNameOpen(false)}>
-        <View style={[styles.overlay, { justifyContent: 'center', padding: spacing.md }]}>
+        <KeyboardSafe style={[styles.overlay, { justifyContent: 'center', padding: spacing.md }]}>
           <View style={styles.nameCard}>
             <Text style={styles.sheetTitle}>{t("Adını düzenle")}</Text>
             <Text style={styles.sheetSub}>{t("Mivo sana bu isimle seslenir.")}</Text>
@@ -373,7 +374,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               />
             </View>
           </View>
-        </View>
+        </KeyboardSafe>
       </Modal>
     </SafeAreaView>
   );

@@ -44,6 +44,7 @@ import { MivoLoader } from '../components/MivoLoader';
 import { Button } from '../components/Button';
 import { isProUser } from '../lib/revenuecat';
 import { getLocale, t } from '../i18n';
+import { KeyboardSafe } from '../components/KeyboardSafe';
 
 const AI_NAME = 'Mivo';
 const AI_ROLE = t("Serbest Sohbet Koçun");
@@ -376,6 +377,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardSafe style={{ flex: 1 }}>
       <View style={styles.header}>
         <Pressable
           onPress={requestExit}
@@ -581,6 +583,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           </View>
         </View>
       ) : null}
+      </KeyboardSafe>
     </SafeAreaView>
   );
 }

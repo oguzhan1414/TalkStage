@@ -36,6 +36,7 @@ import type {
 } from '../types/api';
 import { MivoLoader } from '../components/MivoLoader';
 import { t } from '../i18n';
+import { KeyboardSafe } from '../components/KeyboardSafe';
 
 const GRADE_BUTTONS: {
   grade: VocabGrade;
@@ -1097,7 +1098,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardSafe style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalGrab} />
             <View style={styles.modalHeaderRow}>
@@ -1294,7 +1295,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </View>
             </ScrollView>
           </View>
-        </View>
+        </KeyboardSafe>
       </Modal>
 
       {/* ======================================================== */}

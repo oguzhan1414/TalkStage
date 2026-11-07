@@ -42,7 +42,7 @@ export function AuthShell({ title, subtitle, children }: Props) {
     <View style={styles.root}>
       <LinearGradient colors={['#EEF2FF', '#FFFFFF']} style={styles.glow} pointerEvents="none" />
       <SafeAreaView style={styles.flex} edges={['top']}>
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.flex} behavior="padding">
           <ScrollView
             contentContainerStyle={[styles.scroll, { paddingBottom: 28 + insets.bottom }]}
             showsVerticalScrollIndicator={false}
