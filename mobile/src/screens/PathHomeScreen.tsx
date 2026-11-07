@@ -33,7 +33,7 @@ import type { ProfileOut, ProgressOut } from '../types/api';
 const TAB_BAR = 68;
 const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
-const CHIP_ROOM = 18;
+const CHIP_ROOM = 8;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
 const MEDAL_EXTRA = CHIP_ROOM + 168;
 /** The level crescent at the top: radius, stroke and how far round it goes. */
@@ -41,6 +41,8 @@ const ARC_R = 52;
 const ARC_SW = 10;
 const ARC_SWEEP = 220;
 const ARC_DISC = 37;
+/** The round guide button on the medallion's ring. */
+const GUIDE_BTN = 46;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -271,7 +273,10 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               <Text style={styles.topChipNum}>{profile?.streak_count ?? 0}</Text>
             </View>
           </View>
-          <LevelArc level={level.id} share={levelShare} chapter={chapter} chapters={readings.length} />
+          {/* The crescent also opens the level's story and cast (its title no longer takes a row of its own). */}
+          <Pressable onPress={() => setIntroOpen(true)} hitSlop={4} accessibilityRole="button" accessibilityHint={loc(level.story.title)}>
+            <LevelArc level={level.id} share={levelShare} chapter={chapter} chapters={readings.length} />
+          </Pressable>
           <View style={[styles.topSide, { justifyContent: 'flex-end' }]}>
             <Pressable
               onPress={() => {
@@ -288,45 +293,28 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           </View>
         </View>
 
-        {/* Story: the title (opens the cast) and the chapter guide */}
-        <View style={styles.storyBlock}>
-          <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
-            <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
-              {loc(level.story.title)}
-            </Text>
-          </Pressable>
+        {/* Only when the level is finished: go on to the next one, or share it. */}
+        {levelDone ? (
           <View style={styles.storyMeta}>
-            <Pressable
-              onPress={() => navigation.navigate('PathGuide', { stepId: focused.step.id })}
-              hitSlop={6}
-              style={({ pressed }) => [styles.guideBtn, pressed && styles.guideBtnPressed]}
-              accessibilityRole="button"
-              accessibilityLabel={t("Rehber")}
-            >
-              <Ionicons name="book-outline" size={16} color="#4F46E5" />
-              <Text style={styles.guideBtnText}>{t("Rehber")}</Text>
-            </Pressable>
-            {levelDone && nextLevel ? (
+            {nextLevel ? (
               <TodayPill delay={200} icon="rocket" color="#7C3AED" label={t("Sonraki seviye: {{level}}", { level: nextLevel.id })} onPress={goNextLevel} />
             ) : null}
-            {levelDone ? (
-              <TodayPill
-                delay={300}
-                icon="share-social"
-                color="#0EA5E9"
-                label={t("Paylaş")}
-                onPress={() =>
-                  void Share.share({
-                    message: t("Spekvia'da {{level}} hikâyesini bitirdim: \"{{story}}\" 🎉 İngilizceyi hikâyelerle öğreniyorum: https://spekvia.com", {
-                      level: level.id,
-                      story: loc(level.story.title),
-                    }),
-                  })
-                }
-              />
-            ) : null}
+            <TodayPill
+              delay={300}
+              icon="share-social"
+              color="#0EA5E9"
+              label={t("Paylaş")}
+              onPress={() =>
+                void Share.share({
+                  message: t("Spekvia'da {{level}} hikâyesini bitirdim: \"{{story}}\" 🎉 İngilizceyi hikâyelerle öğreniyorum: https://spekvia.com", {
+                    level: level.id,
+                    story: loc(level.story.title),
+                  }),
+                })
+              }
+            />
           </View>
-        </View>
+        ) : null}
 
         {/* The medallion carousel */}
         <View style={{ flex: 1, justifyContent: 'center' }} onLayout={(e) => {
@@ -370,6 +358,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   isFuture={item.index > current.index}
                   celebrate={celebrate?.id === item.step.id ? celebrate : null}
                   onOpen={() => openStep(item.step)}
+                  onGuide={() => navigation.navigate('PathGuide', { stepId: item.step.id })}
                   onSkip={async () => {
                     await skipStep(item.step.id);
                     reload();
@@ -447,6 +436,7 @@ function Medallion({
   isFuture,
   celebrate,
   onOpen,
+  onGuide,
   onSkip,
 }: {
   f: FlatStep;
@@ -456,6 +446,7 @@ function Medallion({
   /** Just finished (stars land) or just opened (the lock breaks). */
   celebrate?: { kind: 'stars' | 'unlock'; key: number } | null;
   onOpen: () => void;
+  onGuide: () => void;
   onSkip: () => void;
 }) {
   const lockBreak = useRef(new Animated.Value(0)).current;
@@ -497,13 +488,6 @@ function Medallion({
   const stars = progress ? starsOf(progress, s.id) : 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
-  const kicker =
-    s.kind === 'reading'
-      ? t("Bölüm {{n}}", { n: s.episode.number })
-      : type === 'vocab'
-        ? t("Kelime bölümü")
-        : t("Mivo ile hazırlık");
-  const kickerIcon = type === 'reading' ? 'book' : type === 'vocab' ? 'sparkles' : 'mic';
   const subtitle =
     s.kind === 'reading'
       ? t("{{grammar}} · ~{{n}} dk", { grammar: loc(s.episode.grammar), n: s.episode.minutes })
@@ -672,11 +656,20 @@ function Medallion({
           {/* Thin white line between the picture and the coloured ring, drawn on top so nothing pokes out. */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.medalEdge, { borderRadius: inner / 2 }]} />
         </View>
-        {/* Chip on the top of the ring: Bölüm 3 / Kelime bölümü / Mivo ile sahne */}
-        <View style={styles.medalChip}>
-          <Ionicons name={kickerIcon} size={14} color={palette.fill[0]} />
-          <Text style={[styles.medalChipText, { color: palette.fill[1] }]}>{kicker}</Text>
-        </View>
+        {/* The step's guide, as a small round button on the ring's upper right (it floats with the medallion). */}
+        <Pressable
+          onPress={onGuide}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.guideBtn,
+            { left: size / 2 + (size / 2) * 0.72 - GUIDE_BTN / 2, top: size / 2 - (size / 2) * 0.72 - GUIDE_BTN / 2 },
+            pressed && styles.guideBtnPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Rehber")}
+        >
+          <Ionicons name="book" size={19} color="#4F46E5" />
+        </Pressable>
       </Animated.View>
 
       <Text style={[styles.medalTitle, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
@@ -965,28 +958,26 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 4, height: 44 },
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
-  storyBlock: { alignItems: 'center', paddingHorizontal: spacing.lg, marginTop: 2 },
   storyMeta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
   guideBtn: {
-    flexDirection: 'row',
+    position: 'absolute',
+    width: GUIDE_BTN,
+    height: GUIDE_BTN,
+    borderRadius: GUIDE_BTN / 2,
     alignItems: 'center',
-    gap: 7,
-    height: 36,
-    paddingHorizontal: 16,
-    borderRadius: 18,
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: '#E0E7FF',
-    borderBottomWidth: 3,
+    borderBottomWidth: 3.5,
     borderBottomColor: '#C7D2FE',
     shadowColor: '#1E3A8A',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
   },
   guideBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5 },
-  guideBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#4338CA', letterSpacing: 0.2 },
   arcDisc: {
     position: 'absolute',
     width: ARC_DISC * 2,
@@ -1017,16 +1008,6 @@ const styles = StyleSheet.create({
   },
   storyChipOnLight: { backgroundColor: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.9)' },
   storyChipText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.4, color: '#FFFFFF' },
-  storyTitle: {
-    fontFamily: fonts.headingBold,
-    fontSize: 24,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    textShadowColor: 'rgba(30,58,138,0.35)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
-  storyTitleOnLight: { color: colors.textHeading, textShadowColor: 'rgba(255,255,255,0.6)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1072,23 +1053,6 @@ const styles = StyleSheet.create({
   medalClip: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   medalArt: { position: 'absolute', bottom: 0 },
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
-  medalChip: {
-    position: 'absolute',
-    top: -15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#1E3A8A',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
-  },
-  medalChipText: { fontFamily: fonts.headingBold, fontSize: 14 },
   medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 12 },
   medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
   medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
