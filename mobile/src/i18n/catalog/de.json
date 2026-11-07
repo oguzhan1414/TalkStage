@@ -3673,5 +3673,16 @@
   "Öğrenme yolunda 30 adım bitir": "Schließe 30 Schritte auf dem Lernpfad ab",
   "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "Täglich eine Lektionsfolge und eine kurze Wortwiederholung (am beliebtesten)",
   "%{{n}}": "{{n}} %",
-  "{{level}} seviyesi: %{{n}}": "Niveau {{level}}: {{n}} %"
+  "{{level}} seviyesi: %{{n}}": "Niveau {{level}}: {{n}} %",
+  "Rehber": "Guide",
+  "Bölüm {{n}} Rehberi": "Guide zu Folge {{n}}",
+  "Ünite {{n}} Rehberi": "Guide zu Einheit {{n}}",
+  "Bu bölümün kalıbı ve kelimeleri. Bir cümleye dokun, dinle.": "Das Muster und die Wörter dieser Folge. Tippe auf einen Satz, um ihn zu hören.",
+  "Bu ünitede öğrendiğin kalıplar ve kelimeler.": "Die Muster und Wörter, die du in dieser Einheit lernst.",
+  "ÖNCEKİ BÖLÜMDE": "BISHER",
+  "DİKKAT": "ACHTUNG",
+  "BÖLÜM {{n}} · {{grammar}}": "FOLGE {{n}} · {{grammar}}",
+  "BU BÖLÜMÜN KALIBI": "DAS MUSTER DIESER FOLGE",
+  "ANAHTAR İFADELER": "SCHLÜSSELSÄTZE",
+  "KELİMELER": "WÖRTER"
 }

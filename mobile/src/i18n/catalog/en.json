@@ -3650,5 +3650,16 @@
   "Öğrenme yolunda 30 adım bitir": "Finish 30 steps on the learning path",
   "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "One lesson episode and a short word review a day (most popular)",
   "%{{n}}": "{{n}}%",
-  "{{level}} seviyesi: %{{n}}": "Level {{level}}: {{n}}%"
+  "{{level}} seviyesi: %{{n}}": "Level {{level}}: {{n}}%",
+  "Rehber": "Guide",
+  "Bölüm {{n}} Rehberi": "Episode {{n}} guide",
+  "Ünite {{n}} Rehberi": "Unit {{n}} guide",
+  "Bu bölümün kalıbı ve kelimeleri. Bir cümleye dokun, dinle.": "This episode's pattern and words. Tap a sentence to hear it.",
+  "Bu ünitede öğrendiğin kalıplar ve kelimeler.": "The patterns and words you learn in this unit.",
+  "ÖNCEKİ BÖLÜMDE": "PREVIOUSLY",
+  "DİKKAT": "WATCH OUT",
+  "BÖLÜM {{n}} · {{grammar}}": "EPISODE {{n}} · {{grammar}}",
+  "BU BÖLÜMÜN KALIBI": "THIS EPISODE'S PATTERN",
+  "ANAHTAR İFADELER": "KEY PHRASES",
+  "KELİMELER": "WORDS"
 }

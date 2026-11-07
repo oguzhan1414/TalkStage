@@ -90,6 +90,11 @@ export function RootNavigator() {
           <Stack.Screen name="PathLesson" getComponent={() => require('../screens/PathLessonScreen').PathLessonScreen} />
           <Stack.Screen name="PathVocab" getComponent={() => require('../screens/PathVocabScreen').PathVocabScreen} />
           <Stack.Screen
+            name="PathGuide"
+            getComponent={() => require('../screens/PathGuideScreen').PathGuideScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
             name="Paywall"
             component={PaywallScreen}
             options={{ presentation: 'modal', animation: 'slide_from_bottom' }}

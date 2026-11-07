@@ -202,21 +202,39 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
   const dueCount = dueCards?.length ?? 0;
 
-  /** Mivo's bubble above the tab bar: shown a few seconds when there is something to say, then it folds away. */
-  const [bubbleOn, setBubbleOn] = useState(false);
+  /**
+   * Mivo's bubble above the tab bar, kept for the moments that matter: a hello on the day's first visit, the streak
+   * at risk in the evening, the level finished. Each shows at most once a day and folds away after a few seconds;
+   * the chapter's details live in the guide (the "Rehber" chip).
+   */
+  const [bubble, setBubble] = useState<string | null>(null);
   const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const showBubble = (ms = 6000) => {
-    setBubbleOn(true);
+  const showBubble = (text: string, ms = 6500) => {
+    setBubble(text);
     if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
-    bubbleTimer.current = setTimeout(() => setBubbleOn(false), ms);
+    bubbleTimer.current = setTimeout(() => setBubble(null), ms);
   };
-  // When the page opens, and when the learner swipes to another step: the recap or the tip for that step.
+  const bubbleKind = levelDone && nextLevel ? 'level' : streakAtRisk ? 'streak' : 'daily';
   useEffect(() => {
-    if (!progress) return;
-    const id = setTimeout(() => showBubble(index === current.index ? 6500 : 4000), 700);
-    return () => clearTimeout(id);
+    // Wait for the day's practice too, so the hello and the streak warning never come one after the other.
+    if (!progress || !profile || !practice) return;
+    const key = `spekvia.home_bubble.${todayKey()}`;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    AsyncStorage.getItem(key)
+      .then((raw) => {
+        const seen = raw ? raw.split(',') : [];
+        if (!alive || seen.includes(bubbleKind)) return;
+        void AsyncStorage.setItem(key, [...seen, bubbleKind].join(','));
+        timer = setTimeout(() => showBubble(mivoLine), 900);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, !!progress]);
+  }, [!!progress, !!profile, !!practice, bubbleKind]);
   useEffect(() => () => {
     if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
   }, []);
@@ -287,6 +305,13 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               <Ionicons name="book" size={12} color={backdrop.lightSky ? '#4338CA' : '#FFFFFF'} />
               <Text style={[styles.chapterText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Bölüm {{n}}/{{m}}", { n: chapter, m: readings.length })}</Text>
             </View>
+            <TodayPill
+              delay={200}
+              icon="school"
+              color="#4F46E5"
+              label={t("Rehber")}
+              onPress={() => navigation.navigate('PathGuide', { stepId: focused.step.id })}
+            />
             {dueCount > 0 ? (
               <TodayPill delay={250} icon="layers" color="#0EA5E9" label={t("{{n}} kelime", { n: dueCount })} onPress={() => navigation.navigate('Vocab')} />
             ) : null}
@@ -396,15 +421,15 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
       </SafeAreaView>
 
-      {bubbleOn ? (
+      {bubble ? (
         <PopIn style={[styles.mivoTip, { bottom: fabBottom }]}>
           {/* Mivo's word on the step in view: shows for a few seconds, a tap folds it away */}
-          <Pressable onPress={() => setBubbleOn(false)} style={styles.mivoTipRow} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
+          <Pressable onPress={() => setBubble(null)} style={styles.mivoTipRow} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
             <Image source={mivoHomeImages.fab} style={styles.mivoTipFace} resizeMode="cover" />
             <View style={styles.mivoBubble}>
               <Text style={styles.mivoBubbleName}>Mivo</Text>
               <Text style={styles.mivoBubbleText} numberOfLines={4}>
-                {mivoLine}
+                {bubble}
               </Text>
             </View>
           </Pressable>

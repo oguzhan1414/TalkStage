@@ -93,6 +93,8 @@ export type RootStackParamList = {
   /** New learning path (docs/yeni-ogrenme-yolu.md): a reading lesson and a vocabulary section. */
   PathLesson: { stepId: string };
   PathVocab: { stepId: string };
+  /** The chapter/unit guide opened from the home screen. */
+  PathGuide: { stepId: string };
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -128,6 +130,7 @@ export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'W
 export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
 export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
 export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
+export type PathGuideScreenProps = NativeStackScreenProps<RootStackParamList, 'PathGuide'>;
 
 
 declare global {
