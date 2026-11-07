@@ -7,7 +7,7 @@ import { Animated, Easing, FlatList, Image, Pressable, Share, StyleSheet, Text, 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { homeBackdrop } from '../assets/homeBackdrops';
-import { mivoHomeImages, mivoVoiceImages, navIcons } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, navIcons, partBadgeImages } from '../assets/images';
 import Svg, { Defs, G, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
@@ -37,7 +37,7 @@ const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
 const CHIP_ROOM = 8;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
-const MEDAL_EXTRA = CHIP_ROOM + 168;
+const MEDAL_EXTRA = CHIP_ROOM + 182;
 /** The level crescent at the top: radius, stroke and how far round it goes. */
 const ARC_R = 52;
 const ARC_SW = 10;
@@ -641,6 +641,8 @@ function Medallion({
           {/* Thin white line between the picture and the coloured ring, drawn on top so nothing pokes out. */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.medalEdge, { borderRadius: inner / 2 }]} />
         </View>
+        {/* The part badges sit on the ring's bottom edge, following its curve (the picture stays clean). */}
+        <PartBadges type={type} parts={ringParts} earned={ringParts === 3 ? stars : done ? 1 : 0} locked={locked} celebrateKey={celebrate?.kind === 'stars' ? celebrate.key : null} />
         {/* Mivo on the ring's upper right (he floats with the medallion): tap him to hear about the step. */}
         <Pressable
           onPress={onMivo}
@@ -706,6 +708,43 @@ function Medallion({
           <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
         </Pressable>
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * The step's badges on the ring's bottom edge: a reading lesson's three part badges (words, grammar, practice) in a
+ * small arc, or one badge for a single-part step (words for a word section or room, practice for a scene). Grey until
+ * earned; earned ones pop in one by one, in time with the ring's segments, after a lesson.
+ */
+function PartBadges({
+  type,
+  parts,
+  earned,
+  locked,
+  celebrateKey,
+}: {
+  type: 'reading' | 'vocab' | 'scene';
+  parts: 1 | 3;
+  earned: number;
+  locked: boolean;
+  celebrateKey: number | null;
+}) {
+  const kinds = parts === 3 ? [0, 1, 2] : [type === 'scene' ? 2 : 0];
+  return (
+    <View pointerEvents="none" style={[styles.badges, locked && { opacity: 0.55 }]}>
+      {kinds.map((kind, n) => {
+        const on = n < earned;
+        const middle = parts === 1 || n === 1;
+        const style = [middle ? styles.badgeMid : styles.badgeSide, parts === 3 && !middle && { marginBottom: 14 }];
+        return on && celebrateKey != null ? (
+          <PopIn key={`${celebrateKey}-${n}`} delay={450 + n * 380}>
+            <Image source={partBadgeImages.gold[kind]} style={style} resizeMode="contain" />
+          </PopIn>
+        ) : (
+          <Image key={n} source={(on ? partBadgeImages.gold : partBadgeImages.grey)[kind]} style={style} resizeMode="contain" />
+        );
+      })}
     </View>
   );
 }
@@ -1170,7 +1209,10 @@ const styles = StyleSheet.create({
   medalClip: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   medalArt: { position: 'absolute', bottom: 0 },
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
-  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 14 },
+  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 26 },
+  badges: { position: 'absolute', bottom: -24, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', gap: 6 },
+  badgeSide: { width: 40, height: 40 },
+  badgeMid: { width: 50, height: 50 },
   medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
   medalLock: { position: 'absolute', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
