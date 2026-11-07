@@ -3707,5 +3707,12 @@
   "Sıradaki paket: {{range}}": "Next pack: {{range}}",
   "Paketlere dön": "Back to packs",
   "SIRADAKİ PAKET": "NEXT PACK",
-  "Bu türün bütün paketlerini bitirdin 🎉": "You've finished every pack of this type 🎉"
+  "Bu türün bütün paketlerini bitirdin 🎉": "You've finished every pack of this type 🎉",
+  "Son 30 gün": "Last 30 days",
+  "Çalıştığın günler": "Days you practised",
+  "Seri: {{n}} gün · en uzun {{m}}": "Streak: {{n}} days · longest {{m}}",
+  "Bitirilen adım ve sahne": "Steps and scenes finished",
+  "Pratik dakikası": "Practice minutes",
+  "Günlük pratik (dakika)": "Daily practice (minutes)",
+  "Kelime tekrarları ve bitirilen adımlar bu sürümle sayılmaya başladı; yeni kelimeler ve dakikalar baştan beri sayılıyor.": "Word reviews and finished steps are counted from this version on; new words and minutes are counted from the start."
 }

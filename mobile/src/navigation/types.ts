@@ -94,6 +94,8 @@ export type RootStackParamList = {
   PathVocab: { stepId: string };
   /** The chapter/unit guide opened from the home screen. */
   PathGuide: { stepId: string };
+  /** "Gelişimim": the week or month of activity, from the profile. */
+  Progress: undefined;
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -129,6 +131,7 @@ export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'Wo
 export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
 export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
 export type PathGuideScreenProps = NativeStackScreenProps<RootStackParamList, 'PathGuide'>;
+export type ProgressScreenProps = NativeStackScreenProps<RootStackParamList, 'Progress'>;
 
 
 declare global {

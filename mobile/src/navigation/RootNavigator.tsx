@@ -88,6 +88,7 @@ export function RootNavigator() {
           <Stack.Screen name="WordRoom" getComponent={() => require('../screens/WordRoomScreen').WordRoomScreen} />
           <Stack.Screen name="PathLesson" getComponent={() => require('../screens/PathLessonScreen').PathLessonScreen} />
           <Stack.Screen name="PathVocab" getComponent={() => require('../screens/PathVocabScreen').PathVocabScreen} />
+          <Stack.Screen name="Progress" getComponent={() => require('../screens/ProgressScreen').ProgressScreen} />
           <Stack.Screen
             name="PathGuide"
             getComponent={() => require('../screens/PathGuideScreen').PathGuideScreen}

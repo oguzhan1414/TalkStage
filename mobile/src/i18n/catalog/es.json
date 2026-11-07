@@ -3730,5 +3730,12 @@
   "Sıradaki paket: {{range}}": "Siguiente paquete: {{range}}",
   "Paketlere dön": "Volver a los paquetes",
   "SIRADAKİ PAKET": "SIGUIENTE PAQUETE",
-  "Bu türün bütün paketlerini bitirdin 🎉": "Terminaste todos los paquetes de este tipo 🎉"
+  "Bu türün bütün paketlerini bitirdin 🎉": "Terminaste todos los paquetes de este tipo 🎉",
+  "Son 30 gün": "Últimos 30 días",
+  "Çalıştığın günler": "Días que practicaste",
+  "Seri: {{n}} gün · en uzun {{m}}": "Racha: {{n}} días · la más larga {{m}}",
+  "Bitirilen adım ve sahne": "Pasos y escenas terminados",
+  "Pratik dakikası": "Minutos de práctica",
+  "Günlük pratik (dakika)": "Práctica diaria (minutos)",
+  "Kelime tekrarları ve bitirilen adımlar bu sürümle sayılmaya başladı; yeni kelimeler ve dakikalar baştan beri sayılıyor.": "Los repasos y los pasos terminados se cuentan desde esta versión; las palabras nuevas y los minutos, desde el principio."
 }

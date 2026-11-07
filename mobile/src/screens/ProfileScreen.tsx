@@ -249,19 +249,21 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             <Ionicons name="information-circle-outline" size={18} color={VP.inkSoft} />
           </Pressable>
 
-          {/* Three numbers in one slim row */}
-          <View style={styles.stats}>
+          {/* Three numbers in one slim row; tapping opens "Gelişimim" */}
+          <Pressable onPress={() => navigation.navigate('Progress')} style={styles.stats} accessibilityRole="button" accessibilityLabel={t("Gelişimim")}>
             <Stat icon="flame" color={VP.coralDeep} value={profile?.streak_count ?? 0} label={t("Günlük seri")} />
             <View style={styles.statDivider} />
             <Stat icon="book" color={VP.skyDeep} value={stats.episodes} label={t("Bölüm")} />
             <View style={styles.statDivider} />
             <Stat icon="sparkles" color={VP.mintDeep} value={stats.words} label={t("Kelime")} />
-          </View>
+          </Pressable>
         </View>
 
         {/* Learning */}
         <Text style={styles.groupTitle}>{t("Öğrenme")}</Text>
         <View style={styles.card}>
+          <Row icon="stats-chart" tint="#0EA5E9" label={t("Gelişimim")} onPress={() => navigation.navigate('Progress')} />
+          <Divider />
           <Row
             icon="trail-sign"
             tint={TEAL}
