@@ -3665,5 +3665,11 @@
   "Bölüm rehberi": "Episode guide",
   "Ünite rehberi": "Unit guide",
   "Bölüm rehberini aç": "Open the episode guide",
-  "Ünite rehberini aç": "Open the unit guide"
+  "Ünite rehberini aç": "Open the unit guide",
+  "ÜNİTE {{n}}": "UNIT {{n}}",
+  "Ünite tamamlandı!": "Unit complete!",
+  "{{done}}/{{total}} adım": "{{done}}/{{total}} steps",
+  "günlük seri": "day streak",
+  "Yarın da gel, alev sönmesin!": "Come back tomorrow, keep the flame alive!",
+  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} on the first try"
 }

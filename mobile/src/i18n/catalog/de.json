@@ -3688,5 +3688,11 @@
   "Bölüm rehberi": "Guide zur Folge",
   "Ünite rehberi": "Guide zur Einheit",
   "Bölüm rehberini aç": "Guide zur Folge öffnen",
-  "Ünite rehberini aç": "Guide zur Einheit öffnen"
+  "Ünite rehberini aç": "Guide zur Einheit öffnen",
+  "ÜNİTE {{n}}": "EINHEIT {{n}}",
+  "Ünite tamamlandı!": "Einheit geschafft!",
+  "{{done}}/{{total}} adım": "{{done}}/{{total}} Schritte",
+  "günlük seri": "Tage in Folge",
+  "Yarın da gel, alev sönmesin!": "Komm morgen wieder, damit die Flamme brennt!",
+  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} beim ersten Versuch"
 }
