@@ -3648,5 +3648,7 @@
   "{{n}} gün": "{{n}} days",
   "Öğrenme yolunda 5 adım bitir": "Finish 5 steps on the learning path",
   "Öğrenme yolunda 30 adım bitir": "Finish 30 steps on the learning path",
-  "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "One lesson episode and a short word review a day (most popular)"
+  "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "One lesson episode and a short word review a day (most popular)",
+  "%{{n}}": "{{n}}%",
+  "{{level}} seviyesi: %{{n}}": "Level {{level}}: {{n}}%"
 }

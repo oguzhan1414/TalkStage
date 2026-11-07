@@ -3671,5 +3671,7 @@
   "{{n}} gün": "{{n}} dias",
   "Öğrenme yolunda 5 adım bitir": "Conclua 5 etapas da trilha",
   "Öğrenme yolunda 30 adım bitir": "Conclua 30 etapas da trilha",
-  "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "Um episódio de aula e uma revisão curta de palavras por dia (o mais escolhido)"
+  "Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)": "Um episódio de aula e uma revisão curta de palavras por dia (o mais escolhido)",
+  "%{{n}}": "{{n}}%",
+  "{{level}} seviyesi: %{{n}}": "Nível {{level}}: {{n}}%"
 }

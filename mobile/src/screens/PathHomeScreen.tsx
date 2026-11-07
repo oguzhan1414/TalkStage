@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { homeBackdrop } from '../assets/homeBackdrops';
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
@@ -35,7 +35,12 @@ const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
 const CHIP_ROOM = 18;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
-const MEDAL_EXTRA = CHIP_ROOM + 156;
+const MEDAL_EXTRA = CHIP_ROOM + 168;
+/** The level crescent at the top: radius, stroke and how far round it goes. */
+const ARC_R = 52;
+const ARC_SW = 10;
+const ARC_SWEEP = 220;
+const ARC_DISC = 34;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -193,7 +198,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   const readings = steps.filter((f) => f.step.kind === 'reading');
   const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
-  const levelShare = steps.length ? current.index / steps.length : 0;
+  /** The level's share passed so far: what the crescent at the top fills to. */
+  const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
   const dueCount = dueCards?.length ?? 0;
 
   /** Mivo's bubble above the tab bar: shown a few seconds when there is something to say, then it folds away. */
@@ -243,47 +249,44 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       <HomeBackdrop backdrop={backdrop} width={winW} horizon={horizon} />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-        {/* Top: one slim row — streak, level and unit, today's goal ring, Pro */}
+        {/* Top: streak and today's goal, the level crescent in the middle, Pro */}
         <View style={styles.topRow}>
-          <View style={styles.topChip}>
-            <Ionicons name="flame" size={18} color="#F97316" />
-            <Text style={styles.topChipNum}>{profile?.streak_count ?? 0}</Text>
+          <View style={styles.topSide}>
+            <View style={styles.topChip}>
+              <Ionicons name="flame" size={18} color="#F97316" />
+              <Text style={styles.topChipNum}>{profile?.streak_count ?? 0}</Text>
+            </View>
+            <GoalRing minutes={Math.min(todayMinutes, target)} target={target} />
           </View>
-          <View style={[styles.topChip, { flex: 1, justifyContent: 'center' }]}>
-            <Text style={styles.storyChipLevel}>{level.id}</Text>
-            <Text style={styles.topChipText} numberOfLines={1}>{t("Ünite {{n}}", { n: focused.unit.number })}</Text>
+          <LevelArc level={level.id} share={levelShare} />
+          <View style={[styles.topSide, { justifyContent: 'flex-end' }]}>
+            <Pressable
+              onPress={() => {
+                if (isPro) return;
+                trackEvent('paywall_opened', { source: 'home_pro_pill' });
+                navigation.navigate('Paywall');
+              }}
+              style={[styles.proPill, isPro && styles.proPillOn]}
+              accessibilityRole="button"
+              accessibilityLabel={t("Spekvia Pro")}
+            >
+              <Text style={styles.proPillText}>👑 PRO</Text>
+            </Pressable>
           </View>
-          <GoalRing minutes={Math.min(todayMinutes, target)} target={target} />
-          <Pressable
-            onPress={() => {
-              if (isPro) return;
-              trackEvent('paywall_opened', { source: 'home_pro_pill' });
-              navigation.navigate('Paywall');
-            }}
-            style={[styles.proPill, isPro && styles.proPillOn]}
-            accessibilityRole="button"
-            accessibilityLabel={t("Spekvia Pro")}
-          >
-            <Text style={styles.proPillText}>👑 PRO</Text>
-          </Pressable>
         </View>
 
-        {/* Story */}
-        <View style={styles.storyRow}>
-          <View style={{ flex: 1, alignItems: 'flex-start' }}>
-            <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
-              <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
-                {loc(level.story.title)}
-              </Text>
-            </Pressable>
-            <View style={styles.chapterRow}>
-              <View style={[styles.chapterTrack, backdrop.lightSky && { backgroundColor: 'rgba(67,56,202,0.15)' }]}>
-                <View style={[styles.chapterFill, { width: `${Math.max(4, Math.round(levelShare * 100))}%` }]} />
-              </View>
+        {/* Story: the title (opens the cast) and the chapter, with today's small jobs beside it */}
+        <View style={styles.storyBlock}>
+          <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
+            <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
+              {loc(level.story.title)}
+            </Text>
+          </Pressable>
+          <View style={styles.storyMeta}>
+            <View style={[styles.chapterChip, backdrop.lightSky && styles.chapterChipOnLight]}>
+              <Ionicons name="book" size={12} color={backdrop.lightSky ? '#4338CA' : '#FFFFFF'} />
               <Text style={[styles.chapterText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Bölüm {{n}}/{{m}}", { n: chapter, m: readings.length })}</Text>
             </View>
-          </View>
-          <View style={styles.pills}>
             {dueCount > 0 ? (
               <TodayPill delay={250} icon="layers" color="#0EA5E9" label={t("{{n}} kelime", { n: dueCount })} onPress={() => navigation.navigate('Vocab')} />
             ) : null}
@@ -506,6 +509,15 @@ function Medallion({
           : stars > 0
             ? t("Devam et")
           : t("Başla");
+  const ctaIcon: React.ComponentProps<typeof Ionicons>['name'] = soon
+    ? 'time'
+    : isFuture
+      ? 'lock-closed'
+      : type === 'scene'
+        ? 'mic'
+        : done
+          ? 'refresh'
+          : 'play';
 
   return (
     <View style={{ alignItems: 'center', width: size + 40 }}>
@@ -660,14 +672,32 @@ function Medallion({
         </Text>
       ) : null}
 
+      {/* A thick 3D button: the face sits on a darker edge and sinks into it when pressed. */}
       <Pressable
         onPress={onOpen}
         disabled={locked}
-        style={({ pressed }) => [styles.cta, locked && styles.ctaLocked, pressed && { transform: [{ translateY: 2 }] }]}
+        style={[styles.ctaWrap, { width: Math.min(270, size + 30) }]}
         accessibilityRole="button"
+        accessibilityLabel={cta}
       >
-        {!locked && !done ? <Shine /> : null}
-        <Text style={[styles.ctaText, locked && { color: '#64748B' }]}>{cta}</Text>
+        {({ pressed }) => (
+          <View style={[styles.ctaEdge, locked && styles.ctaEdgeLocked]}>
+            <View style={[styles.ctaFace, pressed && styles.ctaFacePressed]}>
+              <LinearGradient
+                colors={locked ? ['#F8FAFC', '#E2E8F0'] : ['#FFE27A', '#FBBF24']}
+                style={StyleSheet.absoluteFill}
+              />
+              <View pointerEvents="none" style={styles.ctaGloss} />
+              {!locked && !done ? <Shine /> : null}
+              <Text style={[styles.ctaText, locked && { color: '#64748B' }]} numberOfLines={1} adjustsFontSizeToFit>
+                {cta}
+              </Text>
+              <View style={[styles.ctaIcon, locked && { backgroundColor: 'rgba(100,116,139,0.12)' }]}>
+                <Ionicons name={ctaIcon} size={15} color={locked ? '#64748B' : '#78350F'} />
+              </View>
+            </View>
+          </View>
+        )}
       </Pressable>
 
       {type === 'scene' && !locked && !passed ? (
@@ -707,6 +737,57 @@ function GoalRing({ minutes, target }: { minutes: number; target: number }) {
         <View style={styles.goalRingInner}>
           {done ? <Ionicons name="checkmark" size={16} color="#16A34A" /> : <Text style={styles.goalRingText}>{minutes}</Text>}
         </View>
+      </View>
+    </View>
+  );
+}
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+/** The level as a crescent at the top: it fills with the level's passed steps; the level sits in a disc inside. */
+function LevelArc({ level, share }: { level: string; share: number }) {
+  const w = 2 * ARC_R + ARC_SW;
+  const cx = w / 2;
+  const cy = ARC_R + ARC_SW / 2;
+  const half = ((ARC_SWEEP / 2) * Math.PI) / 180;
+  const sx = cx - ARC_R * Math.sin(half);
+  const ex = cx + ARC_R * Math.sin(half);
+  const ey = cy - ARC_R * Math.cos(half);
+  const length = ARC_R * ((ARC_SWEEP * Math.PI) / 180);
+  const d = `M ${sx} ${ey} A ${ARC_R} ${ARC_R} 0 1 1 ${ex} ${ey}`;
+  const height = Math.max(ey + ARC_SW / 2, cy + ARC_DISC) + 2;
+  const percent = Math.round(Math.min(1, Math.max(0, share)) * 100);
+
+  const fill = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fill, { toValue: Math.min(1, Math.max(0, share)), duration: 900, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+  }, [share, fill]);
+
+  return (
+    <View style={{ width: w, height }} accessibilityLabel={t("{{level}} seviyesi: %{{n}}", { level, n: percent })}>
+      <Svg width={w} height={height}>
+        <Defs>
+          <SvgGradient id="levelArcFill" x1="0" y1="0" x2="1" y2="0">
+            <Stop offset="0" stopColor="#FCD34D" />
+            <Stop offset="1" stopColor="#F59E0B" />
+          </SvgGradient>
+        </Defs>
+        {/* A thin dark rim under the track, so the crescent reads on any sky. */}
+        <Path d={d} stroke="rgba(30,58,138,0.14)" strokeWidth={ARC_SW + 3} strokeLinecap="round" fill="none" />
+        <Path d={d} stroke="rgba(255,255,255,0.85)" strokeWidth={ARC_SW} strokeLinecap="round" fill="none" />
+        <AnimatedPath
+          d={d}
+          stroke="url(#levelArcFill)"
+          strokeWidth={ARC_SW}
+          strokeLinecap="round"
+          fill="none"
+          strokeDasharray={`${length} ${length}`}
+          strokeDashoffset={fill.interpolate({ inputRange: [0, 1], outputRange: [length, 0] })}
+        />
+      </Svg>
+      <View style={[styles.arcDisc, { left: cx - ARC_DISC, top: cy - ARC_DISC }]}>
+        <Text style={styles.arcLevel}>{level}</Text>
+        <Text style={styles.arcPercent}>{t("%{{n}}", { n: percent })}</Text>
       </View>
     </View>
   );
@@ -810,13 +891,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
   top: { paddingHorizontal: spacing.md, paddingTop: 6 },
-  topRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, paddingTop: 6 },
+  topRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md, paddingTop: 4 },
+  topSide: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 5 },
   topChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    height: 40,
-    paddingHorizontal: 12,
+    gap: 4,
+    height: 38,
+    paddingHorizontal: 10,
     borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.88)',
     shadowColor: '#1E3A8A',
@@ -826,14 +908,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   topChipNum: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  topChipText: { fontFamily: fonts.headingBold, fontSize: 13.5, color: '#3730A3' },
   goalRing: { width: 40, height: 40 },
   goalRingInner: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   goalRingText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
   proPill: {
-    height: 40,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    height: 38,
+    paddingHorizontal: 11,
+    borderRadius: 19,
     justifyContent: 'center',
     backgroundColor: '#FDE68A',
     borderWidth: 1.5,
@@ -902,7 +983,36 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 4, height: 44 },
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
-  storyRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md + 4, marginTop: 10 },
+  storyBlock: { alignItems: 'center', paddingHorizontal: spacing.lg, marginTop: 2 },
+  storyMeta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
+  chapterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    height: 28,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.45)',
+  },
+  chapterChipOnLight: { backgroundColor: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.95)' },
+  arcDisc: {
+    position: 'absolute',
+    width: ARC_DISC * 2,
+    height: ARC_DISC * 2,
+    borderRadius: ARC_DISC,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.14,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  arcLevel: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 27, color: '#3730A3' },
+  arcPercent: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#B45309', letterSpacing: 0.3 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -916,32 +1026,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.45)',
   },
   storyChipOnLight: { backgroundColor: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.9)' },
-  storyChipLevel: {
-    fontFamily: fonts.headingBold,
-    fontSize: 12,
-    color: '#4338CA',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    overflow: 'hidden',
-    paddingHorizontal: 7,
-    paddingVertical: 1,
-  },
   storyChipText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.4, color: '#FFFFFF' },
   storyTitle: {
     fontFamily: fonts.headingBold,
-    fontSize: 27,
+    fontSize: 24,
     color: '#FFFFFF',
-    marginTop: 6,
+    textAlign: 'center',
     textShadowColor: 'rgba(30,58,138,0.35)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
   storyTitleOnLight: { color: colors.textHeading, textShadowColor: 'rgba(255,255,255,0.6)' },
-  chapterRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  chapterTrack: { width: 92, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.35)', overflow: 'hidden' },
-  chapterFill: { height: '100%', borderRadius: 3, backgroundColor: '#FCD34D' },
   chapterText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#FFFFFF', letterSpacing: 0.3 },
-  pills: { alignItems: 'flex-end', gap: 6, marginLeft: 8 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1011,24 +1107,36 @@ const styles = StyleSheet.create({
   medalBadgeMid: { width: 50, height: 50 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
   medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
-  cta: {
-    marginTop: 11,
-    minWidth: 200,
-    alignItems: 'center',
-    backgroundColor: '#FCD34D',
-    borderRadius: 32,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderBottomWidth: 5,
-    borderBottomColor: '#D97706',
+  ctaWrap: { marginTop: 14 },
+  ctaEdge: {
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: '#D98E04',
     shadowColor: '#92400E',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  ctaLocked: { backgroundColor: '#E2E8F0', borderBottomColor: '#CBD5E1' },
-  ctaText: { fontFamily: fonts.headingBold, fontSize: 20, color: '#78350F' },
+  ctaEdgeLocked: { backgroundColor: '#CBD5E1', shadowOpacity: 0.1 },
+  ctaFace: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 56,
+    borderRadius: 28,
+    overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 18,
+  },
+  ctaFacePressed: { top: 5 },
+  ctaGloss: { position: 'absolute', top: 4, left: 18, right: 18, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.4)' },
+  ctaText: { fontFamily: fonts.headingBold, fontSize: 20, color: '#78350F', letterSpacing: 0.3 },
+  ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.6)' },
   skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 10, textDecorationLine: 'underline' },
   shineClip: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 32, overflow: 'hidden' },
   shineBand: { position: 'absolute', top: -20, bottom: -20, width: 34, backgroundColor: 'rgba(255,255,255,0.55)' },
