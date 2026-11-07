@@ -2,7 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Toast } from '../components/Toast';
 import { vocabArt } from '../assets/images';
@@ -29,7 +29,6 @@ import { MivoLoader } from '../components/MivoLoader';
 import { t, nativeFlag } from '../i18n';
 
 type LibraryCategory = 'nouns' | 'verbs' | 'adjectives';
-type StatusFilter = 'new' | 'all' | 'saved' | 'known';
 
 const PACKS: Record<
   LibraryCategory,
@@ -282,18 +281,47 @@ const WordCard = memo(function WordCard({
   );
 });
 
+/** Words per small pack: a sitting's worth, so the library is a row of short steps instead of one long list. */
+const CHUNK = 20;
+
+type SmallPack = { id: string; category: LibraryCategory; index: number; range: string; words: LibraryWordEntry[] };
+
+/** Each category's 300 words as packs of 20, in frequency order. */
+const SMALL_PACKS: Record<LibraryCategory, SmallPack[]> = Object.fromEntries(
+  CATEGORIES.map((cat) => {
+    const words = PACKS[cat].sets.flatMap((s) => s.words);
+    const packs: SmallPack[] = [];
+    for (let i = 0; i < words.length; i += CHUNK) {
+      packs.push({ id: `${cat}_${i / CHUNK}`, category: cat, index: i / CHUNK, range: `${i + 1}–${Math.min(i + CHUNK, words.length)}`, words: words.slice(i, i + CHUNK) });
+    }
+    return [cat, packs];
+  })
+) as Record<LibraryCategory, SmallPack[]>;
+const PACK_BY_ID = new Map(CATEGORIES.flatMap((cat) => SMALL_PACKS[cat].map((p) => [p.id, p] as const)));
+const TEAL = '#0D9488';
+
+/**
+ * "Kütüphane": the 900 core words as packs of 20 per word type. The top offers the next unfinished pack; a pack opens
+ * the study room, where the words come one at a time (picture-free card: word, sound, meaning, example, forms) and
+ * each is either known or saved to the chest, with tags if wanted. A pack can also be seen as a list (to undo or
+ * revisit), and the search looks through the whole library.
+ */
 export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   const queryClient = useQueryClient();
   const { pronounce } = usePronunciation();
 
   const [category, setCategory] = useState<LibraryCategory>('nouns');
-  const [packIndex, setPackIndex] = useState(0);
-  const [status, setStatus] = useState<StatusFilter>('new');
+  const [openPackId, setOpenPackId] = useState<string | null>(null);
+  const [packMode, setPackMode] = useState<'study' | 'list'>('study');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const statusInitialized = useRef(false);
+  /** Words handled in the study room right now, before the server data catches up (no double taps). */
+  const [handled, setHandled] = useState<Record<string, 'known' | 'saved'>>({});
+  const [lastKnown, setLastKnown] = useState<LibraryWordEntry | null>(null);
+  const [studyTags, setStudyTags] = useState<string[]>([]);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(
     () => () => {
@@ -308,7 +336,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   }, []);
 
-  // All saved cards (dedup + progress) and the words explicitly marked "Biliyorum, Atla".
+  // All saved cards (dedup + progress) and the words explicitly marked "Biliyorum".
   const { data: allCards, isLoading } = useQuery({
     queryKey: ['vocab-cards', 'all'],
     queryFn: () => api.get<VocabCardOut[]>('/vocab-cards?all=true'),
@@ -335,71 +363,58 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   );
   const dismissedIds = useMemo(() => new Set(dismissedWordIds ?? []), [dismissedWordIds]);
   const loading = isLoading || progressLoading;
+  /** The learner's own tags, offered in the study room (most used first). */
+  const userTags = useMemo(() => {
+    const count = new Map<string, number>();
+    (allCards ?? []).forEach((c) => (c.tags ?? []).forEach((tag) => count.set(tag, (count.get(tag) ?? 0) + 1)));
+    return [...count.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) => tag).slice(0, 6);
+  }, [allCards]);
 
   const isSaved = useCallback((w: LibraryWordEntry) => savedTermsLower.has(w.word.trim().toLowerCase()), [savedTermsLower]);
   const isKnown = useCallback((w: LibraryWordEntry) => dismissedIds.has(w.id), [dismissedIds]);
-  const isReviewed = useCallback((w: LibraryWordEntry) => isSaved(w) || isKnown(w), [isSaved, isKnown]);
+  const isReviewed = useCallback((w: LibraryWordEntry) => isSaved(w) || isKnown(w) || !!handled[w.id], [isSaved, isKnown, handled]);
 
-  // Progress per pack / category / overall.
+  // Progress per small pack, per category and overall.
   const stats = useMemo(() => {
-    const perCategory = {} as Record<LibraryCategory, { done: number; total: number; packs: { done: number; total: number }[] }>;
+    const perPack = new Map<string, number>();
+    const perCategory = {} as Record<LibraryCategory, { done: number; total: number }>;
     let overall = 0;
     for (const cat of CATEGORIES) {
-      const packs = PACKS[cat].sets.map((s) => ({ done: s.words.filter(isReviewed).length, total: s.words.length }));
-      const done = packs.reduce((a, p) => a + p.done, 0);
-      perCategory[cat] = { done, total: packs.reduce((a, p) => a + p.total, 0), packs };
+      let done = 0;
+      let total = 0;
+      for (const p of SMALL_PACKS[cat]) {
+        const d = p.words.filter(isReviewed).length;
+        perPack.set(p.id, d);
+        done += d;
+        total += p.words.length;
+      }
+      perCategory[cat] = { done, total };
       overall += done;
     }
-    return { perCategory, overall };
+    return { perPack, perCategory, overall };
   }, [isReviewed]);
 
-  const activeCat = PACKS[category];
-  const activeSet = activeCat.sets[packIndex] ?? activeCat.sets[0];
+  /** The first pack of a category with words still new. */
+  const nextPackOf = useCallback(
+    (cat: LibraryCategory) => SMALL_PACKS[cat].find((p) => (stats.perPack.get(p.id) ?? 0) < p.words.length) ?? null,
+    [stats]
+  );
+  const nextPack = nextPackOf(category);
+
   const query = searchQuery.trim().toLowerCase();
   const searching = query.length > 0;
-
-  // Once the data is in: start on "Yeni" (where the user left off), or "Tümü" if this pack has nothing new.
-  useEffect(() => {
-    if (loading || statusInitialized.current) return;
-    statusInitialized.current = true;
-    if (activeSet.words.every(isReviewed)) setStatus('all');
-  }, [loading, activeSet, isReviewed]);
-
-  const counts = useMemo(() => {
-    const words = activeSet.words;
-    return {
-      new: words.filter((w) => !isReviewed(w)).length,
-      all: words.length,
-      saved: words.filter(isSaved).length,
-      known: words.filter((w) => isKnown(w) && !isSaved(w)).length,
-    };
-  }, [activeSet, isReviewed, isSaved, isKnown]);
-
-  const data = useMemo(() => {
-    if (searching) {
-      const out: { entry: LibraryWordEntry; category: LibraryCategory; packIndex: number }[] = [];
-      for (const w of ALL_WORDS) {
-        const e = w.entry;
-        if (
-          e.word.toLowerCase().includes(query) ||
-          e.translation.toLowerCase().includes(query) ||
-          e.exampleEn.toLowerCase().includes(query)
-        ) {
-          out.push(w);
-          if (out.length >= SEARCH_LIMIT) break;
-        }
+  const searchResults = useMemo(() => {
+    if (!searching) return [];
+    const out: { entry: LibraryWordEntry; category: LibraryCategory; packIndex: number }[] = [];
+    for (const w of ALL_WORDS) {
+      const e = w.entry;
+      if (e.word.toLowerCase().includes(query) || e.translation.toLowerCase().includes(query) || e.exampleEn.toLowerCase().includes(query)) {
+        out.push(w);
+        if (out.length >= SEARCH_LIMIT) break;
       }
-      return out;
     }
-    return activeSet.words
-      .filter((w) => {
-        if (status === 'new') return !isReviewed(w);
-        if (status === 'saved') return isSaved(w);
-        if (status === 'known') return isKnown(w) && !isSaved(w);
-        return true;
-      })
-      .map((entry) => ({ entry, category, packIndex }));
-  }, [searching, query, activeSet, status, category, packIndex, isReviewed, isSaved, isKnown]);
+    return out;
+  }, [searching, query]);
 
   // Already saved but not due yet: bring it into today's review (the word keeps its SM-2 history).
   const handleReviewNow = useCallback(
@@ -415,8 +430,8 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
     [queryClient, showToast]
   );
 
-  const handleAdd = useCallback(
-    async (entry: LibraryWordEntry) => {
+  const addWord = useCallback(
+    async (entry: LibraryWordEntry, tags: string[], quiet: boolean) => {
       if (savedTermsLower.has(entry.word.trim().toLowerCase())) return;
       const meta = META_BY_ID.get(entry.id);
       const source = meta ? `${PACKS[meta.category].label} (${PACKS[meta.category].sets[meta.packIndex].range})` : undefined;
@@ -427,31 +442,37 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
           example_sentence: entry.exampleEn,
           part_of_speech: entry.partOfSpeech,
           source_label: source,
+          ...(tags.length ? { tags } : {}),
         } satisfies VocabCardCreate);
         await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
-        showToast(t("“{{word}}” Kelime Sandığına eklendi 📚", { word: entry.word }));
+        if (!quiet) showToast(t("“{{word}}” Kelime Sandığına eklendi 📚", { word: entry.word }));
       } catch (err) {
+        setHandled(({ [entry.id]: _, ...rest }) => rest);
         showToast(err instanceof ApiError ? err.message : t("Kelime eklenemedi"));
       }
     },
     [queryClient, savedTermsLower, showToast]
   );
+  const handleAdd = useCallback((entry: LibraryWordEntry) => addWord(entry, [], false), [addWord]);
 
-  const handleKnown = useCallback(
-    async (entry: LibraryWordEntry) => {
+  const markKnown = useCallback(
+    async (entry: LibraryWordEntry, quiet: boolean) => {
       try {
         await api.post('/vocab-library/progress', { word_id: entry.id } satisfies VocabLibraryProgressCreate);
         await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
-        showToast(t("“{{word}}” biliniyor olarak işaretlendi ✓", { word: entry.word }));
+        if (!quiet) showToast(t("“{{word}}” biliniyor olarak işaretlendi ✓", { word: entry.word }));
       } catch (err) {
+        setHandled(({ [entry.id]: _, ...rest }) => rest);
         showToast(err instanceof ApiError ? err.message : t("İşaretlenemedi"));
       }
     },
     [queryClient, showToast]
   );
+  const handleKnown = useCallback((entry: LibraryWordEntry) => markKnown(entry, false), [markKnown]);
 
   const handleUndo = useCallback(
     async (entry: LibraryWordEntry) => {
+      setHandled(({ [entry.id]: _, ...rest }) => rest);
       try {
         await api.delete(`/vocab-library/progress/${entry.id}`);
         await queryClient.invalidateQueries({ queryKey: ['vocab-library-progress'] });
@@ -464,154 +485,241 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 
   const toggleExpanded = useCallback((id: string) => setExpandedId((prev) => (prev === id ? null : id)), []);
 
-  const pickCategory = (cat: LibraryCategory) => {
-    setCategory(cat);
-    setPackIndex(0);
+  const openPack = (pack: SmallPack, mode: 'study' | 'list' = 'study') => {
+    setOpenPackId(pack.id);
+    setPackMode(mode);
+    setLastKnown(null);
+    setShowDetails(false);
     setExpandedId(null);
   };
 
-  const pickPack = (idx: number) => {
-    setPackIndex(idx);
-    setExpandedId(null);
+  const openPackData = openPackId ? PACK_BY_ID.get(openPackId) ?? null : null;
+  const studyQueue = openPackData ? openPackData.words.filter((w) => !isReviewed(w)) : [];
+  const current = studyQueue[0] ?? null;
+
+  // A new word in the study room: say it once and fold its details.
+  useEffect(() => {
+    if (!current || packMode !== 'study') return;
+    setShowDetails(false);
+    const id = setTimeout(() => void pronounce(current.word), 250);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id, packMode]);
+
+  const studyKnown = () => {
+    if (!current) return;
+    setHandled((h) => ({ ...h, [current.id]: 'known' }));
+    setLastKnown(current);
+    void markKnown(current, true);
+  };
+  const studySave = () => {
+    if (!current) return;
+    setHandled((h) => ({ ...h, [current.id]: 'saved' }));
+    setLastKnown(null);
+    void addWord(current, studyTags, true);
   };
 
   const overallPct = Math.round((stats.overall / TOTAL_WORDS) * 100);
-  const FILTERS: { id: StatusFilter; label: string; count: number }[] = [
-    { id: 'new', label: t("Yeni"), count: counts.new },
-    { id: 'all', label: t("Tümü"), count: counts.all },
-    { id: 'saved', label: t("Sandıkta"), count: counts.saved },
-    { id: 'known', label: t("Biliyorum"), count: counts.known },
-  ];
+  const sessionSaved = openPackData ? openPackData.words.filter((w) => handled[w.id] === 'saved').length : 0;
+  const sessionKnown = openPackData ? openPackData.words.filter((w) => handled[w.id] === 'known').length : 0;
 
-  const header = (
-    <View style={styles.listHeader}>
-      {/* Overall progress, one quiet line */}
-      <View style={styles.overallRow}>
-        <Text style={styles.overallText}>
-          {t("Genel ilerleme")} <Text style={styles.overallNum}>{stats.overall}</Text> / {TOTAL_WORDS}
-        </Text>
-        <View style={styles.overallTrack}>
-          <View style={[styles.overallFill, { width: `${Math.max(3, overallPct)}%` }]} />
-        </View>
-        <Text style={styles.overallPct}>%{overallPct}</Text>
-      </View>
-
-      {/* The three word types as illustrated covers */}
-      <View style={styles.catRow}>
-        {CATEGORIES.map((cat) => {
-          const c = PACKS[cat];
-          const st = stats.perCategory[cat];
-          const active = cat === category;
-          return (
-            <Pressable
-              key={cat}
-              onPress={() => pickCategory(cat)}
-              style={({ pressed }) => [styles.catCard, active && { borderColor: c.color }, pressed && { transform: [{ scale: 0.97 }] }]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-            >
-              <View style={[styles.catCoverBox, { backgroundColor: c.soft }]}>
-                <Image source={c.cover} style={styles.catCover} resizeMode="contain" />
-              </View>
-              <Text style={[styles.catLabel, active && { color: c.color }]} numberOfLines={1}>
-                {c.label}
-              </Text>
-              <Text style={styles.catCount}>
-                {st.done}/{st.total}
-              </Text>
-              <View style={styles.catTrack}>
-                <View style={[styles.catFill, { backgroundColor: c.color, width: `${Math.max(4, (st.done / st.total) * 100)}%` }]} />
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <View style={styles.packRow}>
-        {activeCat.sets.map((s, idx) => {
-          const p = stats.perCategory[category].packs[idx];
-          const pct = Math.round((p.done / p.total) * 100);
-          const active = idx === packIndex;
-          return (
-            <Pressable
-              key={s.id}
-              onPress={() => pickPack(idx)}
-              style={[styles.packChip, active && { backgroundColor: activeCat.color, borderColor: activeCat.color }]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-            >
-              <Text style={[styles.packRange, active && styles.packRangeActive]}>{s.range}</Text>
-              <Text style={[styles.packPct, active && styles.packPctActive]}>{pct === 100 ? '✓' : `%${pct}`}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <View style={styles.searchBox}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t("Tüm kütüphanede ara…")}
-          placeholderTextColor={colors.textMuted}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="search"
-          accessibilityLabel={t("Tüm kütüphanede ara…")}
-        />
-        {searchQuery ? (
-          <Pressable onPress={() => setSearchQuery('')} hitSlop={10} accessibilityLabel={t("Aramayı temizle")}>
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+  // ---------------------------------------------------------------- A pack: the study room or its list
+  if (openPackData) {
+    const c = PACKS[openPackData.category];
+    const done = stats.perPack.get(openPackData.id) ?? 0;
+    const total = openPackData.words.length;
+    const following = SMALL_PACKS[openPackData.category][openPackData.index + 1] ?? null;
+    const rows = current ? detailRows(current) : [];
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.roomBar}>
+          <Pressable onPress={() => setOpenPackId(null)} hitSlop={10} style={styles.roomBack} accessibilityRole="button" accessibilityLabel={t("Paketler")}>
+            <Ionicons name="chevron-back" size={22} color={VP.ink} />
           </Pressable>
-        ) : null}
-      </View>
-
-      {searching ? (
-        <Text style={styles.hint}>{t("Tüm {{total}} kelimede aranıyor", { total: TOTAL_WORDS })}</Text>
-      ) : (
-        <View style={styles.filterRow}>
-          {FILTERS.map((f) => {
-            const active = status === f.id;
-            return (
-              <Pressable
-                key={f.id}
-                onPress={() => {
-                  setStatus(f.id);
-                  setExpandedId(null);
-                }}
-                style={[styles.filterChip, active && styles.filterChipActive]}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-              >
-                <Text style={[styles.filterText, active && styles.filterTextActive]}>
-                  {f.label} <Text style={[styles.filterCount, active && styles.filterTextActive]}>{f.count}</Text>
-                </Text>
-              </Pressable>
-            );
-          })}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.roomTitle} numberOfLines={1}>
+              {c.label} · {openPackData.range}
+            </Text>
+            <View style={styles.roomTrack}>
+              <View style={[styles.roomFill, { width: `${Math.max(3, (done / total) * 100)}%` }]} />
+            </View>
+          </View>
+          <Pressable
+            onPress={() => setPackMode((m) => (m === 'study' ? 'list' : 'study'))}
+            style={styles.roomToggle}
+            accessibilityRole="button"
+          >
+            <Ionicons name={packMode === 'study' ? 'list' : 'albums'} size={16} color={VP.ink} />
+            <Text style={styles.roomToggleText}>{packMode === 'study' ? t("Liste") : t("Çalış")}</Text>
+          </Pressable>
         </View>
-      )}
-    </View>
-  );
 
-  const empty = loading ? (
-    <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
-  ) : searching ? (
-    <View style={styles.emptyBox}>
-      <Ionicons name="search-outline" size={32} color={colors.textMuted} />
-      <Text style={styles.emptyTitle}>{t("Aradığın kelime bulunamadı")}</Text>
-      <Text style={styles.emptySub}>{t("Farklı bir arama terimi yazmayı dene.")}</Text>
-    </View>
-  ) : (
-    <View style={styles.emptyBox}>
-      <Text style={styles.emptyEmoji}>🎉</Text>
-      <Text style={styles.emptyTitle}>
-        {status === 'new' ? t("Bu pakette yeni kelime kalmadı 🎉") : t("Burada henüz kelime yok")}
-      </Text>
-      <Pressable onPress={() => setStatus('all')} style={styles.emptyBtn}>
-        <Text style={styles.emptyBtnText}>{t("Hepsini göster")}</Text>
-      </Pressable>
+        {packMode === 'list' ? (
+          <FlatList
+            data={openPackData.words}
+            keyExtractor={(w) => w.id}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}|${Object.keys(handled).length}`}
+            renderItem={({ item }) => (
+              <WordCard
+                item={item}
+                accent={c.color}
+                saved={isSaved(item)}
+                known={(isKnown(item) || handled[item.id] === 'known') && !isSaved(item)}
+                expanded={expandedId === item.id}
+                onToggle={toggleExpanded}
+                onSpeak={pronounce}
+                onAdd={handleAdd}
+                onKnown={handleKnown}
+                onUndo={handleUndo}
+                onReviewNow={handleReviewNow}
+                dueLabel={dueLabelOf(item)}
+              />
+            )}
+          />
+        ) : loading ? (
+          <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
+        ) : current ? (
+          <ScrollView contentContainerStyle={styles.roomScroll} showsVerticalScrollIndicator={false}>
+            <Text style={styles.roomCount}>{t("{{n}} kelime kaldı", { n: studyQueue.length })}</Text>
+            <View style={[styles.studyCard, shadow.card]}>
+              <View style={[styles.studyPos, { backgroundColor: `${c.color}1A` }]}>
+                <Text style={[styles.studyPosText, { color: c.color }]}>{POS_LABEL[current.partOfSpeech]}</Text>
+              </View>
+              <Text style={styles.studyWord}>{current.word}</Text>
+              {current.respelling ? <Text style={styles.studyRespelling}>{current.respelling}</Text> : null}
+              <Pressable onPress={() => void pronounce(current.word)} style={styles.studySound} accessibilityRole="button" accessibilityLabel={t("Telaffuzu dinle")}>
+                <Ionicons name="volume-high" size={22} color="#FFFFFF" />
+              </Pressable>
+              <Text style={styles.studyMeaning}>
+                {nativeFlag()} {current.translation}
+              </Text>
+              {current.exampleEn ? (
+                <Pressable onPress={() => void pronounce(current.exampleEn)} style={styles.studyExample} accessibilityRole="button">
+                  <Text style={styles.studyExampleEn}>&ldquo;{current.exampleEn}&rdquo;</Text>
+                  {current.exampleTr && current.exampleTr !== current.exampleEn ? <Text style={styles.studyExampleTr}>{current.exampleTr}</Text> : null}
+                </Pressable>
+              ) : null}
+              {rows.length || current.grammarNote ? (
+                showDetails ? (
+                  <View style={styles.details}>
+                    {current.grammarNote ? (
+                      <View style={styles.noteRow}>
+                        <Ionicons name="sparkles" size={12} color={VP.ink} />
+                        <Text style={styles.noteText}>{current.grammarNote}</Text>
+                      </View>
+                    ) : null}
+                    {rows.length ? (
+                      <View style={styles.formGrid}>
+                        {rows.map((r) => (
+                          <View key={r.label} style={styles.formCell}>
+                            <Text style={styles.formLabel}>{r.label}</Text>
+                            <Text style={styles.formValue}>{r.form}</Text>
+                            {r.sub ? <Text style={styles.formSub}>{r.sub}</Text> : null}
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                  </View>
+                ) : (
+                  <Pressable onPress={() => setShowDetails(true)} hitSlop={8} style={styles.moreBtn} accessibilityRole="button">
+                    <Text style={styles.moreBtnText}>{t("Detaylar")}</Text>
+                    <Ionicons name="chevron-down" size={14} color={VP.ink} />
+                  </Pressable>
+                )
+              ) : null}
+            </View>
+
+            {/* Tags to put on the word when it goes into the chest */}
+            <View style={styles.tagPicker}>
+              <Text style={styles.tagPickerLabel}>{t("Etiket")}</Text>
+              {[c.label, ...userTags.filter((tag) => tag !== c.label)].slice(0, 6).map((tag) => {
+                const on = studyTags.includes(tag);
+                return (
+                  <Pressable
+                    key={tag}
+                    onPress={() => setStudyTags((list) => (on ? list.filter((x) => x !== tag) : [...list, tag]))}
+                    style={[styles.tagChip, on && styles.tagChipOn]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                  >
+                    <Text style={[styles.tagChipText, on && { color: '#FFFFFF' }]}>{tag}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <View style={styles.studyActions}>
+              <Pressable onPress={studyKnown} style={({ pressed }) => [styles.studyKnown, pressed && styles.studyPressed]} accessibilityRole="button">
+                <Ionicons name="checkmark" size={18} color={VP.ink} />
+                <Text style={styles.studyKnownText}>{t("Biliyorum")}</Text>
+              </Pressable>
+              <Pressable onPress={studySave} style={({ pressed }) => [styles.studySave, pressed && styles.studyPressed]} accessibilityRole="button">
+                <Ionicons name="add-circle" size={18} color="#FFFFFF" />
+                <Text style={styles.studySaveText}>{t("Sandığıma ekle")}</Text>
+              </Pressable>
+            </View>
+            {lastKnown ? (
+              <Pressable
+                onPress={() => {
+                  void handleUndo(lastKnown);
+                  setLastKnown(null);
+                }}
+                hitSlop={8}
+                style={styles.undoLink}
+                accessibilityRole="button"
+              >
+                <Ionicons name="arrow-undo" size={14} color={VP.inkSoft} />
+                <Text style={styles.undoLinkText}>{t("“{{word}}” geri al", { word: lastKnown.word })}</Text>
+              </Pressable>
+            ) : null}
+          </ScrollView>
+        ) : (
+          <View style={styles.packDone}>
+            <Text style={styles.emptyEmoji}>🎉</Text>
+            <Text style={styles.emptyTitle}>{t("Paket bitti!")}</Text>
+            <Text style={styles.emptySub}>
+              {sessionSaved || sessionKnown
+                ? t("{{a}} kelime sandığına girdi, {{b}} kelimeyi zaten biliyorsun.", { a: sessionSaved, b: sessionKnown })
+                : t("Bu paketteki bütün kelimelere baktın.")}
+            </Text>
+            {following ? (
+              <Pressable onPress={() => openPack(following)} style={({ pressed }) => [styles.studySave, styles.packDoneBtn, pressed && styles.studyPressed]} accessibilityRole="button">
+                <Text style={styles.studySaveText}>{t("Sıradaki paket: {{range}}", { range: following.range })}</Text>
+              </Pressable>
+            ) : null}
+            <Pressable onPress={() => setOpenPackId(null)} hitSlop={8} style={styles.undoLink} accessibilityRole="button">
+              <Text style={styles.moreBtnText}>{t("Paketlere dön")}</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {toast ? <Toast message={toast} /> : null}
+      </SafeAreaView>
+    );
+  }
+
+  // ---------------------------------------------------------------- The library: next pack, word types, packs
+  const searchBox = (
+    <View style={styles.searchBox}>
+      <Ionicons name="search" size={18} color={colors.textMuted} />
+      <TextInput
+        style={styles.searchInput}
+        placeholder={t("Tüm kütüphanede ara…")}
+        placeholderTextColor={colors.textMuted}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        autoCorrect={false}
+        autoCapitalize="none"
+        returnKeyType="search"
+        accessibilityLabel={t("Tüm kütüphanede ara…")}
+      />
+      {searchQuery ? (
+        <Pressable onPress={() => setSearchQuery('')} hitSlop={10} accessibilityLabel={t("Aramayı temizle")}>
+          <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+        </Pressable>
+      ) : null}
     </View>
   );
 
@@ -629,38 +737,144 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
           </Pressable>
         }
       />
+      <View style={styles.searchWrap}>{searchBox}</View>
 
-      <FlatList
-        data={data}
-        keyExtractor={(row) => row.entry.id}
-        ListHeaderComponent={header}
-        ListEmptyComponent={empty}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        initialNumToRender={8}
-        maxToRenderPerBatch={10}
-        windowSize={7}
-        extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}|${dueByTerm.size}|${allCards?.map((c) => c.next_review_date).join()}`}
-        renderItem={({ item: row }) => (
-          <WordCard
-            item={row.entry}
-            accent={PACKS[row.category].color}
-            tag={searching ? `${PACKS[row.category].label} · ${PACKS[row.category].sets[row.packIndex].range}` : undefined}
-            saved={isSaved(row.entry)}
-            known={isKnown(row.entry) && !isSaved(row.entry)}
-            expanded={expandedId === row.entry.id}
-            onToggle={toggleExpanded}
-            onSpeak={pronounce}
-            onAdd={handleAdd}
-            onKnown={handleKnown}
-            onUndo={handleUndo}
-            onReviewNow={handleReviewNow}
-            dueLabel={dueLabelOf(row.entry)}
-          />
-        )}
-      />
+      {searching ? (
+        <FlatList
+          data={searchResults}
+          keyExtractor={(row) => row.entry.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          ListHeaderComponent={<Text style={[styles.hint, { marginHorizontal: spacing.md }]}>{t("Tüm {{total}} kelimede aranıyor", { total: TOTAL_WORDS })}</Text>}
+          ListEmptyComponent={
+            <View style={styles.emptyBox}>
+              <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+              <Text style={styles.emptyTitle}>{t("Aradığın kelime bulunamadı")}</Text>
+              <Text style={styles.emptySub}>{t("Farklı bir arama terimi yazmayı dene.")}</Text>
+            </View>
+          }
+          extraData={`${expandedId}|${savedTermsLower.size}|${dismissedIds.size}`}
+          renderItem={({ item: row }) => (
+            <WordCard
+              item={row.entry}
+              accent={PACKS[row.category].color}
+              tag={`${PACKS[row.category].label} · ${PACKS[row.category].sets[row.packIndex].range}`}
+              saved={isSaved(row.entry)}
+              known={isKnown(row.entry) && !isSaved(row.entry)}
+              expanded={expandedId === row.entry.id}
+              onToggle={toggleExpanded}
+              onSpeak={pronounce}
+              onAdd={handleAdd}
+              onKnown={handleKnown}
+              onUndo={handleUndo}
+              onReviewNow={handleReviewNow}
+              dueLabel={dueLabelOf(row.entry)}
+            />
+          )}
+        />
+      ) : loading ? (
+        <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.browse} showsVerticalScrollIndicator={false}>
+          {/* Overall progress, one quiet line */}
+          <View style={styles.overallRow}>
+            <Text style={styles.overallText}>
+              {t("Genel ilerleme")} <Text style={styles.overallNum}>{stats.overall}</Text> / {TOTAL_WORDS}
+            </Text>
+            <View style={styles.overallTrack}>
+              <View style={[styles.overallFill, { width: `${Math.max(3, overallPct)}%` }]} />
+            </View>
+            <Text style={styles.overallPct}>%{overallPct}</Text>
+          </View>
+
+          {/* The three word types as illustrated covers */}
+          <View style={styles.catRow}>
+            {CATEGORIES.map((cat) => {
+              const c = PACKS[cat];
+              const st = stats.perCategory[cat];
+              const active = cat === category;
+              return (
+                <Pressable
+                  key={cat}
+                  onPress={() => setCategory(cat)}
+                  style={({ pressed }) => [styles.catCard, active && { borderColor: c.color }, pressed && { transform: [{ scale: 0.97 }] }]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                >
+                  <View style={[styles.catCoverBox, { backgroundColor: c.soft }]}>
+                    <Image source={c.cover} style={styles.catCover} resizeMode="contain" />
+                  </View>
+                  <Text style={[styles.catLabel, active && { color: c.color }]} numberOfLines={1}>
+                    {c.label}
+                  </Text>
+                  <Text style={styles.catCount}>
+                    {st.done}/{st.total}
+                  </Text>
+                  <View style={styles.catTrack}>
+                    <View style={[styles.catFill, { backgroundColor: c.color, width: `${Math.max(4, (st.done / st.total) * 100)}%` }]} />
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {/* Where to go on: the first pack of this word type with new words */}
+          {nextPack ? (
+            <Pressable onPress={() => openPack(nextPack)} accessibilityRole="button">
+              {({ pressed }) => (
+                <View style={[styles.nextCard, pressed && styles.studyPressed]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.nextKicker}>{t("SIRADAKİ PAKET")}</Text>
+                    <Text style={styles.nextTitle}>
+                      {PACKS[category].label} · {nextPack.range}
+                    </Text>
+                    <Text style={styles.nextSub}>{t("{{n}} yeni kelime", { n: nextPack.words.length - (stats.perPack.get(nextPack.id) ?? 0) })}</Text>
+                  </View>
+                  <View style={styles.nextBtn}>
+                    <Text style={styles.nextBtnText}>{t("Çalış")}</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+                  </View>
+                </View>
+              )}
+            </Pressable>
+          ) : (
+            <View style={styles.nextCard}>
+              <Text style={styles.nextTitle}>{t("Bu türün bütün paketlerini bitirdin 🎉")}</Text>
+            </View>
+          )}
+
+          {/* The word type's packs of 20 */}
+          <Text style={styles.packsTitle}>{t("Paketler")}</Text>
+          <View style={styles.packGrid}>
+            {SMALL_PACKS[category].map((p) => {
+              const d = stats.perPack.get(p.id) ?? 0;
+              const full = d >= p.words.length;
+              const isNext = nextPack?.id === p.id;
+              return (
+                <Pressable
+                  key={p.id}
+                  onPress={() => openPack(p, full ? 'list' : 'study')}
+                  style={({ pressed }) => [styles.packTile, isNext && { borderColor: PACKS[category].color }, full && styles.packTileDone, pressed && styles.studyPressed]}
+                  accessibilityRole="button"
+                >
+                  <View style={styles.packTileTop}>
+                    <Text style={styles.packTileRange}>{p.range}</Text>
+                    {full ? <Ionicons name="checkmark-circle" size={16} color={TEAL} /> : null}
+                  </View>
+                  <View style={styles.packTileTrack}>
+                    <View style={[styles.packTileFill, { width: `${Math.max(d ? 8 : 0, (d / p.words.length) * 100)}%`, backgroundColor: full ? TEAL : PACKS[category].color }]} />
+                  </View>
+                  <Text style={styles.packTileCount}>
+                    {d}/{p.words.length}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+      )}
 
       {toast ? <Toast message={toast} /> : null}
     </SafeAreaView>
@@ -668,6 +882,69 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  searchWrap: { paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 4 },
+  browse: { paddingHorizontal: spacing.md, paddingTop: 10, paddingBottom: 120, gap: 14 },
+  nextCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#CCFBF1',
+    borderBottomWidth: 4,
+    borderBottomColor: '#99F6E4',
+  },
+  nextKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1, color: '#0D9488' },
+  nextTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: VP.ink, marginTop: 2 },
+  nextSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: VP.inkSoft, marginTop: 2 },
+  nextBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: '#0D9488' },
+  nextBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF' },
+  packsTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: VP.ink, marginTop: 4 },
+  packGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
+  packTile: { width: '31.5%', gap: 6, padding: 10, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: VP.line, borderBottomWidth: 3 },
+  packTileDone: { backgroundColor: '#F0FDFA', borderColor: '#CCFBF1' },
+  packTileTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  packTileRange: { fontFamily: fonts.headingBold, fontSize: 13.5, color: VP.ink },
+  packTileTrack: { height: 5, borderRadius: 3, backgroundColor: '#EFE8DD', overflow: 'hidden' },
+  packTileFill: { height: '100%', borderRadius: 3 },
+  packTileCount: { fontFamily: fonts.bodyMedium, fontSize: 11.5, color: VP.inkSoft },
+
+  roomBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingVertical: 10 },
+  roomBack: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
+  roomTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: VP.ink },
+  roomTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFE8DD', overflow: 'hidden', marginTop: 6 },
+  roomFill: { height: '100%', borderRadius: 3, backgroundColor: '#14B8A6' },
+  roomToggle: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
+  roomToggleText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
+  roomScroll: { paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 60, gap: 14 },
+  roomCount: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft, textAlign: 'center' },
+  studyCard: { alignItems: 'center', gap: 8, padding: 22, borderRadius: 26, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: VP.line },
+  studyPos: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999 },
+  studyPosText: { fontFamily: fonts.headingBold, fontSize: 11.5 },
+  studyWord: { fontFamily: fonts.headingBold, fontSize: 34, color: VP.ink, textAlign: 'center', marginTop: 4 },
+  studyRespelling: { fontSize: 15, color: VP.inkSoft },
+  studySound: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0EA5E9', marginVertical: 4 },
+  studyMeaning: { fontFamily: fonts.headingSemiBold, fontSize: 18, color: colors.textHeading, textAlign: 'center' },
+  studyExample: { alignSelf: 'stretch', gap: 3, marginTop: 6, padding: 12, borderRadius: 14, backgroundColor: '#F8FAFC' },
+  studyExampleEn: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: colors.textHeading, fontStyle: 'italic', textAlign: 'center' },
+  studyExampleTr: { fontFamily: fonts.bodyRegular, fontSize: 13, lineHeight: 18, color: colors.textMuted, textAlign: 'center' },
+  tagPicker: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
+  tagPickerLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft, marginRight: 2 },
+  tagChip: { paddingHorizontal: 11, paddingVertical: 6, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: VP.line },
+  tagChipOn: { backgroundColor: '#0D9488', borderColor: '#0D9488' },
+  tagChipText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
+  studyActions: { flexDirection: 'row', gap: 10 },
+  studyKnown: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 15, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: VP.line, borderBottomWidth: 4 },
+  studyKnownText: { fontFamily: fonts.headingBold, fontSize: 15, color: VP.ink },
+  studySave: { flex: 1.3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 15, borderRadius: 999, backgroundColor: '#14B8A6', borderBottomWidth: 4, borderBottomColor: '#0B7C70' },
+  studySaveText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
+  studyPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
+  undoLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, alignSelf: 'center', paddingVertical: 4 },
+  undoLinkText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: VP.inkSoft },
+  packDone: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: spacing.lg, paddingBottom: 60 },
+  packDoneBtn: { flex: 0, alignSelf: 'stretch', marginTop: 8 },
   chestBtnIcon: { width: 26, height: 26 },
   container: { flex: 1, backgroundColor: VP.floor },
   chestBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 6, paddingRight: 12, paddingVertical: 5, borderRadius: radii.pill, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },

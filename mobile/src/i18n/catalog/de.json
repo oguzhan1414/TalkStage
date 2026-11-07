@@ -3717,5 +3717,18 @@
   "bugün tekrar": "Wiederholungen heute",
   "900 temel kelime": "900 Grundwörter",
   "Etiketlerin ve seviyeler": "Deine Tags und Niveaus",
-  "Hafıza sarayı oyunu": "Gedächtnispalast-Spiel"
+  "Hafıza sarayı oyunu": "Gedächtnispalast-Spiel",
+  "Paketler": "Pakete",
+  "Liste": "Liste",
+  "{{n}} kelime kaldı": "Noch {{n}} Wörter",
+  "Etiket": "Tag",
+  "Sandığıma ekle": "In meine Truhe",
+  "“{{word}}” geri al": "„{{word}}“ rückgängig",
+  "Paket bitti!": "Paket geschafft!",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi zaten biliyorsun.": "{{a}} Wörter sind in deiner Truhe, {{b}} kanntest du schon.",
+  "Bu paketteki bütün kelimelere baktın.": "Du hast alle Wörter dieses Pakets angesehen.",
+  "Sıradaki paket: {{range}}": "Nächstes Paket: {{range}}",
+  "Paketlere dön": "Zurück zu den Paketen",
+  "SIRADAKİ PAKET": "NÄCHSTES PAKET",
+  "Bu türün bütün paketlerini bitirdin 🎉": "Du hast alle Pakete dieser Art geschafft 🎉"
 }

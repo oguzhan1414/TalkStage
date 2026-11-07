@@ -3717,5 +3717,18 @@
   "bugün tekrar": "repasos hoy",
   "900 temel kelime": "900 palabras básicas",
   "Etiketlerin ve seviyeler": "Tus etiquetas y niveles",
-  "Hafıza sarayı oyunu": "Juego del palacio de la memoria"
+  "Hafıza sarayı oyunu": "Juego del palacio de la memoria",
+  "Paketler": "Paquetes",
+  "Liste": "Lista",
+  "{{n}} kelime kaldı": "Quedan {{n}} palabras",
+  "Etiket": "Etiqueta",
+  "Sandığıma ekle": "Añadir a mi baúl",
+  "“{{word}}” geri al": "Deshacer «{{word}}»",
+  "Paket bitti!": "¡Paquete terminado!",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi zaten biliyorsun.": "{{a}} palabras entraron en tu baúl y ya conocías {{b}}.",
+  "Bu paketteki bütün kelimelere baktın.": "Ya revisaste todas las palabras de este paquete.",
+  "Sıradaki paket: {{range}}": "Siguiente paquete: {{range}}",
+  "Paketlere dön": "Volver a los paquetes",
+  "SIRADAKİ PAKET": "SIGUIENTE PAQUETE",
+  "Bu türün bütün paketlerini bitirdin 🎉": "Terminaste todos los paquetes de este tipo 🎉"
 }

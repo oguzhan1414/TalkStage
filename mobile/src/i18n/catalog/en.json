@@ -3694,5 +3694,18 @@
   "bugün tekrar": "reviews today",
   "900 temel kelime": "900 core words",
   "Etiketlerin ve seviyeler": "Your tags and levels",
-  "Hafıza sarayı oyunu": "Memory palace game"
+  "Hafıza sarayı oyunu": "Memory palace game",
+  "Paketler": "Packs",
+  "Liste": "List",
+  "{{n}} kelime kaldı": "{{n}} words left",
+  "Etiket": "Tag",
+  "Sandığıma ekle": "Add to my chest",
+  "“{{word}}” geri al": "Undo “{{word}}”",
+  "Paket bitti!": "Pack done!",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi zaten biliyorsun.": "{{a}} words went into your chest, and you already knew {{b}}.",
+  "Bu paketteki bütün kelimelere baktın.": "You have gone through every word in this pack.",
+  "Sıradaki paket: {{range}}": "Next pack: {{range}}",
+  "Paketlere dön": "Back to packs",
+  "SIRADAKİ PAKET": "NEXT PACK",
+  "Bu türün bütün paketlerini bitirdin 🎉": "You've finished every pack of this type 🎉"
 }
