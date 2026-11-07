@@ -16,6 +16,7 @@ import httpx
 
 from app.core.config import settings
 from app.services.tts_cache import get_cached
+from app.api.routes.tts import WORD_PROVIDER
 from app.services.tts_stream import synthesize_speech
 
 WORDS = Path(__file__).with_name("prewarm_words.json")
@@ -25,8 +26,7 @@ async def main(limit: int | None, concurrency: int) -> None:
     words: list[str] = json.loads(WORDS.read_text(encoding="utf-8"))
     if limit:
         words = words[:limit]
-    provider = "cartesia" if settings.tts_provider == "cartesia" else "openai"
-    print(f"{len(words)} words, provider {provider}")
+    print(f"{len(words)} words, provider cartesia (words are pinned to it, see routes/tts.py)")
     done = cached = failed = 0
     chars = 0
     sem = asyncio.Semaphore(concurrency)
@@ -35,12 +35,11 @@ async def main(limit: int | None, concurrency: int) -> None:
         async def one(word: str) -> None:
             nonlocal done, cached, failed, chars
             async with sem:
-                voice = settings.cartesia_voice_id if provider == "cartesia" else ""
-                if provider == "cartesia" and await get_cached("cartesia", voice, "en", word) is not None:
+                if await get_cached("cartesia", settings.cartesia_voice_id, "en", word) is not None:
                     cached += 1
                     return
                 try:
-                    await synthesize_speech(client, word, settings.cartesia_voice_id, language="en")
+                    await synthesize_speech(client, word, settings.cartesia_voice_id, language="en", prefer=WORD_PROVIDER)
                     done += 1
                     chars += len(word)
                 except Exception as exc:  # keep going; a rerun only fills the gaps
