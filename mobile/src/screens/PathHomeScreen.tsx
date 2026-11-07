@@ -35,14 +35,14 @@ const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
 const CHIP_ROOM = 8;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
-const MEDAL_EXTRA = CHIP_ROOM + 168;
+const MEDAL_EXTRA = CHIP_ROOM + 188;
 /** The level crescent at the top: radius, stroke and how far round it goes. */
 const ARC_R = 52;
 const ARC_SW = 10;
 const ARC_SWEEP = 220;
 const ARC_DISC = 37;
-/** The round guide button on the medallion's ring. */
-const GUIDE_BTN = 46;
+/** Mivo's face on the medallion's ring. */
+const MIVO_BTN = 54;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -56,8 +56,8 @@ const RING: Record<string, { ring: string; fill: [string, string] }> = {
 /**
  * Home of the new learning path (docs/yeni-ogrenme-yolu.md). One screen, no scrolling: the next step of the level's
  * story as a big floating medallion (swipe or use the arrows to browse; neighbours shrink and fade as they slide),
- * the story's chapter count, today's small jobs (words due, goal done) as pills, Mivo beside it recalling the last
- * episode, the unit's steps as a road of little pictures, and the Mivo chat button.
+ * the level as a crescent at the top, the story's chapter line above the episode title, Mivo on the medallion's ring
+ * as narrator and the way into the chapter guide, and the unit's steps as a road of little pictures.
  */
 export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { transitionTo } = useMivoTransition();
@@ -139,7 +139,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const xp = xpLevelInfo(profile?.xp);
   const target = profile?.daily_target_minutes ?? 10;
   const todayMinutes = practice?.find((p) => p.practice_date === todayKey())?.minutes_practiced ?? 0;
-  const fabBottom = Math.max(insets.bottom, 16) + TAB_BAR + 14;
   const backdrop = homeBackdrop(level.id);
   /** The carousel's place on screen, measured once laid out: the medallion is sized so it and its title and button fit. */
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
@@ -195,23 +194,34 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     return loc(level.story.blurb);
   })();
 
-  const readings = steps.filter((f) => f.step.kind === 'reading');
-  const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
   /** The level's share passed so far: what the crescent at the top fills to. */
   const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
 
-  /**
-   * Mivo's bubble above the tab bar, kept for the moments that matter: a hello on the day's first visit, the streak
-   * at risk in the evening, the level finished. Each shows at most once a day and folds away after a few seconds;
-   * the chapter's details live in the guide (the "Rehber" chip).
-   */
-  const [bubble, setBubble] = useState<string | null>(null);
-  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const showBubble = (text: string, ms = 6500) => {
-    setBubble(text);
-    if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
-    bubbleTimer.current = setTimeout(() => setBubble(null), ms);
+  /** What Mivo tells about a step when tapped: the previous episode, the story, or what the step is for. */
+  const storyLine = (s: PathStep) => {
+    if (s.kind === 'reading' && s.episode.recap) return loc(s.episode.recap);
+    if (stepType(s) === 'scene') return t("Ünitede öğrendiklerini benimle konuşarak dene!");
+    if (stepType(s) === 'vocab') return t("Kısa bir kelime molası: dinle, eşleştir, cebe koy.");
+    return loc(level.story.blurb);
   };
+
+  /**
+   * Mivo sits on the medallion's ring as the story's narrator and the way into the guide. Tapped, he tells about the
+   * step in a bubble beside him (with a link to its guide); by himself he speaks only at the moments that matter: a
+   * hello on the day's first visit, the streak at risk in the evening, the level finished — each at most once a day,
+   * folding away after a few seconds. Swiping to another step closes the bubble.
+   */
+  const [talk, setTalk] = useState<{ id: string; text: string } | null>(null);
+  /** Steps Mivo has already told about in this visit: the current step shows a dot until then. */
+  const [heard, setHeard] = useState<Set<string>>(() => new Set());
+  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sayOn = (id: string, text: string, ms?: number) => {
+    setTalk({ id, text });
+    setHeard((h) => (h.has(id) ? h : new Set(h).add(id)));
+    if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = ms ? setTimeout(() => setTalk(null), ms) : null;
+  };
+  useEffect(() => setTalk(null), [index]);
   const bubbleKind = levelDone && nextLevel ? 'level' : streakAtRisk ? 'streak' : 'daily';
   useEffect(() => {
     // Wait for the day's practice too, so the hello and the streak warning never come one after the other.
@@ -224,7 +234,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         const seen = raw ? raw.split(',') : [];
         if (!alive || seen.includes(bubbleKind)) return;
         void AsyncStorage.setItem(key, [...seen, bubbleKind].join(','));
-        timer = setTimeout(() => showBubble(mivoLine), 900);
+        timer = setTimeout(() => sayOn(current.step.id, mivoLine, 7000), 900);
       })
       .catch(() => {});
     return () => {
@@ -275,7 +285,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           </View>
           {/* The crescent also opens the level's story and cast (its title no longer takes a row of its own). */}
           <Pressable onPress={() => setIntroOpen(true)} hitSlop={4} accessibilityRole="button" accessibilityHint={loc(level.story.title)}>
-            <LevelArc level={level.id} share={levelShare} chapter={chapter} chapters={readings.length} />
+            <LevelArc level={level.id} share={levelShare} />
           </Pressable>
           <View style={[styles.topSide, { justifyContent: 'flex-end' }]}>
             <Pressable
@@ -358,7 +368,14 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   isFuture={item.index > current.index}
                   celebrate={celebrate?.id === item.step.id ? celebrate : null}
                   onOpen={() => openStep(item.step)}
-                  onGuide={() => navigation.navigate('PathGuide', { stepId: item.step.id })}
+                  storyTitle={loc(level.story.title)}
+                  talking={talk?.id === item.step.id ? talk.text : null}
+                  mivoDot={item.index === current.index && !heard.has(item.step.id)}
+                  onMivo={() => (talk?.id === item.step.id ? setTalk(null) : sayOn(item.step.id, storyLine(item.step)))}
+                  onGuide={() => {
+                    setTalk(null);
+                    navigation.navigate('PathGuide', { stepId: item.step.id });
+                  }}
                   onSkip={async () => {
                     await skipStep(item.step.id);
                     reload();
@@ -401,21 +418,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         </View>
       </SafeAreaView>
 
-      {bubble ? (
-        <PopIn style={[styles.mivoTip, { bottom: fabBottom }]}>
-          {/* Mivo's word on the step in view: shows for a few seconds, a tap folds it away */}
-          <Pressable onPress={() => setBubble(null)} style={styles.mivoTipRow} accessibilityRole="button" accessibilityLabel={t("Kapat")}>
-            <Image source={mivoHomeImages.fab} style={styles.mivoTipFace} resizeMode="cover" />
-            <View style={styles.mivoBubble}>
-              <Text style={styles.mivoBubbleName}>Mivo</Text>
-              <Text style={styles.mivoBubbleText} numberOfLines={4}>
-                {bubble}
-              </Text>
-            </View>
-          </Pressable>
-        </PopIn>
-      ) : null}
-
       {celebrate?.kind === 'stars' ? <Confetti key={celebrate.key} count={22} /> : null}
       <StoryIntroSheet
         level={level}
@@ -436,6 +438,10 @@ function Medallion({
   isFuture,
   celebrate,
   onOpen,
+  storyTitle,
+  talking,
+  mivoDot,
+  onMivo,
   onGuide,
   onSkip,
 }: {
@@ -446,6 +452,12 @@ function Medallion({
   /** Just finished (stars land) or just opened (the lock breaks). */
   celebrate?: { kind: 'stars' | 'unlock'; key: number } | null;
   onOpen: () => void;
+  storyTitle: string;
+  /** What Mivo is saying beside this medallion, if anything. */
+  talking: string | null;
+  /** A dot on Mivo: he has not told about this step yet. */
+  mivoDot: boolean;
+  onMivo: () => void;
   onGuide: () => void;
   onSkip: () => void;
 }) {
@@ -488,6 +500,19 @@ function Medallion({
   const stars = progress ? starsOf(progress, s.id) : 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
+  const overline =
+    s.kind === 'reading'
+      ? `${storyTitle} · ${t("Bölüm {{n}}", { n: s.episode.number })}`
+      : type === 'reading'
+        ? storyTitle
+        : type === 'vocab'
+        ? t("Kelime bölümü")
+        : t("Mivo ile hazırlık");
+  /** Mivo's face on the ring at about 45°, and his bubble below it, kept inside the medallion's column. */
+  const faceLeft = size / 2 + (size / 2) * 0.72 - MIVO_BTN / 2;
+  const faceTop = size / 2 - (size / 2) * 0.72 - MIVO_BTN / 2;
+  const talkW = Math.min(size * 0.92, 270);
+  const talkLeft = size + 14 - talkW;
   const subtitle =
     s.kind === 'reading'
       ? t("{{grammar}} · ~{{n}} dk", { grammar: loc(s.episode.grammar), n: s.episode.minutes })
@@ -656,22 +681,37 @@ function Medallion({
           {/* Thin white line between the picture and the coloured ring, drawn on top so nothing pokes out. */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.medalEdge, { borderRadius: inner / 2 }]} />
         </View>
-        {/* The step's guide, as a small round button on the ring's upper right (it floats with the medallion). */}
+        {/* Mivo on the ring's upper right (he floats with the medallion): tap him to hear about the step. */}
         <Pressable
-          onPress={onGuide}
+          onPress={onMivo}
           hitSlop={8}
-          style={({ pressed }) => [
-            styles.guideBtn,
-            { left: size / 2 + (size / 2) * 0.72 - GUIDE_BTN / 2, top: size / 2 - (size / 2) * 0.72 - GUIDE_BTN / 2 },
-            pressed && styles.guideBtnPressed,
-          ]}
+          style={({ pressed }) => [styles.mivoBtn, { left: faceLeft, top: faceTop }, pressed && { transform: [{ scale: 0.93 }] }]}
           accessibilityRole="button"
-          accessibilityLabel={t("Rehber")}
+          accessibilityLabel={t("Mivo")}
         >
-          <Ionicons name="book" size={19} color="#4F46E5" />
+          <Image source={mivoHomeImages.fab} style={styles.mivoBtnFace} resizeMode="cover" />
+          {mivoDot ? <View style={styles.mivoDot} /> : null}
         </Pressable>
+        {talking ? (
+          <PopIn style={[styles.talk, { top: faceTop + MIVO_BTN + 10, left: talkLeft, width: talkW }]}>
+            <View style={[styles.talkTail, { left: faceLeft + MIVO_BTN / 2 - talkLeft - 8 }]} />
+            <Text style={styles.mivoBubbleName}>Mivo</Text>
+            <Text style={styles.mivoBubbleText} numberOfLines={5}>
+              {talking}
+            </Text>
+            <Pressable onPress={onGuide} hitSlop={6} style={({ pressed }) => [styles.talkLink, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+              <Ionicons name="book" size={14} color={colors.brand} />
+              <Text style={styles.talkLinkText}>{s.kind === 'reading' ? t("Bölüm rehberi") : t("Ünite rehberi")}</Text>
+              <Ionicons name="chevron-forward" size={14} color={colors.brand} />
+            </Pressable>
+          </PopIn>
+        ) : null}
       </Animated.View>
 
+      {/* The story's chapter line, like a chapter heading in a book, above the episode's own title. */}
+      <Text style={[styles.medalOverline, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
+        {overline}
+      </Text>
       <Text style={[styles.medalTitle, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
         {stepTitle(s)}
       </Text>
@@ -720,8 +760,8 @@ function Medallion({
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-/** The level as a crescent at the top: it fills with the level's passed steps; the level and the story chapter sit in a disc inside. */
-function LevelArc({ level, share, chapter, chapters }: { level: string; share: number; chapter: number; chapters: number }) {
+/** The level as a crescent at the top: it fills with the level's passed steps; the level and its percent sit in a disc inside. */
+function LevelArc({ level, share }: { level: string; share: number }) {
   const w = 2 * ARC_R + ARC_SW;
   const cx = w / 2;
   const cy = ARC_R + ARC_SW / 2;
@@ -763,9 +803,7 @@ function LevelArc({ level, share, chapter, chapters }: { level: string; share: n
       </Svg>
       <View style={[styles.arcDisc, { left: cx - ARC_DISC, top: cy - ARC_DISC }]}>
         <Text style={styles.arcLevel}>{level}</Text>
-        <Text style={styles.arcChapter} numberOfLines={1} adjustsFontSizeToFit>
-          {t("Bölüm {{n}}/{{m}}", { n: chapter, m: chapters })}
-        </Text>
+        <Text style={styles.arcPercent}>{t("%{{n}}", { n: percent })}</Text>
       </View>
     </View>
   );
@@ -897,22 +935,6 @@ const styles = StyleSheet.create({
   },
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#92400E', letterSpacing: 0.4 },
-  mivoTip: { position: 'absolute', left: spacing.md, right: spacing.md, zIndex: 98 },
-  mivoTipRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  mivoTipFace: { width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: '#FFFFFF', backgroundColor: '#EEF2FF' },
-  mivoBubble: {
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 18,
-    borderBottomLeftRadius: 4,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#1E3A8A',
-    shadowOpacity: 0.16,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
   mivoBubbleName: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, letterSpacing: 0.4, marginBottom: 2 },
   mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
   topGlass: {
@@ -959,25 +981,48 @@ const styles = StyleSheet.create({
   streakNum: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
 
   storyMeta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
-  guideBtn: {
+  mivoBtn: {
     position: 'absolute',
-    width: GUIDE_BTN,
-    height: GUIDE_BTN,
-    borderRadius: GUIDE_BTN / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#E0E7FF',
-    borderBottomWidth: 3.5,
-    borderBottomColor: '#C7D2FE',
+    width: MIVO_BTN,
+    height: MIVO_BTN,
+    borderRadius: MIVO_BTN / 2,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
     shadowColor: '#1E3A8A',
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 7,
   },
-  guideBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5 },
+  mivoBtnFace: { width: '100%', height: '100%', borderRadius: MIVO_BTN / 2 },
+  mivoDot: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 15,
+    height: 15,
+    borderRadius: 8,
+    backgroundColor: '#F97316',
+    borderWidth: 2.5,
+    borderColor: '#FFFFFF',
+  },
+  talk: {
+    position: 'absolute',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 8,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 9,
+  },
+  talkTail: { position: 'absolute', top: -7, width: 16, height: 16, backgroundColor: '#FFFFFF', transform: [{ rotate: '45deg' }] },
+  talkLink: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', marginTop: 8, paddingVertical: 4 },
+  talkLinkText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   arcDisc: {
     position: 'absolute',
     width: ARC_DISC * 2,
@@ -993,7 +1038,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   arcLevel: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 27, color: '#3730A3' },
-  arcChapter: { maxWidth: ARC_DISC * 2 - 10, fontFamily: fonts.headingBold, fontSize: 10.5, color: '#B45309', letterSpacing: 0.2 },
+  arcPercent: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#B45309', letterSpacing: 0.3 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1053,7 +1098,8 @@ const styles = StyleSheet.create({
   medalClip: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   medalArt: { position: 'absolute', bottom: 0 },
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
-  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 12 },
+  medalOverline: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.9, color: '#6366F1', textAlign: 'center', marginTop: 14 },
+  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 2 },
   medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
   medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
   medalBadge: { width: 40, height: 40 },
