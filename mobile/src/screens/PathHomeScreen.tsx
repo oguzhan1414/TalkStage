@@ -7,7 +7,7 @@ import { Animated, Easing, FlatList, Image, Pressable, Share, StyleSheet, Text, 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { homeBackdrop } from '../assets/homeBackdrops';
-import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
+import { mivoHomeImages, mivoVoiceImages, navIcons } from '../assets/images';
 import Svg, { Defs, G, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
@@ -43,9 +43,13 @@ const ARC_SWEEP = 220;
 const ARC_DISC = 37;
 /** Mivo's face on the medallion's ring. */
 const MIVO_BTN = 54;
+/** The colour of progress (ring segments, the level crescent, finished road steps): a fresh teal from the icon family. */
+const PROGRESS = ['#2DD4BF', '#0D9488'] as const;
+/** Each step type's icon on the road, from the app's own flat icon family. */
+const STEP_ICONS = { reading: navIcons.today, vocab: navIcons.words, scene: navIcons.scenes } as const;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
-/** Medallion colours per step type: the ring's track (its star segments fill gold) and the picture's backing. */
+/** Medallion colours per step type: the ring's track (its star segments fill teal) and the picture's backing. */
 const RING: Record<string, { ring: string; fill: [string, string] }> = {
   reading: { ring: '#E0E7FF', fill: ['#6366F1', '#8B5CF6'] },
   vocab: { ring: '#D1FAE5', fill: ['#10B981', '#059669'] },
@@ -583,7 +587,7 @@ function Medallion({
           },
         ]}
       >
-        {/* The ring is the step's progress: three segments, one per star, filling gold. */}
+        {/* The ring is the step's progress: three segments, one per star, filling teal. */}
         <StarRing size={size} stars={stars} track={locked ? '#E2E8F0' : palette.ring} celebrateKey={celebrate?.kind === 'stars' ? celebrate.key : null} />
         {/* No shadow on this circle, so Android clips the picture to it; the picture also carries its own radius. */}
         <View style={[styles.medalClip, { width: inner, height: inner, borderRadius: inner / 2 }]}>
@@ -701,7 +705,7 @@ function Medallion({
 const SEG_GAP = 6;
 
 /**
- * The medallion's ring as three segments, one per star: earned ones are gold, the rest the step type's light tint.
+ * The medallion's ring as three segments, one per star: earned ones are teal, the rest the step type's light tint.
  * Coming back from a lesson (`celebrateKey`), the earned segments fill one after another with a chime.
  */
 function StarRing({ size, stars, track, celebrateKey }: { size: number; stars: number; track: string; celebrateKey: number | null }) {
@@ -734,8 +738,8 @@ function StarRing({ size, stars, track, celebrateKey }: { size: number; stars: n
     <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
         <SvgGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#FDE047" />
-          <Stop offset="1" stopColor="#F59E0B" />
+          <Stop offset="0" stopColor={PROGRESS[0]} />
+          <Stop offset="1" stopColor={PROGRESS[1]} />
         </SvgGradient>
       </Defs>
       {[0, 1, 2].map((n) => {
@@ -845,8 +849,8 @@ function LevelArc({ level, share, chapter, chapters }: { level: string; share: n
       <Svg width={w} height={height}>
         <Defs>
           <SvgGradient id="levelArcFill" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0" stopColor="#FCD34D" />
-            <Stop offset="1" stopColor="#F59E0B" />
+            <Stop offset="0" stopColor={PROGRESS[0]} />
+            <Stop offset="1" stopColor={PROGRESS[1]} />
           </SvgGradient>
         </Defs>
         {/* A thin dark rim under the track, so the crescent reads on any sky. */}
@@ -923,30 +927,31 @@ function TodayPill({
 }
 
 /**
- * A dot on the unit road: done is gold with a tick, the step in view is a larger violet ring with its type's icon,
- * the rest are quiet white dots with the type's icon (book, sparkles, mic).
+ * A stop on the unit road: the step type's icon (book, cards, mic) in a white circle; done ones get a teal ring and
+ * tick, the step in view is larger with a violet ring, steps still ahead are faded.
  */
 function RoadDot({ f, done, skipped, here, future, onPress }: { f: FlatStep; done: boolean; skipped: boolean; here: boolean; future: boolean; onPress: () => void }) {
   const type = stepType(f.step);
-  const icon = type === 'scene' ? 'mic' : type === 'vocab' ? 'sparkles' : 'book';
-  const size = here ? 34 : 26;
+  const size = here ? 42 : 32;
+  const finished = done && !skipped;
   return (
     <Pressable onPress={onPress} hitSlop={8} style={styles.dotWrap} accessibilityRole="button" accessibilityLabel={stepTitle(f.step)}>
       <View
         style={[
           styles.dot,
           { width: size, height: size, borderRadius: size / 2 },
-          done && !skipped && styles.dotDone,
+          finished && styles.dotDone,
           skipped && styles.dotSkipped,
           here && styles.dotHere,
         ]}
       >
-        {done && !skipped && !here ? (
-          <Ionicons name="checkmark" size={15} color="#FFFFFF" />
-        ) : (
-          <Ionicons name={icon} size={here ? 16 : 12} color={here ? '#4F46E5' : future ? '#CBD5E1' : skipped ? '#94A3B8' : '#818CF8'} />
-        )}
+        <Image source={STEP_ICONS[type]} style={{ width: size * 0.64, height: size * 0.64, opacity: future || skipped ? 0.35 : 1 }} resizeMode="contain" />
       </View>
+      {finished ? (
+        <View style={styles.dotCheck}>
+          <Ionicons name="checkmark" size={9} color="#FFFFFF" />
+        </View>
+      ) : null}
     </Pressable>
   );
 }
@@ -1112,7 +1117,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   arcLevel: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 27, color: '#3730A3' },
-  arcChapter: { maxWidth: ARC_DISC * 2 - 10, fontFamily: fonts.headingBold, fontSize: 10.5, color: '#B45309', letterSpacing: 0.2 },
+  arcChapter: { maxWidth: ARC_DISC * 2 - 10, fontFamily: fonts.headingBold, fontSize: 10.5, color: '#0F766E', letterSpacing: 0.2 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1234,10 +1239,10 @@ const styles = StyleSheet.create({
   roadUnit: { flex: 1, fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.6, color: '#4338CA' },
   roadUnitName: { fontFamily: fonts.headingSemiBold, letterSpacing: 0, color: colors.textBody },
   roadCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textBody, marginLeft: 8 },
-  road: { flexDirection: 'row', alignItems: 'center', height: 38 },
+  road: { flexDirection: 'row', alignItems: 'center', height: 46 },
   roadCell: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   roadLink: { flex: 1, height: 3, borderRadius: 2, marginHorizontal: 3, backgroundColor: '#E2E8F0' },
-  roadLinkDone: { backgroundColor: '#FBBF24' },
+  roadLinkDone: { backgroundColor: PROGRESS[0] },
   dotWrap: { alignItems: 'center', justifyContent: 'center' },
   dot: {
     alignItems: 'center',
@@ -1246,7 +1251,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E2E8F0',
   },
-  dotDone: { backgroundColor: '#F59E0B', borderColor: '#F59E0B' },
+  dotDone: { borderColor: PROGRESS[0], backgroundColor: '#F0FDFA' },
+  dotCheck: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 15,
+    height: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PROGRESS[1],
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
   dotSkipped: { backgroundColor: '#F1F5F9', borderColor: '#E2E8F0' },
   dotHere: {
     borderWidth: 3,
