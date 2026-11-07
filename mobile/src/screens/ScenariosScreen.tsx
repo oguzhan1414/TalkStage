@@ -5,7 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
-import { resolveScenarioCoverSource } from '../assets/images';
+import { resolveSceneTileSource } from '../assets/images';
 
 import { MIVO_STAGE_BG } from '../assets/videos';
 import { MivoStage } from '../components/MivoStage';
@@ -255,7 +255,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
         {/* Senin için sıradaki: büyük afiş */}
         {nextScene && !videoSearchLower ? (
           <SceneHero
-            cover={resolveScenarioCoverSource(nextScene)}
+            cover={resolveSceneTileSource(nextScene)}
             eyebrow={starsOf(nextScene.id) > 0 ? t("TEKRAR İZLE") : t("SENİN İÇİN SIRADAKİ")}
             title={nextScene.titleTr}
             character={nextScene.aiName}
@@ -296,7 +296,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                     <SceneTile
                       key={sc.id}
                       width={tileWidth}
-                      cover={resolveScenarioCoverSource(sc)}
+                      cover={resolveSceneTileSource(sc)}
                       title={sc.titleTr}
                       level={sc.level}
                       levelColor={STAGE_COLOR[sec.id]}

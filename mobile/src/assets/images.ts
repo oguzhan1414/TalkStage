@@ -134,6 +134,16 @@ export function resolveScenarioCoverSource(scenario: { id: string; category: str
 }
 
 
+/**
+ * Small flat 2D character portraits for the Konuş scene grid and its "next" row (prompts: docs/sahne_kutucuk_gorselleri.md).
+ * A scene without one falls back to its wide cover.
+ */
+export const sceneTileImages: Record<string, ReturnType<typeof require>> = {};
+
+export function resolveSceneTileSource(scenario: { id: string; category: string; coverImage?: string }): any {
+  return sceneTileImages[scenario.id] ?? resolveScenarioCoverSource(scenario);
+}
+
 /** Profile avatars: flat 2D portraits in the cast style, each on its own soft ground colour (see constants/avatars.ts). */
 export const avatarImages = {
   campusGirl: require('../../assets/images/avatars/campus_girl.webp'),
