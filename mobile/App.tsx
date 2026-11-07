@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { kc } from './src/lib/keyboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -93,6 +94,7 @@ function App() {
 
   return (
     <GestureHandlerRootView style={styles.flex}>
+      <KeyboardRoot>
       <SafeAreaProvider>
         <View style={styles.flex}>
           <AppErrorBoundary>
@@ -115,6 +117,7 @@ function App() {
           <StatusBar style="dark" />
         </View>
       </SafeAreaProvider>
+      </KeyboardRoot>
     </GestureHandlerRootView>
   );
 }
@@ -128,3 +131,8 @@ const styles = StyleSheet.create({
 
 // Wrapping adds native crash capture and touch breadcrumbs (the render safety net is AppErrorBoundary); a pass-through while Sentry is off.
 export default sentryDsn ? Sentry.wrap(App) : App;
+
+/** Keyboard-synced animations for the whole app (a plain pass-through if the native module is missing). */
+function KeyboardRoot({ children }: { children: ReactNode }) {
+  return kc ? <kc.KeyboardProvider>{children}</kc.KeyboardProvider> : <>{children}</>;
+}

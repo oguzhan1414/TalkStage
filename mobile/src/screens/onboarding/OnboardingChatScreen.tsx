@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Animated,
   Image,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -39,6 +38,7 @@ import { STAGE_COLOR, stageTitle, type StageId } from '../../lib/stages';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { colors, fonts, shadow, spacing } from '../../theme/tokens';
 import { requestOpenNextStep } from '../../widget/homeWidget';
+import { KeyboardSafe } from '../../components/KeyboardSafe';
 
 type Step = 'name' | 'goal' | 'struggle' | 'level' | 'demo' | 'mic' | 'time' | 'reminder' | 'plan';
 const STEP_ORDER: Step[] = ['name', 'goal', 'struggle', 'level', 'demo', 'mic', 'time', 'reminder', 'plan'];
@@ -572,7 +572,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
         <View style={[styles.progressFill, { width: `${Math.max(4, progress * 100)}%` }]} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <KeyboardSafe style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
           contentContainerStyle={styles.thread}
@@ -732,7 +732,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
             ) : null}
           </Animated.View>
         ) : null}
-      </KeyboardAvoidingView>
+      </KeyboardSafe>
     </SafeAreaView>
   );
 }

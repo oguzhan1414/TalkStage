@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { t } from '../i18n';
 import { colors, fonts } from '../theme/tokens';
 import { Button } from './Button';
+import { KeyboardSafe } from './KeyboardSafe';
 
 const MAX_TAGS = 20;
 
@@ -55,7 +56,7 @@ export function TagSheet({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <KeyboardAvoidingView behavior="padding" style={{ width: '100%' }}>
+        <KeyboardSafe style={{ width: '100%' }}>
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
             <View style={styles.handle} />
             <Text style={styles.title}>{t("Etiketler")}</Text>
@@ -108,7 +109,7 @@ export function TagSheet({
 
             <Button label={t("Kaydet")} loading={saving} onPress={() => onSave(tags)} />
           </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardSafe>
       </Pressable>
     </Modal>
   );

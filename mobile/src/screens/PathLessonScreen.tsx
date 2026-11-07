@@ -56,7 +56,7 @@ import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut, TranscribeResponse, VocabCardOut } from '../types/api';
-import { KeyboardSafe } from '../components/KeyboardSafe';
+import { KeyboardScroll } from '../components/KeyboardSafe';
 
 /**
  * A reading lesson of the new path, in three parts with one star each (like chapters you can stop between):
@@ -122,11 +122,6 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
   const score = useRef({ right: 0, total: 0 });
   const scrollRef = useRef<ScrollView>(null);
   const [muted, setMuted] = useSfxMuted();
-  // When the keyboard opens (typing a word or a sentence), bring the input and the check button into view.
-  useEffect(() => {
-    const sub = Keyboard.addListener('keyboardDidShow', () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60));
-    return () => sub.remove();
-  }, []);
 
   useEffect(() => {
     preloadSfx();
@@ -199,9 +194,9 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
         </View>
       ) : null}
 
-      <KeyboardSafe style={{ flex: 1 }}>
-      <ScrollView
+      <KeyboardScroll
         ref={scrollRef}
+        bottomOffset={110}
         style={{ flex: 1 }}
         contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + EXIT_SPACE }]}
         showsVerticalScrollIndicator={false}
@@ -259,8 +254,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
             <DoneStep stepId={stepId} episode={episode} art={art} right={score.current.right} total={score.current.total} onExit={onExit} />
           )}
         </PageIn>
-      </ScrollView>
-      </KeyboardSafe>
+      </KeyboardScroll>
       {partCard ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
       {partCard ? (
         <PartCard
