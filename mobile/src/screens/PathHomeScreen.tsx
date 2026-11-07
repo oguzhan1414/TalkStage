@@ -35,7 +35,7 @@ const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
 const CHIP_ROOM = 8;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
-const MEDAL_EXTRA = CHIP_ROOM + 188;
+const MEDAL_EXTRA = CHIP_ROOM + 168;
 /** The level crescent at the top: radius, stroke and how far round it goes. */
 const ARC_R = 52;
 const ARC_SW = 10;
@@ -195,6 +195,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   })();
 
   /** The level's share passed so far: what the crescent at the top fills to. */
+  const readings = steps.filter((f) => f.step.kind === 'reading');
+  const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
   const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
 
   /** What Mivo tells about a step when tapped: the previous episode, the story, or what the step is for. */
@@ -285,7 +287,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           </View>
           {/* The crescent also opens the level's story and cast (its title no longer takes a row of its own). */}
           <Pressable onPress={() => setIntroOpen(true)} hitSlop={4} accessibilityRole="button" accessibilityHint={loc(level.story.title)}>
-            <LevelArc level={level.id} share={levelShare} />
+            <LevelArc level={level.id} share={levelShare} chapter={chapter} chapters={readings.length} />
           </Pressable>
           <View style={[styles.topSide, { justifyContent: 'flex-end' }]}>
             <Pressable
@@ -368,7 +370,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   isFuture={item.index > current.index}
                   celebrate={celebrate?.id === item.step.id ? celebrate : null}
                   onOpen={() => openStep(item.step)}
-                  storyTitle={loc(level.story.title)}
                   talking={talk?.id === item.step.id ? talk.text : null}
                   mivoDot={item.index === current.index && !heard.has(item.step.id)}
                   onMivo={() => (talk?.id === item.step.id ? setTalk(null) : sayOn(item.step.id, storyLine(item.step)))}
@@ -385,12 +386,13 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               );
             }}
           />
-          {index > 0 ? (
+          {/* The arrows step aside while Mivo talks, so his bubble is the only thing on the right. */}
+          {index > 0 && !talk ? (
             <Pressable onPress={() => goTo(index - 1)} style={[styles.arrow, styles.arrowLeft, { top: arrowTop }]} hitSlop={10} accessibilityLabel={t("Önceki")}>
               <Ionicons name="chevron-back" size={22} color={colors.brand} />
             </Pressable>
           ) : null}
-          {index < steps.length - 1 ? (
+          {index < steps.length - 1 && !talk ? (
             <Pressable onPress={() => goTo(index + 1)} style={[styles.arrow, styles.arrowRight, { top: arrowTop }]} hitSlop={10} accessibilityLabel={t("Sonraki")}>
               <Ionicons name="chevron-forward" size={22} color={colors.brand} />
             </Pressable>
@@ -438,7 +440,6 @@ function Medallion({
   isFuture,
   celebrate,
   onOpen,
-  storyTitle,
   talking,
   mivoDot,
   onMivo,
@@ -452,7 +453,6 @@ function Medallion({
   /** Just finished (stars land) or just opened (the lock breaks). */
   celebrate?: { kind: 'stars' | 'unlock'; key: number } | null;
   onOpen: () => void;
-  storyTitle: string;
   /** What Mivo is saying beside this medallion, if anything. */
   talking: string | null;
   /** A dot on Mivo: he has not told about this step yet. */
@@ -500,19 +500,11 @@ function Medallion({
   const stars = progress ? starsOf(progress, s.id) : 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
-  const overline =
-    s.kind === 'reading'
-      ? `${storyTitle} · ${t("Bölüm {{n}}", { n: s.episode.number })}`
-      : type === 'reading'
-        ? storyTitle
-        : type === 'vocab'
-        ? t("Kelime bölümü")
-        : t("Mivo ile hazırlık");
-  /** Mivo's face on the ring at about 45°, and his bubble below it, kept inside the medallion's column. */
+  /** Mivo's face on the ring at about 45°, and his bubble below it, centred on the medallion. */
   const faceLeft = size / 2 + (size / 2) * 0.72 - MIVO_BTN / 2;
   const faceTop = size / 2 - (size / 2) * 0.72 - MIVO_BTN / 2;
-  const talkW = Math.min(size * 0.92, 270);
-  const talkLeft = size + 14 - talkW;
+  const talkW = Math.min(size * 0.9, 290);
+  const talkLeft = (size - talkW) / 2;
   const subtitle =
     s.kind === 'reading'
       ? t("{{grammar}} · ~{{n}} dk", { grammar: loc(s.episode.grammar), n: s.episode.minutes })
@@ -693,25 +685,18 @@ function Medallion({
           {mivoDot ? <View style={styles.mivoDot} /> : null}
         </Pressable>
         {talking ? (
-          <PopIn style={[styles.talk, { top: faceTop + MIVO_BTN + 10, left: talkLeft, width: talkW }]}>
-            <View style={[styles.talkTail, { left: faceLeft + MIVO_BTN / 2 - talkLeft - 8 }]} />
-            <Text style={styles.mivoBubbleName}>Mivo</Text>
-            <Text style={styles.mivoBubbleText} numberOfLines={5}>
-              {talking}
-            </Text>
-            <Pressable onPress={onGuide} hitSlop={6} style={({ pressed }) => [styles.talkLink, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-              <Ionicons name="book" size={14} color={colors.brand} />
-              <Text style={styles.talkLinkText}>{s.kind === 'reading' ? t("Bölüm rehberi") : t("Ünite rehberi")}</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.brand} />
-            </Pressable>
-          </PopIn>
+          <MivoTalk
+            text={talking}
+            left={talkLeft}
+            top={faceTop + MIVO_BTN + 12}
+            width={talkW}
+            tailX={faceLeft + MIVO_BTN / 2 - talkLeft}
+            guideLabel={s.kind === 'reading' ? t("Bölüm rehberini aç") : t("Ünite rehberini aç")}
+            onGuide={onGuide}
+          />
         ) : null}
       </Animated.View>
 
-      {/* The story's chapter line, like a chapter heading in a book, above the episode's own title. */}
-      <Text style={[styles.medalOverline, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
-        {overline}
-      </Text>
       <Text style={[styles.medalTitle, { maxWidth: size + 30 }]} numberOfLines={1} adjustsFontSizeToFit>
         {stepTitle(s)}
       </Text>
@@ -758,10 +743,69 @@ function Medallion({
   );
 }
 
+/**
+ * Mivo's speech bubble on the medallion: it grows out of his face (the tail points at him) with a soft spring, says
+ * his line, and ends in one clear button to the guide.
+ */
+function MivoTalk({
+  text,
+  left,
+  top,
+  width,
+  tailX,
+  guideLabel,
+  onGuide,
+}: {
+  text: string;
+  left: number;
+  top: number;
+  width: number;
+  tailX: number;
+  guideLabel: string;
+  onGuide: () => void;
+}) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.spring(v, { toValue: 1, friction: 7, tension: 95, useNativeDriver: true }).start();
+  }, [v]);
+  return (
+    <Animated.View
+      style={[
+        styles.talk,
+        {
+          left,
+          top,
+          width,
+          transformOrigin: `${tailX}px 0px`,
+          opacity: v.interpolate({ inputRange: [0, 0.35, 1], outputRange: [0, 1, 1] }),
+          transform: [
+            { translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }) },
+            { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] }) },
+          ],
+        },
+      ]}
+    >
+      <View style={[styles.talkTail, { left: tailX - 8 }]} />
+      <Text style={styles.mivoBubbleName}>MIVO</Text>
+      <Text style={styles.mivoBubbleText} numberOfLines={5}>
+        {text}
+      </Text>
+      <Pressable onPress={onGuide} style={({ pressed }) => [styles.talkBtn, pressed && styles.talkBtnPressed]} accessibilityRole="button">
+        <View style={styles.talkBtnIcon}>
+          <Ionicons name="book" size={13} color="#FFFFFF" />
+        </View>
+        <Text style={styles.talkBtnText} numberOfLines={1}>
+          {guideLabel}
+        </Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-/** The level as a crescent at the top: it fills with the level's passed steps; the level and its percent sit in a disc inside. */
-function LevelArc({ level, share }: { level: string; share: number }) {
+/** The level as a crescent at the top: it fills with the level's passed steps; the level and the story chapter sit in a disc inside. */
+function LevelArc({ level, share, chapter, chapters }: { level: string; share: number; chapter: number; chapters: number }) {
   const w = 2 * ARC_R + ARC_SW;
   const cx = w / 2;
   const cy = ARC_R + ARC_SW / 2;
@@ -803,7 +847,9 @@ function LevelArc({ level, share }: { level: string; share: number }) {
       </Svg>
       <View style={[styles.arcDisc, { left: cx - ARC_DISC, top: cy - ARC_DISC }]}>
         <Text style={styles.arcLevel}>{level}</Text>
-        <Text style={styles.arcPercent}>{t("%{{n}}", { n: percent })}</Text>
+        <Text style={styles.arcChapter} numberOfLines={1} adjustsFontSizeToFit>
+          {t("Bölüm {{n}}/{{m}}", { n: chapter, m: chapters })}
+        </Text>
       </View>
     </View>
   );
@@ -935,8 +981,8 @@ const styles = StyleSheet.create({
   },
   proPillOn: { backgroundColor: '#FFF7D6' },
   proPillText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#92400E', letterSpacing: 0.4 },
-  mivoBubbleName: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, letterSpacing: 0.4, marginBottom: 2 },
-  mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: colors.textHeading },
+  mivoBubbleName: { fontFamily: fonts.headingBold, fontSize: 11, color: '#6366F1', letterSpacing: 1.2, marginBottom: 4 },
+  mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 21, color: colors.textHeading },
   topGlass: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1009,20 +1055,46 @@ const styles = StyleSheet.create({
   },
   talk: {
     position: 'absolute',
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 8,
-    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    borderRadius: 22,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EEF2FF',
     shadowColor: '#1E3A8A',
-    shadowOpacity: 0.2,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 9,
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 10,
   },
-  talkTail: { position: 'absolute', top: -7, width: 16, height: 16, backgroundColor: '#FFFFFF', transform: [{ rotate: '45deg' }] },
-  talkLink: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', marginTop: 8, paddingVertical: 4 },
-  talkLinkText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
+  talkTail: {
+    position: 'absolute',
+    top: -8,
+    width: 16,
+    height: 16,
+    borderTopLeftRadius: 3,
+    backgroundColor: '#FFFFFF',
+    borderLeftWidth: 1,
+    borderTopWidth: 1,
+    borderColor: '#EEF2FF',
+    transform: [{ rotate: '45deg' }],
+  },
+  talkBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#EEF2FF',
+    borderBottomWidth: 3,
+    borderBottomColor: '#C7D2FE',
+  },
+  talkBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1 },
+  talkBtnIcon: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#6366F1' },
+  talkBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#4338CA' },
   arcDisc: {
     position: 'absolute',
     width: ARC_DISC * 2,
@@ -1038,7 +1110,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   arcLevel: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 27, color: '#3730A3' },
-  arcPercent: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#B45309', letterSpacing: 0.3 },
+  arcChapter: { maxWidth: ARC_DISC * 2 - 10, fontFamily: fonts.headingBold, fontSize: 10.5, color: '#B45309', letterSpacing: 0.2 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1098,8 +1170,7 @@ const styles = StyleSheet.create({
   medalClip: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   medalArt: { position: 'absolute', bottom: 0 },
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
-  medalOverline: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.9, color: '#6366F1', textAlign: 'center', marginTop: 14 },
-  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 2 },
+  medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 14 },
   medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
   medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
   medalBadge: { width: 40, height: 40 },
