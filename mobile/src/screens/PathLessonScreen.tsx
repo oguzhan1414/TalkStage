@@ -25,6 +25,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { LottieMoment } from '../components/LottieMoment';
+import { lottieAnims } from '../assets/lottie';
 import { useNavigation } from '@react-navigation/native';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
@@ -398,9 +400,14 @@ function Feedback({ ok, helped, sub, label, onNext }: { ok: boolean; helped?: bo
   return (
     <FadeIn from={24} style={[styles.feedback, tone === 'ok' ? styles.feedbackOk : tone === 'help' ? styles.feedbackHelp : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
-        <PopIn style={[styles.feedbackIcon, { backgroundColor: tone === 'ok' ? colors.success : tone === 'help' ? '#F59E0B' : colors.error }]}>
-          <Ionicons name={tone === 'ok' ? 'checkmark' : tone === 'help' ? 'bulb' : 'close'} size={22} color="#FFFFFF" />
-        </PopIn>
+        {tone === 'ok' ? (
+          // A right answer: the tick draws itself in
+          <LottieMoment source={lottieAnims.check} size={46} style={{ marginHorizontal: -4 }} />
+        ) : (
+          <PopIn style={[styles.feedbackIcon, { backgroundColor: tone === 'help' ? '#F59E0B' : colors.error }]}>
+            <Ionicons name={tone === 'help' ? 'bulb' : 'close'} size={22} color="#FFFFFF" />
+          </PopIn>
+        )}
         <View style={{ flex: 1 }}>
           <Text style={[styles.feedbackTitle, { color: tone === 'ok' ? '#047857' : tone === 'help' ? '#B45309' : '#BE123C' }]}>{praise}</Text>
           {sub ? <Text style={styles.feedbackSub}>{sub}</Text> : null}
@@ -1742,7 +1749,6 @@ export function CountUp({ to, delay = 0, style }: { to: number; delay?: number; 
 function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: string; episode: PathEpisode; art?: number; right: number; total: number; onExit: () => void }) {
   const queryClient = useQueryClient();
   const saved = useRef(false);
-  const flame = useLoop(true, 700, true);
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   const navigation = useNavigation<{ navigate: (screen: 'FreeChatRoom', params: object) => void }>();
   const { transitionTo } = useMivoTransition();
@@ -1823,9 +1829,7 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
           {profile?.streak_count ? (
             <View style={[styles.doneStat, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Animated.View style={{ transform: [{ scale: flame.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] }) }] }}>
-                  <Ionicons name="flame" size={22} color="#F97316" />
-                </Animated.View>
+                <LottieMoment source={lottieAnims.streak} size={30} loop style={{ marginVertical: -4 }} />
                 <Text style={[styles.doneStatNum, { color: '#C2410C' }]}>{profile.streak_count}</Text>
               </View>
               <Text style={styles.doneStatLabel}>{t("Günlük seri")}</Text>

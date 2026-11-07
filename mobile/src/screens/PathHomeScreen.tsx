@@ -18,6 +18,8 @@ import { xpLevelInfo } from '../constants/xp';
 import { flatSteps, loc, PATH_LEVELS, pathLevel, stepTitle, stepType, type FlatStep, type PathStep } from '../data/path';
 import { t } from '../i18n';
 import { api } from '../lib/api';
+import { LottieMoment } from '../components/LottieMoment';
+import { lottieAnims } from '../assets/lottie';
 import { isProUser } from '../lib/revenuecat';
 import { trackEvent } from '../lib/analytics';
 import { stepArt } from '../lib/pathArt';
@@ -313,6 +315,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
         {/* Only when the level is finished: go on to the next one, or share it. */}
         {levelDone ? (
           <View style={styles.storyMeta}>
+            {/* The level is finished: bars rise with an arrow, once */}
+            <LottieMoment source={lottieAnims.levelUp} size={44} style={{ marginVertical: -6 }} />
             {nextLevel ? (
               <TodayPill delay={200} icon="rocket" color="#7C3AED" label={t("Sonraki seviye: {{level}}", { level: nextLevel.id })} onPress={goNextLevel} />
             ) : null}
