@@ -28,7 +28,7 @@ type Props = {
 export function SceneTile({ width, cover, title, level, levelColor, stars, access, onPress }: Props) {
   const locked = access === 'locked';
   const played = stars > 0;
-  const picH = Math.round(width * 1.12);
+  const picH = width;
   return (
     <Pressable
       onPress={onPress}

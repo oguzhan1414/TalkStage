@@ -138,7 +138,29 @@ export function resolveScenarioCoverSource(scenario: { id: string; category: str
  * Small flat 2D character portraits for the Konuş scene grid and its "next" row (prompts: docs/sahne_kutucuk_gorselleri.md).
  * A scene without one falls back to its wide cover.
  */
-export const sceneTileImages: Record<string, ReturnType<typeof require>> = {};
+export const sceneTileImages: Record<string, ReturnType<typeof require>> = {
+  'airport-travel': require('../../assets/images/scenarios/tiles/tile_airport-travel.webp'),
+  'apartment-viewing': require('../../assets/images/scenarios/tiles/tile_apartment-viewing.webp'),
+  'cafe-meetup': require('../../assets/images/scenarios/tiles/tile_cafe-meetup.webp'),
+  'car-rental': require('../../assets/images/scenarios/tiles/tile_car-rental.webp'),
+  'clothing-boutique': require('../../assets/images/scenarios/tiles/tile_clothing-boutique.webp'),
+  'colleague-break': require('../../assets/images/scenarios/tiles/tile_colleague-break.webp'),
+  'doctor-visit': require('../../assets/images/scenarios/tiles/tile_doctor-visit.webp'),
+  'fastfood-burger': require('../../assets/images/scenarios/tiles/tile_fastfood-burger.webp'),
+  'fitness-gym': require('../../assets/images/scenarios/tiles/tile_fitness-gym.webp'),
+  'flea-market': require('../../assets/images/scenarios/tiles/tile_flea-market.webp'),
+  'hotel-checkin': require('../../assets/images/scenarios/tiles/tile_hotel-checkin.webp'),
+  'istanbul-tour': require('../../assets/images/scenarios/tiles/tile_istanbul-tour.webp'),
+  'job-interview': require('../../assets/images/scenarios/tiles/tile_job-interview.webp'),
+  'local-sim-card': require('../../assets/images/scenarios/tiles/tile_local-sim-card.webp'),
+  'neighbor-meetup': require('../../assets/images/scenarios/tiles/tile_neighbor-meetup.webp'),
+  'restaurant-dinner': require('../../assets/images/scenarios/tiles/tile_restaurant-dinner.webp'),
+  'rooftop-social': require('../../assets/images/scenarios/tiles/tile_rooftop-social.webp'),
+  'street-directions': require('../../assets/images/scenarios/tiles/tile_street-directions.webp'),
+  'supermarket-checkout': require('../../assets/images/scenarios/tiles/tile_supermarket-checkout.webp'),
+  'taxi-ride': require('../../assets/images/scenarios/tiles/tile_taxi-ride.webp'),
+  'train-ticket': require('../../assets/images/scenarios/tiles/tile_train-ticket.webp'),
+};
 
 export function resolveSceneTileSource(scenario: { id: string; category: string; coverImage?: string }): any {
   return sceneTileImages[scenario.id] ?? resolveScenarioCoverSource(scenario);
