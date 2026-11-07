@@ -11,13 +11,15 @@ function HomeBackdropInner({ backdrop }: { backdrop: Backdrop }) {
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: backdrop.floor }]}>
       <View style={[styles.top, { backgroundColor: backdrop.top }]} />
-      <Image source={backdrop.image} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      {/* Explicit 100% size: a local image without one is laid out at its own pixel size, showing only its top-left. */}
+      <Image source={backdrop.image} style={styles.image} resizeMode="cover" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   top: { position: 'absolute', left: 0, right: 0, top: 0, height: '50%' },
+  image: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
 });
 
 export const HomeBackdrop = memo(HomeBackdropInner);
