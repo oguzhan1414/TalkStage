@@ -523,6 +523,8 @@ function Medallion({
   const stars = progress ? starsOf(progress, s.id) : 0;
   const done = progress ? isDone(progress, s.id) : false;
   const passed = progress ? isPassed(progress, s.id) : false;
+  /** A reading lesson has three parts (three ring segments); words, word rooms and scenes are one part (one ring). */
+  const ringParts: 1 | 3 = type === 'reading' ? 3 : 1;
   /** Mivo's face on the ring at about 45°, and his bubble below it, centred on the medallion. */
   const faceLeft = size / 2 + (size / 2) * 0.72 - MIVO_BTN / 2;
   const faceTop = size / 2 - (size / 2) * 0.72 - MIVO_BTN / 2;
@@ -590,7 +592,13 @@ function Medallion({
         ]}
       >
         {/* The ring is the step's progress: three segments, one per star, filling teal. */}
-        <StarRing size={size} stars={stars} track={locked ? '#E2E8F0' : palette.ring} celebrateKey={celebrate?.kind === 'stars' ? celebrate.key : null} />
+        <StarRing
+          size={size}
+          parts={ringParts}
+          filled={ringParts === 3 ? stars : done ? 1 : 0}
+          track={locked ? '#E2E8F0' : palette.ring}
+          celebrateKey={celebrate?.kind === 'stars' ? celebrate.key : null}
+        />
         {/* No shadow on this circle, so Android clips the picture to it; the picture also carries its own radius. */}
         <View style={[styles.medalClip, { width: inner, height: inner, borderRadius: inner / 2 }]}>
           <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]} />
@@ -706,13 +714,17 @@ function Medallion({
 const SEG_GAP = 6;
 
 /**
- * The medallion's ring as three segments, one per star: earned ones are teal, the rest the step type's light tint.
- * Coming back from a lesson (`celebrateKey`), the earned segments fill one after another with a chime.
+ * The medallion's ring as the step's progress, filling teal over the step type's light tint: three segments for a
+ * reading lesson (its three parts), one whole ring for a single-part step (words, a word room, a scene) that fills
+ * once it is done. Coming back from a lesson (`celebrateKey`), the filled segments fill one after another with a chime.
  */
-function StarRing({ size, stars, track, celebrateKey }: { size: number; stars: number; track: string; celebrateKey: number | null }) {
+function StarRing({ size, parts, filled, track, celebrateKey }: { size: number; parts: 1 | 3; filled: number; track: string; celebrateKey: number | null }) {
+  const stars = Math.min(filled, parts);
   const c = size / 2;
   const r = size / 2 - RING_W / 2;
-  const sweep = 120 - SEG_GAP;
+  // A single SVG arc cannot close a full circle, so the whole ring stops a hair short of 360°.
+  const sweep = parts === 1 ? 359.9 : 360 / parts - SEG_GAP;
+  const largeArc = sweep > 180 ? 1 : 0;
   const length = r * ((sweep * Math.PI) / 180);
   const fills = useRef([0, 1, 2].map((n) => new Animated.Value(celebrateKey == null && n < stars ? 1 : 0))).current;
   useEffect(() => {
@@ -743,10 +755,10 @@ function StarRing({ size, stars, track, celebrateKey }: { size: number; stars: n
           <Stop offset="1" stopColor={PROGRESS[1]} />
         </SvgGradient>
       </Defs>
-      {[0, 1, 2].map((n) => {
+      {Array.from({ length: parts }, (_, n) => {
         // From the top, clockwise.
-        const from = -90 + n * 120 + SEG_GAP / 2;
-        const d = `M ${point(from)} A ${r} ${r} 0 0 1 ${point(from + sweep)}`;
+        const from = parts === 1 ? -90 : -90 + n * (360 / parts) + SEG_GAP / 2;
+        const d = `M ${point(from)} A ${r} ${r} 0 ${largeArc} 1 ${point(from + sweep)}`;
         return (
           <G key={n}>
             <Path d={d} stroke={track} strokeWidth={RING_W} fill="none" />
