@@ -80,7 +80,6 @@ export type RootStackParamList = {
   Paywall: undefined;
   Badges: undefined;
   // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
-  AccountSettings: undefined;
   MistakesNotebook: undefined;
   MivoMemory: undefined;
   VocabLibrary: undefined;
@@ -116,7 +115,6 @@ export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Pay
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
 
-export type AccountSettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'AccountSettings'>;
 
 export type MivoMemoryScreenProps = NativeStackScreenProps<RootStackParamList, 'MivoMemory'>;
 export type MistakesNotebookScreenProps = NativeStackScreenProps<RootStackParamList, 'MistakesNotebook'>;

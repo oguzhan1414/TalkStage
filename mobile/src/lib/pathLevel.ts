@@ -6,7 +6,7 @@ import { t } from '../i18n';
 import { onPathSynced, schedulePathPush } from './pathSync';
 
 /**
- * The level the path home shows. For now the learner picks it in the profile (AccountSettings); how A1 moves on
+ * The level the path home shows. For now the learner picks it in the profile (the Seviye row); how A1 moves on
  * to A2 by itself is still to be designed.
  */
 const KEY = 'spekvia.path.level';

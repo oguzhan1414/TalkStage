@@ -1,5 +1,36 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+
+/** The learner can turn vibration off in the profile; the choice is remembered (like the sound effects). */
+const KEY = 'spekvia.haptics.off';
+let hapticsOff = false;
+const listeners = new Set<(off: boolean) => void>();
+AsyncStorage.getItem(KEY)
+  .then((v) => {
+    hapticsOff = v === '1';
+    listeners.forEach((l) => l(hapticsOff));
+  })
+  .catch(() => {});
+
+export function setHapticsOff(next: boolean) {
+  hapticsOff = next;
+  listeners.forEach((l) => l(next));
+  AsyncStorage.setItem(KEY, next ? '1' : '0').catch(() => {});
+}
+
+/** The vibration-off state for a toggle. */
+export function useHapticsOff(): [boolean, (off: boolean) => void] {
+  const [off, setOff] = useState(hapticsOff);
+  useEffect(() => {
+    listeners.add(setOff);
+    return () => {
+      listeners.delete(setOff);
+    };
+  }, []);
+  return [off, setHapticsOff];
+}
 
 /**
  * Universal tactile haptic feedback utility for Spekvia.
@@ -8,7 +39,7 @@ import { Platform } from 'react-native';
 export const haptics = {
   /** Soft tap for buttons, tabs, chips */
   light: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {
@@ -18,7 +49,7 @@ export const haptics = {
 
   /** Medium tap for level switch, card open */
   medium: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {
@@ -28,7 +59,7 @@ export const haptics = {
 
   /** Celebratory feedback when a topic/lesson/milestone is completed */
   success: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
@@ -38,7 +69,7 @@ export const haptics = {
 
   /** Warning feedback for errors, locks, quota */
   warning: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     } catch {
@@ -48,7 +79,7 @@ export const haptics = {
 
   /** Selection tick when scrolling or switching segments */
   selection: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.selectionAsync();
     } catch {
@@ -58,7 +89,7 @@ export const haptics = {
 
   /** Aliases for explicit impact naming */
   impactLight: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {
@@ -66,7 +97,7 @@ export const haptics = {
     }
   },
   impactMedium: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {
@@ -74,7 +105,7 @@ export const haptics = {
     }
   },
   impactHeavy: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     } catch {
@@ -83,7 +114,7 @@ export const haptics = {
   },
   /** Generic impact alias */
   impact: async () => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || hapticsOff) return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {

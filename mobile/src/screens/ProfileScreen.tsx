@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState } from 'react';
-import { Image, type ImageSourcePropType, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { mivoHomeImages, partBadgeImages, profileArt } from '../assets/images';
@@ -10,17 +10,25 @@ import { AVATARS, avatarFor } from '../constants/avatars';
 import { VP } from '../theme/vocabPalette';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { Button } from '../components/Button';
+import { LanguagePickerModal } from '../components/LanguagePickerModal';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { BADGES } from '../constants/badges';
+import { privacyUrl } from '../constants/legalLinks';
 import { xpLevelInfo } from '../constants/xp';
 import { useAuth } from '../context/AuthContext';
 import { flatSteps, loc, PATH_LEVELS } from '../data/path';
+import { useDailyReminder } from '../hooks/useDailyReminder';
 import { useEarnedBadges } from '../hooks/useEarnedBadges';
-import { t } from '../i18n';
+import { useRestorePurchases } from '../hooks/useRestorePurchases';
+import { getLocale, LOCALE_META, t } from '../i18n';
 import { api } from '../lib/api';
+import { useHapticsOff } from '../lib/haptics';
+import { TIME_PRESETS } from '../lib/notifications';
 import { pathLevelName, usePathLevel } from '../lib/pathLevel';
 import { isDone, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { isProUser } from '../lib/revenuecat';
+import { useSfxMuted } from '../lib/sfx';
+import { openStorePage } from '../lib/storeReview';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 import type { GrammarMistakeOut, ProfileOut, ProfileUpdate } from '../types/api';
@@ -30,6 +38,9 @@ import { KeyboardSafe } from '../components/KeyboardSafe';
 const FLOOR = '#FBF7F1';
 /** The whole road, also the levels not written yet (shown as "soon"). */
 const ALL_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+const SUPPORT_EMAIL = 'support@spekvia.com';
+const APP_VERSION = '1.0.0';
+const TEAL = '#0D9488';
 
 /** Episodes finished per level and the words learned in them (lesson words and word steps). */
 function journeyStats(progress: PathProgress | null) {
@@ -56,14 +67,17 @@ function journeyStats(progress: PathProgress | null) {
   return { perLevel, episodes, words: words.size };
 }
 
+const two = (n: number) => String(n).padStart(2, '0');
+
 /**
- * "Profil" tab (its tab icon is the learner's avatar; the avatar on the home opens it too): who you are and your
- * friendship with Mivo, three numbers (streak, episodes, words), the road from A1 to C2 where the level can be
- * switched, the practice tools ("Araçlarım") and Pro for those who don't have it. Settings and account live behind
- * the gear at the top (`AccountSettingsScreen`).
+ * "Profil" tab, one page for everything: Pro for those who don't have it, who you are (avatar, name, plan, friendship
+ * with Mivo) and three numbers, then a settings list in three groups. Learning: the level (its road A1–C2 opens in a
+ * sheet), badges, the mistakes notebook, Mivo's memory. App: the reminder (its times in a sheet), language, sound
+ * effects, vibration. Account and help: restore purchases, support, privacy. At the end a card that opens the store
+ * page to rate the app, sign out and account deletion.
  */
 export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
-  const { session } = useAuth();
+  const { session, signOut, deleteAccount } = useAuth();
   const queryClient = useQueryClient();
   const { transitionTo } = useMivoTransition();
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
@@ -75,17 +89,26 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { earnedBadgeIds } = useEarnedBadges();
   const { progress } = usePathProgress();
   const [pathLevelId, setPathLevelId] = usePathLevel();
+  const { restore: restorePurchases, restoring } = useRestorePurchases();
+  const [sfxMuted, setSfxMuted] = useSfxMuted();
+  const [hapticsOff, setHapticsOff] = useHapticsOff();
 
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
+  const [levelOpen, setLevelOpen] = useState(false);
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [signingOut, setSigningOut] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const displayName =
     profile?.display_name ??
     (session?.user.user_metadata?.full_name as string | undefined)?.split(' ')[0] ??
     session?.user.email?.split('@')[0] ??
     t("Konuşmacı");
+  const reminder = useDailyReminder(displayName);
 
   const avatar = avatarFor(profile);
   const friendship = xpLevelInfo(profile?.xp);
@@ -93,6 +116,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const current = stats.perLevel[pathLevelId] ?? { done: 0, total: 1 };
   const currentLevel = PATH_LEVELS.find((l) => l.id === pathLevelId) ?? PATH_LEVELS[0];
   const mistakeCount = mistakes?.length ?? 0;
+  const locale = LOCALE_META[getLocale()];
 
   const avatarMutation = useMutation({
     mutationFn: (avatarId: string) => api.patch<ProfileOut>('/me', { avatar_id: avatarId } satisfies ProfileUpdate),
@@ -116,23 +140,66 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
     levelMutation.mutate(id);
   };
 
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch {
+      Alert.alert(t("Çıkış yapılamadı"), t("Bağlantını kontrol edip tekrar dene."));
+    } finally {
+      setSigningOut(false);
+    }
+  };
+  const confirmDelete = () => {
+    Alert.alert(
+      t("Hesabını kalıcı olarak sil?"),
+      t("Konuşma geçmişin, kelimelerin, ilerlemen ve profilin geri alınamayacak şekilde silinir. Aktif mağaza aboneliğin varsa ayrıca App Store veya Google Play üzerinden iptal etmelisin."),
+      [
+        { text: t("Vazgeç"), style: 'cancel' },
+        {
+          text: t("Hesabımı Sil"),
+          style: 'destructive',
+          onPress: async () => {
+            if (deleting) return;
+            setDeleting(true);
+            try {
+              await deleteAccount();
+            } catch {
+              Alert.alert(t("Hesap silinemedi"), t("Bağlantını kontrol edip tekrar dene."));
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t("Profil")}</Text>
-        <Pressable
-          onPress={() => navigation.navigate('AccountSettings')}
-          hitSlop={10}
-          style={styles.gear}
-          accessibilityRole="button"
-          accessibilityLabel={t("Ayarlar")}
-        >
-          <Ionicons name="settings-outline" size={21} color={colors.textHeading} />
-        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Who you are, and your friendship with Mivo */}
+        {/* Pro, only for those who don't have it */}
+        {isPro ? null : (
+          <BouncyPressable onPress={() => navigation.navigate('Paywall')} style={styles.vipWrap} hapticType="medium" scaleTo={0.97}>
+            <LinearGradient colors={['#1F2A44', '#2C3A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vip}>
+              <Image source={profileArt.pro} style={styles.vipImage} resizeMode="contain" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.vipTitle}>{t("Spekvia Pro")}</Text>
+                <Text style={styles.vipDesc} numberOfLines={1}>
+                  {t("Sınırsız Mivo sohbeti ve tüm provalar")}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#FBBF24" />
+            </LinearGradient>
+          </BouncyPressable>
+        )}
+
+        {/* Who you are, your plan and your friendship with Mivo */}
         <View style={styles.hero}>
           <View style={styles.heroRow}>
             <Pressable onPress={() => setAvatarOpen(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Avatarını değiştir")}>
@@ -140,7 +207,7 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
                 <Image source={avatar.source} style={styles.avatar} resizeMode="cover" />
               </View>
               <View style={styles.avatarEdit}>
-                <Ionicons name="pencil" size={12} color="#FFFFFF" />
+                <Ionicons name="pencil" size={11} color="#FFFFFF" />
               </View>
             </Pressable>
             <View style={{ flex: 1 }}>
@@ -162,12 +229,10 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
               <Text style={styles.email} numberOfLines={1}>
                 {session?.user.email}
               </Text>
-              {isPro ? (
-                <View style={styles.proPill}>
-                  <Ionicons name="diamond" size={11} color="#78350F" />
-                  <Text style={styles.proText}>PRO</Text>
-                </View>
-              ) : null}
+              <View style={[styles.planPill, isPro && styles.planPillPro]}>
+                {isPro ? <Ionicons name="diamond" size={11} color="#78350F" /> : null}
+                <Text style={[styles.planText, isPro && { color: '#78350F' }]}>{isPro ? 'PRO' : t("Ücretsiz")}</Text>
+              </View>
             </View>
           </View>
 
@@ -183,101 +248,204 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
             </View>
             <Ionicons name="information-circle-outline" size={18} color={VP.inkSoft} />
           </Pressable>
+
+          {/* Three numbers in one slim row */}
+          <View style={styles.stats}>
+            <Stat icon="flame" color={VP.coralDeep} value={profile?.streak_count ?? 0} label={t("Günlük seri")} />
+            <View style={styles.statDivider} />
+            <Stat icon="book" color={VP.skyDeep} value={stats.episodes} label={t("Bölüm")} />
+            <View style={styles.statDivider} />
+            <Stat icon="sparkles" color={VP.mintDeep} value={stats.words} label={t("Kelime")} />
+          </View>
         </View>
 
-        {/* Three numbers */}
-        <View style={styles.stats}>
-          <Stat icon="flame" color={VP.coralDeep} soft={VP.coralSoft} value={profile?.streak_count ?? 0} label={t("Günlük seri")} sub={t("En uzun: {{n}}", { n: profile?.longest_streak ?? 0 })} />
-          <Stat icon="book" color={VP.skyDeep} soft={VP.skySoft} value={stats.episodes} label={t("Bölüm")} sub={t("tamamlandı")} />
-          <Stat icon="sparkles" color={VP.mintDeep} soft={VP.mintSoft} value={stats.words} label={t("Kelime")} sub={t("öğrenildi")} />
-        </View>
-
-        {/* The road from A1 to C2 */}
+        {/* Learning */}
+        <Text style={styles.groupTitle}>{t("Öğrenme")}</Text>
         <View style={styles.card}>
-          <Text style={styles.cardKicker}>{t("Yolculuğum")}</Text>
-          <Text style={styles.cardTitle}>{loc(currentLevel.story.title)}</Text>
-          <View style={styles.road}>
-            <View style={styles.roadLine} />
-            {ALL_LEVELS.map((id) => {
-              const written = PATH_LEVELS.some((l) => l.id === id);
-              const s = stats.perLevel[id];
-              const finished = !!s && s.total > 0 && s.done >= s.total;
-              const here = id === pathLevelId;
-              return (
-                <Pressable
-                  key={id}
-                  onPress={() => chooseLevel(id)}
-                  disabled={!written}
-                  style={styles.stop}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: here, disabled: !written }}
-                >
-                  <View style={[styles.stopDot, finished && styles.stopDone, here && styles.stopHere, !written && styles.stopSoon]}>
-                    {finished ? (
-                      <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                    ) : (
-                      <Text style={[styles.stopCode, here && { color: '#FFFFFF' }, !written && { color: '#A8A29E' }]}>{id}</Text>
-                    )}
-                  </View>
-                  <Text style={[styles.stopName, here && { color: colors.textHeading }]} numberOfLines={1} adjustsFontSizeToFit>
-                    {written ? pathLevelName(id) : t("Yakında")}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-          <View style={styles.levelProgress}>
-            <View style={styles.levelTrack}>
-              <View style={[styles.levelFill, { width: `${Math.max(3, (current.done / Math.max(1, current.total)) * 100)}%` }]} />
-            </View>
-            <Text style={styles.levelText}>{t("{{level}} · {{done}}/{{total}} bölüm", { level: pathLevelId, done: current.done, total: current.total })}</Text>
-          </View>
-        </View>
-
-        {/* A few more things, as a plain list (word tools are in the Kelimeler tab) */}
-        <View style={styles.list}>
-          <ListRow
-            icon={profileArt.badges}
-            tint={VP.sunSoft}
-            title={t("Rozetlerim")}
-            sub={t("{{a}}/{{b}} rozet", { a: earnedBadgeIds.size, b: BADGES.length })}
+          <Row
+            icon="trail-sign"
+            tint={TEAL}
+            label={t("Seviye")}
+            value={`${pathLevelId} · ${pathLevelName(pathLevelId)}`}
+            onPress={() => setLevelOpen(true)}
+          />
+          <Divider />
+          <Row
+            icon="ribbon"
+            tint="#F59E0B"
+            label={t("Rozetlerim")}
+            value={`${earnedBadgeIds.size}/${BADGES.length}`}
             onPress={() => transitionTo(() => navigation.navigate('Badges'), t("Rozetlerin yükleniyor…"))}
           />
-          <View style={styles.listDivider} />
-          <ListRow
-            icon={profileArt.mistakes}
-            tint={VP.coralSoft}
-            title={t("Hata Defterim")}
-            sub={t("{{n}} kayıt", { n: mistakeCount })}
+          <Divider />
+          <Row
+            icon="journal"
+            tint="#F43F5E"
+            label={t("Hata Defterim")}
             badge={mistakeCount > 0 ? mistakeCount : undefined}
             onPress={() => transitionTo(() => navigation.navigate('MistakesNotebook'), t("Hata Defterin Açılıyor…"))}
           />
-          <View style={styles.listDivider} />
-          <ListRow
-            icon={profileArt.memory}
-            tint={VP.skySoft}
-            title={t("Mivo'nun Hatırladıkları")}
-            sub={t("Sohbetlerden öğrendikleri")}
-            onPress={() => navigation.navigate('MivoMemory')}
-          />
+          <Divider />
+          <Row icon="bulb" tint="#0EA5E9" label={t("Mivo'nun Hatırladıkları")} onPress={() => navigation.navigate('MivoMemory')} />
         </View>
 
-        {/* Pro, only for those who don't have it */}
-        {isPro ? null : (
-          <BouncyPressable onPress={() => navigation.navigate('Paywall')} style={styles.vipWrap} hapticType="medium" scaleTo={0.97}>
-            <LinearGradient colors={['#1F2A44', '#2C3A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.vip}>
-              <Image source={profileArt.pro} style={styles.vipImage} resizeMode="contain" />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.vipTitle}>{t("Spekvia Pro")}</Text>
-                <Text style={styles.vipDesc} numberOfLines={1}>
-                  {t("Sınırsız Mivo sohbeti ve tüm provalar")}
-                </Text>
+        {/* App */}
+        <Text style={styles.groupTitle}>{t("Uygulama")}</Text>
+        <View style={styles.card}>
+          <Row
+            icon="notifications"
+            tint="#F97316"
+            label={t("Hatırlatma")}
+            value={reminder.enabled && !reminder.unavailable ? `${two(reminder.hour)}:${two(reminder.minute)}` : t("Kapalı")}
+            onPress={() => setReminderOpen(true)}
+          />
+          <Divider />
+          <Row icon="language" tint="#6366F1" label={t("Dil")} value={`${locale.flag} ${locale.nativeName}`} onPress={() => setLanguageOpen(true)} />
+          <Divider />
+          <Row icon="musical-notes" tint="#8B5CF6" label={t("Ses efektleri")}>
+            <Switch value={!sfxMuted} onValueChange={(on) => setSfxMuted(!on)} trackColor={{ false: '#D6D3D1', true: TEAL }} />
+          </Row>
+          <Divider />
+          <Row icon="phone-portrait" tint="#64748B" label={t("Titreşim")}>
+            <Switch value={!hapticsOff} onValueChange={(on) => setHapticsOff(!on)} trackColor={{ false: '#D6D3D1', true: TEAL }} />
+          </Row>
+        </View>
+
+        {/* Account and help */}
+        <Text style={styles.groupTitle}>{t("Hesap ve yardım")}</Text>
+        <View style={styles.card}>
+          <Row
+            icon="refresh"
+            tint="#10B981"
+            label={restoring ? t("Kontrol ediliyor…") : t("Satın alımları geri yükle")}
+            onPress={restoring ? undefined : () => void restorePurchases()}
+          />
+          <Divider />
+          <Row
+            icon="mail"
+            tint="#4F46E5"
+            label={t("Yardım ve destek")}
+            external
+            onPress={() => void Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Spekvia')}`)}
+          />
+          <Divider />
+          <Row icon="shield-checkmark" tint="#64748B" label={t("Gizlilik ve ses verileri")} external onPress={() => void Linking.openURL(privacyUrl())} />
+        </View>
+
+        {/* Rate the app: opens its store page */}
+        <Pressable onPress={() => void openStorePage()} accessibilityRole="button" accessibilityLabel={t("Değerlendir")}>
+          {({ pressed }) => (
+            <LinearGradient
+              colors={['#FFF7E6', '#FDECC8']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.rate, pressed && { transform: [{ translateY: 2 }], borderBottomWidth: 1.5 }]}
+            >
+              <View style={styles.rateStars}>
+                {[0, 1, 2, 3, 4].map((n) => (
+                  <Ionicons key={n} name="star" size={20} color="#F59E0B" />
+                ))}
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#FBBF24" />
+              <Text style={styles.rateTitle}>{t("Spekvia'yı sevdin mi?")}</Text>
+              <Text style={styles.rateText}>{t("Mağazada birkaç yıldız ve kısa bir yorum bize çok yardımcı olur.")}</Text>
+              <View style={styles.rateBtn}>
+                <Text style={styles.rateBtnText}>{t("Değerlendir")}</Text>
+              </View>
             </LinearGradient>
-          </BouncyPressable>
-        )}
+          )}
+        </Pressable>
+
+        <Button label={t("Çıkış Yap")} variant="ghost" onPress={handleSignOut} loading={signingOut} style={styles.signOut} />
+        <Pressable onPress={confirmDelete} disabled={deleting} hitSlop={8} accessibilityRole="button">
+          <Text style={styles.delete}>{deleting ? t("Siliniyor…") : t("Hesabımı kalıcı olarak sil")}</Text>
+        </Pressable>
+        <Text style={styles.version}>{t("Sürüm {{APP_VERSION}}", { APP_VERSION })}</Text>
       </ScrollView>
+
+      {/* Level: the road from A1 to C2 and this level's progress; tap a level to switch */}
+      <Modal visible={levelOpen} animationType="slide" transparent onRequestClose={() => setLevelOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setLevelOpen(false)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>{t("Seviyen")}</Text>
+            <Text style={styles.sheetSub}>{loc(currentLevel.story.title)}</Text>
+            <View style={styles.road}>
+              <View style={styles.roadLine} />
+              {ALL_LEVELS.map((id) => {
+                const written = PATH_LEVELS.some((l) => l.id === id);
+                const s = stats.perLevel[id];
+                const finished = !!s && s.total > 0 && s.done >= s.total;
+                const here = id === pathLevelId;
+                return (
+                  <Pressable
+                    key={id}
+                    onPress={() => chooseLevel(id)}
+                    disabled={!written}
+                    style={styles.stop}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: here, disabled: !written }}
+                  >
+                    <View style={[styles.stopDot, finished && styles.stopDone, here && styles.stopHere, !written && styles.stopSoon]}>
+                      {finished ? (
+                        <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                      ) : (
+                        <Text style={[styles.stopCode, here && { color: '#FFFFFF' }, !written && { color: '#A8A29E' }]}>{id}</Text>
+                      )}
+                    </View>
+                    <Text style={[styles.stopName, here && { color: colors.textHeading }]} numberOfLines={1} adjustsFontSizeToFit>
+                      {written ? pathLevelName(id) : t("Yakında")}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <View style={styles.levelProgress}>
+              <View style={styles.levelTrack}>
+                <View style={[styles.levelFill, { width: `${Math.max(3, (current.done / Math.max(1, current.total)) * 100)}%` }]} />
+              </View>
+              <Text style={styles.levelText}>{t("{{level}} · {{done}}/{{total}} bölüm", { level: pathLevelId, done: current.done, total: current.total })}</Text>
+            </View>
+            <Text style={styles.sheetHint}>{t("Bir seviyeye dokunarak geçebilirsin.")}</Text>
+            <Button label={t("Tamam")} onPress={() => setLevelOpen(false)} />
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Reminder: on/off and its time */}
+      <Modal visible={reminderOpen} animationType="slide" transparent onRequestClose={() => setReminderOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setReminderOpen(false)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>{t("Hatırlatma")}</Text>
+            <Row icon="notifications" tint="#F97316" label={t("Günlük hatırlatıcı")} sub={t("Mivo günde bir kez hatırlatır")}>
+              <Switch value={reminder.enabled} onValueChange={reminder.toggle} disabled={reminder.unavailable} trackColor={{ false: '#D6D3D1', true: TEAL }} />
+            </Row>
+            {reminder.enabled && !reminder.unavailable ? (
+              <View style={styles.times}>
+                {TIME_PRESETS.map((p) => {
+                  const on = p.hour === reminder.hour && p.minute === reminder.minute;
+                  return (
+                    <Pressable
+                      key={`${p.hour}:${p.minute}`}
+                      onPress={() => void reminder.setTime(p.hour, p.minute)}
+                      style={[styles.timeChip, on && styles.timeChipOn]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: on }}
+                    >
+                      <Text style={[styles.timeText, on && { color: '#FFFFFF' }]}>
+                        {p.label} {two(p.hour)}:{two(p.minute)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+            <Button label={t("Tamam")} onPress={() => setReminderOpen(false)} />
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <LanguagePickerModal visible={languageOpen} onClose={() => setLanguageOpen(false)} />
 
       {/* Avatar picker */}
       <Modal visible={avatarOpen} animationType="slide" transparent onRequestClose={() => setAvatarOpen(false)}>
@@ -380,77 +548,105 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   );
 }
 
-function Stat({ icon, color, soft, value, label, sub }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; soft: string; value: number; label: string; sub: string }) {
+function Stat({ icon, color, value, label }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; value: number; label: string }) {
   return (
     <View style={styles.stat}>
-      <View style={[styles.statIcon, { backgroundColor: soft }]}>
-        <Ionicons name={icon} size={18} color={color} />
+      <View style={styles.statTop}>
+        <Ionicons name={icon} size={16} color={color} />
+        <Text style={styles.statValue}>{value}</Text>
       </View>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-      <Text style={styles.statSub} numberOfLines={1}>
-        {sub}
+      <Text style={styles.statLabel} numberOfLines={1}>
+        {label}
       </Text>
     </View>
   );
 }
 
-/** One row of the short list: 3D icon on a soft tint, name, one line, an optional count badge. */
-function ListRow({
+/** One settings row: an icon on a soft tint, the label, then a value, a count, a switch or a chevron. */
+function Row({
   icon,
   tint,
-  title,
+  label,
   sub,
+  value,
   badge,
   onPress,
+  external,
+  children,
 }: {
-  icon: ImageSourcePropType;
+  icon: React.ComponentProps<typeof Ionicons>['name'];
   tint: string;
-  title: string;
-  sub: string;
+  label: string;
+  sub?: string;
+  value?: string;
   badge?: number;
-  onPress: () => void;
+  onPress?: () => void;
+  external?: boolean;
+  children?: React.ReactNode;
 }) {
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-      <View style={[styles.rowArt, { backgroundColor: tint }]}>
-        <Image source={icon} style={styles.rowIcon} resizeMode="contain" />
+  const body = (
+    <>
+      <View style={[styles.rowIcon, { backgroundColor: `${tint}1F` }]}>
+        <Ionicons name={icon} size={18} color={tint} />
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.rowTitle}>{title}</Text>
-        <Text style={styles.rowSub} numberOfLines={1}>
-          {sub}
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.rowLabel} numberOfLines={1}>
+          {label}
         </Text>
+        {sub ? (
+          <Text style={styles.rowSub} numberOfLines={2}>
+            {sub}
+          </Text>
+        ) : null}
       </View>
+      {value ? (
+        <Text style={styles.rowValue} numberOfLines={1}>
+          {value}
+        </Text>
+      ) : null}
       {badge ? (
         <View style={styles.rowBadge}>
           <Text style={styles.rowBadgeText}>{badge > 99 ? '99+' : badge}</Text>
         </View>
       ) : null}
-      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+      {children ?? (onPress ? <Ionicons name={external ? 'open-outline' : 'chevron-forward'} size={18} color={colors.textMuted} /> : null)}
+    </>
+  );
+  return onPress ? (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      {body}
     </Pressable>
+  ) : (
+    <View style={styles.row}>{body}</View>
   );
 }
 
+const Divider = () => <View style={styles.divider} />;
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: FLOOR },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
+  header: { paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 10 },
   headerTitle: { fontFamily: fonts.headingBold, fontSize: 28, lineHeight: 34, color: colors.textHeading },
-  gear: { width: 42, height: 42, borderRadius: 21, backgroundColor: VP.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: VP.line },
   // Room for the floating tab bar.
-  scroll: { paddingHorizontal: spacing.md, paddingBottom: 130, gap: 14 },
+  scroll: { paddingHorizontal: spacing.md, paddingBottom: 130, gap: 12 },
+
+  vipWrap: { borderRadius: 20 },
+  vip: { borderRadius: 20, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, overflow: 'hidden' },
+  vipImage: { width: 48, height: 48 },
+  vipTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#FFFFFF' },
+  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#E8D6A8', marginTop: 1 },
 
   hero: { borderRadius: 24, padding: 16, gap: 14, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  avatarRing: { width: 84, height: 84, borderRadius: 42, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
-  avatar: { width: 72, height: 72, borderRadius: 36 },
+  avatarRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 60, height: 60, borderRadius: 30 },
   avatarEdit: {
     position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    right: -2,
+    bottom: -2,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: VP.ink,
     borderWidth: 2,
     borderColor: '#FFFFFF',
@@ -458,38 +654,83 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  name: { flexShrink: 1, fontFamily: fonts.headingBold, fontSize: 22, color: VP.ink },
+  name: { flexShrink: 1, fontFamily: fonts.headingBold, fontSize: 21, color: VP.ink },
   email: { fontFamily: fonts.bodyMedium, fontSize: 13, color: VP.inkSoft, marginTop: 2 },
-  proPill: {
+  planPill: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 8,
-    backgroundColor: '#FCD34D',
+    marginTop: 7,
+    backgroundColor: '#F1EDE6',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 3,
   },
-  proText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#78350F', letterSpacing: 0.6 },
+  planPillPro: { backgroundColor: '#FCD34D' },
+  planText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: VP.inkSoft, letterSpacing: 0.5 },
   friend: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: VP.floor, borderRadius: 16, paddingHorizontal: 10, paddingVertical: 9, borderWidth: 1, borderColor: VP.line },
   friendFace: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFFFF' },
   friendLine: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
   friendTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFE8DD', overflow: 'hidden' },
   friendFill: { height: '100%', borderRadius: 3, backgroundColor: VP.gold },
 
-  stats: { flexDirection: 'row', gap: 10 },
-  stat: { flex: 1, backgroundColor: VP.card, borderRadius: 20, paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center', borderWidth: 1, borderColor: VP.line },
-  statIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  statValue: { fontFamily: fonts.headingBold, fontSize: 22, color: VP.ink, marginTop: 6 },
-  statLabel: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: VP.ink },
-  statSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
+  stats: { flexDirection: 'row', alignItems: 'center' },
+  stat: { flex: 1, alignItems: 'center', gap: 2 },
+  statTop: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  statValue: { fontFamily: fonts.headingBold, fontSize: 19, color: VP.ink },
+  statLabel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.textMuted },
+  statDivider: { width: 1, height: 30, backgroundColor: VP.line },
 
-  card: { backgroundColor: VP.card, borderRadius: 22, padding: 16, borderWidth: 1, borderColor: VP.line },
-  cardKicker: { fontFamily: fonts.headingBold, fontSize: 12, letterSpacing: 1, color: VP.coralDeep, textTransform: 'uppercase' },
-  cardTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginTop: 2 },
-  cardHint: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 10 },
-  road: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  groupTitle: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.9, color: colors.textMuted, textTransform: 'uppercase', marginTop: 8, marginLeft: 4 },
+  card: { backgroundColor: VP.card, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4, borderWidth: 1, borderColor: VP.line },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11 },
+  rowIcon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  rowLabel: { fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textHeading },
+  rowSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 1 },
+  rowValue: { maxWidth: '45%', fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: TEAL },
+  rowBadge: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    paddingHorizontal: 6,
+    backgroundColor: '#F43F5E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowBadgeText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
+  divider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 46 },
+
+  rate: {
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: '#FCE3B0',
+    borderBottomWidth: 4,
+    borderBottomColor: '#F6D58E',
+  },
+  rateStars: { flexDirection: 'row', gap: 4 },
+  rateTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading, marginTop: 2 },
+  rateText: { fontFamily: fonts.bodyRegular, fontSize: 13.5, lineHeight: 19, color: colors.textBody, textAlign: 'center' },
+  rateBtn: { marginTop: 6, paddingHorizontal: 22, paddingVertical: 9, borderRadius: 999, backgroundColor: '#F59E0B' },
+  rateBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF' },
+
+  signOut: { marginTop: 6 },
+  delete: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: '#DC2626', textAlign: 'center', marginTop: 2 },
+  version: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
+
+  overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 },
+  sheetHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E8F0' },
+  sheetTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
+  sheetSub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: colors.textMuted, marginTop: -8 },
+  sheetHint: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, textAlign: 'center' },
+
+  road: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   roadLine: { position: 'absolute', top: 19, left: '8%', right: '8%', height: 3, borderRadius: 2, backgroundColor: '#ECE5D8' },
   stop: { flex: 1, alignItems: 'center', gap: 5 },
   stopDot: {
@@ -502,45 +743,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stopDone: { backgroundColor: VP.mint, borderColor: VP.mintDeep },
+  stopDone: { backgroundColor: '#2DD4BF', borderColor: TEAL },
   stopHere: { backgroundColor: VP.ink, borderColor: '#0B1220', transform: [{ scale: 1.12 }] },
   stopSoon: { backgroundColor: '#F5F5F4', borderColor: '#E7E5E4' },
   stopCode: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   stopName: { fontFamily: fonts.bodyMedium, fontSize: 11, color: colors.textMuted, paddingHorizontal: 2 },
-  levelProgress: { marginTop: 16, gap: 6 },
+  levelProgress: { gap: 6 },
   levelTrack: { height: 8, borderRadius: 4, backgroundColor: '#F1EDE6', overflow: 'hidden' },
-  levelFill: { height: '100%', borderRadius: 4, backgroundColor: VP.sun },
+  levelFill: { height: '100%', borderRadius: 4, backgroundColor: '#2DD4BF' },
   levelText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textBody },
+  times: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  timeChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#F0FDFA' },
+  timeChipOn: { backgroundColor: TEAL },
+  timeText: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: TEAL },
 
-  list: { backgroundColor: VP.card, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 4, borderWidth: 1, borderColor: VP.line },
-  listDivider: { height: 1, backgroundColor: '#F1EDE6', marginLeft: 56 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
-  rowArt: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  rowIcon: { width: 36, height: 36 },
-  rowTitle: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, color: colors.textHeading },
-  rowSub: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
-  rowBadge: {
-    minWidth: 22,
-    height: 22,
-    borderRadius: 11,
-    paddingHorizontal: 6,
-    backgroundColor: '#F43F5E',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rowBadgeText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
-
-  vipWrap: { borderRadius: 20 },
-  vip: { borderRadius: 20, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, overflow: 'hidden' },
-  vipImage: { width: 48, height: 48 },
-  vipTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#FFFFFF' },
-  vipDesc: { fontFamily: fonts.bodyRegular, fontSize: 12.5, color: '#E8D6A8', marginTop: 1 },
-
-  overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 },
-  sheetHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E8F0' },
-  sheetTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading },
-  sheetSub: { fontFamily: fonts.bodyRegular, fontSize: 13.5, color: colors.textMuted, marginTop: -8 },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
   avatarItem: { width: '23%', alignItems: 'center', gap: 5, paddingVertical: 8, borderRadius: 16, borderWidth: 2, borderColor: 'transparent' },
   avatarItemOn: { borderColor: VP.line, backgroundColor: VP.floor },

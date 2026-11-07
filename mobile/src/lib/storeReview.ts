@@ -33,3 +33,29 @@ export async function noteLessonFinished(): Promise<void> {
     // best effort
   }
 }
+
+const ANDROID_PACKAGE = 'com.spekvia.app';
+
+/**
+ * The profile's "rate us" card: opens the app's store page (the Play Store app, else its web page). The in-app review
+ * window is not used here: the stores limit how often it may show, so a button tap could open nothing.
+ */
+export async function openStorePage(): Promise<void> {
+  const { Linking, Platform } = await import('react-native');
+  if (Platform.OS === 'android') {
+    try {
+      await Linking.openURL(`market://details?id=${ANDROID_PACKAGE}`);
+    } catch {
+      await Linking.openURL(`https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`).catch(() => {});
+    }
+    return;
+  }
+  try {
+    const StoreReview = await import('expo-store-review');
+    const url = StoreReview.storeUrl();
+    if (url) await Linking.openURL(url);
+    else await StoreReview.requestReview();
+  } catch {
+    // no store page on this device
+  }
+}
