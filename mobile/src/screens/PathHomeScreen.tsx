@@ -150,10 +150,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
   const maxMedal = Math.min(winW * 0.86, 380);
   const medal = Math.round(carousel ? Math.max(150, Math.min(maxMedal, carousel.h - MEDAL_EXTRA)) : Math.min(maxMedal, winH * 0.28));
-  /** Where the backdrop's street ends: just above the medallion's bottom, so its title sits on the cream floor below. */
   /** The arrows sit at the medallion's middle. */
   const arrowTop = carousel ? Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal / 2 - 23 : '42%';
-  const horizon = carousel ? carousel.y + Math.max(0, (carousel.h - (medal + MEDAL_EXTRA)) / 2) + CHIP_ROOM + medal * 0.86 : winH * 0.6;
 
   const goalDone = todayMinutes >= target;
   // The level's cast and story, once per level on this phone (and from the story title).
@@ -281,7 +279,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
 
   return (
     <View style={styles.container}>
-      <HomeBackdrop backdrop={backdrop} width={winW} horizon={horizon} />
+      <HomeBackdrop backdrop={backdrop} />
 
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
         {/* Top: streak and today's goal, the level crescent in the middle, Pro */}
