@@ -401,8 +401,10 @@ function Feedback({ ok, helped, sub, label, onNext }: { ok: boolean; helped?: bo
     <FadeIn from={24} style={[styles.feedback, tone === 'ok' ? styles.feedbackOk : tone === 'help' ? styles.feedbackHelp : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
         {tone === 'ok' ? (
-          // A right answer: the tick draws itself in
-          <LottieMoment source={lottieAnims.check} size={46} style={{ marginHorizontal: -4 }} />
+          // A right answer: a white tick draws itself on the green disc
+          <PopIn style={[styles.feedbackIcon, styles.feedbackIconOk]}>
+            <LottieMoment source={lottieAnims.checkWhite} size={58} />
+          </PopIn>
         ) : (
           <PopIn style={[styles.feedbackIcon, { backgroundColor: tone === 'help' ? '#F59E0B' : colors.error }]}>
             <Ionicons name={tone === 'help' ? 'bulb' : 'close'} size={22} color="#FFFFFF" />
@@ -1771,6 +1773,35 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
     trackEvent('mivo_chat_opened', { with_story: true, from: 'lesson_done' });
     transitionTo(() => navigation.navigate('FreeChatRoom', { storyFocus }), t("Mivo ile Sohbet Başlıyor…"));
   };
+  // The unit this episode belongs to, and how far into it the learner is now (this episode counts as done).
+  const unitInfo = useMemo(() => {
+    for (const level of PATH_LEVELS) {
+      const hit = flatSteps(level).find((f) => f.step.id === stepId);
+      if (hit) return { number: hit.unit.number, ids: hit.unit.steps.map((x) => x.id) };
+    }
+    return null;
+  }, [stepId]);
+  const [unitDone, setUnitDone] = useState<{ before: number; now: number } | null>(null);
+  useEffect(() => {
+    if (!unitInfo) return;
+    void loadPathProgress().then((p) => {
+      const doneElse = unitInfo.ids.filter((id) => id !== stepId && starsOf(p, id) > 0).length;
+      setUnitDone({ before: doneElse, now: doneElse + 1 });
+    });
+  }, [unitInfo, stepId]);
+  const unitFill = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!unitDone || !unitInfo) return;
+    const total = unitInfo.ids.length;
+    unitFill.setValue(unitDone.before / total);
+    const id = setTimeout(
+      () => Animated.timing(unitFill, { toValue: unitDone.now / total, duration: 900, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start(),
+      1500
+    );
+    return () => clearTimeout(id);
+  }, [unitDone, unitInfo, unitFill]);
+  const unitComplete = !!unitDone && !!unitInfo && unitDone.now >= unitInfo.ids.length;
+
   useEffect(() => {
     if (saved.current) return;
     saved.current = true;
@@ -1812,32 +1843,48 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
           </PopIn>
         ))}
       </View>
-      <FadeIn delay={1400}>
-        <View style={styles.doneStats}>
-          {total > 0 ? (
-            <View style={styles.doneStat}>
-              <Text style={styles.doneStatNum}>
-                {right}/{total}
-              </Text>
-              <Text style={styles.doneStatLabel}>{t("İlk denemede doğru")}</Text>
+      {/* Progress in the unit: bars rise and the unit bar fills to where this episode brought you */}
+      {unitInfo && unitDone ? (
+        <FadeIn delay={1300} style={styles.bigCard}>
+          <LottieMoment source={lottieAnims.levelUp} size={86} style={{ marginVertical: -8 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.bigKicker}>{t("ÜNİTE {{n}}", { n: unitInfo.number })}</Text>
+            <Text style={styles.bigTitle}>{unitComplete ? t("Ünite tamamlandı!") : t("{{done}}/{{total}} adım", { done: unitDone.now, total: unitInfo.ids.length })}</Text>
+            <View style={styles.bigTrack}>
+              <Animated.View style={[styles.bigFill, { width: unitFill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
             </View>
-          ) : null}
-          <View style={[styles.doneStat, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
-            <CountUp to={ACTIVITY_XP} delay={1500} style={[styles.doneStatNum, { color: '#B45309' }]} />
-            <Text style={styles.doneStatLabel}>{t("XP")}</Text>
           </View>
-          {profile?.streak_count ? (
-            <View style={[styles.doneStat, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <LottieMoment source={lottieAnims.streak} size={30} loop style={{ marginVertical: -4 }} />
-                <Text style={[styles.doneStatNum, { color: '#C2410C' }]}>{profile.streak_count}</Text>
-              </View>
-              <Text style={styles.doneStatLabel}>{t("Günlük seri")}</Text>
-            </View>
-          ) : null}
+        </FadeIn>
+      ) : null}
+
+      {/* The streak, big: the flame burns next to the day count */}
+      {profile?.streak_count ? (
+        <FadeIn delay={1600} style={[styles.bigCard, styles.streakCard]}>
+          <LottieMoment source={lottieAnims.streak} size={92} loop style={{ marginVertical: -10 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.streakNum}>
+              {profile.streak_count} <Text style={styles.streakUnit}>{t("günlük seri")}</Text>
+            </Text>
+            <Text style={styles.streakSub}>{t("Yarın da gel, alev sönmesin!")}</Text>
+          </View>
+        </FadeIn>
+      ) : null}
+
+      {/* The small numbers, in one quiet line */}
+      <FadeIn delay={1800} style={styles.doneChips}>
+        {total > 0 ? (
+          <View style={styles.doneChip}>
+            <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+            <Text style={styles.doneChipText}>{t("{{right}}/{{total}} ilk denemede", { right, total })}</Text>
+          </View>
+        ) : null}
+        <View style={[styles.doneChip, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
+          <Ionicons name="sparkles" size={15} color="#D97706" />
+          <CountUp to={ACTIVITY_XP} delay={1900} style={[styles.doneChipText, { color: '#B45309' }]} />
+          <Text style={[styles.doneChipText, { color: '#B45309' }]}>XP</Text>
         </View>
       </FadeIn>
-      <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
+      <FadeIn delay={2000} style={{ alignSelf: 'stretch' }}>
         {/* Talk about this very episode with Mivo, while it is fresh */}
         <Pressable onPress={talkWithMivo} style={({ pressed }) => [styles.talkCard, pressed && { opacity: 0.9 }]} accessibilityRole="button">
           <Image source={mivoHomeImages.fab} style={styles.talkFace} resizeMode="cover" />
@@ -1962,6 +2009,7 @@ const styles = StyleSheet.create({
   feedbackHelp: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
   feedbackRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   feedbackIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  feedbackIconOk: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.success, overflow: 'hidden' },
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
   feedbackSub: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textBody, marginTop: 1 },
 
@@ -2121,11 +2169,23 @@ const styles = StyleSheet.create({
   micRec: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
 
   done: { alignItems: 'center', gap: 14, paddingTop: 20 },
-  doneMedal: { width: 172, height: 172, borderRadius: 86, padding: 8, backgroundColor: '#FDE68A' },
-  doneMedalImg: { width: 156, height: 156, borderRadius: 78, borderWidth: 3, borderColor: '#FFFFFF' },
+  doneMedal: { width: 140, height: 140, borderRadius: 70, padding: 7, backgroundColor: '#FDE68A' },
+  doneMedalImg: { width: 126, height: 126, borderRadius: 63, borderWidth: 3, borderColor: '#FFFFFF' },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 110 },
+  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 96 },
+  bigCard: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 12, paddingHorizontal: 14, borderWidth: 1.5, borderColor: '#EDE7DD' },
+  bigKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 1.2, color: '#C9533A' },
+  bigTitle: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading, marginTop: 1 },
+  bigTrack: { height: 10, borderRadius: 5, backgroundColor: '#F1EDE6', overflow: 'hidden', marginTop: 8 },
+  bigFill: { height: '100%', borderRadius: 5, backgroundColor: '#F4C152' },
+  streakCard: { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' },
+  streakNum: { fontFamily: fonts.headingBold, fontSize: 34, lineHeight: 40, color: '#C2410C' },
+  streakUnit: { fontFamily: fonts.headingBold, fontSize: 17, color: '#C2410C' },
+  streakSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: '#9A3412', marginTop: 1 },
+  doneChips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  doneChip: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#E2E8F0' },
+  doneChipText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
   badgeSmall: { width: 66, height: 66 },
   badgeMid: { width: 84, height: 84 },
   badgeBig: { width: 104, height: 104 },

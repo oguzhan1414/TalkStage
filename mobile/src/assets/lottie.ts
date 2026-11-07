@@ -4,8 +4,10 @@ import type { AnimationObject } from 'lottie-react-native';
 export const lottieAnims = {
   /** Correct answer: a ring and a tick drawing in (lesson feedback). */
   check: require('../../assets/lottie/check.json'),
+  /** The tick alone, in white, for the green answer disc. */
+  checkWhite: require('../../assets/lottie/check_white.json'),
   /** The streak flame (lesson finish). Loops. */
   streak: require('../../assets/lottie/streak.json'),
   /** Bars rising with an arrow: a level finished (Bugün). */
   levelUp: require('../../assets/lottie/levelup.json'),
-} as Record<'check' | 'streak' | 'levelUp', AnimationObject>;
+} as Record<'check' | 'checkWhite' | 'streak' | 'levelUp', AnimationObject>;
