@@ -7,8 +7,8 @@ import { Animated, Easing, FlatList, Image, Pressable, Share, StyleSheet, Text, 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { homeBackdrop } from '../assets/homeBackdrops';
-import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
-import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
+import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
+import Svg, { Defs, G, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
@@ -45,11 +45,11 @@ const ARC_DISC = 37;
 const MIVO_BTN = 54;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
-/** Medallion colours per step type. */
+/** Medallion colours per step type: the ring's track (its star segments fill gold) and the picture's backing. */
 const RING: Record<string, { ring: string; fill: [string, string] }> = {
-  reading: { ring: '#FDE68A', fill: ['#6366F1', '#8B5CF6'] },
-  vocab: { ring: '#BBF7D0', fill: ['#10B981', '#059669'] },
-  scene: { ring: '#F5D0FE', fill: ['#A855F7', '#7C3AED'] },
+  reading: { ring: '#E0E7FF', fill: ['#6366F1', '#8B5CF6'] },
+  vocab: { ring: '#D1FAE5', fill: ['#10B981', '#059669'] },
+  scene: { ring: '#F3E8FF', fill: ['#A855F7', '#7C3AED'] },
   soon: { ring: '#E2E8F0', fill: ['#CBD5E1', '#94A3B8'] },
 };
 
@@ -197,6 +197,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   /** The level's share passed so far: what the crescent at the top fills to. */
   const readings = steps.filter((f) => f.step.kind === 'reading');
   const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
+  const unitPassed = progress ? focused.unit.steps.filter((s) => isPassed(progress, s.id)).length : 0;
   const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
 
   /** What Mivo tells about a step when tapped: the previous episode, the story, or what the step is for. */
@@ -368,6 +369,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                   size={medal}
                   progress={progress}
                   isFuture={item.index > current.index}
+                  isCurrent={item.index === current.index}
                   celebrate={celebrate?.id === item.step.id ? celebrate : null}
                   onOpen={() => openStep(item.step)}
                   talking={talk?.id === item.step.id ? talk.text : null}
@@ -399,24 +401,38 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           ) : null}
         </View>
 
-        {/* The unit's steps as a road of little pictures */}
-        <View style={[styles.road, { marginBottom: Math.max(insets.bottom, 16) + TAB_BAR + 14 }]}>
-          <View style={styles.roadLine} />
-          {focused.unit.steps.map((s) => {
-            const f = steps.find((x) => x.step.id === s.id);
-            if (!f) return null;
-            return (
-              <RoadStop
-                key={s.id}
-                f={f}
-                done={progress ? isDone(progress, s.id) : false}
-                skipped={progress ? !!progress.skipped[s.id] : false}
-                here={s.id === focused.step.id}
-                future={f.index > current.index}
-                onPress={() => goTo(f.index)}
-              />
-            );
-          })}
+        {/* The unit's steps as a quiet progress road: its name and count, then one dot per step (tap to jump there). */}
+        <View style={[styles.roadWrap, { marginBottom: Math.max(insets.bottom, 16) + TAB_BAR + 10 }]}>
+          <View style={styles.roadHead}>
+            <Text style={styles.roadUnit} numberOfLines={1}>
+              {t("Ünite {{n}}", { n: focused.unit.number })}
+              <Text style={styles.roadUnitName}>{`  ·  ${loc(focused.unit.title)}`}</Text>
+            </Text>
+            <Text style={styles.roadCount}>
+              {unitPassed}/{focused.unit.steps.length}
+            </Text>
+          </View>
+          <View style={styles.road}>
+            {focused.unit.steps.map((s, i) => {
+              const f = steps.find((x) => x.step.id === s.id);
+              if (!f) return null;
+              const passed = progress ? isPassed(progress, s.id) : false;
+              const prevPassed = i > 0 && progress ? isPassed(progress, focused.unit.steps[i - 1].id) : false;
+              return (
+                <View key={s.id} style={[styles.roadCell, i === 0 && { flex: 0 }]}>
+                  {i > 0 ? <View style={[styles.roadLink, prevPassed && passed && styles.roadLinkDone]} /> : null}
+                  <RoadDot
+                    f={f}
+                    done={progress ? isDone(progress, s.id) : false}
+                    skipped={progress ? !!progress.skipped[s.id] : false}
+                    here={s.id === focused.step.id}
+                    future={f.index > current.index}
+                    onPress={() => goTo(f.index)}
+                  />
+                </View>
+              );
+            })}
+          </View>
         </View>
       </SafeAreaView>
 
@@ -438,6 +454,7 @@ function Medallion({
   size,
   progress,
   isFuture,
+  isCurrent,
   celebrate,
   onOpen,
   talking,
@@ -450,6 +467,8 @@ function Medallion({
   size: number;
   progress: PathProgress | null;
   isFuture: boolean;
+  /** The step to do next: only this medallion moves (a slow breath), so the screen stays calm. */
+  isCurrent: boolean;
   /** Just finished (stars land) or just opened (the lock breaks). */
   celebrate?: { kind: 'stars' | 'unlock'; key: number } | null;
   onOpen: () => void;
@@ -465,10 +484,8 @@ function Medallion({
   const ringPop = useRef(new Animated.Value(1)).current;
   const halo = useLoop(celebrate?.kind === 'unlock', 900, true);
   const lockedNow = f.step.kind === 'soon' || isFuture;
-  // Premium idle life: the medallion floats, light runs round its ring, the picture slowly breathes.
-  const float = useLoop(true, 2800, true);
-  const glint = useLoop(!lockedNow, 5200);
-  const zoom = useLoop(!lockedNow, 9000, true);
+  // One quiet motion on the screen: only the next step floats, slowly.
+  const float = useLoop(isCurrent && !lockedNow, 3200, true);
   useEffect(() => {
     if (celebrate?.kind !== 'unlock') return;
     lockBreak.setValue(0);
@@ -526,6 +543,8 @@ function Medallion({
           : stars > 0
             ? t("Devam et")
           : t("Başla");
+  /** A finished step offers a calm white "repeat" button, so it never looks like the next new step. */
+  const replay = done && !locked;
   const ctaIcon: React.ComponentProps<typeof Ionicons>['name'] = soon
     ? 'time'
     : isFuture
@@ -560,49 +579,17 @@ function Medallion({
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: palette.ring,
-            transform: [{ translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, -7] }) }, { scale: ringPop }],
+            transform: [{ translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }, { scale: ringPop }],
           },
         ]}
       >
-        {/* A soft band of light that keeps running round the ring (under the picture, so only the ring shows it). */}
-        {!locked ? (
-          <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: size / 2, overflow: 'hidden' }]}>
-            <Animated.View
-              style={{
-                position: 'absolute',
-                left: -size * 0.25,
-                top: -size * 0.25,
-                width: size * 1.5,
-                height: size * 1.5,
-                transform: [{ rotate: glint.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }],
-              }}
-            >
-              <LinearGradient
-                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.95)', 'rgba(255,255,255,0)']}
-                locations={[0.38, 0.5, 0.62]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ width: '100%', height: '50%' }}
-              />
-            </Animated.View>
-          </View>
-        ) : null}
+        {/* The ring is the step's progress: three segments, one per star, filling gold. */}
+        <StarRing size={size} stars={stars} track={locked ? '#E2E8F0' : palette.ring} celebrateKey={celebrate?.kind === 'stars' ? celebrate.key : null} />
         {/* No shadow on this circle, so Android clips the picture to it; the picture also carries its own radius. */}
         <View style={[styles.medalClip, { width: inner, height: inner, borderRadius: inner / 2 }]}>
           <LinearGradient colors={palette.fill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]} />
           {art ? (
-            <Animated.Image
-              source={art}
-              style={{
-                width: inner,
-                height: inner,
-                borderRadius: inner / 2,
-                opacity: locked ? 0.45 : 1,
-                transform: [{ scale: zoom.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] }) }],
-              }}
-              resizeMode="cover"
-            />
+            <Image source={art} style={{ width: inner, height: inner, borderRadius: inner / 2, opacity: locked ? 0.45 : 1 }} resizeMode="cover" />
           ) : (
             <Image
               source={type === 'scene' ? mivoVoiceImages.speak : mivoHomeImages.lessonGuide}
@@ -610,39 +597,6 @@ function Medallion({
               resizeMode="contain"
             />
           )}
-          {/* A light shade only behind the badges at the bottom; the picture stays clean. */}
-          <LinearGradient
-            colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.28)']}
-            locations={[0.62, 1]}
-            style={[StyleSheet.absoluteFill, { borderRadius: inner / 2 }]}
-          />
-          {/* Rehearsal steps show only their lock: badges would cover Mivo's face. */}
-          {type !== 'scene' ? (
-            <View style={styles.medalStars}>
-              {[1, 2, 3].map((n) =>
-                celebrate?.kind === 'stars' && n <= stars ? (
-                  <PopIn
-                    key={`${celebrate.key}-${n}`}
-                    delay={350 + n * 280}
-                    onShow={() => {
-                      playSfx('star');
-                      haptics.selection();
-                    }}
-                    style={n === 2 ? { marginTop: -10 } : undefined}
-                  >
-                    <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.medalBadgeMid : styles.medalBadge} resizeMode="contain" />
-                  </PopIn>
-                ) : (
-                  <Image
-                    key={n}
-                    source={n <= stars && celebrate?.kind !== 'stars' ? partBadgeImages.gold[n - 1] : partBadgeImages.grey[n - 1]}
-                    style={[n === 2 ? styles.medalBadgeMid : styles.medalBadge, n === 2 && { marginTop: -10 }, !(n <= stars && celebrate?.kind !== 'stars') && { opacity: 0.85 }]}
-                    resizeMode="contain"
-                  />
-                )
-              )}
-            </View>
-          ) : null}
           {locked ? (
             <View style={styles.medalLock}>
               <Ionicons name="lock-closed" size={30} color="#FFFFFF" />
@@ -715,19 +669,19 @@ function Medallion({
         accessibilityLabel={cta}
       >
         {({ pressed }) => (
-          <View style={[styles.ctaEdge, locked && styles.ctaEdgeLocked]}>
+          <View style={[styles.ctaEdge, locked ? styles.ctaEdgeLocked : replay && styles.ctaEdgeReplay]}>
             <View style={[styles.ctaFace, pressed && styles.ctaFacePressed]}>
               <LinearGradient
-                colors={locked ? ['#F8FAFC', '#E2E8F0'] : ['#FFE27A', '#FBBF24']}
+                colors={locked ? ['#F8FAFC', '#E2E8F0'] : replay ? ['#FFFFFF', '#EEF2FF'] : ['#FFE27A', '#FBBF24']}
                 style={StyleSheet.absoluteFill}
               />
               <View pointerEvents="none" style={styles.ctaGloss} />
               {!locked && !done ? <Shine /> : null}
-              <Text style={[styles.ctaText, locked && { color: '#64748B' }]} numberOfLines={1} adjustsFontSizeToFit>
+              <Text style={[styles.ctaText, locked ? { color: '#64748B' } : replay && { color: '#4338CA' }]} numberOfLines={1} adjustsFontSizeToFit>
                 {cta}
               </Text>
-              <View style={[styles.ctaIcon, locked && { backgroundColor: 'rgba(100,116,139,0.12)' }]}>
-                <Ionicons name={ctaIcon} size={15} color={locked ? '#64748B' : '#78350F'} />
+              <View style={[styles.ctaIcon, locked ? { backgroundColor: 'rgba(100,116,139,0.12)' } : replay && { backgroundColor: '#E0E7FF' }]}>
+                <Ionicons name={ctaIcon} size={15} color={locked ? '#64748B' : replay ? '#4338CA' : '#78350F'} />
               </View>
             </View>
           </View>
@@ -740,6 +694,69 @@ function Medallion({
         </Pressable>
       ) : null}
     </View>
+  );
+}
+
+/** Degrees left open between the ring's star segments. */
+const SEG_GAP = 6;
+
+/**
+ * The medallion's ring as three segments, one per star: earned ones are gold, the rest the step type's light tint.
+ * Coming back from a lesson (`celebrateKey`), the earned segments fill one after another with a chime.
+ */
+function StarRing({ size, stars, track, celebrateKey }: { size: number; stars: number; track: string; celebrateKey: number | null }) {
+  const c = size / 2;
+  const r = size / 2 - RING_W / 2;
+  const sweep = 120 - SEG_GAP;
+  const length = r * ((sweep * Math.PI) / 180);
+  const fills = useRef([0, 1, 2].map((n) => new Animated.Value(celebrateKey == null && n < stars ? 1 : 0))).current;
+  useEffect(() => {
+    if (celebrateKey == null) {
+      fills.forEach((v, n) => v.setValue(n < stars ? 1 : 0));
+      return;
+    }
+    fills.forEach((v) => v.setValue(0));
+    const timers = Array.from({ length: stars }, (_, n) =>
+      setTimeout(() => {
+        playSfx('star');
+        haptics.selection();
+        Animated.timing(fills[n], { toValue: 1, duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+      }, 450 + n * 380)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [stars, celebrateKey, fills]);
+  const point = (deg: number) => {
+    const a = (deg * Math.PI) / 180;
+    return `${c + r * Math.cos(a)} ${c + r * Math.sin(a)}`;
+  };
+  const gradientId = `starRing${size}`;
+  return (
+    <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <SvgGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#FDE047" />
+          <Stop offset="1" stopColor="#F59E0B" />
+        </SvgGradient>
+      </Defs>
+      {[0, 1, 2].map((n) => {
+        // From the top, clockwise.
+        const from = -90 + n * 120 + SEG_GAP / 2;
+        const d = `M ${point(from)} A ${r} ${r} 0 0 1 ${point(from + sweep)}`;
+        return (
+          <G key={n}>
+            <Path d={d} stroke={track} strokeWidth={RING_W} fill="none" />
+            <AnimatedPath
+              d={d}
+              stroke={`url(#${gradientId})`}
+              strokeWidth={RING_W}
+              fill="none"
+              strokeDasharray={`${length} ${length}`}
+              strokeDashoffset={fills[n].interpolate({ inputRange: [0, 1], outputRange: [length, 0] })}
+            />
+          </G>
+        );
+      })}
+    </Svg>
   );
 }
 
@@ -905,46 +922,31 @@ function TodayPill({
   );
 }
 
-/** A stop on the unit road: the step's picture in a small circle; done is gold, the shown step glows. */
-function RoadStop({ f, done, skipped, here, future, onPress }: { f: FlatStep; done: boolean; skipped: boolean; here: boolean; future: boolean; onPress: () => void }) {
-  const pulse = useLoop(here, 1300);
-  const art = stepArt(f);
+/**
+ * A dot on the unit road: done is gold with a tick, the step in view is a larger violet ring with its type's icon,
+ * the rest are quiet white dots with the type's icon (book, sparkles, mic).
+ */
+function RoadDot({ f, done, skipped, here, future, onPress }: { f: FlatStep; done: boolean; skipped: boolean; here: boolean; future: boolean; onPress: () => void }) {
   const type = stepType(f.step);
-  const size = here ? 42 : 34;
+  const icon = type === 'scene' ? 'mic' : type === 'vocab' ? 'sparkles' : 'book';
+  const size = here ? 34 : 26;
   return (
-    <Pressable onPress={onPress} hitSlop={6} style={styles.stopWrap} accessibilityRole="button" accessibilityLabel={stepTitle(f.step)}>
-      {here ? (
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.stopPulse,
-            {
-              opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] }),
-              transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.45] }) }],
-            },
-          ]}
-        />
-      ) : null}
+    <Pressable onPress={onPress} hitSlop={8} style={styles.dotWrap} accessibilityRole="button" accessibilityLabel={stepTitle(f.step)}>
       <View
         style={[
-          styles.stop,
+          styles.dot,
           { width: size, height: size, borderRadius: size / 2 },
-          done && styles.stopDone,
-          here && styles.stopHere,
-          skipped && styles.stopSkipped,
+          done && !skipped && styles.dotDone,
+          skipped && styles.dotSkipped,
+          here && styles.dotHere,
         ]}
       >
-        {art ? (
-          <Image source={art} style={{ width: '100%', height: '100%', opacity: future ? 0.45 : 1 }} resizeMode="cover" />
+        {done && !skipped && !here ? (
+          <Ionicons name="checkmark" size={15} color="#FFFFFF" />
         ) : (
-          <Ionicons name={type === 'scene' ? 'mic' : type === 'vocab' ? 'sparkles' : 'book'} size={here ? 18 : 15} color={future ? '#A78BFA' : '#7C3AED'} />
+          <Ionicons name={icon} size={here ? 16 : 12} color={here ? '#4F46E5' : future ? '#CBD5E1' : skipped ? '#94A3B8' : '#818CF8'} />
         )}
       </View>
-      {done ? (
-        <View style={styles.stopCheck}>
-          <Ionicons name="checkmark" size={10} color="#FFFFFF" />
-        </View>
-      ) : null}
     </Pressable>
   );
 }
@@ -1159,6 +1161,7 @@ const styles = StyleSheet.create({
   bubbleText: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 17, color: colors.textHeading },
 
   medalRing: {
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#1E3A8A',
@@ -1172,11 +1175,8 @@ const styles = StyleSheet.create({
   medalEdge: { borderWidth: 3, borderColor: '#FFFFFF' },
   medalTitle: { fontFamily: fonts.headingBold, fontSize: 23, color: colors.textHeading, textAlign: 'center', marginTop: 14 },
   medalSubtitle: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: colors.textBody, textAlign: 'center', marginTop: 3 },
-  medalStars: { position: 'absolute', bottom: '19%', flexDirection: 'row', alignItems: 'center', gap: 4 },
-  medalBadge: { width: 40, height: 40 },
-  medalBadgeMid: { width: 50, height: 50 },
   unlockHalo: { position: 'absolute', top: -18, backgroundColor: '#FDE68A' },
-  medalLock: { position: 'absolute', bottom: '18%', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
+  medalLock: { position: 'absolute', width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(15,23,42,0.45)', alignItems: 'center', justifyContent: 'center' },
   ctaWrap: { marginTop: 14 },
   ctaEdge: {
     height: 62,
@@ -1189,6 +1189,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   ctaEdgeLocked: { backgroundColor: '#CBD5E1', shadowOpacity: 0.1 },
+  ctaEdgeReplay: { backgroundColor: '#C7D2FE', shadowColor: '#1E3A8A', shadowOpacity: 0.12 },
   ctaFace: {
     position: 'absolute',
     left: 0,
@@ -1228,38 +1229,34 @@ const styles = StyleSheet.create({
   arrowLeft: { left: 6 },
   arrowRight: { right: 6 },
 
-  road: { flexDirection: 'row', alignSelf: 'center', alignItems: 'center', gap: 12, marginTop: 4, height: 50 },
-  roadLine: { position: 'absolute', left: 14, right: 14, top: 24, height: 3, borderRadius: 2, backgroundColor: 'rgba(148,163,184,0.35)' },
-  stopWrap: { alignItems: 'center', justifyContent: 'center', width: 44, height: 50 },
-  stop: {
-    overflow: 'hidden',
+  roadWrap: { paddingHorizontal: spacing.lg + 4, marginTop: 4 },
+  roadHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 },
+  roadUnit: { flex: 1, fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.6, color: '#4338CA' },
+  roadUnitName: { fontFamily: fonts.headingSemiBold, letterSpacing: 0, color: colors.textBody },
+  roadCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textBody, marginLeft: 8 },
+  road: { flexDirection: 'row', alignItems: 'center', height: 38 },
+  roadCell: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  roadLink: { flex: 1, height: 3, borderRadius: 2, marginHorizontal: 3, backgroundColor: '#E2E8F0' },
+  roadLinkDone: { backgroundColor: '#FBBF24' },
+  dotWrap: { alignItems: 'center', justifyContent: 'center' },
+  dot: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F3FF',
-    borderWidth: 2.5,
-    borderColor: '#FFFFFF',
-    shadowColor: '#1E3A8A',
-    shadowOpacity: 0.16,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
   },
-  stopDone: { borderColor: '#FBBF24' },
-  stopHere: { borderColor: '#4F46E5', borderWidth: 3 },
-  stopSkipped: { borderColor: '#CBD5E1', opacity: 0.7 },
-  stopPulse: { position: 'absolute', width: 42, height: 42, borderRadius: 21, backgroundColor: '#818CF8' },
-  stopCheck: {
-    position: 'absolute',
-    right: 0,
-    bottom: 4,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#F59E0B',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+  dotDone: { backgroundColor: '#F59E0B', borderColor: '#F59E0B' },
+  dotSkipped: { backgroundColor: '#F1F5F9', borderColor: '#E2E8F0' },
+  dotHere: {
+    borderWidth: 3,
+    borderColor: '#6366F1',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#4F46E5',
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
   },
 
 
