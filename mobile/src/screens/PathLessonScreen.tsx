@@ -198,7 +198,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
         ref={scrollRef}
         bottomOffset={110}
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + EXIT_SPACE }]}
+        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + (screen === 'done' ? 0 : EXIT_SPACE) }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -255,7 +255,7 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
           )}
         </PageIn>
       </KeyboardScroll>
-      {partCard ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
+      {partCard || screen === 'done' ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
       {partCard ? (
         <PartCard
           stepId={stepId}
@@ -1817,10 +1817,48 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const finish = () => {
+    onExit();
+    // Back on the path after a finished lesson: the store rating sheet may appear over the home (once).
+    setTimeout(() => void noteLessonFinished(), 900);
+  };
+  const share = () =>
+    void Share.share({
+      message: t("Spekvia'da \"{{title}}\" bölümünü bitirdim! İngilizceyi hikâyelerle öğreniyorum 📖 https://spekvia.com", {
+        title: loc(episode.title),
+      }),
+    });
+
   return (
     <View style={styles.done}>
       <Confetti count={18} />
-      {/* The episode picture as a medallion again: the three badges land under it, as on the home. */}
+      {/* Top: what was earned on the left, share and close on the right (no scrolling, no big button) */}
+      <View style={styles.doneTop}>
+        <FadeIn delay={1700} style={styles.doneTopChips}>
+          <View style={[styles.doneChip, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
+            <Ionicons name="sparkles" size={14} color="#D97706" />
+            <CountUp to={ACTIVITY_XP} delay={1800} style={[styles.doneChipText, { color: '#B45309' }]} />
+            <Text style={[styles.doneChipText, { color: '#B45309' }]}>XP</Text>
+          </View>
+          {total > 0 ? (
+            <View style={styles.doneChip}>
+              <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+              <Text style={styles.doneChipText}>
+                {right}/{total}
+              </Text>
+            </View>
+          ) : null}
+        </FadeIn>
+        <View style={{ flex: 1 }} />
+        <Pressable onPress={share} style={styles.doneTopBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Paylaş")}>
+          <Ionicons name="share-social" size={19} color={colors.textHeading} />
+        </Pressable>
+        <Pressable onPress={finish} style={styles.doneTopBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Yola dön")}>
+          <Ionicons name="close" size={22} color={colors.textHeading} />
+        </Pressable>
+      </View>
+
+      {/* The episode picture as a medallion; the three badges land under it */}
       <PopIn>
         <View style={styles.doneMedal}>
           {art ? <Image source={art} style={styles.doneMedalImg} resizeMode="cover" /> : <Image source={mivoHomeImages.lessonGuide} style={styles.doneMedalImg} resizeMode="contain" />}
@@ -1839,16 +1877,17 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
               haptics.selection();
               playSfx('star');
             }}
-            style={n === 2 ? { marginTop: -10 } : undefined}
+            style={n === 2 ? { marginTop: -8 } : undefined}
           >
-            <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.badgeMid : styles.badgeSmall} resizeMode="contain" />
+            <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.badgeMidDone : styles.badgeSmallDone} resizeMode="contain" />
           </PopIn>
         ))}
       </View>
+
       {/* Progress in the unit: bars rise and the unit bar fills to where this episode brought you */}
       {unitInfo && unitDone ? (
         <FadeIn delay={1300} style={styles.bigCard}>
-          <LottieMoment source={lottieAnims.levelUp} size={86} style={{ marginVertical: -8 }} />
+          <LottieMoment source={lottieAnims.levelUp} size={74} style={{ marginVertical: -8 }} />
           <View style={{ flex: 1 }}>
             <Text style={styles.bigKicker}>{t("ÜNİTE {{n}}", { n: unitInfo.number })}</Text>
             <Text style={styles.bigTitle}>{unitComplete ? t("Ünite tamamlandı!") : t("{{done}}/{{total}} adım", { done: unitDone.now, total: unitInfo.ids.length })}</Text>
@@ -1861,8 +1900,8 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
 
       {/* The streak, big: the flame burns next to the day count */}
       {profile?.streak_count ? (
-        <FadeIn delay={1600} style={[styles.bigCard, styles.streakCard]}>
-          <LottieMoment source={lottieAnims.streak} size={92} loop style={{ marginVertical: -10 }} />
+        <FadeIn delay={1500} style={[styles.bigCard, styles.streakCard]}>
+          <LottieMoment source={lottieAnims.streak} size={80} loop style={{ marginVertical: -10 }} />
           <View style={{ flex: 1 }}>
             <Text style={styles.streakNum}>
               {profile.streak_count} <Text style={styles.streakUnit}>{t("günlük seri")}</Text>
@@ -1872,22 +1911,8 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
         </FadeIn>
       ) : null}
 
-      {/* The small numbers, in one quiet line */}
-      <FadeIn delay={1800} style={styles.doneChips}>
-        {total > 0 ? (
-          <View style={styles.doneChip}>
-            <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-            <Text style={styles.doneChipText}>{t("{{right}}/{{total}} ilk denemede", { right, total })}</Text>
-          </View>
-        ) : null}
-        <View style={[styles.doneChip, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
-          <Ionicons name="sparkles" size={15} color="#D97706" />
-          <CountUp to={ACTIVITY_XP} delay={1900} style={[styles.doneChipText, { color: '#B45309' }]} />
-          <Text style={[styles.doneChipText, { color: '#B45309' }]}>XP</Text>
-        </View>
-      </FadeIn>
-      <FadeIn delay={2000} style={{ alignSelf: 'stretch' }}>
-        {/* Talk about this very episode with Mivo, while it is fresh */}
+      {/* Talk about this very episode with Mivo, while it is fresh */}
+      <FadeIn delay={1900} style={{ alignSelf: 'stretch' }}>
         <Pressable onPress={talkWithMivo} style={({ pressed }) => [styles.talkCard, pressed && { opacity: 0.9 }]} accessibilityRole="button">
           <Image source={mivoHomeImages.fab} style={styles.talkFace} resizeMode="cover" />
           <View style={{ flex: 1 }}>
@@ -1900,28 +1925,6 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
             <Ionicons name="mic" size={20} color="#FFFFFF" />
           </View>
         </Pressable>
-        <Pressable
-          onPress={() =>
-            void Share.share({
-              message: t("Spekvia'da \"{{title}}\" bölümünü bitirdim! İngilizceyi hikâyelerle öğreniyorum 📖 https://spekvia.com", {
-                title: loc(episode.title),
-              }),
-            })
-          }
-          style={styles.shareBtn}
-          accessibilityRole="button"
-        >
-          <Ionicons name="share-social" size={16} color={colors.brand} />
-          <Text style={styles.shareText}>{t("Paylaş")}</Text>
-        </Pressable>
-        <NextButton
-          label={t("Yola dön")}
-          onPress={() => {
-            onExit();
-            // Back on the path after a finished lesson: the store rating sheet may appear over the home (once).
-            setTimeout(() => void noteLessonFinished(), 900);
-          }}
-        />
       </FadeIn>
     </View>
   );
@@ -2170,19 +2173,24 @@ const styles = StyleSheet.create({
   },
   micRec: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
 
-  done: { alignItems: 'center', gap: 14, paddingTop: 20 },
-  doneMedal: { width: 140, height: 140, borderRadius: 70, padding: 7, backgroundColor: '#FDE68A' },
-  doneMedalImg: { width: 126, height: 126, borderRadius: 63, borderWidth: 3, borderColor: '#FFFFFF' },
+  done: { alignItems: 'center', gap: 11, paddingTop: 4 },
+  doneMedal: { width: 116, height: 116, borderRadius: 58, padding: 6, backgroundColor: '#FDE68A' },
+  doneMedalImg: { width: 104, height: 104, borderRadius: 52, borderWidth: 3, borderColor: '#FFFFFF' },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 96 },
-  bigCard: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 12, paddingHorizontal: 14, borderWidth: 1.5, borderColor: '#EDE7DD' },
+  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 76 },
+  badgeSmallDone: { width: 54, height: 54 },
+  badgeMidDone: { width: 68, height: 68 },
+  doneTop: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 8 },
+  doneTopChips: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  doneTopBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#EDE7DD' },
+  bigCard: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1.5, borderColor: '#EDE7DD' },
   bigKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 1.2, color: '#C9533A' },
-  bigTitle: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading, marginTop: 1 },
+  bigTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginTop: 1 },
   bigTrack: { height: 10, borderRadius: 5, backgroundColor: '#F1EDE6', overflow: 'hidden', marginTop: 8 },
   bigFill: { height: '100%', borderRadius: 5, backgroundColor: '#F4C152' },
   streakCard: { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' },
-  streakNum: { fontFamily: fonts.headingBold, fontSize: 34, lineHeight: 40, color: '#C2410C' },
+  streakNum: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: '#C2410C' },
   streakUnit: { fontFamily: fonts.headingBold, fontSize: 17, color: '#C2410C' },
   streakSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: '#9A3412', marginTop: 1 },
   doneChips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
