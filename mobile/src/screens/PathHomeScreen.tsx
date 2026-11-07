@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { homeBackdrop } from '../assets/homeBackdrops';
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
-import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { PopIn, useLoop } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
@@ -28,7 +28,7 @@ import { haptics } from '../lib/haptics';
 import { playSfx, preloadSfx } from '../lib/sfx';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
-import type { ProfileOut, ProgressOut, VocabCardOut } from '../types/api';
+import type { ProfileOut, ProgressOut } from '../types/api';
 
 const TAB_BAR = 68;
 const RING_W = 12;
@@ -40,7 +40,7 @@ const MEDAL_EXTRA = CHIP_ROOM + 168;
 const ARC_R = 52;
 const ARC_SW = 10;
 const ARC_SWEEP = 220;
-const ARC_DISC = 34;
+const ARC_DISC = 37;
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 /** Medallion colours per step type. */
@@ -66,9 +66,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
   const { data: practice } = useQuery({ queryKey: ['progress'], queryFn: () => api.get<ProgressOut[]>('/progress') });
   const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
-  // Today's small jobs next to the story: the words due for review.
-  const { data: dueCards } = useQuery({ queryKey: ['vocab-cards'], queryFn: () => api.get<VocabCardOut[]>('/vocab-cards') });
-
   // The level is picked in the profile for now (lib/pathLevel.ts).
   const [levelId, setLevelId] = usePathLevel();
   const queryClient = useQueryClient();
@@ -200,7 +197,6 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const chapter = Math.max(1, readings.filter((f) => f.index <= current.index).length);
   /** The level's share passed so far: what the crescent at the top fills to. */
   const levelShare = progress && steps.length ? steps.filter((f) => isPassed(progress, f.step.id)).length / steps.length : 0;
-  const dueCount = dueCards?.length ?? 0;
 
   /**
    * Mivo's bubble above the tab bar, kept for the moments that matter: a hello on the day's first visit, the streak
@@ -274,9 +270,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               <Ionicons name="flame" size={18} color="#F97316" />
               <Text style={styles.topChipNum}>{profile?.streak_count ?? 0}</Text>
             </View>
-            <GoalRing minutes={Math.min(todayMinutes, target)} target={target} />
           </View>
-          <LevelArc level={level.id} share={levelShare} />
+          <LevelArc level={level.id} share={levelShare} chapter={chapter} chapters={readings.length} />
           <View style={[styles.topSide, { justifyContent: 'flex-end' }]}>
             <Pressable
               onPress={() => {
@@ -293,7 +288,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
           </View>
         </View>
 
-        {/* Story: the title (opens the cast) and the chapter, with today's small jobs beside it */}
+        {/* Story: the title (opens the cast) and the chapter guide */}
         <View style={styles.storyBlock}>
           <Pressable onPress={() => setIntroOpen(true)} hitSlop={6} accessibilityRole="button">
             <Text style={[styles.storyTitle, backdrop.lightSky && styles.storyTitleOnLight]} numberOfLines={1} adjustsFontSizeToFit>
@@ -301,20 +296,16 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             </Text>
           </Pressable>
           <View style={styles.storyMeta}>
-            <View style={[styles.chapterChip, backdrop.lightSky && styles.chapterChipOnLight]}>
-              <Ionicons name="book" size={12} color={backdrop.lightSky ? '#4338CA' : '#FFFFFF'} />
-              <Text style={[styles.chapterText, backdrop.lightSky && { color: '#3730A3' }]}>{t("Bölüm {{n}}/{{m}}", { n: chapter, m: readings.length })}</Text>
-            </View>
-            <TodayPill
-              delay={200}
-              icon="school"
-              color="#4F46E5"
-              label={t("Rehber")}
+            <Pressable
               onPress={() => navigation.navigate('PathGuide', { stepId: focused.step.id })}
-            />
-            {dueCount > 0 ? (
-              <TodayPill delay={250} icon="layers" color="#0EA5E9" label={t("{{n}} kelime", { n: dueCount })} onPress={() => navigation.navigate('Vocab')} />
-            ) : null}
+              hitSlop={6}
+              style={({ pressed }) => [styles.guideBtn, pressed && styles.guideBtnPressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t("Rehber")}
+            >
+              <Ionicons name="book-outline" size={16} color="#4F46E5" />
+              <Text style={styles.guideBtnText}>{t("Rehber")}</Text>
+            </Pressable>
             {levelDone && nextLevel ? (
               <TodayPill delay={200} icon="rocket" color="#7C3AED" label={t("Sonraki seviye: {{level}}", { level: nextLevel.id })} onPress={goNextLevel} />
             ) : null}
@@ -734,43 +725,10 @@ function Medallion({
   );
 }
 
-/** Today's goal as a small ring with the minutes in it (green when done). */
-function GoalRing({ minutes, target }: { minutes: number; target: number }) {
-  const size = 40;
-  const stroke = 4;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const share = target > 0 ? Math.min(1, minutes / target) : 0;
-  const done = share >= 1;
-  return (
-    <View style={styles.goalRing} accessibilityLabel={t("{{n}}/{{target}} dk", { n: minutes, target })}>
-      <Svg width={size} height={size}>
-        <Circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(148,163,184,0.35)" strokeWidth={stroke} fill="#FFFFFF" />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          stroke={done ? '#22C55E' : '#6366F1'}
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={`${c * share} ${c}`}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-      <View style={StyleSheet.absoluteFill}>
-        <View style={styles.goalRingInner}>
-          {done ? <Ionicons name="checkmark" size={16} color="#16A34A" /> : <Text style={styles.goalRingText}>{minutes}</Text>}
-        </View>
-      </View>
-    </View>
-  );
-}
-
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-/** The level as a crescent at the top: it fills with the level's passed steps; the level sits in a disc inside. */
-function LevelArc({ level, share }: { level: string; share: number }) {
+/** The level as a crescent at the top: it fills with the level's passed steps; the level and the story chapter sit in a disc inside. */
+function LevelArc({ level, share, chapter, chapters }: { level: string; share: number; chapter: number; chapters: number }) {
   const w = 2 * ARC_R + ARC_SW;
   const cx = w / 2;
   const cy = ARC_R + ARC_SW / 2;
@@ -812,7 +770,9 @@ function LevelArc({ level, share }: { level: string; share: number }) {
       </Svg>
       <View style={[styles.arcDisc, { left: cx - ARC_DISC, top: cy - ARC_DISC }]}>
         <Text style={styles.arcLevel}>{level}</Text>
-        <Text style={styles.arcPercent}>{t("%{{n}}", { n: percent })}</Text>
+        <Text style={styles.arcChapter} numberOfLines={1} adjustsFontSizeToFit>
+          {t("Bölüm {{n}}/{{m}}", { n: chapter, m: chapters })}
+        </Text>
       </View>
     </View>
   );
@@ -933,9 +893,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   topChipNum: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  goalRing: { width: 40, height: 40 },
-  goalRingInner: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  goalRingText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
   proPill: {
     height: 38,
     paddingHorizontal: 11,
@@ -1010,18 +967,26 @@ const styles = StyleSheet.create({
 
   storyBlock: { alignItems: 'center', paddingHorizontal: spacing.lg, marginTop: 2 },
   storyMeta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
-  chapterChip: {
+  guideBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    height: 28,
-    paddingHorizontal: 10,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.45)',
+    gap: 7,
+    height: 36,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E0E7FF',
+    borderBottomWidth: 3,
+    borderBottomColor: '#C7D2FE',
+    shadowColor: '#1E3A8A',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  chapterChipOnLight: { backgroundColor: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.95)' },
+  guideBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5 },
+  guideBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#4338CA', letterSpacing: 0.2 },
   arcDisc: {
     position: 'absolute',
     width: ARC_DISC * 2,
@@ -1037,7 +1002,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   arcLevel: { fontFamily: fonts.headingBold, fontSize: 24, lineHeight: 27, color: '#3730A3' },
-  arcPercent: { fontFamily: fonts.headingBold, fontSize: 11.5, color: '#B45309', letterSpacing: 0.3 },
+  arcChapter: { maxWidth: ARC_DISC * 2 - 10, fontFamily: fonts.headingBold, fontSize: 10.5, color: '#B45309', letterSpacing: 0.2 },
   storyChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1062,7 +1027,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 8,
   },
   storyTitleOnLight: { color: colors.textHeading, textShadowColor: 'rgba(255,255,255,0.6)' },
-  chapterText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#FFFFFF', letterSpacing: 0.3 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
