@@ -29,3 +29,19 @@ class GrammarMistakeOut(BaseModel):
     category: Optional[str] = None
     created_at: Optional[str] = None
 
+
+
+class LearningEventIn(BaseModel):
+    """One finished thing from the app: a path step ('episode' for a story episode, 'step' for any other) or a scene."""
+
+    kind: str
+    ref: Optional[str] = None
+
+
+class DailyActivityOut(BaseModel):
+    day: str
+    words_added: int
+    vocab_reviews: int
+    steps: int
+    scenes: int
+    minutes: int

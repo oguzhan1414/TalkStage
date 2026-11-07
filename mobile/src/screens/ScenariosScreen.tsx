@@ -19,6 +19,7 @@ import { CEFR_LEVELS } from '../constants/cefr';
 import { SceneTile } from '../components/scenes/SceneTile';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
+import { logLearningEvent } from '../lib/learningEvents';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import {
   SCENE_FLAG_PREFIX,
@@ -317,6 +318,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
           const id = selectedVideoScenario.id;
           // Best result is kept: 1 = finished, 2 and 3 from how cleanly the lines were said.
           setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
+          logLearningEvent('scene', id);
           if (stars >= 2) setLearningFlag(`${SCENE_STAR2_PREFIX}${id}`);
           if (stars >= 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${id}`);
           setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, stars) as 1 | 2 | 3 }));

@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { vocabArt, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { WeekActivity } from '../components/vocab/WeekActivity';
 import { Button } from '../components/Button';
 
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
@@ -763,12 +764,15 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         </View>
       ) : null}
 
-      {/* Tools, as one row of shortcuts */}
+      {/* This week: today's new words and reviews, and the last seven days */}
+      <WeekActivity />
+
+      {/* Tools, as a 2×2 grid of cards that say what they are */}
       <View style={styles.dashTools}>
-        <Shortcut icon={vocabArt.iconLibrary} tint={VP.mintSoft} label={t("Kütüphane")} onPress={() => navigation.navigate('VocabLibrary')} />
-        <Shortcut icon={vocabArt.iconGroups} tint={VP.coralSoft} label={t("Gruplarım")} onPress={() => navigation.navigate('VocabDecks')} />
-        <Shortcut icon={vocabArt.iconRooms} tint={VP.sunSoft} label={t("Odalar")} onPress={() => navigation.navigate('WordRooms')} />
-        <Shortcut icon={vocabArt.iconPronunciation} tint={VP.skySoft} label={t("Telaffuz")} onPress={() => navigation.navigate('MispronouncedWords')} />
+        <Shortcut icon={vocabArt.iconLibrary} tint={VP.mintSoft} label={t("Kütüphane")} sub={t("900 temel kelime")} onPress={() => navigation.navigate('VocabLibrary')} />
+        <Shortcut icon={vocabArt.iconGroups} tint={VP.coralSoft} label={t("Gruplarım")} sub={t("Etiketlerin ve seviyeler")} onPress={() => navigation.navigate('VocabDecks')} />
+        <Shortcut icon={vocabArt.iconRooms} tint={VP.sunSoft} label={t("Odalar")} sub={t("Hafıza sarayı oyunu")} onPress={() => navigation.navigate('WordRooms')} />
+        <Shortcut icon={vocabArt.iconPronunciation} tint={VP.skySoft} label={t("Telaffuz")} sub={t("Zorlandığın kelimeler")} onPress={() => navigation.navigate('MispronouncedWords')} />
       </View>
     </ScrollView>
   );
@@ -1515,15 +1519,21 @@ function DeckFan({ cards }: { cards: VocabCardOut[] }) {
 }
 
 /** A round shortcut with its 3D icon and a short label underneath. */
-function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; label: string; onPress: () => void }) {
+/** One tool card of the 2×2 grid: its picture on a soft tint, the name and one line on what it is. */
+function Shortcut({ icon, tint, label, sub, onPress }: { icon: number; tint: string; label: string; sub: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.shortcut, pressed && { transform: [{ scale: 0.95 }] }]} accessibilityRole="button" accessibilityLabel={label}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.shortcut, pressed && styles.shortcutPressed]} accessibilityRole="button" accessibilityLabel={label}>
       <View style={[styles.shortcutArt, { backgroundColor: tint }]}>
         <Image source={icon} style={styles.shortcutImage} resizeMode="contain" />
       </View>
-      <Text style={styles.shortcutLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-        {label}
-      </Text>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.shortcutLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          {label}
+        </Text>
+        <Text style={styles.shortcutSub} numberOfLines={2}>
+          {sub}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -1640,11 +1650,24 @@ const styles = StyleSheet.create({
   dashMemoryLabel: { flexShrink: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textBody },
   dashMemoryCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
 
-  dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 11, paddingHorizontal: 8, borderWidth: 1, borderColor: '#EDE7DD' },
-  shortcut: { flex: 1, alignItems: 'center', gap: 6, paddingHorizontal: 2 },
-  shortcutArt: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  shortcutImage: { width: 40, height: 40 },
-  shortcutLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
+  dashTools: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
+  shortcut: {
+    width: '48.5%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 10,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EDE7DD',
+    borderBottomWidth: 3,
+  },
+  shortcutPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1 },
+  shortcutArt: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  shortcutImage: { width: 34, height: 34 },
+  shortcutLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: VP.ink },
+  shortcutSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, lineHeight: 15, color: VP.inkSoft, marginTop: 1 },
 
   // Dashboard fits one screen: hero, the chest, two rows of tiles; the tiles share what is left above the tab bar.
   home: { flex: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 100, gap: 12 },
