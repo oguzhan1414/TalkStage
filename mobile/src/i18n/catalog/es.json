@@ -3694,5 +3694,10 @@
   "{{done}}/{{total}} adım": "{{done}}/{{total}} pasos",
   "günlük seri": "días de racha",
   "Yarın da gel, alev sönmesin!": "Vuelve mañana, ¡que no se apague la llama!",
-  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} al primer intento"
+  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} al primer intento",
+  "Hazır rol oyunları: izle, sıra sende olunca konuş.": "Juegos de rol listos: mira y habla cuando te toque.",
+  "Daha az göster": "Mostrar menos",
+  "Tümünü gör ({{n}})": "Ver todo ({{n}})",
+  "HEDEFLERİN": "TUS OBJETIVOS",
+  "İŞİNE YARAYACAK KALIPLAR": "FRASES ÚTILES"
 }

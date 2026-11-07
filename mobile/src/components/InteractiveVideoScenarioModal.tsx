@@ -364,6 +364,45 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   {scenario.description}
                 </Text>
 
+                {/* What the learner sets out to do in the scene */}
+                {scenario.objectives.length ? (
+                  <View style={styles.infoCard}>
+                    <Text style={styles.infoLabel}>{t("HEDEFLERİN")}</Text>
+                    {scenario.objectives.slice(0, 3).map((o, i) => (
+                      <View key={o.id} style={styles.goalRow}>
+                        <View style={styles.goalNum}>
+                          <Text style={styles.goalNumText}>{i + 1}</Text>
+                        </View>
+                        <Text style={styles.goalText}>{o.textTr}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+
+                {/* A few phrases worth having ready (tap to hear) */}
+                {scenario.keyPhrases.length ? (
+                  <View style={styles.infoCard}>
+                    <Text style={styles.infoLabel}>{t("İŞİNE YARAYACAK KALIPLAR")}</Text>
+                    {scenario.keyPhrases.slice(0, 3).map((k) => (
+                      <Pressable
+                        key={k.en}
+                        onPress={() => void pronounce(k.en)}
+                        style={({ pressed }) => [styles.phraseRow, pressed && { opacity: 0.7 }]}
+                        accessibilityRole="button"
+                        accessibilityLabel={k.en}
+                      >
+                        <View style={styles.phraseSpeaker}>
+                          <Ionicons name="volume-high" size={14} color="#FFFFFF" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.phraseEn}>{k.en}</Text>
+                          {k.tr && k.tr !== k.en ? <Text style={styles.phraseTr}>{k.tr}</Text> : null}
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : null}
+
                 <View style={styles.howRow}>
                   {[
                     { icon: 'play-circle' as const, text: t("İzle") },
@@ -381,9 +420,20 @@ export function InteractiveVideoScenarioModal({ visible, scenario, onClose, onCo
                   ))}
                 </View>
 
-                <Pressable onPress={startScene} style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} accessibilityRole="button">
-                  <Ionicons name="play" size={18} color="#FFFFFF" />
-                  <Text style={styles.primaryBtnText}>{t("BAŞLA")}</Text>
+                {/* The same thick teal start button as on the Bugün screen */}
+                <Pressable onPress={startScene} accessibilityRole="button" accessibilityLabel={t("Başla")}>
+                  {({ pressed }) => (
+                    <View style={styles.startEdge}>
+                      <View style={[styles.startFace, pressed && styles.startFacePressed]}>
+                        <LinearGradient colors={['#2FD3BF', '#0EA594']} style={StyleSheet.absoluteFill} />
+                        <View pointerEvents="none" style={styles.startGloss} />
+                        <Text style={styles.startText}>{t("Başla")}</Text>
+                        <View style={styles.startIcon}>
+                          <Ionicons name="play" size={15} color="#FFFFFF" />
+                        </View>
+                      </View>
+                    </View>
+                  )}
                 </Pressable>
               </View>
             </ScrollView>
@@ -744,6 +794,51 @@ const styles = StyleSheet.create({
   howIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
   howText: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, lineHeight: 15, color: colors.textHeading, textAlign: 'center' },
 
+  infoCard: { gap: 10, padding: 14, borderRadius: radii.lg, backgroundColor: '#FFFFFF', ...shadow.sm },
+  infoLabel: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 0.9, color: '#0D9488' },
+  goalRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  goalNum: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: '#CCFBF1', marginTop: 1 },
+  goalNumText: { fontFamily: fonts.headingBold, fontSize: 12, color: '#0F766E' },
+  goalText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textHeading },
+  phraseRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  phraseSpeaker: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0EA5E9' },
+  phraseEn: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 19, color: colors.textHeading },
+  phraseTr: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, marginTop: 1 },
+  startEdge: {
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: '#0B7C70',
+    shadowColor: '#0F766E',
+    shadowOpacity: 0.32,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
+  },
+  startFace: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 56,
+    borderRadius: 28,
+    overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  startFacePressed: { top: 5 },
+  startGloss: { position: 'absolute', top: 4, left: 18, right: 18, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.22)' },
+  startText: {
+    fontFamily: fonts.headingBold,
+    fontSize: 20,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+    textShadowColor: 'rgba(11,124,112,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  startIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.24)' },
   primaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',

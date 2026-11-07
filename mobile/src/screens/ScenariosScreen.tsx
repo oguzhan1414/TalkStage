@@ -17,7 +17,7 @@ import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosD
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { SceneHero } from '../components/scenes/SceneHero';
-import { ScenePoster } from '../components/scenes/ScenePoster';
+import { SceneTile } from '../components/scenes/SceneTile';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
@@ -150,7 +150,9 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
       .filter((sc) => stageOfLevel(sc.level) === id)
       .sort((a, b) => CEFR_LEVELS.indexOf(a.level) - CEFR_LEVELS.indexOf(b.level)),
   })).filter((sec) => sec.scenes.length > 0);
-  const posterWidth = Math.round(Math.min(190, screenWidth * 0.42));
+  // Three tiles to a row; each stage shows two rows until "see all" is tapped (a search shows everything).
+  const tileWidth = Math.floor((screenWidth - spacing.md * 2 - TILE_GAP * 2) / 3);
+  const [openStages, setOpenStages] = useState<Record<string, boolean>>({});
 
   return (
     <SafeAreaView style={styles.container}>
@@ -218,12 +220,12 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                   {t("Serbest Sohbet")}
                 </Text>
                 <Text style={styles.mivoCardSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.2}>
-                  {t("İstediğin konuda konuş")}
+                  {t("Mivo ile istediğin konuda konuş")}
                 </Text>
                 {/* Its own row: the plan on the left, the big mic on the right */}
                 <View style={styles.mivoMicRow}>
                   <View style={[styles.mivoPlan, isPro && styles.mivoPlanPro]}>
-                    <Text style={[styles.mivoPlanText, isPro && { color: '#92400E' }]} numberOfLines={1}>
+                    <Text style={[styles.mivoPlanText, isPro && { color: '#92400E' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                       {isPro ? t("👑 Sınırsız") : t("1 deneme hakkı")}
                     </Text>
                   </View>
@@ -238,7 +240,7 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
             <View style={styles.scenesHeadRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.scenesHead}>{t("Sahneler")}</Text>
-                <Text style={styles.scenesSub}>{t("Kısa video sahneler: izle, sıra sende olunca konuş.")}</Text>
+                <Text style={styles.scenesSub}>{t("Hazır rol oyunları: izle, sıra sende olunca konuş.")}</Text>
               </View>
               <View style={styles.starsChip}>
                 <Ionicons name="star" size={15} color="#F59E0B" />
@@ -289,32 +291,36 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                     </Text>
                   </View>
                 </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.posterRow}
-                  decelerationRate="fast"
-                >
-                  {sec.scenes.map((sc) => {
-                    const stars = starsOf(sc.id);
-                    return (
-                      <ScenePoster
-                        key={sc.id}
-                        width={posterWidth}
-                        cover={resolveScenarioCoverSource(sc)}
-                        title={sc.titleTr}
-                        character={sc.aiName}
-                        minutes={sc.durationMin}
-                        stars={stars}
-                        levelColor={STAGE_COLOR[sec.id]}
-                        level={sc.level}
-                        access={sceneAccess(sc.level, userLevel)}
-                        unlockLabel={t("{{stage}} aşamasında açılır", { stage: unlockStage(sc.level) })}
-                        onPress={() => openVideoScene(sc)}
-                      />
-                    );
-                  })}
-                </ScrollView>
+                <View style={styles.grid}>
+                  {(openStages[sec.id] || videoSearchLower ? sec.scenes : sec.scenes.slice(0, GRID_PREVIEW)).map((sc) => (
+                    <SceneTile
+                      key={sc.id}
+                      width={tileWidth}
+                      cover={resolveScenarioCoverSource(sc)}
+                      title={sc.titleTr}
+                      level={sc.level}
+                      levelColor={STAGE_COLOR[sec.id]}
+                      stars={starsOf(sc.id)}
+                      access={sceneAccess(sc.level, userLevel)}
+                      onPress={() => openVideoScene(sc)}
+                    />
+                  ))}
+                </View>
+                {!videoSearchLower && sec.scenes.length > GRID_PREVIEW ? (
+                  <Pressable
+                    onPress={() => {
+                      haptics.selection();
+                      setOpenStages((o) => ({ ...o, [sec.id]: !o[sec.id] }));
+                    }}
+                    style={({ pressed }) => [styles.moreBtn, pressed && { opacity: 0.7 }]}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.moreBtnText}>
+                      {openStages[sec.id] ? t("Daha az göster") : t("Tümünü gör ({{n}})", { n: sec.scenes.length })}
+                    </Text>
+                    <Ionicons name={openStages[sec.id] ? 'chevron-up' : 'chevron-down'} size={15} color={colors.brand} />
+                  </Pressable>
+                ) : null}
               </View>
             );
           })
@@ -344,7 +350,10 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 }
 
 /** Mivo's live tile on the free-chat card. */
-const MIVO_TILE = 128;
+const MIVO_TILE = 112;
+/** The scene grid: gap between tiles and how many show before "see all" (two rows). */
+const TILE_GAP = 10;
+const GRID_PREVIEW = 6;
 
 const styles = StyleSheet.create({
   streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 10, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
@@ -366,7 +375,7 @@ const styles = StyleSheet.create({
     ...shadow.sm,
   },
   mivoMicRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 6 },
-  mivoPlan: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#EEF2FF', flexShrink: 1 },
+  mivoPlan: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#EEF2FF', flexShrink: 1, minWidth: 0 },
   mivoPlanPro: { backgroundColor: '#FEF3C7' },
   mivoPlanText: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.brand },
   mivoTile: { width: MIVO_TILE, height: MIVO_TILE, borderRadius: 20, overflow: 'hidden', backgroundColor: MIVO_STAGE_BG },
@@ -438,7 +447,20 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
   },
-  posterRow: { gap: 12, paddingRight: spacing.md, paddingBottom: 6 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  moreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    alignSelf: 'center',
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
+    backgroundColor: '#EEF2FF',
+  },
+  moreBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   searchBoxTop: { marginHorizontal: spacing.md, marginBottom: spacing.sm },
   searchBtn: {
     width: 38,

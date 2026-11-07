@@ -3671,5 +3671,10 @@
   "{{done}}/{{total}} adım": "{{done}}/{{total}} steps",
   "günlük seri": "day streak",
   "Yarın da gel, alev sönmesin!": "Come back tomorrow, keep the flame alive!",
-  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} on the first try"
+  "{{right}}/{{total}} ilk denemede": "{{right}}/{{total}} on the first try",
+  "Hazır rol oyunları: izle, sıra sende olunca konuş.": "Ready-made role plays: watch, then speak when it's your turn.",
+  "Daha az göster": "Show less",
+  "Tümünü gör ({{n}})": "See all ({{n}})",
+  "HEDEFLERİN": "YOUR GOALS",
+  "İŞİNE YARAYACAK KALIPLAR": "USEFUL PHRASES"
 }
