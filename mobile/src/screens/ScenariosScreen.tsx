@@ -16,7 +16,6 @@ import { Toast } from '../components/Toast';
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
 import { CEFR_LEVELS } from '../constants/cefr';
-import { SceneHero } from '../components/scenes/SceneHero';
 import { SceneTile } from '../components/scenes/SceneTile';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
@@ -27,7 +26,6 @@ import {
   SCENE_STAR3_PREFIX,
   levelToFinishFor,
   loadSceneStars,
-  pickSceneOfTheDay,
   type SceneStars,
   sceneAccess,
 } from '../lib/sceneProgress';
@@ -92,11 +90,6 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
         cancelled = true;
       };
     }, [readyVideoScenarios])
-  );
-
-  const nextScene = useMemo(
-    () => pickSceneOfTheDay(readyVideoScenarios, userLevel, sceneStars),
-    [readyVideoScenarios, userLevel, sceneStars]
   );
 
   // The result screen's "next scene": the next playable scene in the list, preferring one not played yet.
@@ -252,21 +245,6 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
           </>
         ) : null}
 
-        {/* Senin için sıradaki: büyük afiş */}
-        {nextScene && !videoSearchLower ? (
-          <SceneHero
-            cover={resolveSceneTileSource(nextScene)}
-            eyebrow={starsOf(nextScene.id) > 0 ? t("TEKRAR İZLE") : t("SENİN İÇİN SIRADAKİ")}
-            title={nextScene.titleTr}
-            character={nextScene.aiName}
-            role={nextScene.aiRole}
-            minutes={nextScene.durationMin}
-            level={nextScene.level}
-            levelColor={STAGE_COLOR[stageOfLevel(nextScene.level)]}
-            stars={starsOf(nextScene.id)}
-            onPress={() => openVideoScene(nextScene)}
-          />
-        ) : null}
 
         {stageSections.length === 0 ? (
           <View style={styles.cinemaEmptyState}>
