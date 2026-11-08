@@ -48,6 +48,7 @@ import { isProUser } from '../lib/revenuecat';
 import { getLocale, t } from '../i18n';
 import { KeyboardSafe } from '../components/KeyboardSafe';
 import { WordSheet } from '../components/WordSheet';
+import { FREE_CHAT_SCENARIOS } from '../data/freeChatScenarios';
 
 const AI_NAME = 'Mivo';
 const AI_ROLE = t("Serbest Sohbet Koçun");
@@ -115,7 +116,15 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const aiName = scene?.ai_name || AI_NAME;
   // One topic = the per-topic "Konu Tekrarı" (teach-then-practice); several = a mixed recall chat.
   const singleReview = reviewTopics?.length === 1 ? reviewTopics[0] : undefined;
-  const aiRole = scene?.ai_role || (unitFocus ? t("Gerçek hayata hazırlık") : singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
+  const chatChoice = route.params?.chat;
+  const chatRole = chatChoice
+    ? chatChoice.mode === 'daily'
+      ? t("Günün nasıldı?")
+      : chatChoice.mode === 'custom'
+        ? chatChoice.custom
+        : FREE_CHAT_SCENARIOS.find((sc) => sc.id === chatChoice.topic)?.title()
+    : undefined;
+  const aiRole = scene?.ai_role || chatRole || (unitFocus ? t("Gerçek hayata hazırlık") : singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
   const { finishTransition } = useMivoTransition();
 
   const voice = useFreeChatSocket(
@@ -134,7 +143,8 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           : storyFocus
           ? { kind: 'story', title: storyFocus.title, grammar: storyFocus.grammar, story: storyFocus.story, summary: storyFocus.summary, words: storyFocus.words }
           : undefined,
-    route.params?.origin
+    route.params?.origin,
+    route.params?.chat
   );
   const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const {

@@ -67,6 +67,8 @@ export type RootStackParamList = {
         storyFocus?: { title: string; grammar?: string; story?: string; summary?: string; words?: string[] };
         /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
         origin?: 'path';
+        /** Picked on 'Ne konuşalım?': the learner's day, one scene (backend topic id) or a topic of their own. */
+        chat?: { mode: 'daily' | 'scenario' | 'custom'; topic?: string; custom?: string };
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
         // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
         // corrections and the "practice done" flag to the topic.
@@ -78,6 +80,7 @@ export type RootStackParamList = {
     | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   Paywall: undefined;
+  FreeChatSetup: undefined;
   Badges: undefined;
   // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
   MistakesNotebook: undefined;
@@ -110,6 +113,7 @@ export type LiveConversationRoomScreenProps = NativeStackScreenProps<
 >;
 
 export type FreeChatRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'FreeChatRoom'>;
+export type FreeChatSetupScreenProps = NativeStackScreenProps<RootStackParamList, 'FreeChatSetup'>;
 
 export type ScorecardScreenProps = NativeStackScreenProps<RootStackParamList, 'Scorecard'>;
 

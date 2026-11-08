@@ -65,8 +65,8 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
   const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const { transitionTo } = useMivoTransition();
   const openMivoChat = () => {
-    trackEvent('mivo_chat_opened', { with_story: false, from: 'konus' });
-    transitionTo(() => navigation.navigate('FreeChatRoom'), t("Mivo ile Sohbet Başlıyor…"));
+    // First the learner picks what to talk about ('Ne konuşalım?'), then the room opens on it.
+    navigation.navigate('FreeChatSetup');
   };
   const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
   const [sceneStars, setSceneStars] = useState<SceneStars>({});

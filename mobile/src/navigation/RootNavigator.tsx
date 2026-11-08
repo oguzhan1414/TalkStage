@@ -70,6 +70,7 @@ export function RootNavigator() {
             getComponent={() => require('../screens/LiveConversationRoomScreen').LiveConversationRoomScreen}
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
+          <Stack.Screen name="FreeChatSetup" getComponent={() => require('../screens/FreeChatSetupScreen').FreeChatSetupScreen} />
           <Stack.Screen
             name="FreeChatRoom"
             getComponent={() => require('../screens/FreeChatRoomScreen').FreeChatRoomScreen}

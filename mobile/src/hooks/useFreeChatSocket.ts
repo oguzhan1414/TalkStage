@@ -4,6 +4,11 @@ export type { ConnectionStatus, OrbState, TurnPhase, CloseInfo } from './useConv
 
 /** Both entry points share one tested audio/connection state machine.
  * With `scene` it connects to the video-scene live variation (`/ws/scene-play`). */
-export function useFreeChatSocket(scene?: ScenePlayPayload, focus?: FocusTopicPayload, origin?: 'path') {
-  return useConversationSocket(undefined, scene, focus, origin);
+export function useFreeChatSocket(
+  scene?: ScenePlayPayload,
+  focus?: FocusTopicPayload,
+  origin?: 'path',
+  chat?: { mode: 'daily' | 'scenario' | 'custom'; topic?: string; custom?: string }
+) {
+  return useConversationSocket(undefined, scene, focus, origin, chat);
 }
