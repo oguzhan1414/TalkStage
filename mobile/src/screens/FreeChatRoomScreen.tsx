@@ -453,6 +453,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             onReplay={voice.hasReplayableAudio ? voice.replayAiAudio : undefined}
             timeWarning={timeWarning}
             celebrate={sceneCompleteSummary != null}
+            messageCount={displayBubbles.length}
           />
 
           {/* The room's language deal, until the first answer: Mivo explains in your language, you answer in English. */}
