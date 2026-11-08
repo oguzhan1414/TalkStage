@@ -50,6 +50,11 @@ export const yankiGreetingImage = mivoHomeImages.chatInvite;
  * personal discount: use them only for real campaigns. */
 
 /** Waving Mivo for the Welcome screen (transparent WebP). */
+/**
+ * Mivo saying goodbye on the account deletion window. The thinking pose for now; a sad Mivo (see the prompt in the
+ * chat of 2026-11-08) can replace it with one line.
+ */
+export const mivoSadImage = mivoImages.thinking;
 export const mivoWaveImage = require('../../assets/images/companion/mivo/mivo_wave.webp');
 export const yankiListeningImage = mivoImages.listening;
 export const yankiCelebrateImage = mivoImages.success;

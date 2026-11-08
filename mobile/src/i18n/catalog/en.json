@@ -3724,5 +3724,15 @@
   "Kartı sağa kaydır: sandığa · sola: biliyorum": "Swipe right: to the chest · left: I know it",
   "{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.": "{{a}} words went into your chest, you know {{b}}, you skipped {{c}}.",
   "Geçtiklerine dön ({{n}})": "Back to skipped ({{n}})",
-  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "You've heard how it's said; now tap the mic and say it yourself. Tap Listen to hear it again."
+  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "You've heard how it's said; now tap the mic and say it yourself. Tap Listen to hear it again.",
+  "Gerçekten gidiyor musun? 🥺": "Are you really leaving? 🥺",
+  "Mivo seni özleyecek. Hesabını silersen bunlar kalıcı olarak gider:": "Mivo will miss you. If you delete your account, these are gone for good:",
+  "{{n}} günlük serin": "your {{n}}-day streak",
+  "{{n}} bölümlük ilerlemen": "your progress of {{n}} episodes",
+  "Sandığındaki kelimeler ve rozetlerin": "the words in your chest and your badges",
+  "Sohbet geçmişin ve Mivo'nun hatırladıkları": "your chat history and what Mivo remembers",
+  "Aktif bir aboneliğin varsa onu ayrıca Google Play ya da App Store'dan iptal etmelisin.": "If you have an active subscription, cancel it separately in Google Play or the App Store.",
+  "Bunun geri alınamayacağını anlıyorum": "I understand this can't be undone",
+  "Hesap silinemedi. Bağlantını kontrol edip tekrar dene.": "Your account couldn't be deleted. Check your connection and try again.",
+  "Vazgeç, kalıyorum 💜": "Never mind, I'm staying 💜"
 }

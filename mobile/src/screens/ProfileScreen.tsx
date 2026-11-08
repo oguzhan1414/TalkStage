@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Alert, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { mivoHomeImages, partBadgeImages, profileArt } from '../assets/images';
+import { mivoHomeImages, mivoSadImage, partBadgeImages, profileArt } from '../assets/images';
 import { AVATARS, avatarFor } from '../constants/avatars';
 import { VP } from '../theme/vocabPalette';
 import { BouncyPressable } from '../components/BouncyPressable';
@@ -151,29 +151,26 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
       setSigningOut(false);
     }
   };
+  // Deleting the account: a warm Mivo goodbye that lists what goes, a "I understand" tick, then the real delete.
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteUnderstood, setDeleteUnderstood] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
   const confirmDelete = () => {
-    Alert.alert(
-      t("Hesabını kalıcı olarak sil?"),
-      t("Konuşma geçmişin, kelimelerin, ilerlemen ve profilin geri alınamayacak şekilde silinir. Aktif mağaza aboneliğin varsa ayrıca App Store veya Google Play üzerinden iptal etmelisin."),
-      [
-        { text: t("Vazgeç"), style: 'cancel' },
-        {
-          text: t("Hesabımı Sil"),
-          style: 'destructive',
-          onPress: async () => {
-            if (deleting) return;
-            setDeleting(true);
-            try {
-              await deleteAccount();
-            } catch {
-              Alert.alert(t("Hesap silinemedi"), t("Bağlantını kontrol edip tekrar dene."));
-            } finally {
-              setDeleting(false);
-            }
-          },
-        },
-      ]
-    );
+    setDeleteUnderstood(false);
+    setDeleteError(false);
+    setDeleteOpen(true);
+  };
+  const runDelete = async () => {
+    if (deleting || !deleteUnderstood) return;
+    setDeleting(true);
+    setDeleteError(false);
+    try {
+      await deleteAccount();
+    } catch {
+      setDeleteError(true);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -512,6 +509,45 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         </Pressable>
       </Modal>
 
+      {/* Account deletion: Mivo says goodbye, lists what will be lost, asks for an "I understand" first */}
+      <Modal visible={deleteOpen} animationType="fade" transparent onRequestClose={() => !deleting && setDeleteOpen(false)}>
+        <View style={[styles.overlay, styles.deleteOverlay]}>
+          <View style={styles.deleteCard}>
+            <Image source={mivoSadImage} style={styles.deleteMivo} resizeMode="contain" />
+            <Text style={styles.deleteTitle}>{t("Gerçekten gidiyor musun? 🥺")}</Text>
+            <Text style={styles.deleteText}>{t("Mivo seni özleyecek. Hesabını silersen bunlar kalıcı olarak gider:")}</Text>
+            <View style={styles.deleteList}>
+              <LossRow icon="flame" color="#F97316" text={t("{{n}} günlük serin", { n: profile?.streak_count ?? 0 })} />
+              <LossRow icon="book" color="#6366F1" text={t("{{n}} bölümlük ilerlemen", { n: stats.episodes })} />
+              <LossRow icon="sparkles" color="#F59E0B" text={t("Sandığındaki kelimeler ve rozetlerin")} />
+              <LossRow icon="chatbubbles" color={TEAL} text={t("Sohbet geçmişin ve Mivo'nun hatırladıkları")} />
+            </View>
+            <Text style={styles.deleteNote}>{t("Aktif bir aboneliğin varsa onu ayrıca Google Play ya da App Store'dan iptal etmelisin.")}</Text>
+            <Pressable
+              onPress={() => setDeleteUnderstood((v) => !v)}
+              style={styles.deleteCheckRow}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: deleteUnderstood }}
+            >
+              <View style={[styles.deleteCheck, deleteUnderstood && styles.deleteCheckOn]}>
+                {deleteUnderstood ? <Ionicons name="checkmark" size={15} color="#FFFFFF" /> : null}
+              </View>
+              <Text style={styles.deleteCheckText}>{t("Bunun geri alınamayacağını anlıyorum")}</Text>
+            </Pressable>
+            {deleteError ? <Text style={styles.nameError}>{t("Hesap silinemedi. Bağlantını kontrol edip tekrar dene.")}</Text> : null}
+            <Button label={t("Vazgeç, kalıyorum 💜")} onPress={() => setDeleteOpen(false)} disabled={deleting} />
+            <Pressable
+              onPress={runDelete}
+              disabled={!deleteUnderstood || deleting}
+              style={({ pressed }) => [styles.deleteBtn, (!deleteUnderstood || deleting) && { opacity: 0.4 }, pressed && { opacity: 0.7 }]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.deleteBtnText}>{deleting ? t("Siliniyor…") : t("Hesabımı kalıcı olarak sil")}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
       {/* Display name */}
       <Modal visible={nameOpen} animationType="fade" transparent onRequestClose={() => setNameOpen(false)}>
         <KeyboardSafe style={[styles.overlay, { justifyContent: 'center', padding: spacing.md }]}>
@@ -547,6 +583,17 @@ export function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
         </KeyboardSafe>
       </Modal>
     </SafeAreaView>
+  );
+}
+
+function LossRow({ icon, color, text }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; text: string }) {
+  return (
+    <View style={styles.lossRow}>
+      <View style={[styles.lossIcon, { backgroundColor: `${color}1F` }]}>
+        <Ionicons name={icon} size={15} color={color} />
+      </View>
+      <Text style={styles.lossText}>{text}</Text>
+    </View>
   );
 }
 
@@ -770,6 +817,22 @@ const styles = StyleSheet.create({
   guideTitle: { fontFamily: fonts.headingBold, fontSize: 16.5, color: colors.textHeading },
   guideBody: { fontFamily: fonts.bodyRegular, fontSize: 14, lineHeight: 20, color: colors.textBody, marginTop: 2 },
   nameCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, gap: 12 },
+  deleteOverlay: { justifyContent: 'center', padding: spacing.md },
+  deleteCard: { backgroundColor: '#FFFFFF', borderRadius: 28, padding: 22, gap: 12, alignItems: 'stretch' },
+  deleteMivo: { width: 120, height: 120, alignSelf: 'center' },
+  deleteTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading, textAlign: 'center' },
+  deleteText: { fontFamily: fonts.bodyRegular, fontSize: 14.5, lineHeight: 21, color: colors.textBody, textAlign: 'center' },
+  deleteList: { gap: 8, padding: 12, borderRadius: 18, backgroundColor: '#FFF7F5' },
+  lossRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  lossIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  lossText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.textHeading },
+  deleteNote: { fontFamily: fonts.bodyRegular, fontSize: 12.5, lineHeight: 17, color: colors.textMuted, textAlign: 'center' },
+  deleteCheckRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  deleteCheck: { width: 24, height: 24, borderRadius: 7, borderWidth: 2, borderColor: '#CBD5E1', alignItems: 'center', justifyContent: 'center' },
+  deleteCheckOn: { backgroundColor: '#DC2626', borderColor: '#DC2626' },
+  deleteCheckText: { flex: 1, fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading },
+  deleteBtn: { alignItems: 'center', paddingVertical: 12, borderRadius: 999, borderWidth: 1.5, borderColor: '#FCA5A5' },
+  deleteBtnText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: '#DC2626' },
   nameInput: {
     borderWidth: 2,
     borderColor: '#E2E8F0',

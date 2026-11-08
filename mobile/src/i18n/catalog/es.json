@@ -3747,5 +3747,15 @@
   "Kartı sağa kaydır: sandığa · sola: biliyorum": "Desliza a la derecha: al baúl · a la izquierda: lo sé",
   "{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.": "{{a}} palabras entraron en tu baúl, conoces {{b}}, saltaste {{c}}.",
   "Geçtiklerine dön ({{n}})": "Volver a las saltadas ({{n}})",
-  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "Ya escuchaste cómo se dice; ahora toca el micrófono y dilo tú. Toca Escuchar para oírlo otra vez."
+  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "Ya escuchaste cómo se dice; ahora toca el micrófono y dilo tú. Toca Escuchar para oírlo otra vez.",
+  "Gerçekten gidiyor musun? 🥺": "¿De verdad te vas? 🥺",
+  "Mivo seni özleyecek. Hesabını silersen bunlar kalıcı olarak gider:": "Mivo te echará de menos. Si borras tu cuenta, esto se pierde para siempre:",
+  "{{n}} günlük serin": "tu racha de {{n}} días",
+  "{{n}} bölümlük ilerlemen": "tu progreso de {{n}} episodios",
+  "Sandığındaki kelimeler ve rozetlerin": "las palabras de tu baúl y tus insignias",
+  "Sohbet geçmişin ve Mivo'nun hatırladıkları": "tu historial de chat y lo que Mivo recuerda",
+  "Aktif bir aboneliğin varsa onu ayrıca Google Play ya da App Store'dan iptal etmelisin.": "Si tienes una suscripción activa, cancélala aparte en Google Play o en la App Store.",
+  "Bunun geri alınamayacağını anlıyorum": "Entiendo que no se puede deshacer",
+  "Hesap silinemedi. Bağlantını kontrol edip tekrar dene.": "No se pudo borrar la cuenta. Revisa tu conexión e inténtalo de nuevo.",
+  "Vazgeç, kalıyorum 💜": "Mejor me quedo 💜"
 }
