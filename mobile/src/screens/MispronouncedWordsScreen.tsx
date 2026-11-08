@@ -34,15 +34,18 @@ function syllables(respelling: string): { text: string; stressed: boolean }[] {
 
 type WordCardProps = {
   word: MispronouncedWord;
+  /** The card on screen: it says its word once when it comes into view (neighbours stay quiet). */
+  active: boolean;
   practiced: boolean;
   onPracticed: (wordId: string) => void;
 };
 
 /**
  * Bir kart kendi kaydedicisini, doğru telaffuz oynatıcısını ve kendi kaydını çalan oynatıcıyı taşır: FlatList birkaç
- * komşu kartı birden bağlı tuttuğu için bunlar ekran genelinde paylaşılmaz. Akış: dinle -> söyle -> karşılaştır.
+ * komşu kartı birden bağlı tuttuğu için bunlar ekran genelinde paylaşılmaz. Akış: kart açılınca kelime bir kez söylenir
+ * -> söyle -> karşılaştır (Dinle düğmesi tekrar dinletir).
  */
-function WordCard({ word, practiced, onPracticed }: WordCardProps) {
+function WordCard({ word, active, practiced, onPracticed }: WordCardProps) {
   const { pronounce, stop: stopTts, isPlaying: isTtsPlaying } = usePronunciation();
   const { isRecording, durationMillis, meteringDb, permissionDenied, start, stop } = useVoiceRecorder();
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
@@ -126,6 +129,20 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
     pronounce(word.word, { rate: 0.85 }).catch(() => {});
   };
 
+  // Coming into view: say the word once (after the page settles); leaving it: stop any sound of this card.
+  useEffect(() => {
+    if (!active) {
+      stopTts();
+      stopOwn();
+      setComparing(false);
+      return;
+    }
+    if (isRecording) return;
+    const id = setTimeout(() => void playReference(), 350);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
   /** Art arda: önce doğrusu, bitince senin kaydın. */
   const startCompare = async () => {
     if (!recordedUri) return;
@@ -155,7 +172,7 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
         ? t("Çok kısa oldu, tekrar dene.")
         : recordedUri
           ? t("Kaydını dinleyip kendi telaffuzunla karşılaştır.")
-          : t("Önce Dinle ile doğru telaffuzu duy, sonra mikrofona basıp kendi söyle.");
+          : t("Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.");
 
   return (
     <View style={styles.page}>
@@ -363,7 +380,10 @@ export function MispronouncedWordsScreen({ navigation }: MispronouncedWordsScree
             maxToRenderPerBatch={3}
             windowSize={3}
             removeClippedSubviews
-            renderItem={({ item }) => <WordCard word={item} practiced={practicedIds.has(item.id)} onPracticed={handlePracticed} />}
+            renderItem={({ item, index }) => (
+              <WordCard word={item} active={index === currentIndex} practiced={practicedIds.has(item.id)} onPracticed={handlePracticed} />
+            )}
+            extraData={currentIndex}
           />
 
           <View style={styles.navRow}>

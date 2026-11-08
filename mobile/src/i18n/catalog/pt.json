@@ -3741,5 +3741,11 @@
   "Şimdilik geç": "Pular por enquanto",
   "Şimdilik geç, okumaya devam et": "Pular por enquanto e continuar lendo",
   "İlerlemen": "Seu progresso",
-  "Hafıza": "Memória"
+  "Hafıza": "Memória",
+  "Sandığa": "Pro baú",
+  "Sandığa ekle": "Adicionar ao baú",
+  "Kartı sağa kaydır: sandığa · sola: biliyorum": "Deslize para a direita: pro baú · para a esquerda: já sei",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.": "{{a}} palavras entraram no seu baú, você sabe {{b}}, pulou {{c}}.",
+  "Geçtiklerine dön ({{n}})": "Voltar às puladas ({{n}})",
+  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "Você ouviu como se diz; agora toque no microfone e fale você. Toque em Ouvir para ouvir de novo."
 }

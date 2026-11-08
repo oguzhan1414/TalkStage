@@ -3718,5 +3718,11 @@
   "Şimdilik geç": "Skip for now",
   "Şimdilik geç, okumaya devam et": "Skip for now and keep reading",
   "İlerlemen": "Your progress",
-  "Hafıza": "Memory"
+  "Hafıza": "Memory",
+  "Sandığa": "To chest",
+  "Sandığa ekle": "Add to chest",
+  "Kartı sağa kaydır: sandığa · sola: biliyorum": "Swipe right: to the chest · left: I know it",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.": "{{a}} words went into your chest, you know {{b}}, you skipped {{c}}.",
+  "Geçtiklerine dön ({{n}})": "Back to skipped ({{n}})",
+  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "You've heard how it's said; now tap the mic and say it yourself. Tap Listen to hear it again."
 }

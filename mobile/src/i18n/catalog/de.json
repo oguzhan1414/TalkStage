@@ -3741,5 +3741,11 @@
   "Şimdilik geç": "Vorerst überspringen",
   "Şimdilik geç, okumaya devam et": "Vorerst überspringen und weiterlesen",
   "İlerlemen": "Dein Fortschritt",
-  "Hafıza": "Gedächtnis"
+  "Hafıza": "Gedächtnis",
+  "Sandığa": "In die Truhe",
+  "Sandığa ekle": "In die Truhe",
+  "Kartı sağa kaydır: sandığa · sola: biliyorum": "Nach rechts wischen: in die Truhe · nach links: kenne ich",
+  "{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.": "{{a}} Wörter sind in deiner Truhe, {{b}} kennst du, {{c}} hast du übersprungen.",
+  "Geçtiklerine dön ({{n}})": "Zu den übersprungenen ({{n}})",
+  "Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.": "Du hast gehört, wie man es sagt; tippe jetzt aufs Mikrofon und sprich selbst. Tippe auf Hören, um es noch einmal zu hören."
 }
