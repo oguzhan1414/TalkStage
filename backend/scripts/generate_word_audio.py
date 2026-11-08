@@ -7,7 +7,7 @@ pathAudioKey(text) (mobile/src/lib/pathAudioKey.ts, FNV-1a), the same naming as 
 exist are skipped, so a rerun only pays for new words. At the end mobile/src/assets/wordAudio.ts (the registry the
 app looks clips up in) is rewritten.
 
-Usage (from backend/): python scripts/generate_word_audio.py [--limit N]
+Usage (from backend/): python scripts/generate_word_audio.py [--limit N] [--words app/tools/room_words.json]
 Needs CARTESIA_API_KEY and CARTESIA_VOICE_ID in backend/.env and ffmpeg on PATH.
 """
 
@@ -114,12 +114,13 @@ def write_registry() -> int:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--words", default=str(WORDS), help="JSON list of texts (default: the Kütüphane + Telaffuz words)")
     args = ap.parse_args()
     env = load_env()
     api_key, voice = env["CARTESIA_API_KEY"], env["CARTESIA_VOICE_ID"]
     OUT.mkdir(parents=True, exist_ok=True)
 
-    words = json.loads(WORDS.read_text(encoding="utf-8"))
+    words = json.loads(Path(args.words).read_text(encoding="utf-8"))
     seen: set[str] = set()
     todo: list[tuple[str, str]] = []
     for w in words:
