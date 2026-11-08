@@ -204,6 +204,8 @@ export function usePronunciation() {
 
       // 2. A clip shipped in the app: plays at once, offline, and costs nothing
       const bundled = bundledClip(cleanText);
+      // Dev log: shows in the Metro terminal which texts play from the app (free) and which go to the server.
+      if (__DEV__) console.log(`[ses] ${bundled !== undefined ? 'uygulamadan (ücretsiz)' : 'sunucudan'}: ${cleanText}`);
       if (bundled !== undefined) {
         const player = createAudioPlayer(bundled);
         playerRef.current = player;
