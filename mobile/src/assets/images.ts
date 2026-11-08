@@ -172,7 +172,24 @@ export function resolveSceneTileSource(scenario: { id: string; category: string;
  * Small flat 2D isometric room dioramas for the Kelime Odaları grid (prompts: docs/kelime_odasi_kutucuk_gorselleri.md).
  * A room without one falls back to its photo thumbnail.
  */
-export const roomTileImages: Record<string, ReturnType<typeof require>> = {};
+export const roomTileImages: Record<string, ReturnType<typeof require>> = {
+  airport: require('../../assets/images/rooms/tiles/tile_airport.webp'),
+  bathroom: require('../../assets/images/rooms/tiles/tile_bathroom.webp'),
+  bedroom: require('../../assets/images/rooms/tiles/tile_bedroom.webp'),
+  cafe: require('../../assets/images/rooms/tiles/tile_cafe.webp'),
+  camping: require('../../assets/images/rooms/tiles/tile_camping.webp'),
+  classroom: require('../../assets/images/rooms/tiles/tile_classroom.webp'),
+  doctor: require('../../assets/images/rooms/tiles/tile_doctor.webp'),
+  garage: require('../../assets/images/rooms/tiles/tile_garage.webp'),
+  garden: require('../../assets/images/rooms/tiles/tile_garden.webp'),
+  grocery: require('../../assets/images/rooms/tiles/tile_grocery.webp'),
+  gym: require('../../assets/images/rooms/tiles/tile_gym.webp'),
+  hotel: require('../../assets/images/rooms/tiles/tile_hotel.webp'),
+  kitchen: require('../../assets/images/rooms/tiles/tile_kitchen.webp'),
+  living_room: require('../../assets/images/rooms/tiles/tile_living_room.webp'),
+  office: require('../../assets/images/rooms/tiles/tile_office.webp'),
+  street: require('../../assets/images/rooms/tiles/tile_street.webp'),
+};
 
 export function resolveRoomTileSource(room: { id: string; thumb: number }): any {
   return roomTileImages[room.id] ?? room.thumb;
