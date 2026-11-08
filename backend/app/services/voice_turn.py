@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.services.correction_filter import drop_trivial_correction
 from app.services.llm_orchestrator import (
     TurnMessage, analyze_voice_turn, bounded_history,
-    extract_complete_sentences, stream_voice_reply,
+    extract_complete_sentences, generate_suggested_replies, stream_voice_reply,
 )
 from app.services.tts_stream import synthesize_speech, tts_available
 
@@ -177,6 +177,15 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
             # English line Mivo asked for ("Bir de sen söyle: \"Yes, I am a new student.\"") instead of staying grey.
             # A question in quotes is the other person's line to ANSWER, not a sentence to repeat.
             suggested, suggested_tr = [q for q in quoted_english(reply) if not q.rstrip().endswith("?")][-1:], []
+        if not suggested:
+            # Still nothing (no quoted line either): ask for two short answers on their own, so the learner always has
+            # a "what could I say?" hint. Small, separate call; a few seconds at most, never breaks the turn.
+            try:
+                async with asyncio.timeout(6):
+                    extra = await asyncio.to_thread(generate_suggested_replies, system_prompt, context, reply)
+                suggested = [clean_spoken(x) for x in extra if _is_english(clean_spoken(x))][:2]
+            except Exception:
+                logger.warning("Fallback suggestions unavailable this turn", exc_info=True)
         await send_json({"type": "turn.complete", "user_text": text, "assistant_text": reply,
                          "suggested_replies": suggested,
                          "suggested_replies_tr": suggested_tr,
