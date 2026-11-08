@@ -2,7 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Animated, Image, FlatList, PanResponder, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
 import { Toast } from '../components/Toast';
 import { vocabArt } from '../assets/images';
@@ -320,6 +320,10 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   /** Words handled in the study room right now, before the server data catches up (no double taps). */
   const [handled, setHandled] = useState<Record<string, 'known' | 'saved'>>({});
   const [lastKnown, setLastKnown] = useState<LibraryWordEntry | null>(null);
+  /** This session's decisions in order, so 'Önceki' can step back and change one. */
+  const [history, setHistory] = useState<{ id: string; action: 'known' | 'saved' | 'skipped' }[]>([]);
+  /** Words passed with 'Geç': no decision, they come back at the end of the pack. */
+  const [skipped, setSkipped] = useState<string[]>([]);
   const [studyTags, setStudyTags] = useState<string[]>([]);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -489,12 +493,14 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
     setOpenPackId(pack.id);
     setPackMode(mode);
     setLastKnown(null);
+    setHistory([]);
+    setSkipped([]);
     setShowDetails(false);
     setExpandedId(null);
   };
 
   const openPackData = openPackId ? PACK_BY_ID.get(openPackId) ?? null : null;
-  const studyQueue = openPackData ? openPackData.words.filter((w) => !isReviewed(w)) : [];
+  const studyQueue = openPackData ? openPackData.words.filter((w) => !isReviewed(w) && !skipped.includes(w.id)) : [];
   const current = studyQueue[0] ?? null;
 
   // A new word in the study room: say it once and fold its details.
@@ -509,19 +515,78 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
   const studyKnown = () => {
     if (!current) return;
     setHandled((h) => ({ ...h, [current.id]: 'known' }));
-    setLastKnown(current);
+    setHistory((list) => [...list, { id: current.id, action: 'known' }]);
     void markKnown(current, true);
   };
   const studySave = () => {
     if (!current) return;
     setHandled((h) => ({ ...h, [current.id]: 'saved' }));
-    setLastKnown(null);
+    setHistory((list) => [...list, { id: current.id, action: 'saved' }]);
     void addWord(current, studyTags, true);
   };
+  const studySkip = () => {
+    if (!current) return;
+    setSkipped((list) => [...list, current.id]);
+    setHistory((list) => [...list, { id: current.id, action: 'skipped' }]);
+  };
+  /** Step back one word and take its decision back (known -> unmarked, saved -> out of the chest, skipped -> here again). */
+  const studyBack = async () => {
+    const last = history[history.length - 1];
+    if (!last) return;
+    setHistory((list) => list.slice(0, -1));
+    const entry = openPackData?.words.find((w) => w.id === last.id);
+    if (!entry) return;
+    if (last.action === 'skipped') {
+      setSkipped((list) => list.filter((id) => id !== last.id));
+      return;
+    }
+    if (last.action === 'known') {
+      await handleUndo(entry);
+      return;
+    }
+    setHandled(({ [entry.id]: _, ...rest }) => rest);
+    const card = (allCards ?? []).find((c) => c.term.trim().toLowerCase() === entry.word.trim().toLowerCase());
+    if (!card) return;
+    try {
+      await api.delete(`/vocab-cards/${card.id}`);
+      await queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : t("Geri alınamadı"));
+    }
+  };
+
+  // Swipe the card: right puts it in the chest, left marks it known.
+  const { width: winW } = useWindowDimensions();
+  const swipeX = useRef(new Animated.Value(0)).current;
+  const swipeAct = useRef<{ save: () => void; known: () => void }>({ save: () => {}, known: () => {} });
+  swipeAct.current = { save: studySave, known: studyKnown };
+  const swipe = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+        onPanResponderMove: (_, g) => swipeX.setValue(g.dx),
+        onPanResponderRelease: (_, g) => {
+          const go = Math.abs(g.dx) > 110 || Math.abs(g.vx) > 0.9;
+          if (!go) {
+            Animated.spring(swipeX, { toValue: 0, useNativeDriver: true, friction: 6 }).start();
+            return;
+          }
+          const right = g.dx > 0;
+          Animated.timing(swipeX, { toValue: (right ? 1 : -1) * winW, duration: 180, useNativeDriver: true }).start(() => {
+            if (right) swipeAct.current.save();
+            else swipeAct.current.known();
+            swipeX.setValue(0);
+          });
+        },
+        onPanResponderTerminate: () => Animated.spring(swipeX, { toValue: 0, useNativeDriver: true }).start(),
+      }),
+    [swipeX, winW]
+  );
 
   const overallPct = Math.round((stats.overall / TOTAL_WORDS) * 100);
   const sessionSaved = openPackData ? openPackData.words.filter((w) => handled[w.id] === 'saved').length : 0;
   const sessionKnown = openPackData ? openPackData.words.filter((w) => handled[w.id] === 'known').length : 0;
+  const sessionSkipped = skipped.length;
 
   // ---------------------------------------------------------------- A pack: the study room or its list
   if (openPackData) {
@@ -582,8 +647,37 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
           <MivoLoader size={90} label={t("Kelimeler yükleniyor…")} style={{ paddingVertical: 32 }} />
         ) : current ? (
           <ScrollView contentContainerStyle={styles.roomScroll} showsVerticalScrollIndicator={false}>
-            <Text style={styles.roomCount}>{t("{{n}} kelime kaldı", { n: studyQueue.length })}</Text>
-            <View style={[styles.studyCard, shadow.card]}>
+            <View style={styles.roomCountRow}>
+              {history.length ? (
+                <Pressable onPress={() => void studyBack()} hitSlop={10} style={styles.backLink} accessibilityRole="button">
+                  <Ionicons name="arrow-back" size={15} color={VP.ink} />
+                  <Text style={styles.backLinkText}>{t("Önceki")}</Text>
+                </Pressable>
+              ) : (
+                <View style={{ width: 60 }} />
+              )}
+              <Text style={[styles.roomCount, { flex: 1 }]}>{t("{{n}} kelime kaldı", { n: studyQueue.length })}</Text>
+              <View style={{ width: 60 }} />
+            </View>
+            <Animated.View
+              {...swipe.panHandlers}
+              style={[
+                styles.studyCard,
+                shadow.card,
+                {
+                  transform: [
+                    { translateX: swipeX },
+                    { rotate: swipeX.interpolate({ inputRange: [-300, 0, 300], outputRange: ['-8deg', '0deg', '8deg'] }) },
+                  ],
+                },
+              ]}
+            >
+              <Animated.View pointerEvents="none" style={[styles.swipeTag, styles.swipeTagSave, { opacity: swipeX.interpolate({ inputRange: [20, 110], outputRange: [0, 1], extrapolate: 'clamp' }) }]}>
+                <Text style={styles.swipeTagText}>{t("Sandığa")}</Text>
+              </Animated.View>
+              <Animated.View pointerEvents="none" style={[styles.swipeTag, styles.swipeTagKnown, { opacity: swipeX.interpolate({ inputRange: [-110, -20], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
+                <Text style={[styles.swipeTagText, { color: VP.ink }]}>{t("Biliyorum")}</Text>
+              </Animated.View>
               <View style={[styles.studyPos, { backgroundColor: `${c.color}1A` }]}>
                 <Text style={[styles.studyPosText, { color: c.color }]}>{POS_LABEL[current.partOfSpeech]}</Text>
               </View>
@@ -630,7 +724,7 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                   </Pressable>
                 )
               ) : null}
-            </View>
+            </Animated.View>
 
             {/* Tags to put on the word when it goes into the chest */}
             <View style={styles.tagPicker}>
@@ -656,35 +750,31 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                 <Ionicons name="checkmark" size={18} color={VP.ink} />
                 <Text style={styles.studyKnownText}>{t("Biliyorum")}</Text>
               </Pressable>
+              <Pressable onPress={studySkip} style={({ pressed }) => [styles.studySkip, pressed && styles.studyPressed]} accessibilityRole="button" accessibilityLabel={t("Geç")}>
+                <Text style={styles.studySkipText}>{t("Geç")}</Text>
+              </Pressable>
               <Pressable onPress={studySave} style={({ pressed }) => [styles.studySave, pressed && styles.studyPressed]} accessibilityRole="button">
                 <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                <Text style={styles.studySaveText}>{t("Sandığıma ekle")}</Text>
+                <Text style={styles.studySaveText}>{t("Sandığa ekle")}</Text>
               </Pressable>
             </View>
-            {lastKnown ? (
-              <Pressable
-                onPress={() => {
-                  void handleUndo(lastKnown);
-                  setLastKnown(null);
-                }}
-                hitSlop={8}
-                style={styles.undoLink}
-                accessibilityRole="button"
-              >
-                <Ionicons name="arrow-undo" size={14} color={VP.inkSoft} />
-                <Text style={styles.undoLinkText}>{t("“{{word}}” geri al", { word: lastKnown.word })}</Text>
-              </Pressable>
-            ) : null}
+            <Text style={styles.swipeHint}>{t("Kartı sağa kaydır: sandığa · sola: biliyorum")}</Text>
           </ScrollView>
         ) : (
           <View style={styles.packDone}>
             <Text style={styles.emptyEmoji}>🎉</Text>
             <Text style={styles.emptyTitle}>{t("Paket bitti!")}</Text>
             <Text style={styles.emptySub}>
-              {sessionSaved || sessionKnown
-                ? t("{{a}} kelime sandığına girdi, {{b}} kelimeyi zaten biliyorsun.", { a: sessionSaved, b: sessionKnown })
+              {sessionSaved || sessionKnown || sessionSkipped
+                ? t("{{a}} kelime sandığına girdi, {{b}} kelimeyi biliyorsun, {{c}} kelimeyi geçtin.", { a: sessionSaved, b: sessionKnown, c: sessionSkipped })
                 : t("Bu paketteki bütün kelimelere baktın.")}
             </Text>
+            {sessionSkipped ? (
+              <Pressable onPress={() => setSkipped([])} style={({ pressed }) => [styles.studyKnown, styles.packDoneBtn, pressed && styles.studyPressed]} accessibilityRole="button">
+                <Ionicons name="refresh" size={17} color={VP.ink} />
+                <Text style={styles.studyKnownText}>{t("Geçtiklerine dön ({{n}})", { n: sessionSkipped })}</Text>
+              </Pressable>
+            ) : null}
             {following ? (
               <Pressable onPress={() => openPack(following)} style={({ pressed }) => [styles.studySave, styles.packDoneBtn, pressed && styles.studyPressed]} accessibilityRole="button">
                 <Text style={styles.studySaveText}>{t("Sıradaki paket: {{range}}", { range: following.range })}</Text>
@@ -921,6 +1011,16 @@ const styles = StyleSheet.create({
   roomToggleText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.ink },
   roomScroll: { paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 60, gap: 14 },
   roomCount: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft, textAlign: 'center' },
+  roomCountRow: { flexDirection: 'row', alignItems: 'center' },
+  backLink: { width: 60, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  backLinkText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
+  swipeTag: { position: 'absolute', top: 14, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 2 },
+  swipeTagSave: { left: 14, borderColor: '#14B8A6', backgroundColor: '#14B8A6', transform: [{ rotate: '-10deg' }] },
+  swipeTagKnown: { right: 14, borderColor: VP.ink, backgroundColor: '#FFFFFF', transform: [{ rotate: '10deg' }] },
+  swipeTagText: { fontFamily: fonts.headingBold, fontSize: 13, color: '#FFFFFF', letterSpacing: 0.4 },
+  studySkip: { paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', borderRadius: 999, backgroundColor: '#F3EEE6', borderBottomWidth: 4, borderBottomColor: '#E2D9CB' },
+  studySkipText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: VP.inkSoft },
+  swipeHint: { fontFamily: fonts.bodyMedium, fontSize: 12, color: VP.inkSoft, textAlign: 'center' },
   studyCard: { alignItems: 'center', gap: 8, padding: 22, borderRadius: 26, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: VP.line },
   studyPos: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999 },
   studyPosText: { fontFamily: fonts.headingBold, fontSize: 11.5 },
