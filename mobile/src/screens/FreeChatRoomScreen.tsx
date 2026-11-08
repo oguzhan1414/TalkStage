@@ -45,6 +45,7 @@ import { Button } from '../components/Button';
 import { isProUser } from '../lib/revenuecat';
 import { getLocale, t } from '../i18n';
 import { KeyboardSafe } from '../components/KeyboardSafe';
+import { WordSheet } from '../components/WordSheet';
 
 const AI_NAME = 'Mivo';
 const AI_ROLE = t("Serbest Sohbet Koçun");
@@ -229,10 +230,12 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     toastTimeoutRef.current = setTimeout(() => setToast(null), 1600);
   };
 
-  const handleSaveWord = async (word: string, sentence: string) => {
+  const [wordSheet, setWordSheet] = useState<{ word: string; sentence: string } | null>(null);
+  const handleSaveWord = async (word: string, sentence: string, meaning?: string | null) => {
     try {
       const payload: VocabCardCreate = {
         term: word,
+        ...(meaning ? { translation: meaning } : {}),
         example_sentence: sentence,
         source_label: t("Serbest Sohbet (Sesli)"),
       };
@@ -502,7 +505,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             </View>
           ) : null}
 
-          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} onListen={pronounce} voice={voice} pronounce={pronounce} />
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={(word, sentence) => setWordSheet({ word, sentence })} onListen={pronounce} voice={voice} pronounce={pronounce} />
 
           <View style={styles.bottomDock}>
             <VoiceRoomControls voice={voice} aiName={aiName} pronounce={pronounce} />
@@ -584,6 +587,12 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           </View>
         </View>
       ) : null}
+      <WordSheet
+        target={wordSheet}
+        onClose={() => setWordSheet(null)}
+        onListen={(w) => void pronounce(w)}
+        onSave={(w, sentence, meaning) => void handleSaveWord(w, sentence, meaning)}
+      />
       </KeyboardSafe>
     </SafeAreaView>
   );

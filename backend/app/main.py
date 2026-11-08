@@ -18,6 +18,7 @@ from app.api.routes import (
     profiles,
     progress,
     reading,
+    translate,
     reports,
     scenarios,
     scene_play_session,
@@ -108,6 +109,7 @@ app.include_router(badges.router)
 app.include_router(reports.router)
 app.include_router(writing.router)
 app.include_router(grammar.router)
+app.include_router(translate.router)
 
 
 import os

@@ -12,7 +12,8 @@ import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import { MivoLoader } from './MivoLoader';
 import { ReportAiContentModal } from './ReportAiContentModal';
 import { haptics } from '../lib/haptics';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
+import { api } from '../lib/api';
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 export type DisplayBubble =
@@ -642,6 +643,28 @@ function ChatBubble({
 }) {
   const anim = useRef(new Animated.Value(0)).current;
   const [reportOpen, setReportOpen] = useState(false);
+  // On-demand translation of Mivo's message into the learner's language (not offered in the English UI).
+  const locale = getLocale();
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const toggleTranslation = async () => {
+    if (showTranslation) {
+      setShowTranslation(false);
+      return;
+    }
+    setShowTranslation(true);
+    if (translation || translating) return;
+    setTranslating(true);
+    try {
+      const r = await api.post<{ translation: string }>('/translate/text', { text: bubble.text, target: locale });
+      setTranslation(r.translation);
+    } catch {
+      setTranslation(t("Çeviri şu an yapılamadı."));
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   useEffect(() => {
     Animated.timing(anim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
@@ -658,6 +681,11 @@ function ChatBubble({
         <Text style={styles.bubbleSenderLabel}>{aiName}</Text>
         <View style={[styles.bubble, styles.bubbleAssistant]}>
           <AssistantText text={bubble.text} onWordPress={onWordPress} onListen={onListen} />
+          {showTranslation ? (
+            <View style={styles.translationBox}>
+              {translating ? <ActivityIndicator size="small" color={colors.brand} /> : <Text style={styles.translationText}>{translation}</Text>}
+            </View>
+          ) : null}
           <View style={styles.bubbleActionsRow}>
             {onListen ? (
               <Pressable
@@ -670,6 +698,13 @@ function ChatBubble({
                 <Ionicons name="volume-high-outline" size={16} color={colors.textMuted} />
               </Pressable>
             ) : null}
+            {locale !== 'en' ? (
+              <Pressable onPress={() => void toggleTranslation()} hitSlop={8} style={styles.translateBtn} accessibilityRole="button">
+                <Ionicons name="language-outline" size={15} color={colors.brand} />
+                <Text style={styles.translateBtnText}>{showTranslation ? t("Çeviriyi gizle") : t("Çevir")}</Text>
+              </Pressable>
+            ) : null}
+            <View style={{ flex: 1 }} />
             <Pressable
               onPress={() => setReportOpen(true)}
               hitSlop={8}
@@ -771,7 +806,11 @@ export const voiceRoomStyles = StyleSheet.create({
     textAlign: 'center',
   },
   dockHintRecording: { fontFamily: fonts.headingBold, color: colors.error },
-  bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'stretch' },
+  translateBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
+  translateBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
+  translationBox: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#EEF2F7' },
+  translationText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textMuted },
   bubbleListenBtn: { alignSelf: 'flex-start', marginTop: 6, padding: 2 },
   suggestionCard: {
     backgroundColor: '#FFFBEB',
