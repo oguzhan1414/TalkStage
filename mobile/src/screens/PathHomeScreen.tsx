@@ -37,7 +37,8 @@ const RING_W = 12;
 /** Room above the medallion for the chip that sits on its ring. */
 const CHIP_ROOM = 8;
 /** Height the medallion needs besides itself: chip room, title, subtitle, button and the scene's skip link. */
-const MEDAL_EXTRA = CHIP_ROOM + 182;
+// Includes the scene step's skip button, so no step's column runs into the road below.
+const MEDAL_EXTRA = CHIP_ROOM + 204;
 /** The level crescent at the top: radius, stroke and how far round it goes. */
 const ARC_R = 52;
 const ARC_SW = 10;
@@ -704,8 +705,16 @@ function Medallion({
       </Pressable>
 
       {type === 'scene' && !locked && !passed ? (
-        <Pressable onPress={onSkip} hitSlop={8} accessibilityRole="button">
-          <Text style={styles.skip}>{t("Şimdi değil, okumaya devam et")}</Text>
+        // The rehearsal is optional: a clear secondary button lets the learner go on reading without speaking.
+        <Pressable
+          onPress={onSkip}
+          hitSlop={6}
+          style={({ pressed }) => [styles.skip, pressed && styles.skipPressed]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Şimdilik geç, okumaya devam et")}
+        >
+          <Text style={styles.skipText}>{t("Şimdilik geç")}</Text>
+          <Ionicons name="play-skip-forward" size={14} color={colors.textBody} />
         </Pressable>
       ) : null}
     </View>
@@ -1255,7 +1264,21 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.24)' },
-  skip: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.textBody, marginTop: 10, textDecorationLine: 'underline' },
+  skip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+    height: 38,
+    paddingHorizontal: 18,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderBottomWidth: 3,
+  },
+  skipPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5 },
+  skipText: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading },
 
   arrow: {
     position: 'absolute',
