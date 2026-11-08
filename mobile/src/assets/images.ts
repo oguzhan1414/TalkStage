@@ -168,6 +168,16 @@ export function resolveSceneTileSource(scenario: { id: string; category: string;
   return sceneTileImages[scenario.id] ?? resolveScenarioCoverSource(scenario);
 }
 
+/**
+ * Small flat 2D isometric room dioramas for the Kelime Odaları grid (prompts: docs/kelime_odasi_kutucuk_gorselleri.md).
+ * A room without one falls back to its photo thumbnail.
+ */
+export const roomTileImages: Record<string, ReturnType<typeof require>> = {};
+
+export function resolveRoomTileSource(room: { id: string; thumb: number }): any {
+  return roomTileImages[room.id] ?? room.thumb;
+}
+
 /** Profile avatars: flat 2D portraits in the cast style, each on its own soft ground colour (see constants/avatars.ts). */
 export const avatarImages = {
   campusGirl: require('../../assets/images/avatars/campus_girl.webp'),
