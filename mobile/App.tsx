@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { kc } from './src/lib/keyboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
@@ -95,7 +95,8 @@ function App() {
   return (
     <GestureHandlerRootView style={styles.flex}>
       <KeyboardRoot>
-      <SafeAreaProvider>
+      {/* Real insets from the first frame: without them screens lay out once with no notch space, then jump. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <View style={styles.flex}>
           <AppErrorBoundary>
           <QueryClientProvider client={queryClient}>

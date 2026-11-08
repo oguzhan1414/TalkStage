@@ -149,6 +149,22 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const backdrop = homeBackdrop(level.id);
   /** The carousel's place on screen, measured once laid out: the medallion is sized so it and its title and button fit. */
   const [carousel, setCarousel] = useState<{ y: number; h: number } | null>(null);
+  /**
+   * The medallion area stays hidden until two things are settled, then fades in: its space is measured (so the
+   * picture is drawn at its final size) and the saved progress is read (until then the first step shows, and the jump
+   * to the learner's step would shrink and fade it on screen through the carousel's side-scaling).
+   */
+  const medalFade = useRef(new Animated.Value(0)).current;
+  const settled = !!carousel && !!progress;
+  useEffect(() => {
+    if (!settled) return;
+    // One beat after the jump to the current step has been applied.
+    const id = setTimeout(
+      () => Animated.timing(medalFade, { toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(),
+      80
+    );
+    return () => clearTimeout(id);
+  }, [settled, medalFade]);
   const maxMedal = Math.min(winW * 0.86, 380);
   const medal = Math.round(carousel ? Math.max(150, Math.min(maxMedal, carousel.h - MEDAL_EXTRA)) : Math.min(maxMedal, winH * 0.28));
   /** The arrows sit at the medallion's middle. */
@@ -342,6 +358,8 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             // Ignore tiny changes, so the medallion never wobbles while browsing.
             setCarousel((c) => (c && Math.abs(c.y - y) < 4 && Math.abs(c.h - h) < 4 ? c : { y, h }));
           }}>
+          {/* Hidden until the space is measured, then faded in: the medallion opens at its final size, no shrink. */}
+          <Animated.View style={{ flex: 1, justifyContent: 'center', opacity: medalFade }}>
           <Animated.FlatList
             ref={listRef as never}
             data={steps}
@@ -406,6 +424,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
               <Ionicons name="chevron-forward" size={22} color={colors.brand} />
             </Pressable>
           ) : null}
+          </Animated.View>
         </View>
 
         {/* The unit's steps as a quiet progress road: its name and count, then one dot per step (tap to jump there). */}
