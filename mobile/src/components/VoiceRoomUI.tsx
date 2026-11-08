@@ -995,7 +995,7 @@ export const voiceRoomStyles = StyleSheet.create({
     paddingLeft: 12,
     paddingRight: 8,
   },
-  quoteBody: { flex: 1 },
+  quoteBody: { flexShrink: 1 },
   inlineQuote: { fontFamily: fonts.headingSemiBold, color: '#4338CA' },
   quoteText: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, lineHeight: 22, color: '#312E81' },
   quoteListen: {

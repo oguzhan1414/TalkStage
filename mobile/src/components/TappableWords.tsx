@@ -1,4 +1,4 @@
-import { Pressable, Text, View, type TextStyle } from 'react-native';
+import { Text, type TextStyle } from 'react-native';
 
 type Props = {
   text: string;
@@ -14,24 +14,19 @@ type Props = {
  */
 export function TappableWords({ text, onWordPress, textStyle }: Props) {
   const tokens = text.split(/(\s+)/);
-
+  // One Text with nested, pressable words: it wraps like normal text. (A row of separate views shrank to the
+  // narrowest word inside chat bubbles, leaving one or two words per line.)
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+    <Text style={textStyle}>
       {tokens.map((token, index) => {
         const word = token.replace(/[^\p{L}'’]/gu, '');
-        if (!word) {
-          return (
-            <Text key={index} style={textStyle}>
-              {token}
-            </Text>
-          );
-        }
+        if (!word) return token;
         return (
-          <Pressable key={index} onPress={() => onWordPress(word)}>
-            <Text style={textStyle}>{token}</Text>
-          </Pressable>
+          <Text key={index} onPress={() => onWordPress(word)} suppressHighlighting={false}>
+            {token}
+          </Text>
         );
       })}
-    </View>
+    </Text>
   );
 }
