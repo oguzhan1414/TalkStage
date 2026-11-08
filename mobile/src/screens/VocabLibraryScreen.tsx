@@ -596,10 +596,11 @@ export function VocabLibraryScreen({ navigation }: VocabLibraryScreenProps) {
                 {nativeFlag()} {current.translation}
               </Text>
               {current.exampleEn ? (
-                <Pressable onPress={() => void pronounce(current.exampleEn)} style={styles.studyExample} accessibilityRole="button">
+                // The example is for reading; only the word itself is spoken (its clip ships in the app)
+                <View style={styles.studyExample}>
                   <Text style={styles.studyExampleEn}>&ldquo;{current.exampleEn}&rdquo;</Text>
                   {current.exampleTr && current.exampleTr !== current.exampleEn ? <Text style={styles.studyExampleTr}>{current.exampleTr}</Text> : null}
-                </Pressable>
+                </View>
               ) : null}
               {rows.length || current.grammarNote ? (
                 showDetails ? (
