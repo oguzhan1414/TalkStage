@@ -819,7 +819,7 @@ const styles = StyleSheet.create({
   nameCard: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, gap: 12 },
   deleteOverlay: { justifyContent: 'center', padding: spacing.md },
   deleteCard: { backgroundColor: '#FFFFFF', borderRadius: 28, padding: 22, gap: 12, alignItems: 'stretch' },
-  deleteMivo: { width: 120, height: 120, alignSelf: 'center' },
+  deleteMivo: { width: 136, height: 136, alignSelf: 'center' },
   deleteTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading, textAlign: 'center' },
   deleteText: { fontFamily: fonts.bodyRegular, fontSize: 14.5, lineHeight: 21, color: colors.textBody, textAlign: 'center' },
   deleteList: { gap: 8, padding: 12, borderRadius: 18, backgroundColor: '#FFF7F5' },
