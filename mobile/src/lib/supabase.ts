@@ -1,4 +1,5 @@
 import 'react-native-url-polyfill/auto';
+import './webCrypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
