@@ -17,6 +17,8 @@ type Props = {
   /** Sentences the learner said (user turns). */
   sentences: number;
   notes: SessionNote[];
+  /** Words put in the chest during this chat. */
+  savedWords?: string[];
   onClose: () => void;
   onOpenMistakes?: () => void;
   /** Idle close: carry on in a fresh room. */
@@ -30,7 +32,7 @@ function clock(seconds: number): string {
 }
 
 /** The end of a voice room: why it ended, how much the learner spoke, and Mivo's notes from this conversation. */
-export function VoiceSessionSummary({ visible, reason, seconds, sentences, notes, onClose, onOpenMistakes, onReconnect }: Props) {
+export function VoiceSessionSummary({ visible, reason, seconds, sentences, notes, savedWords = [], onClose, onOpenMistakes, onReconnect }: Props) {
   const title =
     reason === 'goodbye'
       ? t("Güzel sohbetti! 👋")
@@ -72,6 +74,19 @@ export function VoiceSessionSummary({ visible, reason, seconds, sentences, notes
                 <Text style={styles.statLabel}>{t("Mivo'nun notu")}</Text>
               </View>
             </View>
+
+            {savedWords.length > 0 ? (
+              <View style={styles.savedBlock}>
+                <Text style={styles.savedTitle}>{t("Sandığa eklediklerin")}</Text>
+                <View style={styles.savedRow}>
+                  {savedWords.slice(0, 12).map((w) => (
+                    <View key={w} style={styles.savedChip}>
+                      <Text style={styles.savedChipText}>{w}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ) : null}
 
             {shown.length > 0 ? (
               <View style={styles.notes}>
@@ -129,6 +144,11 @@ const styles = StyleSheet.create({
   statValue: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
   statLabel: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 2, textAlign: 'center' },
   notes: { gap: 8, marginTop: 14 },
+  savedBlock: { alignSelf: 'stretch', gap: 6, marginTop: 14 },
+  savedTitle: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
+  savedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  savedChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0' },
+  savedChipText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#047857' },
   note: { gap: 4, backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#DDD6FE', borderRadius: 14, padding: 10 },
   noteRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
   noteWrong: { flex: 1, fontFamily: fonts.bodyRegular, fontSize: 13, color: '#9F1239', textDecorationLine: 'line-through' },

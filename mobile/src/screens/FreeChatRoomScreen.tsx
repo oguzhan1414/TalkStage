@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -14,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AiOrb } from '../components/AiOrb';
@@ -231,6 +233,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   };
 
   const [wordSheet, setWordSheet] = useState<{ word: string; sentence: string } | null>(null);
+  const [savedWords, setSavedWords] = useState<string[]>([]);
   const handleSaveWord = async (word: string, sentence: string, meaning?: string | null) => {
     try {
       const payload: VocabCardCreate = {
@@ -241,6 +244,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
       };
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      setSavedWords((list) => (list.includes(word) ? list : [...list, word]));
       showToast(t("\"{{word}}\" kelime defterine eklendi", { word }));
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : t("Kelime kaydedilemedi"));
@@ -432,20 +436,27 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         </View>
       ) : status === 'closed' ? (
         <View style={styles.centerBlock}>
-          <Text style={styles.statusText}>
-            {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
-          </Text>
-          {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? (
-            <Button label={t("Pro’ya Geç")} onPress={() => navigation.navigate('Paywall')} style={styles.offerButton} />
-          ) : null}
-          {closeInfo?.reason !== 'daily_voice_limit' && !(closeInfo && OFFER_REASONS.has(closeInfo.reason)) && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
-            <Pressable onPress={reconnect}>
-              <Text style={styles.backLink}>{t("Tekrar Bağlan")}</Text>
+          <View style={styles.closedCard}>
+            <Image source={closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? mivoHomeImages.pro : mivoVoiceImages.think} style={styles.closedMivo} resizeMode="contain" />
+            <Text style={styles.closedTitle}>
+              {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? t("Bir sohbet daha?") : closeInfo?.reason === 'idle_timeout' ? t("Mivo seni bekledi") : t("Sohbet kapandı")}
+            </Text>
+            <Text style={styles.closedText}>{(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}</Text>
+            {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? (
+              <Pressable onPress={() => navigation.navigate('Paywall')} style={({ pressed }) => [styles.closedPro, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                <Text style={styles.closedProText}>{t("👑 Pro ile sınırsız konuş")}</Text>
+              </Pressable>
+            ) : null}
+            {closeInfo?.reason !== 'daily_voice_limit' && !(closeInfo && OFFER_REASONS.has(closeInfo.reason)) && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
+              <Pressable onPress={reconnect} style={({ pressed }) => [styles.closedPrimary, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                <Ionicons name="refresh" size={18} color="#FFFFFF" />
+                <Text style={styles.closedPrimaryText}>{t("Yeniden bağlan")}</Text>
+              </Pressable>
+            ) : null}
+            <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.closedBack} accessibilityRole="button">
+              <Text style={styles.backLink}>{t("Geri Dön")}</Text>
             </Pressable>
-          ) : null}
-          <Pressable onPress={() => navigation.goBack()}>
-            <Text style={styles.backLink}>{t("Geri Dön")}</Text>
-          </Pressable>
+          </View>
         </View>
       ) : (
         <View style={styles.mainLayout}>
@@ -551,6 +562,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         seconds={elapsedSeconds}
         sentences={turns.filter((turn) => turn.role === 'user').length}
         notes={notes}
+        savedWords={savedWords}
         onClose={() => navigation.goBack()}
         onOpenMistakes={() => {
           setEndReason(null);
@@ -602,6 +614,15 @@ const styles = StyleSheet.create({
   langNote: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: spacing.md, marginTop: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: '#EEF2FF' },
   langNoteText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#3730A3' },
   offerButton: { alignSelf: 'stretch', marginTop: 16, marginHorizontal: spacing.lg },
+  closedCard: { alignSelf: 'stretch', marginHorizontal: spacing.lg, alignItems: 'center', gap: 10, padding: 22, borderRadius: 26, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  closedMivo: { width: 120, height: 120 },
+  closedTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading, textAlign: 'center' },
+  closedText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textMuted, textAlign: 'center' },
+  closedPro: { alignSelf: 'stretch', alignItems: 'center', marginTop: 6, paddingVertical: 14, borderRadius: 999, backgroundColor: '#1F2A44' },
+  closedProText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FCD34D' },
+  closedPrimary: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6, paddingVertical: 14, borderRadius: 999, backgroundColor: colors.brand },
+  closedPrimaryText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
+  closedBack: { paddingVertical: 6 },
   hintBtn: {
     flexDirection: 'row',
     alignItems: 'center',
