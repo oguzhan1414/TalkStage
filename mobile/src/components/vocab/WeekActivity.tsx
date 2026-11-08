@@ -17,7 +17,8 @@ const REVIEW = '#14B8A6';
  * reviews) with the week's totals. New words come from when cards were added; reviews from the server's review log
  * (so they start counting from the day that log went live).
  */
-export function WeekActivity() {
+/** `bare`: no card of its own and no title (it sits inside Kelimeler's 'İlerlemen' card, under its tabs). */
+export function WeekActivity({ bare = false }: { bare?: boolean }) {
   const { data, refetch } = useQuery({
     queryKey: ['activity', 7],
     queryFn: () => api.get<DailyActivityOut[]>('/progress/activity?days=7'),
@@ -37,9 +38,9 @@ export function WeekActivity() {
   const locale = getLocale();
 
   return (
-    <View style={styles.card}>
+    <View style={bare ? styles.bare : styles.card}>
       <View style={styles.top}>
-        <Text style={styles.title}>{t("Bu hafta")}</Text>
+        {bare ? null : <Text style={styles.title}>{t("Bu hafta")}</Text>}
         <Text style={styles.total} numberOfLines={1}>
           {t("{{n}} yeni · {{m}} tekrar", { n: weekNew, m: weekReviews })}
         </Text>
@@ -93,6 +94,7 @@ export function WeekActivity() {
 
 const styles = StyleSheet.create({
   card: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 14, gap: 12, borderWidth: 1, borderColor: '#EDE7DD' },
+  bare: { gap: 10 },
   top: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
   title: { fontFamily: fonts.headingBold, fontSize: 16, color: VP.ink },
   total: { flexShrink: 1, fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft },

@@ -183,6 +183,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
   // Search & Filters in Dictionary
   const [searchQuery, setSearchQuery] = useState('');
   const [chestTab, setChestTab] = useState<ChestTab>('all');
+  const [progressTab, setProgressTab] = useState<'memory' | 'week'>('memory');
   const [levelFilter, setLevelFilter] = useState<string | null>(null);
   const [posFilter, setPosFilter] = useState<string | null>(null);
 
@@ -733,46 +734,57 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         )}
       </View>
 
-      {/* Memory map: four tiles */}
-      {totalCardsInChest > 0 ? (
-        <View style={styles.dashMemory}>
-          <View style={styles.dashMemoryTop}>
-            <Text style={styles.dashMemoryTitle}>{t("Hafıza haritan")}</Text>
-            <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
-          </View>
-          <View style={styles.memoryTiles}>
-            {memoryParts.map((part) => (
-              <Pressable
-                key={part.key}
-                onPress={() => {
-                  setChestTab(part.key as MemoryBucket);
-                  setMode('collection');
-                }}
-                style={({ pressed }) => [styles.memoryTile, { backgroundColor: part.soft }, pressed && { opacity: 0.8 }]}
-                accessibilityRole="button"
-              >
-                <Text style={[styles.memoryNum, { color: part.deep }]}>{part.count}</Text>
-                <View style={styles.memoryLabelRow}>
-                  <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
-                  <Text style={styles.memoryLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
-                    {part.label}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      ) : null}
-
-      {/* This week: today's new words and reviews, and the last seven days */}
-      <WeekActivity />
-
-      {/* Tools, as a 2×2 grid of cards that say what they are */}
+      {/* Tools first: they are the doors of this tab, so they sit on the first screen */}
       <View style={styles.dashTools}>
         <Shortcut icon={vocabArt.iconLibrary} tint={VP.mintSoft} label={t("Kütüphane")} sub={t("900 temel kelime")} onPress={() => navigation.navigate('VocabLibrary')} />
         <Shortcut icon={vocabArt.iconGroups} tint={VP.coralSoft} label={t("Gruplarım")} sub={t("Etiketlerin ve seviyeler")} onPress={() => navigation.navigate('VocabDecks')} />
         <Shortcut icon={vocabArt.iconRooms} tint={VP.sunSoft} label={t("Odalar")} sub={t("Hafıza sarayı oyunu")} onPress={() => navigation.navigate('WordRooms')} />
         <Shortcut icon={vocabArt.iconPronunciation} tint={VP.skySoft} label={t("Telaffuz")} sub={t("Zorlandığın kelimeler")} onPress={() => navigation.navigate('MispronouncedWords')} />
+      </View>
+
+      {/* Progress: the memory map and this week in one card, under two tabs */}
+      <View style={styles.dashMemory}>
+        <View style={styles.progressHead}>
+          <Text style={styles.dashMemoryTitle}>{t("İlerlemen")}</Text>
+          <View style={styles.progressTabs}>
+            {(totalCardsInChest > 0 ? (['memory', 'week'] as const) : (['week'] as const)).map((tab) => {
+              const on = (totalCardsInChest > 0 ? progressTab : 'week') === tab;
+              return (
+                <Pressable key={tab} onPress={() => setProgressTab(tab)} style={[styles.progressTab, on && styles.progressTabOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+                  <Text style={[styles.progressTabText, on && styles.progressTabTextOn]}>{tab === 'memory' ? t("Hafıza") : t("Bu hafta")}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+        {totalCardsInChest > 0 && progressTab === 'memory' ? (
+          <>
+            <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
+            <View style={styles.memoryTiles}>
+              {memoryParts.map((part) => (
+                <Pressable
+                  key={part.key}
+                  onPress={() => {
+                    setChestTab(part.key as MemoryBucket);
+                    setMode('collection');
+                  }}
+                  style={({ pressed }) => [styles.memoryTile, { backgroundColor: part.soft }, pressed && { opacity: 0.8 }]}
+                  accessibilityRole="button"
+                >
+                  <Text style={[styles.memoryNum, { color: part.deep }]}>{part.count}</Text>
+                  <View style={styles.memoryLabelRow}>
+                    <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
+                    <Text style={styles.memoryLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                      {part.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        ) : (
+          <WeekActivity bare />
+        )}
       </View>
     </ScrollView>
   );
@@ -1650,24 +1662,31 @@ const styles = StyleSheet.create({
   dashMemoryLabel: { flexShrink: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textBody },
   dashMemoryCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
 
-  dashTools: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
+  dashTools: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
+  progressHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  progressTabs: { flexDirection: 'row', backgroundColor: '#F3EEE6', borderRadius: 999, padding: 3 },
+  progressTab: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
+  progressTabOn: { backgroundColor: '#FFFFFF', shadowColor: VP.ink, shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+  progressTabText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft },
+  progressTabTextOn: { color: VP.ink, fontFamily: fonts.headingBold },
   shortcut: {
     width: '48.5%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    padding: 10,
-    borderRadius: 18,
+    gap: 9,
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#EDE7DD',
     borderBottomWidth: 3,
   },
   shortcutPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1 },
-  shortcutArt: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  shortcutImage: { width: 34, height: 34 },
+  shortcutArt: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  shortcutImage: { width: 30, height: 30 },
   shortcutLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: VP.ink },
-  shortcutSub: { fontFamily: fonts.bodyRegular, fontSize: 11.5, lineHeight: 15, color: VP.inkSoft, marginTop: 1 },
+  shortcutSub: { fontFamily: fonts.bodyRegular, fontSize: 11, lineHeight: 14, color: VP.inkSoft, marginTop: 1 },
 
   // Dashboard fits one screen: hero, the chest, two rows of tiles; the tiles share what is left above the tab bar.
   home: { flex: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 100, gap: 12 },
