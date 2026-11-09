@@ -28,7 +28,8 @@ import { usePathLevel } from '../lib/pathLevel';
 import { currentStep, isDone, isPassed, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { haptics } from '../lib/haptics';
 import { playSfx, preloadSfx } from '../lib/sfx';
-import { onOpenNextStepRequest, takeOpenNextStepRequest, updateHomeWidget } from '../widget/homeWidget';
+import { askForNotificationsOnce, onReminderTap, scheduleSmartNotifications } from '../lib/notifications';
+import { onOpenNextStepRequest, requestOpenNextStep, takeOpenNextStepRequest, updateHomeWidget } from '../widget/homeWidget';
 import { localDay } from '../widget/widgetData';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
@@ -288,6 +289,37 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     });
   }, [profile, practice, todayMinutes]);
 
+  // Smart reminders (lib/notifications.ts): what is done today and what comes next, so the day's one reminder names the
+  // actual next step. Without this context nothing is ever scheduled, even after the learner said yes.
+  useEffect(() => {
+    if (!profile || !practice || !progress) return;
+    const todayDone = todayMinutes > 0;
+    const now = new Date();
+    const monday = localDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)));
+    const today = todayKey();
+    const weekRows = practice.filter((p) => p.practice_date >= monday && p.practice_date <= today && (p.minutes_practiced ?? 0) > 0);
+    const step = current.step;
+    const unitTitle = loc(current.unit.title);
+    // The unit-end rehearsal is titled "Mivo ile: …"; the reminder already speaks as Mivo.
+    const title = stepTitle(step).replace(/^[^:]{1,20}:\s*/, '');
+    void scheduleSmartNotifications({
+      name: profile.display_name?.split(' ')[0] || t("Konuşmacı"),
+      streak: profile.streak_count ?? 0,
+      todayDone,
+      nextSummary: `${unitTitle} · ${title}`,
+      nextKind: step.kind === 'reading' ? 'reading' : step.kind === 'scene' ? 'scene' : 'vocab',
+      nextTitle: title,
+      topicTitle: unitTitle,
+      // Every finished activity logs 5 practice minutes (backend DAILY_TASK_MINUTES).
+      week: {
+        days: weekRows.length,
+        activities: Math.round(weekRows.reduce((sum, p) => sum + (p.minutes_practiced ?? 0), 0) / 5),
+        words: 0,
+      },
+    });
+    if (todayDone) void askForNotificationsOnce();
+  }, [profile, practice, progress, todayMinutes, current]);
+
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
@@ -310,6 +342,20 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       transitionTo(() => navigation.navigate('FreeChatRoom', { unitFocus, origin: 'path' }), t("Mivo hazırlanıyor…"));
     }
   };
+
+  // A tap on a reminder opens the app on the next step, like the widget.
+  useEffect(() => {
+    let off = () => {};
+    let alive = true;
+    void onReminderTap(requestOpenNextStep).then((unsubscribe) => {
+      if (alive) off = unsubscribe;
+      else unsubscribe();
+    });
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
 
   // A tap on the home-screen widget (spekvia://next) starts the learner's next step once the progress is read.
   const openStepRef = useRef(openStep);
