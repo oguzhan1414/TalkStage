@@ -105,22 +105,118 @@ _CUSTOM_OPENING = {
 }
 
 
+_STYLE_FIELDS = {
+    "persona": {"teacher", "friend", "coach"},
+    "lang": {"native", "mixed", "english"},
+    "fix": {"every", "important", "flow"},
+    "help": {"teach", "clue", "none"},
+}
+
+
+def _chat_style(raw) -> dict | None:
+    """'Mivo'yu ayarla' from the app: only known values pass; a missing field is simply not set."""
+    if not isinstance(raw, dict):
+        return None
+    style = {k: raw.get(k) for k, allowed in _STYLE_FIELDS.items() if raw.get(k) in allowed}
+    if isinstance(raw.get("words"), bool):
+        style["words"] = raw["words"]
+    return style or None
+
+
 def _chat_choice(websocket: WebSocket) -> dict | None:
-    """What the learner picked on the 'Ne konuşalım?' page: their day, one scene, or a topic of their own.
-    Untrusted data, length-limited; None = the old behaviour (Mivo picks a scene)."""
+    """What the learner picked on the 'Ne konuşalım?' page: their day, one scene, or a topic of their own,
+    plus how they set Mivo up. Untrusted data, length-limited; None = the old behaviour (Mivo picks a scene)."""
     raw = (getattr(websocket.state, "auth_payload", None) or {}).get("chat")
     if not isinstance(raw, dict):
         return None
+    style = _chat_style(raw.get("style"))
     mode = raw.get("mode")
     if mode == "daily":
-        return {"mode": "daily"}
+        return {"mode": "daily", "style": style}
     if mode == "scenario":
         topic = next((t for t in TOPICS if t.id == raw.get("topic")), None)
-        return {"mode": "scenario", "topic": topic} if topic else None
+        return {"mode": "scenario", "topic": topic, "style": style} if topic else None
     if mode == "custom":
         custom = _clean(raw.get("custom"), 120)
-        return {"mode": "custom", "custom": custom} if custom else None
+        return {"mode": "custom", "custom": custom, "style": style} if custom else None
     return None
+
+
+def _style_prompt_block(style: dict | None, lang: str, level: str) -> str:
+    """The learner's own setup of Mivo. Goes last in the prompt, so it wins over the general rules above."""
+    style = style or {}
+    beginner = level in {"A1", "A2"}
+    lines = [
+        "",
+        "THE STUDENT SET YOU UP LIKE THIS (they chose it in the app; it overrides the rules above wherever they conflict):",
+    ]
+    persona = style.get("persona")
+    if persona == "teacher":
+        lines.append("- PERSONALITY: a patient, warm teacher. Explain briefly and clearly, give one example when it helps, praise real progress, never rush them.")
+    elif persona == "friend":
+        lines.append("- PERSONALITY: a fun friend. Laugh, joke, tease kindly, share a tiny opinion or story of your own now and then; corrections are quick and light, one sentence, like a friend would do it.")
+    elif persona == "coach":
+        lines.append("- PERSONALITY: a demanding but kind coach. Push for more: ask them to add a reason, a detail or a longer sentence, raise the bar a little after each success, keep praise short and earned.")
+
+    lang_mode = style.get("lang")
+    if lang_mode == "english":
+        lines.append(
+            "- LANGUAGE: speak ONLY English the whole time, like a real conversation partner; no " + lang + " in what you say, "
+            "even when you correct or explain. Use English simple enough for a learner at " + level + " (short sentences, common words). "
+            "If they are lost, rephrase more simply in English. (The JSON fields whose names end in _tr still follow the NATIVE-LANGUAGE RULE: "
+            "they are the app's help cards, not your speech.)"
+        )
+    elif lang_mode == "mixed":
+        lines.append(
+            "- LANGUAGE: talk mainly in English (simple, at " + level + " level). Switch to " + lang + " only for a short explanation of a "
+            "mistake or when they are clearly lost, then go back to English."
+        )
+    elif lang_mode == "native":
+        lines.append("- LANGUAGE: guide and explain in " + lang + "; everything they should say, and the other person's lines, stay in English quotes.")
+
+    fix = style.get("fix")
+    if fix == "every":
+        lines.append("- MISTAKES: catch every real mistake, one per turn (the most useful one), and have them say the corrected sentence once before you move on.")
+    elif fix == "important":
+        lines.append("- MISTAKES: correct only mistakes that change or blur the meaning, or an answer that does not fit the question; let small slips go so the chat keeps flowing.")
+    elif fix == "flow":
+        lines.append(
+            "- MISTAKES: never stop the conversation for a mistake and never ask for a retry. If they said something wrong, just use the right "
+            "form naturally in your own reply (recast) and keep talking; the app shows the correction under their message. Only if the "
+            "answer does not fit the question at all, say so in a few playful words and ask again."
+        )
+
+    help_level = style.get("help")
+    if help_level == "teach":
+        lines.append(
+            "- HELP (this overrides 'never hand an answer'): the student wants to be TAUGHT. With each new question give a sentence starter "
+            "they can build on ('It was… because…', 'I usually…'), and teach one useful pattern or word when it fits. Still let them finish "
+            "the sentence themselves; never give the whole answer."
+        )
+    elif help_level == "clue":
+        lines.append("- HELP: no starters by default; if they are stuck, give one keyword or the first two words as a clue.")
+    elif help_level == "none":
+        lines.append("- HELP: give no clues or starters at all unless they ask for help; if stuck, just ask more simply. They want to find the words themselves.")
+
+    if style.get("words"):
+        lines.append(
+            "- NEW WORDS: teach 2-3 useful new English words during the chat, one at a time, when the topic gives a natural chance "
+            "(say the word, what it means in a few words, and use it in a sentence), words a learner at " + level + " may not know yet."
+        )
+    elif style.get("words") is False:
+        lines.append("- NEW WORDS: do not teach new vocabulary on purpose; keep to words they already use.")
+
+    if beginner:
+        lines.append(
+            "- LEVEL " + level + ": the student is a beginner. Keep your English very short and simple, one idea per sentence, and make "
+            "it easy to answer; it is fine to show HOW to answer a type of question, because at this level they are still learning to build sentences."
+        )
+    lines.append(
+        "- AN ANSWER THAT DOES NOT FIT THE QUESTION is a mistake even if the grammar is fine (e.g. 'How was your day?' -> 'I am beautiful'): "
+        "react with a smile, say briefly why it does not fit (the question asks about the day, not about them), give the natural answer "
+        "form ('It was great!') and let them try."
+    )
+    return "\n".join(lines)
 
 
 def _choice_prompt_block(choice: dict) -> str:
@@ -348,7 +444,8 @@ HOW YOU RUN THIS CONVERSATION — YOU ARE IN CHARGE, the student should never ha
 
 def _build_free_chat_system_prompt(cefr_level: str | None, display_name: str | None, native_language: str = "tr",
                                    memory_context: str | None = None, focus: dict | None = None,
-                                   topic: Topic | None = None, choice: dict | None = None) -> str:
+                                   topic: Topic | None = None, choice: dict | None = None,
+                                   style: dict | None = None) -> str:
     lang = native_language_name(native_language)
     level = (cefr_level or "A1").upper()
     if level not in {"A1", "A2", "B1", "B2", "C1", "C2"}:
@@ -407,6 +504,7 @@ The student's CEFR level is {level}. Adjust your vocabulary and the difficulty o
 
 {_lead_rules(lang, level, topic) if leading else "YOUR ROLE EVERY TURN:" + chr(10) + legacy_rules}
 {native_language_directive(native_language)}
+{_style_prompt_block(style, lang, level) if style is not None else ""}
 """
 
 
@@ -489,29 +587,34 @@ async def free_chat_session(websocket: WebSocket) -> None:
     focus = _focus_from_payload(websocket)
     choice = None if focus else _chat_choice(websocket)
     topic, opening = None, ""
-    lang_key = native if native in _DAILY_OPENING else "en"
+    style = choice.get("style") if choice else None
+    english_only = bool(style and style.get("lang") == "english")
+    # The room's spoken language: English-only rooms open and are read out in English.
+    speak = "en" if english_only else native
+    lang_key = speak if speak in _DAILY_OPENING else "en"
     if focus:
         opening = _focus_opening(native, focus)
     elif choice and choice["mode"] == "daily":
         first = (profile.get("display_name") or "").strip().split(" ")[0]
         topics = [t.get("topic") for t in ((memory or {}).get("topics") or []) if isinstance(t, dict) and t.get("topic")]
-        recall = _DAILY_RECALL[lang_key].format(topic=topics[-1]) if topics and memory_in_language(memory, native) else ""
+        recall = _DAILY_RECALL[lang_key].format(topic=topics[-1]) if topics and memory_in_language(memory, speak) else ""
         opening = _DAILY_OPENING[lang_key].format(name=f" {first}" if first else "", recall=recall) + " \"How was your day?\""
     elif choice and choice["mode"] == "custom":
         opening = _CUSTOM_OPENING[lang_key].format(topic=choice["custom"])
     else:
-        topic, opening = _plan_for_session(user.id, profile.get("cefr_level"), profile.get("display_name"), native, memory,
+        topic, opening = _plan_for_session(user.id, profile.get("cefr_level"), profile.get("display_name"), speak, memory,
                                            chosen=choice["topic"] if choice and choice["mode"] == "scenario" else None)
     prompt = _build_free_chat_system_prompt(profile.get("cefr_level"), profile.get("display_name"), native,
                                             format_memory_context(memory), focus, topic,
-                                            choice if choice and choice["mode"] != "scenario" else None)
+                                            choice if choice and choice["mode"] != "scenario" else None,
+                                            style=(style or {}) if choice else None)
     async def run_turn(ws, client, history, text, send_json):
-        await run_voice_turn(ws, client, prompt, history, text, send_json, language=native,
+        await run_voice_turn(ws, client, prompt, history, text, send_json, language=speak,
                              allow_completion=bool(focus and focus.get("unit")),
                              log_mistake=partial(_log_mistake_if_any, db, user.id, text, topic_code=focus["code"] if focus else None))
     started = time.monotonic()
     history = await serve_voice(websocket, user.id, opening,
-                                run_turn, language=native, native_language=native,
+                                run_turn, language=speak, native_language=native,
                                 max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
     await asyncio.to_thread(record_voice_usage, db, user.id, usage_kind, time.monotonic() - started,
                             learner_turns(history), pro)

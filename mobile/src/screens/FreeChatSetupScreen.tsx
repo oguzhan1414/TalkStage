@@ -3,8 +3,14 @@ import { useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useQuery } from '@tanstack/react-query';
+
 import { mivoHomeImages } from '../assets/images';
+import { ChatStyleSheet, PERSONA_ART, hasNativeChoice, langLabel, personaName } from '../components/ChatStyleSheet';
 import { KeyboardSafe } from '../components/KeyboardSafe';
+import { api } from '../lib/api';
+import { useChatStyle } from '../lib/chatStyle';
+import type { ProfileOut } from '../types/api';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
 import { FREE_CHAT_SCENARIOS, type FreeChatScenario } from '../data/freeChatScenarios';
 import { t } from '../i18n';
@@ -28,12 +34,24 @@ export function FreeChatSetupScreen({ navigation }: FreeChatSetupScreenProps) {
   const [custom, setCustom] = useState('');
   const [sheet, setSheet] = useState<FreeChatScenario | null>(null);
   const cardW = Math.floor((width - 32 - 20) / 3);
+  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const level = (profile?.cefr_level ?? 'A1').toUpperCase();
+  const [style, saveStyle] = useChatStyle(level);
+  const [styleOpen, setStyleOpen] = useState(false);
 
   const start = (chat: { mode: Mode; topic?: string; custom?: string }) => {
-    trackEvent('mivo_chat_opened', { from: 'konus', mode: chat.mode, topic: chat.topic });
+    const { custom: _custom, ...rest } = style;
+    const sent = { ...rest, lang: hasNativeChoice() ? style.lang : 'english' as const };
+    trackEvent('mivo_chat_opened', { from: 'konus', mode: chat.mode, topic: chat.topic, persona: sent.persona, lang: sent.lang, fix: sent.fix, help: sent.help, custom_style: style.custom });
     setSheet(null);
-    transitionTo(() => navigation.replace('FreeChatRoom', { chat }), t("Mivo ile Sohbet Başlıyor…"));
+    transitionTo(() => navigation.replace('FreeChatRoom', { chat: { ...chat, style: sent } }), t("Mivo ile Sohbet Başlıyor…"));
   };
+
+  const styleChips = [
+    ...(hasNativeChoice() ? [langLabel(style.lang)] : []),
+    style.fix === 'every' ? t("Her hatayı düzeltir") : style.fix === 'important' ? t("Önemli hataları düzeltir") : t("Akışı bozmaz"),
+    ...(style.speed === 'slow' ? [t("Yavaş konuşur")] : []),
+  ];
 
   const modes: { id: Mode; icon: React.ComponentProps<typeof Ionicons>['name']; tint: string; deep: string; title: string; sub: string }[] = [
     { id: 'daily', icon: 'sunny', tint: VP.mintSoft, deep: VP.mintDeep, title: t("Günün nasıldı?"), sub: t("Hayatın, günün, planların. Mivo seni hatırlar.") },
@@ -58,6 +76,29 @@ export function FreeChatSetupScreen({ navigation }: FreeChatSetupScreenProps) {
               <Text style={styles.mivoBubbleText}>{t("Bugün nasıl pratik yapalım? Seç, ben hazırlanayım.")}</Text>
             </View>
           </View>
+
+          {/* Who Mivo is today: the learner's own setup (or the one for their level until they change it) */}
+          <Pressable
+            onPress={() => setStyleOpen(true)}
+            style={({ pressed }) => [styles.styleCard, pressed && { transform: [{ scale: 0.99 }] }]}
+            accessibilityRole="button"
+            accessibilityLabel={t("Mivo'yu kendine göre ayarla")}
+          >
+            <View style={styles.styleArtWrap}>
+              <Image source={PERSONA_ART[style.persona]} style={styles.styleArt} resizeMode="contain" />
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <Text style={styles.styleKicker}>{style.custom ? t("Senin Mivo'n") : t("Seviyene göre hazırladım ({{level}})", { level })}</Text>
+              <Text style={styles.styleName}>{personaName(style.persona)}</Text>
+              <Text style={styles.styleChips} numberOfLines={2}>
+                {styleChips.join(' · ')}
+              </Text>
+            </View>
+            <View style={styles.styleBtn}>
+              <Ionicons name="options-outline" size={15} color={VP.ink} />
+              <Text style={styles.styleBtnText}>{t("Ayarla")}</Text>
+            </View>
+          </Pressable>
 
           {modes.map((m) => {
             const on = mode === m.id;
@@ -172,6 +213,8 @@ export function FreeChatSetupScreen({ navigation }: FreeChatSetupScreenProps) {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <ChatStyleSheet visible={styleOpen} style={style} level={level} onSave={saveStyle} onClose={() => setStyleOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -186,6 +229,14 @@ const styles = StyleSheet.create({
   mivoFace: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#EEF2FF' },
   mivoBubble: { flex: 1, backgroundColor: VP.card, borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: VP.line },
   mivoBubbleText: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: VP.ink },
+  styleCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 22, backgroundColor: VP.ink },
+  styleArtWrap: { width: 58, height: 58, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+  styleArt: { width: 52, height: 52 },
+  styleKicker: { fontFamily: fonts.headingSemiBold, fontSize: 11, letterSpacing: 0.5, color: VP.gold, textTransform: 'uppercase' },
+  styleName: { fontFamily: fonts.headingBold, fontSize: 17, color: '#FFFFFF' },
+  styleChips: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: 'rgba(255,255,255,0.75)' },
+  styleBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 11, paddingVertical: 8, borderRadius: radii.pill, backgroundColor: '#FFFFFF' },
+  styleBtnText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: VP.ink },
   modeCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 22, backgroundColor: VP.card, borderWidth: 1.5, borderColor: VP.line },
   modeIcon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   modeTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: VP.ink },

@@ -16,6 +16,7 @@ import type {
   WsTurnMetrics,
 } from '../types/ws';
 import { t } from '../i18n';
+import { SPEED_RATE, type FreeChatChoice } from '../lib/chatStyle';
 
 // Server error frames carry Turkish text; map the known codes to the app language instead.
 const WS_ERROR_TEXT: Record<string, string> = {
@@ -115,7 +116,7 @@ export function useConversationSocket(
   scene?: ScenePlayPayload,
   focus?: FocusTopicPayload,
   origin?: 'path',
-  chat?: { mode: 'daily' | 'scenario' | 'custom'; topic?: string; custom?: string }
+  chat?: FreeChatChoice
 ) {
   const chatRef = useRef(chat);
   chatRef.current = chat;
@@ -275,6 +276,16 @@ export function useConversationSocket(
       }
     });
     currentSubscriptionRef.current = subscription;
+    // The learner's 'Konuşma hızı' (free chat): slower Mivo, same pitch.
+    const rate = SPEED_RATE[chatRef.current?.style?.speed ?? 'normal'];
+    if (rate !== 1) {
+      try {
+        player.shouldCorrectPitch = true;
+        player.setPlaybackRate(rate, 'high');
+      } catch {
+        // An older native audio module without rate control just plays at normal speed.
+      }
+    }
     player.play();
   }, [killPlayer]);
 

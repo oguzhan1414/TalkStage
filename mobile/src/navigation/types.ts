@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import type { VocabFocus } from '../lib/vocabGroups';
 import type { SessionOut } from '../types/api';
+import type { FreeChatChoice } from '../lib/chatStyle';
 
 export type AuthStackParamList = {
   SignIn: undefined;
@@ -68,7 +69,7 @@ export type RootStackParamList = {
         /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
         origin?: 'path';
         /** Picked on 'Ne konuşalım?': the learner's day, one scene (backend topic id) or a topic of their own. */
-        chat?: { mode: 'daily' | 'scenario' | 'custom'; topic?: string; custom?: string };
+        chat?: FreeChatChoice;
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
         // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
         // corrections and the "practice done" flag to the topic.

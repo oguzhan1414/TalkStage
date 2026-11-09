@@ -1,3 +1,4 @@
+import type { FreeChatChoice } from '../lib/chatStyle';
 import { useConversationSocket, type FocusTopicPayload } from './useConversationSocket';
 import type { ScenePlayPayload } from '../lib/sceneTwists';
 export type { ConnectionStatus, OrbState, TurnPhase, CloseInfo } from './useConversationSocket';
@@ -8,7 +9,7 @@ export function useFreeChatSocket(
   scene?: ScenePlayPayload,
   focus?: FocusTopicPayload,
   origin?: 'path',
-  chat?: { mode: 'daily' | 'scenario' | 'custom'; topic?: string; custom?: string }
+  chat?: FreeChatChoice
 ) {
   return useConversationSocket(undefined, scene, focus, origin, chat);
 }
