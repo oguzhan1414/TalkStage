@@ -51,6 +51,7 @@ import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
 import { closeWord, tokens } from '../lib/speechMatch';
 import { noteLessonFinished } from '../lib/storeReview';
+import { offerProAfterFirstLesson } from '../lib/proOffer';
 import { trackEvent } from '../lib/analytics';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
@@ -1754,7 +1755,7 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
   const queryClient = useQueryClient();
   const saved = useRef(false);
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
-  const navigation = useNavigation<{ navigate: (screen: 'FreeChatRoom', params: object) => void }>();
+  const navigation = useNavigation<{ navigate: (screen: 'FreeChatRoom' | 'Paywall', params?: object) => void }>();
   const { transitionTo } = useMivoTransition();
   /** What Mivo gets to talk about this episode: its title, grammar, words and what happened (the next episode's recap). */
   const storyFocus = useMemo(() => {
@@ -1819,7 +1820,9 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
 
   const finish = () => {
     onExit();
-    // Back on the path after a finished lesson: the store rating sheet may appear over the home (once).
+    // Back on the path after the first finished lesson: the Pro offer, once (value first, then the offer).
+    void offerProAfterFirstLesson(() => navigation.navigate('Paywall'));
+    // After a later one: the store rating sheet may appear over the home (once).
     setTimeout(() => void noteLessonFinished(), 900);
   };
   const share = () =>
