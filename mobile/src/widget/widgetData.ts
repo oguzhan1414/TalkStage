@@ -23,6 +23,10 @@ export type WidgetSnapshot = {
   startLabel: string;
   /** Line when today is done: "Bugün ✓". */
   doneLabel: string;
+  /** Top line while today is open: "Bugünkü adımın hazır" (older snapshots may not have it). */
+  promptLabel?: string;
+  /** Top line once today is done: "Bugün tamam!". */
+  donePromptLabel?: string;
 };
 
 export function localDay(date = new Date()): string {

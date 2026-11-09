@@ -14,7 +14,7 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps): Promise<
     case 'WIDGET_UPDATE':
     case 'WIDGET_RESIZED': {
       const snapshot = await loadWidgetSnapshot();
-      props.renderWidget(<SpekviaWidget snapshot={snapshot ? agedSnapshot(snapshot) : null} height={props.widgetInfo.height} />);
+      props.renderWidget(<SpekviaWidget snapshot={snapshot ? agedSnapshot(snapshot) : null} width={props.widgetInfo.width} height={props.widgetInfo.height} />);
       break;
     }
     default:

@@ -28,6 +28,8 @@ import { usePathLevel } from '../lib/pathLevel';
 import { currentStep, isDone, isPassed, skipStep, starsOf, usePathProgress, type PathProgress } from '../lib/pathProgress';
 import { haptics } from '../lib/haptics';
 import { playSfx, preloadSfx } from '../lib/sfx';
+import { onOpenNextStepRequest, takeOpenNextStepRequest, updateHomeWidget } from '../widget/homeWidget';
+import { localDay } from '../widget/widgetData';
 import type { MainTabScreenProps } from '../navigation/types';
 import { colors, fonts, spacing } from '../theme/tokens';
 import type { ProfileOut, ProgressOut } from '../types/api';
@@ -50,7 +52,7 @@ const MIVO_BTN = 54;
 const PROGRESS = ['#2DD4BF', '#0D9488'] as const;
 /** Each step type's icon on the road, from the app's own flat icon family. */
 const STEP_ICONS = { reading: navIcons.today, vocab: navIcons.words, scene: navIcons.scenes } as const;
-const todayKey = () => new Date().toISOString().slice(0, 10);
+const todayKey = () => localDay();
 
 /** Medallion colours per step type: the ring's track (its star segments fill teal) and the picture's backing. */
 const RING: Record<string, { ring: string; fill: [string, string] }> = {
@@ -271,6 +273,21 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
   }, []);
 
+  // Android home-screen widget: the streak and whether today is done (labels stored translated: the widget has no i18n).
+  useEffect(() => {
+    if (!profile || !practice) return;
+    void updateHomeWidget({
+      streak: profile.streak_count ?? 0,
+      todayDone: todayMinutes > 0,
+      savedOn: todayKey(),
+      streakLabel: t("gün serisi"),
+      startLabel: t("Seriyi başlat"),
+      doneLabel: t("Bugün ✓"),
+      promptLabel: t("Bugünkü adımın hazır"),
+      donePromptLabel: t("Bugün tamam!"),
+    });
+  }, [profile, practice, todayMinutes]);
+
   const openStep = (s: PathStep) => {
     if (s.kind === 'reading') navigation.navigate('PathLesson', { stepId: s.id });
     else if (s.kind === 'vocab') navigation.navigate('PathVocab', { stepId: s.id });
@@ -293,6 +310,19 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       transitionTo(() => navigation.navigate('FreeChatRoom', { unitFocus, origin: 'path' }), t("Mivo hazırlanıyor…"));
     }
   };
+
+  // A tap on the home-screen widget (spekvia://next) starts the learner's next step once the progress is read.
+  const openStepRef = useRef(openStep);
+  openStepRef.current = openStep;
+  useEffect(() => {
+    if (!progress) return;
+    const go = () => {
+      if (!takeOpenNextStepRequest()) return;
+      if (!isPassed(progress, current.step.id)) openStepRef.current(current.step);
+    };
+    go();
+    return onOpenNextStepRequest(go);
+  }, [progress, current]);
 
   return (
     <View style={styles.container}>
