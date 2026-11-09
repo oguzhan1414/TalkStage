@@ -1,10 +1,12 @@
-# Google Play mağaza metinleri (5 dil)
+# Google Play mağaza metinleri (5 dil, ASO, 2026-11-10)
 
-Play Console → **Kullanıcı sayısını artırın → Mağaza varlığı → Ana mağaza girişi**. Her dil için "Çevirileri yönet" ile dili ekleyip alanlara aşağıdaki metinleri yapıştır.
+Play Console → **Mağazada büyüme → Mağaza varlığı → Ana mağaza girişi**. Her dil için "Çevirileri yönet" ile dili ekleyip alanlara aşağıdaki metinleri yapıştır.
 
-Sınırlar: uygulama adı 30, kısa açıklama 80, tam açıklama 4000 karakter. Aşağıdaki metinlerin hepsi bu sınırların altında (betikle sayıldı).
+Sınırlar: uygulama adı 30, kısa açıklama 80, tam açıklama 4000 karakter. Hepsi betikle sayıldı, sınırların altında.
 
-Kurallar (Play politikası): "en iyi", "1 numara", fiyat/indirim, kullanıcı yorumu alıntısı yok; yalnızca uygulamada gerçekten olan özellikler.
+Kurallar (Play politikası): "en iyi", "1 numara", fiyat/indirim, yorum alıntısı, emoji yığını ve anahtar kelime listesi yok; yalnızca uygulamada gerçekten olan özellikler. Ücretsiz/Pro bilgisi `mobile/src/components/PaywallContent.tsx` ve `backend/app/services/voice_access.py` ile aynı (2026-11-09 kararı).
+
+ASO notu: Google Play başlık, kısa açıklama ve tam açıklamayı arar. Her dilde en çok aranan ifade başlıkta (ingilizce öğren / learn English / aprende inglés / aprender inglês / Englisch lernen), "konuşma pratiği" ve "yapay zeka" kısa açıklamada, tam açıklamada ise bu ifadeler doğal cümlelerle 2-4 kez geçiyor (tekrar yığını değil).
 
 Dil kodları: Türkçe `tr-TR` (varsayılan), İngilizce `en-US` (+ `en-GB` aynı metin), İspanyolca `es-ES` (+ `es-419` aynı metin), Portekizce `pt-BR` (+ `pt-PT` aynı metin), Almanca `de-DE`.
 
@@ -14,40 +16,47 @@ Dil kodları: Türkçe `tr-TR` (varsayılan), İngilizce `en-US` (+ `en-GB` ayn�
 
 **Uygulama adı**
 ```
-İngilizce Konuş: Spekvia
+Spekvia: İngilizce Öğren
 ```
 
 **Kısa açıklama**
 ```
-Hikâyelerle İngilizce öğren, Mivo ile sesli konuş. A1'den C2'ye adım adım.
+Yapay zeka Mivo ile İngilizce konuşma pratiği yap, hikâyelerle A1'den C2'ye çık
 ```
 
 **Tam açıklama**
 ```
-Spekvia ile İngilizceyi ezberleyerek değil, bir hikâyenin içinde yaşayarak öğrenirsin. Her gün kısa bir bölüm oku, sesli dinle, yeni kelimeleri resimleriyle tanı ve öğrendiklerini Mivo ile konuşarak dene.
+Spekvia ile İngilizceyi ezberleyerek değil, konuşarak ve bir hikâyenin içinde yaşayarak öğrenirsin. Her gün kısa bir bölüm oku, dinle, yeni kelimeleri resimleriyle tanı, sonra öğrendiklerini yapay zeka destekli öğretmenin Mivo ile sesli konuşarak dene.
+
+MIVO İLE İNGİLİZCE KONUŞMA PRATİĞİ
+Mivo seni dinler, cevap verir ve hatanı o an yumuşakça söyler. Ne konuşacağını sen seçersin:
+• Günün nasıldı: günün, planların, hayatın üzerine rahat bir sohbet. Mivo önceki konuşmalarınızı hatırlar.
+• Bir durum canlandır: kafede sipariş, otelde giriş, yol tarifi, iş görüşmesi ve daha fazlası. Her durumda kısa bir hikâye, görevler ve işe yarar kalıplar.
+• Kendi konunu seç: futbol, yeni işin, seyahat planın, ne istersen.
+
+MIVO'YU KENDİNE GÖRE AYARLA
+Sabırlı öğretmen, eğlenceli arkadaş ya da seni zorlayan bir koç. Türkçe destekli, karışık ya da tamamen İngilizce. Her hatanı düzeltsin ya da akışı hiç bozmasın. İstersen yavaş konuşsun, her sohbette yeni kelimeler öğretsin. Mesajdaki bir kelimeye dokun, anlamını gör; anlamadığın cümleyi tek dokunuşla çevir.
 
 HİKÂYEYLE İLERLEYEN BİR YOL
-A1'den C2'ye altı seviye, her seviyede bir hikâye. Maya'nın Bristol'daki yeni hayatıyla başlayan yol, seviyen yükseldikçe daha uzun ve zengin metinlere taşınır. Her bölüm üç kısa parçadan oluşur: kelimeler, gramer ve pratik. Bölümler karakter sesleriyle seslendirilmiştir; dilediğin cümleyi tekrar dinleyebilirsin.
+A1'den C2'ye altı seviye, her seviyede bir hikâye. Maya'nın Bristol'daki yeni hayatıyla başlayan yol, seviyen yükseldikçe daha zengin metinlere taşınır. Her bölüm üç kısa parçadan oluşur: kelimeler, gramer ve pratik. Bölümler karakter sesleriyle seslendirilmiştir. Her ünitenin sonunda öğrendiklerini Mivo ile gerçek bir durumda prova edersin.
 
-MIVO İLE SESLİ KONUŞ
-Her ünitenin sonunda Mivo ile sesli bir sahneye girersin: kafede sipariş, otelde giriş, iş görüşmesi gibi gerçek durumlar. Sen konuşursun, Mivo cevap verir, hatanı yumuşakça söyler ve doğrusunu gösterir. İstediğin konuda serbest sohbet de edebilirsin.
-
-GRAMER, KISA VE ANLAŞILIR
-Mivo'nun notları kuralı tek cümlede anlatır, hikâyeden örnek verir ve en sık yapılan hatayı gösterir. Tablo ve cümle kurma alıştırmalarıyla kural kalıcı olur.
-
-KELİMELER KALICI OLSUN
-Kaydettiğin her kelime, aralıklı tekrar yöntemiyle tam unutmak üzereyken karşına çıkar. Bugünün destesi, hafıza haritan ve etiketlerle kendi gruplarını kurarsın. Kelime Odaları'nda kelimeleri bir mutfakta, bir sokakta yerlerine yerleştirerek ezberlersin.
+İNGİLİZCE KELİME ÖĞREN, UNUTMA
+900 temel kelimelik kütüphane ve kendi eklediğin kelimeler. Aralıklı tekrar, her kelimeyi tam unutmak üzereyken karşına çıkarır. Kelime Odaları'nda kelimeleri bir mutfağa, bir sınıfa yerleştirerek hafızana kazırsın.
 
 TELAFFUZ VE HATA DEFTERİ
-Kelimeleri sesli söyle, nerede takıldığını gör. Konuşurken yaptığın hatalar Hata Defteri'nde toplanır; tekrar edip kapatırsın.
+Kelimeleri sesli söyle, doğrusunu dinle. Konuşurken yaptığın hatalar Hata Defteri'nde toplanır, kısa sınavlarla pekişir.
+
+HER GÜN BİRAZ
+Günlük serin, ana ekran widget'ın ve doğru saatte gelen tek bir hatırlatma ile her gün birkaç dakika yeter.
 
 ANA DİLİNDE AÇIKLAMA
-Uygulama Türkçe, İngilizce, İspanyolca, Portekizce ve Almanca kullanılabilir; kelime anlamları ve açıklamalar senin dilinde gelir.
+Uygulama Türkçe, İngilizce, İspanyolca, Portekizce ve Almanca kullanılabilir. Kelime anlamları ve açıklamalar senin dilinde gelir.
 
-ÜCRETSİZ BAŞLA
-Öğrenme yolu, kelimeler, Kelime Odaları, telaffuz ve Hata Defteri ücretsizdir. Her gün bir sesli sahne ve Mivo ile bir deneme sohbeti de ücretsiz. Spekvia Pro ile Mivo'yla sınırsız sohbet edebilir, her gün istediğin kadar sahne oynayabilir ve canlı konuşma odasını kullanabilirsin. Abonelik istediğin zaman Google Play'den iptal edilebilir.
+ÜCRETSİZ VE PRO
+Ücretsiz: hikâye yolunun tamamı, kelimeler, Kelime Odaları, telaffuz ve Hata Defteri; her seviyenin ilk ünitesinde Mivo ile prova, günde bir sesli sahne ve Mivo ile bir deneme sohbeti.
+Spekvia Pro: tüm ünitelerde Mivo ile prova, Mivo ile sınırsız sohbet, tüm sesli sahneler ve 30 dakikaya kadar sesli oturumlar. Abonelik istediğin zaman Google Play'den iptal edilebilir.
 
-Gizlilik politikası: https://spekvia.com/gizlilik
+Gizlilik politikası: https://www.spekvia.com/gizlilik
 ```
 
 ---
@@ -56,40 +65,47 @@ Gizlilik politikası: https://spekvia.com/gizlilik
 
 **App name**
 ```
-Spekvia: Speak English
+Spekvia: Learn English & Speak
 ```
 
 **Short description**
 ```
-Learn English through stories and speak with Mivo. Step by step from A1 to C2.
+Practise speaking English with Mivo, your AI tutor. Learn with stories, A1 to C2
 ```
 
 **Full description**
 ```
-With Spekvia you don't learn English by memorising lists. You live it inside a story. Read a short episode every day, listen to it, meet new words with pictures, then try what you learned by talking with Mivo.
+With Spekvia you learn English by speaking it and by living it inside a story, not by memorising lists. Read a short episode every day, listen to it, meet new words with pictures, then try what you learned out loud with Mivo, your AI English tutor.
+
+ENGLISH SPEAKING PRACTICE WITH MIVO
+Mivo listens, answers and gently points out your mistake right away. You choose what to talk about:
+• How was your day: a relaxed chat about your day, your plans and your life. Mivo remembers your earlier chats.
+• Act out a situation: ordering at a café, checking into a hotel, asking for directions, a job interview and more. Each one comes with a short story, goals and useful phrases.
+• Pick your own topic: football, your new job, your trip, anything you like.
+
+SET MIVO UP YOUR WAY
+A patient teacher, a fun friend or a tough coach. Help in your own language, mixed, or English only. Fix every mistake or never break the flow. Have Mivo speak slowly and teach new words in every chat. Tap a word in a message to see its meaning, or translate a sentence with one tap.
 
 A PATH THAT MOVES WITH A STORY
-Six levels from A1 to C2, one story at each level. The path starts with Maya's new life in Bristol and grows into longer, richer texts as your level rises. Every episode has three short parts: words, grammar and practice. Episodes are voiced by their characters, and you can replay any sentence.
+Six levels from A1 to C2, one story at each level. The path starts with Maya's new life in Bristol and grows into richer texts as your level rises. Every episode has three short parts: words, grammar and practice, voiced by the characters. At the end of every unit you rehearse what you learned with Mivo in a real-life situation.
 
-TALK OUT LOUD WITH MIVO
-At the end of every unit you step into a voice scene with Mivo: ordering at a café, checking into a hotel, a job interview. You speak, Mivo answers, points out your mistake kindly and shows the right way to say it. You can also chat freely about anything you like.
-
-GRAMMAR, SHORT AND CLEAR
-Mivo's notes explain each rule in one sentence, give an example from the story and show the most common mistake. Pattern tables and sentence-building practice make it stick.
-
-WORDS THAT STAY
-Every word you save comes back with spaced repetition, right before you would forget it. Use today's deck, your memory map and tags to build your own groups. In Word Rooms you remember words by placing them in a kitchen or a street.
+LEARN ENGLISH WORDS THAT STAY
+A library of 900 core words plus your own. Spaced repetition brings each word back right before you would forget it. In Word Rooms you remember words by placing them in a kitchen or a classroom.
 
 PRONUNCIATION AND A MISTAKES NOTEBOOK
-Say words out loud and see where you stumble. Mistakes from your conversations are collected in your Mistakes Notebook, so you can review them and close them.
+Say words out loud and hear how they should sound. Mistakes from your conversations are collected in your Mistakes Notebook and reinforced with quick quizzes.
+
+A LITTLE EVERY DAY
+Your daily streak, a home-screen widget and one reminder at the right time keep a few minutes a day easy.
 
 EXPLAINED IN YOUR LANGUAGE
-The app works in English, Turkish, Spanish, Portuguese and German; word meanings and explanations come in your language.
+The app works in English, Turkish, Spanish, Portuguese and German. Word meanings and explanations come in your language.
 
-START FOR FREE
-The learning path, words, Word Rooms, pronunciation and the Mistakes Notebook are free. One voice scene a day and one trial chat with Mivo are free too. With Spekvia Pro you can chat with Mivo without limits, play as many scenes as you like every day and use the live conversation room. You can cancel the subscription at any time in Google Play.
+FREE AND PRO
+Free: the whole story path, words, Word Rooms, pronunciation and the Mistakes Notebook; rehearsals with Mivo in the first unit of every level, one voice scene a day and one trial chat with Mivo.
+Spekvia Pro: rehearsals with Mivo in every unit, unlimited chats with Mivo, all voice scenes and voice sessions of up to 30 minutes. You can cancel the subscription at any time in Google Play.
 
-Privacy policy: https://spekvia.com/en/privacy
+Privacy policy: https://www.spekvia.com/en/privacy
 ```
 
 ---
@@ -98,40 +114,47 @@ Privacy policy: https://spekvia.com/en/privacy
 
 **Nombre de la app**
 ```
-Habla Inglés: Spekvia
+Spekvia: Aprende Inglés
 ```
 
 **Descripción breve**
 ```
-Aprende inglés con historias y habla con Mivo. Paso a paso, de A1 a C2.
+Practica hablar inglés con Mivo, tu tutor con IA. Aprende con historias, A1 a C2
 ```
 
 **Descripción completa**
 ```
-Con Spekvia no aprendes inglés memorizando listas: lo vives dentro de una historia. Lee un episodio corto cada día, escúchalo, conoce palabras nuevas con imágenes y prueba lo aprendido hablando con Mivo.
+Con Spekvia aprendes inglés hablándolo y viviéndolo dentro de una historia, no memorizando listas. Lee un episodio corto cada día, escúchalo, conoce palabras nuevas con imágenes y prueba en voz alta lo aprendido con Mivo, tu tutor de inglés con inteligencia artificial.
+
+PRÁCTICA PARA HABLAR INGLÉS CON MIVO
+Mivo te escucha, responde y te señala el error con amabilidad en el momento. Tú eliges de qué hablar:
+• ¿Qué tal tu día?: una charla tranquila sobre tu día, tus planes y tu vida. Mivo recuerda vuestras charlas anteriores.
+• Representa una situación: pedir en una cafetería, registrarte en un hotel, preguntar una dirección, una entrevista de trabajo y más. Cada una con una historia corta, objetivos y frases útiles.
+• Elige tu propio tema: fútbol, tu nuevo trabajo, tu viaje, lo que quieras.
+
+AJUSTA A MIVO A TU MANERA
+Un profesor paciente, un amigo divertido o un entrenador exigente. Ayuda en tu idioma, mixto o solo inglés. Que corrija cada error o que nunca corte la charla. Que hable despacio y te enseñe palabras nuevas en cada charla. Toca una palabra para ver su significado o traduce una frase con un toque.
 
 UN CAMINO QUE AVANZA CON UNA HISTORIA
-Seis niveles, de A1 a C2, con una historia en cada nivel. El camino empieza con la nueva vida de Maya en Bristol y crece hacia textos más largos y ricos a medida que subes de nivel. Cada episodio tiene tres partes cortas: palabras, gramática y práctica. Los episodios están narrados con las voces de sus personajes y puedes volver a escuchar cualquier frase.
+Seis niveles, de A1 a C2, con una historia en cada nivel. El camino empieza con la nueva vida de Maya en Bristol y crece hacia textos más ricos a medida que subes de nivel. Cada episodio tiene tres partes cortas: palabras, gramática y práctica, narradas con las voces de los personajes. Al final de cada unidad ensayas lo aprendido con Mivo en una situación real.
 
-HABLA EN VOZ ALTA CON MIVO
-Al final de cada unidad entras en una escena de voz con Mivo: pedir en una cafetería, registrarte en un hotel, una entrevista de trabajo. Tú hablas, Mivo responde, te señala el error con amabilidad y te muestra cómo decirlo bien. También puedes charlar libremente sobre lo que quieras.
-
-GRAMÁTICA CORTA Y CLARA
-Las notas de Mivo explican cada regla en una frase, dan un ejemplo de la historia y muestran el error más común. Las tablas y los ejercicios de construir frases la fijan.
-
-PALABRAS QUE SE QUEDAN
-Cada palabra que guardas vuelve con repetición espaciada, justo antes de que la olvides. Usa el mazo de hoy, tu mapa de memoria y etiquetas para crear tus propios grupos. En las Salas de Palabras memorizas colocando las palabras en una cocina o en una calle.
+APRENDE PALABRAS EN INGLÉS QUE SE QUEDAN
+Una biblioteca de 900 palabras básicas y las tuyas. La repetición espaciada te trae cada palabra justo antes de que la olvides. En las Salas de Palabras las memorizas colocándolas en una cocina o en un aula.
 
 PRONUNCIACIÓN Y CUADERNO DE ERRORES
-Di las palabras en voz alta y mira dónde te trabas. Los errores de tus conversaciones se reúnen en tu Cuaderno de Errores para repasarlos y cerrarlos.
+Di las palabras en voz alta y escucha cómo suenan. Los errores de tus conversaciones se reúnen en tu Cuaderno de Errores y se refuerzan con tests rápidos.
+
+UN POCO CADA DÍA
+Tu racha diaria, un widget en la pantalla de inicio y un solo recordatorio a la hora adecuada hacen fácil practicar unos minutos al día.
 
 EXPLICADO EN TU IDIOMA
-La app funciona en español, inglés, turco, portugués y alemán; los significados y las explicaciones llegan en tu idioma.
+La app funciona en español, inglés, turco, portugués y alemán. Los significados y las explicaciones llegan en tu idioma.
 
-EMPIEZA GRATIS
-El camino de aprendizaje, las palabras, las Salas de Palabras, la pronunciación y el Cuaderno de Errores son gratis. Una escena de voz al día y una charla de prueba con Mivo también son gratis. Con Spekvia Pro puedes charlar con Mivo sin límites, jugar todas las escenas que quieras cada día y usar la sala de conversación en vivo. Puedes cancelar la suscripción cuando quieras en Google Play.
+GRATIS Y PRO
+Gratis: todo el camino de la historia, las palabras, las Salas de Palabras, la pronunciación y el Cuaderno de Errores; ensayos con Mivo en la primera unidad de cada nivel, una escena de voz al día y una charla de prueba con Mivo.
+Spekvia Pro: ensayos con Mivo en todas las unidades, charlas ilimitadas con Mivo, todas las escenas de voz y sesiones de voz de hasta 30 minutos. Puedes cancelar la suscripción cuando quieras en Google Play.
 
-Política de privacidad: https://spekvia.com/es/privacidad
+Política de privacidad: https://www.spekvia.com/es/privacidad
 ```
 
 ---
@@ -140,40 +163,47 @@ Política de privacidad: https://spekvia.com/es/privacidad
 
 **Nome do app**
 ```
-Fale Inglês: Spekvia
+Spekvia: Aprender Inglês
 ```
 
 **Descrição curta**
 ```
-Aprenda inglês com histórias e fale com o Mivo. Passo a passo, do A1 ao C2.
+Pratique conversação em inglês com o Mivo, seu tutor com IA. Do A1 ao C2
 ```
 
 **Descrição completa**
 ```
-Com o Spekvia você não aprende inglês decorando listas: você vive o idioma dentro de uma história. Leia um episódio curto por dia, ouça, conheça palavras novas com imagens e teste o que aprendeu conversando com o Mivo.
+Com o Spekvia você aprende inglês falando e vivendo o idioma dentro de uma história, não decorando listas. Leia um episódio curto por dia, ouça, conheça palavras novas com imagens e teste em voz alta o que aprendeu com o Mivo, seu tutor de inglês com inteligência artificial.
+
+CONVERSAÇÃO EM INGLÊS COM O MIVO
+O Mivo ouve, responde e aponta seu erro com gentileza na hora. Você escolhe sobre o que falar:
+• Como foi o seu dia: uma conversa tranquila sobre o seu dia, seus planos e sua vida. O Mivo lembra das conversas anteriores.
+• Interprete uma situação: pedir em um café, fazer check-in em um hotel, pedir informações, uma entrevista de emprego e mais. Cada uma com uma história curta, objetivos e frases úteis.
+• Escolha seu próprio tema: futebol, seu novo emprego, sua viagem, o que quiser.
+
+AJUSTE O MIVO DO SEU JEITO
+Um professor paciente, um amigo divertido ou um treinador exigente. Ajuda no seu idioma, misto ou só inglês. Que corrija todo erro ou nunca interrompa a conversa. Que fale devagar e ensine palavras novas em cada conversa. Toque em uma palavra para ver o significado ou traduza uma frase com um toque.
 
 UMA TRILHA QUE AVANÇA COM UMA HISTÓRIA
-Seis níveis, do A1 ao C2, com uma história em cada nível. A trilha começa com a nova vida da Maya em Bristol e cresce para textos mais longos e ricos conforme seu nível sobe. Cada episódio tem três partes curtas: palavras, gramática e prática. Os episódios são narrados com as vozes dos personagens, e você pode ouvir qualquer frase de novo.
+Seis níveis, do A1 ao C2, com uma história em cada nível. A trilha começa com a nova vida da Maya em Bristol e cresce para textos mais ricos conforme seu nível sobe. Cada episódio tem três partes curtas: palavras, gramática e prática, narradas com as vozes dos personagens. No fim de cada unidade você ensaia o que aprendeu com o Mivo em uma situação real.
 
-FALE EM VOZ ALTA COM O MIVO
-No fim de cada unidade você entra em uma cena de voz com o Mivo: pedir em um café, fazer check-in em um hotel, uma entrevista de emprego. Você fala, o Mivo responde, aponta seu erro com gentileza e mostra o jeito certo de dizer. Você também pode conversar livremente sobre o que quiser.
-
-GRAMÁTICA CURTA E CLARA
-As notas do Mivo explicam cada regra em uma frase, trazem um exemplo da história e mostram o erro mais comum. Tabelas e exercícios de montar frases fixam o conteúdo.
-
-PALAVRAS QUE FICAM
-Cada palavra que você salva volta com repetição espaçada, bem antes de você esquecer. Use o baralho do dia, seu mapa de memória e etiquetas para montar seus próprios grupos. Nas Salas de Palavras você memoriza colocando as palavras em uma cozinha ou em uma rua.
+PALAVRAS EM INGLÊS QUE FICAM
+Uma biblioteca de 900 palavras essenciais e as suas. A repetição espaçada traz cada palavra de volta bem antes de você esquecer. Nas Salas de Palavras você memoriza colocando as palavras em uma cozinha ou em uma sala de aula.
 
 PRONÚNCIA E CADERNO DE ERROS
-Diga as palavras em voz alta e veja onde você trava. Os erros das suas conversas ficam reunidos no seu Caderno de Erros para você revisar e resolver.
+Diga as palavras em voz alta e ouça como devem soar. Os erros das suas conversas ficam no seu Caderno de Erros e são fixados com testes rápidos.
+
+UM POUCO TODO DIA
+Sua sequência diária, um widget na tela inicial e um único lembrete na hora certa tornam fácil praticar alguns minutos por dia.
 
 EXPLICADO NO SEU IDIOMA
-O app funciona em português, inglês, turco, espanhol e alemão; os significados e as explicações chegam no seu idioma.
+O app funciona em português, inglês, turco, espanhol e alemão. Os significados e as explicações chegam no seu idioma.
 
-COMECE DE GRAÇA
-A trilha de aprendizagem, as palavras, as Salas de Palavras, a pronúncia e o Caderno de Erros são gratuitos. Uma cena de voz por dia e uma conversa de teste com o Mivo também são gratuitas. Com o Spekvia Pro você conversa com o Mivo sem limites, joga quantas cenas quiser por dia e usa a sala de conversa ao vivo. Você pode cancelar a assinatura a qualquer momento no Google Play.
+GRÁTIS E PRO
+Grátis: toda a trilha da história, as palavras, as Salas de Palavras, a pronúncia e o Caderno de Erros; ensaios com o Mivo na primeira unidade de cada nível, uma cena de voz por dia e uma conversa de teste com o Mivo.
+Spekvia Pro: ensaios com o Mivo em todas as unidades, conversas ilimitadas com o Mivo, todas as cenas de voz e sessões de voz de até 30 minutos. Você pode cancelar a assinatura a qualquer momento no Google Play.
 
-Política de privacidade: https://spekvia.com/pt/privacidade
+Política de privacidade: https://www.spekvia.com/pt/privacidade
 ```
 
 ---
@@ -182,38 +212,45 @@ Política de privacidade: https://spekvia.com/pt/privacidade
 
 **App-Name**
 ```
-Englisch Sprechen: Spekvia
+Spekvia: Englisch Lernen
 ```
 
 **Kurzbeschreibung**
 ```
-Englisch mit Geschichten lernen, mit Mivo sprechen. Schritt für Schritt A1–C2.
+Englisch sprechen üben mit Mivo, deinem KI-Tutor. Mit Geschichten von A1 bis C2
 ```
 
 **Vollständige Beschreibung**
 ```
-Mit Spekvia lernst du Englisch nicht durch Auswendiglernen von Listen, sondern du erlebst es in einer Geschichte. Lies jeden Tag eine kurze Folge, hör sie dir an, lerne neue Wörter mit Bildern kennen und probiere das Gelernte im Gespräch mit Mivo aus.
+Mit Spekvia lernst du Englisch, indem du es sprichst und in einer Geschichte erlebst, nicht durch Auswendiglernen von Listen. Lies jeden Tag eine kurze Folge, hör sie dir an, lerne neue Wörter mit Bildern kennen und probiere das Gelernte laut mit Mivo aus, deinem Englisch-Tutor mit künstlicher Intelligenz.
+
+ENGLISCH SPRECHEN ÜBEN MIT MIVO
+Mivo hört zu, antwortet und zeigt dir deinen Fehler freundlich sofort. Du entscheidest, worüber ihr sprecht:
+• Wie war dein Tag: ein entspanntes Gespräch über deinen Tag, deine Pläne und dein Leben. Mivo erinnert sich an eure früheren Gespräche.
+• Spiel eine Situation: im Café bestellen, im Hotel einchecken, nach dem Weg fragen, ein Vorstellungsgespräch und mehr. Jede mit einer kurzen Geschichte, Zielen und nützlichen Sätzen.
+• Wähl dein eigenes Thema: Fußball, dein neuer Job, deine Reise, was du willst.
+
+STELL MIVO NACH DEINEM GESCHMACK EIN
+Eine geduldige Lehrerin, ein lustiger Freund oder ein strenger Coach. Hilfe auf Deutsch, gemischt oder nur Englisch. Jeden Fehler korrigieren oder das Gespräch nie unterbrechen. Langsam sprechen und in jedem Gespräch neue Wörter beibringen. Tipp auf ein Wort, um seine Bedeutung zu sehen, oder übersetze einen Satz mit einem Tipp.
 
 EIN LERNPFAD, DER MIT EINER GESCHICHTE WÄCHST
-Sechs Stufen von A1 bis C2, auf jeder Stufe eine Geschichte. Der Pfad beginnt mit Mayas neuem Leben in Bristol und führt mit steigendem Niveau zu längeren, reicheren Texten. Jede Folge hat drei kurze Teile: Wörter, Grammatik und Übung. Die Folgen sind mit den Stimmen der Figuren vertont, und du kannst jeden Satz noch einmal anhören.
+Sechs Stufen von A1 bis C2, auf jeder Stufe eine Geschichte. Der Pfad beginnt mit Mayas neuem Leben in Bristol und führt mit steigendem Niveau zu reicheren Texten. Jede Folge hat drei kurze Teile: Wörter, Grammatik und Übung, vertont mit den Stimmen der Figuren. Am Ende jeder Einheit probst du das Gelernte mit Mivo in einer echten Situation.
 
-SPRICH LAUT MIT MIVO
-Am Ende jeder Einheit betrittst du mit Mivo eine Sprechszene: im Café bestellen, im Hotel einchecken, ein Vorstellungsgespräch. Du sprichst, Mivo antwortet, weist freundlich auf deinen Fehler hin und zeigt dir, wie man es richtig sagt. Du kannst auch frei über alles plaudern, was dich interessiert.
-
-GRAMMATIK, KURZ UND KLAR
-Mivos Notizen erklären jede Regel in einem Satz, geben ein Beispiel aus der Geschichte und zeigen den häufigsten Fehler. Mustertabellen und Satzbau-Übungen festigen sie.
-
-WÖRTER, DIE BLEIBEN
-Jedes gespeicherte Wort kommt mit verteilter Wiederholung zurück, kurz bevor du es vergessen würdest. Mit dem Stapel des Tages, deiner Gedächtniskarte und Tags baust du eigene Gruppen. In den Wörterräumen merkst du dir Wörter, indem du sie in einer Küche oder auf einer Straße platzierst.
+ENGLISCHE VOKABELN, DIE BLEIBEN
+Eine Bibliothek mit 900 Grundwörtern und deinen eigenen Wörtern. Verteilte Wiederholung bringt jedes Wort zurück, kurz bevor du es vergessen würdest. In den Wörterräumen merkst du dir Wörter, indem du sie in einer Küche oder einem Klassenzimmer platzierst.
 
 AUSSPRACHE UND FEHLERHEFT
-Sprich Wörter laut aus und sieh, wo du hängen bleibst. Fehler aus deinen Gesprächen landen in deinem Fehlerheft, damit du sie wiederholen und abschließen kannst.
+Sprich Wörter laut aus und hör, wie sie klingen sollen. Fehler aus deinen Gesprächen landen in deinem Fehlerheft und werden mit kurzen Tests gefestigt.
 
-ERKLÄRT IN DEINER SPRACHE
-Die App gibt es auf Deutsch, Englisch, Türkisch, Spanisch und Portugiesisch; Wortbedeutungen und Erklärungen kommen in deiner Sprache.
+JEDEN TAG EIN BISSCHEN
+Deine tägliche Serie, ein Widget auf dem Startbildschirm und eine einzige Erinnerung zur richtigen Zeit machen ein paar Minuten am Tag leicht.
 
-KOSTENLOS STARTEN
-Der Lernpfad, die Wörter, die Wörterräume, die Aussprache und das Fehlerheft sind kostenlos. Eine Sprechszene pro Tag und ein Probegespräch mit Mivo sind ebenfalls kostenlos. Mit Spekvia Pro kannst du unbegrenzt mit Mivo plaudern, jeden Tag so viele Szenen spielen, wie du willst, und den Live-Gesprächsraum nutzen. Das Abo kannst du jederzeit in Google Play kündigen.
+IN DEINER SPRACHE ERKLÄRT
+Die App gibt es auf Deutsch, Englisch, Türkisch, Spanisch und Portugiesisch. Wortbedeutungen und Erklärungen kommen in deiner Sprache.
 
-Datenschutzerklärung: https://spekvia.com/de/datenschutz
+KOSTENLOS UND PRO
+Kostenlos: der ganze Geschichtenpfad, Wörter, Wörterräume, Aussprache und Fehlerheft; Proben mit Mivo in der ersten Einheit jedes Niveaus, eine Sprechszene pro Tag und ein Testgespräch mit Mivo.
+Spekvia Pro: Proben mit Mivo in allen Einheiten, unbegrenzte Gespräche mit Mivo, alle Sprechszenen und Sprechsitzungen bis zu 30 Minuten. Du kannst das Abo jederzeit in Google Play kündigen.
+
+Datenschutzerklärung: https://www.spekvia.com/de/datenschutz
 ```
