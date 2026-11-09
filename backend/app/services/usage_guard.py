@@ -22,7 +22,7 @@ from app.services.cache import get_redis_client
 logger = logging.getLogger(__name__)
 
 # Generous for a real learner (a few scenes and a chat), a hard stop for a runaway client.
-DAILY_VOICE_SECONDS = 45 * 60
+DAILY_VOICE_SECONDS = 30 * 60
 
 _memory_voice: dict[str, int] = defaultdict(int)
 _warned_days: set[str] = set()

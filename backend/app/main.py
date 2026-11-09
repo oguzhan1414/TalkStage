@@ -19,6 +19,7 @@ from app.api.routes import (
     progress,
     reading,
     translate,
+    voice_rights,
     reports,
     scenarios,
     scene_play_session,
@@ -110,6 +111,7 @@ app.include_router(reports.router)
 app.include_router(writing.router)
 app.include_router(grammar.router)
 app.include_router(translate.router)
+app.include_router(voice_rights.router)
 
 
 import os

@@ -329,6 +329,12 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
       // words. The room writes the earned stars to this step; until then it stays open (or is skipped).
       const unit = steps.find((f) => f.step.id === s.id)?.unit;
       if (!unit) return;
+      // Free plan: the rehearsal is free in each level's first unit, Pro after it (the story stays free).
+      if (isPro === false && unit.number !== 1) {
+        trackEvent('paywall_opened', { source: 'path_rehearsal', step_id: s.id, level: level.id });
+        navigation.navigate('Paywall');
+        return;
+      }
       const readings = unit.steps.flatMap((x) => (x.kind === 'reading' ? [x.episode] : []));
       const unitFocus = {
         stepId: s.id,
@@ -484,6 +490,7 @@ export function PathHomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
                     await skipStep(item.step.id);
                     reload();
                   }}
+                  proLock={isPro === false && item.step.kind === 'scene' && item.unit.number !== 1}
                 />
               </Animated.View>
               );
@@ -564,6 +571,7 @@ function Medallion({
   onMivo,
   onGuide,
   onSkip,
+  proLock = false,
 }: {
   f: FlatStep;
   size: number;
@@ -581,6 +589,8 @@ function Medallion({
   onMivo: () => void;
   onGuide: () => void;
   onSkip: () => void;
+  /** A rehearsal after the level's first unit for a free learner: a gold "Pro" button (the skip stays). */
+  proLock?: boolean;
 }) {
   const lockBreak = useRef(new Animated.Value(0)).current;
   const ringPop = useRef(new Animated.Value(1)).current;
@@ -641,20 +651,24 @@ function Medallion({
     : isFuture
       ? t("Kilitli")
       : type === 'scene'
-        ? t("Konuş")
+        ? proLock
+          ? t("Pro ile prova et")
+          : t("Konuş")
         : done
           ? t("Tekrarla")
           : stars > 0
             ? t("Devam et")
           : t("Başla");
   /** A finished step offers a calm white "repeat" button, so it never looks like the next new step. */
-  const replay = done && !locked;
+  const replay = done && !locked && !proLock;
   const ctaIcon: React.ComponentProps<typeof Ionicons>['name'] = soon
     ? 'time'
     : isFuture
       ? 'lock-closed'
       : type === 'scene'
-        ? 'mic'
+        ? proLock
+          ? 'lock-closed'
+          : 'mic'
         : done
           ? 'refresh'
           : 'play';
@@ -781,10 +795,10 @@ function Medallion({
         accessibilityLabel={cta}
       >
         {({ pressed }) => (
-          <View style={[styles.ctaEdge, locked ? styles.ctaEdgeLocked : replay && styles.ctaEdgeReplay]}>
+          <View style={[styles.ctaEdge, locked ? styles.ctaEdgeLocked : proLock ? styles.ctaEdgePro : replay && styles.ctaEdgeReplay]}>
             <View style={[styles.ctaFace, pressed && styles.ctaFacePressed]}>
               <LinearGradient
-                colors={locked ? ['#F8FAFC', '#E2E8F0'] : replay ? ['#FFFFFF', '#EEF2FF'] : ['#2FD3BF', '#0EA594']}
+                colors={locked ? ['#F8FAFC', '#E2E8F0'] : proLock ? ['#F8C95A', '#E09A1F'] : replay ? ['#FFFFFF', '#EEF2FF'] : ['#2FD3BF', '#0EA594']}
                 style={StyleSheet.absoluteFill}
               />
               <View pointerEvents="none" style={styles.ctaGloss} />
@@ -1358,6 +1372,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  ctaEdgePro: { backgroundColor: '#B7791F' },
   ctaIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.24)' },
   skip: {
     flexDirection: 'row',

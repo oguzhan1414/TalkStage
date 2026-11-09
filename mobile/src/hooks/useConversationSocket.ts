@@ -104,6 +104,8 @@ export type FocusTopicPayload = {
   points?: string[];
   /** kind 'unit': the real-life situation to rehearse. */
   situation?: string;
+  /** kind 'unit': the path step id ("b1-u2-s6"); the server lets free learners rehearse only a level's first unit. */
+  step?: string;
   /** kind 'story': the episode's grammar label, the story's title and what happened in the episode. */
   grammar?: string;
   story?: string;

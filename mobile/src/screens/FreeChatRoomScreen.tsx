@@ -73,11 +73,12 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   free_chat_trial_used: t("Mivo ile ücretsiz deneme sohbetini kullandın. Pro ile istediğin kadar sohbet edebilirsin."),
   daily_scene_used: t("Bugünkü ücretsiz sahne hakkın doldu. Yarın yeni bir sahne seni bekliyor, Pro ile hemen devam edebilirsin."),
   daily_path_scene_used: t("Bugünkü ücretsiz yol sahnen doldu. Okumaya devam edebilir, bu sahneyi yarın oynayabilirsin. Pro ile hemen oynayabilirsin."),
+  path_scene_pro: t("Mivo ile ünite provası her seviyenin ilk ünitesinde ücretsiz. Sonraki ünitelerde Pro ile prova edebilirsin; hikâye yolu ücretsiz devam ediyor."),
   idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
 };
 
 /** Free plan limits (backend app/services/voice_access.py): the closed room offers Pro instead of "Tekrar Bağlan". */
-const OFFER_REASONS = new Set(['free_chat_trial_used', 'daily_scene_used', 'daily_path_scene_used', 'quota_exceeded', 'pro_only']);
+const OFFER_REASONS = new Set(['free_chat_trial_used', 'daily_scene_used', 'daily_path_scene_used', 'path_scene_pro', 'quota_exceeded', 'pro_only']);
 
 /** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
 const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_error', 'reply_timeout', 'slow_connection', 'connection_timeout']);
@@ -139,7 +140,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
       : focusTopic
         ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
         : unitFocus
-          ? { kind: 'unit', title: unitFocus.title, situation: unitFocus.situation, points: unitFocus.points, words: unitFocus.words }
+          ? { kind: 'unit', title: unitFocus.title, situation: unitFocus.situation, points: unitFocus.points, words: unitFocus.words, step: unitFocus.stepId }
           : storyFocus
           ? { kind: 'story', title: storyFocus.title, grammar: storyFocus.grammar, story: storyFocus.story, summary: storyFocus.summary, words: storyFocus.words }
           : undefined,

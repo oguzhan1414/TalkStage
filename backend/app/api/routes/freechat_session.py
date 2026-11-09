@@ -14,7 +14,7 @@ from app.services.chat_memory import (
     ensure_memory_language_sync, format_memory_context, load_memory, memory_in_language, update_memory_sync,
 )
 from app.services.entitlements import FREE_SESSION_MAX_SECONDS, is_pro
-from app.services.voice_access import free_block_reason, learner_turns, record_voice_usage
+from app.services.voice_access import free_block_reason, learner_turns, path_unit_number, record_voice_usage
 from app.services.free_chat_topics import TOPICS, Topic, opening_text, pick_topic
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
 from app.services.voice_turn import run_voice_turn
@@ -562,7 +562,8 @@ async def free_chat_session(websocket: WebSocket) -> None:
             return None, True
         if await asyncio.to_thread(is_pro, db, user.id):
             return None, True
-        return await asyncio.to_thread(free_block_reason, db, user.id, usage_kind), False
+        unit = path_unit_number(raw_focus.get("step")) if usage_kind == "path_scene" else None
+        return await asyncio.to_thread(free_block_reason, db, user.id, usage_kind, unit), False
 
     # Independent lookups run side by side instead of one round trip after another (faster room start).
     profile, quota, memory = await asyncio.gather(

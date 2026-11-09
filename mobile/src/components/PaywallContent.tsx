@@ -15,8 +15,9 @@ import { t } from '../i18n';
 // Only what Pro really unlocks (backend/app/services/voice_access.py, entitlements.py): never list features that are
 // free for everyone or not built — store policies treat that as a misleading claim.
 const PRO_FEATURES = [
-  t("Mivo ile sınırsız serbest sohbet (ücretsizde 1 deneme)"),
-  t("Her ünitenin sonunda Mivo ile gerçek hayat provası"),
+  t("Her ünitenin sonunda Mivo ile gerçek hayat provası (ücretsizde her seviyenin ilk ünitesi)"),
+  t("Mivo ile sınırsız sohbet, sana göre ayarlanmış Mivo (ücretsizde 1 deneme)"),
+  t("Konuş'taki tüm sesli sahneler (ücretsizde günde 1)"),
   t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
 ];
 

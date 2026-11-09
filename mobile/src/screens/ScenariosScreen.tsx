@@ -64,7 +64,25 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
 
   const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const { transitionTo } = useMivoTransition();
+  // What the free plan still allows (the room enforces the same rules); refreshed each time the tab is shown.
+  const { data: access, refetch: refetchAccess } = useQuery({
+    queryKey: ['voiceAccess'],
+    queryFn: () => api.get<{ pro: boolean; quota: boolean; free_chat: boolean; scene: boolean }>('/voice/access'),
+    staleTime: 30_000,
+  });
+  useFocusEffect(
+    useCallback(() => {
+      void refetchAccess();
+    }, [refetchAccess])
+  );
+  /** The one free Mivo chat is used up: the card offers Pro instead of opening a room that would close at once. */
+  const chatTrialUsed = !isPro && access?.free_chat === false;
   const openMivoChat = () => {
+    if (chatTrialUsed) {
+      trackEvent('paywall_opened', { source: 'konus_chat_trial_used' });
+      navigation.navigate('Paywall');
+      return;
+    }
     // First the learner picks what to talk about ('Ne konuşalım?'), then the room opens on it.
     navigation.navigate('FreeChatSetup');
   };
@@ -218,13 +236,13 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
                 </Text>
                 {/* Its own row: the plan on the left, the big mic on the right */}
                 <View style={styles.mivoMicRow}>
-                  <View style={[styles.mivoPlan, isPro && styles.mivoPlanPro]}>
-                    <Text style={[styles.mivoPlanText, isPro && { color: '#92400E' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
-                      {isPro ? t("👑 Sınırsız") : t("1 deneme hakkı")}
+                  <View style={[styles.mivoPlan, (isPro || chatTrialUsed) && styles.mivoPlanPro]}>
+                    <Text style={[styles.mivoPlanText, (isPro || chatTrialUsed) && { color: '#92400E' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                      {isPro ? t("👑 Sınırsız") : chatTrialUsed ? t("👑 Pro ile sınırsız") : t("1 deneme hakkı")}
                     </Text>
                   </View>
-                  <View style={styles.mivoMic}>
-                    <Ionicons name="mic" size={30} color="#FFFFFF" />
+                  <View style={[styles.mivoMic, chatTrialUsed && styles.mivoMicPro]}>
+                    <Ionicons name={chatTrialUsed ? 'lock-closed' : 'mic'} size={chatTrialUsed ? 24 : 30} color="#FFFFFF" />
                   </View>
                 </View>
               </View>
@@ -364,6 +382,7 @@ const styles = StyleSheet.create({
   mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.3, color: '#059669' },
   mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 20, lineHeight: 25, color: colors.textHeading },
   mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: colors.textBody },
+  mivoMicPro: { backgroundColor: '#E09A1F', shadowColor: '#B7791F' },
   mivoMic: {
     width: 64,
     height: 64,
