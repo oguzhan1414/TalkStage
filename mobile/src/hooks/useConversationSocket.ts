@@ -16,6 +16,7 @@ import type {
   WsTurnMetrics,
 } from '../types/ws';
 import { t } from '../i18n';
+import { SPEED_RATE, type FreeChatChoice } from '../lib/chatStyle';
 
 // Server error frames carry Turkish text; map the known codes to the app language instead.
 const WS_ERROR_TEXT: Record<string, string> = {
@@ -97,16 +98,36 @@ export type FocusTopicPayload = {
   formula?: string;
   words?: string[];
   code?: string;
-  /** 'review' = recall several recent topics in one conversation (`topics`). */
-  kind?: 'review';
+  /** 'review' = recall several recent topics in one conversation (`topics`); 'story' = the path episode just read. */
+  kind?: 'review' | 'story' | 'unit';
+  /** kind 'unit': the unit's grammar points (the coach makes the learner use each one). */
+  points?: string[];
+  /** kind 'unit': the real-life situation to rehearse. */
+  situation?: string;
+  /** kind 'unit': the path step id ("b1-u2-s6"); the server lets free learners rehearse only a level's first unit. */
+  step?: string;
+  /** kind 'story': the episode's grammar label, the story's title and what happened in the episode. */
+  grammar?: string;
+  story?: string;
+  summary?: string;
   topics?: { title: string; formula?: string; words?: string[] }[];
 };
 
-export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPayload, focus?: FocusTopicPayload) {
+export function useConversationSocket(
+  scenarioSlug?: string,
+  scene?: ScenePlayPayload,
+  focus?: FocusTopicPayload,
+  origin?: 'path',
+  chat?: FreeChatChoice
+) {
+  const chatRef = useRef(chat);
+  chatRef.current = chat;
   const sceneRef = useRef(scene);
   sceneRef.current = scene;
   const focusRef = useRef(focus);
   focusRef.current = focus;
+  const originRef = useRef(origin);
+  originRef.current = origin;
   const { session } = useAuth();
   const accessToken = session?.access_token;
   const tokenRef = useRef(accessToken);
@@ -257,6 +278,16 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
       }
     });
     currentSubscriptionRef.current = subscription;
+    // The learner's 'Konuşma hızı' (free chat): slower Mivo, same pitch.
+    const rate = SPEED_RATE[chatRef.current?.style?.speed ?? 'normal'];
+    if (rate !== 1) {
+      try {
+        player.shouldCorrectPitch = true;
+        player.setPlaybackRate(rate, 'high');
+      } catch {
+        // An older native audio module without rate control just plays at normal speed.
+      }
+    }
     player.play();
   }, [killPlayer]);
 
@@ -411,6 +442,8 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
             utc_offset: utcOffsetMinutes(),
             ...(sceneRef.current ? { scene: sceneRef.current } : {}),
             ...(focusRef.current ? { focus: focusRef.current } : {}),
+            ...(originRef.current ? { origin: originRef.current } : {}),
+            ...(chatRef.current ? { chat: chatRef.current } : {}),
           })
         );
         // `stream` is null on web — expo-audio's useAudioStream is a no-op stub there.
@@ -739,7 +772,7 @@ export function useConversationSocket(scenarioSlug?: string, scene?: ScenePlayPa
       setPendingTranscript(null);
       setPendingWords([]);
       setPendingConfidence(null);
-      setLiveError(t("Seni duyamadım, tekrar dener misin?"));
+      setLiveError(t("Seni duyamadım. İngilizce söylemeyi dene, istersen mikrofona biraz yaklaş."));
     }, REVIEW_TIMEOUT_MS);
   }, [stream]);
 

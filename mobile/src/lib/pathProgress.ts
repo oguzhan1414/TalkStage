@@ -1,12 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { flatSteps, type FlatStep, type PathLevel } from '../data/path';
+import { onPathSynced, schedulePathPush } from './pathSync';
+import { trackEvent } from './analytics';
+import { logLearningEvent } from './learningEvents';
 
 /**
- * Progress on the new learning path, kept on the device for now: stars per finished step, the parts finished of a
- * reading lesson that is still open, and the scene steps the learner chose to skip. (Moves to the server once the path leaves the preview branch.)
+ * Progress on the learning path: stars per finished step, the parts finished of a reading lesson that is still
+ * open, and the scene steps the learner chose to skip. Screens read the device copy; lib/pathSync.ts keeps the
+ * server copy (backend /path-progress) in step with it, so a new phone or a reinstall brings it back.
  */
 // v2: the A1 content was rewritten to the three-star format (docs/a1_ders_plani.md), so old progress is dropped.
 const KEY = 'spekvia.path.v2';
@@ -37,6 +41,7 @@ export async function loadPathProgress(): Promise<PathProgress> {
 async function save(p: PathProgress) {
   try {
     await AsyncStorage.setItem(KEY, JSON.stringify(p));
+    schedulePathPush();
   } catch {
     // best effort
   }
@@ -44,6 +49,8 @@ async function save(p: PathProgress) {
 
 /** Keeps the best result of a step. */
 export async function recordStep(stepId: string, stars: number): Promise<void> {
+  trackEvent('path_step_completed', { step_id: stepId, level: stepId.split('-')[0], stars });
+  logLearningEvent('step', stepId);
   const p = await loadPathProgress();
   p.stars = { ...p.stars, [stepId]: Math.max(stars, p.stars[stepId] ?? 0) };
   const { [stepId]: _, ...rest } = p.skipped;
@@ -53,6 +60,8 @@ export async function recordStep(stepId: string, stars: number): Promise<void> {
 
 /** One part of a reading lesson finished (1–3, in order); the third one finishes the step. */
 export async function recordPart(stepId: string, part: number): Promise<void> {
+  trackEvent(part >= 3 ? 'lesson_completed' : 'lesson_part_completed', { step_id: stepId, level: stepId.split('-')[0], part });
+  if (part >= 3) logLearningEvent('episode', stepId);
   const p = await loadPathProgress();
   p.parts = { ...p.parts, [stepId]: Math.max(part, p.parts[stepId] ?? 0) };
   if (part >= 3) p.stars = { ...p.stars, [stepId]: 3 };
@@ -65,6 +74,7 @@ export function starsOf(p: PathProgress, stepId: string) {
 }
 
 export async function skipStep(stepId: string): Promise<void> {
+  trackEvent('path_step_skipped', { step_id: stepId });
   const p = await loadPathProgress();
   p.skipped = { ...p.skipped, [stepId]: true };
   await save(p);
@@ -102,5 +112,7 @@ export function usePathProgress() {
       };
     }, [])
   );
+  // The server copy arrived after the screen loaded (first start on a new phone): show it.
+  useEffect(() => onPathSynced(reload), [reload]);
   return { progress, reload };
 }

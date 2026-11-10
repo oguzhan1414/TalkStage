@@ -3,9 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { minimalFeatureIcons } from '../assets/images';
+import { vocabArt } from '../assets/images';
+import { VP } from '../theme/vocabPalette';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { Waveform } from '../components/Waveform';
 import { MISPRONOUNCED_WORDS, type MispronouncedWord } from '../data/mispronouncedWords';
@@ -33,15 +34,18 @@ function syllables(respelling: string): { text: string; stressed: boolean }[] {
 
 type WordCardProps = {
   word: MispronouncedWord;
+  /** The card on screen: it says its word once when it comes into view (neighbours stay quiet). */
+  active: boolean;
   practiced: boolean;
   onPracticed: (wordId: string) => void;
 };
 
 /**
  * Bir kart kendi kaydedicisini, doğru telaffuz oynatıcısını ve kendi kaydını çalan oynatıcıyı taşır: FlatList birkaç
- * komşu kartı birden bağlı tuttuğu için bunlar ekran genelinde paylaşılmaz. Akış: dinle -> söyle -> karşılaştır.
+ * komşu kartı birden bağlı tuttuğu için bunlar ekran genelinde paylaşılmaz. Akış: kart açılınca kelime bir kez söylenir
+ * -> söyle -> karşılaştır (Dinle düğmesi tekrar dinletir).
  */
-function WordCard({ word, practiced, onPracticed }: WordCardProps) {
+function WordCard({ word, active, practiced, onPracticed }: WordCardProps) {
   const { pronounce, stop: stopTts, isPlaying: isTtsPlaying } = usePronunciation();
   const { isRecording, durationMillis, meteringDb, permissionDenied, start, stop } = useVoiceRecorder();
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
@@ -125,6 +129,20 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
     pronounce(word.word, { rate: 0.85 }).catch(() => {});
   };
 
+  // Coming into view: say the word once (after the page settles); leaving it: stop any sound of this card.
+  useEffect(() => {
+    if (!active) {
+      stopTts();
+      stopOwn();
+      setComparing(false);
+      return;
+    }
+    if (isRecording) return;
+    const id = setTimeout(() => void playReference(), 350);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
   /** Art arda: önce doğrusu, bitince senin kaydın. */
   const startCompare = async () => {
     if (!recordedUri) return;
@@ -154,7 +172,7 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
         ? t("Çok kısa oldu, tekrar dene.")
         : recordedUri
           ? t("Kaydını dinleyip kendi telaffuzunla karşılaştır.")
-          : t("Önce Dinle ile doğru telaffuzu duy, sonra mikrofona basıp kendi söyle.");
+          : t("Doğru telaffuzu duydun; şimdi mikrofona basıp sen söyle. Tekrar duymak için Dinle'ye bas.");
 
   return (
     <View style={styles.page}>
@@ -192,7 +210,7 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
                 accessibilityRole="button"
                 accessibilityLabel={t("Dinle")}
               >
-                <Ionicons name={isTtsPlaying && !comparing ? 'volume-high' : 'volume-medium'} size={26} color={colors.brand} />
+                <Ionicons name={isTtsPlaying && !comparing ? 'volume-high' : 'volume-medium'} size={26} color={VP.skyDeep} />
               </Pressable>
               <Text style={styles.stepLabel}>{t("Dinle")}</Text>
             </View>
@@ -230,7 +248,7 @@ function WordCard({ word, practiced, onPracticed }: WordCardProps) {
               <Text style={styles.compareTitle}>{t("Karşılaştır")}</Text>
               <View style={styles.compareRow}>
                 <Pressable onPress={playReference} style={({ pressed }) => [styles.compareBtn, pressed && styles.stepBtnPressed]} accessibilityRole="button">
-                  <Ionicons name={isTtsPlaying && !comparing ? 'volume-high' : 'play'} size={18} color={colors.brand} />
+                  <Ionicons name={isTtsPlaying && !comparing ? 'volume-high' : 'play'} size={18} color={VP.skyDeep} />
                   <Text style={styles.compareBtnText}>{t("Doğrusu")}</Text>
                 </Pressable>
                 <Pressable
@@ -315,7 +333,7 @@ export function MispronouncedWordsScreen({ navigation }: MispronouncedWordsScree
       <ScreenHeader
         title={t("Telaffuz")}
         subtitle={t("{{remainingCount}} kelime kaldı", { remainingCount })}
-        icon={minimalFeatureIcons.pronunciation}
+        icon={vocabArt.iconPronunciation}
         onBack={() => navigation.goBack()}
       />
 
@@ -341,7 +359,7 @@ export function MispronouncedWordsScreen({ navigation }: MispronouncedWordsScree
 
       {visibleWords.length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="checkmark-done-circle" size={56} color={colors.success} />
+          <Image source={vocabArt.listening} style={{ width: 170, height: 170 }} resizeMode="contain" />
           <Text style={styles.emptyTitle}>{t("Hepsini Pratik Ettin! 🎉")}</Text>
           <Text style={styles.emptySub}>{t("500 kelimenin tamamını en az bir kez pratik ettin.")}</Text>
         </View>
@@ -362,7 +380,10 @@ export function MispronouncedWordsScreen({ navigation }: MispronouncedWordsScree
             maxToRenderPerBatch={3}
             windowSize={3}
             removeClippedSubviews
-            renderItem={({ item }) => <WordCard word={item} practiced={practicedIds.has(item.id)} onPracticed={handlePracticed} />}
+            renderItem={({ item, index }) => (
+              <WordCard word={item} active={index === currentIndex} practiced={practicedIds.has(item.id)} onPracticed={handlePracticed} />
+            )}
+            extraData={currentIndex}
           />
 
           <View style={styles.navRow}>
@@ -395,17 +416,17 @@ export function MispronouncedWordsScreen({ navigation }: MispronouncedWordsScree
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: VP.floor },
 
   progressWrap: { paddingHorizontal: spacing.md, gap: 8, paddingBottom: 8 },
   progressTextRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   progressText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textBody },
   progressPct: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#10B981' },
-  progressTrack: { height: 10, borderRadius: 5, backgroundColor: '#E2E8F0', overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: 5, backgroundColor: '#10B981' },
+  progressTrack: { height: 10, borderRadius: 5, backgroundColor: '#EFE8DD', overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 5, backgroundColor: VP.mint },
   filterRow: { flexDirection: 'row', gap: 8, marginTop: 2 },
-  filterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: radii.pill, backgroundColor: '#FFFFFF', borderWidth: 2, borderColor: '#E2E8F0' },
-  filterChipActive: { backgroundColor: colors.brand, borderColor: colors.brand },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: radii.pill, backgroundColor: VP.card, borderWidth: 2, borderColor: VP.line },
+  filterChipActive: { backgroundColor: VP.ink, borderColor: VP.ink },
   filterChipText: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.textMuted },
   filterChipTextActive: { color: '#FFFFFF' },
 
@@ -421,12 +442,12 @@ const styles = StyleSheet.create({
     borderColor: '#F1F5F9',
   },
   cardTop: { alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 26 },
-  rankChip: { backgroundColor: '#EEF2FF', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
-  rankText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand },
+  rankChip: { backgroundColor: VP.sunSoft, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  rankText: { fontFamily: fonts.headingBold, fontSize: 11.5, color: VP.sunDeep },
   practicedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.success, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radii.pill },
   practicedBadgeText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF' },
 
-  word: { fontFamily: fonts.headingBold, fontSize: 42, lineHeight: 50, color: colors.brand, textAlign: 'center', marginTop: 10 },
+  word: { fontFamily: fonts.headingBold, fontSize: 42, lineHeight: 50, color: VP.ink, textAlign: 'center', marginTop: 10 },
   respellRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'baseline', marginTop: 6 },
   respellPart: { flexDirection: 'row', alignItems: 'baseline' },
   respellDot: { fontFamily: fonts.headingBold, fontSize: 22, color: '#CBD5E1', marginHorizontal: 5 },
@@ -438,28 +459,28 @@ const styles = StyleSheet.create({
   laneCol: { alignItems: 'center', gap: 7 },
   laneArrow: { marginBottom: 20 },
   stepBtn: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
-  stepBtnListen: { backgroundColor: '#EEF2FF', borderWidth: 2, borderBottomWidth: 5, borderColor: '#C7D2FE' },
+  stepBtnListen: { backgroundColor: VP.skySoft, borderWidth: 2, borderBottomWidth: 5, borderColor: '#BFDDF1' },
   stepBtnPressed: { transform: [{ translateY: 2 }] },
   stepLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textMuted },
-  micBtn: { width: 84, height: 84, borderRadius: 42, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 6, borderBottomColor: '#3730A3' },
+  micBtn: { width: 84, height: 84, borderRadius: 42, backgroundColor: VP.coral, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 6, borderBottomColor: VP.coralDeep },
   micBtnRecording: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
   micBtnDisabled: { backgroundColor: '#F1F5F9', borderBottomColor: '#E2E8F0' },
   waveWrap: { marginTop: 14, alignSelf: 'stretch', alignItems: 'center' },
 
-  compareCard: { alignSelf: 'stretch', backgroundColor: '#F8FAFC', borderRadius: 20, padding: 14, gap: 10, marginTop: 18, borderWidth: 1, borderColor: '#EEF2FF' },
+  compareCard: { alignSelf: 'stretch', backgroundColor: '#F8FAFC', borderRadius: 20, padding: 14, gap: 10, marginTop: 18, borderWidth: 1, borderColor: VP.line },
   compareTitle: { fontFamily: fonts.headingBold, fontSize: 13.5, color: colors.textHeading },
   compareRow: { flexDirection: 'row', gap: 10 },
-  compareBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: '#EEF2FF', borderRadius: radii.pill, paddingVertical: 12, borderWidth: 2, borderBottomWidth: 4, borderColor: '#C7D2FE' },
+  compareBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: VP.skySoft, borderRadius: radii.pill, paddingVertical: 12, borderWidth: 2, borderBottomWidth: 4, borderColor: '#BFDDF1' },
   compareBtnOwn: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
-  compareBtnText: { fontFamily: fonts.headingBold, fontSize: 13.5, color: colors.brand },
-  abBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand, borderRadius: radii.pill, paddingVertical: 13, borderBottomWidth: 4, borderBottomColor: '#3730A3' },
+  compareBtnText: { fontFamily: fonts.headingBold, fontSize: 13.5, color: VP.skyDeep },
+  abBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: VP.ink, borderRadius: radii.pill, paddingVertical: 13, borderBottomWidth: 4, borderBottomColor: '#0B1220' },
   abBtnText: { fontFamily: fonts.headingBold, fontSize: 14, color: '#FFFFFF' },
 
   hintText: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 18, color: colors.textMuted, textAlign: 'center', marginTop: 18, paddingHorizontal: spacing.sm },
 
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingVertical: 12 },
-  navBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#E2E8F0' },
-  navBtnNext: { backgroundColor: colors.brand, borderColor: colors.brand },
+  navBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: VP.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: VP.line },
+  navBtnNext: { backgroundColor: VP.ink, borderColor: VP.ink },
   navBtnOff: { opacity: 0.5 },
   navCounter: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.textBody, minWidth: 70, textAlign: 'center' },
 

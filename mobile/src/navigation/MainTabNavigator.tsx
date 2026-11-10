@@ -18,13 +18,13 @@ const TAB_CONFIG: Record<
   { label: string; image: ReturnType<typeof require> }
 > = {
   Home: { label: t("Bugün"), image: navIcons.today },
-  Scenarios: { label: t("Sahneler"), image: navIcons.scenes },
+  Scenarios: { label: t("Konuş"), image: navIcons.scenes },
   Vocab: { label: t("Kelimeler"), image: navIcons.words },
   Profile: { label: t("Profil"), image: navIcons.profile },
 };
 
 /**
- * Calm, tool-like navigation with one chunky 3D icon family across all tabs.
+ * Calm, tool-like navigation with one flat 2D icon family across all tabs.
  */
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();

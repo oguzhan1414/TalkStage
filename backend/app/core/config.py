@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # Remove/set to false before any real user ever sees this backend.
     test_mode_unlimited: bool = False
     voice_quota_enabled: bool = False
+    # Budget guard for the whole service: total voice minutes per (UTC) day across all users. Past it, new voice rooms
+    # close with `service_busy`; at 80 % an error is logged once (Sentry alert). 0 = off. One minute ≈ 0.69 TL.
+    global_daily_voice_minutes: int = 0
 
 
 settings = Settings()

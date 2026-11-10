@@ -28,8 +28,8 @@ const faqs = [
 ];
 
 const FIELD =
-  "mt-2 w-full rounded-2xl border border-transparent bg-white px-4 py-3.5 text-sm text-heading shadow-layered placeholder:text-muted focus:border-stage focus:outline-none focus:ring-3 focus:ring-stage/15";
-const FAQ_BG = ["bg-[#e6e0ff]", "bg-[#ffe6cf]", "bg-[#d8ecff]", "bg-[#ffdfe9]"];
+  "mt-2 w-full rounded-2xl border-2 border-ink bg-white px-4 py-3.5 text-base font-medium text-ink placeholder:text-ink/45 focus:bg-sun/15";
+const FAQ_BG = ["bg-lilac", "bg-sun", "bg-sky", "bg-bubble"];
 
 export default function ContactClient() {
   const t = useT();
@@ -51,7 +51,7 @@ export default function ContactClient() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 bg-white pb-20 sm:pb-28">
+      <main className="flex-1 overflow-x-clip bg-cream pb-20 text-ink sm:pb-28">
         <PageHero
           crumbs={[{ label: t("Ana Sayfa"), href: "/" }, { label: t("İletişim & Destek") }]}
           eyebrow={t("Bize ulaş")}
@@ -59,34 +59,35 @@ export default function ContactClient() {
           intro={t("Sahne önerisi, kurumsal paket ya da teknik destek için bize yazabilirsin.")}
           art="mic"
           tint="peach"
+          variant="poster"
         />
 
-        <div className="mx-auto mt-4 grid max-w-[88rem] gap-4 px-4 sm:mt-5 sm:gap-5 sm:px-6 lg:grid-cols-12">
+        <div className="mx-auto grid max-w-[80rem] gap-7 px-5 pt-14 sm:px-10 sm:pt-20 lg:grid-cols-12">
           {/* contact details */}
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-5 lg:grid-cols-1 lg:content-start">
-            <div className="rounded-[2rem] bg-[#e6e0ff] p-7 sm:rounded-[2.5rem] sm:p-9">
-              <span className="block font-mono text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-stage">{t("Destek & Genel İletişim")}</span>
-              <a href="mailto:support@spekvia.com" className="mt-3 block break-all font-display text-2xl font-extrabold tracking-[-0.02em] text-heading hover:text-stage sm:text-3xl">support@spekvia.com</a>
-              <span className="mt-2 block text-[0.92rem] text-heading/70">{t("Kullanıcı desteği ve sahne geri bildirimleri")}</span>
+          <div className="grid min-w-0 gap-6 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:content-start">
+            <div className="stk rounded-[2rem] bg-violet p-6 text-cream sm:p-8">
+              <span className="poster block text-2xl text-sun">{t("Destek & Genel İletişim")}</span>
+              <a href="mailto:support@spekvia.com" className="mt-5 block break-all text-xl font-extrabold underline-offset-4 hover:underline sm:text-2xl">support@spekvia.com</a>
+              <span className="mt-3 block text-[0.95rem] leading-relaxed text-cream/80">{t("Kullanıcı desteği ve sahne geri bildirimleri")}</span>
             </div>
-            <div className="rounded-[2rem] bg-[#d6f4e4] p-7 sm:rounded-[2.5rem] sm:p-9">
-              <span className="block font-mono text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-heading/60">{t("Kurumsal & B2B Satış")}</span>
+            <div className="stk rounded-[2rem] bg-mint p-6 sm:p-8">
+              <span className="poster block text-2xl text-ink">{t("Kurumsal & B2B Satış")}</span>
               <a href="mailto:info@spekvia.com" className="mt-3 block break-all font-display text-2xl font-extrabold tracking-[-0.02em] text-heading hover:text-stage sm:text-3xl">info@spekvia.com</a>
               <span className="mt-2 block text-[0.92rem] text-heading/70">{t("Yazılım ekipleri ve şirket toplu lisansları için")}</span>
             </div>
           </div>
 
           {/* form */}
-          <div className="lg:col-span-7">
-            <div className="h-full rounded-[2rem] bg-paper p-6 sm:rounded-[2.5rem] sm:p-10">
+          <div className="min-w-0 lg:col-span-7">
+            <div className="stk h-full rounded-[2rem] bg-white p-6 sm:p-9">
               {submitted ? (
                 <div className="py-12 text-center">
                   <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald/15 text-2xl font-bold text-emerald">✓</span>
-                  <h3 className="mt-6 font-display text-2xl font-extrabold text-heading">{t("E-posta uygulaman açıldı")}</h3>
+                  <h3 className="poster mt-6 text-3xl text-ink">{t("E-posta uygulaman açıldı")}</h3>
                   <p className="mx-auto mt-2 max-w-sm text-sm text-body">{rich(t("Mesajı e-posta uygulamandan göndermeyi unutma. Açılmadıysa doğrudan <b>support@spekvia.com</b> adresine yazabilirsin."), { b: (c) => <strong>{c}</strong> })}</p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="mt-6 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-heading shadow-layered hover:bg-paper-deep"
+                    className="btn-pop mt-6 bg-sun px-6 py-3 text-sm text-ink"
                   >{t("Yeni mesaj yaz")}</button>
                 </div>
               ) : (
@@ -149,7 +150,7 @@ export default function ContactClient() {
 
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-linear-to-r from-stage to-purple-pop py-4 text-base font-bold text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                    className="btn-pop btn-pop-wrap w-full bg-violet px-4 py-4 text-base text-white"
                   >{t("Mesajı Gönder")}</button>
                 </form>
               )}
@@ -158,13 +159,13 @@ export default function ContactClient() {
         </div>
 
         {/* quick answers */}
-        <div className="mx-auto mt-4 max-w-[88rem] px-4 sm:mt-5 sm:px-6">
-          <div className="rounded-[2.25rem] bg-paper p-5 sm:rounded-[3rem] sm:p-10">
-            <p className="px-2 font-mono text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-stage">{t("Hızlı yanıtlar")}</p>
-            <h2 className="mt-2 px-2 font-display text-3xl font-extrabold tracking-[-0.03em] text-heading sm:text-4xl">{t("Sıkça Sorulan Sorular")}</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5">
+        <div className="mx-auto mt-16 max-w-[80rem] px-5 sm:mt-20 sm:px-10">
+          <div>
+            <p className="hand text-3xl text-violet">{t("Hızlı yanıtlar")}</p>
+            <h2 className="poster mt-3 text-4xl text-ink sm:text-5xl">{t("Sıkça Sorulan Sorular")}</h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-7">
               {faqs.map((faq, i) => (
-                <div key={faq.q} className={`rounded-[1.75rem] ${FAQ_BG[i % FAQ_BG.length]} p-6 sm:rounded-[2rem] sm:p-7`}>
+                <div key={faq.q} className={`stk rounded-[1.75rem] ${FAQ_BG[i % FAQ_BG.length]} p-6 sm:p-7`}>
                   <h3 className="font-display text-lg font-bold tracking-tight text-heading">{t(faq.q)}</h3>
                   <p className="mt-2 text-[0.95rem] leading-relaxed text-heading/70">{t(faq.a)}</p>
                 </div>

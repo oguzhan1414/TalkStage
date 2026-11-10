@@ -12,11 +12,14 @@ from app.api.routes import (
     freechat_session,
     grammar,
     learning_flags,
+    path_progress,
     memory,
     onboarding,
     profiles,
     progress,
     reading,
+    translate,
+    voice_rights,
     reports,
     scenarios,
     scene_play_session,
@@ -100,12 +103,15 @@ app.include_router(scene_play_session.router)
 app.include_router(chat.router)
 app.include_router(tutor.router)
 app.include_router(learning_flags.router)
+app.include_router(path_progress.router)
 app.include_router(speech.router)
 app.include_router(memory.router)
 app.include_router(badges.router)
 app.include_router(reports.router)
 app.include_router(writing.router)
 app.include_router(grammar.router)
+app.include_router(translate.router)
+app.include_router(voice_rights.router)
 
 
 import os

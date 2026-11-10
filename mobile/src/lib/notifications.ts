@@ -311,6 +311,32 @@ export async function setNotificationTime(hour: number, minute: number): Promise
   if (prefs.enabled) await rescheduleFromSavedContext();
 }
 
+const TAP_KEY = 'spekvia.notifications.lastTap';
+
+/**
+ * Calls `onTap` when the learner opens the app from one of these reminders: right away for a tap that started the
+ * app (handled once, by its id, and only if recent), and later for taps while it runs. Returns the unsubscribe.
+ */
+export async function onReminderTap(onTap: () => void): Promise<() => void> {
+  if (NOTIFICATIONS_UNAVAILABLE) return () => {};
+  try {
+    const Notifications = await loadNotifications();
+    const last = await Notifications.getLastNotificationResponseAsync();
+    const id = last?.notification.request.identifier;
+    if (id && last && Date.now() - last.notification.date < 10 * 60_000 && id !== (await AsyncStorage.getItem(TAP_KEY))) {
+      await AsyncStorage.setItem(TAP_KEY, id);
+      onTap();
+    }
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      void AsyncStorage.setItem(TAP_KEY, response.notification.request.identifier);
+      onTap();
+    });
+    return () => sub.remove();
+  } catch {
+    return () => {};
+  }
+}
+
 /** One-time friendly question right after the user's first practice, instead of a cold permission prompt at launch. */
 export async function askForNotificationsOnce(): Promise<void> {
   if (NOTIFICATIONS_UNAVAILABLE) return;

@@ -2,6 +2,10 @@
 
 # Spekvia (eski ad: TalkStage) — Landing (Next.js)
 
+## Güncel görsel kaynakları (2026-11-10)
+
+Görseller için bu bölüm ve `ASSETS.md`, aşağıdaki tarihsel görsel notlarının yerine geçer. Yayın varlıkları `public/assets/{brand,mivo,cast,features,story,blog,share,photography}/` altındadır; eski 3D Mivo, eski ikonlar ve eski görsel klasörleri kaldırılmıştır. Mobildeki güncel dosyalar `scripts/asset-sources.json` üzerinden `npm run assets:sync` ile eşitlenir, `npm run assets:check` ile doğrulanır. 44 yazı sekiz ortak konu kapağını kullanır; yeni yazıda uygun `/assets/blog/<konu>.webp` ve görsele uyan yerelleştirilmiş `coverAlt` seçilir. Paylaşım kartları `/assets/share/<dil>.jpg`, uygulama ikonu `/assets/brand/app-icon.png`, Next.js tarayıcı ikonu `src/app/icon.png` dosyasıdır. Güncel sayfa tasarımı `DESIGN.md` içindedir.
+
 Bu klasör TikTok/Instagram/YouTube'dan gelen trafiği App Store / Play Store indirmesine ve senaryo deep-link'ine dönüştüren tek sayfalık pazarlama vitrinidir.
 
 Kaynak dokümanlar (repo kökünde):

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Spekvia",
   robots: { index: false, follow: false },
-  icons: { icon: "/brand/spekvia-app-icon.png", apple: "/brand/spekvia-app-icon.png" },
+  icons: { icon: "/assets/brand/app-icon.png", apple: "/assets/brand/app-icon.png" },
 };
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {

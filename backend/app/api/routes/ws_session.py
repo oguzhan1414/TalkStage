@@ -1,5 +1,6 @@
 """Authenticated scenario voice rooms; shared protocol lives in services/voice_session.py."""
 import asyncio
+import time
 import logging
 from functools import partial
 
@@ -10,7 +11,8 @@ from app.core.config import settings
 from app.core.language import normalize_native_language
 from app.core.supabase_client import get_service_client
 from app.services.content_i18n import overlay_translation
-from app.services.entitlements import FREE_SESSION_MAX_SECONDS, can_start_session, is_pro
+from app.services.entitlements import FREE_SESSION_MAX_SECONDS, is_pro
+from app.services.voice_access import free_block_reason, learner_turns, record_voice_usage
 from app.services.rag import build_enriched_system_prompt
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
 from app.services.voice_turn import run_voice_turn
@@ -109,12 +111,14 @@ async def voice_session(websocket: WebSocket, session_id: str) -> None:
         native = await asyncio.to_thread(_load_native_language, user.id)
         scenario = overlay_translation(scenario, native)
         db = get_service_client()
-        if settings.voice_quota_enabled and not await asyncio.to_thread(can_start_session, db, user.id):
-            await websocket.close(code=1008, reason="quota_exceeded")
-            return
         pro = not settings.voice_quota_enabled or await asyncio.to_thread(is_pro, db, user.id)
+        # The live room is Pro only (app/services/voice_access.py).
+        blocked = None if pro else await asyncio.to_thread(free_block_reason, db, user.id, "live")
     except Exception:
         await websocket.close(code=1011, reason="scenario_unavailable")
+        return
+    if blocked:
+        await websocket.close(code=1008, reason=blocked)
         return
     teacher = _uses_beginner_teacher_mode(scenario)
 
@@ -128,8 +132,11 @@ async def voice_session(websocket: WebSocket, session_id: str) -> None:
                              language=native if teacher else "en", allow_completion=True,
                              log_mistake=partial(_log_mistake_if_any, db, user.id, text))
 
-    await serve_voice(websocket, user.id,
-                      _teacher_opening_line(scenario, native) if teacher else scenario.get("opening_line"),
-                      run_turn, language=native if teacher else "en", teacher_mode=teacher,
-                      native_language=native,
-                      max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
+    started = time.monotonic()
+    history = await serve_voice(websocket, user.id,
+                                _teacher_opening_line(scenario, native) if teacher else scenario.get("opening_line"),
+                                run_turn, language=native if teacher else "en", teacher_mode=teacher,
+                                native_language=native,
+                                max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
+    await asyncio.to_thread(record_voice_usage, db, user.id, "live", time.monotonic() - started,
+                            learner_turns(history), pro)

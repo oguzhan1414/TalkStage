@@ -12,7 +12,7 @@ export default function NotFound() {
     <>
       <Navbar />
       <main className="flex flex-1 flex-col items-center justify-center bg-paper px-6 pb-24 pt-40 text-center">
-        <Image src="/mivo/thinking.webp" alt="" width={750} height={900} className="h-40 w-auto" />
+        <Image src="/assets/mivo/thinking.webp" alt="" width={750} height={900} className="h-40 w-auto" />
         <p className="mt-6 font-mono text-xs font-bold uppercase tracking-[0.16em] text-indigo">404</p>
         <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">{t("Sayfa bulunamadı")}</h1>
         <p className="mt-3 max-w-md text-body">{t("Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.")}</p>

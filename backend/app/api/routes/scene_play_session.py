@@ -5,6 +5,7 @@ auth mesajının `scene` alanında yollar. Bu alan yalnızca kullanıcının ken
 sınırlandırılır ve prompt'ta "güvenilmeyen veri" olarak işaretlenir.
 """
 import asyncio
+import time
 import json
 import logging
 from functools import partial
@@ -14,7 +15,8 @@ from fastapi import APIRouter, WebSocket
 from app.core.config import settings
 from app.core.language import native_language_directive, normalize_native_language
 from app.core.supabase_client import get_service_client
-from app.services.entitlements import FREE_SESSION_MAX_SECONDS, can_start_session, is_pro
+from app.services.entitlements import FREE_SESSION_MAX_SECONDS, is_pro
+from app.services.voice_access import free_block_reason, learner_turns, record_voice_usage
 from app.services.persona import character_reaction_rules
 from app.services.rag import _build_objectives_block
 from app.services.voice_session import authenticate_voice, serve_voice, MAX_SESSION_SECONDS
@@ -119,6 +121,8 @@ async def scene_play_session(websocket: WebSocket) -> None:
         await websocket.close(code=1008, reason="scene_required")
         return
     db = get_service_client()
+    # The app says where the scene was opened: the learning path's unit-end scene has its own daily allowance.
+    kind = "path_scene" if getattr(websocket.state, "auth_payload", {}).get("origin") == "path" else "scene"
 
     async def load_native():
         try:
@@ -131,12 +135,12 @@ async def scene_play_session(websocket: WebSocket) -> None:
             return "tr"
 
     async def load_quota():
+        # Free plan rules (app/services/voice_access.py); off while VOICE_QUOTA_ENABLED is false (testing).
         if not settings.voice_quota_enabled:
-            return True, True
-        allowed, pro_user = await asyncio.gather(
-            asyncio.to_thread(can_start_session, db, user.id), asyncio.to_thread(is_pro, db, user.id)
-        )
-        return allowed, pro_user
+            return None, True
+        if await asyncio.to_thread(is_pro, db, user.id):
+            return None, True
+        return await asyncio.to_thread(free_block_reason, db, user.id, kind), False
 
     # Independent lookups run side by side instead of one round trip after another (faster room start).
     native, quota = await asyncio.gather(load_native(), load_quota(), return_exceptions=True)
@@ -145,9 +149,9 @@ async def scene_play_session(websocket: WebSocket) -> None:
     if isinstance(quota, BaseException):
         await websocket.close(code=1011, reason="session_error")
         return
-    allowed, pro = quota
-    if not allowed:
-        await websocket.close(code=1008, reason="quota_exceeded")
+    blocked, pro = quota
+    if blocked:
+        await websocket.close(code=1008, reason=blocked)
         return
     prompt = build_scene_prompt(scene, native)
     opening = scene["opening"] or None
@@ -158,6 +162,9 @@ async def scene_play_session(websocket: WebSocket) -> None:
         await run_voice_turn(ws, client, prompt, history, text, send_json, language="en", allow_completion=True,
                              log_mistake=partial(_log_mistake_if_any, db, user.id, text))
 
-    await serve_voice(websocket, user.id, opening, run_turn, language="en", teacher_mode=False,
-                      native_language=native,
-                      max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
+    started = time.monotonic()
+    history = await serve_voice(websocket, user.id, opening, run_turn, language="en", teacher_mode=False,
+                                native_language=native,
+                                max_seconds=MAX_SESSION_SECONDS if pro else FREE_SESSION_MAX_SECONDS)
+    await asyncio.to_thread(record_voice_usage, db, user.id, kind, time.monotonic() - started,
+                            learner_turns(history), pro)

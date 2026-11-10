@@ -39,7 +39,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
 
   if (variant === "links") {
     return (
-      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[0.72rem]">
+      <ul className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[0.88rem] font-semibold">
         {LOCALES.map((l) => (
           <li key={l}>
             <NextLink
@@ -49,7 +49,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
               lang={l}
               onClick={() => writeLocaleCookie(l)}
               aria-current={l === locale ? "true" : undefined}
-              className={l === locale ? "font-bold text-stage" : "text-muted transition-colors hover:text-heading"}
+              className={l === locale ? "font-extrabold text-sun" : "text-white/60 transition-colors hover:text-white"}
             >
               {LOCALE_META[l].label}
             </NextLink>
@@ -67,7 +67,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={LOCALE_META[locale].label}
-        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[0.82rem] font-semibold text-body transition-colors hover:bg-paper-deep hover:text-heading"
+        className="btn-pop h-11 gap-1.5 bg-white px-3 text-[0.85rem] text-ink sm:px-3.5"
       >
         <span aria-hidden>{LOCALE_META[locale].flag}</span>
         <span className="hidden uppercase sm:inline">{locale}</span>
@@ -78,7 +78,7 @@ export default function LanguageSwitcher({ variant = "menu" }: { variant?: "menu
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full z-50 mt-2 min-w-40 overflow-hidden rounded-2xl border border-line bg-white p-1.5 shadow-layered"
+          className="stk-sm absolute right-0 top-full z-50 mt-3 min-w-40 overflow-hidden rounded-2xl bg-white p-1.5"
         >
           {LOCALES.map((l) => (
             <li key={l} role="option" aria-selected={l === locale}>

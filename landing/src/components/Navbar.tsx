@@ -1,11 +1,12 @@
 'use client';
 
 import { Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Link from '@/i18n/Link';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
+import StoreButtons from './home/StoreButtons';
 import { trackEvent } from '@/lib/analytics';
 import { useLocale, useT } from "@/i18n/client";
 import { anchorId } from "@/i18n/paths";
@@ -21,27 +22,26 @@ const NAV_LINKS: { key: AnchorKey; href: string; label: string }[] = [
 ];
 
 /**
- * Floating pill. It tightens and gains a shadow once the page scrolls, slides away while you read downward and
- * returns the moment you scroll up, and lights the link of the section you are in. Phones get a menu sheet.
+ * Floating pills, no bar: every piece carries its own ground, so the menu sits on any section colour.
+ * It slides away while the page scrolls down and comes back on the first scroll up.
  */
 export default function Navbar() {
   const t = useT();
   const locale = useLocale();
-  const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<AnchorKey | null>(null);
+  const lastY = useRef(0);
 
   useEffect(() => {
-    let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 24);
+      const delta = y - lastY.current;
       if (y < 120) setHidden(false);
-      else if (Math.abs(y - last) > 8) setHidden(y > last);
-      last = y;
+      else if (delta > 6) setHidden(true);
+      else if (delta < -6) setHidden(false);
+      lastY.current = y;
     };
-    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -70,79 +70,93 @@ export default function Navbar() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
-  const show = !hidden || open;
-
   return (
-    <header className={`fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-300 sm:px-5 ${show ? 'translate-y-0' : '-translate-y-[120%]'}`}>
-      <div
-        className={`relative mx-auto flex max-w-6xl items-center justify-between rounded-full border bg-white px-4 transition-[padding,box-shadow,border-color] duration-300 ease-out sm:px-5 ${
-          scrolled ? 'border-line py-2 shadow-lifted' : 'border-white/70 py-2.5 shadow-layered'
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] sm:px-6 sm:pt-4 ${
+          hidden && !open ? '-translate-y-[130%]' : ''
         }`}
       >
-        <Link href="/" className="group shrink-0" aria-label={t("Spekvia ana sayfa")}>
-          <Logo />
-        </Link>
+        <div className="mx-auto flex max-w-[92rem] items-center justify-between gap-2">
+          <Link href="/" onClick={() => setOpen(false)} className="btn-pop group h-11 shrink-0 bg-white px-4 sm:h-12 sm:px-5" aria-label={t("Spekvia ana sayfa")}>
+            <Logo className="[&_img]:h-6 sm:[&_img]:h-7" />
+          </Link>
 
-        <nav aria-label={t("Ana menü")} className="hidden items-center gap-0.5 md:flex">
-          {NAV_LINKS.map((link) => (
+          <nav aria-label={t("Ana menü")} className="stk-sm hidden items-center gap-0.5 rounded-full bg-white p-1 lg:flex">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.key}
+                href={link.href}
+                aria-current={active === link.key ? 'location' : undefined}
+                className={`rounded-full px-4 py-2 text-[0.92rem] font-bold transition-colors duration-200 ${
+                  active === link.key ? 'bg-ink text-white' : 'text-ink hover:bg-sun'
+                }`}
+              >
+                {t(link.label)}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Link
-              key={link.key}
-              href={link.href}
-              aria-current={active === link.key ? 'location' : undefined}
-              className={`rounded-full px-3.5 py-2 text-[0.82rem] font-semibold transition-colors duration-200 ${
-                active === link.key ? 'bg-cloth text-white' : 'text-body hover:bg-paper-deep hover:text-heading'
-              }`}
+              href="/#download"
+              onClick={() => {
+                setOpen(false);
+                trackEvent('cta_clicked', { location: 'navbar' });
+              }}
+              className="btn-pop hidden h-11 bg-violet px-5 text-[0.92rem] text-white min-[430px]:inline-flex sm:h-12 sm:px-6"
+            >{t("Uygulamayı indir")}</Link>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              aria-label={open ? t("Menüyü kapat") : t("Menüyü aç")}
+              className={`btn-pop h-11 w-11 text-ink lg:hidden ${open ? 'bg-sun' : 'bg-white'}`}
             >
-              {t(link.label)}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <LanguageSwitcher />
-          <Link
-            href="/#download"
-            onClick={() => trackEvent('cta_clicked', { location: 'navbar' })}
-            className="press inline-flex items-center rounded-full bg-stage px-4 py-2.5 text-[0.82rem] font-bold text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.8)] hover:bg-stage-deep sm:px-5"
-          >{t("Uygulamayı indir")}</Link>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            aria-label={open ? t("Menüyü kapat") : t("Menüyü aç")}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-heading transition-colors hover:bg-paper-deep md:hidden"
-          >
-            {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
-          </button>
+              {open ? <X className="h-5 w-5" strokeWidth={3} aria-hidden /> : <Menu className="h-5 w-5" strokeWidth={3} aria-hidden />}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* phone menu */}
+      {/* phone menu: a full violet sheet with the links in poster type */}
       <div
         id="mobile-menu"
-        className={`mx-auto mt-2 max-w-6xl origin-top overflow-hidden rounded-[2rem] border border-page-edge bg-white shadow-lifted transition-[max-height,opacity] duration-300 ease-out md:hidden ${
-          open ? 'max-h-[28rem] opacity-100' : 'pointer-events-none max-h-0 border-transparent opacity-0'
+        aria-hidden={!open}
+        className={`fixed inset-0 z-40 flex flex-col overflow-y-auto bg-violet px-6 pb-10 pt-28 transition-[clip-path,visibility] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] lg:hidden ${
+          open ? 'visible [clip-path:circle(150%_at_100%_0)]' : 'invisible [clip-path:circle(0%_at_100%_0)]'
         }`}
       >
-        <nav aria-label={t("Ana menü")} className="flex flex-col p-3">
-          {NAV_LINKS.map((link) => (
+        <nav aria-label={t("Ana menü")} className="flex flex-col gap-1">
+          {NAV_LINKS.map((link, i) => (
             <Link
               key={link.key}
               href={link.href}
+              tabIndex={open ? undefined : -1}
               onClick={() => setOpen(false)}
-              className={`rounded-2xl px-4 py-3.5 font-display text-xl font-bold tracking-tight transition-colors ${
-                active === link.key ? 'bg-cloth text-white' : 'text-heading hover:bg-paper-deep'
-              }`}
+              className={`poster w-fit py-1.5 text-[2.7rem] transition-[opacity,translate] duration-500 ${i % 2 ? 'text-white' : 'text-sun'} ${open ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}
+              style={{ transitionDelay: open ? `${120 + i * 60}ms` : '0ms' }}
             >
               {t(link.label)}
             </Link>
           ))}
         </nav>
+        <div className="mt-auto pt-10">
+          <p className="hand -rotate-2 text-[1.7rem] text-sun">{t("hadi, sıra sende")}</p>
+          <div onClick={() => setOpen(false)}>
+            <StoreButtons location="menu" on="dark" size="md" className="mt-4" />
+          </div>
+        </div>
       </div>
-    </header>
+    </>
   );
 }

@@ -1,11 +1,12 @@
 import { VoiceRoomBanner, VoiceRoomControls, VoiceRoomThread, voiceRoomStyles, type DisplayBubble } from '../components/VoiceRoomUI';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Animated,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -14,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { mivoHomeImages, mivoVoiceImages } from '../assets/images';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AiOrb } from '../components/AiOrb';
@@ -31,6 +33,8 @@ import { api, ApiError } from '../lib/api';
 import { postQueued } from '../lib/outbox';
 import { haptics } from '../lib/haptics';
 import { setLearningFlag } from '../lib/learningFlags';
+import { recordStep } from '../lib/pathProgress';
+import { trackEvent } from '../lib/analytics';
 import { SCENE_STAR2_PREFIX, SCENE_STAR3_PREFIX } from '../lib/sceneProgress';
 import { colors, fonts, radii, spacing } from '../theme/tokens';
 import type { VocabCardCreate } from '../types/api';
@@ -39,7 +43,12 @@ import type { FreeChatRoomScreenProps } from '../navigation/types';
 import { useTrackScreenView } from '../lib/analytics';
 import { usePronunciation } from '../hooks/usePronunciation';
 import { MivoLoader } from '../components/MivoLoader';
-import { t } from '../i18n';
+import { Button } from '../components/Button';
+import { isProUser } from '../lib/revenuecat';
+import { getLocale, t } from '../i18n';
+import { KeyboardSafe } from '../components/KeyboardSafe';
+import { WordSheet } from '../components/WordSheet';
+import { FREE_CHAT_SCENARIOS } from '../data/freeChatScenarios';
 
 const AI_NAME = 'Mivo';
 const AI_ROLE = t("Serbest Sohbet Koçun");
@@ -50,6 +59,7 @@ const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
   daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
+  service_busy: t("Sesli odalar şu an çok yoğun. Lütfen biraz sonra tekrar dene."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
   connection_error: t("Sesli odaya bağlanılamadı. İnternet bağlantını kontrol et."),
   auth_required: t("Oturum doğrulanamadı. Lütfen yeniden giriş yap."),
@@ -60,8 +70,15 @@ const CLOSE_REASON_MESSAGES: Record<string, string> = {
   microphone_start_failed: t("Mikrofon başlatılamadı. Uygulama izinlerini kontrol et."),
   app_backgrounded: t("Uygulamadan ayrıldığın için konuşma duraklatıldı. Tekrar bağlanarak yeni bir konuşma başlatabilirsin."),
   time_limit_reached: t("Bu sohbetin süresi doldu."),
+  free_chat_trial_used: t("Mivo ile ücretsiz deneme sohbetini kullandın. Pro ile istediğin kadar sohbet edebilirsin."),
+  daily_scene_used: t("Bugünkü ücretsiz sahne hakkın doldu. Yarın yeni bir sahne seni bekliyor, Pro ile hemen devam edebilirsin."),
+  daily_path_scene_used: t("Bugünkü ücretsiz yol sahnen doldu. Okumaya devam edebilir, bu sahneyi yarın oynayabilirsin. Pro ile hemen oynayabilirsin."),
+  path_scene_pro: t("Mivo ile ünite provası her seviyenin ilk ünitesinde ücretsiz. Sonraki ünitelerde Pro ile prova edebilirsin; hikâye yolu ücretsiz devam ediyor."),
   idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
 };
+
+/** Free plan limits (backend app/services/voice_access.py): the closed room offers Pro instead of "Tekrar Bağlan". */
+const OFFER_REASONS = new Set(['free_chat_trial_used', 'daily_scene_used', 'daily_path_scene_used', 'path_scene_pro', 'quota_exceeded', 'pro_only']);
 
 /** Closes the user did not ask for: offer "Tekrar Bağlan" even after turns were spoken. */
 const DROP_REASONS = new Set(['app_backgrounded', 'connection_error', 'session_error', 'reply_timeout', 'slow_connection', 'connection_timeout']);
@@ -90,6 +107,8 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const focusTopic = route.params?.focusTopic;
   const reviewTopics = route.params?.reviewTopics;
   const reviewId = route.params?.reviewId;
+  const storyFocus = route.params?.storyFocus;
+  const unitFocus = route.params?.unitFocus;
   const isReview = Boolean(reviewTopics?.length);
   useTrackScreenView(
     scene ? 'scene_play_started' : isReview ? 'review_started' : focusTopic ? 'topic_practice_started' : 'free_chat_started',
@@ -98,7 +117,15 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   const aiName = scene?.ai_name || AI_NAME;
   // One topic = the per-topic "Konu Tekrarı" (teach-then-practice); several = a mixed recall chat.
   const singleReview = reviewTopics?.length === 1 ? reviewTopics[0] : undefined;
-  const aiRole = scene?.ai_role || (singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
+  const chatChoice = route.params?.chat;
+  const chatRole = chatChoice
+    ? chatChoice.mode === 'daily'
+      ? t("Günün nasıldı?")
+      : chatChoice.mode === 'custom'
+        ? chatChoice.custom
+        : FREE_CHAT_SCENARIOS.find((sc) => sc.id === chatChoice.topic)?.title()
+    : undefined;
+  const aiRole = scene?.ai_role || chatRole || (unitFocus ? t("Gerçek hayata hazırlık") : singleReview ? singleReview.title : isReview ? t("Mivo ile Tekrar") : focusTopic?.title) || AI_ROLE;
   const { finishTransition } = useMivoTransition();
 
   const voice = useFreeChatSocket(
@@ -112,8 +139,15 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         }
       : focusTopic
         ? { title: focusTopic.title, formula: focusTopic.formula, words: focusTopic.targetWords, code: focusTopic.topicCode }
-        : undefined
+        : unitFocus
+          ? { kind: 'unit', title: unitFocus.title, situation: unitFocus.situation, points: unitFocus.points, words: unitFocus.words, step: unitFocus.stepId }
+          : storyFocus
+          ? { kind: 'story', title: storyFocus.title, grammar: storyFocus.grammar, story: storyFocus.story, summary: storyFocus.summary, words: storyFocus.words }
+          : undefined,
+    route.params?.origin,
+    route.params?.chat
   );
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
   const {
     status,
     closeInfo,
@@ -209,15 +243,19 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     toastTimeoutRef.current = setTimeout(() => setToast(null), 1600);
   };
 
-  const handleSaveWord = async (word: string, sentence: string) => {
+  const [wordSheet, setWordSheet] = useState<{ word: string; sentence: string } | null>(null);
+  const [savedWords, setSavedWords] = useState<string[]>([]);
+  const handleSaveWord = async (word: string, sentence: string, meaning?: string | null) => {
     try {
       const payload: VocabCardCreate = {
         term: word,
+        ...(meaning ? { translation: meaning } : {}),
         example_sentence: sentence,
         source_label: t("Serbest Sohbet (Sesli)"),
       };
       await api.post('/vocab-cards', payload);
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      setSavedWords((list) => (list.includes(word) ? list : [...list, word]));
       showToast(t("\"{{word}}\" kelime defterine eklendi", { word }));
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : t("Kelime kaydedilemedi"));
@@ -249,6 +287,10 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
   // Sahne modu: oturum bitince yıldız hesapla (2★ = en az 4 cümle söyledi ya da hedefler tamamlandı,
   // 3★ = hedefler tamamlandı ve en fazla 2 düzeltme aldı). Yıldız bayrakları `/learning-flags` ile senkron.
   const [resultStars, setResultStars] = useState<0 | 2 | 3 | null>(null);
+  const limitReason = status === 'closed' && closeInfo && OFFER_REASONS.has(closeInfo.reason) ? closeInfo.reason : null;
+  useEffect(() => {
+    if (limitReason) trackEvent('free_limit_hit', { reason: limitReason });
+  }, [limitReason]);
 
   // How the room ended (null while it runs): drives the summary card.
   const [endReason, setEndReason] = useState<SessionEndReason | null>(null);
@@ -263,15 +305,19 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
     if (exitingRef.current) return;
     exitingRef.current = true;
     endSession();
-    if (scene) {
+    if (scene || unitFocus) {
       const userTurns = turns.filter((turn) => turn.role === 'user').length;
       const completed = sceneCompleteSummary != null;
       let earned: 0 | 2 | 3 = completed && correctionsCount <= 2 ? 3 : completed || userTurns >= 4 ? 2 : 0;
       // Orta aşamada ipucu kullanıldıysa en fazla 2 yıldız.
       if (hintUsedRef.current && sceneHints?.costsStar && earned === 3) earned = 2;
       if (earned >= 2) {
-        setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
-        if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
+        if (scene) {
+          setLearningFlag(`${SCENE_STAR2_PREFIX}${scene.id}`);
+          if (earned === 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${scene.id}`);
+        }
+        // The path's unit rehearsal: the earned stars complete the step on the path.
+        if (unitFocus) void recordStep(unitFocus.stepId, earned);
         postQueued('/progress/log-practice').catch(() => {});
         haptics.success();
         setResultStars(earned);
@@ -349,6 +395,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardSafe style={{ flex: 1 }}>
       <View style={styles.header}>
         <Pressable
           onPress={requestExit}
@@ -362,7 +409,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
 
         <View style={styles.headerTitleCol}>
           <Text style={styles.headerTitle} numberOfLines={1}>
-            {scene ? scene.title : t("{{AI_NAME}} ile Serbest Sohbet", { AI_NAME: aiName })}
+            {scene ? scene.title : unitFocus ? t("Prova: {{unit}}", { unit: unitFocus.title }) : t("{{AI_NAME}} ile Serbest Sohbet", { AI_NAME: aiName })}
           </Text>
           <View style={styles.headerSubRow}>
             <View style={styles.liveIndicatorDot} />
@@ -400,17 +447,27 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         </View>
       ) : status === 'closed' ? (
         <View style={styles.centerBlock}>
-          <Text style={styles.statusText}>
-            {(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}
-          </Text>
-          {closeInfo?.reason !== 'daily_voice_limit' && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
-            <Pressable onPress={reconnect}>
-              <Text style={styles.backLink}>{t("Tekrar Bağlan")}</Text>
+          <View style={styles.closedCard}>
+            <Image source={closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? mivoHomeImages.pro : mivoVoiceImages.think} style={styles.closedMivo} resizeMode="contain" />
+            <Text style={styles.closedTitle}>
+              {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? t("Bir sohbet daha?") : closeInfo?.reason === 'idle_timeout' ? t("Mivo seni bekledi") : t("Sohbet kapandı")}
+            </Text>
+            <Text style={styles.closedText}>{(closeInfo && CLOSE_REASON_MESSAGES[closeInfo.reason]) ?? t("Bağlantı tamamlandı.")}</Text>
+            {closeInfo && (OFFER_REASONS.has(closeInfo.reason) || (closeInfo.reason === 'time_limit_reached' && isPro === false)) ? (
+              <Pressable onPress={() => navigation.navigate('Paywall')} style={({ pressed }) => [styles.closedPro, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                <Text style={styles.closedProText}>{t("👑 Pro ile sınırsız konuş")}</Text>
+              </Pressable>
+            ) : null}
+            {closeInfo?.reason !== 'daily_voice_limit' && !(closeInfo && OFFER_REASONS.has(closeInfo.reason)) && (turns.length === 0 || (closeInfo && DROP_REASONS.has(closeInfo.reason))) ? (
+              <Pressable onPress={reconnect} style={({ pressed }) => [styles.closedPrimary, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+                <Ionicons name="refresh" size={18} color="#FFFFFF" />
+                <Text style={styles.closedPrimaryText}>{t("Yeniden bağlan")}</Text>
+              </Pressable>
+            ) : null}
+            <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.closedBack} accessibilityRole="button">
+              <Text style={styles.backLink}>{t("Geri Dön")}</Text>
             </Pressable>
-          ) : null}
-          <Pressable onPress={() => navigation.goBack()}>
-            <Text style={styles.backLink}>{t("Geri Dön")}</Text>
-          </Pressable>
+          </View>
         </View>
       ) : (
         <View style={styles.mainLayout}>
@@ -420,7 +477,17 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             aiRole={aiRole}
             onReplay={voice.hasReplayableAudio ? voice.replayAiAudio : undefined}
             timeWarning={timeWarning}
+            celebrate={sceneCompleteSummary != null}
+            messageCount={displayBubbles.length}
           />
+
+          {/* The room's language deal, until the first answer: Mivo explains in your language, you answer in English. */}
+          {getLocale() !== 'en' && !turns.some((turn) => turn.role === 'user') ? (
+            <View style={styles.langNote}>
+              <Ionicons name="information-circle" size={16} color={colors.brand} />
+              <Text style={styles.langNoteText}>{t("Mivo seninle kendi dilinde konuşur; sen cevaplarını İngilizce söyle.")}</Text>
+            </View>
+          ) : null}
 
           {scene && twistTitle ? (
             <View style={styles.twistStrip}>
@@ -444,7 +511,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             </Pressable>
           ) : null}
 
-          {scene && sceneCompleteSummary ? (
+          {(scene || unitFocus) && sceneCompleteSummary ? (
             <Pressable onPress={handleExit} style={styles.sceneDoneStrip}>
               <Ionicons name="checkmark-circle" size={18} color="#059669" />
               <Text style={styles.sceneDoneText} numberOfLines={2}>
@@ -460,7 +527,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
             </View>
           ) : null}
 
-          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={handleSaveWord} onListen={pronounce} voice={voice} pronounce={pronounce} />
+          <VoiceRoomThread bubbles={displayBubbles} aiName={aiName} onWordPress={(word, sentence) => setWordSheet({ word, sentence })} onListen={pronounce} voice={voice} pronounce={pronounce} />
 
           <View style={styles.bottomDock}>
             <VoiceRoomControls voice={voice} aiName={aiName} pronounce={pronounce} />
@@ -506,6 +573,7 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
         seconds={elapsedSeconds}
         sentences={turns.filter((turn) => turn.role === 'user').length}
         notes={notes}
+        savedWords={savedWords}
         onClose={() => navigation.goBack()}
         onOpenMistakes={() => {
           setEndReason(null);
@@ -542,11 +610,30 @@ export function FreeChatRoomScreen({ navigation, route }: FreeChatRoomScreenProp
           </View>
         </View>
       ) : null}
+      <WordSheet
+        target={wordSheet}
+        onClose={() => setWordSheet(null)}
+        onListen={(w) => void pronounce(w)}
+        onSave={(w, sentence, meaning) => void handleSaveWord(w, sentence, meaning)}
+      />
+      </KeyboardSafe>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  langNote: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: spacing.md, marginTop: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: '#EEF2FF' },
+  langNoteText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#3730A3' },
+  offerButton: { alignSelf: 'stretch', marginTop: 16, marginHorizontal: spacing.lg },
+  closedCard: { alignSelf: 'stretch', marginHorizontal: spacing.lg, alignItems: 'center', gap: 10, padding: 22, borderRadius: 26, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  closedMivo: { width: 120, height: 120 },
+  closedTitle: { fontFamily: fonts.headingBold, fontSize: 21, color: colors.textHeading, textAlign: 'center' },
+  closedText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textMuted, textAlign: 'center' },
+  closedPro: { alignSelf: 'stretch', alignItems: 'center', marginTop: 6, paddingVertical: 14, borderRadius: 999, backgroundColor: '#1F2A44' },
+  closedProText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FCD34D' },
+  closedPrimary: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6, paddingVertical: 14, borderRadius: 999, backgroundColor: colors.brand },
+  closedPrimaryText: { fontFamily: fonts.headingBold, fontSize: 15, color: '#FFFFFF' },
+  closedBack: { paddingVertical: 6 },
   hintBtn: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -13,7 +13,7 @@ export function siteSchema(locale: Locale, description: string) {
       "@id": ORG_ID,
       name: "Spekvia",
       url: SITE_URL,
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/brand/spekvia-app-icon.png`, width: 512, height: 512 },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/assets/brand/app-icon.png`, width: 1024, height: 1024 },
       description,
       contactPoint: [
         { "@type": "ContactPoint", contactType: "customer support", email: "support@spekvia.com", availableLanguage: LOCALES.map((l) => LOCALE_META[l].label) },

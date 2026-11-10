@@ -1,5 +1,6 @@
 """Shared, cancellable sentence/TTS pipeline for both voice room types."""
 import asyncio
+import re
 import logging
 import time
 
@@ -7,7 +8,7 @@ from app.core.config import settings
 from app.services.correction_filter import drop_trivial_correction
 from app.services.llm_orchestrator import (
     TurnMessage, analyze_voice_turn, bounded_history,
-    extract_complete_sentences, stream_voice_reply,
+    extract_complete_sentences, generate_suggested_replies, stream_voice_reply,
 )
 from app.services.tts_stream import synthesize_speech, tts_available
 
@@ -51,6 +52,10 @@ class SentenceSpeaker:
                 self.tasks.discard(task)
 
     async def speak(self, sentence):
+        # Some models leak JSON escapes into the spoken text (\" quotes, stray backslashes): never show or read them.
+        sentence = clean_spoken(sentence)
+        if not sentence:
+            return
         await self.send_json({"type": "reply.sentence", "text": sentence,
                               "speaker": "character" if self.language == "en" else "teacher",
                               "language": self.language})
@@ -74,6 +79,50 @@ class SentenceSpeaker:
         await self.sender
 
 
+def clean_spoken(text: str) -> str:
+    """What a model leaks into a spoken reply and must never be shown or read: JSON escapes, stray backslashes, ** markdown."""
+    return " ".join((text or "").replace('\\"', '"').replace("\\", "").replace("**", "").split())
+
+
+# Common words of the learners' own languages: a "suggested reply" with them is an explanation, not an answer.
+_NATIVE_WORDS = {
+    "ve", "bir", "bu", "yerine", "demelisin", "söyle", "soyle", "şimdi", "simdi", "değil", "degil", "için", "icin", "gibi",
+    "que", "una", "por", "para", "dice", "decir", "pero", "você", "voce", "dizer", "não", "nao", "und", "nicht", "sagen",
+    "statt", "anstatt", "der", "die", "das", "ist", "mit",
+}
+
+
+def _is_english(text: str) -> bool:
+    letters = [c for c in text if c.isalpha()]
+    if not letters or sum(c.isascii() for c in letters) / len(letters) < 0.97:
+        return False
+    # An answer to say aloud has no quotes or colons in it (those mean someone is explaining a sentence).
+    if any(ch in text for ch in '"“”«»:'):
+        return False
+    words = {w.strip(".,!?;").lower() for w in text.split()}
+    return not (words & _NATIVE_WORDS)
+
+
+_QUOTED = re.compile(
+    r'"([^"\n]{3,160})"'
+    r'|“([^”\n]{3,160})”'
+    r'|«([^»\n]{3,160})»'
+    r'|„([^“”\n]{3,160})[“”]'
+)
+
+
+def quoted_english(text: str) -> list[str]:
+    """English sentences Mivo put in quotes (the line to say, the other person's line), in order."""
+    out = []
+    for m in _QUOTED.finditer(text or ""):
+        part = next(g for g in m.groups() if g is not None).strip()
+        letters = [c for c in part if c.isalpha()]
+        # Mostly plain ASCII letters and at least two words: English, not a Turkish/German phrase.
+        if len(part.split()) >= 2 and letters and sum(c.isascii() for c in letters) / len(letters) > 0.97:
+            out.append(part)
+    return out
+
+
 async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                          send_json, *, language="tr", allow_completion=False,
                          log_mistake=None):
@@ -87,13 +136,17 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
                 buffer += delta
                 sentences, buffer = extract_complete_sentences(buffer)
                 for sentence in sentences:
+                    sentence = clean_spoken(sentence)
+                    if not sentence:
+                        continue
                     if not parts:
                         logger.info("voice_first_sentence_ms=%d", (time.monotonic() - started) * 1000)
                     parts.append(sentence)
                     await speaker.speak(sentence)
-            if buffer.strip():
-                parts.append(buffer.strip())
-                await speaker.speak(buffer.strip())
+            tail = clean_spoken(buffer)
+            if tail:
+                parts.append(tail)
+                await speaker.speak(tail)
             reply = " ".join(parts)
             if not reply:
                 raise RuntimeError("Empty voice reply")
@@ -113,9 +166,29 @@ async def run_voice_turn(websocket, http_client, system_prompt, history, text,
             analysis.correction = drop_trivial_correction(analysis.correction, text)
             await send_json({"type": "correction", "data": analysis.correction.model_dump()})
             await send_json({"type": "fluency_score", "value": analysis.fluency_score})
+        suggested = list(analysis.suggested_replies) if analysis else []
+        suggested_tr = list(analysis.suggested_replies_tr) if analysis else []
+        # A "suggestion" that is not an English sentence (a weak model put its explanation there) is not shown.
+        if suggested and not all(_is_english(clean_spoken(x)) for x in suggested):
+            suggested, suggested_tr = [], []
+        suggested = [clean_spoken(x) for x in suggested]
+        if not suggested:
+            # The analysis failed or came back empty (provider rate limit, slow model): the hint button still gets the
+            # English line Mivo asked for ("Bir de sen söyle: \"Yes, I am a new student.\"") instead of staying grey.
+            # A question in quotes is the other person's line to ANSWER, not a sentence to repeat.
+            suggested, suggested_tr = [q for q in quoted_english(reply) if not q.rstrip().endswith("?")][-1:], []
+        if not suggested:
+            # Still nothing (no quoted line either): ask for two short answers on their own, so the learner always has
+            # a "what could I say?" hint. Small, separate call; a few seconds at most, never breaks the turn.
+            try:
+                async with asyncio.timeout(6):
+                    extra = await asyncio.to_thread(generate_suggested_replies, system_prompt, context, reply)
+                suggested = [clean_spoken(x) for x in extra if _is_english(clean_spoken(x))][:2]
+            except Exception:
+                logger.warning("Fallback suggestions unavailable this turn", exc_info=True)
         await send_json({"type": "turn.complete", "user_text": text, "assistant_text": reply,
-                         "suggested_replies": analysis.suggested_replies if analysis else [],
-                         "suggested_replies_tr": analysis.suggested_replies_tr if analysis else [],
+                         "suggested_replies": suggested,
+                         "suggested_replies_tr": suggested_tr,
                          "coach_tip_tr": analysis.coach_tip_tr if analysis else None})
         if analysis and allow_completion and analysis.is_scene_complete:
             await send_json({"type": "scene.complete", "summary_tr": analysis.completion_summary_tr})

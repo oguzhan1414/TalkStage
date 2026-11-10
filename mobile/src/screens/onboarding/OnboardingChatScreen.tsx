@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Animated,
   Image,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -17,10 +16,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-import { minimalFeatureIcons, mivoVoiceImages, roadmapTaskImages } from '../../assets/images';
+import { mivoVoiceImages, onboardingArt, profileArt, vocabArt } from '../../assets/images';
 import { Button } from '../../components/Button';
 import { TypewriterText, TypingDots } from '../../components/chat/ChatTyping';
 import { DAILY_GOAL_OPTIONS, GOAL_OPTIONS, personaForGoal } from '../../constants/onboarding';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FadeIn, PopIn } from '../../components/path/anim';
+import { stepArt } from '../../lib/pathArt';
 import { useAuth } from '../../context/AuthContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { flatSteps, loc, pathLevel } from '../../data/path';
@@ -36,6 +38,7 @@ import { STAGE_COLOR, stageTitle, type StageId } from '../../lib/stages';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 import { colors, fonts, shadow, spacing } from '../../theme/tokens';
 import { requestOpenNextStep } from '../../widget/homeWidget';
+import { KeyboardSafe } from '../../components/KeyboardSafe';
 
 type Step = 'name' | 'goal' | 'struggle' | 'level' | 'demo' | 'mic' | 'time' | 'reminder' | 'plan';
 const STEP_ORDER: Step[] = ['name', 'goal', 'struggle', 'level', 'demo', 'mic', 'time', 'reminder', 'plan'];
@@ -89,11 +92,11 @@ function goalReaction(id: string): string {
   }
 }
 
-const STRUGGLES: { id: Struggle; emoji: string; label: () => string; reaction: () => string }[] = [
-  { id: 'freeze', emoji: '😶', label: () => t("Konuşurken donuyorum"), reaction: () => t("Not aldım: bol bol konuşma pratiği yapacağız.") },
-  { id: 'grammar', emoji: '🧩', label: () => t("Gramer kafamı karıştırıyor"), reaction: () => t("Not aldım: gramer konularını adım adım işleyeceğiz.") },
-  { id: 'vocab', emoji: '🔤', label: () => t("Kelime bulamıyorum"), reaction: () => t("Not aldım: her gün yeni kelimeler ekleyeceğiz.") },
-  { id: 'listening', emoji: '👂', label: () => t("Duyduğumu anlamıyorum"), reaction: () => t("Not aldım: dinleyerek anlamayı çalışacağız.") },
+const STRUGGLES: { id: Struggle; emoji: string; image: number; label: () => string; reaction: () => string }[] = [
+  { id: 'freeze', emoji: '😶', image: onboardingArt.struggleFreeze, label: () => t("Konuşurken donuyorum"), reaction: () => t("Not aldım: bol bol konuşma pratiği yapacağız.") },
+  { id: 'grammar', emoji: '🧩', image: onboardingArt.struggleGrammar, label: () => t("Gramer kafamı karıştırıyor"), reaction: () => t("Not aldım: gramer konularını adım adım işleyeceğiz.") },
+  { id: 'vocab', emoji: '🔤', image: onboardingArt.struggleVocab, label: () => t("Kelime bulamıyorum"), reaction: () => t("Not aldım: her gün yeni kelimeler ekleyeceğiz.") },
+  { id: 'listening', emoji: '👂', image: onboardingArt.struggleListening, label: () => t("Duyduğumu anlamıyorum"), reaction: () => t("Not aldım: dinleyerek anlamayı çalışacağız.") },
 ];
 
 /**
@@ -101,10 +104,10 @@ const STRUGGLES: { id: Struggle; emoji: string; label: () => string; reaction: (
  * things to different people): the learner picks the hardest sentence they could say comfortably. The silent CEFR
  * step starts at the lower level of the stage and moves up on its own.
  */
-const LEVELS: { stage: StageId; code: string; emoji: string; example: string; sub: () => string }[] = [
-  { stage: 'baslangic', code: 'A1', emoji: '🌱', example: 'My name is Ali. I like coffee.', sub: () => t("Kendimi tanıtabiliyorum ya da yeni başlıyorum") },
-  { stage: 'orta', code: 'B1', emoji: '🚀', example: 'Last summer I went to Italy with my friends.', sub: () => t("Geçmişi anlatıp sohbet edebiliyorum") },
-  { stage: 'ileri', code: 'C1', emoji: '🏆', example: "I'd argue remote work has more pros than cons.", sub: () => t("Fikirlerimi tartışıp savunabiliyorum") },
+const LEVELS: { stage: StageId; code: string; emoji: string; image: number; example: string; sub: () => string }[] = [
+  { stage: 'baslangic', code: 'A1', emoji: '🌱', image: onboardingArt.levelStart, example: 'My name is Ali. I like coffee.', sub: () => t("Kendimi tanıtabiliyorum ya da yeni başlıyorum") },
+  { stage: 'orta', code: 'B1', emoji: '🚀', image: onboardingArt.levelMid, example: 'Last summer I went to Italy with my friends.', sub: () => t("Geçmişi anlatıp sohbet edebiliyorum") },
+  { stage: 'ileri', code: 'C1', emoji: '🏆', image: onboardingArt.levelAdv, example: "I'd argue remote work has more pros than cons.", sub: () => t("Fikirlerimi tartışıp savunabiliyorum") },
 ];
 
 type DemoOption = { text: string; note?: () => string };
@@ -155,12 +158,12 @@ function demoForGoal(goal: string | null): Demo {
 
 /** Everything inside the app, for the "İçeride neler var?" card (path items and the always-open extras). */
 const TOUR_ITEMS: { image: number; label: () => string }[] = [
-  { image: minimalFeatureIcons.reading, label: () => t("Hikâye dersleri") },
-  { image: roadmapTaskImages.scene, label: () => t("Sesli sahneler") },
-  { image: roadmapTaskImages.vocab, label: () => t("Kelime tekrarı") },
-  { image: minimalFeatureIcons.wordRooms, label: () => t("Kelime odaları") },
-  { image: minimalFeatureIcons.pronunciation, label: () => t("Telaffuz") },
-  { image: minimalFeatureIcons.mistakesNotebook, label: () => t("Hata defteri") },
+  { image: onboardingArt.tourStories, label: () => t("Hikâye dersleri") },
+  { image: onboardingArt.tourScenes, label: () => t("Sesli sahneler") },
+  { image: onboardingArt.tourReview, label: () => t("Kelime tekrarı") },
+  { image: vocabArt.iconRooms, label: () => t("Kelime odaları") },
+  { image: vocabArt.iconPronunciation, label: () => t("Telaffuz") },
+  { image: profileArt.mistakes, label: () => t("Hata defteri") },
 ];
 
 /**
@@ -432,7 +435,11 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
 
   const level = LEVELS.find((l) => l.code === draft.cefrLevel) ?? LEVELS[0];
   const pathOfLevel = pathLevel(level.code);
-  const firstEpisode = flatSteps(pathOfLevel).find((f) => f.step.kind === 'reading')?.step;
+  const firstFlat = flatSteps(pathOfLevel).find((f) => f.step.kind === 'reading');
+  const firstEpisode = firstFlat?.step;
+  const firstArt = firstFlat ? stepArt(firstFlat) : undefined;
+  const goalOption = GOAL_OPTIONS.find((g) => g.id === draft.learningGoal);
+  const paceOption = DAILY_GOAL_OPTIONS.find((d) => d.minutes === draft.dailyTargetMinutes);
   const progress = (STEP_ORDER.indexOf(step) + (busy ? 0 : 1)) / STEP_ORDER.length;
 
   const renderMsg = (msg: Msg, index: number) => {
@@ -503,11 +510,38 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
     } else {
       body = (
         <View style={[styles.planCard, shadow.card]}>
-          <PlanRow emoji={level.emoji} label={t("Seviye")} value={`${stageTitle(level.stage)} · ${level.code}`} color={STAGE_COLOR[level.stage]} />
-          <PlanRow emoji="📖" label={t("Hikâye")} value={loc(pathOfLevel.story.title)} />
-          <PlanRow emoji="⏱️" label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last={!firstEpisode} />
+          {/* The plan arrives row by row: the goal on top, then level, story and pace, then the first episode */}
+          {goalOption ? (
+            <FadeIn delay={100} style={styles.planGoal}>
+              {goalOption.iconImage ? <Image source={goalOption.iconImage} style={styles.planGoalImg} resizeMode="contain" /> : null}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.planKicker}>{t("HEDEFİN")}</Text>
+                <Text style={styles.planGoalText} numberOfLines={2}>
+                  {goalOption.title}
+                </Text>
+              </View>
+            </FadeIn>
+          ) : null}
+          <FadeIn delay={350}>
+            <PlanRow image={level.image} label={t("Seviye")} value={`${stageTitle(level.stage)} · ${level.code}`} color={STAGE_COLOR[level.stage]} />
+          </FadeIn>
+          <FadeIn delay={550}>
+            <PlanRow image={onboardingArt.tourStories} label={t("Hikâye")} value={loc(pathOfLevel.story.title)} />
+          </FadeIn>
+          <FadeIn delay={750}>
+            <PlanRow image={paceOption?.iconImage} label={t("Günlük")} value={t("Günde {{n}} dakika", { n: draft.dailyTargetMinutes })} last />
+          </FadeIn>
           {firstEpisode && firstEpisode.kind === 'reading' ? (
-            <PlanRow emoji="📍" label={t("İlk bölüm")} value={loc(firstEpisode.episode.title)} last />
+            <PopIn delay={1000} style={styles.planFirst}>
+              {firstArt ? <Image source={firstArt} style={styles.planFirstImg} resizeMode="cover" /> : null}
+              <LinearGradient colors={['rgba(15,23,42,0)', 'rgba(15,23,42,0.82)']} style={styles.planFirstShade} pointerEvents="none" />
+              <View style={styles.planFirstBody}>
+                <Text style={styles.planFirstKicker}>{t("İLK BÖLÜMÜN")}</Text>
+                <Text style={styles.planFirstTitle} numberOfLines={2}>
+                  {loc(firstEpisode.episode.title)}
+                </Text>
+              </View>
+            </PopIn>
           ) : null}
         </View>
       );
@@ -538,7 +572,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
         <View style={[styles.progressFill, { width: `${Math.max(4, progress * 100)}%` }]} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardSafe style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
           contentContainerStyle={styles.thread}
@@ -613,7 +647,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
               <View style={styles.list}>
                 {STRUGGLES.map((s) => (
                   <Pressable key={s.id} onPress={() => pickStruggle(s.id)} style={({ pressed }) => [styles.chip, pressed && styles.pressed]} accessibilityRole="button">
-                    <Text style={styles.chipEmoji}>{s.emoji}</Text>
+                    <Image source={s.image} style={styles.chipImg} resizeMode="contain" />
                     <Text style={styles.chipText}>{s.label()}</Text>
                   </Pressable>
                 ))}
@@ -629,7 +663,7 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
                     style={({ pressed }) => [styles.levelCard, { borderLeftColor: STAGE_COLOR[l.stage] }, pressed && styles.pressed]}
                     accessibilityRole="button"
                   >
-                    <Text style={styles.levelEmoji}>{l.emoji}</Text>
+                    <Image source={l.image} style={styles.levelImg} resizeMode="contain" />
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.levelTitle, { color: STAGE_COLOR[l.stage] }]}>{stageTitle(l.stage)}</Text>
                       <Text style={styles.levelExample}>“{l.example}”</Text>
@@ -698,15 +732,15 @@ export function OnboardingChatScreen(_: OnboardingStackScreenProps<'Chat'>) {
             ) : null}
           </Animated.View>
         ) : null}
-      </KeyboardAvoidingView>
+      </KeyboardSafe>
     </SafeAreaView>
   );
 }
 
-function PlanRow({ emoji, label, value, color, last }: { emoji: string; label: string; value: string; color?: string; last?: boolean }) {
+function PlanRow({ image, label, value, color, last }: { image?: number; label: string; value: string; color?: string; last?: boolean }) {
   return (
     <View style={[styles.planRow, !last && styles.planRowBorder]}>
-      <Text style={styles.planEmoji}>{emoji}</Text>
+      {image ? <Image source={image} style={styles.planImg} resizeMode="contain" /> : <View style={styles.planImg} />}
       <Text style={styles.planLabel}>{label}</Text>
       <Text style={[styles.planValue, color ? { color } : null]} numberOfLines={1}>{value}</Text>
       <Ionicons name="checkmark-circle" size={18} color="#10B981" />
@@ -771,15 +805,25 @@ const styles = StyleSheet.create({
   tourTitle: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
   tourGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 },
   tourItem: { width: '25%', alignItems: 'center', gap: 4 },
-  tourImg: { width: 44, height: 44 },
+  tourImg: { width: 56, height: 56 },
   tourLabel: { fontFamily: fonts.bodyMedium, fontSize: 11.5, lineHeight: 14, color: colors.textBody, textAlign: 'center' },
 
   featureNote: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, textAlign: 'center' },
 
-  planCard: { backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 6, minWidth: 260 },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
-  planRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
-  planEmoji: { fontSize: 18 },
+  planCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14, minWidth: 270 },
+  planGoal: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, marginBottom: 4, borderRadius: 16, backgroundColor: '#FBF7F1' },
+  planGoalImg: { width: 54, height: 54 },
+  planKicker: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 1.2, color: '#C9533A' },
+  planGoalText: { fontFamily: fonts.headingBold, fontSize: 14.5, lineHeight: 19, color: '#1F2A44', marginTop: 1 },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
+  planRowBorder: { borderBottomWidth: 1, borderBottomColor: '#F1EDE6' },
+  planImg: { width: 34, height: 34 },
+  planFirst: { marginTop: 10, height: 128, borderRadius: 16, overflow: 'hidden', backgroundColor: '#E2E8F0' },
+  planFirstImg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  planFirstShade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%' },
+  planFirstBody: { position: 'absolute', left: 12, right: 12, bottom: 10 },
+  planFirstKicker: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 1.2, color: '#FDE68A' },
+  planFirstTitle: { fontFamily: fonts.headingBold, fontSize: 17, lineHeight: 22, color: '#FFFFFF', marginTop: 1 },
   planLabel: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, width: 58 },
   planValue: { flex: 1, fontFamily: fonts.headingBold, fontSize: 14.5, color: colors.textHeading },
   planEdit: { alignSelf: 'flex-start', paddingVertical: 8 },
@@ -824,7 +868,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
-  goalImg: { width: 54, height: 54 },
+  goalImg: { width: 76, height: 76 },
   goalEmoji: { fontSize: 36 },
   goalText: { fontFamily: fonts.headingSemiBold, fontSize: 14, color: colors.textHeading, textAlign: 'center' },
 
@@ -833,14 +877,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    minHeight: 54,
-    paddingHorizontal: 16,
+    minHeight: 62,
+    paddingHorizontal: 12,
     borderRadius: 18,
     backgroundColor: '#F8FAFC',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
   chipEmoji: { fontSize: 22 },
+  chipImg: { width: 44, height: 44 },
   chipText: { flex: 1, fontFamily: fonts.headingSemiBold, fontSize: 15, color: colors.textHeading },
   demoChip: { justifyContent: 'center' },
   demoText: { fontFamily: fonts.headingBold, fontSize: 16, color: '#312E81' },
@@ -857,6 +902,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 6,
   },
   levelEmoji: { fontSize: 28 },
+  levelImg: { width: 60, height: 60 },
   levelTitle: { fontFamily: fonts.headingBold, fontSize: 17 },
   levelExample: { fontFamily: fonts.headingSemiBold, fontSize: 14.5, lineHeight: 20, color: '#312E81', marginTop: 4 },
   levelSub: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.textMuted, marginTop: 3 },
@@ -885,7 +931,7 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   timeCardStar: { borderColor: colors.brand, backgroundColor: '#EEF2FF' },
-  timeImg: { width: 48, height: 48 },
+  timeImg: { width: 64, height: 64 },
   timeValue: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
   timeLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted },
 

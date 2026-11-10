@@ -66,6 +66,12 @@ class StreakUpdate:
     streak_count: int
     longest_streak: int
     last_practice_date: date
+    #: Set when a missed day was forgiven by the weekly streak freeze (the day that was covered).
+    freeze_used_on: date | None = None
+
+
+#: One missed day is forgiven per this many days (the "streak freeze"): a busy day does not wipe a long streak.
+STREAK_FREEZE_EVERY_DAYS = 7
 
 
 def next_streak_state(
@@ -73,13 +79,23 @@ def next_streak_state(
     longest_streak: int,
     last_practice_date: date | None,
     today: date | None = None,
+    last_freeze_on: date | None = None,
 ) -> StreakUpdate:
     today = today or local_today()
+    freeze_used_on = None
 
     if last_practice_date == today:
         new_streak = current_streak  # already practiced today, no double-count
     elif last_practice_date == today - timedelta(days=1):
         new_streak = current_streak + 1
+    elif (
+        last_practice_date == today - timedelta(days=2)
+        and current_streak > 0
+        and (last_freeze_on is None or (today - last_freeze_on).days >= STREAK_FREEZE_EVERY_DAYS)
+    ):
+        # Exactly one day missed and the weekly freeze is free: the streak goes on.
+        new_streak = current_streak + 1
+        freeze_used_on = today - timedelta(days=1)
     else:
         new_streak = 1  # gap in practice, or first ever session
 
@@ -87,4 +103,5 @@ def next_streak_state(
         streak_count=new_streak,
         longest_streak=max(longest_streak, new_streak),
         last_practice_date=today,
+        freeze_used_on=freeze_used_on,
     )

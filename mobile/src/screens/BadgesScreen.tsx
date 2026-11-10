@@ -59,6 +59,11 @@ export function BadgesScreen({ navigation }: BadgesScreenProps) {
                       style={[styles.badgeImage, !earned && styles.badgeImageLocked]}
                       resizeMode="contain"
                     />
+                    {badge.id.startsWith('level_') ? (
+                      <View style={[styles.levelTag, !earned && { opacity: 0.6 }]}>
+                        <Text style={styles.levelTagText}>{badge.id.slice(6).toUpperCase()}</Text>
+                      </View>
+                    ) : null}
                     {!earned && <View style={styles.lockDot}><Ionicons name="lock-closed" size={9} color="#64748B" /></View>}
                   </View>
                   <Text style={[styles.badgeTitle, !earned && styles.badgeTitleLocked]}>{badge.title}</Text>
@@ -157,6 +162,18 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 18,
   },
+  levelTag: {
+    position: 'absolute',
+    left: -4,
+    bottom: -4,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: '#1F2A44',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  levelTagText: { fontFamily: fonts.headingBold, fontSize: 11, color: '#FFFFFF', letterSpacing: 0.4 },
   badgeImageLocked: {
     opacity: 0.42,
   },

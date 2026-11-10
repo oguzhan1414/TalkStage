@@ -51,7 +51,9 @@ const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 const CLOSE_REASON_MESSAGES: Record<string, string> = {
   daily_voice_limit: t("Bugünkü sesli pratik süren doldu. Yarın tekrar devam edebilirsin."),
+  service_busy: t("Sesli odalar şu an çok yoğun. Lütfen biraz sonra tekrar dene."),
   quota_exceeded: t("Bugünkü ücretsiz sahne hakkın doldu. Pro’ya geçerek sınırsız pratik yapabilirsin."),
+  pro_only: t("Canlı oda Spekvia Pro'ya özel. Pro ile istediğin kadar canlı konuşabilirsin."),
   time_limit_reached: t("5 dakikalık ücretsiz süre doldu."),
   idle_timeout: t("Uzun süre sessiz kaldığın için oda kapandı."),
   missing_api_base_url: t("Backend adresi yapılandırılmamış (EXPO_PUBLIC_API_BASE_URL)."),
@@ -430,7 +432,7 @@ export function LiveConversationRoomScreen({ navigation, route }: LiveConversati
           {saveError ? <Text style={styles.saveErrorText}>{saveError}</Text> : null}
           {savingSession ? (
             <MivoLoader size={64} label={t("Karnen hazırlanıyor…")} />
-          ) : closeInfo?.reason === 'quota_exceeded' ? (
+          ) : closeInfo?.reason === 'quota_exceeded' || closeInfo?.reason === 'pro_only' ? (
             <>
               <Button
                 label={t("Pro’ya Geç")}

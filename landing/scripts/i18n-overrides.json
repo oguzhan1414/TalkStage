@@ -1,764 +1,1088 @@
 {
- "dilde açıklama": {
-  "en": "explanation languages",
-  "es": "idiomas de explicación",
-  "pt": "idiomas de explicação",
-  "de": "Erklärsprachen"
- },
- "Aradığın yok": {
-  "en": "Out of stock",
-  "es": "Se ha agotado",
-  "pt": "Está em falta",
-  "de": "Nicht mehr da"
- },
- "Karışıklık çıktı": {
-  "en": "A mix-up",
-  "es": "Un malentendido",
-  "pt": "Uma confusão",
-  "de": "Ein Missverständnis"
- },
- "Örn: Ahmet Yılmaz": {
-  "en": "e.g. Jane Miller",
-  "es": "Ej.: Laura Gómez",
-  "pt": "Ex.: Ana Souza",
-  "de": "z. B. Anna Müller"
- },
- "ahmet@sirketiniz.com": {
-  "en": "jane@yourcompany.com",
-  "es": "laura@tuempresa.com",
-  "pt": "ana@suaempresa.com",
-  "de": "anna@deinefirma.com"
- },
- "Sayfa bulunamadı": {
-  "en": "Page not found",
-  "es": "Página no encontrada",
-  "pt": "Página não encontrada",
-  "de": "Seite nicht gefunden"
- },
- "Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.": {
-  "en": "The page you are looking for may have moved or never existed.",
-  "es": "Es posible que la página que buscas se haya movido o que nunca haya existido.",
-  "pt": "A página que você procura pode ter sido movida ou nunca ter existido.",
-  "de": "Die gesuchte Seite wurde vielleicht verschoben oder hat nie existiert."
- },
- "Ana sayfaya dön": {
-  "en": "Back to home",
-  "es": "Volver al inicio",
-  "pt": "Voltar ao início",
-  "de": "Zurück zur Startseite"
- },
- "Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması": {
-  "en": "Spekvia — Practice Speaking English with an AI Coach",
-  "es": "Spekvia: practica hablar inglés con un coach de IA",
-  "pt": "Spekvia: pratique falar inglês com um coach de IA",
-  "de": "Spekvia: Englisch sprechen üben mit KI-Coach"
- },
- "Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla.": {
-  "en": "Rehearse real-life English scenes by voice: airport, hotel, job interview. Mivo corrects every slip instantly, in your own language. Start free.",
-  "es": "Ensaya escenas reales en inglés con tu voz: aeropuerto, hotel, entrevista. Mivo corrige tus errores al instante en tu idioma. Empieza gratis.",
-  "pt": "Ensaie cenas reais em inglês com a sua voz: aeroporto, hotel, entrevista. O Mivo corrige seus erros na hora, no seu idioma. Comece de graça.",
-  "de": "Übe echte Alltagssituationen auf Englisch per Sprache: Flughafen, Hotel, Vorstellungsgespräch. Mivo korrigiert dich sofort in deiner Sprache. Gratis starten."
- },
- "Spekvia Hakkında: Konuşarak İngilizce Öğren": {
-  "en": "About Spekvia: Learn English by Speaking",
-  "es": "Sobre Spekvia: aprende inglés hablando",
-  "pt": "Sobre o Spekvia: aprenda inglês falando",
-  "de": "Über Spekvia: Englisch lernen durch Sprechen"
- },
- "Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeni sağlar. Nasıl çalıştığımızı ve hatadan korkmadan konuşmanı sağlayan ilkelerimizi keşfet.": {
-  "en": "Spekvia lets you rehearse English by voice in real-life scenes. See how it works and the principles that help you speak without fear of mistakes.",
-  "es": "Spekvia te permite ensayar inglés con tu voz en escenas de la vida real. Descubre cómo funciona y los principios para hablar sin miedo a equivocarte.",
-  "pt": "O Spekvia permite ensaiar inglês com a voz em cenas da vida real. Conheça como funciona e os princípios para falar sem medo de errar.",
-  "de": "Mit Spekvia probst du Englisch per Sprache in realen Alltagsszenen. So funktioniert es und diese Prinzipien helfen dir, ohne Angst vor Fehlern zu sprechen."
- },
- "Sıkça Sorulan Sorular — Spekvia": {
-  "en": "FAQ — How Spekvia Works, Pricing & Privacy",
-  "es": "Preguntas frecuentes sobre Spekvia",
-  "pt": "Perguntas frequentes sobre o Spekvia",
-  "de": "Häufige Fragen zu Spekvia"
- },
- "Spekvia nasıl çalışır? Ücretsiz mi, Pro neleri kapsar, sesim nasıl işlenir? Sahneler, Mivo, kelime çalışması ve abonelik hakkında en çok sorulanlar.": {
-  "en": "How does Spekvia work? Is it free, what does Pro include, what happens to my voice? Answers about scenes, Mivo, vocabulary practice and subscriptions.",
-  "es": "¿Cómo funciona Spekvia? ¿Es gratis, qué incluye Pro, qué pasa con mi voz? Respuestas sobre escenas, Mivo, vocabulario y suscripción.",
-  "pt": "Como funciona o Spekvia? É grátis, o que o Pro inclui, o que acontece com a minha voz? Respostas sobre cenas, Mivo, vocabulário e assinatura.",
-  "de": "Wie funktioniert Spekvia? Ist es kostenlos, was bietet Pro, was passiert mit meiner Stimme? Antworten zu Szenen, Mivo, Vokabeln und Abo."
- },
- "İletişim — Spekvia Destek ve Kurumsal": {
-  "en": "Contact Spekvia — Support & Business",
-  "es": "Contacto — Soporte y empresas | Spekvia",
-  "pt": "Contato — Suporte e empresas | Spekvia",
-  "de": "Kontakt — Support & Unternehmen | Spekvia"
- },
- "Spekvia ekibine ulaş: kullanıcı desteği için support@spekvia.com, kurumsal talepler ve toplu lisanslar için info@spekvia.com adreslerine yazabilirsin.": {
-  "en": "Get in touch with the Spekvia team: write to support@spekvia.com for support, or info@spekvia.com for business requests and bulk licenses.",
-  "es": "Escribe al equipo de Spekvia: support@spekvia.com para soporte y info@spekvia.com para solicitudes de empresas y licencias en grupo.",
-  "pt": "Fale com a equipe do Spekvia: support@spekvia.com para suporte e info@spekvia.com para pedidos de empresas e licenças em grupo.",
-  "de": "Schreib dem Spekvia-Team: support@spekvia.com für Support und info@spekvia.com für Unternehmensanfragen und Sammellizenzen."
- },
- "Gizlilik Politikası ve KVKK — Spekvia": {
-  "en": "Privacy Policy & GDPR — Spekvia",
-  "es": "Política de privacidad y RGPD — Spekvia",
-  "pt": "Política de privacidade e GDPR — Spekvia",
-  "de": "Datenschutzerklärung & DSGVO — Spekvia"
- },
- "Spekvia kullanıcı verilerini, ses kayıtlarını ve kişisel bilgileri nasıl işler ve korur? Gizlilik Politikası ile KVKK/GDPR aydınlatma metni.": {
-  "en": "How Spekvia handles and protects your data, voice and personal information: the Privacy Policy with GDPR and KVKK disclosures.",
-  "es": "Cómo trata y protege Spekvia tus datos, tu voz y tu información personal: política de privacidad con información sobre RGPD y KVKK.",
-  "pt": "Como o Spekvia trata e protege seus dados, sua voz e suas informações pessoais: política de privacidade com informações sobre GDPR e KVKK.",
-  "de": "Wie Spekvia deine Daten, deine Stimme und persönliche Informationen verarbeitet und schützt: Datenschutzerklärung mit DSGVO- und KVKK-Hinweisen."
- },
- "Kullanım Şartları — Spekvia": {
-  "en": "Terms of Use — Spekvia",
-  "es": "Términos de uso — Spekvia",
-  "pt": "Termos de uso — Spekvia",
-  "de": "Nutzungsbedingungen — Spekvia"
- },
- "Spekvia mobil ve web uygulamalarının kullanım şartları: hesap, abonelik, iptal koşulları ve kullanıcı sorumlulukları.": {
-  "en": "Terms of use for the Spekvia mobile and web apps: account, subscriptions, cancellation terms and user responsibilities.",
-  "es": "Términos de uso de las apps móvil y web de Spekvia: cuenta, suscripciones, condiciones de cancelación y responsabilidades del usuario.",
-  "pt": "Termos de uso dos apps móvel e web do Spekvia: conta, assinaturas, condições de cancelamento e responsabilidades do usuário.",
-  "de": "Nutzungsbedingungen der Spekvia-Apps für Mobilgeräte und Web: Konto, Abonnements, Kündigungsbedingungen und Pflichten der Nutzer."
- },
- "Sesli İngilizce sahneleri · Mivo ile": {
-  "en": "English speaking scenes · with Mivo",
-  "es": "Escenas para hablar inglés · con Mivo",
-  "pt": "Cenas para falar inglês · com a Mivo",
-  "de": "Englisch sprechen in echten Szenen · mit Mivo"
- },
- "Anlıyorsun.": {
-  "en": "You understand.",
-  "es": "Ya entiendes.",
-  "pt": "Você já entende.",
-  "de": "Du verstehst es."
- },
- "Şimdi": {
-  "en": "Now",
-  "es": "Ahora",
-  "pt": "Agora",
-  "de": "Jetzt"
- },
- "konuş.": {
-  "en": "speak.",
-  "es": "habla.",
-  "pt": "fale.",
-  "de": "sprich."
- },
- "Mivo, gerçek hayat sahnelerinde karşındaki karakteri oynar. Sen sesli konuşursun; takıldığın cümleyi anında, kendi dilinde açıklayarak düzeltir.": {
-  "en": "Mivo plays the other person in real-life scenes. You speak out loud, and when you stumble, Mivo fixes the sentence on the spot and explains it in your own language.",
-  "es": "Mivo interpreta al personaje de la escena y tú hablas en voz alta. Si te atascas, Mivo corrige la frase al instante y te lo explica en tu idioma.",
-  "pt": "A Mivo faz o outro personagem em cenas da vida real e você fala em voz alta. Se travar, a Mivo corrige a frase na hora e explica no seu idioma.",
-  "de": "Mivo spielt in Alltagsszenen dein Gegenüber, und du sprichst laut. Wenn du ins Stocken gerätst, korrigiert Mivo den Satz sofort und erklärt ihn dir in deiner Sprache."
- },
- "Ücretsiz dene": {
-  "en": "Try it free",
-  "es": "Pruébalo gratis",
-  "pt": "Experimente grátis",
-  "de": "Kostenlos testen"
- },
- "Sahnelere göz at": {
-  "en": "Browse the scenes",
-  "es": "Ver las escenas",
-  "pt": "Ver as cenas",
-  "de": "Szenen ansehen"
- },
- "sahne · A1–B2": {
-  "en": "scenes · A1–B2",
-  "es": "escenas · A1–B2",
-  "pt": "cenas · A1–B2",
-  "de": "Szenen · A1–B2"
- },
- "podcast bölümü": {
-  "en": "podcast episodes",
-  "es": "episodios de podcast",
-  "pt": "episódios de podcast",
-  "de": "Podcast-Folgen"
- },
- "okuma hikâyesi": {
-  "en": "reading stories",
-  "es": "lecturas",
-  "pt": "histórias para ler",
-  "de": "Lesegeschichten"
- },
- "SSS": {
-  "en": "FAQ",
-  "es": "Preguntas",
-  "pt": "Perguntas",
-  "de": "FAQ"
- },
- "Günlük yol": {
-  "en": "Daily path",
-  "es": "Ruta diaria",
-  "pt": "Trilha diária",
-  "de": "Tagesplan"
- },
- "Giriş yap": {
-  "en": "Log in",
-  "es": "Iniciar sesión",
-  "pt": "Entrar",
-  "de": "Anmelden"
- },
- "Hakkımızda": {
-  "en": "About us",
-  "es": "Sobre nosotros",
-  "pt": "Sobre nós",
-  "de": "Über uns"
- },
- "Sıkça sorulan sorular": {
-  "en": "Frequently asked questions",
-  "es": "Preguntas frecuentes",
-  "pt": "Perguntas frequentes",
-  "de": "Häufige Fragen"
- },
- "Uygulamayı indir": {
-  "en": "Get the app",
-  "es": "Descarga la app",
-  "pt": "Baixe o app",
-  "de": "App laden"
- },
- "Gizlilik politikası": {
-  "en": "Privacy policy",
-  "es": "Política de privacidad",
-  "pt": "Política de privacidade",
-  "de": "Datenschutz"
- },
- "Kullanım şartları": {
-  "en": "Terms of use",
-  "es": "Condiciones de uso",
-  "pt": "Termos de uso",
-  "de": "Nutzungsbedingungen"
- },
- "Yasal": {
-  "en": "Legal",
-  "es": "Legal",
-  "pt": "Legal",
-  "de": "Rechtliches"
- },
- "İndir": {
-  "en": "Download on",
-  "es": "Descárgala en",
-  "pt": "Baixe na",
-  "de": "Laden im"
- },
- "İngilizceyi gerçek hayat sahnelerinde sesli prova et. Mivo karşında, düzeltme anında.": {
-  "en": "Rehearse English out loud in real-life scenes, with Mivo across from you and corrections on the spot.",
-  "es": "Ensaya inglés en voz alta en escenas de la vida real, con Mivo frente a ti y correcciones al instante.",
-  "pt": "Ensaie inglês em voz alta em cenas da vida real, com a Mivo à sua frente e correções na hora.",
-  "de": "Übe Englisch laut in Alltagsszenen – mit Mivo als Gegenüber und Korrekturen in Echtzeit."
- },
- "Otelde check-in": {
-  "en": "Hotel check-in",
-  "es": "Check-in en el hotel",
-  "pt": "Check-in no hotel",
-  "de": "Check-in im Hotel"
- },
- "İtalyan restoranında akşam yemeği": {
-  "en": "Dinner at an Italian restaurant",
-  "es": "Cena en un restaurante italiano",
-  "pt": "Jantar em um restaurante italiano",
-  "de": "Abendessen im italienischen Restaurant"
- },
- "Doktor muayenesi": {
-  "en": "Doctor’s appointment",
-  "es": "Cita con el médico",
-  "pt": "Consulta médica",
-  "de": "Arzttermin"
- },
- "Bitpazarında pazarlık": {
-  "en": "Haggling at the flea market",
-  "es": "Regateo en el mercadillo",
-  "pt": "Pechincha na feira de antiguidades",
-  "de": "Feilschen auf dem Flohmarkt"
- },
- "Havalimanında check-in": {
-  "en": "Airport check-in",
-  "es": "Check-in en el aeropuerto",
-  "pt": "Check-in no aeroporto",
-  "de": "Check-in am Flughafen"
- },
- "Havalimanı check-in sahnesi": {
-  "en": "Airport check-in scene",
-  "es": "Escena de check-in en el aeropuerto",
-  "pt": "Cena de check-in no aeroporto",
-  "de": "Check-in-Szene am Flughafen"
- },
- "Aynı sahne, her seferinde farklı bir sürpriz.": {
-  "en": "Same scene, a different surprise every time.",
-  "es": "La misma escena, una sorpresa distinta cada vez.",
-  "pt": "A mesma cena, uma surpresa diferente a cada vez.",
-  "de": "Dieselbe Szene, jedes Mal eine andere Überraschung."
- },
- "Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: karışıklık, bitmiş ürün, aceleci bir görevli. Ezber çalışmaz, o yüzden gerçekten konuşmayı öğrenirsin.": {
-  "en": "You meet the scene in a short video, then Mivo plays the character live. Play it again and something different happens: a mix-up, a sold-out item, an impatient clerk. You can’t memorize your way through, so you actually learn to speak.",
-  "es": "Conoces la escena con un video corto y luego Mivo interpreta al personaje en vivo. Al repetirla, pasa algo distinto: un malentendido, un producto agotado, un empleado con prisa. No sirve memorizar, así que aprendes a hablar de verdad.",
-  "pt": "Você conhece a cena em um vídeo curto e depois a Mivo interpreta o personagem ao vivo. Ao repetir, acontece algo diferente: uma confusão, um item esgotado, um atendente apressado. Decorar não funciona, então você aprende a falar de verdade.",
-  "de": "Zuerst lernst du die Szene in einem kurzen Video kennen, dann spielt Mivo die Figur live. Beim nächsten Durchgang passiert etwas anderes: ein Missverständnis, ein ausverkauftes Produkt, ein eiliger Mitarbeiter. Auswendiglernen hilft nicht – so lernst du wirklich zu sprechen."
- },
- "Her sahnede üç yıldız var": {
-  "en": "Every scene has three stars",
-  "es": "Cada escena tiene tres estrellas",
-  "pt": "Cada cena tem três estrelas",
-  "de": "Jede Szene hat drei Sterne"
- },
- "Videoyu bitir": {
-  "en": "Finish the video",
-  "es": "Termina el video",
-  "pt": "Termine o vídeo",
-  "de": "Video zu Ende schauen"
- },
- "Sahnenin kısa videosunu izle, cümleleri sesli tekrar et.": {
-  "en": "Watch the scene’s short video and repeat the sentences out loud.",
-  "es": "Mira el video corto de la escena y repite las frases en voz alta.",
-  "pt": "Assista ao vídeo curto da cena e repita as frases em voz alta.",
-  "de": "Sieh dir das kurze Video zur Szene an und sprich die Sätze laut nach."
- },
- "Mivo ile canlı oyna": {
-  "en": "Play it live with Mivo",
-  "es": "Juégala en vivo con Mivo",
-  "pt": "Jogue ao vivo com a Mivo",
-  "de": "Live mit Mivo spielen"
- },
- "Karakteri Mivo oynar. En az dört cümle konuş.": {
-  "en": "Mivo plays the character. Speak at least four sentences.",
-  "es": "Mivo interpreta al personaje. Di al menos cuatro frases.",
-  "pt": "A Mivo faz o personagem. Fale pelo menos quatro frases.",
-  "de": "Mivo spielt die Figur. Sprich mindestens vier Sätze."
- },
- "Temiz tamamla": {
-  "en": "Finish clean",
-  "es": "Termina sin errores",
-  "pt": "Termine sem erros",
-  "de": "Sauber abschließen"
- },
- "Sahnenin hedeflerini en fazla iki düzeltmeyle bitir.": {
-  "en": "Reach the scene’s goals with at most two corrections.",
-  "es": "Cumple los objetivos de la escena con dos correcciones como máximo.",
-  "pt": "Cumpra os objetivos da cena com no máximo duas correções.",
-  "de": "Erreiche die Ziele der Szene mit höchstens zwei Korrekturen."
- },
- "Seviyene uygun sahneler açık gelir, bir üst seviye “zor” etiketiyle denenebilir. Daha ilerisi, önceki seviyeyi bitirince açılır.": {
-  "en": "Scenes at your level are open from the start, and the next level up can be tried with a “hard” label. Anything beyond that unlocks once you finish the previous level.",
-  "es": "Las escenas de tu nivel están abiertas desde el inicio y el nivel siguiente se puede probar con la etiqueta «difícil». Lo demás se desbloquea al terminar el nivel anterior.",
-  "pt": "As cenas do seu nível já vêm abertas e o nível seguinte pode ser testado com o selo “difícil”. O resto é liberado quando você conclui o nível anterior.",
-  "de": "Szenen auf deinem Niveau sind sofort offen, die nächste Stufe kannst du mit dem Label „schwierig“ ausprobieren. Alles darüber schaltet sich frei, sobald du die vorherige Stufe abgeschlossen hast."
- },
- "Toplam 21 sahne, A1’den B2’ye.": {
-  "en": "21 scenes in total, from A1 to B2.",
-  "es": "21 escenas en total, de A1 a B2.",
-  "pt": "21 cenas no total, de A1 a B2.",
-  "de": "Insgesamt 21 Szenen, von A1 bis B2."
- },
- "Aynı sahne · 4 farklı oynayış": {
-  "en": "Same scene · 4 ways to play it",
-  "es": "Misma escena · 4 formas de jugarla",
-  "pt": "Mesma cena · 4 formas de jogar",
-  "de": "Dieselbe Szene · 4 Varianten"
- },
- "İstediğin şey bitmiş — alternatif bul.": {
-  "en": "What you want is sold out — find an alternative.",
-  "es": "Lo que quieres se ha agotado: busca una alternativa.",
-  "pt": "O que você quer acabou: encontre uma alternativa.",
-  "de": "Was du willst, ist ausverkauft – finde eine Alternative."
- },
- "Bir şey yanlış gelmiş — nazikçe düzelttir.": {
-  "en": "Something’s off — politely get it fixed.",
-  "es": "Algo no cuadra: pide amablemente que se corrija.",
-  "pt": "Algo não bate: peça educadamente para corrigir.",
-  "de": "Da stimmt etwas nicht – lass es höflich korrigieren."
- },
- "Acele var": {
-  "en": "In a hurry",
-  "es": "Con prisa",
-  "pt": "Com pressa",
-  "de": "Es eilt"
- },
- "Ad": {
-  "en": "Name",
-  "es": "Nombre",
-  "pt": "Nome",
-  "de": "Name"
- },
- "Konu": {
-  "en": "Topic",
-  "es": "Tema",
-  "pt": "Tema",
-  "de": "Thema"
- },
- "Hedef": {
-  "en": "Goal",
-  "es": "Objetivo",
-  "pt": "Meta",
-  "de": "Ziel"
- },
- "Vize görüşmesi": {
-  "en": "Visa interview",
-  "es": "Entrevista de visa",
-  "pt": "Entrevista de visto",
-  "de": "Visumsgespräch"
- },
- "Havalimanı sohbeti": {
-  "en": "Airport chat",
-  "es": "Charla en el aeropuerto",
-  "pt": "Conversa no aeroporto",
-  "de": "Gespräch am Flughafen"
- },
- "Mivo el sallıyor": {
-  "en": "Mivo waving",
-  "es": "Mivo saludando",
-  "pt": "Mivo acenando",
-  "de": "Mivo winkt"
- },
- "Mivo seni hatırlar.": {
-  "en": "Mivo remembers you.",
-  "es": "Mivo te recuerda.",
-  "pt": "A Mivo lembra de você.",
-  "de": "Mivo erinnert sich an dich."
- },
- "Konu seçmek zorunda değilsin; ne istersen konuş. Mivo neler konuştuğunuzu aklında tutar, sonraki sohbete kaldığınız yerden başlar.": {
-  "en": "You don’t have to pick a topic; talk about whatever you like. Mivo remembers what you discussed and picks up where you left off next time.",
-  "es": "No tienes que elegir un tema: habla de lo que quieras. Mivo recuerda de qué hablaron y retoma la próxima conversación donde la dejaron.",
-  "pt": "Você não precisa escolher um tema: fale do que quiser. A Mivo lembra do que vocês conversaram e retoma da próxima vez de onde pararam.",
-  "de": "Du musst kein Thema wählen – sprich über alles, was dich interessiert. Mivo merkt sich, worüber ihr geredet habt, und macht beim nächsten Mal dort weiter, wo ihr aufgehört habt."
- },
- "Tekrar hoş geldin, Ece! Geçen sefer iş mülakatından konuşmuştuk. İstersen oradan devam edelim, istersen yeni bir konu seç.": {
-  "en": "Welcome back, Ece! Last time we talked about your job interview. Want to pick up from there, or choose something new?",
-  "es": "¡Hola de nuevo, Ece! La última vez hablamos de tu entrevista de trabajo. ¿Seguimos por ahí o eliges un tema nuevo?",
-  "pt": "Que bom te ver de novo, Ece! Da última vez falamos sobre a sua entrevista de emprego. Quer continuar daí ou escolher outro tema?",
-  "de": "Schön, dass du wieder da bist, Ece! Letztes Mal haben wir über dein Vorstellungsgespräch gesprochen. Möchtest du dort weitermachen oder ein neues Thema wählen?"
- },
- "Oradan devam et": {
-  "en": "Pick up from there",
-  "es": "Seguir por ahí",
-  "pt": "Continuar daí",
-  "de": "Dort weitermachen"
- },
- "Yeni bir konu seç": {
-  "en": "Choose a new topic",
-  "es": "Elegir un tema nuevo",
-  "pt": "Escolher outro tema",
-  "de": "Neues Thema wählen"
- },
- "Açıklamalar kendi dilinde": {
-  "en": "Explanations in your language",
-  "es": "Explicaciones en tu idioma",
-  "pt": "Explicações no seu idioma",
-  "de": "Erklärungen in deiner Sprache"
- },
- "Hedef dil hep İngilizce, açıklamalar ana dilinde.": {
-  "en": "You always practice English; explanations come in your own language.",
-  "es": "Siempre practicas inglés; las explicaciones llegan en tu idioma.",
-  "pt": "Você sempre pratica inglês; as explicações vêm no seu idioma.",
-  "de": "Du übst immer Englisch; die Erklärungen kommen in deiner Sprache."
- },
- "Hafıza senin kontrolünde": {
-  "en": "You control the memory",
-  "es": "Tú controlas la memoria",
-  "pt": "Você controla a memória",
-  "de": "Du behältst die Kontrolle"
- },
- "Kısa notlar saklanır, tam kayıt değil. Bakabilir, düzeltebilir ya da tümünü silebilirsin.": {
-  "en": "Only short notes are kept, not full recordings. You can view, edit or delete all of it.",
-  "es": "Solo se guardan notas breves, no grabaciones completas. Puedes verlas, editarlas o borrarlas todas.",
-  "pt": "Só notas curtas são guardadas, não gravações completas. Você pode ver, editar ou apagar tudo.",
-  "de": "Gespeichert werden nur kurze Notizen, keine vollständigen Aufnahmen. Du kannst alles einsehen, ändern oder löschen."
- },
- "Mivo ile serbest sohbet": {
-  "en": "Free chat with Mivo",
-  "es": "Charla libre con Mivo",
-  "pt": "Conversa livre com a Mivo",
-  "de": "Freies Gespräch mit Mivo"
- },
- "Her gün tek bir sonraki adım.": {
-  "en": "Just one next step, every day.",
-  "es": "Un solo paso cada día.",
-  "pt": "Um único próximo passo por dia.",
-  "de": "Jeden Tag nur der nächste Schritt."
- },
- "Ne çalışacağını seçmek için vakit harcama. Bugün sekmesi sıradaki işi gösterir; sahne, okuma ve kelimeler birbirini destekler.": {
-  "en": "No time wasted deciding what to study. The Today tab shows what’s next, and scenes, reading and words support each other.",
-  "es": "No pierdas tiempo decidiendo qué estudiar. La pestaña Hoy te muestra lo siguiente, y las escenas, la lectura y las palabras se refuerzan entre sí.",
-  "pt": "Sem perder tempo decidindo o que estudar. A aba Hoje mostra o próximo passo, e cenas, leitura e palavras se reforçam.",
-  "de": "Du musst nicht überlegen, was du lernen sollst. Der Tab „Heute“ zeigt dir den nächsten Schritt, und Szenen, Lesen und Wörter ergänzen sich."
- },
- "Bugün": {
-  "en": "Today",
-  "es": "Hoy",
-  "pt": "Hoje",
-  "de": "Heute"
- },
- "Seviyene göre gün gün ilerleyen bir yol. Her gün birkaç küçük görev: konu anlatımı, okuma, podcast ve Mivo ile tekrar.": {
-  "en": "A path that moves forward day by day at your level. A few small tasks each day: a lesson, reading, a podcast and a review with Mivo.",
-  "es": "Un camino que avanza día a día según tu nivel. Cada día, unas pocas tareas pequeñas: lección, lectura, podcast y repaso con Mivo.",
-  "pt": "Uma trilha que avança dia a dia conforme o seu nível. Todo dia, algumas tarefas pequenas: lição, leitura, podcast e revisão com a Mivo.",
-  "de": "Ein Weg, der dich Tag für Tag auf deinem Niveau voranbringt. Jeden Tag ein paar kleine Aufgaben: Lektion, Lesen, Podcast und Wiederholung mit Mivo."
- },
- "Gün 3 · Mivo ile pekiştir": {
-  "en": "Day 3 · Reinforce with Mivo",
-  "es": "Día 3 · Refuerza con Mivo",
-  "pt": "Dia 3 · Reforce com a Mivo",
-  "de": "Tag 3 · Mit Mivo festigen"
- },
- "Doğru yerden başla": {
-  "en": "Start at the right level",
-  "es": "Empieza en el nivel adecuado",
-  "pt": "Comece no nível certo",
-  "de": "Starte auf dem richtigen Niveau"
- },
- "Kısa bir seviye belirleme seni A1’den C2’ye uzanan yolda doğru basamağa koyar. İçerik ve kilitler buna göre şekillenir; hazır olduğunda üst seviyeye geçersin.": {
-  "en": "A quick level check puts you on the right step of the path from A1 to C2. Content and unlocks follow from there, and you move up when you’re ready.",
-  "es": "Una breve evaluación te sitúa en el peldaño correcto del camino de A1 a C2. El contenido y los desbloqueos se ajustan a eso, y subes de nivel cuando estés listo.",
-  "pt": "Uma avaliação rápida coloca você no degrau certo do caminho de A1 a C2. O conteúdo e os desbloqueios se ajustam a isso, e você sobe de nível quando estiver pronto.",
-  "de": "Ein kurzer Einstufungstest setzt dich auf die richtige Stufe des Wegs von A1 bis C2. Inhalte und Freischaltungen richten sich danach, und wenn du bereit bist, steigst du auf."
- },
- "A1–A2 hikâyelerinde dinle, boşluğu doldur, kelimeyi harf harf yaz, cümleyi sıraya diz; sonunda sahnedeki cümleyi sesli söyle.": {
-  "en": "In A1–A2 stories you listen, fill in the gaps, spell words letter by letter and put sentences in order, then say the scene’s line out loud.",
-  "es": "En las historias A1–A2 escuchas, completas huecos, deletreas palabras letra a letra y ordenas frases; al final, dices la frase de la escena en voz alta.",
-  "pt": "Nas histórias A1–A2 você escuta, completa lacunas, soletra palavras letra por letra e organiza frases; no fim, diz a frase da cena em voz alta.",
-  "de": "In den A1–A2-Geschichten hörst du zu, füllst Lücken, buchstabierst Wörter und bringst Sätze in die richtige Reihenfolge – zum Schluss sprichst du den Satz aus der Szene laut."
- },
- "40 bölüm, iki dilli transkript. Bir cümleye dokununca ses oraya atlar; bölümü bitirince mini test gelir.": {
-  "en": "40 episodes with bilingual transcripts. Tap a sentence and the audio jumps there; finish an episode and a mini quiz follows.",
-  "es": "40 episodios con transcripción bilingüe. Toca una frase y el audio salta ahí; al terminar el episodio llega un minitest.",
-  "pt": "40 episódios com transcrição bilíngue. Toque em uma frase e o áudio pula para ela; ao terminar o episódio vem um mini teste.",
-  "de": "40 Folgen mit zweisprachigem Transkript. Tippe auf einen Satz, und die Audiodatei springt dorthin; nach jeder Folge wartet ein Mini-Test."
- },
- "900 çekirdek kelime, aralıklı tekrarla (SM-2) tam unutmak üzereyken karşına çıkar.": {
-  "en": "900 core words that come back through spaced repetition (SM-2) just as you’re about to forget them.",
-  "es": "900 palabras esenciales que vuelven con repetición espaciada (SM-2) justo cuando estás a punto de olvidarlas.",
-  "pt": "900 palavras essenciais que voltam com repetição espaçada (SM-2) justo quando você está prestes a esquecê-las.",
-  "de": "900 Kernwörter, die dir per Spaced Repetition (SM-2) genau dann wieder begegnen, wenn du sie fast vergessen hast."
- },
- "Konuşmalarda düzeltilen cümleler defterine düşer; geri dönüp çalışırsın.": {
-  "en": "Sentences corrected in conversations land in your notebook so you can go back and practice them.",
-  "es": "Las frases corregidas en tus conversaciones llegan a tu cuaderno para que vuelvas a practicarlas.",
-  "pt": "As frases corrigidas nas conversas vão para o seu caderno para você voltar e praticar.",
-  "de": "Im Gespräch korrigierte Sätze landen in deinem Heft, damit du sie später gezielt üben kannst."
- },
- "Türkçe konuşanların zorlandığı kelimeleri tek tek dinle ve tekrar et.": {
-  "en": "Listen to the words that speakers of your language find hardest, one by one, and repeat them.",
-  "es": "Escucha una por una las palabras que más les cuestan a quienes hablan tu idioma y repítelas.",
-  "pt": "Ouça, uma a uma, as palavras mais difíceis para quem fala o seu idioma e repita.",
-  "de": "Hör dir die Wörter an, mit denen Sprecher deiner Sprache die größten Schwierigkeiten haben – eins nach dem anderen – und sprich sie nach."
- },
- "Okuma hikâyeleri": {
-  "en": "Reading stories",
-  "es": "Historias para leer",
-  "pt": "Histórias para ler",
-  "de": "Lesegeschichten"
- },
- "Ücretsiz başla. Sınırı kaldırmak istersen Pro.": {
-  "en": "Start free. Go Pro to remove the limits.",
-  "es": "Empieza gratis. Pasa a Pro para quitar los límites.",
-  "pt": "Comece grátis. Passe para o Pro e remova os limites.",
-  "de": "Kostenlos starten. Mit Pro fallen die Limits weg."
- },
- "Ücretsiz": {
-  "en": "Free",
-  "es": "Gratis",
-  "pt": "Grátis",
-  "de": "Kostenlos"
- },
- "Her gün biraz konuşmak için yeterli.": {
-  "en": "Plenty to speak a little every day.",
-  "es": "Suficiente para hablar un poco cada día.",
-  "pt": "O bastante para falar um pouco todo dia.",
-  "de": "Genug, um jeden Tag ein bisschen zu sprechen."
- },
- "Ücretsiz başla": {
-  "en": "Start free",
-  "es": "Empieza gratis",
-  "pt": "Comece grátis",
-  "de": "Kostenlos starten"
- },
- "Sahneleri ve Mivo’yu sınırsız kullan.": {
-  "en": "Use the scenes and Mivo without limits.",
-  "es": "Usa las escenas y a Mivo sin límites.",
-  "pt": "Use as cenas e a Mivo sem limites.",
-  "de": "Nutze Szenen und Mivo ohne Limits."
- },
- "Önce ücretsiz dene": {
-  "en": "Try it free first",
-  "es": "Pruébalo primero gratis",
-  "pt": "Experimente grátis primeiro",
-  "de": "Erst kostenlos testen"
- },
- "Günde 1 sesli sahne, 5 dakikaya kadar": {
-  "en": "1 voice scene a day, up to 5 minutes",
-  "es": "1 escena hablada al día, hasta 5 minutos",
-  "pt": "1 cena falada por dia, até 5 minutos",
-  "de": "1 Sprechszene pro Tag, bis zu 5 Minuten"
- },
- "Anlık düzeltme ve hata defteri": {
-  "en": "Instant corrections and a mistakes notebook",
-  "es": "Correcciones al instante y cuaderno de errores",
-  "pt": "Correções na hora e caderno de erros",
-  "de": "Sofortkorrekturen und Fehlerheft"
- },
- "Kelime kartları ve aralıklı tekrar": {
-  "en": "Flashcards with spaced repetition",
-  "es": "Tarjetas con repetición espaciada",
-  "pt": "Cartões com repetição espaçada",
-  "de": "Karteikarten mit Spaced Repetition"
- },
- "Sınırsız sesli sahne ve Mivo ile serbest sohbet": {
-  "en": "Unlimited voice scenes and free chat with Mivo",
-  "es": "Escenas habladas ilimitadas y charla libre con Mivo",
-  "pt": "Cenas faladas ilimitadas e conversa livre com a Mivo",
-  "de": "Unbegrenzte Sprechszenen und freies Gespräch mit Mivo"
- },
- "30 dakikaya kadar uzun oturumlar": {
-  "en": "Long sessions of up to 30 minutes",
-  "es": "Sesiones largas de hasta 30 minutos",
-  "pt": "Sessões longas de até 30 minutos",
-  "de": "Lange Sitzungen bis zu 30 Minuten"
- },
- "Her sahneyi farklı sürprizlerle tekrar oyna, yıldız topla": {
-  "en": "Replay every scene with new surprises and collect stars",
-  "es": "Repite cada escena con sorpresas nuevas y reúne estrellas",
-  "pt": "Repita cada cena com novas surpresas e colecione estrelas",
-  "de": "Jede Szene mit neuen Überraschungen wiederholen und Sterne sammeln"
- },
- "Tüm sahnelere erişim": {
-  "en": "Access to every scene",
-  "es": "Acceso a todas las escenas",
-  "pt": "Acesso a todas as cenas",
-  "de": "Zugang zu allen Szenen"
- },
- "Pro fiyatı uygulamada, App Store ve Google Play’in kendi fiyatıyla gösterilir. Aboneliği mağaza hesabından istediğin zaman iptal edebilirsin.": {
-  "en": "The Pro price is shown in the app, at the App Store’s and Google Play’s own price. You can cancel the subscription anytime from your store account.",
-  "es": "El precio de Pro se muestra en la app con el precio propio de App Store y Google Play. Puedes cancelar la suscripción cuando quieras desde tu cuenta de la tienda.",
-  "pt": "O preço do Pro aparece no app com o valor da App Store e do Google Play. Você pode cancelar a assinatura quando quiser pela conta da loja.",
-  "de": "Den Pro-Preis siehst du in der App, mit dem Preis von App Store bzw. Google Play. Das Abo kannst du jederzeit über dein Store-Konto kündigen."
- },
- "Başlamadan önce akla gelenler": {
-  "en": "Before you start",
-  "es": "Antes de empezar",
-  "pt": "Antes de começar",
-  "de": "Bevor du startest"
- },
- "Tüm soruları gör →": {
-  "en": "See all questions →",
-  "es": "Ver todas las preguntas →",
-  "pt": "Ver todas as perguntas →",
-  "de": "Alle Fragen ansehen →"
- },
- "Sahne senin": {
-  "en": "Your stage",
-  "es": "El escenario es tuyo",
-  "pt": "O palco é seu",
-  "de": "Die Bühne gehört dir"
- },
- "Sahne hazır. İlk cümleni söyle.": {
-  "en": "The stage is set. Say your first sentence.",
-  "es": "Todo listo. Di tu primera frase.",
-  "pt": "Tudo pronto. Diga sua primeira frase.",
-  "de": "Die Bühne ist bereit. Sag deinen ersten Satz."
- },
- "Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.": {
-  "en": "Pick a scene and Mivo is right there with you. Stumble and you get an instant fix; tomorrow you play it again with a new twist.",
-  "es": "Elige una escena y Mivo estará frente a ti. Si te atascas, te corrige al instante; mañana la juegas otra vez con un giro nuevo.",
-  "pt": "Escolha uma cena e a Mivo estará na sua frente. Se travar, ela corrige na hora; amanhã você joga de novo com uma reviravolta nova.",
-  "de": "Such dir eine Szene aus, und Mivo ist dein Gegenüber. Wenn du hängst, gibt es sofort eine Korrektur; morgen spielst du sie noch einmal – mit neuer Wendung."
- },
- "Telefonun yanında değil mi?": {
-  "en": "Phone not at hand?",
-  "es": "¿No tienes el móvil a mano?",
-  "pt": "Sem o celular por perto?",
-  "de": "Dein Handy gerade nicht zur Hand?"
- },
- "Web’den başla": {
-  "en": "Start on the web",
-  "es": "Empieza en la web",
-  "pt": "Comece pela web",
-  "de": "Im Web starten"
- },
- "Sevinen Mivo": {
-  "en": "Cheering Mivo",
-  "es": "Mivo celebrando",
-  "pt": "Mivo comemorando",
-  "de": "Jubelnder Mivo"
- },
- "Nasıl çalışır": {
-  "en": "How it works",
-  "es": "Cómo funciona",
-  "pt": "Como funciona",
-  "de": "So funktioniert’s"
- },
- "Konuş": {
-  "en": "Speak",
-  "es": "Habla",
-  "pt": "Fale",
-  "de": "Sprich"
- },
- "Düzelt": {
-  "en": "Fix it",
-  "es": "Corrige",
-  "pt": "Corrija",
-  "de": "Korrigiere"
- },
- "Tekrar et": {
-  "en": "Repeat",
-  "es": "Repasa",
-  "pt": "Revise",
-  "de": "Wiederhole"
- },
- "Konuş. Düzelt. Tekrar et.": {
-  "en": "Speak. Fix it. Repeat.",
-  "es": "Habla. Corrige. Repasa.",
-  "pt": "Fale. Corrija. Revise.",
-  "de": "Sprich. Korrigiere. Wiederhole."
- },
- "Takıldığın cümle anında düzelir ve nedeni kendi dilinde açıklanır. Konuşman hiç bölünmez.": {
-  "en": "The sentence you stumble on is fixed on the spot, with the reason explained in your own language. Your flow is never interrupted.",
-  "es": "La frase en la que te atascas se corrige al instante y el motivo se explica en tu idioma. Tu conversación nunca se interrumpe.",
-  "pt": "A frase em que você trava é corrigida na hora e o motivo é explicado no seu idioma. Sua conversa nunca é interrompida.",
-  "de": "Der Satz, bei dem du hängst, wird sofort korrigiert und der Grund in deiner Sprache erklärt. Dein Redefluss wird nie unterbrochen."
- },
- "Havalimanında, otelde, mülakatta… Mivo sahnedeki karşı tarafı oynar, sen sesli konuşursun.": {
-  "en": "At the airport, in a hotel, in an interview… Mivo plays the person across from you and you speak out loud.",
-  "es": "En el aeropuerto, en un hotel, en una entrevista… Mivo interpreta a la otra persona y tú hablas en voz alta.",
-  "pt": "No aeroporto, no hotel, na entrevista… a Mivo faz a outra pessoa da cena e você fala em voz alta.",
-  "de": "Am Flughafen, im Hotel, im Vorstellungsgespräch … Mivo spielt dein Gegenüber, und du sprichst laut."
- },
- "Hataların Hata Defterim'e düşer. Hızlı sınavla pekiştirir, gün gün planınla ilerlersin.": {
-  "en": "Your mistakes land in your notebook. Lock them in with a quick quiz and move ahead with your day-by-day plan.",
-  "es": "Tus errores van a tu cuaderno. Afiánzalos con un minitest y avanza con tu plan día a día.",
-  "pt": "Seus erros vão para o seu caderno. Fixe-os com um quiz rápido e avance com o plano dia a dia.",
-  "de": "Deine Fehler landen in deinem Heft. Festige sie mit einem Schnelltest und komm mit deinem Tag-für-Tag-Plan voran."
- },
- "Konuşuyorsun…": {
-  "en": "You’re speaking…",
-  "es": "Estás hablando…",
-  "pt": "Você está falando…",
-  "de": "Du sprichst …"
- },
- "“go” geçmiş zamanda “went” olur. Dünü anlatıyorsun, o yüzden geçmiş zaman.": {
-  "en": "The past of “go” is “went”. You’re talking about yesterday, so use the past tense.",
-  "es": "El pasado de “go” es “went”. Hablas de ayer, así que usa el pasado.",
-  "pt": "O passado de “go” é “went”. Você fala de ontem, então use o passado.",
-  "de": "Die Vergangenheitsform von „go“ ist „went“. Du sprichst über gestern, also brauchst du die Vergangenheit."
- },
- "Hata Defterim": {
-  "en": "My Mistakes Notebook",
-  "es": "Mi cuaderno de errores",
-  "pt": "Meu caderno de erros",
-  "de": "Mein Fehlerheft"
- },
- "Hızlı Sınav": {
-  "en": "Quick Quiz",
-  "es": "Quiz rápido",
-  "pt": "Quiz rápido",
-  "de": "Schnelltest"
- },
- "Gün gün yolun": {
-  "en": "Your day-by-day path",
-  "es": "Tu ruta día a día",
-  "pt": "Sua trilha dia a dia",
-  "de": "Dein Weg, Tag für Tag"
- },
- "Klasik sahne": {
-  "en": "The classic",
-  "es": "La escena clásica",
-  "pt": "A cena clássica",
-  "de": "Der Klassiker"
- }
+  "dilde açıklama": {
+    "en": "explanation languages",
+    "es": "idiomas de explicación",
+    "pt": "idiomas de explicação",
+    "de": "Erklärsprachen"
+  },
+  "Aradığın yok": {
+    "en": "Out of stock",
+    "es": "Se ha agotado",
+    "pt": "Está em falta",
+    "de": "Nicht mehr da"
+  },
+  "Karışıklık çıktı": {
+    "en": "A mix-up",
+    "es": "Un malentendido",
+    "pt": "Uma confusão",
+    "de": "Ein Missverständnis"
+  },
+  "Örn: Ahmet Yılmaz": {
+    "en": "e.g. Jane Miller",
+    "es": "Ej.: Laura Gómez",
+    "pt": "Ex.: Ana Souza",
+    "de": "z. B. Anna Müller"
+  },
+  "ahmet@sirketiniz.com": {
+    "en": "jane@yourcompany.com",
+    "es": "laura@tuempresa.com",
+    "pt": "ana@suaempresa.com",
+    "de": "anna@deinefirma.com"
+  },
+  "Sayfa bulunamadı": {
+    "en": "Page not found",
+    "es": "Página no encontrada",
+    "pt": "Página não encontrada",
+    "de": "Seite nicht gefunden"
+  },
+  "Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.": {
+    "en": "The page you are looking for may have moved or never existed.",
+    "es": "Es posible que la página que buscas se haya movido o que nunca haya existido.",
+    "pt": "A página que você procura pode ter sido movida ou nunca ter existido.",
+    "de": "Die gesuchte Seite wurde vielleicht verschoben oder hat nie existiert."
+  },
+  "Ana sayfaya dön": {
+    "en": "Back to home",
+    "es": "Volver al inicio",
+    "pt": "Voltar ao início",
+    "de": "Zurück zur Startseite"
+  },
+  "Spekvia — Sesli İngilizce Konuşma Pratiği Uygulaması": {
+    "en": "Spekvia — Practice Speaking English with an AI Coach",
+    "es": "Spekvia: practica hablar inglés con un coach de IA",
+    "pt": "Spekvia: pratique falar inglês com um coach de IA",
+    "de": "Spekvia: Englisch sprechen üben mit KI-Coach"
+  },
+  "Gerçek hayat sahnelerini Mivo ile sesli prova et: havalimanı, otel, mülakat. Takıldığın cümle anında kendi dilinde düzeltilir. Ücretsiz başla.": {
+    "en": "Rehearse real-life English scenes by voice: airport, hotel, job interview. Mivo corrects every slip instantly, in your own language. Start free.",
+    "es": "Ensaya escenas reales en inglés con tu voz: aeropuerto, hotel, entrevista. Mivo corrige tus errores al instante en tu idioma. Empieza gratis.",
+    "pt": "Ensaie cenas reais em inglês com a sua voz: aeroporto, hotel, entrevista. O Mivo corrige seus erros na hora, no seu idioma. Comece de graça.",
+    "de": "Übe echte Alltagssituationen auf Englisch per Sprache: Flughafen, Hotel, Vorstellungsgespräch. Mivo korrigiert dich sofort in deiner Sprache. Gratis starten."
+  },
+  "Spekvia Hakkında: Konuşarak İngilizce Öğren": {
+    "en": "About Spekvia: Learn English by Speaking",
+    "es": "Sobre Spekvia: aprende inglés hablando",
+    "pt": "Sobre o Spekvia: aprenda inglês falando",
+    "de": "Über Spekvia: Englisch lernen durch Sprechen"
+  },
+  "Spekvia, İngilizceyi gerçek hayat sahnelerinde sesli prova etmeni sağlar. Nasıl çalıştığımızı ve hatadan korkmadan konuşmanı sağlayan ilkelerimizi keşfet.": {
+    "en": "Spekvia lets you rehearse English by voice in real-life scenes. See how it works and the principles that help you speak without fear of mistakes.",
+    "es": "Spekvia te permite ensayar inglés con tu voz en escenas de la vida real. Descubre cómo funciona y los principios para hablar sin miedo a equivocarte.",
+    "pt": "O Spekvia permite ensaiar inglês com a voz em cenas da vida real. Conheça como funciona e os princípios para falar sem medo de errar.",
+    "de": "Mit Spekvia probst du Englisch per Sprache in realen Alltagsszenen. So funktioniert es und diese Prinzipien helfen dir, ohne Angst vor Fehlern zu sprechen."
+  },
+  "Sıkça Sorulan Sorular — Spekvia": {
+    "en": "FAQ — How Spekvia Works, Pricing & Privacy",
+    "es": "Preguntas frecuentes sobre Spekvia",
+    "pt": "Perguntas frequentes sobre o Spekvia",
+    "de": "Häufige Fragen zu Spekvia"
+  },
+  "Spekvia nasıl çalışır? Ücretsiz mi, Pro neleri kapsar, sesim nasıl işlenir? Sahneler, Mivo, kelime çalışması ve abonelik hakkında en çok sorulanlar.": {
+    "en": "How does Spekvia work? Is it free, what does Pro include, what happens to my voice? Answers about scenes, Mivo, vocabulary practice and subscriptions.",
+    "es": "¿Cómo funciona Spekvia? ¿Es gratis, qué incluye Pro, qué pasa con mi voz? Respuestas sobre escenas, Mivo, vocabulario y suscripción.",
+    "pt": "Como funciona o Spekvia? É grátis, o que o Pro inclui, o que acontece com a minha voz? Respostas sobre cenas, Mivo, vocabulário e assinatura.",
+    "de": "Wie funktioniert Spekvia? Ist es kostenlos, was bietet Pro, was passiert mit meiner Stimme? Antworten zu Szenen, Mivo, Vokabeln und Abo."
+  },
+  "İletişim — Spekvia Destek ve Kurumsal": {
+    "en": "Contact Spekvia — Support & Business",
+    "es": "Contacto — Soporte y empresas | Spekvia",
+    "pt": "Contato — Suporte e empresas | Spekvia",
+    "de": "Kontakt — Support & Unternehmen | Spekvia"
+  },
+  "Spekvia ekibine ulaş: kullanıcı desteği için support@spekvia.com, kurumsal talepler ve toplu lisanslar için info@spekvia.com adreslerine yazabilirsin.": {
+    "en": "Get in touch with the Spekvia team: write to support@spekvia.com for support, or info@spekvia.com for business requests and bulk licenses.",
+    "es": "Escribe al equipo de Spekvia: support@spekvia.com para soporte y info@spekvia.com para solicitudes de empresas y licencias en grupo.",
+    "pt": "Fale com a equipe do Spekvia: support@spekvia.com para suporte e info@spekvia.com para pedidos de empresas e licenças em grupo.",
+    "de": "Schreib dem Spekvia-Team: support@spekvia.com für Support und info@spekvia.com für Unternehmensanfragen und Sammellizenzen."
+  },
+  "Gizlilik Politikası ve KVKK — Spekvia": {
+    "en": "Privacy Policy & GDPR — Spekvia",
+    "es": "Política de privacidad y RGPD — Spekvia",
+    "pt": "Política de privacidade e GDPR — Spekvia",
+    "de": "Datenschutzerklärung & DSGVO — Spekvia"
+  },
+  "Spekvia kullanıcı verilerini, ses kayıtlarını ve kişisel bilgileri nasıl işler ve korur? Gizlilik Politikası ile KVKK/GDPR aydınlatma metni.": {
+    "en": "How Spekvia handles and protects your data, voice and personal information: the Privacy Policy with GDPR and KVKK disclosures.",
+    "es": "Cómo trata y protege Spekvia tus datos, tu voz y tu información personal: política de privacidad con información sobre RGPD y KVKK.",
+    "pt": "Como o Spekvia trata e protege seus dados, sua voz e suas informações pessoais: política de privacidade com informações sobre GDPR e KVKK.",
+    "de": "Wie Spekvia deine Daten, deine Stimme und persönliche Informationen verarbeitet und schützt: Datenschutzerklärung mit DSGVO- und KVKK-Hinweisen."
+  },
+  "Kullanım Şartları — Spekvia": {
+    "en": "Terms of Use — Spekvia",
+    "es": "Términos de uso — Spekvia",
+    "pt": "Termos de uso — Spekvia",
+    "de": "Nutzungsbedingungen — Spekvia"
+  },
+  "Spekvia mobil ve web uygulamalarının kullanım şartları: hesap, abonelik, iptal koşulları ve kullanıcı sorumlulukları.": {
+    "en": "Terms of use for the Spekvia mobile and web apps: account, subscriptions, cancellation terms and user responsibilities.",
+    "es": "Términos de uso de las apps móvil y web de Spekvia: cuenta, suscripciones, condiciones de cancelación y responsabilidades del usuario.",
+    "pt": "Termos de uso dos apps móvel e web do Spekvia: conta, assinaturas, condições de cancelamento e responsabilidades do usuário.",
+    "de": "Nutzungsbedingungen der Spekvia-Apps für Mobilgeräte und Web: Konto, Abonnements, Kündigungsbedingungen und Pflichten der Nutzer."
+  },
+  "Sesli İngilizce sahneleri · Mivo ile": {
+    "en": "English speaking scenes · with Mivo",
+    "es": "Escenas para hablar inglés · con Mivo",
+    "pt": "Cenas para falar inglês · com a Mivo",
+    "de": "Englisch sprechen in echten Szenen · mit Mivo"
+  },
+  "Anlıyorsun.": {
+    "en": "You understand.",
+    "es": "Ya entiendes.",
+    "pt": "Você já entende.",
+    "de": "Du verstehst es."
+  },
+  "Şimdi": {
+    "en": "Now",
+    "es": "Ahora",
+    "pt": "Agora",
+    "de": "Jetzt"
+  },
+  "konuş.": {
+    "en": "speak.",
+    "es": "habla.",
+    "pt": "fale.",
+    "de": "sprich."
+  },
+  "Mivo, gerçek hayat sahnelerinde karşındaki karakteri oynar. Sen sesli konuşursun; takıldığın cümleyi anında, kendi dilinde açıklayarak düzeltir.": {
+    "en": "Mivo plays the other person in real-life scenes. You speak out loud, and when you stumble, Mivo fixes the sentence on the spot and explains it in your own language.",
+    "es": "Mivo interpreta al personaje de la escena y tú hablas en voz alta. Si te atascas, Mivo corrige la frase al instante y te lo explica en tu idioma.",
+    "pt": "A Mivo faz o outro personagem em cenas da vida real e você fala em voz alta. Se travar, a Mivo corrige a frase na hora e explica no seu idioma.",
+    "de": "Mivo spielt in Alltagsszenen dein Gegenüber, und du sprichst laut. Wenn du ins Stocken gerätst, korrigiert Mivo den Satz sofort und erklärt ihn dir in deiner Sprache."
+  },
+  "Ücretsiz dene": {
+    "en": "Try it free",
+    "es": "Pruébalo gratis",
+    "pt": "Experimente grátis",
+    "de": "Kostenlos testen"
+  },
+  "Sahnelere göz at": {
+    "en": "Browse the scenes",
+    "es": "Ver las escenas",
+    "pt": "Ver as cenas",
+    "de": "Szenen ansehen"
+  },
+  "sahne · A1–B2": {
+    "en": "scenes · A1–B2",
+    "es": "escenas · A1–B2",
+    "pt": "cenas · A1–B2",
+    "de": "Szenen · A1–B2"
+  },
+  "podcast bölümü": {
+    "en": "podcast episodes",
+    "es": "episodios de podcast",
+    "pt": "episódios de podcast",
+    "de": "Podcast-Folgen"
+  },
+  "okuma hikâyesi": {
+    "en": "reading stories",
+    "es": "lecturas",
+    "pt": "histórias para ler",
+    "de": "Lesegeschichten"
+  },
+  "SSS": {
+    "en": "FAQ",
+    "es": "Preguntas",
+    "pt": "Perguntas",
+    "de": "FAQ"
+  },
+  "Günlük yol": {
+    "en": "Daily path",
+    "es": "Ruta diaria",
+    "pt": "Trilha diária",
+    "de": "Tagesplan"
+  },
+  "Giriş yap": {
+    "en": "Log in",
+    "es": "Iniciar sesión",
+    "pt": "Entrar",
+    "de": "Anmelden"
+  },
+  "Hakkımızda": {
+    "en": "About us",
+    "es": "Sobre nosotros",
+    "pt": "Sobre nós",
+    "de": "Über uns"
+  },
+  "Sıkça sorulan sorular": {
+    "en": "Frequently asked questions",
+    "es": "Preguntas frecuentes",
+    "pt": "Perguntas frequentes",
+    "de": "Häufige Fragen"
+  },
+  "Uygulamayı indir": {
+    "en": "Get the app",
+    "es": "Descarga la app",
+    "pt": "Baixe o app",
+    "de": "App laden"
+  },
+  "Gizlilik politikası": {
+    "en": "Privacy policy",
+    "es": "Política de privacidad",
+    "pt": "Política de privacidade",
+    "de": "Datenschutz"
+  },
+  "Kullanım şartları": {
+    "en": "Terms of use",
+    "es": "Condiciones de uso",
+    "pt": "Termos de uso",
+    "de": "Nutzungsbedingungen"
+  },
+  "Yasal": {
+    "en": "Legal",
+    "es": "Legal",
+    "pt": "Legal",
+    "de": "Rechtliches"
+  },
+  "İndir": {
+    "en": "Download on",
+    "es": "Descárgala en",
+    "pt": "Baixe na",
+    "de": "Laden im"
+  },
+  "İngilizceyi gerçek hayat sahnelerinde sesli prova et. Mivo karşında, düzeltme anında.": {
+    "en": "Rehearse English out loud in real-life scenes, with Mivo across from you and corrections on the spot.",
+    "es": "Ensaya inglés en voz alta en escenas de la vida real, con Mivo frente a ti y correcciones al instante.",
+    "pt": "Ensaie inglês em voz alta em cenas da vida real, com a Mivo à sua frente e correções na hora.",
+    "de": "Übe Englisch laut in Alltagsszenen – mit Mivo als Gegenüber und Korrekturen in Echtzeit."
+  },
+  "Otelde check-in": {
+    "en": "Hotel check-in",
+    "es": "Check-in en el hotel",
+    "pt": "Check-in no hotel",
+    "de": "Check-in im Hotel"
+  },
+  "İtalyan restoranında akşam yemeği": {
+    "en": "Dinner at an Italian restaurant",
+    "es": "Cena en un restaurante italiano",
+    "pt": "Jantar em um restaurante italiano",
+    "de": "Abendessen im italienischen Restaurant"
+  },
+  "Doktor muayenesi": {
+    "en": "Doctor’s appointment",
+    "es": "Cita con el médico",
+    "pt": "Consulta médica",
+    "de": "Arzttermin"
+  },
+  "Bitpazarında pazarlık": {
+    "en": "Haggling at the flea market",
+    "es": "Regateo en el mercadillo",
+    "pt": "Pechincha na feira de antiguidades",
+    "de": "Feilschen auf dem Flohmarkt"
+  },
+  "Havalimanında check-in": {
+    "en": "Airport check-in",
+    "es": "Check-in en el aeropuerto",
+    "pt": "Check-in no aeroporto",
+    "de": "Check-in am Flughafen"
+  },
+  "Havalimanı check-in sahnesi": {
+    "en": "Airport check-in scene",
+    "es": "Escena de check-in en el aeropuerto",
+    "pt": "Cena de check-in no aeroporto",
+    "de": "Check-in-Szene am Flughafen"
+  },
+  "Aynı sahne, her seferinde farklı bir sürpriz.": {
+    "en": "Same scene, a different surprise every time.",
+    "es": "La misma escena, una sorpresa distinta cada vez.",
+    "pt": "A mesma cena, uma surpresa diferente a cada vez.",
+    "de": "Dieselbe Szene, jedes Mal eine andere Überraschung."
+  },
+  "Önce kısa bir videoyla sahneyi tanırsın, sonra Mivo karakteri canlı oynar. Tekrar oynadığında karşına başka bir durum çıkar: karışıklık, bitmiş ürün, aceleci bir görevli. Ezber çalışmaz, o yüzden gerçekten konuşmayı öğrenirsin.": {
+    "en": "You meet the scene in a short video, then Mivo plays the character live. Play it again and something different happens: a mix-up, a sold-out item, an impatient clerk. You can’t memorize your way through, so you actually learn to speak.",
+    "es": "Conoces la escena con un video corto y luego Mivo interpreta al personaje en vivo. Al repetirla, pasa algo distinto: un malentendido, un producto agotado, un empleado con prisa. No sirve memorizar, así que aprendes a hablar de verdad.",
+    "pt": "Você conhece a cena em um vídeo curto e depois a Mivo interpreta o personagem ao vivo. Ao repetir, acontece algo diferente: uma confusão, um item esgotado, um atendente apressado. Decorar não funciona, então você aprende a falar de verdade.",
+    "de": "Zuerst lernst du die Szene in einem kurzen Video kennen, dann spielt Mivo die Figur live. Beim nächsten Durchgang passiert etwas anderes: ein Missverständnis, ein ausverkauftes Produkt, ein eiliger Mitarbeiter. Auswendiglernen hilft nicht – so lernst du wirklich zu sprechen."
+  },
+  "Her sahnede üç yıldız var": {
+    "en": "Every scene has three stars",
+    "es": "Cada escena tiene tres estrellas",
+    "pt": "Cada cena tem três estrelas",
+    "de": "Jede Szene hat drei Sterne"
+  },
+  "Videoyu bitir": {
+    "en": "Finish the video",
+    "es": "Termina el video",
+    "pt": "Termine o vídeo",
+    "de": "Video zu Ende schauen"
+  },
+  "Sahnenin kısa videosunu izle, cümleleri sesli tekrar et.": {
+    "en": "Watch the scene’s short video and repeat the sentences out loud.",
+    "es": "Mira el video corto de la escena y repite las frases en voz alta.",
+    "pt": "Assista ao vídeo curto da cena e repita as frases em voz alta.",
+    "de": "Sieh dir das kurze Video zur Szene an und sprich die Sätze laut nach."
+  },
+  "Mivo ile canlı oyna": {
+    "en": "Play it live with Mivo",
+    "es": "Juégala en vivo con Mivo",
+    "pt": "Jogue ao vivo com a Mivo",
+    "de": "Live mit Mivo spielen"
+  },
+  "Karakteri Mivo oynar. En az dört cümle konuş.": {
+    "en": "Mivo plays the character. Speak at least four sentences.",
+    "es": "Mivo interpreta al personaje. Di al menos cuatro frases.",
+    "pt": "A Mivo faz o personagem. Fale pelo menos quatro frases.",
+    "de": "Mivo spielt die Figur. Sprich mindestens vier Sätze."
+  },
+  "Temiz tamamla": {
+    "en": "Finish clean",
+    "es": "Termina sin errores",
+    "pt": "Termine sem erros",
+    "de": "Sauber abschließen"
+  },
+  "Sahnenin hedeflerini en fazla iki düzeltmeyle bitir.": {
+    "en": "Reach the scene’s goals with at most two corrections.",
+    "es": "Cumple los objetivos de la escena con dos correcciones como máximo.",
+    "pt": "Cumpra os objetivos da cena com no máximo duas correções.",
+    "de": "Erreiche die Ziele der Szene mit höchstens zwei Korrekturen."
+  },
+  "Seviyene uygun sahneler açık gelir, bir üst seviye “zor” etiketiyle denenebilir. Daha ilerisi, önceki seviyeyi bitirince açılır.": {
+    "en": "Scenes at your level are open from the start, and the next level up can be tried with a “hard” label. Anything beyond that unlocks once you finish the previous level.",
+    "es": "Las escenas de tu nivel están abiertas desde el inicio y el nivel siguiente se puede probar con la etiqueta «difícil». Lo demás se desbloquea al terminar el nivel anterior.",
+    "pt": "As cenas do seu nível já vêm abertas e o nível seguinte pode ser testado com o selo “difícil”. O resto é liberado quando você conclui o nível anterior.",
+    "de": "Szenen auf deinem Niveau sind sofort offen, die nächste Stufe kannst du mit dem Label „schwierig“ ausprobieren. Alles darüber schaltet sich frei, sobald du die vorherige Stufe abgeschlossen hast."
+  },
+  "Toplam 21 sahne, A1’den B2’ye.": {
+    "en": "21 scenes in total, from A1 to B2.",
+    "es": "21 escenas en total, de A1 a B2.",
+    "pt": "21 cenas no total, de A1 a B2.",
+    "de": "Insgesamt 21 Szenen, von A1 bis B2."
+  },
+  "Aynı sahne · 4 farklı oynayış": {
+    "en": "Same scene · 4 ways to play it",
+    "es": "Misma escena · 4 formas de jugarla",
+    "pt": "Mesma cena · 4 formas de jogar",
+    "de": "Dieselbe Szene · 4 Varianten"
+  },
+  "İstediğin şey bitmiş — alternatif bul.": {
+    "en": "What you want is sold out — find an alternative.",
+    "es": "Lo que quieres se ha agotado: busca una alternativa.",
+    "pt": "O que você quer acabou: encontre uma alternativa.",
+    "de": "Was du willst, ist ausverkauft – finde eine Alternative."
+  },
+  "Bir şey yanlış gelmiş — nazikçe düzelttir.": {
+    "en": "Something’s off — politely get it fixed.",
+    "es": "Algo no cuadra: pide amablemente que se corrija.",
+    "pt": "Algo não bate: peça educadamente para corrigir.",
+    "de": "Da stimmt etwas nicht – lass es höflich korrigieren."
+  },
+  "Acele var": {
+    "en": "In a hurry",
+    "es": "Con prisa",
+    "pt": "Com pressa",
+    "de": "Es eilt"
+  },
+  "Ad": {
+    "en": "Name",
+    "es": "Nombre",
+    "pt": "Nome",
+    "de": "Name"
+  },
+  "Konu": {
+    "en": "Topic",
+    "es": "Tema",
+    "pt": "Tema",
+    "de": "Thema"
+  },
+  "Hedef": {
+    "en": "Goal",
+    "es": "Objetivo",
+    "pt": "Meta",
+    "de": "Ziel"
+  },
+  "Vize görüşmesi": {
+    "en": "Visa interview",
+    "es": "Entrevista de visa",
+    "pt": "Entrevista de visto",
+    "de": "Visumsgespräch"
+  },
+  "Havalimanı sohbeti": {
+    "en": "Airport chat",
+    "es": "Charla en el aeropuerto",
+    "pt": "Conversa no aeroporto",
+    "de": "Gespräch am Flughafen"
+  },
+  "Mivo el sallıyor": {
+    "en": "Mivo waving",
+    "es": "Mivo saludando",
+    "pt": "Mivo acenando",
+    "de": "Mivo winkt"
+  },
+  "Mivo seni hatırlar.": {
+    "en": "Mivo remembers you.",
+    "es": "Mivo te recuerda.",
+    "pt": "A Mivo lembra de você.",
+    "de": "Mivo erinnert sich an dich."
+  },
+  "Konu seçmek zorunda değilsin; ne istersen konuş. Mivo neler konuştuğunuzu aklında tutar, sonraki sohbete kaldığınız yerden başlar.": {
+    "en": "You don’t have to pick a topic; talk about whatever you like. Mivo remembers what you discussed and picks up where you left off next time.",
+    "es": "No tienes que elegir un tema: habla de lo que quieras. Mivo recuerda de qué hablaron y retoma la próxima conversación donde la dejaron.",
+    "pt": "Você não precisa escolher um tema: fale do que quiser. A Mivo lembra do que vocês conversaram e retoma da próxima vez de onde pararam.",
+    "de": "Du musst kein Thema wählen – sprich über alles, was dich interessiert. Mivo merkt sich, worüber ihr geredet habt, und macht beim nächsten Mal dort weiter, wo ihr aufgehört habt."
+  },
+  "Tekrar hoş geldin, Ece! Geçen sefer iş mülakatından konuşmuştuk. İstersen oradan devam edelim, istersen yeni bir konu seç.": {
+    "en": "Welcome back, Ece! Last time we talked about your job interview. Want to pick up from there, or choose something new?",
+    "es": "¡Hola de nuevo, Ece! La última vez hablamos de tu entrevista de trabajo. ¿Seguimos por ahí o eliges un tema nuevo?",
+    "pt": "Que bom te ver de novo, Ece! Da última vez falamos sobre a sua entrevista de emprego. Quer continuar daí ou escolher outro tema?",
+    "de": "Schön, dass du wieder da bist, Ece! Letztes Mal haben wir über dein Vorstellungsgespräch gesprochen. Möchtest du dort weitermachen oder ein neues Thema wählen?"
+  },
+  "Oradan devam et": {
+    "en": "Pick up from there",
+    "es": "Seguir por ahí",
+    "pt": "Continuar daí",
+    "de": "Dort weitermachen"
+  },
+  "Yeni bir konu seç": {
+    "en": "Choose a new topic",
+    "es": "Elegir un tema nuevo",
+    "pt": "Escolher outro tema",
+    "de": "Neues Thema wählen"
+  },
+  "Açıklamalar kendi dilinde": {
+    "en": "Explanations in your language",
+    "es": "Explicaciones en tu idioma",
+    "pt": "Explicações no seu idioma",
+    "de": "Erklärungen in deiner Sprache"
+  },
+  "Hedef dil hep İngilizce, açıklamalar ana dilinde.": {
+    "en": "You always practice English; explanations come in your own language.",
+    "es": "Siempre practicas inglés; las explicaciones llegan en tu idioma.",
+    "pt": "Você sempre pratica inglês; as explicações vêm no seu idioma.",
+    "de": "Du übst immer Englisch; die Erklärungen kommen in deiner Sprache."
+  },
+  "Hafıza senin kontrolünde": {
+    "en": "You control the memory",
+    "es": "Tú controlas la memoria",
+    "pt": "Você controla a memória",
+    "de": "Du behältst die Kontrolle"
+  },
+  "Kısa notlar saklanır, tam kayıt değil. Bakabilir, düzeltebilir ya da tümünü silebilirsin.": {
+    "en": "Only short notes are kept, not full recordings. You can view, edit or delete all of it.",
+    "es": "Solo se guardan notas breves, no grabaciones completas. Puedes verlas, editarlas o borrarlas todas.",
+    "pt": "Só notas curtas são guardadas, não gravações completas. Você pode ver, editar ou apagar tudo.",
+    "de": "Gespeichert werden nur kurze Notizen, keine vollständigen Aufnahmen. Du kannst alles einsehen, ändern oder löschen."
+  },
+  "Mivo ile serbest sohbet": {
+    "en": "Free chat with Mivo",
+    "es": "Charla libre con Mivo",
+    "pt": "Conversa livre com a Mivo",
+    "de": "Freies Gespräch mit Mivo"
+  },
+  "Her gün tek bir sonraki adım.": {
+    "en": "Just one next step, every day.",
+    "es": "Un solo paso cada día.",
+    "pt": "Um único próximo passo por dia.",
+    "de": "Jeden Tag nur der nächste Schritt."
+  },
+  "Ne çalışacağını seçmek için vakit harcama. Bugün sekmesi sıradaki işi gösterir; sahne, okuma ve kelimeler birbirini destekler.": {
+    "en": "No time wasted deciding what to study. The Today tab shows what’s next, and scenes, reading and words support each other.",
+    "es": "No pierdas tiempo decidiendo qué estudiar. La pestaña Hoy te muestra lo siguiente, y las escenas, la lectura y las palabras se refuerzan entre sí.",
+    "pt": "Sem perder tempo decidindo o que estudar. A aba Hoje mostra o próximo passo, e cenas, leitura e palavras se reforçam.",
+    "de": "Du musst nicht überlegen, was du lernen sollst. Der Tab „Heute“ zeigt dir den nächsten Schritt, und Szenen, Lesen und Wörter ergänzen sich."
+  },
+  "Bugün": {
+    "en": "Today",
+    "es": "Hoy",
+    "pt": "Hoje",
+    "de": "Heute"
+  },
+  "Seviyene göre gün gün ilerleyen bir yol. Her gün birkaç küçük görev: konu anlatımı, okuma, podcast ve Mivo ile tekrar.": {
+    "en": "A path that moves forward day by day at your level. A few small tasks each day: a lesson, reading, a podcast and a review with Mivo.",
+    "es": "Un camino que avanza día a día según tu nivel. Cada día, unas pocas tareas pequeñas: lección, lectura, podcast y repaso con Mivo.",
+    "pt": "Uma trilha que avança dia a dia conforme o seu nível. Todo dia, algumas tarefas pequenas: lição, leitura, podcast e revisão com a Mivo.",
+    "de": "Ein Weg, der dich Tag für Tag auf deinem Niveau voranbringt. Jeden Tag ein paar kleine Aufgaben: Lektion, Lesen, Podcast und Wiederholung mit Mivo."
+  },
+  "Gün 3 · Mivo ile pekiştir": {
+    "en": "Day 3 · Reinforce with Mivo",
+    "es": "Día 3 · Refuerza con Mivo",
+    "pt": "Dia 3 · Reforce com a Mivo",
+    "de": "Tag 3 · Mit Mivo festigen"
+  },
+  "Doğru yerden başla": {
+    "en": "Start at the right level",
+    "es": "Empieza en el nivel adecuado",
+    "pt": "Comece no nível certo",
+    "de": "Starte auf dem richtigen Niveau"
+  },
+  "Kısa bir seviye belirleme seni A1’den C2’ye uzanan yolda doğru basamağa koyar. İçerik ve kilitler buna göre şekillenir; hazır olduğunda üst seviyeye geçersin.": {
+    "en": "A quick level check puts you on the right step of the path from A1 to C2. Content and unlocks follow from there, and you move up when you’re ready.",
+    "es": "Una breve evaluación te sitúa en el peldaño correcto del camino de A1 a C2. El contenido y los desbloqueos se ajustan a eso, y subes de nivel cuando estés listo.",
+    "pt": "Uma avaliação rápida coloca você no degrau certo do caminho de A1 a C2. O conteúdo e os desbloqueios se ajustam a isso, e você sobe de nível quando estiver pronto.",
+    "de": "Ein kurzer Einstufungstest setzt dich auf die richtige Stufe des Wegs von A1 bis C2. Inhalte und Freischaltungen richten sich danach, und wenn du bereit bist, steigst du auf."
+  },
+  "A1–A2 hikâyelerinde dinle, boşluğu doldur, kelimeyi harf harf yaz, cümleyi sıraya diz; sonunda sahnedeki cümleyi sesli söyle.": {
+    "en": "In A1–A2 stories you listen, fill in the gaps, spell words letter by letter and put sentences in order, then say the scene’s line out loud.",
+    "es": "En las historias A1–A2 escuchas, completas huecos, deletreas palabras letra a letra y ordenas frases; al final, dices la frase de la escena en voz alta.",
+    "pt": "Nas histórias A1–A2 você escuta, completa lacunas, soletra palavras letra por letra e organiza frases; no fim, diz a frase da cena em voz alta.",
+    "de": "In den A1–A2-Geschichten hörst du zu, füllst Lücken, buchstabierst Wörter und bringst Sätze in die richtige Reihenfolge – zum Schluss sprichst du den Satz aus der Szene laut."
+  },
+  "40 bölüm, iki dilli transkript. Bir cümleye dokununca ses oraya atlar; bölümü bitirince mini test gelir.": {
+    "en": "40 episodes with bilingual transcripts. Tap a sentence and the audio jumps there; finish an episode and a mini quiz follows.",
+    "es": "40 episodios con transcripción bilingüe. Toca una frase y el audio salta ahí; al terminar el episodio llega un minitest.",
+    "pt": "40 episódios com transcrição bilíngue. Toque em uma frase e o áudio pula para ela; ao terminar o episódio vem um mini teste.",
+    "de": "40 Folgen mit zweisprachigem Transkript. Tippe auf einen Satz, und die Audiodatei springt dorthin; nach jeder Folge wartet ein Mini-Test."
+  },
+  "900 çekirdek kelime, aralıklı tekrarla (SM-2) tam unutmak üzereyken karşına çıkar.": {
+    "en": "900 core words that come back through spaced repetition (SM-2) just as you’re about to forget them.",
+    "es": "900 palabras esenciales que vuelven con repetición espaciada (SM-2) justo cuando estás a punto de olvidarlas.",
+    "pt": "900 palavras essenciais que voltam com repetição espaçada (SM-2) justo quando você está prestes a esquecê-las.",
+    "de": "900 Kernwörter, die dir per Spaced Repetition (SM-2) genau dann wieder begegnen, wenn du sie fast vergessen hast."
+  },
+  "Konuşmalarda düzeltilen cümleler defterine düşer; geri dönüp çalışırsın.": {
+    "en": "Sentences corrected in conversations land in your notebook so you can go back and practice them.",
+    "es": "Las frases corregidas en tus conversaciones llegan a tu cuaderno para que vuelvas a practicarlas.",
+    "pt": "As frases corrigidas nas conversas vão para o seu caderno para você voltar e praticar.",
+    "de": "Im Gespräch korrigierte Sätze landen in deinem Heft, damit du sie später gezielt üben kannst."
+  },
+  "Türkçe konuşanların zorlandığı kelimeleri tek tek dinle ve tekrar et.": {
+    "en": "Listen to the words that speakers of your language find hardest, one by one, and repeat them.",
+    "es": "Escucha una por una las palabras que más les cuestan a quienes hablan tu idioma y repítelas.",
+    "pt": "Ouça, uma a uma, as palavras mais difíceis para quem fala o seu idioma e repita.",
+    "de": "Hör dir die Wörter an, mit denen Sprecher deiner Sprache die größten Schwierigkeiten haben – eins nach dem anderen – und sprich sie nach."
+  },
+  "Okuma hikâyeleri": {
+    "en": "Reading stories",
+    "es": "Historias para leer",
+    "pt": "Histórias para ler",
+    "de": "Lesegeschichten"
+  },
+  "Ücretsiz başla. Sınırı kaldırmak istersen Pro.": {
+    "en": "Start free. Go Pro to remove the limits.",
+    "es": "Empieza gratis. Pasa a Pro para quitar los límites.",
+    "pt": "Comece grátis. Passe para o Pro e remova os limites.",
+    "de": "Kostenlos starten. Mit Pro fallen die Limits weg."
+  },
+  "Ücretsiz": {
+    "en": "Free",
+    "es": "Gratis",
+    "pt": "Grátis",
+    "de": "Kostenlos"
+  },
+  "Her gün biraz konuşmak için yeterli.": {
+    "en": "Plenty to speak a little every day.",
+    "es": "Suficiente para hablar un poco cada día.",
+    "pt": "O bastante para falar um pouco todo dia.",
+    "de": "Genug, um jeden Tag ein bisschen zu sprechen."
+  },
+  "Ücretsiz başla": {
+    "en": "Start free",
+    "es": "Empieza gratis",
+    "pt": "Comece grátis",
+    "de": "Kostenlos starten"
+  },
+  "Sahneleri ve Mivo’yu sınırsız kullan.": {
+    "en": "Use the scenes and Mivo without limits.",
+    "es": "Usa las escenas y a Mivo sin límites.",
+    "pt": "Use as cenas e a Mivo sem limites.",
+    "de": "Nutze Szenen und Mivo ohne Limits."
+  },
+  "Önce ücretsiz dene": {
+    "en": "Try it free first",
+    "es": "Pruébalo primero gratis",
+    "pt": "Experimente grátis primeiro",
+    "de": "Erst kostenlos testen"
+  },
+  "Günde 1 sesli sahne, 5 dakikaya kadar": {
+    "en": "1 voice scene a day, up to 5 minutes",
+    "es": "1 escena hablada al día, hasta 5 minutos",
+    "pt": "1 cena falada por dia, até 5 minutos",
+    "de": "1 Sprechszene pro Tag, bis zu 5 Minuten"
+  },
+  "Anlık düzeltme ve hata defteri": {
+    "en": "Instant corrections and a mistakes notebook",
+    "es": "Correcciones al instante y cuaderno de errores",
+    "pt": "Correções na hora e caderno de erros",
+    "de": "Sofortkorrekturen und Fehlerheft"
+  },
+  "Kelime kartları ve aralıklı tekrar": {
+    "en": "Flashcards with spaced repetition",
+    "es": "Tarjetas con repetición espaciada",
+    "pt": "Cartões com repetição espaçada",
+    "de": "Karteikarten mit Spaced Repetition"
+  },
+  "Sınırsız sesli sahne ve Mivo ile serbest sohbet": {
+    "en": "Unlimited voice scenes and free chat with Mivo",
+    "es": "Escenas habladas ilimitadas y charla libre con Mivo",
+    "pt": "Cenas faladas ilimitadas e conversa livre com a Mivo",
+    "de": "Unbegrenzte Sprechszenen und freies Gespräch mit Mivo"
+  },
+  "30 dakikaya kadar uzun oturumlar": {
+    "en": "Long sessions of up to 30 minutes",
+    "es": "Sesiones largas de hasta 30 minutos",
+    "pt": "Sessões longas de até 30 minutos",
+    "de": "Lange Sitzungen bis zu 30 Minuten"
+  },
+  "Her sahneyi farklı sürprizlerle tekrar oyna, yıldız topla": {
+    "en": "Replay every scene with new surprises and collect stars",
+    "es": "Repite cada escena con sorpresas nuevas y reúne estrellas",
+    "pt": "Repita cada cena com novas surpresas e colecione estrelas",
+    "de": "Jede Szene mit neuen Überraschungen wiederholen und Sterne sammeln"
+  },
+  "Tüm sahnelere erişim": {
+    "en": "Access to every scene",
+    "es": "Acceso a todas las escenas",
+    "pt": "Acesso a todas as cenas",
+    "de": "Zugang zu allen Szenen"
+  },
+  "Pro fiyatı uygulamada, App Store ve Google Play’in kendi fiyatıyla gösterilir. Aboneliği mağaza hesabından istediğin zaman iptal edebilirsin.": {
+    "en": "The Pro price is shown in the app, at the App Store’s and Google Play’s own price. You can cancel the subscription anytime from your store account.",
+    "es": "El precio de Pro se muestra en la app con el precio propio de App Store y Google Play. Puedes cancelar la suscripción cuando quieras desde tu cuenta de la tienda.",
+    "pt": "O preço do Pro aparece no app com o valor da App Store e do Google Play. Você pode cancelar a assinatura quando quiser pela conta da loja.",
+    "de": "Den Pro-Preis siehst du in der App, mit dem Preis von App Store bzw. Google Play. Das Abo kannst du jederzeit über dein Store-Konto kündigen."
+  },
+  "Başlamadan önce akla gelenler": {
+    "en": "Before you start",
+    "es": "Antes de empezar",
+    "pt": "Antes de começar",
+    "de": "Bevor du startest"
+  },
+  "Tüm soruları gör →": {
+    "en": "See all questions →",
+    "es": "Ver todas las preguntas →",
+    "pt": "Ver todas as perguntas →",
+    "de": "Alle Fragen ansehen →"
+  },
+  "Sahne senin": {
+    "en": "Your stage",
+    "es": "El escenario es tuyo",
+    "pt": "O palco é seu",
+    "de": "Die Bühne gehört dir"
+  },
+  "Sahne hazır. İlk cümleni söyle.": {
+    "en": "The stage is set. Say your first sentence.",
+    "es": "Todo listo. Di tu primera frase.",
+    "pt": "Tudo pronto. Diga sua primeira frase.",
+    "de": "Die Bühne ist bereit. Sag deinen ersten Satz."
+  },
+  "Bir sahne seç, Mivo karşında olsun. Takıldığın yerde anında düzeltir; yarın başka bir sürprizle yeniden oynarsın.": {
+    "en": "Pick a scene and Mivo is right there with you. Stumble and you get an instant fix; tomorrow you play it again with a new twist.",
+    "es": "Elige una escena y Mivo estará frente a ti. Si te atascas, te corrige al instante; mañana la juegas otra vez con un giro nuevo.",
+    "pt": "Escolha uma cena e a Mivo estará na sua frente. Se travar, ela corrige na hora; amanhã você joga de novo com uma reviravolta nova.",
+    "de": "Such dir eine Szene aus, und Mivo ist dein Gegenüber. Wenn du hängst, gibt es sofort eine Korrektur; morgen spielst du sie noch einmal – mit neuer Wendung."
+  },
+  "Telefonun yanında değil mi?": {
+    "en": "Phone not at hand?",
+    "es": "¿No tienes el móvil a mano?",
+    "pt": "Sem o celular por perto?",
+    "de": "Dein Handy gerade nicht zur Hand?"
+  },
+  "Web’den başla": {
+    "en": "Start on the web",
+    "es": "Empieza en la web",
+    "pt": "Comece pela web",
+    "de": "Im Web starten"
+  },
+  "Sevinen Mivo": {
+    "en": "Cheering Mivo",
+    "es": "Mivo celebrando",
+    "pt": "Mivo comemorando",
+    "de": "Jubelnder Mivo"
+  },
+  "Nasıl çalışır": {
+    "en": "How it works",
+    "es": "Cómo funciona",
+    "pt": "Como funciona",
+    "de": "So funktioniert’s"
+  },
+  "Konuş": {
+    "en": "Speak",
+    "es": "Hablar",
+    "pt": "Falar",
+    "de": "Sprechen"
+  },
+  "Düzelt": {
+    "en": "Fix it",
+    "es": "Corrige",
+    "pt": "Corrija",
+    "de": "Korrigiere"
+  },
+  "Tekrar et": {
+    "en": "Repeat",
+    "es": "Repasa",
+    "pt": "Revise",
+    "de": "Wiederhole"
+  },
+  "Konuş. Düzelt. Tekrar et.": {
+    "en": "Speak. Fix it. Repeat.",
+    "es": "Habla. Corrige. Repasa.",
+    "pt": "Fale. Corrija. Revise.",
+    "de": "Sprich. Korrigiere. Wiederhole."
+  },
+  "Takıldığın cümle anında düzelir ve nedeni kendi dilinde açıklanır. Konuşman hiç bölünmez.": {
+    "en": "The sentence you stumble on is fixed on the spot, with the reason explained in your own language. Your flow is never interrupted.",
+    "es": "La frase en la que te atascas se corrige al instante y el motivo se explica en tu idioma. Tu conversación nunca se interrumpe.",
+    "pt": "A frase em que você trava é corrigida na hora e o motivo é explicado no seu idioma. Sua conversa nunca é interrompida.",
+    "de": "Der Satz, bei dem du hängst, wird sofort korrigiert und der Grund in deiner Sprache erklärt. Dein Redefluss wird nie unterbrochen."
+  },
+  "Havalimanında, otelde, mülakatta… Mivo sahnedeki karşı tarafı oynar, sen sesli konuşursun.": {
+    "en": "At the airport, in a hotel, in an interview… Mivo plays the person across from you and you speak out loud.",
+    "es": "En el aeropuerto, en un hotel, en una entrevista… Mivo interpreta a la otra persona y tú hablas en voz alta.",
+    "pt": "No aeroporto, no hotel, na entrevista… a Mivo faz a outra pessoa da cena e você fala em voz alta.",
+    "de": "Am Flughafen, im Hotel, im Vorstellungsgespräch … Mivo spielt dein Gegenüber, und du sprichst laut."
+  },
+  "Hataların Hata Defterim'e düşer. Hızlı sınavla pekiştirir, gün gün planınla ilerlersin.": {
+    "en": "Your mistakes land in your notebook. Lock them in with a quick quiz and move ahead with your day-by-day plan.",
+    "es": "Tus errores van a tu cuaderno. Afiánzalos con un minitest y avanza con tu plan día a día.",
+    "pt": "Seus erros vão para o seu caderno. Fixe-os com um quiz rápido e avance com o plano dia a dia.",
+    "de": "Deine Fehler landen in deinem Heft. Festige sie mit einem Schnelltest und komm mit deinem Tag-für-Tag-Plan voran."
+  },
+  "Konuşuyorsun…": {
+    "en": "You’re speaking…",
+    "es": "Estás hablando…",
+    "pt": "Você está falando…",
+    "de": "Du sprichst …"
+  },
+  "“go” geçmiş zamanda “went” olur. Dünü anlatıyorsun, o yüzden geçmiş zaman.": {
+    "en": "The past of “go” is “went”. You’re talking about yesterday, so use the past tense.",
+    "es": "El pasado de “go” es “went”. Hablas de ayer, así que usa el pasado.",
+    "pt": "O passado de “go” é “went”. Você fala de ontem, então use o passado.",
+    "de": "Die Vergangenheitsform von „go“ ist „went“. Du sprichst über gestern, also brauchst du die Vergangenheit."
+  },
+  "Hata Defterim": {
+    "en": "My Mistakes Notebook",
+    "es": "Mi cuaderno de errores",
+    "pt": "Meu caderno de erros",
+    "de": "Mein Fehlerheft"
+  },
+  "Hızlı Sınav": {
+    "en": "Quick Quiz",
+    "es": "Quiz rápido",
+    "pt": "Quiz rápido",
+    "de": "Schnelltest"
+  },
+  "Gün gün yolun": {
+    "en": "Your day-by-day path",
+    "es": "Tu ruta día a día",
+    "pt": "Sua trilha dia a dia",
+    "de": "Dein Weg, Tag für Tag"
+  },
+  "Klasik sahne": {
+    "en": "The classic",
+    "es": "La escena clásica",
+    "pt": "A cena clássica",
+    "de": "Der Klassiker"
+  },
+  "Kadroyla tanış.": {
+    "en": "Meet the cast.",
+    "es": "Conoce al equipo.",
+    "pt": "Conheça a turma.",
+    "de": "Lern die Truppe kennen."
+  },
+  "Mivo tek başına değil. Altı karakter, İngilizcenin altı ayrı işine bakıyor.": {
+    "en": "Mivo is not alone. Six characters, each looking after a different part of your English.",
+    "es": "Mivo no está solo. Seis personajes, cada uno a cargo de una parte distinta de tu inglés.",
+    "pt": "A Mivo não está sozinha. Seis personagens, cada um cuidando de uma parte do seu inglês.",
+    "de": "Mivo ist nicht allein. Sechs Figuren, jede kümmert sich um einen anderen Teil deines Englischs."
+  },
+  "Konuşma koçu": {
+    "en": "Speaking coach",
+    "es": "Coach de conversación",
+    "pt": "Coach de conversação",
+    "de": "Sprechcoach"
+  },
+  "Kelime avcısı": {
+    "en": "Word hunter",
+    "es": "Cazador de palabras",
+    "pt": "Caçador de palavras",
+    "de": "Wörterjäger"
+  },
+  "Hikâye anlatıcısı": {
+    "en": "Storyteller",
+    "es": "Narrador de historias",
+    "pt": "Contador de histórias",
+    "de": "Geschichtenerzähler"
+  },
+  "Kural meraklısı": {
+    "en": "Grammar nerd",
+    "es": "Fan de las reglas",
+    "pt": "Fã das regras",
+    "de": "Regel-Fan"
+  },
+  "İyi dinleyici": {
+    "en": "Good listener",
+    "es": "Buen oyente",
+    "pt": "Bom ouvinte",
+    "de": "Guter Zuhörer"
+  },
+  "Seri bekçisi": {
+    "en": "Streak keeper",
+    "es": "Guardián de la racha",
+    "pt": "Guardião da sequência",
+    "de": "Serienhüter"
+  },
+  "Ünite sonunda seninle sesli bir sahne oynar. Yanlış cümleni konuşmayı bölmeden düzeltir, nedenini kendi dilinde kısaca söyler.": {
+    "en": "Plays a voice scene with you at the end of each unit. Fixes a wrong sentence without stopping the talk and tells you why in your own language.",
+    "es": "Al final de cada unidad hace contigo una escena de voz. Corrige tu frase sin cortar la conversación y te explica el porqué en tu idioma.",
+    "pt": "No fim de cada unidade, faz uma cena de voz com você. Corrige sua frase sem interromper a conversa e explica o porquê no seu idioma.",
+    "de": "Spielt am Ende jeder Einheit eine Sprechszene mit dir. Korrigiert deinen Satz, ohne das Gespräch zu unterbrechen, und erklärt kurz in deiner Sprache, warum."
+  },
+  "Her bölümün yeni kelimeleri resimli kartlarla gelir. Öğrendiklerin kelime bankanda birikir, istediğinde tekrar edersin.": {
+    "en": "The new words of each episode come on picture cards. What you learn collects in your word bank, ready to review whenever you like.",
+    "es": "Las palabras nuevas de cada episodio llegan en tarjetas con imágenes. Lo que aprendes se guarda en tu banco de palabras y lo repasas cuando quieras.",
+    "pt": "As palavras novas de cada episódio chegam em cartões com imagens. O que você aprende fica no seu banco de palavras para revisar quando quiser.",
+    "de": "Die neuen Wörter jeder Folge kommen auf Bildkarten. Was du lernst, sammelt sich in deiner Wortbank, und du wiederholst es, wann du willst."
+  },
+  "Her gün 5–10 dakikalık bir bölüm okursun. A1’den C2’ye her seviye baştan sona tek bir hikâye.": {
+    "en": "You read one 5–10 minute episode a day. From A1 to C2, every level is one story from start to finish.",
+    "es": "Lees un episodio de 5–10 minutos al día. De A1 a C2, cada nivel es una sola historia de principio a fin.",
+    "pt": "Você lê um episódio de 5–10 minutos por dia. Do A1 ao C2, cada nível é uma única história do começo ao fim.",
+    "de": "Du liest jeden Tag eine Folge von 5–10 Minuten. Von A1 bis C2 ist jede Stufe eine einzige Geschichte von Anfang bis Ende."
+  },
+  "Dil bilgisi ayrı bir ders değil. Kural, hikâyede karşına çıktığı anda kısa bir ipucuyla gelir.": {
+    "en": "Grammar is not a separate lesson. The rule arrives as a short tip the moment you meet it in the story.",
+    "es": "La gramática no es una clase aparte. La regla llega como un consejo breve justo cuando aparece en la historia.",
+    "pt": "A gramática não é uma aula à parte. A regra chega como uma dica curta no momento em que aparece na história.",
+    "de": "Grammatik ist keine eigene Lektion. Die Regel kommt als kurzer Tipp genau dann, wenn sie in der Geschichte auftaucht."
+  },
+  "Bölümleri seslendirmesiyle dinlersin. Bonus podcast’ler kulağını gerçek konuşma hızına alıştırır.": {
+    "en": "You listen to the episodes read aloud. Bonus podcasts get your ear used to real speaking speed.",
+    "es": "Escuchas los episodios narrados. Los pódcast extra acostumbran tu oído a la velocidad real del habla.",
+    "pt": "Você ouve os episódios narrados. Os podcasts bônus acostumam seu ouvido à velocidade real da fala.",
+    "de": "Du hörst die Folgen vorgelesen. Bonus-Podcasts gewöhnen dein Ohr an echtes Sprechtempo."
+  },
+  "Günde en fazla bir hatırlatma gönderir. Serini ana ekrana eklediğin küçük widget’tan da görürsün.": {
+    "en": "Sends one reminder a day at most. You can also see your streak on the small home-screen widget.",
+    "es": "Envía como mucho un recordatorio al día. También ves tu racha en el pequeño widget de la pantalla de inicio.",
+    "pt": "Envia no máximo um lembrete por dia. Você também vê sua sequência no pequeno widget da tela inicial.",
+    "de": "Schickt höchstens eine Erinnerung am Tag. Deine Serie siehst du auch im kleinen Widget auf dem Startbildschirm."
+  },
+  "Karakter seç": {
+    "en": "Choose a character",
+    "es": "Elige un personaje",
+    "pt": "Escolha um personagem",
+    "de": "Figur wählen"
+  },
+  "Uygulamanın içinde ne var?": {
+    "en": "What’s inside the app?",
+    "es": "¿Qué hay dentro de la app?",
+    "pt": "O que tem no app?",
+    "de": "Was steckt in der App?"
+  },
+  "Her gün bir bölüm.": {
+    "en": "One episode a day.",
+    "es": "Un episodio al día.",
+    "pt": "Um episódio por dia.",
+    "de": "Jeden Tag eine Folge."
+  },
+  "Hikâye 5–10 dakikalık bölümlerle ilerler. Okursun, dinlersin, ertesi gün kaldığın yerden devam edersin.": {
+    "en": "The story moves in 5–10 minute episodes. You read, you listen, and the next day you pick up where you left off.",
+    "es": "La historia avanza en episodios de 5–10 minutos. Lees, escuchas y al día siguiente sigues donde lo dejaste.",
+    "pt": "A história avança em episódios de 5–10 minutos. Você lê, ouve e no dia seguinte continua de onde parou.",
+    "de": "Die Geschichte läuft in Folgen von 5–10 Minuten. Du liest, hörst zu und machst am nächsten Tag dort weiter, wo du aufgehört hast."
+  },
+  "Sonra Mivo ile konuş.": {
+    "en": "Then talk with Mivo.",
+    "es": "Luego habla con Mivo.",
+    "pt": "Depois, fale com a Mivo.",
+    "de": "Dann sprich mit Mivo."
+  },
+  "Ünite bitince öğrendiklerini sesli bir sahnede kullanırsın. Mivo sabırla bekler, takıldığında ipucu verir.": {
+    "en": "When a unit ends, you use what you learned in a voice scene. Mivo waits patiently and gives a hint when you get stuck.",
+    "es": "Al terminar una unidad, usas lo aprendido en una escena de voz. Mivo espera con paciencia y te da una pista si te atascas.",
+    "pt": "Quando a unidade termina, você usa o que aprendeu em uma cena de voz. A Mivo espera com paciência e dá uma dica quando você trava.",
+    "de": "Am Ende einer Einheit nutzt du das Gelernte in einer Sprechszene. Mivo wartet geduldig und gibt dir einen Tipp, wenn du hängst."
+  },
+  "Kelimeler aklında kalsın.": {
+    "en": "Words that stick.",
+    "es": "Palabras que se quedan.",
+    "pt": "Palavras que ficam.",
+    "de": "Wörter, die bleiben."
+  },
+  "Yeni kelimeler resimleriyle gelir ve kelime bankanda toplanır. Kısa tekrarlarla unutmadan ilerlersin.": {
+    "en": "New words come with their pictures and gather in your word bank. Short reviews keep them from slipping away.",
+    "es": "Las palabras nuevas llegan con su imagen y se reúnen en tu banco de palabras. Con repasos cortos avanzas sin olvidarlas.",
+    "pt": "As palavras novas chegam com imagens e se juntam no seu banco de palavras. Com revisões curtas, você avança sem esquecer.",
+    "de": "Neue Wörter kommen mit Bild und sammeln sich in deiner Wortbank. Mit kurzen Wiederholungen vergisst du sie nicht."
+  },
+  "Günde on dakika yeter.": {
+    "en": "Ten minutes a day is enough.",
+    "es": "Diez minutos al día bastan.",
+    "pt": "Dez minutos por dia bastam.",
+    "de": "Zehn Minuten am Tag reichen."
+  },
+  "Bugün ekranı sıradaki adımı gösterir: bir bölüm, birkaç kelime, bir sahne. Serin büyüdükçe bırakmak zorlaşır.": {
+    "en": "The Today screen shows your next step: an episode, a few words, a scene. The longer your streak, the harder it is to stop.",
+    "es": "La pantalla Hoy muestra tu siguiente paso: un episodio, unas palabras, una escena. Cuanto más crece tu racha, más cuesta dejarlo.",
+    "pt": "A tela Hoje mostra o próximo passo: um episódio, algumas palavras, uma cena. Quanto maior a sequência, mais difícil parar.",
+    "de": "Der Heute-Bildschirm zeigt deinen nächsten Schritt: eine Folge, ein paar Wörter, eine Szene. Je länger deine Serie, desto schwerer hörst du auf."
+  },
+  "Konuşma koçun": {
+    "en": "Your speaking coach",
+    "es": "Tu coach de conversación",
+    "pt": "Seu coach de conversação",
+    "de": "Dein Sprechcoach"
+  },
+  "Ünite sonunda seninle sesli bir sahne oynar. Yanlışını konuşmayı bölmeden düzeltir, nedenini kendi dilinde kısaca söyler.": {
+    "en": "Plays a voice scene with you at the end of each unit. Fixes your mistake without stopping the talk and tells you why in your own language.",
+    "es": "Al final de cada unidad hace contigo una escena de voz. Corrige tu error sin cortar la conversación y te explica el porqué en tu idioma.",
+    "pt": "No fim de cada unidade, faz uma cena de voz com você. Corrige seu erro sem interromper a conversa e explica o porquê no seu idioma.",
+    "de": "Spielt am Ende jeder Einheit eine Sprechszene mit dir. Korrigiert deinen Fehler, ohne das Gespräch zu unterbrechen, und erklärt kurz in deiner Sprache, warum."
+  },
+  "Hikâyenin kahramanı": {
+    "en": "The story’s lead",
+    "es": "La protagonista",
+    "pt": "A protagonista",
+    "de": "Die Hauptfigur"
+  },
+  "Bristol’a yeni taşındı. Meraklı, iyimser, biraz sakar. İngilizceyi onunla birlikte, onun başına gelenlerle öğrenirsin.": {
+    "en": "New in Bristol. Curious, hopeful, a little clumsy. You learn English alongside her, through whatever happens to her.",
+    "es": "Acaba de mudarse a Bristol. Curiosa, optimista, un poco torpe. Aprendes inglés a su lado, con todo lo que le pasa.",
+    "pt": "Acabou de se mudar para Bristol. Curiosa, otimista, um pouco desastrada. Você aprende inglês ao lado dela, com tudo o que acontece com ela.",
+    "de": "Neu in Bristol. Neugierig, zuversichtlich, ein bisschen tollpatschig. Du lernst Englisch an ihrer Seite, mit allem, was ihr passiert."
+  },
+  "Ev arkadaşı": {
+    "en": "The flatmate",
+    "es": "El compañero de piso",
+    "pt": "O colega de casa",
+    "de": "Der Mitbewohner"
+  },
+  "Maya’nın ev arkadaşı ve müzisyen. Şakacı, rahat, her yere geç kalıyor.": {
+    "en": "Maya’s flatmate and a musician. A joker, easy-going, late for everything.",
+    "es": "Compañero de piso de Maya y músico. Bromista, relajado, llega tarde a todo.",
+    "pt": "Colega de casa da Maya e músico. Brincalhão, tranquilo, chega atrasado em tudo.",
+    "de": "Mayas Mitbewohner und Musiker. Ein Spaßvogel, entspannt, kommt überall zu spät."
+  },
+  "Kafenin sahibi": {
+    "en": "The café owner",
+    "es": "La dueña del café",
+    "pt": "A dona do café",
+    "de": "Die Café-Besitzerin"
+  },
+  "Alt kattaki kafenin sahibi. Neşeli, cömert, biraz da otoriter.": {
+    "en": "She runs the café downstairs. Cheerful, generous, a little bossy.",
+    "es": "Lleva el café de abajo. Alegre, generosa, un poco mandona.",
+    "pt": "É dona do café do térreo. Alegre, generosa, um pouco mandona.",
+    "de": "Ihr gehört das Café im Erdgeschoss. Fröhlich, großzügig, ein bisschen herrisch."
+  },
+  "Rosa’nın torunu": {
+    "en": "Rosa’s grandson",
+    "es": "El nieto de Rosa",
+    "pt": "O neto da Rosa",
+    "de": "Rosas Enkel"
+  },
+  "Yaramaz, hızlı ve her şeyi soruyor.": {
+    "en": "Cheeky, quick, and asks about everything.",
+    "es": "Travieso, rápido y lo pregunta todo.",
+    "pt": "Travesso, rápido e pergunta tudo.",
+    "de": "Frech, flink und fragt nach allem."
+  },
+  "Komşu": {
+    "en": "The neighbour",
+    "es": "El vecino",
+    "pt": "O vizinho",
+    "de": "Der Nachbar"
+  },
+  "Maya’nın yaşlı komşusu. Sakin, bilge ve sırlarla dolu.": {
+    "en": "Maya’s elderly neighbour. Calm, wise and full of secrets.",
+    "es": "El vecino mayor de Maya. Tranquilo, sabio y lleno de secretos.",
+    "pt": "O vizinho idoso da Maya. Calmo, sábio e cheio de segredos.",
+    "de": "Mayas älterer Nachbar. Ruhig, weise und voller Geheimnisse."
+  },
+  "Gazeteci": {
+    "en": "The journalist",
+    "es": "La periodista",
+    "pt": "A jornalista",
+    "de": "Die Journalistin"
+  },
+  "Hırslı bir gazeteci. Keskin zekâlı, iddialı ve her zaman bir sorusu daha var.": {
+    "en": "An ambitious journalist. Sharp, bold, and always with one more question.",
+    "es": "Una periodista ambiciosa. Aguda, decidida y siempre con una pregunta más.",
+    "pt": "Uma jornalista ambiciosa. Afiada, decidida e sempre com mais uma pergunta.",
+    "de": "Eine ehrgeizige Journalistin. Scharfsinnig, selbstbewusst und immer mit einer weiteren Frage."
+  },
+  "Hikâyedeki insanlar seviyeden seviyeye seninle gelir. Mivo da konuşma koçun olur.": {
+    "en": "The people in the story stay with you from level to level. Mivo is your speaking coach.",
+    "es": "Los personajes de la historia te acompañan de nivel en nivel. Mivo es tu coach de conversación.",
+    "pt": "As pessoas da história acompanham você de nível em nível. A Mivo é seu coach de conversação.",
+    "de": "Die Menschen aus der Geschichte begleiten dich von Stufe zu Stufe. Mivo ist dein Sprechcoach."
+  },
+  "Sıradaki adımın her gün hazır: bir bölüm, birkaç kelime, bir sahne.": {
+    "en": "Your next step is ready every day: an episode, a few words, a scene.",
+    "es": "Tu siguiente paso está listo cada día: un episodio, unas palabras, una escena.",
+    "pt": "Seu próximo passo está pronto todos os dias: um episódio, algumas palavras, uma cena.",
+    "de": "Dein nächster Schritt steht jeden Tag bereit: eine Folge, ein paar Wörter, eine Szene."
+  },
+  "Hikâye": {
+    "en": "Story",
+    "es": "Historia",
+    "pt": "História",
+    "de": "Geschichte"
+  },
+  "5–10 dakikalık bölümler. Dil bilgisi, hikâyede geçtiği anda kısa bir ipucuyla gelir.": {
+    "en": "Episodes of 5–10 minutes. Grammar arrives as a short tip the moment it comes up in the story.",
+    "es": "Episodios de 5–10 minutos. La gramática llega como un consejo breve justo cuando aparece en la historia.",
+    "pt": "Episódios de 5–10 minutos. A gramática chega como uma dica curta no momento em que aparece na história.",
+    "de": "Folgen von 5–10 Minuten. Grammatik kommt als kurzer Tipp genau dann, wenn sie in der Geschichte auftaucht."
+  },
+  "Yeni kelimeler resimleriyle gelir ve kelime bankanda toplanır.": {
+    "en": "New words come with their pictures and gather in your word bank.",
+    "es": "Las palabras nuevas llegan con su imagen y se reúnen en tu banco de palabras.",
+    "pt": "As palavras novas chegam com imagens e se juntam no seu banco de palavras.",
+    "de": "Neue Wörter kommen mit Bild und sammeln sich in deiner Wortbank."
+  },
+  "Ünite sonunda sesli bir sahne. Mivo yanlışını konuşmayı bölmeden düzeltir.": {
+    "en": "A voice scene at the end of each unit. Mivo fixes your mistake without stopping the talk.",
+    "es": "Una escena de voz al final de cada unidad. Mivo corrige tu error sin cortar la conversación.",
+    "pt": "Uma cena de voz no fim de cada unidade. A Mivo corrige seu erro sem interromper a conversa.",
+    "de": "Eine Sprechszene am Ende jeder Einheit. Mivo korrigiert deinen Fehler, ohne das Gespräch zu unterbrechen."
+  },
+  "Bütün hikâye cebinde.": {
+    "en": "The whole story in your pocket.",
+    "es": "Toda la historia en tu bolsillo.",
+    "pt": "A história inteira no seu bolso.",
+    "de": "Die ganze Geschichte in deiner Tasche."
+  },
+  "Uygulama ekranları": {
+    "en": "App screens",
+    "es": "Pantallas de la app",
+    "pt": "Telas do app",
+    "de": "App-Bildschirme"
+  },
+  "dk": {
+    "en": "min",
+    "es": "min",
+    "pt": "min",
+    "de": "Min."
+  },
+  "İngilizce, hayatın içinde.": {
+    "en": "English, part of your everyday.",
+    "es": "El inglés, en tu día a día.",
+    "pt": "Inglês no seu dia a dia.",
+    "de": "Englisch, mitten im Leben."
+  },
+  "Hikâyeyle öğren.": {
+    "en": "Learn through stories.",
+    "es": "Aprende con historias.",
+    "pt": "Aprenda com histórias.",
+    "de": "Lerne mit Geschichten."
+  },
+  "Mivo ile konuş.": {
+    "en": "Speak with Mivo.",
+    "es": "Habla con Mivo.",
+    "pt": "Fale com Mivo.",
+    "de": "Sprich mit Mivo."
+  },
+  "Her gün bir hikâye. Yeni kelimeler, küçük keşifler ve Mivo ile gerçek bir konuşma. İngilizceyi günlük hayatının bir parçası yap.": {
+    "en": "A story a day. New words, little discoveries, and a real conversation with Mivo. Make English part of your everyday life.",
+    "es": "Una historia al día. Nuevas palabras, pequeños descubrimientos y una conversación real con Mivo. Haz del inglés parte de tu día a día.",
+    "pt": "Uma história por dia. Novas palavras, pequenas descobertas e uma conversa de verdade com Mivo. Faça do inglês parte do seu dia a dia.",
+    "de": "Jeden Tag eine Geschichte. Neue Wörter, kleine Entdeckungen und ein echtes Gespräch mit Mivo. Mach Englisch zu einem Teil deines Alltags."
+  },
+  "Her gün yeni bir bölüm.": {
+    "en": "A new episode, every day.",
+    "es": "Un nuevo episodio cada día.",
+    "pt": "Um novo episódio a cada dia.",
+    "de": "Jeden Tag eine neue Folge."
+  },
+  "Bir hikâye. Her gün biraz daha sen.": {
+    "en": "One story. A little more you, every day.",
+    "es": "Una historia. Cada día, un poco más tú.",
+    "pt": "Uma história. A cada dia, um pouco mais você.",
+    "de": "Eine Geschichte. Jeden Tag ein bisschen mehr du."
+  },
+  "Keşfetmek için kaydır": {
+    "en": "Scroll to explore",
+    "es": "Desliza para descubrir",
+    "pt": "Role para explorar",
+    "de": "Scrollen und entdecken"
+  }
 }

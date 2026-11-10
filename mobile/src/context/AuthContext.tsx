@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { configureRevenueCat } from '../lib/revenuecat';
 import { api } from '../lib/api';
 import { clearLocalLearningData, reconcileLearningFlagOwner } from '../lib/learningFlags';
+import { syncPathProgress } from '../lib/pathSync';
 import { clearNativeGoogleAccount } from '../lib/googleSession';
 import { clearQueryCacheStore, restoreQueryCache, startQueryCachePersistence } from '../lib/queryPersist';
 import { readStoredSession, supabase } from '../lib/supabase';
@@ -47,6 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // First time this account resolves in this run: paint from the on-device snapshot, refresh behind it.
           if (nextId && lastUserIdRef.current !== nextId) await restoreQueryCache(queryClient, nextId);
           if (nextId) lastUserIdRef.current = nextId;
+          // The learning path's progress from the server (a new phone, a reinstall); never blocks the start.
+          if (nextId) void syncPathProgress();
         })
         .catch(() => {})
         .then(() => {

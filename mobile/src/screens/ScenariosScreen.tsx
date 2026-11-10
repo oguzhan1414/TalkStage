@@ -5,27 +5,33 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
-import { resolveScenarioCoverSource } from '../assets/images';
-import { AppHeader } from '../components/AppHeader';
+import { resolveSceneTileSource } from '../assets/images';
+
+import { MIVO_STAGE_BG } from '../assets/videos';
+import { MivoStage } from '../components/MivoStage';
+import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { trackEvent } from '../lib/analytics';
+import { isProUser } from '../lib/revenuecat';
 import { Toast } from '../components/Toast';
 import { SCENARIOS, type ScenarioEntry } from '@talkstage/shared-data/scenariosData';
 import { InteractiveVideoScenarioModal } from '../components/InteractiveVideoScenarioModal';
 import { CEFR_LEVELS } from '../constants/cefr';
-import { SceneHero } from '../components/scenes/SceneHero';
-import { ScenePoster } from '../components/scenes/ScenePoster';
+import { SceneTile } from '../components/scenes/SceneTile';
 import { api } from '../lib/api';
 import { haptics } from '../lib/haptics';
+import { logLearningEvent } from '../lib/learningEvents';
 import { pullLearningFlags, setLearningFlag } from '../lib/learningFlags';
 import {
   SCENE_FLAG_PREFIX,
+  SCENE_STAR2_PREFIX,
+  SCENE_STAR3_PREFIX,
   levelToFinishFor,
   loadSceneStars,
-  pickSceneOfTheDay,
   type SceneStars,
   sceneAccess,
 } from '../lib/sceneProgress';
 import type { MainTabScreenProps } from '../navigation/types';
-import { colors, fonts, radii, spacing } from '../theme/tokens';
+import { colors, fonts, radii, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut } from '../types/api';
 import { t } from '../i18n';
 import { STAGE_COLOR, STAGE_IDS, stageOfLevel, stageTitle } from '../lib/stages';
@@ -56,6 +62,30 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
     queryFn: () => api.get<ProfileOut>('/me'),
   });
 
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
+  const { transitionTo } = useMivoTransition();
+  // What the free plan still allows (the room enforces the same rules); refreshed each time the tab is shown.
+  const { data: access, refetch: refetchAccess } = useQuery({
+    queryKey: ['voiceAccess'],
+    queryFn: () => api.get<{ pro: boolean; quota: boolean; free_chat: boolean; scene: boolean }>('/voice/access'),
+    staleTime: 30_000,
+  });
+  useFocusEffect(
+    useCallback(() => {
+      void refetchAccess();
+    }, [refetchAccess])
+  );
+  /** The one free Mivo chat is used up: the card offers Pro instead of opening a room that would close at once. */
+  const chatTrialUsed = !isPro && access?.free_chat === false;
+  const openMivoChat = () => {
+    if (chatTrialUsed) {
+      trackEvent('paywall_opened', { source: 'konus_chat_trial_used' });
+      navigation.navigate('Paywall');
+      return;
+    }
+    // First the learner picks what to talk about ('Ne konuşalım?'), then the room opens on it.
+    navigation.navigate('FreeChatSetup');
+  };
   const userLevel = (profile?.cefr_level ?? 'A1').toUpperCase();
   const [sceneStars, setSceneStars] = useState<SceneStars>({});
   const starsOf = (id: string) => sceneStars[id] ?? 0;
@@ -81,10 +111,16 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
     }, [readyVideoScenarios])
   );
 
-  const nextScene = useMemo(
-    () => pickSceneOfTheDay(readyVideoScenarios, userLevel, sceneStars),
-    [readyVideoScenarios, userLevel, sceneStars]
-  );
+  // The result screen's "next scene": the next playable scene in the list, preferring one not played yet.
+  const nextAfterSelected = useMemo(() => {
+    if (!selectedVideoScenario) return null;
+    const i = readyVideoScenarios.findIndex((s) => s.id === selectedVideoScenario.id);
+    const after = [...readyVideoScenarios.slice(i + 1), ...readyVideoScenarios.slice(0, Math.max(0, i))].filter(
+      (s) => sceneAccess(s.level, userLevel) !== 'locked'
+    );
+    return after.find((s) => starsOf(s.id) === 0) ?? after[0] ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVideoScenario, readyVideoScenarios, userLevel, sceneStars]);
 
   // Soft level lock: tapping a scene two+ levels above the user's level only
   // explains how to unlock it; one level above stays playable ("zor" label).
@@ -119,32 +155,38 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
   });
 
   const watchedCount = readyVideoScenarios.filter((sc) => starsOf(sc.id) > 0).length;
+  const totalStars = readyVideoScenarios.reduce((sum, sc) => sum + starsOf(sc.id), 0);
   const stageSections = STAGE_IDS.map((id) => ({
     id,
     scenes: filteredVideoScenarios
       .filter((sc) => stageOfLevel(sc.level) === id)
       .sort((a, b) => CEFR_LEVELS.indexOf(a.level) - CEFR_LEVELS.indexOf(b.level)),
   })).filter((sec) => sec.scenes.length > 0);
-  const posterWidth = Math.round(Math.min(190, screenWidth * 0.42));
+  // Three tiles to a row; each stage shows two rows until "see all" is tapped (a search shows everything).
+  const tileWidth = Math.floor((screenWidth - spacing.md * 2 - TILE_GAP * 2) / 3);
+  const [openStages, setOpenStages] = useState<Record<string, boolean>>({});
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader />
-
-      {/* Başlık: ad, izlenen sahne sayısı ve arama */}
+      {/* Header: the tab's name, streak, Pro, search (no greeting or avatar: Profile lives in the tab bar) */}
       <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{t("Sahneler")}</Text>
-          <Text style={styles.subtitle}>{t("Gerçek hayat senaryolarında pratik yap")}</Text>
+        <Text style={[styles.title, { flex: 1 }]}>{t("Konuş")}</Text>
+        <View style={styles.streakChip}>
+          <Ionicons name="flame" size={16} color="#F97316" />
+          <Text style={styles.streakChipText}>{profile?.streak_count ?? 0}</Text>
         </View>
-        {readyVideoScenarios.length > 0 ? (
-          <View style={styles.starsChip}>
-            <Ionicons name="checkmark-circle" size={15} color={colors.success} />
-            <Text style={styles.starsChipText}>
-              {watchedCount}/{readyVideoScenarios.length}
-            </Text>
-          </View>
-        ) : null}
+        <Pressable
+          onPress={() => {
+            if (isPro) return;
+            trackEvent('paywall_opened', { source: 'konus_pro_pill' });
+            navigation.navigate('Paywall');
+          }}
+          style={[styles.proPill, isPro && styles.proPillOn]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Spekvia Pro")}
+        >
+          <Text style={styles.proPillText}>👑 PRO</Text>
+        </Pressable>
         <Pressable
           onPress={() => {
             haptics.selection();
@@ -174,18 +216,54 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
       ) : null}
 
       <ScrollView contentContainerStyle={styles.cinemaScrollContent} showsVerticalScrollIndicator={false}>
-        {/* Senin için sıradaki: büyük afiş */}
-        {nextScene && !videoSearchLower ? (
-          <SceneHero
-            cover={resolveScenarioCoverSource(nextScene)}
-            eyebrow={starsOf(nextScene.id) > 0 ? t("TEKRAR İZLE") : t("SENİN İÇİN SIRADAKİ")}
-            title={nextScene.titleTr}
-            character={nextScene.aiName}
-            role={nextScene.aiRole}
-            minutes={nextScene.durationMin}
-            onPress={() => openVideoScene(nextScene)}
-          />
+        {!videoSearchLower ? (
+          <>
+            {/* Mivo: one compact row — his live tile, what it is, the mic */}
+            <Pressable onPress={openMivoChat} style={({ pressed }) => [styles.mivoCard, pressed && { transform: [{ scale: 0.98 }] }]} accessibilityRole="button" accessibilityLabel={t("Mivo ile serbest sohbet")}>
+              <View style={styles.mivoTile}>
+                <MivoStage state="idle" height={MIVO_TILE} fit="cover" zoom={1.35} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <View style={styles.mivoLive}>
+                  <View style={styles.mivoLiveDot} />
+                  <Text style={styles.mivoLiveText}>{t("Mivo hazır")}</Text>
+                </View>
+                <Text style={styles.mivoCardTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.2}>
+                  {t("Serbest Sohbet")}
+                </Text>
+                <Text style={styles.mivoCardSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.2}>
+                  {t("Mivo ile istediğin konuda konuş")}
+                </Text>
+                {/* Its own row: the plan on the left, the big mic on the right */}
+                <View style={styles.mivoMicRow}>
+                  <View style={[styles.mivoPlan, (isPro || chatTrialUsed) && styles.mivoPlanPro]}>
+                    <Text style={[styles.mivoPlanText, (isPro || chatTrialUsed) && { color: '#92400E' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                      {isPro ? t("👑 Sınırsız") : chatTrialUsed ? t("👑 Pro ile sınırsız") : t("1 deneme hakkı")}
+                    </Text>
+                  </View>
+                  <View style={[styles.mivoMic, chatTrialUsed && styles.mivoMicPro]}>
+                    <Ionicons name={chatTrialUsed ? 'lock-closed' : 'mic'} size={chatTrialUsed ? 24 : 30} color="#FFFFFF" />
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+
+            {/* Scenes: the head with the stars collected so far */}
+            <View style={styles.scenesHeadRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.scenesHead}>{t("Sahneler")}</Text>
+                <Text style={styles.scenesSub}>{t("Hazır rol oyunları: izle, sıra sende olunca konuş.")}</Text>
+              </View>
+              <View style={styles.starsChip}>
+                <Ionicons name="star" size={15} color="#F59E0B" />
+                <Text style={styles.starsChipText}>
+                  {totalStars}/{readyVideoScenarios.length * 3}
+                </Text>
+              </View>
+            </View>
+          </>
         ) : null}
+
 
         {stageSections.length === 0 ? (
           <View style={styles.cinemaEmptyState}>
@@ -201,36 +279,45 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
             return (
               <View key={sec.id} style={styles.section}>
                 <View style={styles.sectionHead}>
-                  <Text style={[styles.sectionTitle, { color: STAGE_COLOR[sec.id] }]}>{stageTitle(sec.id)}</Text>
+                  <View style={[styles.sectionDot, { backgroundColor: STAGE_COLOR[sec.id] }]} />
+                  <Text style={styles.sectionTitle}>{stageTitle(sec.id)}</Text>
                   <View style={{ flex: 1 }} />
-                  <Text style={styles.sectionCount}>
-                    {t("{{played}}/{{total}} sahne izlendi", { played, total: sec.scenes.length })}
-                  </Text>
+                  <View style={[styles.sectionCountPill, { backgroundColor: `${STAGE_COLOR[sec.id]}1A` }]}>
+                    <Text style={[styles.sectionCount, { color: STAGE_COLOR[sec.id] }]}>
+                      {t("{{played}}/{{total}} oynandı", { played, total: sec.scenes.length })}
+                    </Text>
+                  </View>
                 </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.posterRow}
-                  decelerationRate="fast"
-                >
-                  {sec.scenes.map((sc) => {
-                    const stars = starsOf(sc.id);
-                    return (
-                      <ScenePoster
-                        key={sc.id}
-                        width={posterWidth}
-                        cover={resolveScenarioCoverSource(sc)}
-                        title={sc.titleTr}
-                        character={sc.aiName}
-                        minutes={sc.durationMin}
-                        watched={stars > 0}
-                        access={sceneAccess(sc.level, userLevel)}
-                        unlockLabel={t("{{stage}} aşamasında açılır", { stage: unlockStage(sc.level) })}
-                        onPress={() => openVideoScene(sc)}
-                      />
-                    );
-                  })}
-                </ScrollView>
+                <View style={styles.grid}>
+                  {(openStages[sec.id] || videoSearchLower ? sec.scenes : sec.scenes.slice(0, GRID_PREVIEW)).map((sc) => (
+                    <SceneTile
+                      key={sc.id}
+                      width={tileWidth}
+                      cover={resolveSceneTileSource(sc)}
+                      title={sc.titleTr}
+                      level={sc.level}
+                      levelColor={STAGE_COLOR[sec.id]}
+                      stars={starsOf(sc.id)}
+                      access={sceneAccess(sc.level, userLevel)}
+                      onPress={() => openVideoScene(sc)}
+                    />
+                  ))}
+                </View>
+                {!videoSearchLower && sec.scenes.length > GRID_PREVIEW ? (
+                  <Pressable
+                    onPress={() => {
+                      haptics.selection();
+                      setOpenStages((o) => ({ ...o, [sec.id]: !o[sec.id] }));
+                    }}
+                    style={({ pressed }) => [styles.moreBtn, pressed && { opacity: 0.7 }]}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.moreBtnText}>
+                      {openStages[sec.id] ? t("Daha az göster") : t("Tümünü gör ({{n}})", { n: sec.scenes.length })}
+                    </Text>
+                    <Ionicons name={openStages[sec.id] ? 'chevron-up' : 'chevron-down'} size={15} color={colors.brand} />
+                  </Pressable>
+                ) : null}
               </View>
             );
           })
@@ -244,20 +331,76 @@ export function ScenariosScreen({ navigation, route }: MainTabScreenProps<'Scena
         visible={!!selectedVideoScenario}
         scenario={selectedVideoScenario}
         onClose={() => setSelectedVideoScenario(null)}
-        onComplete={(earnedXp) => {
-          if (selectedVideoScenario) {
-            const id = selectedVideoScenario.id;
-            setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
-            setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, 1) as 1 | 2 | 3 }));
-          }
-          showToast(t("🏆 Harika! 3D senaryoyu tamamladın (+{{earnedXp}} XP)", { earnedXp }));
+        onComplete={(_earnedXp, stars) => {
+          if (!selectedVideoScenario) return;
+          const id = selectedVideoScenario.id;
+          // Best result is kept: 1 = finished, 2 and 3 from how cleanly the lines were said.
+          setLearningFlag(`${SCENE_FLAG_PREFIX}${id}`);
+          logLearningEvent('scene', id);
+          if (stars >= 2) setLearningFlag(`${SCENE_STAR2_PREFIX}${id}`);
+          if (stars >= 3) setLearningFlag(`${SCENE_STAR3_PREFIX}${id}`);
+          setSceneStars((prev) => ({ ...prev, [id]: Math.max(prev[id] ?? 0, stars) as 1 | 2 | 3 }));
         }}
+        onNextScene={nextAfterSelected ? () => setSelectedVideoScenario(nextAfterSelected) : undefined}
       />
     </SafeAreaView>
   );
 }
 
+/** Mivo's live tile on the free-chat card. */
+const MIVO_TILE = 112;
+/** The scene grid: gap between tiles and how many show before "see all" (two rows). */
+const TILE_GAP = 10;
+const GRID_PREVIEW = 6;
+
 const styles = StyleSheet.create({
+  streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 36, paddingHorizontal: 10, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  streakChipText: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
+  proPill: { height: 36, paddingHorizontal: 11, borderRadius: 18, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
+  proPillOn: { backgroundColor: '#FFF7D6' },
+  proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
+  mivoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 12,
+    paddingRight: 14,
+    marginBottom: 24,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+    ...shadow.sm,
+  },
+  mivoMicRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 6 },
+  mivoPlan: { borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#EEF2FF', flexShrink: 1, minWidth: 0 },
+  mivoPlanPro: { backgroundColor: '#FEF3C7' },
+  mivoPlanText: { fontFamily: fonts.headingBold, fontSize: 12, color: colors.brand },
+  mivoTile: { width: MIVO_TILE, height: MIVO_TILE, borderRadius: 20, overflow: 'hidden', backgroundColor: MIVO_STAGE_BG },
+  mivoLive: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  mivoLiveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
+  mivoLiveText: { fontFamily: fonts.headingBold, fontSize: 12.5, letterSpacing: 0.3, color: '#059669' },
+  mivoCardTitle: { fontFamily: fonts.headingBold, fontSize: 20, lineHeight: 25, color: colors.textHeading },
+  mivoCardSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, lineHeight: 20, color: colors.textBody },
+  mivoMicPro: { backgroundColor: '#E09A1F', shadowColor: '#B7791F' },
+  mivoMic: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.brand,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  scenesHeadRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  scenesHead: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  scenesSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 1 },
+  sectionDot: { width: 10, height: 10, borderRadius: 5, alignSelf: 'center' },
+  sectionCountPill: { borderRadius: radii.pill, paddingHorizontal: 9, paddingVertical: 3 },
   cinemaEmptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -303,7 +446,20 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
   },
-  posterRow: { gap: 12, paddingRight: spacing.md, paddingBottom: 6 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: TILE_GAP },
+  moreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    alignSelf: 'center',
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
+    backgroundColor: '#EEF2FF',
+  },
+  moreBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
   searchBoxTop: { marginHorizontal: spacing.md, marginBottom: spacing.sm },
   searchBtn: {
     width: 38,
@@ -316,9 +472,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   section: { marginBottom: spacing.lg },
-  sectionCount: { fontFamily: fonts.headingSemiBold, fontSize: 11.5, color: colors.textMuted },
-  sectionHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 10 },
-  sectionTitle: { fontFamily: fonts.headingBold, fontSize: 20 },
+  sectionCount: { fontFamily: fonts.headingBold, fontSize: 11.5 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  sectionTitle: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.textHeading },
   starsChip: {
     flexDirection: 'row',
     alignItems: 'center',

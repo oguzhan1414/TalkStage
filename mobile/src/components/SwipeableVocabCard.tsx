@@ -141,7 +141,8 @@ export function SwipeableVocabCard({ card, onGrade, onPronounce, pronouncing }: 
 
           {!isFlipped ? (
             <View style={styles.frontBody}>
-              <Text style={styles.termBig} adjustsFontSizeToFit numberOfLines={2}>
+              {/* A single word stays on one line (shrinks to fit, never "tomorro / w"); a phrase may take two */}
+              <Text style={styles.termBig} adjustsFontSizeToFit minimumFontScale={0.5} numberOfLines={card.term.trim().includes(' ') ? 2 : 1}>
                 {card.term}
               </Text>
 

@@ -180,11 +180,16 @@ async def synthesize_speech(
     text: str,
     voice_id: str,
     language: str | None = None,
+    prefer: str | None = None,
 ) -> bytes:
     """Mivo's voice from the configured provider (settings.tts_provider, OpenAI by default); the other one, when
     configured, is the fallback for account/credit problems, rate limits and outages. Both are cached on disk, so a
     repeated line is paid for once."""
     order = ["cartesia", "openai"] if settings.tts_provider == "cartesia" else ["openai", "cartesia"]
+    # `prefer` pins a provider for this call (e.g. single words stay on Cartesia, so their cached audio never has
+    # to be made again when Mivo's sentences move to another voice); the other one is still the fallback.
+    if prefer in order:
+        order = [prefer] + [p for p in order if p != prefer]
     providers = [p for p in order if (openai_tts_configured() if p == "openai" else cartesia_configured())]
     if not providers:
         raise RuntimeError("Neither OpenAI nor Cartesia TTS is configured")

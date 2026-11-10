@@ -70,6 +70,7 @@ export function RootNavigator() {
             getComponent={() => require('../screens/LiveConversationRoomScreen').LiveConversationRoomScreen}
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
+          <Stack.Screen name="FreeChatSetup" getComponent={() => require('../screens/FreeChatSetupScreen').FreeChatSetupScreen} />
           <Stack.Screen
             name="FreeChatRoom"
             getComponent={() => require('../screens/FreeChatRoomScreen').FreeChatRoomScreen}
@@ -79,7 +80,6 @@ export function RootNavigator() {
               or grammar lessons — are only evaluated when first opened, which keeps app start fast. */}
           <Stack.Screen name="Scorecard" getComponent={() => require('../screens/ScorecardScreen').ScorecardScreen} />
           <Stack.Screen name="Badges" getComponent={() => require('../screens/BadgesScreen').BadgesScreen} />
-          <Stack.Screen name="AccountSettings" getComponent={() => require('../screens/AccountSettingsScreen').AccountSettingsScreen} />
           <Stack.Screen name="MistakesNotebook" getComponent={() => require('../screens/MistakesNotebookScreen').MistakesNotebookScreen} />
           <Stack.Screen name="MivoMemory" getComponent={() => require('../screens/MivoMemoryScreen').MivoMemoryScreen} />
           <Stack.Screen name="VocabLibrary" getComponent={() => require('../screens/VocabLibraryScreen').VocabLibraryScreen} />
@@ -89,6 +89,12 @@ export function RootNavigator() {
           <Stack.Screen name="WordRoom" getComponent={() => require('../screens/WordRoomScreen').WordRoomScreen} />
           <Stack.Screen name="PathLesson" getComponent={() => require('../screens/PathLessonScreen').PathLessonScreen} />
           <Stack.Screen name="PathVocab" getComponent={() => require('../screens/PathVocabScreen').PathVocabScreen} />
+          <Stack.Screen name="Progress" getComponent={() => require('../screens/ProgressScreen').ProgressScreen} />
+          <Stack.Screen
+            name="PathGuide"
+            getComponent={() => require('../screens/PathGuideScreen').PathGuideScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
           <Stack.Screen
             name="Paywall"
             component={PaywallScreen}

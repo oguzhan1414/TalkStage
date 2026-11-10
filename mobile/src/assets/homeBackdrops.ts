@@ -1,20 +1,17 @@
 /**
- * Painted backdrops of the path home, one per level (prompts: docs/ana_sayfa_arka_planlari.md). Each picture is
- * cropped where its street ends, so its bottom edge is the horizon; `floor` is the cream ground colour under it,
- * `top` the sky colour at its top edge (shown if the screen is taller than the picture), and `lightSky` tells the
- * screen to write the story title in dark type instead of white.
+ * The path home's background: one picture for every level (a soft lavender-mint-cream mesh gradient with a few
+ * frosted speech bubbles at the edges; prompt in docs/ana_sayfa_arka_planlari.md). It fills the whole screen; `top`
+ * and `floor` are its edge colours, shown while it loads or if a screen is taller than the picture.
  */
-export type HomeBackdrop = { image: number; top: string; floor: string; lightSky: boolean };
+export type HomeBackdrop = { image: number; top: string; floor: string };
 
-export const HOME_BACKDROPS: Record<string, HomeBackdrop> = {
-  A1: { image: require('../../assets/images/home/home_a1.webp'), top: '#C6E0F6', floor: '#FEF3E1', lightSky: true },
-  A2: { image: require('../../assets/images/home/home_a2.webp'), top: '#76C4F4', floor: '#FCF4E1', lightSky: true },
-  B1: { image: require('../../assets/images/home/home_b1.webp'), top: '#215FAA', floor: '#FCEDD8', lightSky: false },
-  B2: { image: require('../../assets/images/home/home_b2.webp'), top: '#A5CCE0', floor: '#FEF2E0', lightSky: true },
-  C1: { image: require('../../assets/images/home/home_c1.webp'), top: '#9D97DA', floor: '#FBEEDB', lightSky: false },
-  C2: { image: require('../../assets/images/home/home_c2.webp'), top: '#1E205B', floor: '#FBEFD9', lightSky: false },
+const HOME_BACKDROP: HomeBackdrop = {
+  image: require('../../assets/images/home/home.webp'),
+  top: '#ECEDFF',
+  floor: '#FCF4EC',
 };
 
-export function homeBackdrop(levelId: string): HomeBackdrop {
-  return HOME_BACKDROPS[levelId] ?? HOME_BACKDROPS.A1;
+/** The same backdrop for every level; the level argument stays so a level could get its own picture again. */
+export function homeBackdrop(_levelId: string): HomeBackdrop {
+  return HOME_BACKDROP;
 }

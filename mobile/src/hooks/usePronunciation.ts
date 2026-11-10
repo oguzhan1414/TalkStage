@@ -5,6 +5,15 @@ import { Platform } from 'react-native';
 import { api } from '../lib/api';
 import { arrayBufferToBase64 } from '../lib/base64';
 import { getLocale } from '../i18n';
+import { PATH_AUDIO } from '../assets/pathAudio';
+import { WORD_AUDIO } from '../assets/wordAudio';
+import { pathAudioKey } from '../lib/pathAudioKey';
+
+/** A clip made ahead of time and shipped in the app (word lists, lesson texts), if this text has one. */
+function bundledClip(text: string): number | undefined {
+  const key = pathAudioKey(text);
+  return WORD_AUDIO[key] ?? PATH_AUDIO[key];
+}
 
 // Aynı kelimeyi tekrar dinlemek her seferinde ağa gitmesin (flashcard'larda
 // sürekli tekrar ediliyor) — son 60 sentezlenmiş ses data-URI olarak tutulur.
@@ -47,7 +56,7 @@ function fetchAudioUri(cleanText: string): Promise<string> {
 export function prefetchPronunciation(text: string | null | undefined) {
   if (!text || Platform.OS === 'web') return;
   const clean = text.trim();
-  if (!clean) return;
+  if (!clean || bundledClip(clean) !== undefined) return;
   fetchAudioUri(clean).catch(() => {});
 }
 
@@ -193,7 +202,27 @@ export function usePronunciation() {
         });
       };
 
-      // 2. High-fidelity Cartesia TTS via backend /tts/pronounce (Primary)
+      // 2. A clip shipped in the app: plays at once, offline, and costs nothing
+      const bundled = bundledClip(cleanText);
+      // Dev log: shows in the Metro terminal which texts play from the app (free) and which go to the server.
+      if (__DEV__) console.log(`[ses] ${bundled !== undefined ? 'uygulamadan (ücretsiz)' : 'sunucudan'}: ${cleanText}`);
+      if (bundled !== undefined) {
+        const player = createAudioPlayer(bundled);
+        playerRef.current = player;
+        attachFinishHandler(player);
+        player.shouldCorrectPitch = true;
+        player.setPlaybackRate(rate, 'high');
+        player.play();
+        safetyTimeoutRef.current = setTimeout(() => {
+          if (stillCurrent()) {
+            setIsPlaying(false);
+            setIsPaused(false);
+          }
+        }, 6000);
+        return;
+      }
+
+      // 3. Mivo's voice via backend /tts/pronounce (made once, then served from the server's cache)
       try {
         const uri = await fetchAudioUri(cleanText);
         if (!stillCurrent()) return;

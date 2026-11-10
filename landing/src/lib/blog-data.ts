@@ -17,27 +17,27 @@ export const BLOG_AUTHORS: Record<Locale, BlogAuthor> = {
   tr: {
     name: "Spekvia Editör Ekibi",
     role: "İngilizce konuşma pratiği içerik ekibi",
-    avatar: "/brand/spekvia-app-icon.png",
+    avatar: "/assets/brand/app-icon.png",
   },
   en: {
     name: "Spekvia Editorial Team",
     role: "English speaking practice editorial team",
-    avatar: "/brand/spekvia-app-icon.png",
+    avatar: "/assets/brand/app-icon.png",
   },
   es: {
     name: "Equipo editorial de Spekvia",
     role: "Equipo de práctica de conversación en inglés",
-    avatar: "/brand/spekvia-app-icon.png",
+    avatar: "/assets/brand/app-icon.png",
   },
   pt: {
     name: "Equipe editorial do Spekvia",
     role: "Equipe de conteúdo de conversação em inglês",
-    avatar: "/brand/spekvia-app-icon.png",
+    avatar: "/assets/brand/app-icon.png",
   },
   de: {
     name: "Spekvia Redaktionsteam",
     role: "Redaktionsteam für englische Sprachpraxis",
-    avatar: "/brand/spekvia-app-icon.png",
+    avatar: "/assets/brand/app-icon.png",
   },
 };
 

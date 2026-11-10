@@ -57,9 +57,13 @@ export default function ScenarioDeepLinkPage() {
       </p>
       {fallbackVisible ? (
         <div className="mt-4 flex flex-col gap-2 text-sm">
-          <a href={iosStoreUrl} className="text-indigo underline">
-            App Store&rsquo;dan indir
-          </a>
+          {iosStoreUrl ? (
+            <a href={iosStoreUrl} className="text-indigo underline">
+              App Store&rsquo;dan indir
+            </a>
+          ) : (
+            <span className="text-muted">App Store — Yakında</span>
+          )}
           <a href={androidStoreUrl} className="text-indigo underline">
             Google Play&rsquo;den indir
           </a>

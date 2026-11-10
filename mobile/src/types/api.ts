@@ -274,6 +274,16 @@ export type TranscribeResponse = {
 };
 
 /** `GET /progress` — added alongside mobile Görev 15, the `progress` table existed but was never exposed for reading. */
+/** One day of `GET /progress/activity` (oldest first). */
+export type DailyActivityOut = {
+  day: string;
+  words_added: number;
+  vocab_reviews: number;
+  steps: number;
+  scenes: number;
+  minutes: number;
+};
+
 export type ProgressOut = {
   id: string;
   practice_date: string;

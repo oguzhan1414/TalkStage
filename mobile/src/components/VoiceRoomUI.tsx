@@ -1,7 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, FlatList, Image, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { mivoVoiceImages } from '../assets/images';
+import { type MivoStageState } from '../assets/videos';
+import { MivoStage } from './MivoStage';
 import { TappableWords } from './TappableWords';
 import { Waveform } from './Waveform';
 import { useConversationSocket, type TurnPhase } from '../hooks/useConversationSocket';
@@ -10,7 +12,8 @@ import type { WsCorrectionData, WsWordMetric } from '../types/ws';
 import { MivoLoader } from './MivoLoader';
 import { ReportAiContentModal } from './ReportAiContentModal';
 import { haptics } from '../lib/haptics';
-import { t } from '../i18n';
+import { getLocale, t } from '../i18n';
+import { api } from '../lib/api';
 const LOW_CONFIDENCE_THRESHOLD = 0.55;
 
 export type DisplayBubble =
@@ -18,8 +21,8 @@ export type DisplayBubble =
   | { key: string; kind: 'assistant'; text: string };
 
 
-const MIC_SIZE = 84;
-const HALO = 118;
+const MIC_SIZE = 70;
+const HALO = 98;
 /** Silence before the hint card opens by itself: the learner gets a real chance to answer alone first. */
 const HINT_AUTO_OPEN_MS = 10000;
 
@@ -217,7 +220,7 @@ export function VoiceRoomControls({ voice, aiName }: {
     {((turnPhase === 'thinking_time' && showKeyboard) || turnPhase === 'error') && (
       <View style={styles.reviewActionsRow}>
         <TextInput value={draft} onChangeText={setDraft} maxLength={2000}
-          placeholder={t("İstersen Türkçe veya İngilizce yaz…")} accessibilityLabel={t("Mivo'ya mesaj")}
+          placeholder={t("İngilizce yaz…")} accessibilityLabel={t("Mivo'ya mesaj")}
           style={[styles.reviewTextInput, { flex: 1 }]} multiline />
         <Pressable disabled={!draft.trim()} accessibilityRole="button" accessibilityLabel={t("Mesajı gönder")}
           style={[styles.reviewSecondaryBtn, { minHeight: 44 }]}
@@ -229,7 +232,9 @@ export function VoiceRoomControls({ voice, aiName }: {
   </View>;
 }
 
-export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning }: {
+export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning, celebrate, messageCount }: {
+  /** How many messages the thread has: from the second one on, the stage folds into a slim strip (more room to read). */
+  messageCount?: number;
   phase: TurnPhase;
   aiName: string;
   aiRole: string;
@@ -237,36 +242,88 @@ export function VoiceRoomBanner({ phase, aiName, aiRole, onReplay, timeWarning }
   onReplay?: () => void;
   /** Seconds left before the session limit (server warning); shows a small strip under the banner. */
   timeWarning?: number | null;
+  /** The scene or rehearsal was just completed: Mivo celebrates. */
+  celebrate?: boolean;
 }) {
+  const { width, height } = useWindowDimensions();
   const recording = phase === 'recording';
+  // Folded once the conversation is going; a tap on the strip (or the chevron) grows it back, and the choice sticks.
+  const [userChoice, setUserChoice] = useState<'big' | 'small' | null>(null);
+  const compact = userChoice ? userChoice === 'small' : (messageCount ?? 0) >= 2;
   const labels: Record<TurnPhase, string> = {
     thinking_time: t("Sıra sende"), recording: t("Seni dinliyorum"), reviewing: t("Söylediklerini kontrol et"),
     ai_thinking: t("Yanıt hazırlanıyor"), ai_speaking: t("{{aiName}} konuşuyor", { aiName }), error: t("Yeniden deneyelim"),
   };
-  const pose = recording ? 'listen' : phase === 'ai_speaking' ? 'speak' : phase === 'ai_thinking' ? 'think' : 'wait';
-  return <>
-  <View style={[styles.turnBanner, recording && styles.turnBannerRecording]}>
-    <Image source={mivoVoiceImages[pose]} style={styles.turnBannerAvatar} resizeMode="contain" />
-    <View style={styles.turnBannerTextCol}>
-      <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
-      <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
-    </View>
-    {phase === 'thinking_time' && onReplay ? (
-      <Pressable
-        onPress={onReplay}
-        hitSlop={8}
-        style={styles.replayBtn}
-        accessibilityRole="button"
-        accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
-      >
-        <Ionicons name="play-circle" size={16} color={colors.brand} />
-        <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
+  // The stage: Mivo's loop for the moment of the conversation.
+  const stageState: MivoStageState = celebrate
+    ? 'happy'
+    : recording
+      ? 'listening'
+      : phase === 'ai_speaking'
+        ? 'speaking'
+        : phase === 'ai_thinking'
+          ? 'thinking'
+          : 'idle';
+  // The whole 16:9 loop, never cropped (Mivo's face stays clear); a little shorter on small phones.
+  const stageH = Math.round(Math.min(((width - 24) * 9) / 16, height * 0.25));
+  if (compact) {
+    return <>
+      <Pressable onPress={() => setUserChoice('big')} style={[styles.stageWrap, styles.stageStrip, recording && styles.stageBarRecording]} accessibilityRole="button" accessibilityLabel={t("Mivo'yu büyüt")}>
+        <View style={styles.stripFace}>
+          <MivoStage state={stageState} height={46} fit="cover" zoom={1.7} />
+        </View>
+        <View style={styles.turnBannerTextCol}>
+          <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
+          <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
+        </View>
+        {phase === 'thinking_time' && onReplay ? (
+          <Pressable onPress={onReplay} hitSlop={8} style={styles.replayBtn} accessibilityRole="button" accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}>
+            <Ionicons name="play-circle" size={16} color={colors.brand} />
+            <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
+          </Pressable>
+        ) : null}
+        <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
       </Pressable>
-    ) : (
-      <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
-        <Ionicons name={recording ? 'mic' : 'mic-off-outline'} size={15} color={recording ? '#059669' : colors.textMuted} />
+      {timeWarning ? (
+        <View style={styles.timeStrip} accessibilityLiveRegion="polite">
+          <Ionicons name="hourglass-outline" size={14} color="#B45309" />
+          <Text style={styles.timeStripText}>{t("Son 1 dakika: cümleni tamamla.")}</Text>
+        </View>
+      ) : null}
+    </>;
+  }
+  return <>
+  <View style={styles.stageWrap}>
+    <Pressable onPress={() => setUserChoice('small')} accessibilityRole="button" accessibilityLabel={t("Mivo'yu küçült")}>
+      <MivoStage state={stageState} height={stageH} />
+      {(messageCount ?? 0) >= 2 ? (
+        <View style={styles.stageFoldHint}>
+          <Ionicons name="chevron-up" size={16} color={colors.textMuted} />
+        </View>
+      ) : null}
+    </Pressable>
+    {/* The turn, on its own strip under the stage (never over Mivo's face) */}
+      <View style={[styles.stageBar, recording && styles.stageBarRecording]}>
+        <View style={[styles.turnBannerMic, recording && styles.turnBannerMicOn]}>
+          <Ionicons name={recording ? 'mic' : phase === 'ai_speaking' ? 'volume-high' : 'chatbubble-ellipses-outline'} size={15} color={recording ? '#059669' : colors.brand} />
+        </View>
+        <View style={styles.turnBannerTextCol}>
+          <Text style={styles.turnBannerLabel} numberOfLines={1} maxFontSizeMultiplier={1.15} accessibilityLiveRegion="polite">{labels[phase]}</Text>
+          <Text style={styles.turnBannerSub} numberOfLines={1} maxFontSizeMultiplier={1.1}>{recording ? t("Bitirmek için mikrofona tekrar dokun") : aiRole}</Text>
+        </View>
+        {phase === 'thinking_time' && onReplay ? (
+          <Pressable
+            onPress={onReplay}
+            hitSlop={8}
+            style={styles.replayBtn}
+            accessibilityRole="button"
+            accessibilityLabel={t("{{aiName}} ne dedi, tekrar dinle", { aiName })}
+          >
+            <Ionicons name="play-circle" size={16} color={colors.brand} />
+            <Text style={styles.replayBtnText} maxFontSizeMultiplier={1.1}>{t("Tekrar dinle")}</Text>
+          </Pressable>
+        ) : null}
       </View>
-    )}
   </View>
   {timeWarning ? (
     <View style={styles.timeStrip} accessibilityLiveRegion="polite">
@@ -586,6 +643,28 @@ function ChatBubble({
 }) {
   const anim = useRef(new Animated.Value(0)).current;
   const [reportOpen, setReportOpen] = useState(false);
+  // On-demand translation of Mivo's message into the learner's language (not offered in the English UI).
+  const locale = getLocale();
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const toggleTranslation = async () => {
+    if (showTranslation) {
+      setShowTranslation(false);
+      return;
+    }
+    setShowTranslation(true);
+    if (translation || translating) return;
+    setTranslating(true);
+    try {
+      const r = await api.post<{ translation: string }>('/translate/text', { text: bubble.text, target: locale });
+      setTranslation(r.translation);
+    } catch {
+      setTranslation(t("Çeviri şu an yapılamadı."));
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   useEffect(() => {
     Animated.timing(anim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
@@ -602,6 +681,11 @@ function ChatBubble({
         <Text style={styles.bubbleSenderLabel}>{aiName}</Text>
         <View style={[styles.bubble, styles.bubbleAssistant]}>
           <AssistantText text={bubble.text} onWordPress={onWordPress} onListen={onListen} />
+          {showTranslation ? (
+            <View style={styles.translationBox}>
+              {translating ? <ActivityIndicator size="small" color={colors.brand} /> : <Text style={styles.translationText}>{translation}</Text>}
+            </View>
+          ) : null}
           <View style={styles.bubbleActionsRow}>
             {onListen ? (
               <Pressable
@@ -614,6 +698,13 @@ function ChatBubble({
                 <Ionicons name="volume-high-outline" size={16} color={colors.textMuted} />
               </Pressable>
             ) : null}
+            {locale !== 'en' ? (
+              <Pressable onPress={() => void toggleTranslation()} hitSlop={8} style={styles.translateBtn} accessibilityRole="button">
+                <Ionicons name="language-outline" size={15} color={colors.brand} />
+                <Text style={styles.translateBtnText}>{showTranslation ? t("Çeviriyi gizle") : t("Çevir")}</Text>
+              </Pressable>
+            ) : null}
+            <View style={{ flex: 1 }} />
             <Pressable
               onPress={() => setReportOpen(true)}
               hitSlop={8}
@@ -686,7 +777,7 @@ export const voiceRoomStyles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F8FAFC',
   },
-  micWrap: { width: HALO, height: MIC_SIZE + 24, alignItems: 'center', justifyContent: 'center' },
+  micWrap: { width: HALO, height: MIC_SIZE + 14, alignItems: 'center', justifyContent: 'center' },
   micHalo: { position: 'absolute', width: HALO, height: HALO, borderRadius: HALO / 2 },
   dockMic: {
     width: MIC_SIZE,
@@ -715,7 +806,11 @@ export const voiceRoomStyles = StyleSheet.create({
     textAlign: 'center',
   },
   dockHintRecording: { fontFamily: fonts.headingBold, color: colors.error },
-  bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  bubbleActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'stretch' },
+  translateBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
+  translateBtnText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.brand },
+  translationBox: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#EEF2F7' },
+  translationText: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.textMuted },
   bubbleListenBtn: { alignSelf: 'flex-start', marginTop: 6, padding: 2 },
   suggestionCard: {
     backgroundColor: '#FFFBEB',
@@ -841,6 +936,19 @@ export const voiceRoomStyles = StyleSheet.create({
   mainLayout: {
     flex: 1,
   },
+  stageWrap: { marginHorizontal: 12, marginTop: 8, borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#DCE3F5' },
+  stageStrip: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, paddingLeft: 6, paddingRight: 12, backgroundColor: '#FFFFFF', borderRadius: 999 },
+  stripFace: { width: 46, height: 46, borderRadius: 23, overflow: 'hidden' },
+  stageFoldHint: { position: 'absolute', right: 8, top: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
+  stageBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  stageBarRecording: { backgroundColor: '#F0FDF9' },
   turnBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -967,7 +1075,7 @@ export const voiceRoomStyles = StyleSheet.create({
     paddingLeft: 12,
     paddingRight: 8,
   },
-  quoteBody: { flex: 1 },
+  quoteBody: { flexShrink: 1 },
   inlineQuote: { fontFamily: fonts.headingSemiBold, color: '#4338CA' },
   quoteText: { fontFamily: fonts.headingSemiBold, fontSize: 15.5, lineHeight: 22, color: '#312E81' },
   quoteListen: {
@@ -1004,7 +1112,7 @@ export const voiceRoomStyles = StyleSheet.create({
     lineHeight: 18,
   },
   turnControlBlock: {
-    gap: 8,
+    gap: 4,
   },
   replayBtn: {
     flexDirection: 'row',

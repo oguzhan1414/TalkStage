@@ -55,13 +55,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonicalUrl,
       type: "website",
       locale: LOCALE_META[locale]?.ogLocale || "en_US",
-      images: [{ url: "/og.jpg", width: 1200, height: 630, alt: meta.title }],
+      images: [{ url: `/assets/share/${locale}.jpg`, width: 1200, height: 630, alt: meta.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: meta.title,
       description: meta.description,
-      images: ["/og.jpg"],
+      images: [`/assets/share/${locale}.jpg`],
     },
   };
 }

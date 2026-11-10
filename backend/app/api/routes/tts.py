@@ -9,6 +9,15 @@ from app.services.usage_guard import rate_limit
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 
+# Words and short phrases (Kütüphane, Telaffuz, word cards) always use Cartesia: each is made once, kept in the
+# disk cache for good, and stays the same voice even after Mivo's sentences move to another provider.
+WORD_PROVIDER = "cartesia"
+
+
+def is_word(text: str) -> bool:
+    t = text.strip()
+    return len(t) <= 40 and len(t.split()) <= 4
+
 
 def _detect_language(text: str) -> str:
     # ö/ü/ç also occur in German/Portuguese/French, so only the Turkish-only letters decide.
@@ -34,5 +43,7 @@ async def pronounce(payload: PronounceRequest, ctx: AuthContext = Depends(get_au
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="TTS voice not configured")
     lang = payload.language or _detect_language(payload.text)
     async with httpx.AsyncClient() as client:
-        audio = await synthesize_speech(client, payload.text, settings.cartesia_voice_id, language=lang)
+        audio = await synthesize_speech(
+            client, payload.text, settings.cartesia_voice_id, language=lang, prefer=WORD_PROVIDER if is_word(payload.text) else None
+        )
     return Response(content=audio, media_type="audio/wav")

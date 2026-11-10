@@ -3,13 +3,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, FlatList, Image, Modal, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { vocabArt, stateImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
-import { AppHeader } from '../components/AppHeader';
 import { BouncyPressable } from '../components/BouncyPressable';
+import { WeekActivity } from '../components/vocab/WeekActivity';
 import { Button } from '../components/Button';
 
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
@@ -20,6 +20,10 @@ import { Toast } from '../components/Toast';
 import { CEFR_LEVELS } from '../constants/cefr';
 import { prefetchPronunciation, usePronunciation } from '../hooks/usePronunciation';
 import { api, ApiError } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
+import { VP } from '../theme/vocabPalette';
+import type { ProfileOut } from '../types/api';
+import { isProUser } from '../lib/revenuecat';
 import { useAnalytics } from '../lib/analytics';
 import { formatIntervalLabel, predictNextIntervalDays } from '../lib/sm2Preview';
 import { inFocus, migrateLocalFolders, NO_LEVEL, tagGroups } from '../lib/vocabGroups';
@@ -33,6 +37,7 @@ import type {
 } from '../types/api';
 import { MivoLoader } from '../components/MivoLoader';
 import { t } from '../i18n';
+import { KeyboardSafe } from '../components/KeyboardSafe';
 
 const GRADE_BUTTONS: {
   grade: VocabGrade;
@@ -77,6 +82,26 @@ const POS_OPTIONS = [
   { id: 'adverb', label: t("Zarf"), color: '#7C3AED' },
   { id: 'phrase', label: t("Deyim"), color: '#DB2777' },
 ];
+
+type MemoryBucket = 'fresh' | 'learning' | 'settling' | 'solid';
+/** How settled a word is, from its SM-2 state (the same split as the home's memory tiles). */
+function memoryBucket(c: VocabCardOut): MemoryBucket {
+  if (c.sm2_repetitions === 0) return 'fresh';
+  if (c.sm2_interval_days < 7) return 'learning';
+  if (c.sm2_interval_days < 30) return 'settling';
+  return 'solid';
+}
+/** Sandığım's tabs: everything, due today, or one memory bucket. */
+type ChestTab = 'all' | 'due' | MemoryBucket;
+
+/** Days from today to the next review (0 or less = due today). */
+function daysUntil(nextReviewDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(`${nextReviewDate.slice(0, 10)}T00:00:00`);
+  const diff = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+  return Number.isNaN(diff) ? 0 : diff;
+}
 
 /** next_review_date (YYYY-MM-DD) -> "Bugün tekrar" / "Yarın" / "5 gün sonra". */
 function formatDueLabel(nextReviewDate: string): string {
@@ -157,6 +182,8 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   // Search & Filters in Dictionary
   const [searchQuery, setSearchQuery] = useState('');
+  const [chestTab, setChestTab] = useState<ChestTab>('all');
+  const [progressTab, setProgressTab] = useState<'memory' | 'week'>('memory');
   const [levelFilter, setLevelFilter] = useState<string | null>(null);
   const [posFilter, setPosFilter] = useState<string | null>(null);
 
@@ -472,6 +499,29 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     });
   }, [cardsList, searchQuery, levelFilter, posFilter, tagFilter]);
 
+  // Sandığım: the tab narrows the filtered list; "all" is grouped by first letter, the others by next review.
+  const chestWords = useMemo(() => {
+    if (chestTab === 'all') return filteredWords;
+    if (chestTab === 'due') return filteredWords.filter((w) => daysUntil(w.next_review_date) <= 0);
+    return filteredWords.filter((w) => memoryBucket(w) === chestTab);
+  }, [filteredWords, chestTab]);
+  const chestSections = useMemo(() => {
+    if (chestTab !== 'all') {
+      const sorted = [...chestWords].sort((a, b) => a.next_review_date.localeCompare(b.next_review_date));
+      return sorted.length ? [{ title: '', data: sorted }] : [];
+    }
+    const groups = new Map<string, VocabCardOut[]>();
+    [...chestWords]
+      .sort((a, b) => a.term.localeCompare(b.term, 'en', { sensitivity: 'base' }))
+      .forEach((w) => {
+        const ch = w.term.trim().charAt(0).toUpperCase();
+        const key = /[A-Z]/.test(ch) ? ch : '#';
+        groups.set(key, [...(groups.get(key) ?? []), w]);
+      });
+    return [...groups.entries()].map(([title, data]) => ({ title, data }));
+  }, [chestWords, chestTab]);
+  const dueTodayCount = useMemo(() => cardsList.filter((w) => daysUntil(w.next_review_date) <= 0).length, [cardsList]);
+
   const hasActiveFilters = Boolean(searchQuery || levelFilter || posFilter || tagFilter);
 
   const clearAllFilters = () => {
@@ -528,6 +578,23 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     return cardsList.filter((c) => c.next_review_date.slice(0, 10) === key).length;
   }, [cardsList]);
+  // The week ahead: how many words come back on each of the next 7 days (shown when today's deck is done).
+  const weekAhead = useMemo(() => {
+    const days: { key: string; label: string; count: number }[] = [];
+    for (let i = 1; i <= 7; i += 1) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      days.push({ key, label: i === 1 ? t("Yarın") : d.toLocaleDateString(undefined, { weekday: 'short' }), count: 0 });
+    }
+    const at = new Map(days.map((d) => [d.key, d]));
+    cardsList.forEach((c) => {
+      const hit = at.get(c.next_review_date.slice(0, 10));
+      if (hit) hit.count += 1;
+    });
+    return days;
+  }, [cardsList]);
+  const weekMax = Math.max(1, ...weekAhead.map((d) => d.count));
   // Memory map: how settled the words are (from the SM-2 interval).
   const memory = useMemo(() => {
     const m = { fresh: 0, learning: 0, settling: 0, solid: 0 };
@@ -542,110 +609,182 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   // ---------------------------------------------------------------- Dashboard
   const memoryParts = [
-    { key: 'fresh', label: t("Yeni"), count: memory.fresh, color: '#CBD5E1' },
-    { key: 'learning', label: t("Öğreniliyor"), count: memory.learning, color: '#F59E0B' },
-    { key: 'settling', label: t("Oturuyor"), count: memory.settling, color: '#818CF8' },
-    { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: '#10B981' },
+    { key: 'fresh', label: t("Yeni"), count: memory.fresh, color: VP.sky, soft: VP.skySoft, deep: VP.skyDeep },
+    { key: 'learning', label: t("Öğreniliyor"), count: memory.learning, color: VP.coral, soft: VP.coralSoft, deep: VP.coralDeep },
+    { key: 'settling', label: t("Oturuyor"), count: memory.settling, color: VP.sun, soft: VP.sunSoft, deep: VP.sunDeep },
+    { key: 'solid', label: t("Kalıcı"), count: memory.solid, color: VP.mint, soft: VP.mintSoft, deep: VP.mintDeep },
   ];
+
+  const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const { data: isPro } = useQuery({ queryKey: ['isProUser'], queryFn: isProUser, staleTime: 60_000 });
 
   const homeView = (
     // Fits one screen on most phones; on short ones it scrolls a little instead of squeezing things together.
     <ScrollView contentContainerStyle={styles.dash} showsVerticalScrollIndicator={false} bounces={false}>
+      {/* Header, as on Konuş: the tab's name, streak, Pro, add a word (no greeting or avatar) */}
       <View style={styles.dashHeader}>
-        <Text style={styles.dashTitle}>{t("Kelimeler")}</Text>
+        <Text style={[styles.dashTitle, { flex: 1 }]}>{t("Kelimeler")}</Text>
+        <View style={styles.streakChip}>
+          <Ionicons name="flame" size={16} color="#F97316" />
+          <Text style={styles.streakChipText}>{profile?.streak_count ?? 0}</Text>
+        </View>
+        <Pressable
+          onPress={() => {
+            if (isPro) return;
+            trackEvent('paywall_opened', { source: 'vocab_pro_pill' });
+            navigation.navigate('Paywall');
+          }}
+          style={[styles.proPill, isPro && styles.proPillOn]}
+          accessibilityRole="button"
+          accessibilityLabel={t("Spekvia Pro")}
+        >
+          <Text style={styles.proPillText}>👑 PRO</Text>
+        </Pressable>
         <Pressable onPress={openCreateModal} style={styles.dashAdd} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
           <Ionicons name="add" size={22} color="#FFFFFF" />
         </Pressable>
       </View>
 
-      {/* All saved words: a search field that opens the list */}
-      <Pressable onPress={() => setMode('collection')} style={({ pressed }) => [styles.dashSearch, pressed && { opacity: 0.85 }]} accessibilityRole="search">
-        <Ionicons name="search" size={18} color={colors.textMuted} />
-        <Text style={styles.dashSearchText} numberOfLines={1}>
-          {totalCardsInChest > 0 ? t("{{count}} kelimende ara", { count: totalCardsInChest }) : t("Sandığın henüz boş")}
-        </Text>
-        <Ionicons name="chevron-forward" size={18} color="#C8BFB0" />
+      {/* Sandığım: all saved words, as a named card (a bare search field hid it) */}
+      <Pressable
+        onPress={() => {
+          setChestTab('all');
+          setMode('collection');
+        }}
+        style={({ pressed }) => [styles.chestCard, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel={t("Sandığım")}>
+        <View style={styles.chestArt}>
+          <Image source={vocabArt.emptyChest} style={styles.chestImg} resizeMode="contain" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.chestTitle}>{t("Sandığım")}</Text>
+          <Text style={styles.chestSub} numberOfLines={1}>
+            {totalCardsInChest > 0 ? t("{{count}} kelime · ara, düzenle, etiketle", { count: totalCardsInChest }) : t("Sandığın henüz boş")}
+          </Text>
+        </View>
+        <View style={styles.chestSearch}>
+          <Ionicons name="search" size={17} color={VP.ink} />
+        </View>
       </Pressable>
 
-      {/* Today's deck */}
-      <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.dashHero}>
-        <View style={styles.heroBlobA} />
-        <View style={styles.heroBlobB} />
+      {/* Today's deck: a paper card with the first words fanned out, or Mivo and the week ahead once it is done */}
+      <View style={styles.deckCard}>
         {dueLoading && !dueCards ? (
           <View style={styles.dashHeroLoading}>
             <MivoLoader size={72} />
           </View>
-        ) : (
+        ) : dueCount > 0 || totalCardsInChest === 0 ? (
           <View style={styles.dashHeroRow}>
             <View style={styles.dashHeroText}>
-              <Text style={styles.dashHeroKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
+              <Text style={styles.deckKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
               {dueCount > 0 ? (
                 <>
-                  <Text style={styles.dashHeroNumber}>{t("{{count}} kelime", { count: dueCount })}</Text>
-                  <Text style={styles.dashHeroLine} numberOfLines={1}>
+                  <Text style={styles.deckNumber}>{t("{{count}} kelime", { count: dueCount })}</Text>
+                  <Text style={styles.deckLine} numberOfLines={1}>
                     {t("yaklaşık {{n}} dakika", { n: deckMinutes })}
                   </Text>
                 </>
               ) : (
                 <>
-                  <Text style={styles.dashHeroDone} numberOfLines={2}>
-                    {totalCardsInChest > 0 ? t("Bugünlük bitti 🎉") : t("İlk kelimeni ekle")}
-                  </Text>
-                  {totalCardsInChest > 0 ? (
-                    <Text style={styles.dashHeroLine} numberOfLines={1}>
-                      {tomorrowCount > 0 ? t("Yarın {{n}} kelime seni bekliyor", { n: tomorrowCount }) : t("Yarın yeni bir deste gelecek")}
-                    </Text>
-                  ) : null}
+                  <Text style={styles.deckDoneTitle}>{t("İlk kelimeni ekle")}</Text>
+                  <Text style={styles.deckLine}>{t("Kütüphaneden seç ya da kendin yaz.")}</Text>
                 </>
               )}
               <Pressable
-                onPress={dueCount > 0 ? startPractice : totalCardsInChest > 0 ? startFreePractice : () => navigation.navigate('VocabLibrary')}
-                style={({ pressed }) => [styles.heroBtn, pressed && styles.heroBtnPressed]}
+                onPress={dueCount > 0 ? startPractice : () => navigation.navigate('VocabLibrary')}
+                style={({ pressed }) => [styles.inkBtn, pressed && { transform: [{ translateY: 1 }] }]}
                 accessibilityRole="button"
               >
-                <Text style={styles.heroBtnText}>{dueCount > 0 ? t("BAŞLA") : totalCardsInChest > 0 ? t("Serbest pratik") : t("Kütüphaneyi aç")}</Text>
-                <Ionicons name="arrow-forward" size={16} color={colors.brand} />
+                <Text style={styles.inkBtnText}>{dueCount > 0 ? t("BAŞLA") : t("Kütüphaneyi aç")}</Text>
+                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
               </Pressable>
             </View>
-            <DeckFan cards={deckPreview} />
+            {dueCount > 0 ? <DeckFan cards={deckPreview} /> : <Image source={vocabArt.emptyChest} style={styles.deckArt} resizeMode="contain" />}
           </View>
-        )}
-      </LinearGradient>
-
-      {/* Memory map */}
-      {totalCardsInChest > 0 ? (
-        <View style={styles.dashMemory}>
-          <View style={styles.dashMemoryTop}>
-            <Text style={styles.dashMemoryTitle}>{t("Hafıza haritan")}</Text>
-            <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
-          </View>
-          <View style={styles.dashMemoryBar}>
-            {memoryParts
-              .filter((part) => part.count > 0)
-              .map((part) => (
-                <View key={part.key} style={{ flex: part.count, backgroundColor: part.color }} />
-              ))}
-          </View>
-          <View style={styles.dashMemoryLegend}>
-            {memoryParts.map((part) => (
-              <View key={part.key} style={styles.dashMemoryItem}>
-                <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
-                <Text style={styles.dashMemoryLabel} numberOfLines={1}>
-                  {part.label}
+        ) : (
+          <>
+            <View style={styles.dashHeroRow}>
+              <View style={styles.dashHeroText}>
+                <Text style={styles.deckKicker}>{t("BUGÜNÜN DESTESİ")}</Text>
+                <Text style={styles.deckDoneTitle}>{t("Bugünlük bitti 🎉")}</Text>
+                <Text style={styles.deckLine} numberOfLines={2}>
+                  {tomorrowCount > 0 ? t("Yarın {{n}} kelime seni bekliyor", { n: tomorrowCount }) : t("Yarın yeni bir deste gelecek")}
                 </Text>
-                <Text style={styles.dashMemoryCount}>{part.count}</Text>
+                <Pressable onPress={startFreePractice} style={({ pressed }) => [styles.lineBtn, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+                  <Ionicons name="shuffle" size={15} color={VP.ink} />
+                  <Text style={styles.lineBtnText}>{t("Serbest pratik")}</Text>
+                </Pressable>
               </View>
-            ))}
+              <Image source={vocabArt.deckDone} style={styles.deckArt} resizeMode="contain" />
+            </View>
+            {/* The week ahead */}
+            <View style={styles.week}>
+              {weekAhead.map((d, i) => (
+                <View key={d.key} style={styles.weekDay}>
+                  <Text style={[styles.weekCount, d.count === 0 && { color: '#C9C1B4' }]}>{d.count}</Text>
+                  <View style={styles.weekTrack}>
+                    <View style={[styles.weekFill, { height: `${Math.max(d.count ? 18 : 0, (d.count / weekMax) * 100)}%`, backgroundColor: i === 0 ? VP.coral : VP.mint }]} />
+                  </View>
+                  <Text style={[styles.weekLabel, i === 0 && { color: VP.ink }]} numberOfLines={1}>
+                    {d.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </View>
+
+      {/* Tools first: they are the doors of this tab, so they sit on the first screen */}
+      <View style={styles.dashTools}>
+        <Shortcut icon={vocabArt.iconLibrary} tint={VP.mintSoft} label={t("Kütüphane")} sub={t("900 temel kelime")} onPress={() => navigation.navigate('VocabLibrary')} />
+        <Shortcut icon={vocabArt.iconGroups} tint={VP.coralSoft} label={t("Gruplarım")} sub={t("Etiketlerin ve seviyeler")} onPress={() => navigation.navigate('VocabDecks')} />
+        <Shortcut icon={vocabArt.iconRooms} tint={VP.sunSoft} label={t("Odalar")} sub={t("Hafıza sarayı oyunu")} onPress={() => navigation.navigate('WordRooms')} />
+        <Shortcut icon={vocabArt.iconPronunciation} tint={VP.skySoft} label={t("Telaffuz")} sub={t("Zorlandığın kelimeler")} onPress={() => navigation.navigate('MispronouncedWords')} />
+      </View>
+
+      {/* Progress: the memory map and this week in one card, under two tabs */}
+      <View style={styles.dashMemory}>
+        <View style={styles.progressHead}>
+          <Text style={styles.dashMemoryTitle}>{t("İlerlemen")}</Text>
+          <View style={styles.progressTabs}>
+            {(totalCardsInChest > 0 ? (['memory', 'week'] as const) : (['week'] as const)).map((tab) => {
+              const on = (totalCardsInChest > 0 ? progressTab : 'week') === tab;
+              return (
+                <Pressable key={tab} onPress={() => setProgressTab(tab)} style={[styles.progressTab, on && styles.progressTabOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+                  <Text style={[styles.progressTabText, on && styles.progressTabTextOn]}>{tab === 'memory' ? t("Hafıza") : t("Bu hafta")}</Text>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
-      ) : null}
-
-      {/* Tools, as one row of shortcuts */}
-      <View style={styles.dashTools}>
-        <Shortcut icon={minimalFeatureIcons.vocabLibrary} tint="#E0E7FF" label={t("Kütüphane")} onPress={() => navigation.navigate('VocabLibrary')} />
-        <Shortcut icon={minimalFeatureIcons.vocabFolders} tint="#DBEAFE" label={t("Gruplarım")} onPress={() => navigation.navigate('VocabDecks')} />
-        <Shortcut icon={minimalFeatureIcons.wordRooms} tint="#EDE9FE" label={t("Odalar")} onPress={() => navigation.navigate('WordRooms')} />
-        <Shortcut icon={minimalFeatureIcons.pronunciation} tint="#FFE4E6" label={t("Telaffuz")} onPress={() => navigation.navigate('MispronouncedWords')} />
+        {totalCardsInChest > 0 && progressTab === 'memory' ? (
+          <>
+            <Text style={styles.dashMemoryHint}>{t("{{n}} kelime kalıcı", { n: memory.solid })}</Text>
+            <View style={styles.memoryTiles}>
+              {memoryParts.map((part) => (
+                <Pressable
+                  key={part.key}
+                  onPress={() => {
+                    setChestTab(part.key as MemoryBucket);
+                    setMode('collection');
+                  }}
+                  style={({ pressed }) => [styles.memoryTile, { backgroundColor: part.soft }, pressed && { opacity: 0.8 }]}
+                  accessibilityRole="button"
+                >
+                  <Text style={[styles.memoryNum, { color: part.deep }]}>{part.count}</Text>
+                  <View style={styles.memoryLabelRow}>
+                    <View style={[styles.dashMemoryDot, { backgroundColor: part.color }]} />
+                    <Text style={styles.memoryLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                      {part.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        ) : (
+          <WeekActivity bare />
+        )}
       </View>
     </ScrollView>
   );
@@ -742,7 +881,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
       <ScreenHeader
         title={t("Sandığım")}
         subtitle={t("{{count}} kelime", { count: totalCardsInChest })}
-        icon={stateImages.emptyChest}
+        icon={vocabArt.emptyChest}
         onBack={() => setMode('home')}
         right={
           <Pressable onPress={openCreateModal} style={styles.addCircle} accessibilityRole="button" accessibilityLabel={t("Kelime Ekle")}>
@@ -751,6 +890,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         }
       />
           <View style={styles.dictionaryContainer}>
+            <View style={styles.chestTop}>
             <View style={styles.searchRow}>
               <View style={[styles.searchBarBox, { flex: 1, marginBottom: 0 }]}>
                 <Ionicons name="search" size={18} color={colors.textMuted} />
@@ -784,6 +924,31 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
                 ) : null}
               </Pressable>
             </View>
+
+            {/* Memory tabs, in the home tiles' colours */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chestTabs} style={styles.chestTabsBar}>
+              {(
+                [
+                  { id: 'all', label: t("Tümü"), count: cardsList.length, color: VP.ink },
+                  { id: 'due', label: t("Bugün tekrar"), count: dueTodayCount, color: VP.coralDeep },
+                  ...memoryParts.map((part) => ({ id: part.key, label: part.label, count: part.count, color: part.deep })),
+                ] as { id: ChestTab; label: string; count: number; color: string }[]
+              ).map((tab) => {
+                const on = chestTab === tab.id;
+                return (
+                  <Pressable
+                    key={tab.id}
+                    onPress={() => setChestTab(tab.id)}
+                    style={[styles.chestTab, on && { backgroundColor: tab.color, borderColor: tab.color }]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                  >
+                    <Text style={[styles.chestTabText, on && { color: '#FFFFFF' }]}>{tab.label}</Text>
+                    <Text style={[styles.chestTabCount, on && { color: 'rgba(255,255,255,0.85)' }]}>{tab.count}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
 
             {filtersOpen && (
               <View style={styles.filterPanel}>
@@ -860,99 +1025,55 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </Pressable>
             ) : null}
 
-            <View style={styles.activeFilterSummaryBar}>
-              <Text style={styles.activeFilterSummaryText}>
-                {hasActiveFilters
-                  ? t("{{length}} / {{length2}} kelime gösteriliyor", { length: filteredWords.length, length2: cardsList.length })
-                  : t("{{length}} kelime · dokun: düzenle, etiketle, sil", { length: cardsList.length })}
-              </Text>
-              {hasActiveFilters && (
-                <Pressable onPress={clearAllFilters}>
+            {hasActiveFilters ? (
+              <View style={styles.activeFilterSummaryBar}>
+                <Text style={styles.activeFilterSummaryText}>
+                  {t("{{length}} / {{length2}} kelime gösteriliyor", { length: filteredWords.length, length2: cardsList.length })}
+                </Text>
+                <Pressable onPress={clearAllFilters} hitSlop={8}>
                   <Text style={styles.clearAllFiltersLink}>{t("Temizle ✕")}</Text>
                 </Pressable>
-              )}
+              </View>
+            ) : null}
             </View>
 
-            {/* Words List with Long Press & Option Menu */}
+            {/* The words: one slim row each; a tap opens everything else in the sheet */}
             {allLoading && !allCards ? (
               <MivoLoader size={90} label={t("Kelimelerin yükleniyor…")} style={styles.dictEmptyBlock} />
-            ) : filteredWords.length > 0 ? (
-              <FlatList
-                data={filteredWords}
+            ) : chestSections.length > 0 ? (
+              <SectionList
+                sections={chestSections}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.dictionaryList}
-                renderItem={({ item }) => {
-                  const posItem = item.part_of_speech
-                    ? POS_OPTIONS.find((p) => p.id === item.part_of_speech?.toLowerCase())
-                    : POS_OPTIONS[0];
-
+                contentContainerStyle={styles.chestList}
+                stickySectionHeadersEnabled
+                initialNumToRender={20}
+                renderSectionHeader={({ section }) =>
+                  section.title ? (
+                    <View style={styles.letterHead}>
+                      <Text style={styles.letterHeadText}>{section.title}</Text>
+                    </View>
+                  ) : null
+                }
+                renderItem={({ item, index, section }) => {
+                  const posItem = POS_OPTIONS.find((p) => p.id === (item.part_of_speech || 'noun').toLowerCase()) ?? POS_OPTIONS[0];
+                  const first = index === 0;
+                  const last = index === section.data.length - 1;
                   return (
                     <Pressable
                       onPress={() => setActionCard(item)}
-                      style={({ pressed }) => [
-                        styles.dictWordCard,
-                        shadow.card,
-                        pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
-                      ]}
+                      style={({ pressed }) => [styles.wordRow, first && styles.wordRowFirst, last && styles.wordRowLast, pressed && { backgroundColor: '#F7F3EC' }]}
+                      accessibilityRole="button"
                     >
-                      <View style={[styles.dictStrip, { backgroundColor: posItem ? posItem.color : colors.brand }]} />
-                      <View style={styles.dictTopRow}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.dictTerm} numberOfLines={1}>
-                            {item.term}
-                          </Text>
-                          <Text style={styles.dictTranslation} numberOfLines={1}>
-                            {item.translation || t("Anlam eklenmemiş")}
-                          </Text>
-                        </View>
-                        <Pressable
-                          onPress={() => pronounce(item.term)}
-                          hitSlop={8}
-                          style={styles.dictSoundButton}
-                        >
-                          <Ionicons name="volume-high" size={18} color={colors.brand} />
-                        </Pressable>
-                      </View>
-
-                      {item.example_sentence ? (
-                        <Text style={styles.dictExample} numberOfLines={2}>
-                          &ldquo;{item.example_sentence}&rdquo;
+                      <View style={[styles.wordDot, { backgroundColor: posItem.color }]} />
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={styles.wordTerm} numberOfLines={1}>
+                          {item.term}
+                          <Text style={styles.wordMeaning}>{item.translation ? `  ${item.translation}` : ''}</Text>
                         </Text>
-                      ) : null}
-
-                      <View style={styles.dictBadgesRow}>
-                        <View style={styles.dictLevelPill}>
-                          <Text style={styles.dictLevelPillText}>{item.cefr_level || 'A1'}</Text>
-                        </View>
-                        <View
-                          style={[
-                            styles.dictPosPill,
-                            {
-                              backgroundColor: posItem
-                                ? `${posItem.color}15`
-                                : 'rgba(79, 70, 229, 0.08)',
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.dictPosPillText,
-                              { color: posItem ? posItem.color : colors.brand },
-                            ]}
-                          >
-                            {posItem ? posItem.label : t("İsim")}
-                          </Text>
-                        </View>
-                        {(item.tags ?? []).slice(0, 2).map((tag) => (
-                          <View key={tag} style={styles.dictTagPill}>
-                            <Text style={styles.dictTagPillText} numberOfLines={1}>
-                              #{tag}
-                            </Text>
-                          </View>
-                        ))}
-                        <Text style={styles.dictDueText}>{formatDueLabel(item.next_review_date)}</Text>
                       </View>
+                      <Ionicons name="chevron-forward" size={16} color="#C8BFB0" />
+                      {!last ? <View style={styles.wordDivider} /> : null}
                     </Pressable>
                   );
                 }}
@@ -961,18 +1082,19 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               <View style={styles.dictEmptyBlock}>
                 <Ionicons name="search-outline" size={32} color={colors.textMuted} />
                 <Text style={styles.dictEmptyText}>
-                  {hasActiveFilters
-                    ? t("Seçtiğin filtrelere uygun kelime bulunamadı.")
-                    : t("Henüz kelime eklemedin.")}
+                  {hasActiveFilters || chestTab !== 'all' ? t("Seçtiğin filtrelere uygun kelime bulunamadı.") : t("Henüz kelime eklemedin.")}
                 </Text>
-                {hasActiveFilters && (
+                {hasActiveFilters || chestTab !== 'all' ? (
                   <Button
                     label={t("Tüm Filtreleri Temizle")}
                     variant="ghost"
-                    onPress={clearAllFilters}
+                    onPress={() => {
+                      clearAllFilters();
+                      setChestTab('all');
+                    }}
                     style={{ marginTop: 8 }}
                   />
-                )}
+                ) : null}
               </View>
             )}
           </View>
@@ -981,7 +1103,6 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
 
   return (
     <SafeAreaView style={styles.container}>
-      {mode === 'home' ? <AppHeader /> : null}
       {mode === 'home' ? homeView : mode === 'practice' ? practiceView : collectionView}
 
       {/* ======================================================== */}
@@ -993,11 +1114,11 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardSafe style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalGrab} />
             <View style={styles.modalHeaderRow}>
-              <Image source={editingCardId ? stateImages.editPencil : minimalFeatureIcons.vocabLibrary} style={styles.modalIcon} resizeMode="contain" />
+              <Image source={editingCardId ? stateImages.editPencil : vocabArt.iconLibrary} style={styles.modalIcon} resizeMode="contain" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>{editingCardId ? t("Kelimeyi Düzenle") : t("Yeni Kelime Ekle")}</Text>
                 <Text style={styles.modalSub}>
@@ -1190,7 +1311,7 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
               </View>
             </ScrollView>
           </View>
-        </View>
+        </KeyboardSafe>
       </Modal>
 
       {/* ======================================================== */}
@@ -1209,12 +1330,41 @@ export function VocabScreen({ navigation, route }: MainTabScreenProps<'Vocab'>) 
           <View style={styles.actionSheetCard}>
             {/* Header info */}
             <View style={styles.actionSheetHeader}>
-              <Text style={styles.actionSheetWordTitle}>
-                {actionCard?.term}
-              </Text>
-              <Text style={styles.actionSheetWordSub}>
-                {actionCard?.cefr_level || 'A2'} • {actionCard?.part_of_speech || t("İsim")} • {actionCard?.translation}
-              </Text>
+              <View style={styles.sheetTermRow}>
+                <Text style={[styles.actionSheetWordTitle, { flex: 1 }]} numberOfLines={2}>
+                  {actionCard?.term}
+                </Text>
+                {actionCard ? (
+                  <Pressable onPress={() => pronounce(actionCard.term)} hitSlop={8} style={styles.sheetListen} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+                    <Ionicons name="volume-high" size={18} color={VP.ink} />
+                  </Pressable>
+                ) : null}
+              </View>
+              <Text style={styles.actionSheetWordSub}>{actionCard?.translation || t("Anlam eklenmemiş")}</Text>
+              {actionCard?.example_sentence ? <Text style={styles.sheetExample}>“{actionCard.example_sentence}”</Text> : null}
+              {actionCard ? (
+                <View style={styles.sheetBadges}>
+                  <View style={styles.dictLevelPill}>
+                    <Text style={styles.dictLevelPillText}>{actionCard.cefr_level || 'A1'}</Text>
+                  </View>
+                  {(() => {
+                    const pos = POS_OPTIONS.find((p) => p.id === (actionCard.part_of_speech || 'noun').toLowerCase()) ?? POS_OPTIONS[0];
+                    return (
+                      <View style={[styles.dictPosPill, { backgroundColor: `${pos.color}15` }]}>
+                        <Text style={[styles.dictPosPillText, { color: pos.color }]}>{pos.label}</Text>
+                      </View>
+                    );
+                  })()}
+                  {(actionCard.tags ?? []).slice(0, 3).map((tag) => (
+                    <View key={tag} style={styles.dictTagPill}>
+                      <Text style={styles.dictTagPillText} numberOfLines={1}>
+                        #{tag}
+                      </Text>
+                    </View>
+                  ))}
+                  <Text style={styles.dictDueText}>{formatDueLabel(actionCard.next_review_date)}</Text>
+                </View>
+              ) : null}
             </View>
 
             {/* Edit Option */}
@@ -1369,7 +1519,7 @@ function DeckFan({ cards }: { cards: VocabCardOut[] }) {
             {pic ? (
               <Image source={pic} style={styles.fanImage} resizeMode="cover" />
             ) : (
-              <Text style={styles.fanWord} numberOfLines={3} adjustsFontSizeToFit>
+              <Text style={styles.fanWord} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45}>
                 {card.term}
               </Text>
             )}
@@ -1381,15 +1531,21 @@ function DeckFan({ cards }: { cards: VocabCardOut[] }) {
 }
 
 /** A round shortcut with its 3D icon and a short label underneath. */
-function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; label: string; onPress: () => void }) {
+/** One tool card of the 2×2 grid: its picture on a soft tint, the name and one line on what it is. */
+function Shortcut({ icon, tint, label, sub, onPress }: { icon: number; tint: string; label: string; sub: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.shortcut, pressed && { transform: [{ scale: 0.95 }] }]} accessibilityRole="button" accessibilityLabel={label}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.shortcut, pressed && styles.shortcutPressed]} accessibilityRole="button" accessibilityLabel={label}>
       <View style={[styles.shortcutArt, { backgroundColor: tint }]}>
         <Image source={icon} style={styles.shortcutImage} resizeMode="contain" />
       </View>
-      <Text style={styles.shortcutLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-        {label}
-      </Text>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.shortcutLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          {label}
+        </Text>
+        <Text style={styles.shortcutSub} numberOfLines={2}>
+          {sub}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -1398,18 +1554,72 @@ function Shortcut({ icon, tint, label, onPress }: { icon: number; tint: string; 
 const FLOOR = '#FBF7F1';
 
 const styles = StyleSheet.create({
+  chestTop: { flexShrink: 0, gap: 10, paddingBottom: 6 },
+  chestTabsBar: { flexGrow: 0, flexShrink: 0, height: 38 },
+  chestTabs: { gap: 8, alignItems: 'center', paddingRight: 8 },
+  chestList: { paddingTop: 4, paddingBottom: 40 },
+  chestTab: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 13, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EDE7DD' },
+  chestTabText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
+  chestTabCount: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: VP.inkSoft },
+  letterHead: { backgroundColor: FLOOR, paddingTop: 10, paddingBottom: 6, paddingHorizontal: 4 },
+  letterHeadText: { fontFamily: fonts.headingBold, fontSize: 13, letterSpacing: 1, color: VP.coralDeep },
+  wordRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#EDE7DD' },
+  wordRowFirst: { borderTopWidth: 1, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  wordRowLast: { borderBottomWidth: 1, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
+  wordDivider: { position: 'absolute', left: 34, right: 0, bottom: 0, height: 1, backgroundColor: '#F1EDE6' },
+  wordDot: { width: 9, height: 9, borderRadius: 5 },
+  wordTerm: { fontFamily: fonts.headingBold, fontSize: 15.5, color: VP.ink },
+  wordMeaning: { fontFamily: fonts.bodyMedium, fontSize: 14, color: VP.inkSoft },
+  wordDue: { fontFamily: fonts.headingSemiBold, fontSize: 12, color: VP.inkSoft },
+  wordDueNow: { color: VP.coralDeep },
+  sheetTermRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sheetListen: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.skySoft, alignItems: 'center', justifyContent: 'center' },
+  sheetExample: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: VP.inkSoft, fontStyle: 'italic', marginTop: 6 },
+  sheetBadges: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 10 },
   textInputError: { borderColor: '#F43F5E', backgroundColor: '#FFF1F2' },
   fieldErrorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7 },
   fieldErrorText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#E11D48' },
   formErrorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFF1F2', borderRadius: 14, padding: 12, marginBottom: 12 },
   formErrorText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, color: '#9F1239' },
-  dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 104, gap: 12 },
-  dashHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dash: { flexGrow: 1, paddingHorizontal: spacing.md, paddingTop: 6, paddingBottom: 96, gap: 11 },
+  dashHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 38, paddingHorizontal: 11, borderRadius: 19, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0' },
+  streakChipText: { fontFamily: fonts.headingBold, fontSize: 15, color: colors.textHeading },
+  proPill: { height: 38, paddingHorizontal: 12, borderRadius: 19, justifyContent: 'center', backgroundColor: '#FDE68A', borderWidth: 1.5, borderColor: '#F59E0B' },
+  proPillOn: { backgroundColor: '#FFF7D6' },
+  proPillText: { fontFamily: fonts.headingBold, fontSize: 12.5, color: '#92400E', letterSpacing: 0.4 },
   dashTitle: { fontFamily: fonts.headingBold, fontSize: 26, color: colors.textHeading },
-  dashAdd: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  dashAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: VP.ink, alignItems: 'center', justifyContent: 'center' },
+  dashSearch: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: '#EDE7DD' },
+  chestCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 8, paddingLeft: 8, paddingRight: 12, borderWidth: 1, borderColor: '#EDE7DD' },
+  chestArt: { width: 44, height: 44, borderRadius: 14, backgroundColor: VP.sunSoft, alignItems: 'center', justifyContent: 'center' },
+  chestImg: { width: 38, height: 38 },
+  chestTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: VP.ink },
+  chestSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: VP.inkSoft, marginTop: 1 },
+  chestSearch: { width: 36, height: 36, borderRadius: 18, backgroundColor: VP.floor, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#EDE7DD' },
   dashSearchText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted },
 
+  deckCard: { borderRadius: 24, padding: 14, backgroundColor: VP.card, borderWidth: 1, borderColor: VP.line, gap: 10, overflow: 'hidden' },
+  deckKicker: { fontFamily: fonts.headingBold, fontSize: 11, letterSpacing: 1.2, color: VP.coralDeep },
+  deckNumber: { fontFamily: fonts.headingBold, fontSize: 26, lineHeight: 31, color: VP.ink, marginTop: 4 },
+  deckDoneTitle: { fontFamily: fonts.headingBold, fontSize: 20, lineHeight: 25, color: VP.ink, marginTop: 4 },
+  deckLine: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: VP.inkSoft, marginTop: 2, marginBottom: 9 },
+  deckArt: { width: 100, height: 100 },
+  inkBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: VP.ink, borderRadius: radii.pill, paddingVertical: 10, paddingHorizontal: 18 },
+  inkBtnText: { fontFamily: fonts.headingBold, fontSize: 14, letterSpacing: 0.4, color: '#FFFFFF' },
+  lineBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radii.pill, paddingVertical: 9, paddingHorizontal: 14, borderWidth: 1.5, borderColor: VP.line, backgroundColor: VP.floor },
+  lineBtnText: { fontFamily: fonts.headingBold, fontSize: 13, color: VP.ink },
+  week: { flexDirection: 'row', gap: 6, paddingTop: 9, borderTopWidth: 1, borderTopColor: VP.line },
+  weekDay: { flex: 1, alignItems: 'center', gap: 3 },
+  weekCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: VP.ink },
+  weekTrack: { width: 10, height: 24, borderRadius: 5, backgroundColor: '#F3EEE6', justifyContent: 'flex-end', overflow: 'hidden' },
+  weekFill: { width: '100%', borderRadius: 5 },
+  weekLabel: { fontFamily: fonts.headingSemiBold, fontSize: 10.5, color: VP.inkSoft },
+  memoryTiles: { flexDirection: 'row', gap: 8 },
+  memoryTile: { flex: 1, borderRadius: 14, paddingVertical: 7, paddingHorizontal: 8, gap: 1 },
+  memoryNum: { fontFamily: fonts.headingBold, fontSize: 19, lineHeight: 23 },
+  memoryLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  memoryLabel: { flexShrink: 1, fontFamily: fonts.headingSemiBold, fontSize: 11, color: VP.ink },
   dashHero: { borderRadius: 26, padding: 18, overflow: 'hidden' },
   dashHeroLoading: { alignItems: 'center', paddingVertical: 24 },
   dashHeroRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -1418,31 +1628,33 @@ const styles = StyleSheet.create({
   dashHeroNumber: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: '#FFFFFF', marginTop: 6 },
   dashHeroLine: { fontFamily: fonts.headingSemiBold, fontSize: 13.5, color: '#E0E7FF', marginTop: 2, marginBottom: 12 },
   dashHeroDone: { fontFamily: fonts.headingBold, fontSize: 22, lineHeight: 28, color: '#FFFFFF', marginTop: 6 },
-  fan: { width: 128, height: 112, alignItems: 'center', justifyContent: 'center' },
+  fan: { width: 112, height: 96, alignItems: 'center', justifyContent: 'center' },
   fanCard: {
     position: 'absolute',
-    width: 70,
-    height: 88,
-    borderRadius: 14,
+    width: 60,
+    height: 76,
+    borderRadius: 12,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: VP.line,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 6,
     overflow: 'hidden',
-    shadowColor: '#1E1B4B',
+    shadowColor: VP.ink,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.14,
     shadowRadius: 10,
-    elevation: 6,
+    elevation: 4,
   },
-  fanImage: { width: 62, height: 62, borderRadius: 10 },
-  fanWord: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading, textAlign: 'center' },
+  fanImage: { width: 52, height: 52, borderRadius: 9 },
+  fanWord: { alignSelf: 'stretch', fontFamily: fonts.headingBold, fontSize: 14, color: VP.ink, textAlign: 'center' },
   fanEmpty: { width: 104, height: 104 },
 
-  dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 10 },
+  dashMemory: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 12, gap: 8, borderWidth: 1, borderColor: '#EDE7DD' },
   dashMemoryTop: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
-  dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: colors.textHeading },
-  dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: '#059669' },
+  dashMemoryTitle: { fontFamily: fonts.headingBold, fontSize: 16, color: VP.ink },
+  dashMemoryHint: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.mintDeep },
   dashMemoryBar: { flexDirection: 'row', height: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: '#F1EDE6', gap: 2 },
   dashMemoryLegend: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 6 },
   dashMemoryItem: { width: '50%', flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 8 },
@@ -1450,11 +1662,31 @@ const styles = StyleSheet.create({
   dashMemoryLabel: { flexShrink: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textBody },
   dashMemoryCount: { fontFamily: fonts.headingBold, fontSize: 12.5, color: colors.textHeading },
 
-  dashTools: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 14, paddingHorizontal: 8 },
-  shortcut: { flex: 1, alignItems: 'center', gap: 6, paddingHorizontal: 2 },
-  shortcutArt: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center' },
-  shortcutImage: { width: 46, height: 46 },
-  shortcutLabel: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: colors.textHeading },
+  dashTools: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 },
+  progressHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  progressTabs: { flexDirection: 'row', backgroundColor: '#F3EEE6', borderRadius: 999, padding: 3 },
+  progressTab: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
+  progressTabOn: { backgroundColor: '#FFFFFF', shadowColor: VP.ink, shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+  progressTabText: { fontFamily: fonts.headingSemiBold, fontSize: 12.5, color: VP.inkSoft },
+  progressTabTextOn: { color: VP.ink, fontFamily: fonts.headingBold },
+  shortcut: {
+    width: '48.5%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EDE7DD',
+    borderBottomWidth: 3,
+  },
+  shortcutPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 1 },
+  shortcutArt: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  shortcutImage: { width: 30, height: 30 },
+  shortcutLabel: { fontFamily: fonts.headingBold, fontSize: 14, color: VP.ink },
+  shortcutSub: { fontFamily: fonts.bodyRegular, fontSize: 11, lineHeight: 14, color: VP.inkSoft, marginTop: 1 },
 
   // Dashboard fits one screen: hero, the chest, two rows of tiles; the tiles share what is left above the tab bar.
   home: { flex: 1, paddingHorizontal: spacing.md, paddingTop: 4, paddingBottom: 100, gap: 12 },
@@ -1493,13 +1725,6 @@ const styles = StyleSheet.create({
   practiceCount: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textMuted, minWidth: 40, textAlign: 'right' },
   tileArt: { position: 'absolute', right: 6, top: 6, width: 62, height: 62 },
   tileWrap: { flex: 1, borderRadius: 22, backgroundColor: '#FFFFFF' },
-  chestNext: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 5 },
-  chestFill: { height: '100%', borderRadius: 4, backgroundColor: '#F59E0B' },
-  chestTrack: { height: 7, borderRadius: 4, backgroundColor: '#FEF3C7', overflow: 'hidden', marginTop: 7 },
-  chestCount: { fontFamily: fonts.headingSemiBold, fontSize: 13, color: colors.textMuted, marginTop: 1 },
-  chestTitle: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.textHeading },
-  chestArt: { width: 56, height: 56 },
-  chestCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: '#F1F5F9' },
   heroBtnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
   heroChipText: { fontFamily: fonts.headingBold, fontSize: 10.5, letterSpacing: 0.8, color: '#E0E7FF' },
   heroChip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
@@ -1577,7 +1802,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dictionaryContainer: { flex: 1, paddingHorizontal: spacing.md },
-  searchBarBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: '#E2E8F0', gap: 8 },
+  searchBarBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 14, height: 46, borderWidth: 1, borderColor: '#EDE7DD', gap: 8 },
   searchBarInput: {
     flex: 1,
     fontFamily: fonts.bodyRegular,
@@ -1620,18 +1845,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 4,
-    paddingVertical: 4,
-    marginBottom: 6,
   },
   activeFilterSummaryText: {
-    fontFamily: fonts.bodyRegular,
-    fontSize: 11,
-    color: colors.textMuted,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12.5,
+    color: VP.inkSoft,
   },
   clearAllFiltersLink: {
     fontFamily: fonts.headingBold,
-    fontSize: 10,
-    color: colors.error,
+    fontSize: 12.5,
+    color: VP.coralDeep,
   },
   dictionaryList: { gap: 10, paddingBottom: 30, marginTop: 4 },
   dictWordCard: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 14, paddingRight: 14, paddingLeft: 20, gap: 8, borderWidth: 1, borderColor: '#F1F5F9', overflow: 'hidden' },
@@ -1949,21 +2172,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
   },
   filterToggleBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.md,
+    width: 46,
+    height: 46,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
+    borderColor: '#EDE7DD',
   },
   filterToggleBtnActive: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
+    backgroundColor: VP.ink,
+    borderColor: VP.ink,
   },
   filterToggleDot: {
     position: 'absolute',
@@ -1978,7 +2200,6 @@ const styles = StyleSheet.create({
   },
   filterPanel: {
     gap: 6,
-    marginBottom: 8,
   },
   dictTopRow: {
     flexDirection: 'row',

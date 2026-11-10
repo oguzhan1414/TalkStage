@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import AuthContext, get_auth_context
 from app.core.clock import local_today
-from app.schemas.progress import GrammarMistakeCreate, GrammarMistakeOut, ProgressOut
+from app.schemas.progress import DailyActivityOut, GrammarMistakeCreate, GrammarMistakeOut, LearningEventIn, ProgressOut
+from app.services.learning_events import EVENT_KINDS, daily_activity, log_event
 from app.services.progress import award_xp, record_progress, update_streak_and_xp
 from app.services.scorecard import ACTIVITY_XP, FIRST_PRACTICE_BONUS_XP
 
@@ -115,3 +116,18 @@ def delete_grammar_mistake(
     except Exception:
         pass
 
+
+
+@router.post("/events", status_code=status.HTTP_204_NO_CONTENT)
+def record_learning_event(payload: LearningEventIn, ctx: AuthContext = Depends(get_auth_context)) -> None:
+    """A finished path step or scene, for the progress views (no XP: that comes from /log-practice)."""
+    if payload.kind not in EVENT_KINDS or payload.kind == "vocab_review":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown event kind")
+    log_event(ctx, payload.kind, (payload.ref or "")[:120] or None)
+
+
+@router.get("/activity", response_model=list[DailyActivityOut])
+def get_daily_activity(days: int = 28, ctx: AuthContext = Depends(get_auth_context)) -> list[DailyActivityOut]:
+    """Per-day activity for the last `days` days, oldest first: words added, vocab reviews, path steps, scenes,
+    practice minutes. Backs the Kelimeler tab's "Bu hafta" and the profile's "Gelişimim"."""
+    return [DailyActivityOut(**row) for row in daily_activity(ctx, days)]

@@ -3,7 +3,7 @@
 :root {
   /* ─── Core Backgrounds ─── */
   --color-white: #ffffff;
-  --color-porcelain: #f5f4ff;
+  --color-porcelain: #FFF7E6;
   --color-bg-warm: #FFF9F0;
   --color-bg-pink: #FFF5F8;
   --color-bg-lime: #FAFFF0;
@@ -11,22 +11,22 @@
   --color-bg-sky: #F4F8FF;
 
   /* ─── Dark / Text ─── */
-  --color-ink: #15123a;
-  --color-ink-soft: #221e55;
-  --color-ink-line: #36317a;
+  --color-ink: #1B1647;
+  --color-ink-soft: #2A2466;
+  --color-ink-line: #4A4585;
 
   /* ─── Spekvia v2 brand (logo indigo/cyan + Mivo + clapperboard yellow) ─── */
-  --color-stage: #4f46e5;
-  --color-stage-deep: #3a32c9;
+  --color-stage: #5546F5;
+  --color-stage-deep: #3F31D6;
   --color-spot: #0ea5e9;
-  --color-slate-yellow: #ffc21f;
-  --color-coral-glow: #ff6b57;
-  --color-paper: #f5f4ff;
-  --color-paper-deep: #ebe9ff;
+  --color-slate-yellow: #FFCB3D;
+  --color-coral-glow: #FF7A59;
+  --color-paper: #FFF7E6;
+  --color-paper-deep: #F6EBD0;
 
   /* ─── Primary Accents (Kodland-inspired vivid) ─── */
-  --color-indigo: #4338ca;
-  --color-indigo-dark: #362d94;
+  --color-indigo: #5546F5;
+  --color-indigo-dark: #3F31D6;
   --color-pink-pop: #EF5DA8;
   --color-lime-pop: #D3FF5F;
   --color-blue-pop: #5988FF;
@@ -51,19 +51,19 @@
   --color-card-mint: #E8FFF5;
 
   /* ─── Typography ─── */
-  --color-heading: #15123a;
-  --color-body: #4a4768;
-  --color-muted: #6b6889;
-  --color-line: #e3e0f7;
+  --color-heading: #1B1647;
+  --color-body: #4B4770;
+  --color-muted: #7B789A;
+  --color-line: #E9E1CC;
 
   /* ─── Tefrika (home page): book cloth, page, marker, six level cloths ─── */
-  --color-cloth: #231e66;
-  --color-cloth-deep: #18144d;
-  --color-cloth-line: #3a3490;
-  --color-page: #fdfdff;
-  --color-page-edge: #e7e5f6;
-  --color-marker: #ffc21f;
-  --color-marker-soft: #ffe48f;
+  --color-cloth: #2A2466;
+  --color-cloth-deep: #1B1647;
+  --color-cloth-line: #6C68A0;
+  --color-page: #ffffff;
+  --color-page-edge: #E9E1CC;
+  --color-marker: #FFCB3D;
+  --color-marker-soft: #FFE49A;
   --color-on-cloth: #e6e4ff;
   --color-vol-a1: #0e7a58;
   --color-vol-a2: #0a6f9e;
@@ -130,8 +130,20 @@
   --color-vol-c1: var(--color-vol-c1);
   --color-vol-c2: var(--color-vol-c2);
 
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, sans-serif;
-  --font-body: var(--font-figtree), "Figtree", ui-sans-serif, sans-serif;
+  /* Home palette (2026-11-10): ink on colour fields, sticker outlines */
+  --color-cream: #FFF7E6;
+  --color-violet: #5546F5;
+  --color-sun: #FFCB3D;
+  --color-flame: #FF7A59;
+  --color-mint: #74DDB0;
+  --color-sky: #93D5FF;
+  --color-bubble: #FFB5D2;
+  --color-lilac: #CFC6FF;
+
+  --font-poster: var(--font-lilita), "Arial Black", Impact, sans-serif;
+  --font-hand: var(--font-caveat), "Segoe Print", cursive;
+  --font-display: var(--font-figtree), "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-figtree), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
   --font-story: var(--font-alegreya), "Alegreya", ui-serif, Georgia, serif;
 
@@ -173,8 +185,8 @@ body {
 }
 
 ::selection {
-  background: var(--color-stage);
-  color: var(--color-white);
+  background: var(--color-sun);
+  color: var(--color-ink);
 }
 
 .text-balance {
@@ -194,24 +206,76 @@ body {
   }
 }
 
-/* Footer greeting bubble */
-@keyframes greet-pop {
-  from { opacity: 0; transform: translateY(8px) scale(0.85); }
-  to { opacity: 1; transform: none; }
-}
-
-
 /* ═══════════════════════════════════════════════════════════════
-   Tefrika (home page)
+   Sticker system (navbar, footer, home page)
+   Ink outline + hard offset shadow, chunky poster type, handwriting notes.
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 html {
   scrollbar-color: var(--color-cloth-line) var(--color-paper);
+}
+
+/* Poster headline: single-weight chunky face, caps. Line height leaves room for İ Ö Ş Ğ Â. */
+.poster {
+  font-family: var(--font-poster);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.02;
+  letter-spacing: 0.004em;
+  text-wrap: balance;
+}
+/* A note written in the margin. */
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+/* Cut-out sticker edge. */
+.stk {
+  border: 2.5px solid var(--color-ink);
+  box-shadow: 5px 6px 0 var(--stk-shadow, var(--color-ink));
+}
+.stk-sm {
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 4px 0 var(--stk-shadow, var(--color-ink));
+}
+
+/* Pill button that sinks when pressed. */
+.btn-pop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 2.5px solid var(--pop-edge, var(--color-ink));
+  border-radius: 999px;
+  box-shadow: 0 5px 0 var(--pop-shadow, var(--color-ink));
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  transition: transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out), background-color 200ms ease, color 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-pop:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 var(--pop-shadow, var(--color-ink));
+  }
+}
+.btn-pop:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 var(--pop-shadow, var(--color-ink));
+}
+
+.btn-pop-wrap {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 
 /* Pressable things answer the finger. */
@@ -222,57 +286,119 @@ html {
   transform: scale(0.97);
 }
 
-/* Slow vertical drift for floating things. */
-.phone-drift {
-  animation: phone-drift 7s ease-in-out infinite;
+/* Phone body around portrait screen artwork (720 × 1540). All measures follow the width. */
+.device {
+  position: relative;
+  border: 2.5px solid var(--color-ink);
+  border-radius: 14% / 6.8%;
+  background: var(--color-ink);
+  padding: 3%;
+  box-shadow: 8px 10px 0 var(--device-shadow, rgba(27, 22, 71, 0.9));
 }
-@keyframes phone-drift {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+.device__screen {
+  overflow: hidden;
+  border-radius: 11.5% / 5.4%;
+  background: #fff;
+  aspect-ratio: 720 / 1540;
 }
-
-/* The microphone breathes while Mivo listens. */
-.mic-ring {
-  animation: mic-ring 1.8s var(--ease-out) infinite;
-}
-@keyframes mic-ring {
-  from { opacity: 0.55; transform: scale(1); }
-  to { opacity: 0; transform: scale(1.7); }
-}
-
-/* World map: arcs draw toward Mivo, bubbles pop in once the map is on screen, pins pulse. */
-.world-arc {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-}
-.world[data-seen="true"] .world-arc {
-  animation: arc-draw 1.2s var(--ease-in-out) forwards;
-}
-@keyframes arc-draw {
-  to { stroke-dashoffset: 0; }
-}
-.world-bubble {
-  opacity: 0;
-  transform: translateY(6px) scale(0.96);
-}
-.world[data-seen="true"] .world-bubble {
-  animation: bubble-in 420ms var(--ease-out) forwards;
-}
-@keyframes bubble-in {
-  to { opacity: 1; transform: none; }
-}
-.world-pin {
-  animation: pin-pulse 2.4s ease-out infinite;
-}
-@keyframes pin-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.45); }
-  70%, 100% { box-shadow: 0 0 0 12px rgba(79, 70, 229, 0); }
-}
-.world-mivo {
-  animation: phone-drift 6s ease-in-out infinite;
+.device__screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
 }
 
-/* Cards around the hero phone bob gently. */
-.float-slow {
-  animation: phone-drift 6s ease-in-out infinite;
+/* Running strip of words. Two identical tracks follow each other. */
+.marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+}
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-width: 100%;
+  animation: marquee var(--speed, 32s) linear infinite;
+}
+.marquee--reverse .marquee__track {
+  animation-direction: reverse;
+}
+@media (hover: hover) and (pointer: fine) {
+  .marquee--pausable:hover .marquee__track {
+    animation-play-state: paused;
+  }
+}
+@keyframes marquee {
+  to { transform: translateX(-100%); }
+}
+
+/* Slow bob for stickers. Uses `translate`, so it stacks with rotate utilities and Motion transforms. */
+.floaty {
+  animation: floaty var(--d, 6s) ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes floaty {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -12px; }
+}
+
+/* Mivo hops on the closing band. */
+.hop {
+  animation: hop 2.4s var(--ease-out) infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes hop {
+  0%, 55%, 100% { translate: 0 0; scale: 1 1; }
+  62% { translate: 0 0; scale: 1.04 0.95; }
+  78% { translate: 0 -9%; scale: 0.98 1.03; }
+  92% { translate: 0 0; scale: 1.03 0.97; }
+}
+
+/* A sticker leans when the pointer is on it. */
+@media (hover: hover) and (pointer: fine) {
+  .lean {
+    transition: rotate 300ms var(--ease-spring), scale 300ms var(--ease-spring);
+  }
+  .lean:hover {
+    rotate: var(--lean, -3deg);
+    scale: 1.04;
+  }
+}
+
+/* Ruled notebook paper. */
+.paper-lines {
+  background-image:
+    linear-gradient(90deg, transparent 0 4.5rem, rgba(255, 122, 89, 0.45) 4.5rem calc(4.5rem + 2px), transparent calc(4.5rem + 2px)),
+    repeating-linear-gradient(transparent 0 2.4rem, rgba(85, 70, 245, 0.16) 2.4rem calc(2.4rem + 2px));
+}
+
+/* The little sound bars in Mivo's bubble. */
+.sound-bar {
+  animation: sound-bar 1s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+@keyframes sound-bar {
+  from { transform: scaleY(0.35); }
+  to { transform: scaleY(1); }
+}
+
+/* Things settle in once on load; `animation-delay` is set inline. */
+.rise {
+  animation: rise 800ms var(--ease-out) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(26px); }
+}
+.pop {
+  animation: pop 700ms var(--ease-spring) both;
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.6); }
+}
+
+/* FAQ rows: the plus turns into a cross. */
+details.faq-row[open] .faq-row__plus {
+  rotate: 45deg;
+  background: var(--color-flame);
 }

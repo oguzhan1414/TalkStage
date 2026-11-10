@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 
-import { avatarImages, stateImages } from '../assets/images';
+import { stateImages } from '../assets/images';
+import { avatarFor } from '../constants/avatars';
 import { xpLevelInfo } from '../constants/xp';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
@@ -15,27 +16,9 @@ import type { ProfileOut } from '../types/api';
 import { BouncyPressable } from './BouncyPressable';
 import { t } from '../i18n';
 
-const AVATAR_MAP: Record<string, ReturnType<typeof require>> = {
-  dev: avatarImages.maleDev,
-  lead: avatarImages.femaleLead,
-  traveler: avatarImages.travelerExplorer,
-  designer: avatarImages.femaleDesigner,
-  engineer: avatarImages.maleEngineer,
-  entrepreneur: avatarImages.femaleEntrepreneur,
-  student: avatarImages.studentYouth,
-  corporate: avatarImages.proDeveloper,
-  tech: avatarImages.maleDev,
-  adult_hobby: avatarImages.matureSenior,
-  service: avatarImages.femaleEntrepreneur,
-};
-
-/** The character the learner picked (or the one matching their persona); the student as a fallback. */
+/** The character the learner picked (or the one matching their persona). */
 export function profileAvatar(profile: ProfileOut | undefined) {
-  return (
-    (profile?.avatar_id && AVATAR_MAP[profile.avatar_id]) ||
-    (profile?.persona_id && AVATAR_MAP[profile.persona_id]) ||
-    avatarImages.studentYouth
-  );
+  return avatarFor(profile).source;
 }
 
 const LEVEL_SEEN_KEY = 'spekvia.xp_level_seen.v1';

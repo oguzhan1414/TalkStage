@@ -70,7 +70,11 @@ class ProfileUpdate(BaseModel):
     interests: list[str] | None = None
     avatar_id: str | None = Field(
         default=None,
-        pattern="^(dev|lead|traveler|designer|engineer|entrepreneur)$",
+        # The 12 flat 2D avatars (mobile/src/constants/avatars.ts), plus the older ids still stored on some profiles.
+        pattern=(
+            "^(campus_girl|campus_boy|teen|office_woman|office_man|coder|creative|traveler|sporty|chef|parent|senior"
+            "|dev|lead|designer|engineer|entrepreneur)$"
+        ),
     )
     persona_id: str | None = Field(default=None, pattern=PERSONA_PATTERN)
     learning_goal: str | None = Field(default=None, pattern=LEARNING_GOAL_PATTERN)

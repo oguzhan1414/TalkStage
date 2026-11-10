@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import type { VocabFocus } from '../lib/vocabGroups';
 import type { SessionOut } from '../types/api';
+import type { FreeChatChoice } from '../lib/chatStyle';
 
 export type AuthStackParamList = {
   SignIn: undefined;
@@ -61,6 +62,14 @@ export type RootStackParamList = {
         twistHint?: string;
         // Sesli sahne ipucu (Başlangıç): hedefler + anahtar ifadeler; yoksa ipucu düğmesi görünmez.
         sceneHints?: SceneHints;
+        /** End of a path unit: Mivo coaches a real-life rehearsal with the unit's grammar and words; stars go to `stepId`. */
+        unitFocus?: { stepId: string; title: string; situation?: string; points: string[]; words: string[] };
+        /** Mivo button on Bugün: the last path episode the learner read, so Mivo talks about it. */
+        storyFocus?: { title: string; grammar?: string; story?: string; summary?: string; words?: string[] };
+        /** 'path': the learning path's unit-end scene (its own free daily allowance on the server). */
+        origin?: 'path';
+        /** Picked on 'Ne konuşalım?': the learner's day, one scene (backend topic id) or a topic of their own. */
+        chat?: FreeChatChoice;
         // Set when opened from a grammar lesson / Bugün's chapter path (topic practice) or the chapter check
         // (title only). The room then steers the talk to that structure; `topicCode` ("A1_G01") attributes
         // corrections and the "practice done" flag to the topic.
@@ -72,9 +81,9 @@ export type RootStackParamList = {
     | undefined;
   Scorecard: { session: SessionOut; scenarioTitle: string; wordsAddedCount: number };
   Paywall: undefined;
+  FreeChatSetup: undefined;
   Badges: undefined;
   // Settings (reminder, sound, language, account and help), behind the gear on the `Profile` tab.
-  AccountSettings: undefined;
   MistakesNotebook: undefined;
   MivoMemory: undefined;
   VocabLibrary: undefined;
@@ -87,6 +96,10 @@ export type RootStackParamList = {
   /** New learning path (docs/yeni-ogrenme-yolu.md): a reading lesson and a vocabulary section. */
   PathLesson: { stepId: string };
   PathVocab: { stepId: string };
+  /** The chapter/unit guide opened from the home screen. */
+  PathGuide: { stepId: string };
+  /** "Gelişimim": the week or month of activity, from the profile. */
+  Progress: undefined;
 };
 
 /** Tab screens compose with the root stack's props so they can navigate to `LiveConversationRoom`. */
@@ -101,6 +114,7 @@ export type LiveConversationRoomScreenProps = NativeStackScreenProps<
 >;
 
 export type FreeChatRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'FreeChatRoom'>;
+export type FreeChatSetupScreenProps = NativeStackScreenProps<RootStackParamList, 'FreeChatSetup'>;
 
 export type ScorecardScreenProps = NativeStackScreenProps<RootStackParamList, 'Scorecard'>;
 
@@ -108,7 +122,6 @@ export type PaywallScreenProps = NativeStackScreenProps<RootStackParamList, 'Pay
 
 export type BadgesScreenProps = NativeStackScreenProps<RootStackParamList, 'Badges'>;
 
-export type AccountSettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'AccountSettings'>;
 
 export type MivoMemoryScreenProps = NativeStackScreenProps<RootStackParamList, 'MivoMemory'>;
 export type MistakesNotebookScreenProps = NativeStackScreenProps<RootStackParamList, 'MistakesNotebook'>;
@@ -122,6 +135,8 @@ export type WordRoomsScreenProps = NativeStackScreenProps<RootStackParamList, 'W
 export type WordRoomScreenProps = NativeStackScreenProps<RootStackParamList, 'WordRoom'>;
 export type PathLessonScreenProps = NativeStackScreenProps<RootStackParamList, 'PathLesson'>;
 export type PathVocabScreenProps = NativeStackScreenProps<RootStackParamList, 'PathVocab'>;
+export type PathGuideScreenProps = NativeStackScreenProps<RootStackParamList, 'PathGuide'>;
+export type ProgressScreenProps = NativeStackScreenProps<RootStackParamList, 'Progress'>;
 
 
 declare global {

@@ -1,12 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mivoVoiceImages, spekviaWordmark } from '../../assets/images';
 import { fonts, radii } from '../../theme/tokens';
 import { getLocale, LOCALE_META, t } from '../../i18n';
 import { LanguagePickerModal } from '../LanguagePickerModal';
+import { KeyboardSafe } from '../KeyboardSafe';
 
 type Props = {
   title: string;
@@ -42,7 +43,7 @@ export function AuthShell({ title, subtitle, children }: Props) {
     <View style={styles.root}>
       <LinearGradient colors={['#EEF2FF', '#FFFFFF']} style={styles.glow} pointerEvents="none" />
       <SafeAreaView style={styles.flex} edges={['top']}>
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafe style={styles.flex}>
           <ScrollView
             contentContainerStyle={[styles.scroll, { paddingBottom: 28 + insets.bottom }]}
             showsVerticalScrollIndicator={false}
@@ -73,7 +74,7 @@ export function AuthShell({ title, subtitle, children }: Props) {
 
             <View style={styles.body}>{children}</View>
           </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardSafe>
       </SafeAreaView>
       <LanguagePickerModal visible={langOpen} onClose={() => setLangOpen(false)} />
     </View>

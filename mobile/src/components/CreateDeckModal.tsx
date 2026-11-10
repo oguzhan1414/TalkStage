@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { minimalFeatureIcons } from '../assets/images';
+import { vocabArt } from '../assets/images';
 import { saveCustomDeck, type VocabDeck } from '../data/vocabDecks';
 import { colors, fonts, radii, shadow } from '../theme/tokens';
 import { BouncyPressable } from './BouncyPressable';
@@ -66,7 +66,7 @@ export function CreateDeckModal({ visible, onClose, onDeckCreated }: Props) {
     <Modal visible={visible} animationType="slide" presentationStyle="formSheet" onRequestClose={onClose}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Image source={minimalFeatureIcons.vocabFolders} style={styles.headerIcon} resizeMode="contain" />
+          <Image source={vocabArt.iconGroups} style={styles.headerIcon} resizeMode="contain" />
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>{t("Yeni Klasör")}</Text>
             <Text style={styles.headerSub}>{t("Kendi listeni kur")}</Text>

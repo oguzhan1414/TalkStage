@@ -1,4 +1,4 @@
-import { Alegreya, Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
+import { Alegreya, Caveat, Figtree, JetBrains_Mono, Lilita_One } from "next/font/google";
 import CookieConsent from "@/components/CookieConsent";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Analytics } from "@/lib/analytics";
@@ -9,14 +9,23 @@ import "../app/globals.css";
 
 // `latin-ext` is required for Turkish (ğ, ş, ı, İ, ö, ü, ç) — without it those
 // glyphs silently fall back to the system font. It also covers es/pt/de accents.
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });
 
-const figtree = Figtree({
-  variable: "--font-figtree",
+// Poster headlines: one chunky weight, set in caps (`.poster`).
+const lilita = Lilita_One({
+  variable: "--font-lilita",
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  display: "swap",
+});
+
+// Margin notes in handwriting (`.hand`).
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });
@@ -44,7 +53,7 @@ export default function RootShell({ locale, children }: { locale: Locale; childr
       lang={locale}
       // The site is already localized (own language switcher): stop browsers' automatic page translation from mangling it.
       translate="no"
-      className={`notranslate ${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} ${alegreya.variable} h-full overflow-x-clip antialiased`}
+      className={`notranslate ${figtree.variable} ${lilita.variable} ${caveat.variable} ${jetbrainsMono.variable} ${alegreya.variable} h-full overflow-x-clip antialiased`}
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col overflow-x-clip bg-paper text-body selection:bg-marker selection:text-cloth-deep">

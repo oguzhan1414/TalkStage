@@ -6,7 +6,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { findGrammarV2Lesson } from '@talkstage/shared-data/grammarV2';
-import { minimalFeatureIcons, stateImages } from '../assets/images';
+import { stateImages, profileArt } from '../assets/images';
 import { BouncyPressable } from '../components/BouncyPressable';
 import { MivoLoader } from '../components/MivoLoader';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
@@ -380,7 +380,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
       {/* Tek eylem: hızlı sınav */}
       <LinearGradient colors={['#4F46E5', '#7C3AED']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.hero, shadow.card]}>
         <View style={styles.heroBlob} />
-        <Image source={minimalFeatureIcons.mistakesNotebook} style={styles.heroArt} resizeMode="contain" />
+        <Image source={profileArt.mistakes} style={styles.heroArt} resizeMode="contain" />
         <View style={styles.heroText}>
           <Text style={styles.heroTitle}>{all.length > 0 ? t("{{count}} hata seni bekliyor", { count: all.length }) : t("Tertemiz Bir Sayfa! 🎯")}</Text>
           {all.length > 0 ? (
@@ -493,7 +493,7 @@ export function MistakesNotebookScreen({ navigation }: MistakesNotebookScreenPro
       <ScreenHeader
         title={t("Hata Defterim")}
         subtitle={t("Kişisel Zayıf Noktalar & Düzeltmeler")}
-        icon={minimalFeatureIcons.mistakesNotebook}
+        icon={profileArt.mistakes}
         onBack={() => navigation.goBack()}
       />
 

@@ -11,6 +11,7 @@ import {
   Keyboard,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -24,15 +25,20 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { mivoHomeImages, mivoVoiceImages, partBadgeImages } from '../assets/images';
 import { wordImage } from '../assets/wordImages';
 import { useMivoTransition } from '../components/MivoTransitionOverlay';
+import { LottieMoment } from '../components/LottieMoment';
+import { lottieAnims } from '../assets/lottie';
+import { useNavigation } from '@react-navigation/native';
 import { FadeIn, PageIn, PopIn, useLoop, usePop, useShake } from '../components/path/anim';
 import { Confetti } from '../components/path/Confetti';
+import { SpeakerAvatar } from '../components/path/SpeakerAvatar';
+import { castOf } from '../assets/cast';
 import { EXIT_SPACE, ExitButton } from '../components/path/ExitButton';
 import { PartTrack } from '../components/path/PartTrack';
 import { BoldText } from '../components/path/BoldText';
 import { WordMatch } from '../components/path/WordMatch';
 import { ROLE_COLORS, TapSentenceOrder } from '../components/reading/TapSentenceOrder';
 import { ACTIVITY_XP } from '../constants/xp';
-import { findStep, gloss, loc, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
+import { findStep, flatSteps, gloss, loc, PATH_LEVELS, type Loc, type PathEpisode, type PathPractice, type PathQuestion, type PathSentence, type PathTable, type PathWord } from '../data/path';
 import { bare, buildDrills, lessonWordsIn, mivoSentence, sameSentence, sentenceRoles, type WordRole } from '../data/path/drills';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { t } from '../i18n';
@@ -43,10 +49,15 @@ import { stepArt } from '../lib/pathArt';
 import { nextStepOf, preloadStep } from '../lib/pathPreload';
 import { usePathVoice } from '../lib/pathVoice';
 import { playSfx, preloadSfx, useSfxMuted } from '../lib/sfx';
+import { closeWord, tokens } from '../lib/speechMatch';
+import { noteLessonFinished } from '../lib/storeReview';
+import { offerProAfterFirstLesson } from '../lib/proOffer';
+import { trackEvent } from '../lib/analytics';
 import { loadPathProgress, recordPart, starsOf } from '../lib/pathProgress';
 import type { PathLessonScreenProps } from '../navigation/types';
 import { colors, fonts, shadow, spacing } from '../theme/tokens';
 import type { ProfileOut, TranscribeResponse, VocabCardOut } from '../types/api';
+import { KeyboardScroll } from '../components/KeyboardSafe';
 
 /**
  * A reading lesson of the new path, in three parts with one star each (like chapters you can stop between):
@@ -69,39 +80,6 @@ const shuffle = <T,>(list: T[]): T[] => {
   }
   return a;
 };
-
-/** A spoken word counts when speech recognition got it right or one letter off (only for words of 4+ letters). */
-function closeWord(said: string, want: string): boolean {
-  if (said === want) return true;
-  if (want.length < 4 || Math.abs(said.length - want.length) > 1) return false;
-  let i = 0;
-  let j = 0;
-  let edits = 0;
-  while (i < said.length && j < want.length) {
-    if (said[i] === want[j]) {
-      i++;
-      j++;
-      continue;
-    }
-    if (++edits > 1) return false;
-    if (said.length > want.length) i++;
-    else if (said.length < want.length) j++;
-    else {
-      i++;
-      j++;
-    }
-  }
-  return edits + (said.length - i) + (want.length - j) <= 1;
-}
-
-/** Words of a sentence, lower-cased, without punctuation (for the read-aloud check). */
-const tokens = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[’']/g, "'")
-    .replace(/[^a-z0-9' ]+/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
 
 /** The phases of each part for this episode (steps without content are left out). */
 function partPhases(e: PathEpisode): Phase[][] {
@@ -148,6 +126,8 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
 
   useEffect(() => {
     preloadSfx();
+    trackEvent('lesson_started', { step_id: stepId, level: stepId.split('-')[0] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -215,10 +195,11 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
         </View>
       ) : null}
 
-      <ScrollView
+      <KeyboardScroll
         ref={scrollRef}
+        bottomOffset={110}
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + EXIT_SPACE }]}
+        contentContainerStyle={[styles.body, { paddingBottom: Math.max(insets.bottom, 16) + (screen === 'done' ? 0 : EXIT_SPACE) }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -274,8 +255,8 @@ function Lesson({ stepId, episode, art, onExit }: { stepId: string; episode: Pat
             <DoneStep stepId={stepId} episode={episode} art={art} right={score.current.right} total={score.current.total} onExit={onExit} />
           )}
         </PageIn>
-      </ScrollView>
-      {partCard ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
+      </KeyboardScroll>
+      {partCard || screen === 'done' ? null : <ExitButton onExit={onExit} confirm={inPart >= 0 || screen === 'intro'} />}
       {partCard ? (
         <PartCard
           stepId={stepId}
@@ -402,28 +383,42 @@ function Choice({
 }
 
 /** The panel that slides in after an answer: right / not quite, a line under it, and the way on. */
-function Feedback({ ok, sub, label, onNext }: { ok: boolean; sub?: string; label: string; onNext: () => void }) {
+function Feedback({ ok, helped, sub, label, onNext }: { ok: boolean; helped?: boolean; sub?: string; label: string; onNext: () => void }) {
+  // `helped`: finished, but with hints or several slips. Not a mistake: a warm amber note instead of a red cross.
+  const tone = ok ? 'ok' : helped ? 'help' : 'bad';
   const praise = useMemo(() => {
-    const lines = ok ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")] : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
+    const lines =
+      tone === 'ok'
+        ? [t("Doğru!"), t("Harika!"), t("Süper!"), t("Aynen böyle!")]
+        : tone === 'help'
+          ? [t("Tamamladın!"), t("Yardımla tamam!"), t("Güzel, bir dahakine kendin!")]
+          : [t("Tam değil"), t("Olsun, devam!"), t("Az kaldı!")];
     return lines[Math.floor(Math.random() * lines.length)];
-  }, [ok]);
+  }, [tone]);
 
   useEffect(() => {
-    playSfx(ok ? 'correct' : 'wrong');
+    playSfx(tone === 'bad' ? 'wrong' : 'correct');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <FadeIn from={24} style={[styles.feedback, ok ? styles.feedbackOk : styles.feedbackBad]}>
+    <FadeIn from={24} style={[styles.feedback, tone === 'ok' ? styles.feedbackOk : tone === 'help' ? styles.feedbackHelp : styles.feedbackBad]}>
       <View style={styles.feedbackRow}>
-        <PopIn style={[styles.feedbackIcon, { backgroundColor: ok ? colors.success : colors.error }]}>
-          <Ionicons name={ok ? 'checkmark' : 'close'} size={22} color="#FFFFFF" />
-        </PopIn>
+        {tone === 'ok' ? (
+          // A right answer: a white tick draws itself on the green disc
+          <PopIn style={[styles.feedbackIcon, styles.feedbackIconOk]}>
+            <LottieMoment source={lottieAnims.checkWhite} size={58} />
+          </PopIn>
+        ) : (
+          <PopIn style={[styles.feedbackIcon, { backgroundColor: tone === 'help' ? '#F59E0B' : colors.error }]}>
+            <Ionicons name={tone === 'help' ? 'bulb' : 'close'} size={22} color="#FFFFFF" />
+          </PopIn>
+        )}
         <View style={{ flex: 1 }}>
-          <Text style={[styles.feedbackTitle, { color: ok ? '#047857' : '#BE123C' }]}>{praise}</Text>
+          <Text style={[styles.feedbackTitle, { color: tone === 'ok' ? '#047857' : tone === 'help' ? '#B45309' : '#BE123C' }]}>{praise}</Text>
           {sub ? <Text style={styles.feedbackSub}>{sub}</Text> : null}
         </View>
       </View>
-      <NextButton label={label} onPress={onNext} tone={ok ? 'ok' : 'bad'} />
+      <NextButton label={label} onPress={onNext} tone={tone === 'ok' ? 'ok' : tone === 'help' ? 'brand' : 'bad'} />
     </FadeIn>
   );
 }
@@ -673,17 +668,59 @@ export function PickStep({
   );
 }
 
-const KEY_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+/** The word's letters, each once, in a stable shuffled order (the same word always lays out the same way). */
+function letterTiles(word: string): string[] {
+  const letters = [...new Set(word.toLowerCase().split('').filter((c) => /[a-z]/.test(c)))];
+  let seed = 0;
+  for (const c of word) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
+  for (let i = letters.length - 1; i > 0; i -= 1) {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    const k = seed % (i + 1);
+    [letters[i], letters[k]] = [letters[k], letters[i]];
+  }
+  // Never start already in order (a short word could shuffle back into itself).
+  if (letters.length > 1 && letters.join('') === [...new Set(word.toLowerCase().split('').filter((c) => /[a-z]/.test(c)))].join('')) letters.reverse();
+  return letters;
+}
 
-/** Type the word: the keyboard only opens the word's letters; a wrong letter shakes, "Yardım" adds the next one. */
+/** One letter tile: big, well apart; a wrong tap shakes only this tile. */
+function LetterTile({ letter, size, onPress }: { letter: string; size: number; onPress: (l: string) => boolean }) {
+  const shake = useShake();
+  const pop = usePop(1.12);
+  return (
+    // Two layers: both animations move `transform`, which would overwrite each other on one view.
+    <Animated.View style={shake.style}>
+      <Animated.View style={pop.style}>
+      <Pressable
+        onPress={() => {
+          if (onPress(letter)) pop.pop();
+          else shake.shake();
+        }}
+        hitSlop={4}
+        style={({ pressed }) => [styles.tile, { width: size, height: size + 6 }, pressed && { transform: [{ translateY: 3 }], borderBottomWidth: 2 }]}
+        accessibilityRole="button"
+        accessibilityLabel={letter}
+      >
+        <Text style={[styles.tileText, { fontSize: Math.round(size * 0.48) }]}>{letter}</Text>
+      </Pressable>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+/**
+ * Type the word with big tiles of its own letters (each letter once, shuffled). A wrong tap shakes the tile;
+ * "Yardım" fills the next letter. One slip still counts as right (fingers miss); hints or several slips end with
+ * a friendly "done with help", never a red cross.
+ */
 function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: (ok: boolean) => void; report: (i: number, n: number) => void; onDone: () => void }) {
   const { say: pronounce } = usePathVoice();
   const { width } = useWindowDimensions();
   const items = words.slice(0, 5);
   const [idx, setIdx] = useState(0);
   const [pos, setPos] = useState(0);
-  const slip = useRef(false);
-  const shake = useShake();
+  const slips = useRef(0);
+  const hints = useRef(0);
   const w = items[idx];
   const target = w.en.toLowerCase();
   // Letters to type; spaces, apostrophes and hyphens fill themselves.
@@ -695,8 +732,11 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
   };
   const at = skipFixed(pos);
   const solved = at >= target.length;
-  const open = useMemo(() => new Set(target.split('').filter(isLetter)), [target]);
-  const keyW = Math.floor((width - 16 - 9 * 5) / 10);
+  const tiles = useMemo(() => letterTiles(w.en), [w.en]);
+  // Up to 5 tiles a row, as big as the screen allows (never under 52 pt, so neighbours are hard to hit by mistake).
+  const perRow = Math.min(5, Math.max(4, Math.ceil(tiles.length / 2)));
+  const tileSize = Math.max(52, Math.min(68, Math.floor((width - 32 - (perRow - 1) * 12) / perRow)));
+  const clean = slips.current <= 1 && hints.current === 0;
 
   useEffect(() => {
     report(idx, items.length);
@@ -705,34 +745,36 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
 
   useEffect(() => {
     if (!solved) return;
-    tally(!slip.current);
+    tally(clean);
     haptics.success();
     setTimeout(() => pronounce(w.en).catch(() => {}), 450);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solved]);
 
+  /** True when the letter was the next one. */
   const press = (k: string) => {
-    if (solved) return;
+    if (solved) return true;
     if (k === target[at]) {
       playSfx('tap');
       haptics.selection();
       setPos(skipFixed(at + 1));
-    } else {
-      slip.current = true;
-      haptics.warning();
-      shake.shake();
+      return true;
     }
+    slips.current += 1;
+    haptics.light();
+    return false;
   };
   const help = () => {
     if (solved) return;
-    slip.current = true;
+    hints.current += 1;
     setPos(skipFixed(at + 1));
   };
   const next = () => {
     if (idx + 1 >= items.length) onDone();
     else {
       // Reset in the same render as the word change, so the new word never looks solved for a frame.
-      slip.current = false;
+      slips.current = 0;
+      hints.current = 0;
       setPos(0);
       setIdx(idx + 1);
     }
@@ -744,17 +786,17 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
   return (
     <>
       <FadeIn>
-        <StepHead icon="create" title={t("Kelimeyi yaz")} sub={t("Sadece kelimenin harfleri açık. Sırayla dokun.")} />
+        <StepHead icon="create" title={t("Kelimeyi yaz")} sub={t("Harflere sırayla dokun.")} />
       </FadeIn>
       <FadeIn key={`t${idx}`} delay={40} style={styles.typePrompt}>
         {img ? <Image source={img} style={styles.typeImg} resizeMode="contain" /> : null}
         <Text style={styles.typeMeaning}>{meaning || w.en}</Text>
       </FadeIn>
 
-      <Animated.View style={[styles.slots, shake.style]}>
+      <View style={styles.slots}>
         {target.split('').map((c, i) =>
           isLetter(c) ? (
-            <View key={i} style={[styles.slot, i < at && styles.slotFilled, solved && styles.slotSolved]}>
+            <View key={i} style={[styles.slot, i === at && !solved && styles.slotNow, i < at && styles.slotFilled, solved && styles.slotSolved]}>
               <Text style={[styles.slotText, solved && { color: '#15803D' }]}>{i < at ? w.en[i] : ''}</Text>
             </View>
           ) : (
@@ -763,35 +805,21 @@ function TypeStep({ words, tally, report, onDone }: { words: PathWord[]; tally: 
             </View>
           )
         )}
-      </Animated.View>
+      </View>
 
       {solved ? (
-        <Feedback key={`f${idx}`} ok={!slip.current} sub={wordLine(w)} label={t("Devam")} onNext={next} />
+        <Feedback key={`f${idx}`} ok={clean} helped={!clean} sub={wordLine(w)} label={t("Devam")} onNext={next} />
       ) : (
         <>
+          <View style={styles.tiles}>
+            {tiles.map((k) => (
+              <LetterTile key={`${idx}-${k}`} letter={k} size={tileSize} onPress={press} />
+            ))}
+          </View>
           <Pressable onPress={help} style={styles.helpBtn} accessibilityRole="button">
             <Ionicons name="bulb-outline" size={16} color={colors.brand} />
             <Text style={styles.helpText}>{t("Yardım")}</Text>
           </Pressable>
-          <View style={styles.keyboard}>
-            {KEY_ROWS.map((row) => (
-              <View key={row} style={styles.keyRow}>
-                {row.split('').map((k) => {
-                  const on = open.has(k);
-                  return (
-                    <Pressable
-                      key={k}
-                      disabled={!on}
-                      onPress={() => press(k)}
-                      style={({ pressed }) => [styles.key, { width: keyW }, on ? styles.keyOn : styles.keyOff, pressed && on && { transform: [{ translateY: 2 }] }]}
-                    >
-                      <Text style={[styles.keyText, !on && { color: '#CBD5E1' }]}>{k}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ))}
-          </View>
         </>
       )}
     </>
@@ -825,6 +853,7 @@ function SaveStep({ episode, level, onDone }: { episode: PathEpisode; level: str
         )
       );
       queryClient.invalidateQueries({ queryKey: ['vocab-cards'] });
+      trackEvent('words_saved', { count: chosen.length, level });
       haptics.success();
       onDone();
     } catch (err) {
@@ -1263,10 +1292,13 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
   const { sayAll } = usePathVoice();
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [picked, setPicked] = useState<number | null>(null);
+  /** The line being read aloud: its speaker's face talks and the line is lit. */
+  const [reading, setReading] = useState<number | null>(null);
   const lessonWords = useMemo(() => new Set(words.map((w) => w.en.toLowerCase())), [words]);
+  const readAll = () => sayAll(lines.map((l) => l.en), { onLine: setReading }).catch(() => {});
   // The piece is read aloud as soon as it appears (after the card has faded in); "Dinle" replays it.
   useEffect(() => {
-    const id = setTimeout(() => sayAll(lines.map((l) => l.en)).catch(() => {}), 450);
+    const id = setTimeout(readAll, 450);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1282,7 +1314,7 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
               <Image source={art} style={styles.readArt} resizeMode="cover" />
             </View>
           ) : null}
-          <Pressable onPress={() => sayAll(lines.map((l) => l.en)).catch(() => {})} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
+          <Pressable onPress={readAll} style={styles.readPlay} accessibilityRole="button" accessibilityLabel={t("Dinle")}>
             <Ionicons name="volume-high" size={18} color={colors.brand} />
             <Text style={styles.readPlayText}>{t("Dinle")}</Text>
           </Pressable>
@@ -1291,10 +1323,12 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
           <Pressable
             key={i}
             onPress={() => setOpen((s) => (s.has(i) ? new Set([...s].filter((x) => x !== i)) : new Set(s).add(i)))}
-            style={styles.readLine}
+            style={[styles.readLine, l.speaker && styles.readLineSpoken, reading === i && { backgroundColor: `${castOf(l.speaker ?? '').color}14` }]}
             accessibilityRole="button"
           >
-            {l.speaker ? <Text style={styles.speaker}>{l.speaker}</Text> : null}
+            {l.speaker ? <SpeakerAvatar speaker={l.speaker} talking={reading === i} /> : null}
+            <View style={{ flex: 1 }}>
+            {l.speaker ? <Text style={[styles.speaker, { color: castOf(l.speaker).color }]}>{l.speaker}</Text> : null}
             <Text style={styles.sentenceText}>
               {l.en.split(/(\s+)/).map((part, k) =>
                 lessonWords.has(bare(part)) ? (
@@ -1307,6 +1341,7 @@ function ReadItem({ lines, question, art, words, tally, onAnswered, onNext }: It
               )}
             </Text>
             {open.has(i) && gloss(l.native) ? <Text style={styles.sentenceNative}>{gloss(l.native)}</Text> : null}
+            </View>
           </Pressable>
         ))}
       </FadeIn>
@@ -1719,8 +1754,57 @@ export function CountUp({ to, delay = 0, style }: { to: number; delay?: number; 
 function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: string; episode: PathEpisode; art?: number; right: number; total: number; onExit: () => void }) {
   const queryClient = useQueryClient();
   const saved = useRef(false);
-  const flame = useLoop(true, 700, true);
   const { data: profile } = useQuery({ queryKey: ['me'], queryFn: () => api.get<ProfileOut>('/me') });
+  const navigation = useNavigation<{ navigate: (screen: 'FreeChatRoom' | 'Paywall', params?: object) => void }>();
+  const { transitionTo } = useMivoTransition();
+  /** What Mivo gets to talk about this episode: its title, grammar, words and what happened (the next episode's recap). */
+  const storyFocus = useMemo(() => {
+    const level = PATH_LEVELS.find((l) => flatSteps(l).some((f) => f.step.id === stepId));
+    if (!level) return { title: loc(episode.title), grammar: loc(episode.grammar), words: episode.words.slice(0, 8).map((w) => w.en) };
+    const steps = flatSteps(level);
+    const i = steps.findIndex((f) => f.step.id === stepId);
+    const after = steps.slice(i + 1).find((f) => f.step.kind === 'reading')?.step;
+    return {
+      title: loc(episode.title),
+      grammar: loc(episode.grammar),
+      story: loc(level.story.title),
+      summary: after && after.kind === 'reading' && after.episode.recap ? loc(after.episode.recap) : undefined,
+      words: episode.words.slice(0, 8).map((w) => w.en),
+    };
+  }, [stepId, episode]);
+  const talkWithMivo = () => {
+    trackEvent('mivo_chat_opened', { with_story: true, from: 'lesson_done' });
+    transitionTo(() => navigation.navigate('FreeChatRoom', { storyFocus }), t("Mivo ile Sohbet Başlıyor…"));
+  };
+  // The unit this episode belongs to, and how far into it the learner is now (this episode counts as done).
+  const unitInfo = useMemo(() => {
+    for (const level of PATH_LEVELS) {
+      const hit = flatSteps(level).find((f) => f.step.id === stepId);
+      if (hit) return { number: hit.unit.number, ids: hit.unit.steps.map((x) => x.id) };
+    }
+    return null;
+  }, [stepId]);
+  const [unitDone, setUnitDone] = useState<{ before: number; now: number } | null>(null);
+  useEffect(() => {
+    if (!unitInfo) return;
+    void loadPathProgress().then((p) => {
+      const doneElse = unitInfo.ids.filter((id) => id !== stepId && starsOf(p, id) > 0).length;
+      setUnitDone({ before: doneElse, now: doneElse + 1 });
+    });
+  }, [unitInfo, stepId]);
+  const unitFill = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!unitDone || !unitInfo) return;
+    const total = unitInfo.ids.length;
+    unitFill.setValue(unitDone.before / total);
+    const id = setTimeout(
+      () => Animated.timing(unitFill, { toValue: unitDone.now / total, duration: 900, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start(),
+      1500
+    );
+    return () => clearTimeout(id);
+  }, [unitDone, unitInfo, unitFill]);
+  const unitComplete = !!unitDone && !!unitInfo && unitDone.now >= unitInfo.ids.length;
+
   useEffect(() => {
     if (saved.current) return;
     saved.current = true;
@@ -1734,10 +1818,50 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const finish = () => {
+    onExit();
+    // Back on the path after the first finished lesson: the Pro offer, once (value first, then the offer).
+    void offerProAfterFirstLesson(() => navigation.navigate('Paywall'));
+    // After a later one: the store rating sheet may appear over the home (once).
+    setTimeout(() => void noteLessonFinished(), 900);
+  };
+  const share = () =>
+    void Share.share({
+      message: t("Spekvia'da \"{{title}}\" bölümünü bitirdim! İngilizceyi hikâyelerle öğreniyorum 📖 https://spekvia.com", {
+        title: loc(episode.title),
+      }),
+    });
+
   return (
     <View style={styles.done}>
       <Confetti count={18} />
-      {/* The episode picture as a medallion again: the three badges land under it, as on the home. */}
+      {/* Top: what was earned on the left, share and close on the right (no scrolling, no big button) */}
+      <View style={styles.doneTop}>
+        <FadeIn delay={1700} style={styles.doneTopChips}>
+          <View style={[styles.doneChip, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
+            <Ionicons name="sparkles" size={14} color="#D97706" />
+            <CountUp to={ACTIVITY_XP} delay={1800} style={[styles.doneChipText, { color: '#B45309' }]} />
+            <Text style={[styles.doneChipText, { color: '#B45309' }]}>XP</Text>
+          </View>
+          {total > 0 ? (
+            <View style={styles.doneChip}>
+              <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+              <Text style={styles.doneChipText}>
+                {right}/{total}
+              </Text>
+            </View>
+          ) : null}
+        </FadeIn>
+        <View style={{ flex: 1 }} />
+        <Pressable onPress={share} style={styles.doneTopBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Paylaş")}>
+          <Ionicons name="share-social" size={19} color={colors.textHeading} />
+        </Pressable>
+        <Pressable onPress={finish} style={styles.doneTopBtn} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("Yola dön")}>
+          <Ionicons name="close" size={22} color={colors.textHeading} />
+        </Pressable>
+      </View>
+
+      {/* The episode picture as a medallion; the three badges land under it */}
       <PopIn>
         <View style={styles.doneMedal}>
           {art ? <Image source={art} style={styles.doneMedalImg} resizeMode="cover" /> : <Image source={mivoHomeImages.lessonGuide} style={styles.doneMedalImg} resizeMode="contain" />}
@@ -1756,47 +1880,75 @@ function DoneStep({ stepId, episode, art, right, total, onExit }: { stepId: stri
               haptics.selection();
               playSfx('star');
             }}
-            style={n === 2 ? { marginTop: -10 } : undefined}
+            style={n === 2 ? { marginTop: -8 } : undefined}
           >
-            <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.badgeMid : styles.badgeSmall} resizeMode="contain" />
+            <Image source={partBadgeImages.gold[n - 1]} style={n === 2 ? styles.badgeMidDone : styles.badgeSmallDone} resizeMode="contain" />
           </PopIn>
         ))}
       </View>
-      <FadeIn delay={1400}>
-        <View style={styles.doneStats}>
-          {total > 0 ? (
-            <View style={styles.doneStat}>
-              <Text style={styles.doneStatNum}>
-                {right}/{total}
-              </Text>
-              <Text style={styles.doneStatLabel}>{t("İlk denemede doğru")}</Text>
+
+      {/* Progress in the unit: bars rise and the unit bar fills to where this episode brought you */}
+      {unitInfo && unitDone ? (
+        <FadeIn delay={1300} style={styles.bigCard}>
+          <LottieMoment source={lottieAnims.levelUp} size={74} style={{ marginVertical: -8 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.bigKicker}>{t("ÜNİTE {{n}}", { n: unitInfo.number })}</Text>
+            <Text style={styles.bigTitle}>{unitComplete ? t("Ünite tamamlandı!") : t("{{done}}/{{total}} adım", { done: unitDone.now, total: unitInfo.ids.length })}</Text>
+            <View style={styles.bigTrack}>
+              <Animated.View style={[styles.bigFill, { width: unitFill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
             </View>
-          ) : null}
-          <View style={[styles.doneStat, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
-            <CountUp to={ACTIVITY_XP} delay={1500} style={[styles.doneStatNum, { color: '#B45309' }]} />
-            <Text style={styles.doneStatLabel}>{t("XP")}</Text>
           </View>
-          {profile?.streak_count ? (
-            <View style={[styles.doneStat, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Animated.View style={{ transform: [{ scale: flame.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] }) }] }}>
-                  <Ionicons name="flame" size={22} color="#F97316" />
-                </Animated.View>
-                <Text style={[styles.doneStatNum, { color: '#C2410C' }]}>{profile.streak_count}</Text>
-              </View>
-              <Text style={styles.doneStatLabel}>{t("Günlük seri")}</Text>
-            </View>
-          ) : null}
-        </View>
-      </FadeIn>
-      <FadeIn delay={1600} style={{ alignSelf: 'stretch' }}>
-        <NextButton label={t("Yola dön")} onPress={onExit} />
+        </FadeIn>
+      ) : null}
+
+      {/* The streak, big: the flame burns next to the day count */}
+      {profile?.streak_count ? (
+        <FadeIn delay={1500} style={[styles.bigCard, styles.streakCard]}>
+          <LottieMoment source={lottieAnims.streak} size={80} loop style={{ marginVertical: -10 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.streakNum}>
+              {profile.streak_count} <Text style={styles.streakUnit}>{t("günlük seri")}</Text>
+            </Text>
+            <Text style={styles.streakSub}>{t("Yarın da gel, alev sönmesin!")}</Text>
+          </View>
+        </FadeIn>
+      ) : null}
+
+      {/* Talk about this very episode with Mivo, while it is fresh */}
+      <FadeIn delay={1900} style={{ alignSelf: 'stretch' }}>
+        <Pressable onPress={talkWithMivo} style={({ pressed }) => [styles.talkCard, pressed && { opacity: 0.9 }]} accessibilityRole="button">
+          <Image source={mivoHomeImages.fab} style={styles.talkFace} resizeMode="cover" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.talkTitle}>{t("Bu bölümü Mivo ile konuş")}</Text>
+            <Text style={styles.talkSub} numberOfLines={2}>
+              {t("Hikâyede ne oldu? Öğrendiklerini sesli kullan.")}
+            </Text>
+          </View>
+          <View style={styles.talkMic}>
+            <Ionicons name="mic" size={20} color="#FFFFFF" />
+          </View>
+        </Pressable>
       </FadeIn>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  talkCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 20,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+  },
+  talkFace: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FFFFFF' },
+  talkTitle: { fontFamily: fonts.headingBold, fontSize: 15.5, color: '#1E1B4B' },
+  talkSub: { fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 17, color: '#4338CA', marginTop: 1 },
+  talkMic: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1, backgroundColor: FLOOR },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: spacing.md, paddingTop: 8, paddingBottom: 10, minHeight: 50 },
   bar: { flex: 1, height: 12, borderRadius: 6, backgroundColor: '#E2E8F0', overflow: 'hidden' },
@@ -1862,8 +2014,10 @@ const styles = StyleSheet.create({
   feedback: { borderRadius: 22, padding: 14, gap: 10, borderWidth: 2 },
   feedbackOk: { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' },
   feedbackBad: { backgroundColor: '#FFF1F2', borderColor: '#FECDD3' },
+  feedbackHelp: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
   feedbackRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   feedbackIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  feedbackIconOk: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.success, overflow: 'hidden' },
   feedbackTitle: { fontFamily: fonts.headingBold, fontSize: 18 },
   feedbackSub: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.textBody, marginTop: 1 },
 
@@ -1908,12 +2062,18 @@ const styles = StyleSheet.create({
   slotText: { fontFamily: fonts.headingBold, fontSize: 24, color: colors.textHeading },
   helpBtn: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10 },
   helpText: { fontFamily: fonts.headingBold, fontSize: 14.5, color: colors.brand },
-  keyboard: { gap: 8, marginHorizontal: -spacing.md + 8 },
-  keyRow: { flexDirection: 'row', justifyContent: 'center', gap: 5 },
-  key: { height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  keyOn: { backgroundColor: '#FFFFFF', borderWidth: 2, borderBottomWidth: 4, borderColor: '#C7D2FE' },
-  keyOff: { backgroundColor: '#F1F5F9' },
-  keyText: { fontFamily: fonts.headingBold, fontSize: 19, color: colors.textHeading },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, paddingVertical: 6 },
+  tile: {
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: '#C7D2FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tileText: { fontFamily: fonts.headingBold, color: colors.textHeading },
+  slotNow: { borderBottomColor: colors.brand, backgroundColor: '#EEF2FF' },
 
   saveRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, borderWidth: 2, borderColor: '#E2E8F0' },
   saveRowOn: { borderColor: '#C7D2FE', backgroundColor: '#F5F7FF' },
@@ -1961,6 +2121,7 @@ const styles = StyleSheet.create({
   storyCard: { backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, gap: 4, borderWidth: 1, borderColor: '#EEF2FF' },
   sentence: { paddingVertical: 8, paddingRight: 30, paddingLeft: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', borderLeftWidth: 3, borderLeftColor: 'transparent' },
   sentenceNow: { borderLeftColor: colors.brand, backgroundColor: '#F8FAFF' },
+  readLineSpoken: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   speaker: { fontFamily: fonts.headingBold, fontSize: 11.5, color: colors.brand, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 },
   sentenceText: { fontFamily: fonts.bodyMedium, fontSize: 17, lineHeight: 26, color: colors.textHeading },
   newWord: { color: colors.brand, textDecorationLine: 'underline', fontFamily: fonts.headingBold },
@@ -2015,18 +2176,37 @@ const styles = StyleSheet.create({
   },
   micRec: { backgroundColor: colors.error, borderBottomColor: '#9F1239' },
 
-  done: { alignItems: 'center', gap: 14, paddingTop: 20 },
-  doneMedal: { width: 172, height: 172, borderRadius: 86, padding: 8, backgroundColor: '#FDE68A' },
-  doneMedalImg: { width: 156, height: 156, borderRadius: 78, borderWidth: 3, borderColor: '#FFFFFF' },
+  done: { alignItems: 'center', gap: 11, paddingTop: 4 },
+  doneMedal: { width: 116, height: 116, borderRadius: 58, padding: 6, backgroundColor: '#FDE68A' },
+  doneMedalImg: { width: 104, height: 104, borderRadius: 52, borderWidth: 3, borderColor: '#FFFFFF' },
   doneTitle: { fontFamily: fonts.headingBold, fontSize: 28, color: colors.textHeading, textAlign: 'center' },
   doneSub: { fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
-  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 110 },
+  doneStars: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 76 },
+  badgeSmallDone: { width: 54, height: 54 },
+  badgeMidDone: { width: 68, height: 68 },
+  doneTop: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 8 },
+  doneTopChips: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  doneTopBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#EDE7DD' },
+  bigCard: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1.5, borderColor: '#EDE7DD' },
+  bigKicker: { fontFamily: fonts.headingBold, fontSize: 11.5, letterSpacing: 1.2, color: '#C9533A' },
+  bigTitle: { fontFamily: fonts.headingBold, fontSize: 20, color: colors.textHeading, marginTop: 1 },
+  bigTrack: { height: 10, borderRadius: 5, backgroundColor: '#F1EDE6', overflow: 'hidden', marginTop: 8 },
+  bigFill: { height: '100%', borderRadius: 5, backgroundColor: '#F4C152' },
+  streakCard: { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' },
+  streakNum: { fontFamily: fonts.headingBold, fontSize: 30, lineHeight: 36, color: '#C2410C' },
+  streakUnit: { fontFamily: fonts.headingBold, fontSize: 17, color: '#C2410C' },
+  streakSub: { fontFamily: fonts.bodyMedium, fontSize: 13, color: '#9A3412', marginTop: 1 },
+  doneChips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  doneChip: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#E2E8F0' },
+  doneChipText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.textHeading },
   badgeSmall: { width: 66, height: 66 },
   badgeMid: { width: 84, height: 84 },
   badgeBig: { width: 104, height: 104 },
   doneStats: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   doneStat: { minWidth: 100, alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 18, paddingVertical: 12, paddingHorizontal: 16, borderWidth: 2, borderColor: '#E2E8F0' },
   doneStatNum: { fontFamily: fonts.headingBold, fontSize: 22, color: colors.textHeading },
+  shareBtn: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8, marginBottom: 6 },
+  shareText: { fontFamily: fonts.headingBold, fontSize: 14, color: colors.brand },
   doneStatLabel: { fontFamily: fonts.bodyMedium, fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
   cardDim: { backgroundColor: 'rgba(15,23,42,0.35)' },
   partCard: {
@@ -2062,7 +2242,7 @@ const styles = StyleSheet.create({
   readArt: { width: 66, height: 66, borderRadius: 33 },
   readPlay: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EEF2FF', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   readPlayText: { fontFamily: fonts.headingBold, fontSize: 13, color: colors.brand },
-  readLine: { paddingVertical: 6 },
+  readLine: { paddingVertical: 6, paddingHorizontal: 6, marginHorizontal: -6, borderRadius: 12 },
   dictCard: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 18, borderWidth: 1, borderColor: '#EEF2FF' },
   dictWord: { fontFamily: fonts.bodyMedium, fontSize: 20, color: colors.textHeading },
   dictAnswer: { fontFamily: fonts.headingBold, textDecorationLine: 'underline' },

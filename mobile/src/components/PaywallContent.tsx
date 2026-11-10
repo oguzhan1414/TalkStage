@@ -1,19 +1,23 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Purchases, { PACKAGE_TYPE, type PurchasesPackage } from 'react-native-purchases';
 
+import { mivoHomeImages } from '../assets/images';
 import { privacyUrl, termsUrl } from '../constants/legalLinks';
 import { useRestorePurchases } from '../hooks/useRestorePurchases';
 import { isRevenueCatConfigured } from '../lib/revenuecat';
+import { trackEvent } from '../lib/analytics';
 import { colors, fonts, radii, shadow, spacing, typography } from '../theme/tokens';
 import { Button } from './Button';
 import { t } from '../i18n';
 
-// Only what Pro really unlocks (backend/app/services/entitlements.py): never list features that are free for everyone
-// or not built — store policies treat that as a misleading claim. Grows with the free/pro limits of the payment work.
+// Only what Pro really unlocks (backend/app/services/voice_access.py, entitlements.py): never list features that are
+// free for everyone or not built — store policies treat that as a misleading claim.
 const PRO_FEATURES = [
-  t("Sınırsız canlı sesli konuşma pratiği"),
+  t("Her ünitenin sonunda Mivo ile gerçek hayat provası (ücretsizde her seviyenin ilk ünitesi)"),
+  t("Mivo ile sınırsız sohbet, sana göre ayarlanmış Mivo (ücretsizde 1 deneme)"),
+  t("Konuş'taki tüm sesli sahneler (ücretsizde günde 1)"),
   t("30 dakikaya kadar uzun sesli oturumlar (ücretsizde 5 dakika)"),
 ];
 
@@ -25,9 +29,10 @@ type Plan = {
   badge?: string;
 };
 
+// Prices come from the store (localised, in the learner's currency); these are shown only until it answers.
 export const STATIC_PLANS: Plan[] = [
-  { key: 'monthly', label: t("Aylık"), price: '199 TL', period: t("/ ay") },
-  { key: 'annual', label: t("Yıllık"), price: '999 TL', period: t("/ yıl"), badge: t("%58 Tasarruf") },
+  { key: 'monthly', label: t("Aylık"), price: '…', period: t("/ ay") },
+  { key: 'annual', label: t("Yıllık"), price: '…', period: t("/ yıl") },
 ];
 
 type PaywallContentProps = {
@@ -40,6 +45,10 @@ export function usePaywall(onPurchased: () => void) {
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [selected, setSelected] = useState<Plan['key']>('annual');
   const [purchasing, setPurchasing] = useState(false);
+
+  useEffect(() => {
+    trackEvent('paywall_viewed');
+  }, []);
 
   useEffect(() => {
     if (!isRevenueCatConfigured) return;
@@ -58,27 +67,49 @@ export function usePaywall(onPurchased: () => void) {
       return;
     }
     setPurchasing(true);
+    const props = { plan: selected, price: pkg.product.price, currency: pkg.product.currencyCode };
+    trackEvent('purchase_started', props);
     try {
       await Purchases.purchasePackage(pkg);
+      trackEvent('purchase_completed', props);
       Alert.alert(t("Teşekkürler!"), t("Pro üyeliğin aktif."));
       onPurchased();
     } catch (err) {
       const cancelled = (err as { userCancelled?: boolean } | null)?.userCancelled;
+      trackEvent(cancelled ? 'purchase_cancelled' : 'purchase_failed', props);
       if (!cancelled) Alert.alert(t("Satın alma tamamlanamadı"), String(err));
     } finally {
       setPurchasing(false);
     }
   };
 
-  return { selected, setSelected, purchasing, packageFor, handlePurchase };
+  /** "%50 Tasarruf" on the annual plan, worked out from the store's real prices (none until both are known). */
+  const annualSaving = (() => {
+    const monthly = packageFor('monthly')?.product.price;
+    const annual = packageFor('annual')?.product.price;
+    if (!monthly || !annual) return undefined;
+    const pct = Math.round((1 - annual / (monthly * 12)) * 100);
+    return pct >= 5 ? t("%{{n}} Tasarruf", { n: pct }) : undefined;
+  })();
+
+  /** Days of the store's free trial on a plan (Play offer with a free phase), if there is one. */
+  const trialDays = (plan: Plan['key']) => {
+    const iso = packageFor(plan)?.product.defaultOption?.freePhase?.billingPeriod?.iso8601;
+    const m = iso ? /^P(\d+)([DW])$/.exec(iso) : null;
+    return m ? Number(m[1]) * (m[2] === 'W' ? 7 : 1) : 0;
+  };
+
+  return { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving, trialDays };
 }
 
 export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentProps) {
-  const { selected, setSelected, purchasing, packageFor, handlePurchase } = usePaywall(onPurchased);
+  const { selected, setSelected, purchasing, packageFor, handlePurchase, annualSaving, trialDays } = usePaywall(onPurchased);
+  const trial = trialDays(selected);
   const { restore, restoring } = useRestorePurchases(onPurchased);
 
   return (
     <View style={styles.root}>
+      <Image source={mivoHomeImages.pro} style={styles.hero} resizeMode="cover" />
       {eyebrow ? <Text style={styles.eyebrow}>{t("SPEKVIA PRO")}</Text> : null}
       <Text style={styles.title}>{t("Sınırsız pratik yap, hızla ilerle")}</Text>
 
@@ -89,23 +120,26 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
             <Text style={styles.featureText}>{feature}</Text>
           </View>
         ))}
+        <Text style={styles.fairUse}>{t("Sesli konuşmada günlük adil kullanım sınırı uygulanır.")}</Text>
       </View>
 
       <View style={styles.planRow}>
         {STATIC_PLANS.map((plan) => {
           const isSelected = selected === plan.key;
+          const badge = plan.key === 'annual' ? annualSaving : plan.badge;
           return (
             <Pressable
               key={plan.key}
               onPress={() => setSelected(plan.key)}
               style={[styles.planCard, shadow.card, isSelected && styles.planCardSelected]}
             >
-              {plan.badge ? (
+              {badge ? (
                 <View style={styles.planBadge}>
-                  <Text style={styles.planBadgeText}>{plan.badge}</Text>
+                  <Text style={styles.planBadgeText}>{badge}</Text>
                 </View>
               ) : null}
               <Text style={styles.planLabel}>{plan.label}</Text>
+              {trialDays(plan.key) > 0 ? <Text style={styles.planTrial}>{t("{{n}} gün ücretsiz", { n: trialDays(plan.key) })}</Text> : null}
               <Text style={styles.planPrice}>{packageFor(plan.key)?.product.priceString ?? plan.price}</Text>
               <Text style={styles.planPeriod}>{plan.period}</Text>
             </Pressable>
@@ -114,12 +148,15 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
       </View>
 
       <Button
-        label={purchasing ? t("İşleniyor…") : t("Pro’ya Geç")}
+        label={purchasing ? t("İşleniyor…") : trial > 0 ? t("{{n}} gün ücretsiz dene", { n: trial }) : t("Pro’ya Geç")}
         onPress={handlePurchase}
         loading={purchasing}
         style={styles.ctaButton}
       />
-      <Text style={styles.disclaimer}>{t("İstediğin zaman tek tıkla iptal et.")}</Text>
+      <Text style={styles.disclaimer}>
+        {trial > 0 ? t("Deneme bitmeden iptal edersen ücret alınmaz. ") : ''}
+        {t("İstediğin zaman tek tıkla iptal et.")}
+      </Text>
       <View style={styles.legalRow}>
         <Pressable onPress={() => void Linking.openURL(termsUrl())} hitSlop={8}>
           <Text style={styles.legalLink}>{t("Kullanım Şartları")}</Text>
@@ -138,10 +175,13 @@ export function PaywallContent({ onPurchased, eyebrow = true }: PaywallContentPr
 
 const styles = StyleSheet.create({
   root: { width: '100%', alignItems: 'center' },
+  hero: { width: 132, height: 132, borderRadius: 34, marginBottom: spacing.sm },
+  planTrial: { fontFamily: fonts.headingBold, fontSize: 12, color: '#15803D', marginTop: 2 },
   eyebrow: { ...typography.caption, fontFamily: fonts.headingSemiBold, color: colors.brand, letterSpacing: 1 },
   title: { ...typography.h1, textAlign: 'center' },
   featureList: { width: '100%', gap: spacing.sm, marginTop: spacing.sm },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  fairUse: { fontFamily: fonts.bodyRegular, fontSize: 11.5, color: colors.textMuted, marginTop: 2 },
   featureText: { ...typography.body, flex: 1 },
   planRow: { flexDirection: 'row', gap: spacing.sm, width: '100%', marginTop: spacing.lg },
   planCard: {

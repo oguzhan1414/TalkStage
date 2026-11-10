@@ -11,6 +11,7 @@ from app.schemas.vocab import (
     VocabReviewRequest,
 )
 from app.services.dictionary import lookup_word
+from app.services.learning_events import log_event
 from app.services.progress import award_xp
 from app.services.scorecard import VOCAB_REVIEW_XP
 from app.services.sm2 import review_card
@@ -180,4 +181,5 @@ def review_vocab_card(
         .execute()
     )
     award_xp(ctx, VOCAB_REVIEW_XP)
+    log_event(ctx, "vocab_review", card_id)
     return VocabCardOut(**result.data[0])

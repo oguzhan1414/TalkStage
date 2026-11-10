@@ -10,7 +10,7 @@ export const mivoImages = {
   listening: require('../../assets/images/companion/mivo/mivo_listening.webp'),
   thinking: require('../../assets/images/companion/mivo/mivo_thinking.webp'),
   speaking: require('../../assets/images/companion/mivo/mivo_speaking.webp'),
-  loading: require('../../assets/images/companion/mivo/mivo_loading_flip.webp'),
+  loading: require('../../assets/images/companion/mivo/mivo_loading.webp'),
   success: require('../../assets/images/companion/mivo/mivo_success.webp'),
 } as const;
 
@@ -29,18 +29,10 @@ export const mivoHomeImages = {
   chatInvite: require('../../assets/images/companion/mivo/mivo_chat_invite.webp'),
   /** Portrait for Home's round chat button: big face, wave, heart bubble (readable at ~60 px). */
   fab: require('../../assets/images/companion/mivo/mivo_fab.webp'),
+  /** Mivo with the golden mic and crown: the Spekvia Pro picture (paywall, Play subscription icon). */
+  pro: require('../../assets/images/companion/mivo/mivo_pro.webp'),
 } as const;
 
-/** Calm, rounded 3D icons for the Today learning roadmap. */
-export const roadmapTaskImages = {
-  lesson: require('../../assets/images/roadmap/grammar-soft.png'),
-  vocab: require('../../assets/images/roadmap/vocabulary-soft.png'),
-  listening: require('../../assets/images/roadmap/listening-soft.png'),
-  reading: require('../../assets/images/roadmap/reading-soft.webp'),
-  review: require('../../assets/images/roadmap/speaking-soft.png'),
-  scene: require('../../assets/images/roadmap/speaking-soft.png'),
-  writing: require('../../assets/images/states/edit-pencil-minimal.webp'),
-} as const;
 
 /**
  * Eski "Yankı" (fincan karakteri) görsellerinin yerine Mivo pozları. Eski dışa aktarım adları, onları
@@ -58,35 +50,25 @@ export const yankiGreetingImage = mivoHomeImages.chatInvite;
  * personal discount: use them only for real campaigns. */
 
 /** Waving Mivo for the Welcome screen (transparent WebP). */
+/** Mivo saying goodbye (teary, with a handkerchief) on the account deletion window. */
+export const mivoSadImage = require('../../assets/images/companion/mivo/mivo_sad.webp');
 export const mivoWaveImage = require('../../assets/images/companion/mivo/mivo_wave.webp');
 export const yankiListeningImage = mivoImages.listening;
 export const yankiCelebrateImage = mivoImages.success;
 
 /** Başarılar ekranı başlığı (renkli ikon ailesi). */
 export const premiumModuleIcons = {
-  achievements: require('../../assets/images/premium/achievements-minimal.webp'),
+  achievements: require('../../assets/images/badges/badges_header.webp'),
 };
 
-/** Minimal, colorful feature-card icon family aligned with the main tab icons. */
-export const minimalFeatureIcons = {
-  mistakesNotebook: require('../../assets/images/premium/mistakes-minimal.webp'),
-  mivoMemory: require('../../assets/images/premium/mivo-memory-minimal.webp'),
-  vocabLibrary: require('../../assets/images/premium/vocab-library-minimal.webp'),
-  vocabFolders: require('../../assets/images/premium/vocab-folders-minimal.webp'),
-  reading: require('../../assets/images/premium/reading-minimal.webp'),
-  podcasts: require('../../assets/images/premium/podcasts-minimal.webp'),
-  pronunciation: require('../../assets/images/premium/pronunciation-minimal.webp'),
-  badges: require('../../assets/images/premium/badges-minimal.webp'),
-  wordRooms: require('../../assets/images/premium/word-rooms-minimal.webp'),
-} as const;
+
 
 /** Chunky 3D Bottom Navigation Icons */
 export const navIcons = {
-  today: require('../../assets/images/nav/today.png'),
-  scenes: require('../../assets/images/nav/scenes.png'),
-  words: require('../../assets/images/nav/words.png'),
-  features: require('../../assets/images/nav/features.png'),
-  profile: require('../../assets/images/nav/profile.png'),
+  today: require('../../assets/images/nav/nav_today.webp'),
+  scenes: require('../../assets/images/nav/nav_talk.webp'),
+  words: require('../../assets/images/nav/nav_words.webp'),
+  profile: require('../../assets/images/nav/nav_profile.webp'),
 };
 
 /** Bento Scenario Categories (05 - 10) */
@@ -153,93 +135,165 @@ export function resolveScenarioCoverSource(scenario: { id: string; category: str
   return resolveScenarioCategoryFallback(scenario.category);
 }
 
-/** Minimal rounded CEFR badges. Distinct paths avoid cached legacy shields. */
-export const cefrLevelImages: Record<string, ReturnType<typeof require>> = {
-  A1: require('../../assets/images/levels/a1-rounded.png'),
-  A2: require('../../assets/images/levels/a2-rounded.png'),
-  B1: require('../../assets/images/levels/b1-rounded.png'),
-  B2: require('../../assets/images/levels/b2-rounded.png'),
-  C1: require('../../assets/images/levels/c1-rounded.png'),
-  C2: require('../../assets/images/levels/c2-rounded.webp'),
+
+/**
+ * Small flat 2D character portraits for the Konuş scene grid and its "next" row (prompts: docs/sahne_kutucuk_gorselleri.md).
+ * A scene without one falls back to its wide cover.
+ */
+export const sceneTileImages: Record<string, ReturnType<typeof require>> = {
+  'airport-travel': require('../../assets/images/scenarios/tiles/tile_airport-travel.webp'),
+  'apartment-viewing': require('../../assets/images/scenarios/tiles/tile_apartment-viewing.webp'),
+  'cafe-meetup': require('../../assets/images/scenarios/tiles/tile_cafe-meetup.webp'),
+  'car-rental': require('../../assets/images/scenarios/tiles/tile_car-rental.webp'),
+  'clothing-boutique': require('../../assets/images/scenarios/tiles/tile_clothing-boutique.webp'),
+  'colleague-break': require('../../assets/images/scenarios/tiles/tile_colleague-break.webp'),
+  'doctor-visit': require('../../assets/images/scenarios/tiles/tile_doctor-visit.webp'),
+  'fastfood-burger': require('../../assets/images/scenarios/tiles/tile_fastfood-burger.webp'),
+  'fitness-gym': require('../../assets/images/scenarios/tiles/tile_fitness-gym.webp'),
+  'flea-market': require('../../assets/images/scenarios/tiles/tile_flea-market.webp'),
+  'hotel-checkin': require('../../assets/images/scenarios/tiles/tile_hotel-checkin.webp'),
+  'istanbul-tour': require('../../assets/images/scenarios/tiles/tile_istanbul-tour.webp'),
+  'job-interview': require('../../assets/images/scenarios/tiles/tile_job-interview.webp'),
+  'local-sim-card': require('../../assets/images/scenarios/tiles/tile_local-sim-card.webp'),
+  'neighbor-meetup': require('../../assets/images/scenarios/tiles/tile_neighbor-meetup.webp'),
+  'restaurant-dinner': require('../../assets/images/scenarios/tiles/tile_restaurant-dinner.webp'),
+  'rooftop-social': require('../../assets/images/scenarios/tiles/tile_rooftop-social.webp'),
+  'street-directions': require('../../assets/images/scenarios/tiles/tile_street-directions.webp'),
+  'supermarket-checkout': require('../../assets/images/scenarios/tiles/tile_supermarket-checkout.webp'),
+  'taxi-ride': require('../../assets/images/scenarios/tiles/tile_taxi-ride.webp'),
+  'train-ticket': require('../../assets/images/scenarios/tiles/tile_train-ticket.webp'),
 };
 
-/** 3D User Personas / Avatars (58 - 63) */
-export const avatarImages = {
-  maleDev: require('../../assets/images/avatars/male_dev.webp'),
-  femaleLead: require('../../assets/images/avatars/female_lead.webp'),
-  maleTraveler: require('../../assets/images/avatars/male_traveler.webp'),
-  femaleDesigner: require('../../assets/images/avatars/female_designer.webp'),
-  maleEngineer: require('../../assets/images/avatars/male_engineer.webp'),
-  femaleEntrepreneur: require('../../assets/images/avatars/female_entrepreneur.webp'),
-  // Dedicated onboarding persona portraits (2026-08-26) — replace the emoji-badge
-  // fallback the onboarding Persona screen used for personas that had no genuinely
-  // matching photo among the 6 career avatars above.
-  studentYouth: require('../../assets/images/avatars/student_youth.webp'),
-  travelerExplorer: require('../../assets/images/avatars/traveler_explorer.webp'),
-  matureSenior: require('../../assets/images/avatars/mature_senior.webp'),
-  proDeveloper: require('../../assets/images/avatars/pro_developer.webp'),
+export function resolveSceneTileSource(scenario: { id: string; category: string; coverImage?: string }): any {
+  return sceneTileImages[scenario.id] ?? resolveScenarioCoverSource(scenario);
+}
+
+/**
+ * Small flat 2D isometric room dioramas for the Kelime Odaları grid (prompts: docs/kelime_odasi_kutucuk_gorselleri.md).
+ * A room without one falls back to its photo thumbnail.
+ */
+export const roomTileImages: Record<string, ReturnType<typeof require>> = {
+  airport: require('../../assets/images/rooms/tiles/tile_airport.webp'),
+  bathroom: require('../../assets/images/rooms/tiles/tile_bathroom.webp'),
+  bedroom: require('../../assets/images/rooms/tiles/tile_bedroom.webp'),
+  cafe: require('../../assets/images/rooms/tiles/tile_cafe.webp'),
+  camping: require('../../assets/images/rooms/tiles/tile_camping.webp'),
+  classroom: require('../../assets/images/rooms/tiles/tile_classroom.webp'),
+  doctor: require('../../assets/images/rooms/tiles/tile_doctor.webp'),
+  garage: require('../../assets/images/rooms/tiles/tile_garage.webp'),
+  garden: require('../../assets/images/rooms/tiles/tile_garden.webp'),
+  grocery: require('../../assets/images/rooms/tiles/tile_grocery.webp'),
+  gym: require('../../assets/images/rooms/tiles/tile_gym.webp'),
+  hotel: require('../../assets/images/rooms/tiles/tile_hotel.webp'),
+  kitchen: require('../../assets/images/rooms/tiles/tile_kitchen.webp'),
+  living_room: require('../../assets/images/rooms/tiles/tile_living_room.webp'),
+  office: require('../../assets/images/rooms/tiles/tile_office.webp'),
+  street: require('../../assets/images/rooms/tiles/tile_street.webp'),
 };
+
+export function resolveRoomTileSource(room: { id: string; thumb: number }): any {
+  return roomTileImages[room.id] ?? room.thumb;
+}
+
+/** Profile avatars: flat 2D portraits in the cast style, each on its own soft ground colour (see constants/avatars.ts). */
+export const avatarImages = {
+  campusGirl: require('../../assets/images/avatars/campus_girl.webp'),
+  campusBoy: require('../../assets/images/avatars/campus_boy.webp'),
+  teen: require('../../assets/images/avatars/teen.webp'),
+  officeWoman: require('../../assets/images/avatars/office_woman.webp'),
+  officeMan: require('../../assets/images/avatars/office_man.webp'),
+  coder: require('../../assets/images/avatars/coder.webp'),
+  creative: require('../../assets/images/avatars/creative.webp'),
+  traveler: require('../../assets/images/avatars/traveler.webp'),
+  sporty: require('../../assets/images/avatars/sporty.webp'),
+  chef: require('../../assets/images/avatars/chef.webp'),
+  parent: require('../../assets/images/avatars/parent.webp'),
+  senior: require('../../assets/images/avatars/senior.webp'),
+};
+
+/** Onboarding art (flat 2D, transparent): what the learner struggles with, the three stages, the tour. */
+export const onboardingArt = {
+  struggleFreeze: require('../../assets/images/onboarding/struggle_freeze.webp'),
+  struggleGrammar: require('../../assets/images/onboarding/struggle_grammar.webp'),
+  struggleVocab: require('../../assets/images/onboarding/struggle_vocab.webp'),
+  struggleListening: require('../../assets/images/onboarding/struggle_listening.webp'),
+  levelStart: require('../../assets/images/onboarding/level_start.webp'),
+  levelMid: require('../../assets/images/onboarding/level_mid.webp'),
+  levelAdv: require('../../assets/images/onboarding/level_adv.webp'),
+  tourStories: require('../../assets/images/onboarding/tour_stories.webp'),
+  tourScenes: require('../../assets/images/onboarding/tour_scenes.webp'),
+  tourReview: require('../../assets/images/onboarding/tour_review.webp'),
+} as const;
+
+/** Profile list icons and the Pro card art (flat 2D, transparent). */
+export const profileArt = {
+  badges: require('../../assets/images/profile/badges.webp'),
+  mistakes: require('../../assets/images/profile/mistakes.webp'),
+  memory: require('../../assets/images/profile/memory.webp'),
+  pro: require('../../assets/images/profile/pro.webp'),
+} as const;
 
 /** 3D App States & Micro-Delights (53 - 57) */
 /** The three part badges of a lesson (words, grammar, practice): gold when earned, grey before. */
 export const partBadgeImages = {
   gold: [
-    require('../../assets/images/badges_path/badge_words_gold.webp'),
-    require('../../assets/images/badges_path/badge_grammar_gold.webp'),
-    require('../../assets/images/badges_path/badge_practice_gold.webp'),
+    require('../../assets/images/badges_path/part_words.webp'),
+    require('../../assets/images/badges_path/part_grammar.webp'),
+    require('../../assets/images/badges_path/part_practice.webp'),
   ],
   grey: [
-    require('../../assets/images/badges_path/badge_words_grey.webp'),
-    require('../../assets/images/badges_path/badge_grammar_grey.webp'),
-    require('../../assets/images/badges_path/badge_practice_grey.webp'),
+    require('../../assets/images/badges_path/part_words_grey.webp'),
+    require('../../assets/images/badges_path/part_grammar_grey.webp'),
+    require('../../assets/images/badges_path/part_practice_grey.webp'),
   ],
 } as const;
 
 export const stateImages = {
-  micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
-  goalCelebration: require('../../assets/images/states/goal-celebration-minimal.webp'),
-  emptyChest: require('../../assets/images/states/empty-chest-minimal.webp'),
-  vipPass: require('../../assets/images/states/vip-pass-minimal.webp'),
-  trashDelete: require('../../assets/images/states/trash-minimal.webp'),
-  editPencil: require('../../assets/images/states/edit-pencil-minimal.webp'),
+  micPermission: require('../../assets/images/states/state_mic.webp'),
+  goalCelebration: require('../../assets/images/states/state_done.webp'),
+  trashDelete: require('../../assets/images/states/state_delete.webp'),
+  editPencil: require('../../assets/images/states/state_edit.webp'),
   xpBolt: require('../../assets/images/states/xp-bolt-minimal.webp'),
-  mistakesNotebook: require('../../assets/images/premium/mistakes-minimal.webp'), // was a dark JPG with baked English text
+  mistakesNotebook: require('../../assets/images/profile/mistakes.webp'),
 };
 
 export const calibrationImages = {
-  micOrb: require('../../assets/images/nav/voice.webp'),
-  micPermission: require('../../assets/images/states/mic-permission-minimal.webp'),
+  micPermission: require('../../assets/images/states/state_mic.webp'),
 };
 
 /** Minimal rounded achievement badges and their matching CEFR level set. */
 export const badgeImages = {
-  firstMic: require('../../assets/images/badges/first-mic.webp'),
-  zeroFreeze: require('../../assets/images/badges/zero-freeze.webp'),
-  starCollector: require('../../assets/images/badges/star-collector.webp'),
-  perfectTake: require('../../assets/images/badges/flawless-take.webp'),
-  visaApproved: require('../../assets/images/badges/visa-approved.webp'),
-  negotiator: require('../../assets/images/badges/negotiator.webp'),
-  standupHero: require('../../assets/images/badges/standup-hero.webp'),
-  mivoFriend: require('../../assets/images/badges/mivo-friend.webp'),
-  vocabHunter: require('../../assets/images/badges/vocab-hunter.webp'),
-  pronunciationProdigy: require('../../assets/images/badges/pronunciation-prodigy.webp'),
-  bookworm: require('../../assets/images/badges/bookworm.webp'),
-  podcastFan: require('../../assets/images/badges/podcast-fan.webp'),
-  lessonGraduate: require('../../assets/images/badges/grammar-scholar.webp'),
-  fullDay: require('../../assets/images/badges/full-day.webp'),
-  sevenDayFlame: require('../../assets/images/badges/7day-flame.webp'),
-  thirtyDayMaster: require('../../assets/images/badges/30day-master.webp'),
-  hundredDayLegend: require('../../assets/images/badges/100day-legend.webp'),
-  earlyBird: require('../../assets/images/badges/early-bird.webp'),
-  nightOwl: require('../../assets/images/badges/night-owl.webp'),
-  levelA1: require('../../assets/images/badges/level-a1.webp'),
-  levelA2: require('../../assets/images/badges/level-a2.webp'),
-  levelB1: require('../../assets/images/badges/level-b1.webp'),
-  levelB2: require('../../assets/images/badges/level-b2.webp'),
-  levelC1: require('../../assets/images/badges/level-c1.webp'),
-  levelC2: require('../../assets/images/badges/level-c2.webp'),
+  firstMic: require('../../assets/images/badges/badge_first_mic.webp'),
+  perfectTake: require('../../assets/images/badges/badge_perfect_take.webp'),
+  mivoFriend: require('../../assets/images/badges/badge_mivo_friend.webp'),
+  vocabHunter: require('../../assets/images/badges/badge_vocab_hunter.webp'),
+  pronunciationProdigy: require('../../assets/images/badges/badge_pronunciation.webp'),
+  bookworm: require('../../assets/images/badges/badge_bookworm.webp'),
+  lessonGraduate: require('../../assets/images/badges/badge_grammar.webp'),
+  sevenDayFlame: require('../../assets/images/badges/badge_7day.webp'),
+  thirtyDayMaster: require('../../assets/images/badges/badge_30day.webp'),
+  hundredDayLegend: require('../../assets/images/badges/badge_100day.webp'),
+  levelA2: require('../../assets/images/badges/badge_level_a2.webp'),
+  levelB1: require('../../assets/images/badges/badge_level_b1.webp'),
+  levelB2: require('../../assets/images/badges/badge_level_b2.webp'),
+  levelC1: require('../../assets/images/badges/badge_level_c1.webp'),
+  levelC2: require('../../assets/images/badges/badge_level_c2.webp'),
 } as const;
 
 /** Auth & Welcome 3D Hero Artwork */
 /** Horizontal "spekvia" logo (purple lettering with the gold spark), cropped tight; aspect ratio 3.62:1. */
 export const spekviaWordmark = require('../../assets/images/brand/spekvia_wordmark.webp');
+
+/** Kelimeler (word bank) art: flat 2D on transparent ground, cream/ink palette with the word-type colours. */
+export const vocabArt = {
+  deckDone: require('../../assets/images/vocab/mivo_deck_done.webp'),
+  emptyChest: require('../../assets/images/vocab/mivo_empty_chest.webp'),
+  listening: require('../../assets/images/vocab/mivo_listening.webp'),
+  coverNouns: require('../../assets/images/vocab/cover_nouns.webp'),
+  coverVerbs: require('../../assets/images/vocab/cover_verbs.webp'),
+  coverAdjectives: require('../../assets/images/vocab/cover_adjectives.webp'),
+  iconLibrary: require('../../assets/images/vocab/icon_library.webp'),
+  iconGroups: require('../../assets/images/vocab/icon_groups.webp'),
+  iconRooms: require('../../assets/images/vocab/icon_rooms.webp'),
+  iconPronunciation: require('../../assets/images/vocab/icon_pronunciation.webp'),
+} as const;

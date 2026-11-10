@@ -124,15 +124,21 @@ export function usePathVoice() {
 
   /** Say several texts in a row, with a short breath between them. */
   const sayAll = useCallback(
-    async (texts: string[], options?: { rate?: number }) => {
+    /** `onLine`: the index of the line being read, then null when the reading ends or is stopped. */
+    async (texts: string[], options?: { rate?: number; onLine?: (index: number | null) => void }) => {
       stop();
       const run = runRef.current;
       ensurePlaybackMode();
-      for (const text of texts) {
-        if (runRef.current !== run) return;
-        await playOne(text, options?.rate ?? 1);
-        if (runRef.current !== run) return;
-        await pause(250);
+      try {
+        for (let i = 0; i < texts.length; i += 1) {
+          if (runRef.current !== run) return;
+          options?.onLine?.(i);
+          await playOne(texts[i], options?.rate ?? 1);
+          if (runRef.current !== run) return;
+          await pause(250);
+        }
+      } finally {
+        options?.onLine?.(null);
       }
     },
     [stop, playOne]

@@ -17,7 +17,7 @@ export async function updateHomeWidget(snapshot: WidgetSnapshot): Promise<void> 
       import('react-native-android-widget'),
       import('./SpekviaWidget'),
     ]);
-    await requestWidgetUpdate({ widgetName: WIDGET_NAME, renderWidget: (info) => <SpekviaWidget snapshot={snapshot} height={info.height} /> });
+    await requestWidgetUpdate({ widgetName: WIDGET_NAME, renderWidget: (info) => <SpekviaWidget snapshot={snapshot} width={info.width} height={info.height} /> });
   } catch {
     // An older build without the widget module: nothing to redraw.
   }

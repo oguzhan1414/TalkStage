@@ -1,4 +1,4 @@
-import { avatarImages, cefrLevelImages } from '../assets/images';
+import { avatarImages } from '../assets/images';
 import { t } from '../i18n';
 
 /**
@@ -27,7 +27,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '🎓',
     badge: t("Akademik & Sınav"),
     color: '#0EA5E9',
-    avatarSource: avatarImages.studentYouth,
+    avatarSource: avatarImages.campusGirl,
   },
   {
     id: 'corporate',
@@ -37,7 +37,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '💼',
     badge: t("İş Hayatı"),
     color: '#4F46E5',
-    avatarSource: avatarImages.proDeveloper,
+    avatarSource: avatarImages.officeMan,
   },
   {
     id: 'tech',
@@ -47,7 +47,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '👨‍💻',
     badge: t("Teknik İngilizce"),
     color: '#8B5CF6',
-    avatarSource: avatarImages.maleDev,
+    avatarSource: avatarImages.coder,
   },
   {
     id: 'traveler',
@@ -57,7 +57,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '✈️',
     badge: t("Seyahat & Gezi"),
     color: '#10B981',
-    avatarSource: avatarImages.travelerExplorer,
+    avatarSource: avatarImages.traveler,
   },
   {
     id: 'adult_hobby',
@@ -67,7 +67,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     icon: '🌱',
     badge: t("Stressiz Pratik"),
     color: '#F59E0B',
-    avatarSource: avatarImages.matureSenior,
+    avatarSource: avatarImages.senior,
   },
   {
     id: 'service',
@@ -81,7 +81,7 @@ export const PERSONA_OPTIONS: PersonaOption[] = [
     // as the landing prototype, which also still points this at the
     // entrepreneur avatar) — swap in a real "service professional" image here
     // once one exists.
-    avatarSource: avatarImages.femaleEntrepreneur,
+    avatarSource: avatarImages.chef,
   },
 ];
 
@@ -131,7 +131,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'freeze_barrier',
     icon: '😶‍🌫️',
-    iconImage: require('../../assets/images/onboarding/goal_freeze_barrier.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_freeze.webp'),
     title: t("Kafamda Kuruyorum Ama Ağzımdan Çıkmıyor"),
     desc: t("Konuşurken oluşan heyecan ve tutukluğu yenmek, donmadan konuşmak."),
     badge: t("En Sık Yaşanan"),
@@ -140,7 +140,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'exams_school',
     icon: '📚',
-    iconImage: require('../../assets/images/onboarding/goal_exams_school.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_exams.webp'),
     title: t("Okul, Hazırlık veya Speaking Sınavları"),
     desc: t("Hazırlık atlama, lise/üniversite sınavları, TOEFL, IELTS veya YDS Speaking."),
     badge: t("Sınav Başarısı"),
@@ -149,7 +149,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'work_career',
     icon: '💼',
-    iconImage: require('../../assets/images/onboarding/goal_work_career.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_work.webp'),
     title: t("İş Hayatı, Toplantılar & Mülakatlar"),
     desc: t("Yabancı yöneticilerle toplantı, iş mülakatları ve sunumlarda özgüven kazanmak."),
     badge: t("Kariyer Odağı"),
@@ -158,7 +158,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'travel_life',
     icon: '✈️',
-    iconImage: require('../../assets/images/onboarding/goal_travel_life.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_travel.webp'),
     title: t("Yurt Dışı Gezileri & Günlük Hayat"),
     desc: t("Restoranda sipariş verme, otelde check-in, kaybolduğunda yön sorma ve sosyalleşme."),
     badge: t("Özgür Gezgin"),
@@ -167,78 +167,11 @@ export const GOAL_OPTIONS: GoalOption[] = [
   {
     id: 'no_partner',
     icon: '🗣️',
-    iconImage: require('../../assets/images/onboarding/goal_no_partner.webp'),
+    iconImage: require('../../assets/images/onboarding/goal_partner.webp'),
     title: t("Gramer Biliyorum Ama Pratik Yapacak Kimsem Yok"),
     desc: t("Beni asla yargılamayan, sıfır stresle 7/24 sabırla dinleyen bir partnerle konuşmak."),
     badge: t("Sınırsız Pratik"),
     color: '#8B5CF6',
-  },
-];
-
-export type OnboardingLevelOption = {
-  code: string;
-  title: string;
-  enTitle: string;
-  desc: string;
-  realLife: string;
-  color: string;
-  image: ReturnType<typeof require>;
-};
-
-export const ONBOARDING_LEVEL_OPTIONS: OnboardingLevelOption[] = [
-  {
-    code: 'A1',
-    title: t("Sıfırdan / Başlangıç"),
-    enTitle: t("Beginner"),
-    desc: t("Temel kelimeleri biliyorum veya sıfırdan en baştan başlamak istiyorum."),
-    realLife: t("Merhaba, adın ne, neredensin, teşekkürler gibi temel ifadeler."),
-    color: '#10B981',
-    image: cefrLevelImages.A1,
-  },
-  {
-    code: 'A2',
-    title: t("Temel Seviye"),
-    enTitle: t("Elementary"),
-    desc: t("Basit cümleler kurabiliyorum, kendimi ve günlük rutinlerimi anlatabiliyorum."),
-    realLife: t("Kahve siparişi, hava durumu, market alışverişi ve basit yol tarifi."),
-    color: '#0EA5E9',
-    image: cefrLevelImages.A2,
-  },
-  {
-    code: 'B1',
-    title: t("Orta Düzey"),
-    enTitle: t("Intermediate"),
-    desc: t("Çoğu konuşmayı anlıyorum ama akıcı konuşurken kelime arayıp tıkanıyorum."),
-    realLife: t("İş toplantıları, okul projeleri, fikir belirtme ve deneyim aktarımı."),
-    color: '#6366F1',
-    image: cefrLevelImages.B1,
-  },
-  {
-    code: 'B2',
-    title: t("İyi Düzey"),
-    enTitle: t("Upper-Intermediate"),
-    desc: t("Rahat konuşuyorum, daha zengin deyimler ve akıcı tartışmalar istiyorum."),
-    realLife: t("Detaylı mülakatlar, teknik sunumlar, tartışmalar ve hızlı sohbetler."),
-    color: '#8B5CF6',
-    image: cefrLevelImages.B2,
-  },
-  {
-    code: 'C1',
-    title: t("İleri Düzey"),
-    enTitle: t("Advanced"),
-    desc: t("Karmaşık konularda akıcıyım, profesyonel nüanslar ve derinlik hedefliyorum."),
-    realLife: t("Strateji yönetimi, uluslararası müzakere ve akademik sunumlar."),
-    color: '#EC4899',
-    image: cefrLevelImages.C1,
-  },
-  {
-    code: 'C2',
-    title: t("Ustalık"),
-    enTitle: t("Mastery"),
-    desc: t("Anadili düzeyinde spontane akıcılık, derin kültürel deyimler ve mizah."),
-    realLife: t("Her ortamda anında, zahmetsiz ve kusursuz İngilizce."),
-    color: '#F59E0B',
-    image: cefrLevelImages.C2,
   },
 ];
 
@@ -292,7 +225,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
     id: 'regular',
     minutes: 10,
     title: t("Düzenli & Dengeli"),
-    desc: t("1 Canlı AI Konuşması + 1 Podcast Dinleme (En çok tercih edilen)"),
+    desc: t("Günde bir ders bölümü ve kısa bir kelime tekrarı (En çok tercih edilen)"),
     flameEmoji: '🔥',
     iconImage: require('../../assets/images/onboarding/pace_regular.webp'),
     badge: t("Önerilen 🌟"),

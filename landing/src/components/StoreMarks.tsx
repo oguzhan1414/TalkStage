@@ -1,4 +1,12 @@
 /** Store logos shared by the footer (and available to other sections). */
+export function AndroidMark() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="m7.1 3.1-1-1.6.8-.5 1.1 1.7a8.8 8.8 0 0 1 8 0L17.1 1l.8.5-1 1.6A6 6 0 0 1 20 8H4a6 6 0 0 1 3.1-4.9ZM8 5a.75.75 0 1 0 0 1.5A.75.75 0 0 0 8 5Zm8 0a.75.75 0 1 0 0 1.5A.75.75 0 0 0 16 5ZM4 9h16v9a1 1 0 0 1-1 1h-1v3a1 1 0 1 1-2 0v-3H8v3a1 1 0 1 1-2 0v-3H5a1 1 0 0 1-1-1V9ZM1.5 9A1.5 1.5 0 0 1 3 10.5v6a1.5 1.5 0 0 1-3 0v-6A1.5 1.5 0 0 1 1.5 9Zm21 0a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-3 0v-6A1.5 1.5 0 0 1 22.5 9Z" />
+    </svg>
+  );
+}
+
 export function AppleMark() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

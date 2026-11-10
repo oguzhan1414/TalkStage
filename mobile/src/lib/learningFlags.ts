@@ -25,6 +25,8 @@ const OUTBOX_KEY = 'learning_flags_outbox';
 
 /** Every local, per-user learning key written through `setLearningFlag` or next to it. */
 const LEARNING_KEY_PREFIXES = [
+  // the learning path's progress and level (lib/pathProgress.ts, lib/pathLevel.ts); the server keeps its own copy
+  'spekvia.path.',
   'lesson_quiz_done_',
   'topic_chat_completed_',
   'mission_completed_',

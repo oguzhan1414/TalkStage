@@ -1,54 +1,33 @@
-"use client";
-
-import { motion, useReducedMotion } from "motion/react";
-import HandPhone from "./HandPhone";
+import Image from "next/image";
 import StoreButtons from "./StoreButtons";
-import { MivoScreen } from "./AppScreens";
-import { useLocale, useT } from "@/i18n/client";
+import Marquee from "./Marquee";
+import { getLocale, getT } from "@/i18n/server";
 import { anchorId } from "@/i18n/paths";
 
-const EASE = [0.23, 1, 0.32, 1] as const;
-
-/** The close: a dark panel, the one action, and the hand lifting the phone in from the bottom edge. */
+/** The close: a violet field, the one action, and the whole cast standing on the bottom edge while Mivo hops. */
 export default function FinalCta() {
-  const t = useT();
-  const locale = useLocale();
-  const reduce = useReducedMotion();
-  const view = { once: true, margin: "-120px" } as const;
-
+  const t = getT();
   return (
-    <section id={anchorId("download", locale)} className="scroll-mt-16 px-3 pb-6 sm:px-5">
-      <div className="relative isolate mx-auto max-w-[88rem] overflow-hidden rounded-[2rem] bg-cloth px-6 pt-16 text-white sm:rounded-[2.75rem] sm:px-12 lg:pt-0">
-        <div aria-hidden className="absolute -left-24 -top-24 -z-10 h-96 w-96 rounded-full bg-[#4f46e5]/45 blur-[100px]" />
-        <div aria-hidden className="absolute -bottom-32 right-10 -z-10 h-96 w-96 rounded-full bg-[#7c5cff]/30 blur-[110px]" />
-        <div className="mx-auto grid max-w-6xl items-end gap-6 lg:grid-cols-[1.1fr_1fr]">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            viewport={view}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="lg:py-28"
-          >
-            <h2 className="text-balance font-display text-[2.6rem] font-extrabold leading-[1] tracking-[-0.035em] sm:text-[3.8rem]">{t("Bölüm 1 seni bekliyor.")}</h2>
-            <p className="mt-5 max-w-[32rem] text-pretty text-[1.1rem] leading-relaxed text-on-cloth">
-              {t("Maya Bristol’a yeni geldi. Kapısının altına bırakılan kartpostalları kim gönderiyor? Uygulamayı indir, ilk bölümü bugün oku.")}
-            </p>
-            <div className="mt-9">
-              <StoreButtons tone="cloth" location="closing" />
-            </div>
-          </motion.div>
+    <section id={anchorId("download", getLocale())} className="relative scroll-mt-10 overflow-hidden bg-violet text-white">
+      <Marquee
+        items={[t("Bugün başla"), t("Günde on dakika"), t("Hikâyeyle öğren."), t("Mivo ile konuş.")]}
+        speed={36}
+        reverse
+        className="poster -mx-4 -rotate-1 border-y-[2.5px] border-ink bg-sun py-3 text-[1.35rem] text-ink sm:py-4 sm:text-[1.9rem]"
+        sparks={["#5546F5", "#FF7A59", "#1B1647"]}
+      />
+      <div className="px-5 pt-20 text-center sm:px-10 sm:pt-28">
+        <p className="hand inline-block -rotate-2 text-[1.8rem] text-sun sm:text-[2.4rem]">{t("hadi, sıra sende")}</p>
+        <h2 className="poster mx-auto mt-1 max-w-[12ch] text-[clamp(3rem,9vw,8.5rem)] text-sun">{t("Bölüm 1 seni bekliyor.")}</h2>
+        <p className="mx-auto mt-6 max-w-[36rem] text-pretty text-[1.1rem] font-medium leading-relaxed text-white/85 sm:text-[1.28rem]">
+          {t("Maya Bristol’a yeni geldi. Kapısının altına bırakılan kartpostalları kim gönderiyor? Uygulamayı indir, ilk bölümü bugün oku.")}
+        </p>
+        <StoreButtons location="closing" on="dark" className="mt-10 justify-center" />
+        <p className="mt-6 text-[0.95rem] font-semibold text-white/70">{t("Ücretsiz başla. Kredi kartı gerekmez.")}</p>
 
-          <motion.div
-            initial={reduce ? false : { y: 160, rotate: -6, opacity: 0 }}
-            whileInView={{ y: 0, rotate: 0, opacity: 1 }}
-            viewport={view}
-            transition={{ type: "spring", duration: 1.3, bounce: 0.2, delay: 0.1 }}
-            className="relative mx-auto -mb-[18%] w-full max-w-[24rem] origin-bottom sm:max-w-[28rem]"
-          >
-            <HandPhone variant="tilt" label={t("Uygulamada Mivo ile sesli sahne")}>
-              <MivoScreen t={t} />
-            </HandPhone>
-          </motion.div>
+        <div className="mx-auto mt-14 flex max-w-[56rem] items-end justify-center sm:mt-20">
+          <Image src="/assets/cast/lineup.webp" alt="" width={980} height={714} sizes="(max-width: 640px) 76vw, 680px" className="-mb-2 h-auto w-[76%]" />
+          <Image src="/assets/mivo/success.webp" alt="" width={534} height={918} sizes="(max-width: 640px) 24vw, 215px" className="hop -ml-[3%] h-auto w-[24%]" />
         </div>
       </div>
     </section>
