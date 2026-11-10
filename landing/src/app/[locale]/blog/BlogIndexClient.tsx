@@ -120,6 +120,8 @@ const UI_STRINGS: Record<Locale, LocaleStrings> = {
   },
 };
 
+const CARD_COLORS = ["bg-sun", "bg-mint", "bg-sky", "bg-lilac", "bg-bubble"];
+
 export default function BlogIndexClient({ locale, initialPosts }: Props) {
   const ui = UI_STRINGS[locale] || UI_STRINGS.tr;
   const [activeCategory, setActiveCategory] = useState<string>(ui.allCategory);
@@ -129,8 +131,8 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
     const matchesCategory =
       activeCategory === ui.allCategory || post.category === activeCategory;
     const matchesSearch =
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      post.title.toLocaleLowerCase(locale).includes(searchQuery.trim().toLocaleLowerCase(locale)) ||
+      post.excerpt.toLocaleLowerCase(locale).includes(searchQuery.trim().toLocaleLowerCase(locale));
     return matchesCategory && matchesSearch;
   });
 
@@ -139,7 +141,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
   return (
     <>
       <Navbar />
-      <main className="flex-1 bg-white pb-20 sm:pb-28">
+      <main className="flex-1 overflow-x-clip bg-cream pb-20 text-ink sm:pb-28">
         <PageHero
           crumbs={[{ label: ui.homeLabel, href: "/" }, { label: ui.blogLabel }]}
           eyebrow={ui.eyebrow}
@@ -147,12 +149,13 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
           intro={ui.subtitle}
           art="headphones"
           tint="pink"
+          variant="poster"
         />
-        <div className="mx-auto mt-4 max-w-[88rem] px-4 sm:mt-5 sm:px-6">
+        <div className="mx-auto max-w-[80rem] px-5 pt-14 sm:px-10 sm:pt-20">
           {/* Live Search & Categories Filter */}
-          <div className="flex flex-col gap-5 rounded-[2rem] bg-paper p-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:p-3 sm:pl-4">
+          <div className="flex flex-col gap-7 lg:flex-row lg:items-start lg:justify-between">
             {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
               {ui.categories.map((cat) => {
                 const isActive = activeCategory === cat;
                 return (
@@ -160,10 +163,11 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                     key={cat}
                     type="button"
                     onClick={() => setActiveCategory(cat)}
-                    className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                    aria-pressed={isActive}
+                    className={`btn-pop btn-pop-wrap cursor-pointer px-4 py-2.5 text-[0.8rem] ${
                       isActive
-                        ? "bg-linear-to-r from-stage to-purple-pop text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.8)]"
-                        : "bg-white text-body hover:text-heading"
+                        ? "bg-ink text-cream"
+                        : "bg-cream text-ink hover:bg-sun"
                     }`}
                   >
                     {cat}
@@ -173,13 +177,14 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
             </div>
 
             {/* Search Input */}
-            <div className="relative w-full sm:w-72">
+            <div className="relative w-full shrink-0 lg:w-72">
               <input
-                type="text"
+                type="search"
+                aria-label={ui.searchPlaceholder}
                 placeholder={ui.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-transparent bg-white px-4 py-2.5 pl-9 text-xs text-heading placeholder:text-muted focus:border-stage focus:outline-none focus:ring-2 focus:ring-stage/20"
+                className="stk-sm w-full rounded-2xl bg-white py-3.5 pl-10 pr-4 text-sm font-medium text-ink placeholder:text-ink/50"
               />
               <svg
                 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
@@ -196,10 +201,10 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
 
           {/* Featured Hero Article (Only on All & No Search) */}
           {activeCategory === ui.allCategory && !searchQuery && featuredPost && (
-            <div className="mt-4 sm:mt-5">
+            <div className="mt-12">
               <Link
                 href={`/blog/${featuredPost.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-[2.25rem] bg-[#e6e0ff] p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lifted sm:rounded-[3rem] sm:p-5 lg:flex-row lg:gap-8"
+                className="stk group relative flex flex-col overflow-hidden rounded-[2rem] bg-mint p-4 transition-transform duration-200 hover:-translate-y-1 sm:p-5 lg:flex-row lg:gap-8"
               >
                 <div className="relative h-64 w-full shrink-0 overflow-hidden rounded-[1.75rem] bg-white sm:h-80 lg:h-auto lg:min-h-[22rem] lg:w-[52%] sm:rounded-[2.25rem]">
                   <Image
@@ -209,13 +214,13 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute left-4 top-4 rounded-full bg-heading/90 px-3 py-1 font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-white shadow-xs backdrop-blur-md">
+                  <span className="absolute left-4 top-4 max-w-[85%] rounded-full border-2 border-ink bg-sun px-3 py-1 text-xs font-bold text-ink">
                     {ui.featuredLabel}
                   </span>
                 </div>
 
                 <div className="mt-6 flex flex-1 flex-col justify-center px-2 pb-2 lg:mt-0 lg:pr-8">
-                  <div className="flex items-center gap-3 text-xs text-muted">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-ink/65">
                     <span className="font-semibold text-indigo">{featuredPost.category}</span>
                     <span>•</span>
                     <span>{featuredPost.readTime}</span>
@@ -223,7 +228,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                     <span>{featuredPost.date}</span>
                   </div>
 
-                  <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-heading transition-colors group-hover:text-indigo sm:text-3xl">
+                  <h2 className="poster mt-4 text-3xl text-ink sm:text-4xl">
                     {featuredPost.title}
                   </h2>
 
@@ -258,12 +263,12 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
 
           {/* Articles Grid */}
           {filteredPosts.length > 0 ? (
-            <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-              {filteredPosts.map((post) => (
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-7 lg:grid-cols-3">
+              {filteredPosts.map((post, i) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-[2rem] bg-paper p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:bg-paper-deep hover:shadow-lifted"
+                  className={`stk group flex min-w-0 flex-col overflow-hidden rounded-[2rem] p-3.5 transition-transform duration-200 hover:-translate-y-1 ${CARD_COLORS[i % CARD_COLORS.length]}`}
                 >
                   {/* Card Cover Image */}
                   <div className="relative h-52 w-full overflow-hidden rounded-[1.5rem] bg-white">
@@ -274,7 +279,7 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 font-mono text-[0.68rem] font-semibold text-indigo shadow-xs backdrop-blur-md">
+                    <span className="absolute left-3 top-3 max-w-[85%] rounded-xl border-2 border-ink bg-cream px-2.5 py-1 text-[0.7rem] font-bold text-ink">
                       {post.category}
                     </span>
                   </div>
@@ -282,17 +287,17 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
                   {/* Content */}
                   <div className="mt-4 flex flex-1 flex-col justify-between p-1">
                     <div>
-                      <div className="flex items-center gap-2 text-[0.75rem] text-muted">
+                      <div className="flex flex-wrap items-center gap-2 text-[0.75rem] font-semibold text-ink/65">
                         <span>{post.readTime}</span>
                         <span>•</span>
                         <span>{post.date}</span>
                       </div>
 
-                      <h3 className="mt-2 font-display text-base font-bold leading-snug text-heading transition-colors group-hover:text-indigo">
+                      <h3 className="mt-3 text-xl font-extrabold leading-snug text-ink transition-colors group-hover:text-violet">
                         {post.title}
                       </h3>
 
-                      <p className="mt-2 text-xs leading-relaxed text-body line-clamp-2">
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-ink/75">
                         {post.excerpt}
                       </p>
                     </div>
@@ -308,28 +313,28 @@ export default function BlogIndexClient({ locale, initialPosts }: Props) {
               ))}
             </div>
           ) : (
-            <div className="mt-4 rounded-[2rem] bg-paper py-14 text-center">
+            <div role="status" className="stk mt-10 rounded-[2rem] bg-lilac px-6 py-14 text-center">
               <p className="text-sm text-muted">{ui.emptyState}</p>
             </div>
           )}
 
           {/* Bottom call to action */}
-          <div className="relative mt-4 overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffefc2] via-[#fff7e0] to-[#ffe6cf] sm:mt-5 sm:rounded-[3rem]">
+          <div className="stk relative mt-16 overflow-hidden rounded-[2rem] bg-violet text-cream sm:mt-20">
             <div className="grid items-end lg:grid-cols-[1.4fr_0.6fr]">
               <div className="p-7 sm:p-12 lg:p-16">
-                <h3 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-heading sm:text-4xl">{ui.ctaTitle}</h3>
-                <p className="mt-3 max-w-md text-[1.02rem] text-heading/70">{ui.ctaSubtitle}</p>
+                <h3 className="poster text-4xl text-sun sm:text-5xl">{ui.ctaTitle}</h3>
+                <p className="mt-4 max-w-md text-[1.02rem] font-medium leading-relaxed text-cream/85">{ui.ctaSubtitle}</p>
                 <div className="mt-7">
                   <Link
                     href="/#download"
-                    className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-stage to-purple-pop px-8 py-4 text-sm font-bold text-white shadow-[0_22px_44px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                    className="btn-pop btn-pop-wrap bg-sun px-7 py-4 text-sm text-ink"
                   >
                     <span>{ui.ctaButton}</span>
                   </Link>
                 </div>
               </div>
               <div aria-hidden className="relative mx-auto h-[12rem] w-[9.6rem] sm:h-[16rem] sm:w-[12.8rem] lg:mr-10 lg:h-[19rem] lg:w-[15.2rem]">
-                <Image src="/mivo/stops/mivo_stop_cards.webp" alt="" fill sizes="240px" className="object-contain object-bottom drop-shadow-[0_24px_28px_rgba(21,18,58,0.25)]" />
+                <Image src="/assets/mivo/guide.webp" alt="" fill sizes="240px" className="object-contain object-bottom drop-shadow-[0_24px_28px_rgba(21,18,58,0.25)]" />
               </div>
             </div>
           </div>

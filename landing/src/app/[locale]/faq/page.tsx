@@ -7,7 +7,6 @@ import JsonLd from "@/components/JsonLd";
 import { breadcrumbSchema, faqSchema, webPageSchema } from "@/i18n/schema";
 import { FAQ_ITEMS } from "@/data/faqData";
 import { pageLocale, pageMetadata, type PageProps } from "@/i18n/page";
-import { tr } from "@/i18n/shared";
 
 export async function generateMetadata({ params }: PageProps) {
   const locale = await pageLocale(params);
@@ -31,7 +30,7 @@ export default async function SssPage({ params }: PageProps) {
       ]} />
       <JsonLd data={faqSchema(locale, FAQ_ITEMS.map((f) => ({ q: t(f.question), a: t(f.answer) })), "/faq")} />
       <Navbar />
-      <main className="flex-1 bg-white pb-20 sm:pb-28">
+      <main className="flex-1 overflow-x-clip bg-cream pb-20 text-ink sm:pb-28">
         <PageHero
           crumbs={[{ label: t("Ana Sayfa"), href: "/" }, { label: t("Sıkça Sorulan Sorular") }]}
           eyebrow={t("Sıkça Sorulan Sorular")}
@@ -39,6 +38,7 @@ export default async function SssPage({ params }: PageProps) {
           intro={t("Sahneler, Mivo, düzeltmeler, kelime çalışması ve abonelik hakkında en çok sorulanlar.")}
           art="notebook"
           tint="mint"
+          variant="poster"
         />
         <Faq />
       </main>

@@ -5,31 +5,54 @@ import { androidStoreUrl, iosStoreUrl } from "@/lib/links";
 import { trackEvent } from "@/lib/analytics";
 import { useT } from "@/i18n/client";
 
-/** The two store buttons. `tone="cloth"` sits on the indigo cover, `tone="page"` on paper. */
-export default function StoreButtons({ tone, location }: { tone: "cloth" | "page"; location: string }) {
+/**
+ * The two store buttons as sinking pills. `on="dark"` is for ink and violet grounds, where the dark pill would vanish.
+ */
+export default function StoreButtons({
+  location,
+  on = "light",
+  size = "lg",
+  className = "",
+}: {
+  location: string;
+  on?: "light" | "dark";
+  size?: "md" | "lg";
+  className?: string;
+}) {
   const t = useT();
-  const base =
-    "press inline-flex min-w-[11.5rem] items-center gap-3 rounded-2xl px-5 py-3 focus-visible:outline-offset-4";
-  const look =
-    tone === "cloth"
-      ? "bg-page text-cloth-deep shadow-[0_14px_24px_-14px_rgba(0,0,0,0.6)] hover:bg-white"
-      : "bg-cloth text-white shadow-[0_14px_24px_-14px_rgba(24,20,77,0.7)] hover:bg-cloth-deep";
-  const sub = tone === "cloth" ? "text-cloth/60" : "text-on-cloth/70";
+  const pad = size === "lg" ? "min-h-[3.6rem] px-6 py-2.5" : "min-h-[3.1rem] px-5 py-2";
+  const first = on === "dark" ? "bg-sun text-ink" : "bg-ink text-white";
+  const second = "bg-white text-ink";
   const stores = [
-    { href: iosStoreUrl, mark: <AppleMark />, name: t("App Store"), store: "ios" },
-    { href: androidStoreUrl, mark: <PlayMark />, name: t("Google Play"), store: "android" },
+    { href: androidStoreUrl, mark: <PlayMark />, name: t("Google Play"), store: "android", look: first },
+    { href: iosStoreUrl, mark: <AppleMark />, name: t("App Store"), store: "ios", look: second },
   ];
   return (
-    <div className="flex flex-wrap gap-3">
-      {stores.map((s) => (
-        <a key={s.store} href={s.href} onClick={() => trackEvent("cta_clicked", { location, store: s.store })} className={`${base} ${look}`}>
+    <div className={`flex flex-wrap gap-x-4 gap-y-5 ${className}`}>
+      {stores.map((s) => {
+        const content = <>
           {s.mark}
-          <span className="text-left leading-tight">
-            <span className={`block text-[0.66rem] font-semibold ${sub}`}>{t("İndir")}</span>
-            <span className="block text-[1rem] font-bold">{s.name}</span>
+          <span className="min-w-0 text-left leading-tight">
+            <span className="block text-[0.66rem] font-bold uppercase tracking-[0.08em] opacity-70">{s.href ? t("İndir") : t("Yakında")}</span>
+            <span lang="en" className="block text-[1.05rem] font-extrabold">{s.name}</span>
           </span>
-        </a>
-      ))}
+        </>;
+
+        return s.href ? (
+          <a
+            key={s.store}
+            href={s.href}
+            onClick={() => trackEvent("cta_clicked", { location, store: s.store })}
+            className={`btn-pop ${pad} ${s.look}`}
+          >
+            {content}
+          </a>
+        ) : (
+          <span key={s.store} aria-disabled="true" className={`inline-flex items-center justify-center gap-2.5 rounded-full border-[2.5px] border-ink/40 ${pad} ${s.look} opacity-65`}>
+            {content}
+          </span>
+        );
+      })}
     </div>
   );
 }

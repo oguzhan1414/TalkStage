@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     openGraph: {
       title,
       description,
-      images: [{ url: `/og/og-${locale}.jpg`, width: 1200, height: 630, alt: ogAlt }],
+      images: [{ url: `/assets/share/${locale}.jpg`, width: 1200, height: 630, alt: ogAlt }],
       locale: LOCALE_META[locale].ogLocale,
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => LOCALE_META[l].ogLocale),
       type: "website",
     },
-    twitter: { card: "summary_large_image", title, description, images: [`/og/og-${locale}.jpg`] },
-    icons: { icon: "/brand/spekvia-app-icon.png", apple: "/brand/spekvia-app-icon.png" },
+    twitter: { card: "summary_large_image", title, description, images: [`/assets/share/${locale}.jpg`] },
+    icons: { icon: "/assets/brand/app-icon.png", apple: "/assets/brand/app-icon.png" },
     // Already localized into 5 languages: do not let Chrome/Google offer to (mis)translate the page again.
     other: { google: "notranslate" },
   };

@@ -1,0 +1,74 @@
+{
+  "copies": {
+    "brand/app-icon.png": "mobile/assets/icon.png",
+    "brand/wordmark.webp": "mobile/assets/images/brand/spekvia_wordmark.webp",
+    "story/home.webp": "mobile/assets/images/home/home.webp",
+    "story/a1-e01.webp": "mobile/assets/images/path/a1_e01.webp",
+    "story/a1-e14.webp": "mobile/assets/images/path/a1_e14.webp",
+    "story/a2-e01.webp": "mobile/assets/images/path/a2_e01.webp",
+    "story/b1-e01.webp": "mobile/assets/images/path/b1/covers/b1_e01.webp",
+    "story/b2-e01.webp": "mobile/assets/images/path/b2/covers/b2_e01.webp",
+    "story/c1-e01.webp": "mobile/assets/images/path/c1/covers/c1_e01.webp",
+    "story/c2-e01.webp": "mobile/assets/images/path/c2/covers/c2_e01.webp",
+    "story/kitchen.webp": "mobile/assets/images/rooms/kitchen.webp"
+  },
+  "mivo": {
+    "idle": "mivo_idle",
+    "wave": "mivo_wave",
+    "speaking": "mivo_speaking",
+    "thinking": "mivo_thinking",
+    "success": "mivo_success",
+    "guide": "mivo_lesson_guide",
+    "listening": "mivo_listening",
+    "pro": "mivo_pro",
+    "invite": "mivo_chat_invite",
+    "bust": "mivo_voice_wait"
+  },
+  "features": {
+    "partner": "goal_partner",
+    "work": "goal_work",
+    "travel": "goal_travel",
+    "freeze": "struggle_freeze",
+    "listening": "struggle_listening",
+    "vocab": "struggle_vocab",
+    "grammar": "struggle_grammar",
+    "stories": "tour_stories",
+    "scenes": "tour_scenes",
+    "review": "tour_review"
+  },
+  "cast": ["maya", "leo", "rosa", "tom", "patel", "ana"],
+  "curated": [
+    "cast/maya.webp", "cast/leo.webp", "cast/rosa.webp",
+    "cast/tom.webp", "cast/patel.webp", "cast/ana.webp", "cast/lineup.webp",
+    "photography/hand-phone-front.webp", "photography/hand-phone-tilt.webp",
+    "screens/today.webp", "screens/words.webp", "screens/talk.webp", "screens/mistakes.webp",
+    "screens/scenes.webp", "screens/rooms.webp", "screens/library.webp", "screens/pronounce.webp",
+    "screens/marketing/today.webp", "screens/marketing/words.webp",
+    "screens/marketing/talk.webp", "screens/marketing/mistakes.webp",
+    "screens/marketing/en/today.webp", "screens/marketing/en/words.webp",
+    "screens/marketing/en/talk.webp", "screens/marketing/en/mistakes.webp",
+    "screens/marketing/es/today.webp", "screens/marketing/es/words.webp",
+    "screens/marketing/es/talk.webp", "screens/marketing/es/mistakes.webp",
+    "screens/marketing/pt/today.webp", "screens/marketing/pt/words.webp",
+    "screens/marketing/pt/talk.webp", "screens/marketing/pt/mistakes.webp",
+    "screens/marketing/de/today.webp", "screens/marketing/de/words.webp",
+    "screens/marketing/de/talk.webp", "screens/marketing/de/mistakes.webp"
+  ],
+  "covers": {
+    "speaking": { "pose": "speaking", "feature": "partner", "background": "#E4E1FF" },
+    "pronunciation": { "pose": "listening", "feature": "listening", "background": "#D2EDF5" },
+    "vocabulary": { "pose": "guide", "feature": "vocab", "background": "#FFEDB5" },
+    "grammar": { "pose": "thinking", "feature": "grammar", "background": "#D3F0DF" },
+    "career": { "pose": "pro", "feature": "work", "background": "#E6E2FB" },
+    "travel": { "pose": "wave", "feature": "travel", "background": "#A9D8FF" },
+    "habits": { "pose": "success", "feature": "review", "background": "#FFDCD2" },
+    "stories": { "pose": "invite", "feature": "stories", "background": "#D3F0DF" }
+  },
+  "share": {
+    "tr": ["İngilizceyi hikâyeyle öğren.", "Mivo ile konuş."],
+    "en": ["Learn English through stories.", "Speak with Mivo."],
+    "es": ["Aprende inglés con historias.", "Habla con Mivo."],
+    "pt": ["Aprenda inglês com histórias.", "Fale com Mivo."],
+    "de": ["Lerne Englisch mit Geschichten.", "Sprich mit Mivo."]
+  }
+}

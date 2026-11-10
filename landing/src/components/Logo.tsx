@@ -1,16 +1,16 @@
 import Image from "next/image";
 
-/** Spekvia wordmark (transparent PNG). `tone="light"` is the white variant for dark backgrounds. */
-export default function Logo({ className = "", tone = "dark" }: { className?: string; tone?: "dark" | "light" }) {
+/** The mobile wordmark; a CSS filter supplies the white tone on dark backgrounds. */
+export default function Logo({ className = "", tone = "dark" }: { className?: string; tone?: "dark" | "light" | "ink" }) {
   return (
     <span className={`inline-flex items-center ${className}`}>
       <Image
-        src={tone === "light" ? "/brand/spekvia-wordmark-white.png" : "/brand/spekvia-wordmark.png"}
+        src="/assets/brand/wordmark.webp"
         alt="Spekvia"
-        width={1200}
-        height={355}
+        width={520}
+        height={144}
         sizes="140px"
-        className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
+        className={`h-8 w-auto transition-transform duration-300 group-hover:scale-105 ${tone === "light" ? "brightness-0 invert" : tone === "ink" ? "brightness-0" : ""}`}
         priority
       />
     </span>

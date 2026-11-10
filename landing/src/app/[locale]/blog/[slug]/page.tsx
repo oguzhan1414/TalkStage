@@ -258,10 +258,9 @@ export default async function BlogPostPage({ params }: Props) {
         ]}
       />
       <Navbar />
-      <main className="flex-1 bg-white pb-20 sm:pb-28">
-        <section className="px-4 pt-24 sm:px-6 sm:pt-28">
-          <div className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffdfe9] via-[#fff0f5] to-[#e9e4ff] p-7 sm:rounded-[3rem] sm:p-12 lg:p-16">
-            <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-white/60 blur-3xl" />
+      <main className="flex-1 overflow-x-clip bg-cream pb-20 text-ink sm:pb-28">
+        <section className="border-b-[2.5px] border-ink bg-bubble px-5 pb-12 pt-28 sm:px-10 sm:pb-16 sm:pt-36">
+          <div className="relative mx-auto max-w-[80rem]">
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="relative flex flex-wrap items-center gap-2 font-mono text-xs text-heading/55">
               <Link href="/" className="transition-colors hover:text-stage">
@@ -278,7 +277,7 @@ export default async function BlogPostPage({ params }: Props) {
             {/* Article Header */}
             <header className="relative mt-6 max-w-4xl">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
-                <span className="rounded-full bg-white px-3 py-1 font-semibold text-stage shadow-layered">{post.category}</span>
+                <span className="stk-sm rounded-full bg-sun px-3 py-1.5 font-bold text-ink">{post.category}</span>
                 <span className="text-heading/60">{post.readTime}</span>
                 <span className="text-heading/40">•</span>
                 <time dateTime={post.datePublished} className="text-heading/60">
@@ -286,7 +285,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </time>
               </div>
 
-              <h1 className="mt-5 text-balance font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-heading sm:text-5xl lg:text-6xl">
+              <h1 className="poster mt-6 break-words text-[clamp(2.1rem,4.8vw,5rem)] text-ink">
                 {post.title}
               </h1>
 
@@ -314,7 +313,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         <article className="mx-auto max-w-4xl px-6 pt-10">
           {/* Cover */}
-          <div className="relative mb-10 overflow-hidden rounded-[2rem] bg-paper p-2 shadow-lifted sm:rounded-[2.5rem] sm:p-3">
+          <div className="stk relative mb-10 overflow-hidden rounded-[2rem] bg-sky p-2 sm:p-3">
             <Image
               src={post.coverImage}
               alt={post.coverAlt}
@@ -326,7 +325,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
 
           {/* Summary (answer-first) */}
-          <aside aria-label={ui.inBrief} className="my-8 rounded-2xl border border-indigo/20 bg-indigo/5 p-6">
+          <aside aria-label={ui.inBrief} className="stk-sm my-8 rounded-2xl bg-sun p-6">
             <h2 className="font-display text-sm font-bold uppercase tracking-wider text-indigo">{ui.inBrief}</h2>
             <ul className="mt-3 space-y-2.5 text-[0.97rem] leading-relaxed text-heading">
               {post.summary.map((item, i) => (
@@ -340,7 +339,7 @@ export default async function BlogPostPage({ params }: Props) {
 
           {/* Table of contents */}
           {post.tableOfContents.length > 1 && (
-            <nav aria-label={ui.tableOfContents} className="my-8 rounded-2xl border border-line bg-porcelain p-6">
+            <nav aria-label={ui.tableOfContents} className="stk-sm my-8 rounded-2xl bg-sky/50 p-6">
               <h2 className="font-display text-sm font-bold uppercase tracking-wider text-heading">{ui.tableOfContents}</h2>
               <ol className="mt-3 space-y-2 text-sm">
                 {post.tableOfContents.map((item, idx) => (
@@ -550,22 +549,22 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {/* CTA Banner */}
-          <div className="relative my-14 overflow-hidden rounded-[2.25rem] bg-linear-to-br from-[#ffefc2] via-[#fff7e0] to-[#ffe6cf] sm:rounded-[3rem]">
+          <div className="stk relative my-14 overflow-hidden rounded-[2rem] bg-violet text-cream">
             <div className="grid items-end sm:grid-cols-[1fr_auto]">
               <div className="p-7 sm:p-10">
-                <h2 className="font-display text-2xl font-extrabold tracking-[-0.025em] text-heading sm:text-3xl">{ui.ctaTitle}</h2>
-                <p className="mt-2 max-w-md text-[0.97rem] text-heading/70">{ui.ctaSubtitle}</p>
+                <h2 className="poster text-3xl text-sun sm:text-4xl">{ui.ctaTitle}</h2>
+                <p className="mt-4 max-w-md text-[0.97rem] text-cream/85">{ui.ctaSubtitle}</p>
                 <div className="mt-6">
                   <Link
                     href="/#download"
-                    className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-stage to-purple-pop px-7 py-3.5 text-sm font-bold text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                    className="btn-pop btn-pop-wrap bg-sun px-7 py-3.5 text-sm text-ink"
                   >
                     <span>{ui.ctaButton}</span>
                   </Link>
                 </div>
               </div>
               <div aria-hidden className="relative mx-auto hidden h-[14rem] w-[11.2rem] sm:mr-8 sm:block">
-                <Image src="/mivo/stops/mivo_stop_mic.webp" alt="" fill sizes="190px" className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(21,18,58,0.25)]" />
+                <Image src="/assets/mivo/speaking.webp" alt="" fill sizes="190px" className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(21,18,58,0.25)]" />
               </div>
             </div>
           </div>
@@ -579,7 +578,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <Link
                     key={related.slug}
                     href={`/blog/${related.slug}`}
-                    className="group rounded-[1.5rem] bg-paper p-5 transition-all hover:-translate-y-1 hover:bg-paper-deep"
+                    className="stk-sm group rounded-[1.5rem] bg-mint/60 p-5 transition-transform hover:-translate-y-1"
                   >
                     <span className="text-[0.7rem] font-semibold text-indigo">{related.category}</span>
                     <h3 className="mt-1 font-display text-sm font-bold text-heading group-hover:text-indigo transition-colors line-clamp-3">

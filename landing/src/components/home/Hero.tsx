@@ -1,154 +1,146 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
-import { Check, Star } from "lucide-react";
-import HandPhone from "./HandPhone";
+import { useRef } from "react";
+import { motion, useMotionValue, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
 import StoreButtons from "./StoreButtons";
-import { HomeScreen, LessonScreen, MivoScreen, RoomScreen } from "./AppScreens";
+import Device from "./Device";
+import { useCalm } from "./useMedia";
 import { useLocale, useT } from "@/i18n/client";
 import { anchorId } from "@/i18n/paths";
 
-const SCREENS = [HomeScreen, LessonScreen, MivoScreen, RoomScreen];
-const EASE = [0.23, 1, 0.32, 1] as const;
+const SPRING = { type: "spring", stiffness: 210, damping: 20 } as const;
 
-/** Opening: words settle in, a hand lifts the phone from the panel's edge, the screen flips through the app. */
+/** The app's small object characters, stuck around the headline. `depth` is how far each one follows the pointer. */
+const STICKERS = [
+  { src: "/assets/features/stories.webp", depth: 34, delay: 0.55, cls: "left-[2%] top-[39%] w-[4.6rem] -rotate-12 sm:top-[17%] sm:w-[7rem] lg:left-[5%] lg:w-[9.5rem]" },
+  { src: "/assets/features/partner.webp", depth: -28, delay: 0.65, cls: "right-[2%] top-[41%] w-[4.4rem] rotate-12 sm:top-[15%] sm:w-[6.6rem] lg:right-[6%] lg:w-[8.5rem]" },
+  { src: "/assets/features/scenes.webp", depth: 20, delay: 0.8, cls: "left-[12%] top-[47%] hidden w-[6.5rem] rotate-6 lg:block xl:left-[14%]" },
+  { src: "/assets/features/travel.webp", depth: -36, delay: 0.9, cls: "right-[11%] top-[45%] hidden w-[7rem] -rotate-6 lg:block xl:right-[13%]" },
+];
+
+function Sticker({ s, mx, my }: { s: (typeof STICKERS)[number]; mx: MotionValue<number>; my: MotionValue<number> }) {
+  const x = useTransform(mx, (v) => v * s.depth);
+  const y = useTransform(my, (v) => v * s.depth);
+  return (
+    <motion.div aria-hidden className={`pointer-events-none absolute z-10 ${s.cls}`} style={{ x, y }}>
+      <motion.div initial={{ scale: 0, rotate: -40 }} animate={{ scale: 1, rotate: 0 }} transition={{ ...SPRING, delay: s.delay }}>
+        <Image src={s.src} alt="" width={320} height={320} sizes="160px" className="floaty h-auto w-full drop-shadow-[4px_5px_0_rgba(27,22,71,0.9)]" style={{ "--d": `${5 + s.delay * 3}s` } as React.CSSProperties} />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/** The opening: a sun-yellow field, the headline in poster caps, and three designed screens rising out of the bottom edge. */
 export default function Hero() {
   const t = useT();
   const locale = useLocale();
-  const reduce = useReducedMotion();
+  const calm = useCalm();
   const section = useRef<HTMLElement>(null);
-  const [screen, setScreen] = useState(0);
 
-  useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(() => setScreen((s) => (s + 1) % SCREENS.length), 3200);
-    return () => clearInterval(id);
-  }, [reduce]);
-
-  // Leaving the hero: the hand rises a little slower than the page and eases back.
+  // The phones spread and the words drift up while the section leaves the screen.
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
-  const handY = useTransform(scrollYProgress, [0, 1], [0, -90]);
-  const handScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const p = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 });
+  const midY = useTransform(p, [0, 1], [0, -90]);
+  const leftX = useTransform(p, [0, 1], [0, -70]);
+  const leftR = useTransform(p, [0, 1], [-9, -19]);
+  const rightX = useTransform(p, [0, 1], [0, 70]);
+  const rightR = useTransform(p, [0, 1], [9, 19]);
+  const mivoY = useTransform(p, [0, 1], [0, 60]);
+  const still = <T,>(v: T) => (calm ? undefined : v);
 
-  // Floating cards drift toward the pointer on a spring (decorative only).
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 80, damping: 18 });
-  const sy = useSpring(my, { stiffness: 80, damping: 18 });
-  const nearX = useTransform(sx, (v) => v * 18);
-  const nearY = useTransform(sy, (v) => v * 18);
-  const farX = useTransform(sx, (v) => v * -10);
-  const farY = useTransform(sy, (v) => v * -10);
-
-  const onMove = (e: React.PointerEvent) => {
-    if (e.pointerType !== "mouse" || reduce) return;
+  // Stickers lean toward the pointer on devices that have one.
+  const mx = useSpring(useMotionValue(0), { stiffness: 90, damping: 18 });
+  const my = useSpring(useMotionValue(0), { stiffness: 90, damping: 18 });
+  const onMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (calm || e.pointerType !== "mouse") return;
     const r = e.currentTarget.getBoundingClientRect();
     mx.set((e.clientX - r.left) / r.width - 0.5);
     my.set((e.clientY - r.top) / r.height - 0.5);
   };
 
-  const Screen = SCREENS[screen];
-  const rise = (delay: number) => ({
-    initial: { opacity: 0, y: 24, filter: "blur(8px)" },
-    animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-    transition: { duration: 0.8, delay, ease: EASE },
+  const word = (delay: number) => ({
+    initial: { opacity: 0, y: 70, rotate: 4 },
+    animate: { opacity: 1, y: 0, rotate: 0 },
+    transition: { ...SPRING, delay },
   });
 
   return (
-    <section ref={section} id={anchorId("top", locale)} className="px-3 pt-3 sm:px-5 sm:pt-5" onPointerMove={onMove}>
-      <div className="relative isolate mx-auto max-w-[88rem] overflow-hidden rounded-[2rem] bg-[#f4f2fe] sm:rounded-[2.75rem]">
-        <div aria-hidden className="absolute -right-32 top-10 -z-10 h-[36rem] w-[36rem] rounded-full bg-white blur-[80px]" />
-        <div aria-hidden className="absolute -left-40 bottom-0 -z-10 h-[28rem] w-[28rem] rounded-full bg-[#e3e0ff] blur-[90px]" />
+    <section ref={section} id={anchorId("top", locale)} onPointerMove={onMove} className="relative isolate overflow-hidden bg-sun pt-[6.5rem] text-ink sm:pt-36">
+      {STICKERS.map((s) => (
+        <Sticker key={s.src} s={s} mx={mx} my={my} />
+      ))}
 
-        <div className="mx-auto grid max-w-6xl items-center gap-4 px-5 pt-28 sm:px-10 lg:min-h-[min(100svh,60rem)] lg:grid-cols-[1.05fr_1fr] lg:pt-24">
-          <motion.div style={{ opacity: copyOpacity }} className="pb-4 lg:pb-24">
-            <motion.h1 {...rise(0.05)} className="text-balance font-display text-[2.8rem] font-extrabold leading-[1.02] tracking-[-0.035em] text-cloth-deep sm:text-[4rem] lg:text-[4.5rem]">
-              {t("İngilizceyi hikâyeyle öğren, Mivo ile konuş.")}
-            </motion.h1>
-            <motion.p {...rise(0.18)} className="mt-6 max-w-[31rem] text-pretty text-[1.1rem] leading-relaxed text-body sm:text-[1.2rem]">
-              {t("Her gün 5–10 dakikalık bir hikâye bölümü. Kelimeler ve dil bilgisi hikâyenin içinde, ünite sonunda Mivo ile sesli bir sahne.")}
-            </motion.p>
-            <motion.div {...rise(0.3)} className="mt-9">
-              <StoreButtons tone="page" location="hero" />
+      <div className="relative z-20 mx-auto max-w-[90rem] px-5 text-center sm:px-10">
+        <motion.p {...word(0.05)} className="hand inline-block -rotate-3 text-[1.7rem] text-violet sm:text-[2.3rem]">
+          {t("İngilizce, hayatın içinde.")}
+        </motion.p>
+        <h1 className="poster mx-auto mt-2 text-[clamp(2.35rem,8.2vw,8.25rem)] sm:mt-3">
+          <motion.span {...word(0.14)} className="block">
+            {t("Hikâyeyle öğren.")}
+          </motion.span>
+          <motion.span {...word(0.26)} className="block text-violet">
+            {t("Mivo ile konuş.")}
+          </motion.span>
+        </h1>
+        <motion.p {...word(0.4)} className="mx-auto mt-6 max-w-[37rem] text-pretty text-[1.08rem] font-medium leading-relaxed text-ink/80 sm:mt-8 sm:text-[1.25rem]">
+          {t("Her gün bir hikâye. Yeni kelimeler, küçük keşifler ve Mivo ile gerçek bir konuşma. İngilizceyi günlük hayatının bir parçası yap.")}
+        </motion.p>
+        <motion.div {...word(0.52)} className="mt-8 flex flex-col items-center gap-5 sm:mt-10">
+          <StoreButtons location="hero" className="justify-center" />
+          <p className="text-[0.92rem] font-semibold text-ink/70">{t("Ücretsiz başla. Kredi kartı gerekmez.")}</p>
+        </motion.div>
+      </div>
+
+      {/* Three marketing screens, cropped by the bottom edge. */}
+      <div className="relative z-10 mx-auto mt-12 h-[clamp(19rem,45vw,35rem)] w-full max-w-[76rem] sm:mt-16">
+        <div className="absolute left-1/2 top-[13%] z-10 w-[clamp(9.5rem,21vw,16.5rem)] -translate-x-[150%]">
+          <motion.div initial={{ y: 320, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ ...SPRING, delay: 0.62 }}>
+            <motion.div style={still({ x: leftX, rotate: leftR }) ?? { rotate: -9 }}>
+              <Device screen="words" sizes="(max-width: 640px) 40vw, 264px" />
             </motion.div>
-            <motion.p {...rise(0.4)} className="mt-4 text-[0.9rem] text-muted">
-              {t("Ücretsiz başla. Kredi kartı gerekmez.")}
-            </motion.p>
           </motion.div>
-
-          <div className="relative mx-auto w-full max-w-[25rem] self-end sm:max-w-[30rem] lg:max-w-[34rem]">
-            <motion.div style={{ y: handY, scale: handScale }} className="origin-bottom">
-              <motion.div
-                initial={reduce ? false : { y: 160, rotate: 6, opacity: 0 }}
-                animate={{ y: 0, rotate: 0, opacity: 1 }}
-                transition={{ type: "spring", duration: 1.3, bounce: 0.18, delay: 0.15 }}
-                className="-mb-[4%] origin-bottom"
-              >
-                <HandPhone priority label={t("Uygulamanın ana ekranı: bugünkü bölüm")}>
-                  <AnimatePresence initial={false}>
-                    <motion.div
-                      key={screen}
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, scale: 1.04, filter: "blur(6px)" }}
-                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, filter: "blur(6px)" }}
-                      transition={{ duration: 0.55, ease: EASE }}
-                    >
-                      <Screen t={t} />
-                    </motion.div>
-                  </AnimatePresence>
-                </HandPhone>
-              </motion.div>
-            </motion.div>
-
-            {/* floating cards around the phone */}
-            <motion.div style={{ x: nearX, y: nearY }} className="pointer-events-none absolute left-[-4%] top-[20%] sm:left-[-10%]">
-              <motion.div
-                initial={reduce ? false : { opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ type: "spring", duration: 0.7, bounce: 0.3, delay: 1.1 }}
-                className="float-slow flex items-center gap-2 rounded-2xl bg-white px-3.5 py-2.5 shadow-[0_18px_30px_-16px_rgba(21,18,58,0.35)]"
-              >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald/15 text-emerald">
-                  <Check aria-hidden className="h-4 w-4" strokeWidth={3} />
-                </span>
-                <span lang="en" className="font-story text-[0.95rem] text-cloth-deep">
-                  I&apos;m from Turkey.
-                </span>
-              </motion.div>
-            </motion.div>
-
-            <motion.div style={{ x: farX, y: farY }} className="pointer-events-none absolute right-[-2%] top-[8%] sm:right-[-6%]">
-              <motion.div
-                initial={reduce ? false : { opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ type: "spring", duration: 0.7, bounce: 0.3, delay: 1.3 }}
-                className="float-slow flex items-center gap-1.5 rounded-full bg-white px-3 py-2 shadow-[0_18px_30px_-16px_rgba(21,18,58,0.35)] [animation-delay:-3s]"
-              >
-                {[0, 1, 2].map((i) => (
-                  <Star key={i} aria-hidden className={`h-4 w-4 ${i < 2 ? "fill-marker text-marker" : "text-cloth/20"}`} />
-                ))}
-              </motion.div>
-            </motion.div>
-
-            <motion.div style={{ x: farX, y: nearY }} className="pointer-events-none absolute bottom-[30%] right-[-4%] sm:right-[-12%]">
-              <motion.div
-                initial={reduce ? false : { opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ type: "spring", duration: 0.7, bounce: 0.3, delay: 1.5 }}
-                className="float-slow flex items-center gap-2 rounded-2xl bg-white py-1.5 pl-1.5 pr-3.5 shadow-[0_18px_30px_-16px_rgba(21,18,58,0.35)] [animation-delay:-5s]"
-              >
-                <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#eef2ff]">
-                  <Image src="/mivo/idle.webp" alt="" width={36} height={44} className="mt-2.5 h-9 w-auto" />
-                </span>
-                <span className="text-[0.85rem] font-semibold text-cloth-deep">{t("Mivo ile konuş")}</span>
-              </motion.div>
-            </motion.div>
-          </div>
         </div>
+        <div className="absolute left-1/2 top-[13%] z-10 w-[clamp(9.5rem,21vw,16.5rem)] translate-x-[50%]">
+          <motion.div initial={{ y: 320, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ ...SPRING, delay: 0.72 }}>
+            <motion.div style={still({ x: rightX, rotate: rightR }) ?? { rotate: 9 }}>
+              <Device screen="talk" sizes="(max-width: 640px) 40vw, 264px" />
+            </motion.div>
+          </motion.div>
+        </div>
+        <div className="absolute left-1/2 top-0 z-20 w-[clamp(11.5rem,25vw,19.5rem)] -translate-x-1/2">
+          <motion.div initial={{ y: 360, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ ...SPRING, delay: 0.5 }}>
+            <motion.div style={still({ y: midY })}>
+              <Device screen="today" priority sizes="(max-width: 640px) 50vw, 312px" alt={t("Uygulamanın ana ekranı: bugünkü bölüm")} />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Mivo waves in front of the phones and says hello. */}
+        <div className="absolute bottom-0 left-[1%] z-30 h-[66%] sm:left-[4%] sm:h-[84%] lg:left-[7%]">
+          <motion.div className="relative h-full" initial={{ x: -200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ ...SPRING, delay: 0.95 }} style={still({ y: mivoY })}>
+            <Image src="/assets/mivo/wave.webp" alt="" width={433} height={918} sizes="(max-width: 640px) 110px, 230px" priority className="h-full w-auto max-w-none" />
+            <motion.span
+              lang="en"
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: -6 }}
+              transition={{ ...SPRING, delay: 1.35 }}
+              className="stk-sm absolute -top-3 left-[72%] origin-bottom-left whitespace-nowrap rounded-[1.2rem] rounded-bl-[0.3rem] bg-white px-3.5 py-1.5 text-[0.95rem] font-extrabold sm:-top-2 sm:px-5 sm:py-2.5 sm:text-[1.25rem]"
+            >
+              Hello!
+            </motion.span>
+          </motion.div>
+        </div>
+        <motion.span
+          lang="en"
+          aria-hidden
+          initial={{ scale: 0, rotate: 20 }}
+          animate={{ scale: 1, rotate: 7 }}
+          transition={{ ...SPRING, delay: 1.5 }}
+          className="stk-sm absolute right-[3%] top-[30%] z-30 hidden origin-bottom-right whitespace-nowrap rounded-[1.2rem] rounded-br-[0.3rem] bg-bubble px-5 py-2.5 text-[1.2rem] font-extrabold sm:block lg:right-[9%]"
+        >
+          Your turn!
+        </motion.span>
       </div>
     </section>
   );

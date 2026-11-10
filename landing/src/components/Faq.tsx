@@ -22,24 +22,25 @@ export default function Faq() {
     const matchesCategory =
       activeCategory === "Tümü" || item.category === activeCategory;
     const matchesSearch =
-      t(item.question).toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t(item.answer).toLowerCase().includes(searchQuery.toLowerCase());
+      t(item.question).toLocaleLowerCase(locale).includes(searchQuery.trim().toLocaleLowerCase(locale)) ||
+      t(item.answer).toLocaleLowerCase(locale).includes(searchQuery.trim().toLocaleLowerCase(locale));
     return matchesCategory && matchesSearch;
   });
 
   return (
-    <section id={anchorId("faq", locale)} className="relative scroll-mt-24 px-4 pt-10 sm:px-6 sm:pt-14">
-      <div className="mx-auto max-w-4xl">
+    <section id={anchorId("faq", locale)} className="relative scroll-mt-24 px-5 pt-12 sm:px-10 sm:pt-16">
+      <div className="mx-auto max-w-[70rem]">
         {/* Live Search & Filter Bar */}
         <div className="space-y-6">
           {/* Search Box */}
           <div className="relative mx-auto max-w-xl">
             <input
-              type="text"
+              type="search"
+              aria-label={t("Soru veya konu ara (örn: sahne, telaffuz, iptal)")}
               placeholder={t("Soru veya konu ara (örn: sahne, telaffuz, iptal)")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-line bg-paper px-5 py-4 pl-12 text-sm text-heading placeholder:text-muted focus:border-stage focus:bg-white focus:outline-none focus:ring-3 focus:ring-stage/15"
+              className="stk-sm w-full rounded-2xl bg-white py-4 pl-12 pr-24 text-sm font-medium text-ink placeholder:text-ink/50 focus:bg-white"
             />
             <svg
               className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted"
@@ -69,10 +70,11 @@ export default function Faq() {
                   key={cat}
                   type="button"
                   onClick={() => setActiveCategory(cat)}
-                  className={`rounded-full px-4 py-2.5 text-[0.8rem] font-semibold transition-all cursor-pointer ${
+                  aria-pressed={isActive}
+                  className={`btn-pop cursor-pointer px-4 py-2.5 text-[0.8rem] ${
                     isActive
-                      ? "bg-linear-to-r from-stage to-purple-pop text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.8)]"
-                      : "bg-paper text-body hover:bg-paper-deep hover:text-heading"
+                      ? "bg-ink text-cream"
+                      : "bg-cream text-ink hover:bg-sun"
                   }`}
                 >
                   {t(cat)}
@@ -83,9 +85,9 @@ export default function Faq() {
         </div>
 
         {/* FAQ Accordion List */}
-        <div className="mt-10 space-y-3">
+        <div className="mt-12 space-y-4">
           {filteredFaqs.length === 0 ? (
-            <div className="rounded-[2rem] bg-paper p-12 text-center">
+            <div role="status" className="stk rounded-[2rem] bg-lilac px-6 py-12 text-center">
               <p className="text-base font-semibold text-heading">{t("Aramanla eşleşen soru bulunamadı.")}</p>
               <p className="mt-1 text-sm text-muted">{t("Başka bir arama dene ya da doğrudan bize yaz.")}</p>
               <button
@@ -94,7 +96,7 @@ export default function Faq() {
                   setSearchQuery("");
                   setActiveCategory("Tümü");
                 }}
-                className="mt-4 rounded-full bg-linear-to-r from-stage to-purple-pop px-5 py-2.5 text-xs font-semibold text-white"
+                className="btn-pop mt-6 bg-ink px-5 py-3 text-sm text-cream"
               >{t("Tüm soruları göster")}</button>
             </div>
           ) : (
@@ -103,24 +105,26 @@ export default function Faq() {
               return (
                 <div
                   key={faq.id}
-                  className={`overflow-hidden rounded-[1.75rem] transition-all duration-300 ${
-                    isOpen ? "bg-[#e6e0ff] shadow-layered" : "bg-paper hover:bg-paper-deep"
+                  className={`overflow-hidden rounded-[1.5rem] border-[2.5px] border-ink transition-colors duration-200 ${
+                    isOpen ? "bg-lilac shadow-[4px_5px_0_#1B1647]" : "bg-white hover:bg-sun/30"
                   }`}
                 >
                   <button
                     type="button"
                     onClick={() => toggleAccordion(faq.id)}
                     aria-expanded={isOpen}
+                    aria-controls={`faq-panel-${faq.id}`}
+                    id={`faq-trigger-${faq.id}`}
                     className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left cursor-pointer sm:px-7 sm:py-6"
                   >
-                    <span className="font-display text-[1.02rem] font-bold text-heading sm:text-[1.12rem]">
+                    <span className="text-[1.05rem] font-extrabold text-ink sm:text-[1.2rem]">
                       {t(faq.question)}
                     </span>
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base font-bold transition-transform duration-200 ${
                         isOpen
-                          ? "bg-stage text-white rotate-45"
-                          : "bg-white text-stage"
+                          ? "rotate-45 border-2 border-ink bg-ink text-cream"
+                          : "border-2 border-ink bg-sun text-ink"
                       }`}
                     >
                       +
@@ -128,7 +132,7 @@ export default function Faq() {
                   </button>
 
                   {isOpen && (
-                    <div className="px-6 pb-6 sm:px-7">
+                    <div id={`faq-panel-${faq.id}`} role="region" aria-labelledby={`faq-trigger-${faq.id}`} className="px-6 pb-6 sm:px-7">
                       <p className="max-w-3xl text-[0.97rem] leading-relaxed text-heading/75">
                         {t(faq.answer)}
                       </p>
@@ -141,27 +145,27 @@ export default function Faq() {
         </div>
 
         {/* Still have questions */}
-        <div className="relative mt-14 overflow-hidden rounded-[2rem] bg-linear-to-br from-[#ffefc2] via-[#fff7e0] to-[#ffe6cf] sm:rounded-[2.5rem]">
+        <div className="stk relative mt-16 overflow-hidden rounded-[2rem] bg-sun">
           <div className="grid items-end sm:grid-cols-[1fr_auto]">
             <div className="p-7 sm:p-10">
-              <h3 className="font-display text-2xl font-extrabold tracking-[-0.025em] text-heading sm:text-3xl">{t("Cevabını bulamadığın bir soru mu var?")}</h3>
+              <h3 className="poster text-3xl text-ink sm:text-4xl">{t("Cevabını bulamadığın bir soru mu var?")}</h3>
               <p className="mt-2 max-w-md text-[0.97rem] text-heading/70">{t("Bize yaz, mesajına e-postayla dönelim.")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-stage to-purple-pop px-7 py-3.5 text-sm font-bold text-white shadow-[0_18px_36px_-16px_rgba(79,70,229,0.75)] transition-transform hover:-translate-y-0.5"
+                  className="btn-pop btn-pop-wrap bg-violet px-7 py-3.5 text-sm text-white"
                 >
                   <span>{t("Bize yaz")}</span>
                   <span>→</span>
                 </Link>
                 <a
                   href="mailto:support@spekvia.com"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-heading shadow-layered hover:bg-paper"
+                  className="btn-pop max-w-full bg-cream px-4 py-3.5 text-sm text-ink sm:px-6"
                 >support@spekvia.com</a>
               </div>
             </div>
             <div aria-hidden className="relative mx-auto hidden h-[15rem] w-[12rem] sm:mr-8 sm:block">
-              <Image src="/mivo/stops/mivo_stop_mic.webp" alt="" fill sizes="200px" className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(21,18,58,0.25)]" />
+              <Image src="/assets/mivo/speaking.webp" alt="" fill sizes="200px" className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(21,18,58,0.25)]" />
             </div>
           </div>
         </div>

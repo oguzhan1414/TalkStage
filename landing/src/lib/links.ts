@@ -1,7 +1,10 @@
-// Görev 10 (Smart Deep-Link Router) henüz tamamlanmadı: mobil taraf gerçek
-// `app://scenario/:id` şemasını ve store başvurusu bitince gerçek App Store /
-// Play Store URL'lerini netleştirecek. Bu değerler netleşince .env içine
-// NEXT_PUBLIC_IOS_STORE_URL / NEXT_PUBLIC_ANDROID_STORE_URL olarak eklenmeli.
-export const iosStoreUrl = process.env.NEXT_PUBLIC_IOS_STORE_URL ?? "#";
-export const androidStoreUrl = process.env.NEXT_PUBLIC_ANDROID_STORE_URL ?? "#";
+// Empty values and the former placeholder mean the store is not available yet.
+const storeUrl = (value: string | undefined) => {
+  const url = value?.trim();
+  return url && url !== "#" ? url : null;
+};
+
+export const iosStoreUrl = storeUrl(process.env.NEXT_PUBLIC_IOS_STORE_URL);
+export const androidStoreUrl = storeUrl(process.env.NEXT_PUBLIC_ANDROID_STORE_URL)
+  ?? "https://play.google.com/store/apps/details?id=com.spekvia.app&hl=en";
 export const appScheme = process.env.NEXT_PUBLIC_APP_SCHEME ?? "spekvia://";
